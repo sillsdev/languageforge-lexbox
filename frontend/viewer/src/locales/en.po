@@ -44,7 +44,7 @@ msgstr "“{0}” made {1} changes"
 msgid "“{0}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin."
 msgstr "“{0}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "\"{0}\" was added for everyone on this project."
 msgstr "\"{0}\" was added for everyone on this project."
 
@@ -62,7 +62,7 @@ msgstr "(edited)"
 msgid "(empty)"
 msgstr "(empty)"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "(no headword)"
 msgstr "(no headword)"
 
@@ -110,15 +110,15 @@ msgstr "{0} ago"
 msgid "{0} authors"
 msgstr "{0} authors"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "{0} KB"
 msgstr "{0} KB"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "{0} KB to {1} KB"
 msgstr "{0} KB to {1} KB"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "{0} KB to {1} KB, no new permissions"
 msgstr "{0} KB to {1} KB, no new permissions"
 
@@ -194,15 +194,15 @@ msgstr "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning*
 msgid "1 reply"
 msgstr "1 reply"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "1. Describe your plugin"
 msgstr "1. Describe your plugin"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "2. Have an AI write it"
 msgstr "2. Have an AI write it"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "3. Try it here"
 msgstr "3. Try it here"
 
@@ -215,7 +215,7 @@ msgstr "A new version of FieldWorks Lite is available."
 msgid "A project manager can add plugins for the team."
 msgstr "A project manager can add plugins for the team."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "A short summary shown on the plugin's card."
 msgstr "A short summary shown on the plugin's card."
 
@@ -239,7 +239,7 @@ msgstr "A similar word already exists"
 msgid "a word"
 msgstr "a word"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "About"
 msgstr "About"
 
@@ -296,7 +296,7 @@ msgstr "Add Example"
 msgid "Add Meaning"
 msgstr "Add Meaning"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Add my version"
 msgstr "Add my version"
 
@@ -338,8 +338,8 @@ msgstr "Add some words first."
 msgid "Add to dictionary"
 msgstr "Add to dictionary"
 
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Add to project"
 msgstr "Add to project"
 
@@ -352,7 +352,7 @@ msgstr "Add Word"
 msgid "Add your first entry to start building your dictionary."
 msgstr "Add your first entry to start building your dictionary."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Added for the team"
 msgstr "Added for the team"
 
@@ -382,11 +382,11 @@ msgstr "All activity types"
 msgid "All authors"
 msgstr "All authors"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Allow and run it"
 msgstr "Allow and run it"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Already have a plugin file? It runs in the preview straight away, before anyone else can see it."
 msgstr "Already have a plugin file? It runs in the preview straight away, before anyone else can see it."
 
@@ -468,7 +468,7 @@ msgstr "Apply changes"
 msgid "Are you sure you want to delete {0}?"
 msgstr "Are you sure you want to delete {0}?"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Ask AI"
 msgstr "Ask AI"
 
@@ -477,8 +477,8 @@ msgstr "Ask AI"
 msgid "Ask questions and get help on our community forum."
 msgstr "Ask questions and get help on our community forum."
 
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Ask the AI to remove it"
 msgstr "Ask the AI to remove it"
 
@@ -530,8 +530,8 @@ msgstr "Back"
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioNotice.svelte
 msgid "Back to plugins"
 msgstr "Back to plugins"
 
@@ -562,7 +562,7 @@ msgstr "Best match"
 msgid "blue"
 msgstr "blue"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
 
@@ -585,11 +585,11 @@ msgstr "Camera"
 msgid "Can access the internet (and could send dictionary data there)"
 msgstr "Can access the internet (and could send dictionary data there)"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Can change the dictionary"
 msgstr "Can change the dictionary"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Can change the dictionary, and asks before each change"
 msgstr "Can change the dictionary, and asks before each change"
 
@@ -597,7 +597,7 @@ msgstr "Can change the dictionary, and asks before each change"
 msgid "Can change your dictionary — it will ask you first"
 msgstr "Can change your dictionary — it will ask you first"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Can use the internet"
 msgstr "Can use the internet"
 
@@ -631,7 +631,7 @@ msgstr "Caption"
 msgid "Change entry"
 msgstr "Change entry"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "Change it before adding"
 msgstr "Change it before adding"
 
@@ -695,7 +695,7 @@ msgstr "clear"
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Close"
@@ -834,7 +834,7 @@ msgstr "Could not check for similar words"
 msgid "Couldn't get the FieldWorks Classic status from Lexbox."
 msgstr "Couldn't get the FieldWorks Classic status from Lexbox."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "Couldn't load the plugin file."
 msgstr "Couldn't load the plugin file."
 
@@ -899,7 +899,7 @@ msgstr "Current Entry"
 
 #. Column header
 #: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Current version"
 msgstr "Current version"
 
@@ -990,25 +990,25 @@ msgstr "Delete Word"
 msgid "Deleted"
 msgstr "Deleted"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "Describe a change"
 msgstr "Describe a change"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Describe it and have an AI write it, or paste a plugin file you already have."
 msgstr "Describe it and have an AI write it, or paste a plugin file you already have."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Describe your plugin"
 msgstr "Describe your plugin"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "Description"
 msgstr "Description"
 
 #. Button to view activity details
 #: src/lib/activity/ActivityItem.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Details"
 msgstr "Details"
 
@@ -1030,8 +1030,8 @@ msgstr "Dictionary Preview"
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Discard"
 msgstr "Discard"
@@ -1057,7 +1057,7 @@ msgstr "Don't allow"
 msgid "Don't delete"
 msgstr "Don't delete"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Don't run it"
 msgstr "Don't run it"
 
@@ -1071,7 +1071,7 @@ msgstr "Done"
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 #: src/lib/notifications/NotificationOutlet.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Download"
 msgstr "Download"
 
@@ -1094,12 +1094,12 @@ msgstr "Download Picture"
 msgid "Download project by project code"
 msgstr "Download project by project code"
 
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Download prompt"
 msgstr "Download prompt"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Download the prompt and attach the file in any AI chat (e.g. Claude, ChatGPT or Gemini). It already explains plugins and this project."
 msgstr "Download the prompt and attach the file in any AI chat (e.g. Claude, ChatGPT or Gemini). It already explains plugins and this project."
 
@@ -1133,7 +1133,7 @@ msgstr "Downloading update..."
 msgid "Downloading..."
 msgstr "Downloading..."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Draft, only you can see it"
 msgstr "Draft, only you can see it"
 
@@ -1141,19 +1141,19 @@ msgstr "Draft, only you can see it"
 msgid "Duplicate"
 msgstr "Duplicate"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "e.g. A flashcard game that quizzes me on entries missing an English gloss and lets me fill it in when I remember the word."
 msgstr "e.g. A flashcard game that quizzes me on entries missing an English gloss and lets me fill it in when I remember the word."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "e.g. Also show how many entries have a recording."
 msgstr "e.g. Also show how many entries have a recording."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "e.g. Dashboard of dictionary statistics"
 msgstr "e.g. Dashboard of dictionary statistics"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "e.g. Dictionary stats"
 msgstr "e.g. Dictionary stats"
 
@@ -1165,8 +1165,8 @@ msgstr "e.g. th, sw"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
-#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "Edit"
 msgstr "Edit"
 
@@ -1270,7 +1270,7 @@ msgstr "Entry Only"
 msgid "Entry or sense:"
 msgstr "Entry or sense:"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Entry the plugin starts from"
 msgstr "Entry the plugin starts from"
 
@@ -1304,7 +1304,7 @@ msgstr "Every entry already has this field filled in."
 msgid "Every word already has this field filled in."
 msgstr "Every word already has this field filled in."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Everyone on this project will see it under Plugins. You can change or remove it later."
 msgstr "Everyone on this project will see it under Plugins. You can change or remove it later."
 
@@ -1329,12 +1329,12 @@ msgstr "Example sentence"
 msgid "Example sentences"
 msgstr "Example sentences"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Example, not in this project"
 msgstr "Example, not in this project"
 
-#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Examples"
 msgstr "Examples"
 
@@ -1526,7 +1526,7 @@ msgstr "Fill in Display as"
 msgid "Fill in Word or Display as"
 msgstr "Fill in Word or Display as"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "Filled in from the plugin's title. Change it if you like."
 msgstr "Filled in from the plugin's title. Change it if you like."
 
@@ -1607,11 +1607,11 @@ msgstr "Find word..."
 msgid "Finish"
 msgstr "Finish"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
 msgstr "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply here."
 msgstr "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply here."
 
@@ -1649,7 +1649,7 @@ msgstr "Gloss"
 msgid "Go back"
 msgstr "Go back"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "Go back to the previous version"
 msgstr "Go back to the previous version"
 
@@ -1689,7 +1689,7 @@ msgstr "Grammatical info."
 msgid "green"
 msgstr "green"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Handle content with cultural care"
 msgstr "Handle content with cultural care"
 
@@ -1758,7 +1758,7 @@ msgstr "I understand that this can't be undone"
 msgid "ID"
 msgstr "ID"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "If you add it"
 msgstr "If you add it"
 
@@ -1773,8 +1773,8 @@ msgstr "Import"
 msgid "in {0}"
 msgstr "in {0}"
 
-#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "In this project"
 msgstr "In this project"
 
@@ -1809,7 +1809,7 @@ msgstr "Internet"
 msgid "just now"
 msgstr "just now"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/LeaveDialog.svelte
 msgid "Keep editing"
 msgstr "Keep editing"
 
@@ -1818,7 +1818,7 @@ msgstr "Keep editing"
 msgid "Keep going"
 msgstr "Keep going"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Keep it"
 msgstr "Keep it"
 
@@ -1841,7 +1841,7 @@ msgstr "Last sync: #"
 msgid "Learn more"
 msgstr "Learn more"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/LeaveDialog.svelte
 msgid "Leave"
 msgstr "Leave"
 
@@ -1850,7 +1850,7 @@ msgstr "Leave"
 msgid "Leave empty for production"
 msgstr "Leave empty for production"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/LeaveDialog.svelte
 msgid "Leave without saving?"
 msgstr "Leave without saving?"
 
@@ -1859,7 +1859,7 @@ msgstr "Leave without saving?"
 msgid "Length:"
 msgstr "Length:"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Let this version use the internet?"
 msgstr "Let this version use the internet?"
 
@@ -2008,7 +2008,7 @@ msgstr "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgid "Make a suggestion"
 msgstr "Make a suggestion"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Make it your own with AI"
 msgstr "Make it your own with AI"
 
@@ -2145,7 +2145,7 @@ msgstr "My custom view..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Name"
@@ -2191,8 +2191,8 @@ msgstr "New data"
 msgid "New Entry"
 msgstr "New Entry"
 
-#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "New plugin"
 msgstr "New plugin"
 
@@ -2204,7 +2204,7 @@ msgstr "New Project"
 msgid "New Project (Local only)"
 msgstr "New Project (Local only)"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "New version"
 msgstr "New version"
 
@@ -2283,7 +2283,7 @@ msgstr "No file to upload"
 msgid "No history found"
 msgstr "No history found"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "No internet"
 msgstr "No internet"
 
@@ -2292,19 +2292,19 @@ msgstr "No internet"
 msgid "No items found"
 msgstr "No items found"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "No longer changes the dictionary"
 msgstr "No longer changes the dictionary"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "No longer needs {0}"
 msgstr "No longer needs {0}"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "No longer runs from an entry's menu"
 msgstr "No longer runs from an entry's menu"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "No longer uses the internet"
 msgstr "No longer uses the internet"
 
@@ -2427,19 +2427,19 @@ msgstr "Note"
 msgid "Nothing to copy"
 msgstr "Nothing to copy"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Now can change the dictionary"
 msgstr "Now can change the dictionary"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Now needs {0}, which not every project has"
 msgstr "Now needs {0}, which not every project has"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Now runs from an entry's menu"
 msgstr "Now runs from an entry's menu"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Now uses the internet"
 msgstr "Now uses the internet"
 
@@ -2482,15 +2482,15 @@ msgstr "On large projects this may take a while. Do not close the app or interru
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Online, a plugin can send this project's data to any website."
 msgstr "Online, a plugin can send this project's data to any website."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
 msgstr "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "Only project managers can add or change plugins."
 msgstr "Only project managers can add or change plugins."
 
@@ -2580,11 +2580,11 @@ msgstr "Part of"
 msgid "Part of speech"
 msgstr "Part of speech"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Paste HTML"
 msgstr "Paste HTML"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Paste or upload"
 msgstr "Paste or upload"
 
@@ -2592,12 +2592,12 @@ msgstr "Paste or upload"
 msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
 msgstr "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
 
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Paste the AI's reply"
 msgstr "Paste the AI's reply"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Paste the AI's reply or the plugin's HTML here"
 msgstr "Paste the AI's reply or the plugin's HTML here"
 
@@ -2607,7 +2607,7 @@ msgstr "Paste the AI's reply or the plugin's HTML here"
 msgid "Pending"
 msgstr "Pending"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Phone width"
 msgstr "Phone width"
 
@@ -2615,7 +2615,7 @@ msgstr "Phone width"
 msgid "Pick a Part of speech"
 msgstr "Pick a Part of speech"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Pick an entry"
 msgstr "Pick an entry"
 
@@ -2668,14 +2668,14 @@ msgid "Play & learn"
 msgstr "Play & learn"
 
 #: src/lib/plugins/PluginRunView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "Plugin"
 msgstr "Plugin"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Plugin HTML"
 msgstr "Plugin HTML"
 
@@ -2695,8 +2695,8 @@ msgstr "Plugin wants to change an entry"
 msgid "Plugin wants to make {0} changes"
 msgstr "Plugin wants to make {0} changes"
 
-#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Plugins"
 msgstr "Plugins"
@@ -2716,9 +2716,9 @@ msgstr "Press Esc to exit fullscreen"
 #. View option
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
 msgstr "Preview"
@@ -2736,7 +2736,7 @@ msgstr "Preview not available for this file type."
 msgid "Preview not supported"
 msgstr "Preview not supported"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Preview with entry"
 msgstr "Preview with entry"
 
@@ -2778,7 +2778,7 @@ msgstr "Project {0} not found on {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Project {0} on {1} is not yet set up for FieldWorks Lite"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Prompt options"
 msgstr "Prompt options"
 
@@ -2821,7 +2821,7 @@ msgstr "Read-only"
 msgid "Read-only: cannot change your dictionary"
 msgstr "Read-only: cannot change your dictionary"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Reads the dictionary, never changes it"
 msgstr "Reads the dictionary, never changes it"
 
@@ -2865,7 +2865,7 @@ msgstr "Record Display as"
 msgid "Record Word or Display as"
 msgstr "Record Word or Display as"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Records from the microphone"
 msgstr "Records from the microphone"
 
@@ -2939,7 +2939,7 @@ msgstr "Release channel"
 msgid "Release notes"
 msgstr "Release notes"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Reload"
 msgstr "Reload"
 
@@ -2961,7 +2961,7 @@ msgstr "Remove"
 msgid "Remove audio"
 msgstr "Remove audio"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "Remove from project"
 msgstr "Remove from project"
 
@@ -3038,7 +3038,7 @@ msgstr "rose"
 msgid "Run"
 msgstr "Run"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Run it"
 msgstr "Run it"
 
@@ -3050,7 +3050,7 @@ msgstr "Run plugin"
 msgid "Run this plugin?"
 msgstr "Run this plugin?"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Runs from an entry's menu"
 msgstr "Runs from an entry's menu"
 
@@ -3102,7 +3102,7 @@ msgstr "Save As"
 msgid "Save audio"
 msgstr "Save audio"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Save for the team"
 msgstr "Save for the team"
 
@@ -3111,11 +3111,11 @@ msgstr "Save for the team"
 msgid "Save View"
 msgstr "Save View"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Saved for the team."
 msgstr "Saved for the team."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Saving turns off \"Always allow\" on this device, so the new version asks before its first change."
 msgstr "Saving turns off \"Always allow\" on this device, so the new version asks before its first change."
 
@@ -3337,7 +3337,7 @@ msgstr "Something went wrong"
 msgid "Sort writing system"
 msgstr "Sort writing system"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Source"
 msgstr "Source"
 
@@ -3455,7 +3455,7 @@ msgstr "Syncing..."
 msgid "System"
 msgstr "System"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Tailor to this project"
 msgstr "Tailor to this project"
 
@@ -3493,11 +3493,11 @@ msgstr "The *FieldWorks Classic* view, on the other hand, is designed for users 
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to change the dictionary"
 msgstr "The new version asks to change the dictionary"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to use the internet"
 msgstr "The new version asks to use the internet"
 
@@ -3515,7 +3515,7 @@ msgstr "The number of FieldWorks Lite commits will not necessarily match the num
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr "The plugin “{0}” is asking to make this change to your dictionary:"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
 msgstr "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
 
@@ -3529,11 +3529,11 @@ msgstr "The task you are looking for does not exist."
 msgid "The time when you uploaded or downloaded these changes"
 msgstr "The time when you uploaded or downloaded these changes"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The version before it didn't. If you didn't ask for this, have the AI take it out."
 msgstr "The version before it didn't. If you didn't ask for this, have the AI take it out."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "The version before it worked offline. Online, a plugin can send this project's data to any website."
 msgstr "The version before it worked offline. Online, a plugin can send this project's data to any website."
 
@@ -3543,7 +3543,7 @@ msgstr "The version before it worked offline. Online, a plugin can send this pro
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "These guide how the AI writes the plugin. They don't restrict what the finished plugin can do."
 msgstr "These guide how the AI writes the plugin. They don't restrict what the finished plugin can do."
 
@@ -3557,7 +3557,7 @@ msgstr "This {0} was deleted"
 msgid "This date # and this emoji # are snippets"
 msgstr "This date # and this emoji # are snippets"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "This doesn't look like a complete plugin. It should be one HTML file that starts with <!DOCTYPE html> and ends with </html>."
 msgstr "This doesn't look like a complete plugin. It should be one HTML file that starts with <!DOCTYPE html> and ends with </html>."
 
@@ -3568,7 +3568,7 @@ msgstr "This doesn't look like a complete plugin. It should be one HTML file tha
 msgid "This entry may already exist"
 msgstr "This entry may already exist"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "This example doesn't exist."
 msgstr "This example doesn't exist."
 
@@ -3592,7 +3592,7 @@ msgstr "This picture is too large to upload. Try saving it at a lower JPEG quali
 msgid "This plugin can make changes without asking. Click to make it ask again."
 msgstr "This plugin can make changes without asking. Click to make it ask again."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/LeaveDialog.svelte
 msgid "This plugin hasn't been added to the project, so it will be lost."
 msgstr "This plugin hasn't been added to the project, so it will be lost."
 
@@ -3601,11 +3601,11 @@ msgid "This plugin isn't on this device yet"
 msgstr "This plugin isn't on this device yet"
 
 #: src/lib/plugins/PluginRunView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "This plugin no longer exists."
 msgstr "This plugin no longer exists."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "This plugin runs from an entry's menu. Pick an entry to preview it with."
 msgstr "This plugin runs from an entry's menu. Pick an entry to preview it with."
 
@@ -3624,8 +3624,8 @@ msgstr "This rebuilds snapshot and projected tables from commit history."
 msgid "This rebuilds the full-text search index from dictionary entries."
 msgstr "This rebuilds the full-text search index from dictionary entries."
 
-#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "This removes the plugin for everyone on this project."
 msgstr "This removes the plugin for everyone on this project."
 
@@ -3634,7 +3634,7 @@ msgstr "This removes the plugin for everyone on this project."
 msgid "This task is complete"
 msgstr "This task is complete"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "This version"
 msgstr "This version"
 
@@ -3830,7 +3830,7 @@ msgstr "Unknown update result"
 msgid "Unread"
 msgstr "Unread"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Unsaved changes"
 msgstr "Unsaved changes"
 
@@ -3890,7 +3890,7 @@ msgstr "Update was disallowed by permission settings."
 msgid "Updates"
 msgstr "Updates"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Upload file"
 msgstr "Upload file"
 
@@ -3910,7 +3910,7 @@ msgstr "Uploaded pending files"
 msgid "Uploading pictures is not supported here"
 msgstr "Uploading pictures is not supported here"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Use this version"
 msgstr "Use this version"
 
@@ -3919,12 +3919,12 @@ msgstr "Use this version"
 msgid "Uses components as"
 msgstr "Uses components as"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Uses the camera"
 msgstr "Uses the camera"
 
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Uses the internet"
 msgstr "Uses the internet"
 
@@ -3951,7 +3951,7 @@ msgstr "Vernacular writing system is required"
 msgid "Vernacular writing systems"
 msgstr "Vernacular writing systems"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Version"
 msgstr "Version"
 
@@ -3986,7 +3986,7 @@ msgstr "We also collect error reports with technical details about what went wro
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
 msgstr "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "What it asks for"
 msgstr "What it asks for"
 
@@ -4049,7 +4049,7 @@ msgstr "Word or meaning:"
 msgid "Words missing both Word and Display as"
 msgstr "Words missing both Word and Display as"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Works on phones"
 msgstr "Works on phones"
 
@@ -4116,7 +4116,7 @@ msgstr "You're offline and the plugin file hasn't been downloaded here. Connect 
 msgid "You're offline and this plugin's file isn't on this device yet."
 msgstr "You're offline and this plugin's file isn't on this device yet."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "You're offline and this plugin's file isn't on this device yet. Connect and try again."
 msgstr "You're offline and this plugin's file isn't on this device yet. Connect and try again."
 
@@ -4124,7 +4124,7 @@ msgstr "You're offline and this plugin's file isn't on this device yet. Connect 
 msgid "You've passed every milestone. What an achievement!"
 msgstr "You've passed every milestone. What an achievement!"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/LeaveDialog.svelte
 msgid "Your changes to this plugin will be lost."
 msgstr "Your changes to this plugin will be lost."
 
@@ -4132,14 +4132,14 @@ msgstr "Your changes to this plugin will be lost."
 msgid "Your dictionary starts here"
 msgstr "Your dictionary starts here"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Your plugin will run here"
 msgstr "Your plugin will run here"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Your real dictionary. Changes it tries are shown, not saved."
 msgstr "Your real dictionary. Changes it tries are shown, not saved."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Your version, not added yet"
 msgstr "Your version, not added yet"

@@ -3,7 +3,7 @@ import type {IMiniLcmJsInvokable, IPlugin} from '$lib/dotnet-types';
 import type {PluginService} from '$project/data/plugin-service.svelte';
 import {examplePlugins, type ExamplePlugin} from '../examples';
 import {extractPluginHtml, isCompletePluginHtml, pluginHtmlTitle} from '../plugin-html';
-import {buildPluginPrompt, pluginChangeSection} from '../plugin-prompt';
+import {buildPluginPrompt, pluginChangeSection, type PluginPromptOptions} from '../plugin-prompt';
 import {compareManifests, parsePluginManifest} from '../plugin-manifest';
 import type {PluginPermission} from '../plugin-api-types';
 import {computePluginHash} from '../plugin-local-data';
@@ -32,8 +32,8 @@ export interface PluginStudioOptions {
   exampleKey?: string;
   pluginService: StudioPluginService;
   project: StudioProject;
-  /** Called once the plugin is gone (removed), so the studio leaves. */
-  onGone: () => void;
+  goToPlugins: () => void;
+  openPlugin: (pluginId: string) => void;
 }
 
 /**
@@ -49,8 +49,9 @@ export class PluginStudio {
   readonly #pluginService: StudioPluginService;
   readonly #project: StudioProject;
   readonly #pluginId: string | undefined;
-  readonly #onGone: () => void;
   readonly #destroyEffects: () => void;
+  readonly goToPlugins: () => void;
+  readonly openPlugin: (pluginId: string) => void;
 
   loadState = $state<StudioLoadState>('loading');
   /** The saved plugin the current baseline came from (edit mode), so a save updates the right version. */
@@ -70,7 +71,8 @@ export class PluginStudio {
     this.#pluginService = options.pluginService;
     this.#project = options.project;
     this.#pluginId = options.pluginId;
-    this.#onGone = options.onGone;
+    this.goToPlugins = options.goToPlugins;
+    this.openPlugin = options.openPlugin;
     this.draft = new PluginStudioDraft(options.mode);
     this.example = options.exampleKey ? examplePlugins.find(candidate => candidate.key === options.exampleKey) : undefined;
     this.tabs = options.mode === 'example' ? ['about', 'ai', 'source'] : ['ai', 'source', 'details'];
@@ -168,6 +170,21 @@ export class PluginStudio {
     this.#pluginService.consentStore.grant(this.savedPlugin.id, this.savedApproval.hash);
     this.savedApproval = {...this.savedApproval, approved: true};
   }
+
+  // ---- Ask AI ----
+  // Kept here rather than in the panels: a tab's panel unmounts when another tab is picked.
+
+  aiDescription = $state('');
+  showPromptOptions = $state(false);
+  // These only steer the generated prompt; they don't restrict what a finished plugin can do.
+  readonly promptOptions = $state<PluginPromptOptions>({
+    projectSpecific: true,
+    mobile: true,
+    allowEdits: true,
+    internet: false,
+    culturalSensitivity: false,
+  });
+  changeText = $state('');
 
   // ---- Prompts for changing the plugin ----
 
@@ -338,7 +355,7 @@ export class PluginStudio {
     if (!this.savedPlugin) return;
     await this.#pluginService.delete(this.savedPlugin.id);
     this.added = this.savedPlugin; // nothing left to lose
-    this.#onGone();
+    this.goToPlugins();
   }
 
   discardChanges(): void {
@@ -359,6 +376,11 @@ export class PluginStudio {
   answerLeavePrompt(leave: boolean): void {
     this.leavePrompt?.(leave);
     this.leavePrompt = undefined;
+  }
+
+  /** Back to the Plugins page, asking first if there's unsaved work. */
+  async leave(): Promise<void> {
+    if (await this.confirmLeave()) this.goToPlugins();
   }
 }
 

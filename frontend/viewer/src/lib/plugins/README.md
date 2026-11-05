@@ -40,6 +40,10 @@ flowchart LR
   version is reviewed against the saved plugin or example: new permissions are flagged, with a
   follow-up prompt asking the AI to remove them. Drafts aren't kept: leaving with unsaved work asks
   first (`$lib/utils/leave-guard.ts` covers the sidebar).
+  The view is a thin shell: `studio/plugin-studio.svelte.ts` (`PluginStudio`, shared through
+  context) holds the state and rules, and the header, preview, tab panels (`studio/panels/`) and
+  dialogs read it with `useStudio()`. User-facing text stays in the components. Keep input a tab
+  must not lose in the class: a tab's panel unmounts when another tab is picked.
 - **`PluginSandbox`**: the iframe, host wiring, write dialog and navigation teardown, shared by the
   run view and the studio. Its `writeMode` is the only difference between them.
 

@@ -49,7 +49,7 @@ msgstr ""
 msgid "“{0}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin."
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "\"{0}\" was added for everyone on this project."
 msgstr ""
 
@@ -67,7 +67,7 @@ msgstr "(telah diedit)"
 msgid "(empty)"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "(no headword)"
 msgstr ""
 
@@ -115,15 +115,15 @@ msgstr "{0} yang lalu"
 msgid "{0} authors"
 msgstr "{0} penulis"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "{0} KB"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "{0} KB to {1} KB"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "{0} KB to {1} KB, no new permissions"
 msgstr ""
 
@@ -199,15 +199,15 @@ msgstr "**Terminologi yang lebih sederhana** (mis. *Kata* alih-alih *Bentuk leks
 msgid "1 reply"
 msgstr "1 balasan"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "1. Describe your plugin"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "2. Have an AI write it"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "3. Try it here"
 msgstr ""
 
@@ -220,7 +220,7 @@ msgstr "Versi baru FieldWorks Lite telah tersedia."
 msgid "A project manager can add plugins for the team."
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "A short summary shown on the plugin's card."
 msgstr ""
 
@@ -244,7 +244,7 @@ msgstr "Kata yang serupa sudah ada"
 msgid "a word"
 msgstr "sebuah kata"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "About"
 msgstr ""
 
@@ -301,7 +301,7 @@ msgstr "Tambahkan Contoh"
 msgid "Add Meaning"
 msgstr "Tambahkan Makna"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Add my version"
 msgstr ""
 
@@ -343,8 +343,8 @@ msgstr "Tambahkan beberapa kata dulu."
 msgid "Add to dictionary"
 msgstr "Tambahkan ke kamus"
 
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Add to project"
 msgstr ""
 
@@ -357,7 +357,7 @@ msgstr "Tambahkan Kata"
 msgid "Add your first entry to start building your dictionary."
 msgstr "Tambahkan entri pertama Anda untuk mulai menyusun kamus Anda."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Added for the team"
 msgstr ""
 
@@ -387,11 +387,11 @@ msgstr "Semua jenis aktivitas"
 msgid "All authors"
 msgstr "Semua penulis"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Allow and run it"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Already have a plugin file? It runs in the preview straight away, before anyone else can see it."
 msgstr ""
 
@@ -473,7 +473,7 @@ msgstr ""
 msgid "Are you sure you want to delete {0}?"
 msgstr "Apakah Anda yakin ingin menghapus {0}?"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Ask AI"
 msgstr ""
 
@@ -482,8 +482,8 @@ msgstr ""
 msgid "Ask questions and get help on our community forum."
 msgstr "Ajukan pertanyaan dan dapatkan bantuan di forum komunitas kami."
 
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Ask the AI to remove it"
 msgstr ""
 
@@ -535,8 +535,8 @@ msgstr "Kembali"
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioNotice.svelte
 msgid "Back to plugins"
 msgstr ""
 
@@ -567,7 +567,7 @@ msgstr "Pertandingan terbaik"
 msgid "blue"
 msgstr "biru"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Breadcrumb"
 msgstr ""
 
@@ -590,11 +590,11 @@ msgstr "Kamera"
 msgid "Can access the internet (and could send dictionary data there)"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Can change the dictionary"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Can change the dictionary, and asks before each change"
 msgstr ""
 
@@ -602,7 +602,7 @@ msgstr ""
 msgid "Can change your dictionary — it will ask you first"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Can use the internet"
 msgstr ""
 
@@ -636,7 +636,7 @@ msgstr "Keterangan"
 msgid "Change entry"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "Change it before adding"
 msgstr ""
 
@@ -700,7 +700,7 @@ msgstr "jelas"
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Tutup"
@@ -839,7 +839,7 @@ msgstr "Tidak dapat memeriksa kata-kata yang serupa"
 msgid "Couldn't get the FieldWorks Classic status from Lexbox."
 msgstr "Tidak bisa mendapatkan informasi status FieldWorks Classic dari Lexbox."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "Couldn't load the plugin file."
 msgstr ""
 
@@ -904,7 +904,7 @@ msgstr "Entri Saat Ini"
 
 #. Column header
 #: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Current version"
 msgstr "Versi saat ini"
 
@@ -995,25 +995,25 @@ msgstr "Menghapus kata"
 msgid "Deleted"
 msgstr "Dihapus"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "Describe a change"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Describe it and have an AI write it, or paste a plugin file you already have."
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Describe your plugin"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "Description"
 msgstr ""
 
 #. Button to view activity details
 #: src/lib/activity/ActivityItem.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Details"
 msgstr "Detail"
 
@@ -1035,8 +1035,8 @@ msgstr "Pratinjau Kamus"
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Discard"
 msgstr "Buang"
@@ -1062,7 +1062,7 @@ msgstr ""
 msgid "Don't delete"
 msgstr "Jangan hapus"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Don't run it"
 msgstr ""
 
@@ -1076,7 +1076,7 @@ msgstr "Selesai."
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 #: src/lib/notifications/NotificationOutlet.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Download"
 msgstr "Unduh"
 
@@ -1099,12 +1099,12 @@ msgstr "Unduh Gambar"
 msgid "Download project by project code"
 msgstr "Unduh proyek berdasarkan kode proyek"
 
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Download prompt"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Download the prompt and attach the file in any AI chat (e.g. Claude, ChatGPT or Gemini). It already explains plugins and this project."
 msgstr ""
 
@@ -1138,7 +1138,7 @@ msgstr "Sedang mengunduh pembaruan..."
 msgid "Downloading..."
 msgstr "Mengunduh..."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Draft, only you can see it"
 msgstr ""
 
@@ -1146,19 +1146,19 @@ msgstr ""
 msgid "Duplicate"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "e.g. A flashcard game that quizzes me on entries missing an English gloss and lets me fill it in when I remember the word."
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "e.g. Also show how many entries have a recording."
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "e.g. Dashboard of dictionary statistics"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "e.g. Dictionary stats"
 msgstr ""
 
@@ -1170,8 +1170,8 @@ msgstr "misalnya: th, sw"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
-#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "Edit"
 msgstr "Sunting"
 
@@ -1275,7 +1275,7 @@ msgstr "Hanya Entri"
 msgid "Entry or sense:"
 msgstr "Entri atau pengertian:"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Entry the plugin starts from"
 msgstr ""
 
@@ -1309,7 +1309,7 @@ msgstr "Setiap entri sudah memiliki kolom ini yang terisi."
 msgid "Every word already has this field filled in."
 msgstr "Kolom ini sudah terisi untuk setiap kata."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Everyone on this project will see it under Plugins. You can change or remove it later."
 msgstr ""
 
@@ -1334,12 +1334,12 @@ msgstr "Contoh kalimat"
 msgid "Example sentences"
 msgstr "Contoh kalimat"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Example, not in this project"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Examples"
 msgstr ""
 
@@ -1531,7 +1531,7 @@ msgstr "Isi kolom \"Tampilkan sebagai\""
 msgid "Fill in Word or Display as"
 msgstr "Isi Kata atau Tampilkan sebagai"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "Filled in from the plugin's title. Change it if you like."
 msgstr ""
 
@@ -1612,11 +1612,11 @@ msgstr "Temukan kata..."
 msgid "Finish"
 msgstr "Selesai"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply here."
 msgstr ""
 
@@ -1654,7 +1654,7 @@ msgstr "Arti Singkat"
 msgid "Go back"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "Go back to the previous version"
 msgstr ""
 
@@ -1694,7 +1694,7 @@ msgstr "Info tata bahasa."
 msgid "green"
 msgstr "hijau"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Handle content with cultural care"
 msgstr ""
 
@@ -1763,7 +1763,7 @@ msgstr "Saya memahami bahwa hal ini tidak dapat dibatalkan"
 msgid "ID"
 msgstr "ID"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "If you add it"
 msgstr ""
 
@@ -1778,8 +1778,8 @@ msgstr "Impor"
 msgid "in {0}"
 msgstr "di {0}"
 
-#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "In this project"
 msgstr ""
 
@@ -1814,7 +1814,7 @@ msgstr ""
 msgid "just now"
 msgstr "baru saja"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/LeaveDialog.svelte
 msgid "Keep editing"
 msgstr ""
 
@@ -1823,7 +1823,7 @@ msgstr ""
 msgid "Keep going"
 msgstr "Teruskan."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Keep it"
 msgstr ""
 
@@ -1846,7 +1846,7 @@ msgstr "Sinkronisasi terakhir: #"
 msgid "Learn more"
 msgstr "Pelajari lebih lanjut"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/LeaveDialog.svelte
 msgid "Leave"
 msgstr ""
 
@@ -1855,7 +1855,7 @@ msgstr ""
 msgid "Leave empty for production"
 msgstr "Biarkan kosong untuk produksi"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/LeaveDialog.svelte
 msgid "Leave without saving?"
 msgstr ""
 
@@ -1864,7 +1864,7 @@ msgstr ""
 msgid "Length:"
 msgstr "Panjang:"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Let this version use the internet?"
 msgstr ""
 
@@ -2013,7 +2013,7 @@ msgstr "Dibuat dengan ❤️ dari 🇦🇹 🇹🇭 🇺🇸"
 msgid "Make a suggestion"
 msgstr "Berikan saran"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Make it your own with AI"
 msgstr ""
 
@@ -2150,7 +2150,7 @@ msgstr "Tampilan khusus saya..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Nama"
@@ -2196,8 +2196,8 @@ msgstr "Data baru"
 msgid "New Entry"
 msgstr "Entri Baru"
 
-#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "New plugin"
 msgstr ""
 
@@ -2209,7 +2209,7 @@ msgstr "Proyek Baru"
 msgid "New Project (Local only)"
 msgstr "Proyek Baru (Hanya lokal)"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "New version"
 msgstr ""
 
@@ -2288,7 +2288,7 @@ msgstr "Tidak ada file untuk diunggah"
 msgid "No history found"
 msgstr "Tidak ditemukan riwayat"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "No internet"
 msgstr ""
 
@@ -2297,19 +2297,19 @@ msgstr ""
 msgid "No items found"
 msgstr "Tidak ada barang yang ditemukan"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "No longer changes the dictionary"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "No longer needs {0}"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "No longer runs from an entry's menu"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "No longer uses the internet"
 msgstr ""
 
@@ -2432,19 +2432,19 @@ msgstr "Catatan"
 msgid "Nothing to copy"
 msgstr "Tidak ada yang perlu disalin"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Now can change the dictionary"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Now needs {0}, which not every project has"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Now runs from an entry's menu"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Now uses the internet"
 msgstr ""
 
@@ -2487,15 +2487,15 @@ msgstr "Pada proyek-proyek besar, proses ini mungkin memakan waktu cukup lama. J
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "Satu komit FieldWorks Classic dapat terdiri dari perubahan pada beberapa entri atau bidang. Di sisi lain, komit hanya dapat memengaruhi data yang tidak disinkronkan ke FieldWorks Lite."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Online, a plugin can send this project's data to any website."
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "Only project managers can add or change plugins."
 msgstr ""
 
@@ -2585,11 +2585,11 @@ msgstr "Bagian dari"
 msgid "Part of speech"
 msgstr "Bagian dari pidato"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Paste HTML"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Paste or upload"
 msgstr ""
 
@@ -2597,12 +2597,12 @@ msgstr ""
 msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
 msgstr "Tempelkan pengaturan dari bagian dukungan di sini. Menyimpan akan mengganti berkas tersebut dan langsung menerapkannya; biarkan kosong untuk menghapus berkas tersebut. Ukuran dan jumlah berkas log hanya akan berubah setelah sistem di-restart."
 
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Paste the AI's reply"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Paste the AI's reply or the plugin's HTML here"
 msgstr ""
 
@@ -2612,7 +2612,7 @@ msgstr ""
 msgid "Pending"
 msgstr "Tertunda"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Phone width"
 msgstr ""
 
@@ -2620,7 +2620,7 @@ msgstr ""
 msgid "Pick a Part of speech"
 msgstr "Pilih kelas kata"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Pick an entry"
 msgstr ""
 
@@ -2673,14 +2673,14 @@ msgid "Play & learn"
 msgstr ""
 
 #: src/lib/plugins/PluginRunView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "Plugin"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Plugin HTML"
 msgstr ""
 
@@ -2700,8 +2700,8 @@ msgstr ""
 msgid "Plugin wants to make {0} changes"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Plugins"
 msgstr ""
@@ -2721,9 +2721,9 @@ msgstr ""
 #. View option
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
 msgstr "Pratinjau"
@@ -2741,7 +2741,7 @@ msgstr "Pratinjau tidak tersedia untuk jenis berkas ini."
 msgid "Preview not supported"
 msgstr "Pratinjau tidak didukung"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Preview with entry"
 msgstr ""
 
@@ -2783,7 +2783,7 @@ msgstr "Proyek {0} tidak ditemukan di {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Proyek {0} di {1} belum disiapkan untuk FieldWorks Lite"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Prompt options"
 msgstr ""
 
@@ -2826,7 +2826,7 @@ msgstr "Hanya Baca"
 msgid "Read-only: cannot change your dictionary"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Reads the dictionary, never changes it"
 msgstr ""
 
@@ -2870,7 +2870,7 @@ msgstr "Rekam Tampilkan sebagai"
 msgid "Record Word or Display as"
 msgstr "Rekam Kata atau Tampilkan sebagai"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Records from the microphone"
 msgstr ""
 
@@ -2944,7 +2944,7 @@ msgstr "Saluran rilis"
 msgid "Release notes"
 msgstr "Catatan rilis"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Reload"
 msgstr ""
 
@@ -2966,7 +2966,7 @@ msgstr "Menghapus"
 msgid "Remove audio"
 msgstr "Menghapus audio"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "Remove from project"
 msgstr ""
 
@@ -3043,7 +3043,7 @@ msgstr "naik"
 msgid "Run"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Run it"
 msgstr ""
 
@@ -3055,7 +3055,7 @@ msgstr ""
 msgid "Run this plugin?"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Runs from an entry's menu"
 msgstr ""
 
@@ -3107,7 +3107,7 @@ msgstr "Simpan Sebagai"
 msgid "Save audio"
 msgstr "Menyimpan audio"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Save for the team"
 msgstr ""
 
@@ -3116,11 +3116,11 @@ msgstr ""
 msgid "Save View"
 msgstr "Simpan Tampilan"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Saved for the team."
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Saving turns off \"Always allow\" on this device, so the new version asks before its first change."
 msgstr ""
 
@@ -3342,7 +3342,7 @@ msgstr "Ada yang tidak beres"
 msgid "Sort writing system"
 msgstr "Urutkan sistem penulisan"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Source"
 msgstr ""
 
@@ -3460,7 +3460,7 @@ msgstr "Menyinkronkan..."
 msgid "System"
 msgstr "Sistem"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Tailor to this project"
 msgstr ""
 
@@ -3498,11 +3498,11 @@ msgstr "Sebaliknya, tampilan *FieldWorks Classic* dirancang untuk pengguna yang 
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "Tampilan *FieldWorks Lite* dirancang untuk non ahli bahasa dan berbeda dari tampilan *FieldWorks Classic* dengan beberapa cara berikut ini:"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to change the dictionary"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to use the internet"
 msgstr ""
 
@@ -3520,7 +3520,7 @@ msgstr "Jumlah komit FieldWorks Lite tidak akan selalu sama dengan jumlah peruba
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
 msgstr ""
 
@@ -3534,11 +3534,11 @@ msgstr "Tugas yang Anda cari tidak ada."
 msgid "The time when you uploaded or downloaded these changes"
 msgstr "Waktu ketika Anda mengunggah atau mengunduh perubahan ini"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The version before it didn't. If you didn't ask for this, have the AI take it out."
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "The version before it worked offline. Online, a plugin can send this project's data to any website."
 msgstr ""
 
@@ -3548,7 +3548,7 @@ msgstr ""
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Perubahan ini belum diunggah. Pastikan Anda online dan masuk untuk membagikan perubahan Anda."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "These guide how the AI writes the plugin. They don't restrict what the finished plugin can do."
 msgstr ""
 
@@ -3562,7 +3562,7 @@ msgstr "{0} ini telah dihapus"
 msgid "This date # and this emoji # are snippets"
 msgstr "Tanggal ini # dan emoji ini # adalah cuplikan"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "This doesn't look like a complete plugin. It should be one HTML file that starts with <!DOCTYPE html> and ends with </html>."
 msgstr ""
 
@@ -3573,7 +3573,7 @@ msgstr ""
 msgid "This entry may already exist"
 msgstr "Entri ini mungkin sudah ada"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "This example doesn't exist."
 msgstr ""
 
@@ -3597,7 +3597,7 @@ msgstr "Gambar ini terlalu besar untuk diunggah. Coba simpan dengan kualitas JPE
 msgid "This plugin can make changes without asking. Click to make it ask again."
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/LeaveDialog.svelte
 msgid "This plugin hasn't been added to the project, so it will be lost."
 msgstr ""
 
@@ -3606,11 +3606,11 @@ msgid "This plugin isn't on this device yet"
 msgstr ""
 
 #: src/lib/plugins/PluginRunView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "This plugin no longer exists."
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "This plugin runs from an entry's menu. Pick an entry to preview it with."
 msgstr ""
 
@@ -3629,8 +3629,8 @@ msgstr "Proses ini akan membangun ulang tabel snapshot dan tabel proyeksi berdas
 msgid "This rebuilds the full-text search index from dictionary entries."
 msgstr "Proses ini membangun kembali indeks pencarian teks lengkap berdasarkan entri kamus."
 
-#: src/lib/plugins/PluginStudioView.svelte
 #: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "This removes the plugin for everyone on this project."
 msgstr ""
 
@@ -3639,7 +3639,7 @@ msgstr ""
 msgid "This task is complete"
 msgstr "Tugas ini selesai"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "This version"
 msgstr ""
 
@@ -3835,7 +3835,7 @@ msgstr "Hasil pembaruan tidak diketahui"
 msgid "Unread"
 msgstr "Belum dibaca"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Unsaved changes"
 msgstr ""
 
@@ -3895,7 +3895,7 @@ msgstr "Pembaruan ditolak oleh pengaturan izin."
 msgid "Updates"
 msgstr "Pembaruan"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Upload file"
 msgstr ""
 
@@ -3915,7 +3915,7 @@ msgstr "File yang sedang diunggah"
 msgid "Uploading pictures is not supported here"
 msgstr "Pengunggahan gambar tidak didukung di sini"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Use this version"
 msgstr ""
 
@@ -3924,12 +3924,12 @@ msgstr ""
 msgid "Uses components as"
 msgstr "Menggunakan komponen sebagai"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Uses the camera"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Uses the internet"
 msgstr ""
 
@@ -3956,7 +3956,7 @@ msgstr "Diperlukan sistem penulisan dalam bahasa daerah"
 msgid "Vernacular writing systems"
 msgstr "Sistem penulisan bahasa daerah"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Version"
 msgstr ""
 
@@ -3991,7 +3991,7 @@ msgstr "Kami juga mengumpulkan laporan kesalahan yang berisi rincian teknis meng
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
 msgstr "Kami mengumpulkan data penggunaan untuk memahami bagaimana FieldWorks Lite digunakan dan di bagian mana aplikasi ini perlu ditingkatkan. Saat Anda masuk ke Lexbox, aplikasi ini terhubung dengan akun Anda, dan data tersebut tidak pernah mencakup isi kamus Anda."
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "What it asks for"
 msgstr ""
 
@@ -4054,7 +4054,7 @@ msgstr "Kata atau makna:"
 msgid "Words missing both Word and Display as"
 msgstr "Kata yang tidak memiliki Kata maupun Tampilkan sebagai"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Works on phones"
 msgstr ""
 
@@ -4121,7 +4121,7 @@ msgstr ""
 msgid "You're offline and this plugin's file isn't on this device yet."
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "You're offline and this plugin's file isn't on this device yet. Connect and try again."
 msgstr ""
 
@@ -4129,7 +4129,7 @@ msgstr ""
 msgid "You've passed every milestone. What an achievement!"
 msgstr "Anda telah melewati setiap tahap penting. Sungguh sebuah prestasi yang luar biasa!"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/LeaveDialog.svelte
 msgid "Your changes to this plugin will be lost."
 msgstr ""
 
@@ -4137,14 +4137,14 @@ msgstr ""
 msgid "Your dictionary starts here"
 msgstr "Kamus Anda dimulai di sini"
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Your plugin will run here"
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Your real dictionary. Changes it tries are shown, not saved."
 msgstr ""
 
-#: src/lib/plugins/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Your version, not added yet"
 msgstr ""
