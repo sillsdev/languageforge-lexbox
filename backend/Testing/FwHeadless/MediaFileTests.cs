@@ -206,15 +206,17 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
     {
         var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, contentType: "image/png");
         result.StatusCode.Should().Be(HttpStatusCode.Created);
-        var secondPath = TestRepoZipPath + ".bak";
-        await File.WriteAllTextAsync(secondPath, "test");
-        result = await Fixture.PutFile(secondPath, fileId);
-        result.ShouldBeSuccessful();
         var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
         listResult.ShouldBeSuccessful();
         var files = fileListing?.Files ?? [];
         files.Should().Contain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
-        files.Should().NotContain(Path.Join(fileId.ToString(), TestRepoZipFilename));
+        var secondPath = TestRepoZipPath + ".bak";
+        await File.WriteAllTextAsync(secondPath, "test");
+        result = await Fixture.PutFile(secondPath, fileId);
+        result.ShouldBeSuccessful();
+        var (fileListing2, listResult2) = await Fixture.ListFiles(Fixture.ProjectId);
+        listResult2.ShouldBeSuccessful();
+        (fileListing2?.Files ?? []).Should().BeEquivalentTo(files);
     }
 
     [Theory]
