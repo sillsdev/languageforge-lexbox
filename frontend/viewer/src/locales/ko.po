@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-03 05:04\n"
+"PO-Revision-Date: 2026-11-05 05:15\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -1837,6 +1837,7 @@ msgstr "파일 불러옴"
 
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
 msgstr "활동 불러오는 중"
 
@@ -2665,6 +2666,10 @@ msgstr "표시 방식 기록하기"
 #: src/project/tasks/tasks-service.ts
 msgid "Record Word or Display as"
 msgstr "단어 또는 표시 방식 기록하기"
+
+#: src/lib/components/audio/audio-provider.svelte
+msgid "Recording isn't available on this device."
+msgstr "이 기기에서는 녹음 기능을 사용할 수 없습니다."
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
