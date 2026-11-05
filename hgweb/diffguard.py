@@ -14,9 +14,10 @@ diff (file list and per-file links still work) and the single-file pages
 (diff, comparison, annotate, filelog with patches) answer 403.
 
 The limit is a memory budget (~8x), not a page size: memory scales with the
-size of the files, not the diff, and an ordinary FLEx commit touches several
-multi-MB chunk files (lexdb, ChorusNotes) with a few changed lines. Keep the
-limit well above those chunk sizes or the diff disappears from everyday commits.
+size of the files, not the diff. FLEx commits touch multi-MB chunk files
+(lexdb, ChorusNotes) with a few changed lines, so a low limit hides the diff
+on everyday commits of large projects; 16 MB keeps mid-size projects working
+and refuses the rest rather than risk Send/Receive.
 """
 
 from mercurial import extensions, registrar, templateutil, util
@@ -27,7 +28,7 @@ testedwith = b'6.3.2'
 
 configtable = {}
 configitem = registrar.configitem(configtable)
-configitem(b'diffguard', b'maxbytes', default=b'32MB')
+configitem(b'diffguard', b'maxbytes', default=b'16MB')
 
 
 def _size(ctx, path):
