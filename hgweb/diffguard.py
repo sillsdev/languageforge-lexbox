@@ -13,8 +13,10 @@ disables the check). Over the limit, the changeset page is served without the
 diff (file list and per-file links still work) and the single-file pages
 (diff, comparison, annotate, filelog with patches) answer 403.
 
-Keep the limit small: a browser can't use a multi-megabyte diff page anyway,
-and the headroom is what keeps concurrent pages and pushes alive.
+The limit is a memory budget (~8x), not a page size: memory scales with the
+size of the files, not the diff, and an ordinary FLEx commit touches several
+multi-MB chunk files (lexdb, ChorusNotes) with a few changed lines. Keep the
+limit well above those chunk sizes or the diff disappears from everyday commits.
 """
 
 from mercurial import extensions, registrar, templateutil, util
@@ -25,7 +27,7 @@ testedwith = b'6.3.2'
 
 configtable = {}
 configitem = registrar.configitem(configtable)
-configitem(b'diffguard', b'maxbytes', default=b'8MB')
+configitem(b'diffguard', b'maxbytes', default=b'32MB')
 
 
 def _size(ctx, path):
