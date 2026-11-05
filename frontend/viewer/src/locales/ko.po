@@ -131,6 +131,14 @@ msgstr "{0} 전"
 msgid "{0} authors"
 msgstr "{0} 저자"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "{0} can't be added: this device already has a different project with the same code, {1}."
+msgstr ""
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "{0} is already on this device, so it was opened without syncing."
+msgstr ""
+
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "{0} KB"
@@ -245,6 +253,14 @@ msgstr ""
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
 msgstr "새 버전의 FieldWorks Lite를 사용할 수 있습니다."
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to open it."
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it."
+msgstr ""
 
 #: src/lib/plugins/PluginsView.svelte
 msgid "A project manager can add plugins for the team."
@@ -721,6 +737,7 @@ msgstr ""
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
+#: src/project/sync/FolderPicker.svelte
 msgid "Cancel"
 msgstr "취소"
 
@@ -778,6 +795,10 @@ msgstr "유사한 단어 확인하기…"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
 msgstr "업데이트 확인 중..."
+
+#: src/project/sync/FolderPicker.svelte
+msgid "Choose a folder"
+msgstr ""
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -986,6 +1007,10 @@ msgstr "유사한 항목을 확인할 수 없습니다."
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar words"
 msgstr "유사한 단어를 확인할 수 없습니다."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Couldn't finish syncing with the folder. Nothing on this device was lost. Check that the drive is still plugged in, then try again."
+msgstr ""
 
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Couldn't get the FieldWorks Classic status from Lexbox."
@@ -1892,6 +1917,10 @@ msgstr "단어 찾기..."
 msgid "Finish"
 msgstr "완료"
 
+#: src/project/sync/FolderPicker.svelte
+msgid "Folder path"
+msgstr ""
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
 msgstr ""
@@ -1910,6 +1939,10 @@ msgstr ""
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "기타 문의 사항이 있으시면 언제든지 이메일을 보내주세요."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "From a USB drive or shared folder"
+msgstr ""
+
 #. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
@@ -1918,6 +1951,10 @@ msgstr "활성 필터에서"
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Fullscreen"
+msgstr ""
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Get project from folder..."
 msgstr ""
 
 #. Button in feedback menu
@@ -2943,6 +2980,10 @@ msgstr "새 창에서 열기"
 msgid "Open Log file"
 msgstr "로그 파일 열기"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Opened {0} from the folder. You can remove the drive."
+msgstr ""
+
 #. Status message shown after the user clicks "Open in FieldWorks" while the handoff is in progress. "FieldWorks" is a product name — do not translate.
 #: src/lib/components/OpenInFieldWorksButton.svelte
 msgid "Opening in FieldWorks…"
@@ -3911,6 +3952,10 @@ msgstr ""
 msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
 msgstr ""
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "Some pictures or audio files couldn't be copied. They will be copied the next time you sync."
+msgstr ""
+
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
 msgstr "문제가 발생했습니다."
@@ -3994,6 +4039,26 @@ msgstr "동기화 완료. {0} 는 FieldWorks Classic에 적용되었습니다. {
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "FieldWorks Lite와 FieldWorks Classic 동기화"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Sync now"
+msgstr ""
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with {0}"
+msgstr ""
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with a folder..."
+msgstr ""
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with a USB drive or another folder"
+msgstr ""
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with another folder..."
+msgstr ""
+
 #. Introductory text for sync status panel
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
@@ -4019,6 +4084,10 @@ msgstr "동기화된 가장 오래된 항목"
 msgid "Synced with {0}"
 msgstr "{0}으로 동기화"
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "Synced with the folder. You can remove the drive."
+msgstr ""
+
 #. Label showing sync timestamp in activity
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
@@ -4034,7 +4103,12 @@ msgstr "동기화"
 msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr "FieldWorks Lite와 FieldWorks Classic 동기화..."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Syncing with the folder..."
+msgstr ""
+
 #. Progress indicator
+#: src/project/sync/FolderSyncSection.svelte
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Syncing..."
 msgstr "동기화..."
@@ -4083,6 +4157,10 @@ msgstr "반면 *FieldWorks Classic* 뷰는 *[FieldWorks Language Explorer](https
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "*FieldWorks Lite* 뷰는 언어 전문가가 아닌 사용자를 위해 설계되었으며 다음과 같은 점에서 *FieldWorks Classic* 뷰와 다릅니다:"
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "The copy of {0} in this folder didn't come from the same original as the copy on this device, so the two can't be combined. Choose another folder."
+msgstr ""
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to change the dictionary"
 msgstr ""
@@ -4103,6 +4181,10 @@ msgstr "FieldWorks Lite 커밋 수가 동기화 결과 메시지에 표시되는
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "The project in this folder uses different writing systems ({0}) from the copy on this device ({1}), so the two can't be synced. Choose another folder, or compare the writing systems in each copy."
 msgstr ""
 
 #: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
@@ -4170,6 +4252,30 @@ msgstr ""
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
 msgstr "이 파일은 원격으로만 이용할 수 있습니다."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder already has a folder called {0}, but it doesn't hold a FieldWorks Lite project. Choose another folder."
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder already has a folder named after this project, but it doesn't hold a FieldWorks Lite project. Choose another folder."
+msgstr ""
+
+#: src/project/sync/FolderPicker.svelte
+msgid "This folder doesn't exist. Check the path. Example: /media/yourname/USB"
+msgstr ""
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder doesn't hold a FieldWorks Lite project. Choose the project's own folder, not the drive or folder it's in."
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder holds a different project, {0}, not the one that is open. To open that project, go to the home screen and choose Get project from folder."
+msgstr ""
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder is empty. To put a project in it, open that project on a device that has it and choose Sync with a folder."
+msgstr ""
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
@@ -4534,6 +4640,10 @@ msgstr "업로드 대기 중인 파일"
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
 msgstr "이곳에서는 사진 업로드가 지원되지 않습니다."
+
+#: src/project/sync/FolderPicker.svelte
+msgid "Use this folder"
+msgstr ""
 
 #: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Use this version"

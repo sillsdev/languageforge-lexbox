@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.KeepAwake;
+using FwLiteShared.LocalSync;
 using FwLiteShared.Sync;
 using LcmCrdt;
 using LexCore.Entities;
@@ -46,6 +47,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     CrdtProjectsService crdtProjectsService,
     IEnumerable<IProjectProvider> projectProviders,
     OAuthClientFactory oAuthClientFactory,
+    FolderProjectOpener folderProjectOpener,
     IKeepAwake keepAwake,
     ProjectEventBus projectEventBus)
 {
@@ -195,6 +197,23 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                 AuthenticatedUser: currentUser?.Name,
                 AuthenticatedUserId: currentUser?.Id,
                 Role: project.Role.ToUserProjectRole()))));
+    }
+
+    /// <summary>Downloads the project in a sync folder, unless this device already has it.</summary>
+    [JSInvokable]
+    public async Task<OpenFromFolderSummary> OpenFromFolder(string path)
+    {
+        var result = await keepAwake.RunAsync(new("Opening a project from a folder"),
+            async () => await Task.Run(async () => await folderProjectOpener.OpenFromFolder(path)));
+        return OpenFromFolderSummary.From(result);
+    }
+
+    [JSInvokable]
+    public async Task<FolderSyncSummary> SyncProjectWithFolder(string projectCode, string path)
+    {
+        var result = await keepAwake.RunAsync(new("Syncing with a folder"),
+            async () => await Task.Run(async () => await folderProjectOpener.SyncWithFolder(projectCode, path)));
+        return FolderSyncSummary.From(result);
     }
 
     [JSInvokable]

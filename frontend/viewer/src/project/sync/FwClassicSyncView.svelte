@@ -189,7 +189,7 @@
       <SyncArrow dir="left" class={cn(hgToCrdtCount && 'text-primary')} tailLength={120} size={1.25} />
       <Button
         loading={syncing === 'classic'}
-        disabled={syncing === 'lite' || !canSync || !remoteStatus}
+        disabled={(!!syncing && syncing !== 'classic') || !canSync || !remoteStatus}
         onclick={onSyncClick}
         class="my-1"
         icon="i-mdi-sync"

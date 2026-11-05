@@ -13,5 +13,9 @@ export interface IPlatformFeaturesService
 	supportsShareFile() : Promise<boolean>;
 	shareFile(file: Blob | ArrayBuffer | Uint8Array, fileName: string, contentType?: string) : Promise<void>;
 	hasHardwareKeyboard() : Promise<boolean>;
+	supportsFolderSync() : Promise<boolean>;
+	hasFolderPicker() : Promise<boolean>;
+	pickFolder() : Promise<string | undefined>;
+	folderExists(path: string) : Promise<boolean>;
 }
 /* eslint-enable */

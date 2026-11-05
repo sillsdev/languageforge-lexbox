@@ -1,9 +1,10 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {flushSync, mount, unmount} from 'svelte';
 import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
-import {SyncJobStatusEnum} from '$lib/dotnet-types';
+import {DotnetService, SyncJobStatusEnum} from '$lib/dotnet-types';
 import type {IProjectSyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
 import {ProjectSyncStatusEnum} from '$lib/dotnet-types/generated-types/LexCore/Sync/ProjectSyncStatusEnum';
+import {FolderSyncStatus} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/FolderSyncStatus';
 
 vi.stubGlobal('matchMedia', (query: string) => ({
   matches: false, media: query, onchange: null,
@@ -21,6 +22,8 @@ function fakeSyncService() {
     getLatestSyncedCommitDate: vi.fn(() => Promise.resolve(undefined)),
     executeSync: vi.fn(() => Promise.resolve({isSynced: true, missingFromLocal: [], missingFromRemote: []})),
     getCurrentServer: vi.fn(() => Promise.resolve({id: 'test-server', displayName: 'Lexbox', authority: 'https://test-server.com'})),
+    syncWithFolder: vi.fn(() => Promise.resolve({status: FolderSyncStatus.Synced, mediaSent: 0, mediaReceived: 0, mediaFailed: 0})),
+    getRememberedSyncFolder: vi.fn(() => Promise.resolve<string | undefined>(undefined)),
   } satisfies ISyncServiceJsInvokable;
 }
 
@@ -116,6 +119,84 @@ describe('SyncDialog', () => {
     await showTab('Lexbox');
     expect(document.body.textContent).toContain('New data');
     expect(syncService.getSyncStatus).toHaveBeenCalledOnce();
+  }, 60_000);
+
+  async function setFolderSyncSupport(pickFolder: () => Promise<string | undefined>) {
+    const {fallbackPlatformFeaturesService, refreshPlatformFeatures} = await import('$lib/services/platform-features-service');
+    window.lexbox.ServiceProvider.setService(DotnetService.PlatformFeaturesService, {
+      ...fallbackPlatformFeaturesService,
+      supportsFolderSync: () => Promise.resolve(true),
+      hasFolderPicker: () => Promise.resolve(true),
+      pickFolder,
+    });
+    refreshPlatformFeatures();
+  }
+
+  it('asks for a typed path where the host has no folder picker', async () => {
+    const {fallbackPlatformFeaturesService, refreshPlatformFeatures} = await import('$lib/services/platform-features-service');
+    const folderExists = vi.fn((path: string) => Promise.resolve(path === '/media/usb'));
+    window.lexbox.ServiceProvider.setService(DotnetService.PlatformFeaturesService, {
+      ...fallbackPlatformFeaturesService,
+      supportsFolderSync: () => Promise.resolve(true),
+      folderExists,
+    });
+    refreshPlatformFeatures();
+    const syncService = fakeSyncService();
+    await openDialog(syncService);
+
+    await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
+    const input = await vi.waitFor(() => {
+      const input = document.querySelector<HTMLInputElement>('#folder-picker-path');
+      expect(input).toBeTruthy();
+      return input!;
+    });
+    function typePath(path: string) {
+      input.value = path;
+      input.dispatchEvent(new Event('input', {bubbles: true}));
+      flushSync();
+      getButton(/Use this folder/).click();
+    }
+
+    typePath('/media/typo');
+    await vi.waitFor(() => expect(document.body.textContent).toContain(`This folder doesn't exist.`));
+    expect(syncService.syncWithFolder).not.toHaveBeenCalled();
+
+    typePath('/media/usb');
+    await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith('/media/usb'));
+  }, 60_000);
+
+  it('offers folder sync only where the host supports it', async () => {
+    const {refreshPlatformFeatures} = await import('$lib/services/platform-features-service');
+    window.lexbox.ServiceProvider.removeService(DotnetService.PlatformFeaturesService);
+    refreshPlatformFeatures();
+    await openDialog(fakeSyncService());
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Pending'));
+    expect(document.body.textContent).not.toContain('Sync with a folder...');
+  }, 60_000);
+
+  it('syncs with the picked folder, then offers to sync with it again', async () => {
+    await setFolderSyncSupport(() => Promise.resolve(String.raw`E:\test-project`));
+    const syncService = fakeSyncService();
+    syncService.getRememberedSyncFolder
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValue(String.raw`E:\test-project`);
+    await openDialog(syncService);
+
+    await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
+    await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith(String.raw`E:\test-project`));
+    await vi.waitFor(() => expect(getButton(/Sync with E:/).title).toBe(String.raw`E:\test-project`));
+    expect(document.body.textContent).toContain('Sync with another folder...');
+    expect(document.body.textContent).not.toContain('Sync with a folder...');
+  }, 60_000);
+
+  it('does nothing when the folder picker is cancelled', async () => {
+    await setFolderSyncSupport(() => Promise.resolve(undefined));
+    const syncService = fakeSyncService();
+    await openDialog(syncService);
+
+    await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
+    await vi.waitFor(() => expect(getButton(/Sync with a folder\.\.\./).disabled).toBe(false));
+    expect(syncService.syncWithFolder).not.toHaveBeenCalled();
   }, 60_000);
 
   it('shows only the FW Lite sync without FieldWorks sync', async () => {
