@@ -4033,6 +4033,10 @@ msgstr "Sync with a USB drive or another folder"
 msgid "Sync with folder..."
 msgstr "Sync with folder..."
 
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with other folder..."
+msgstr "Sync with other folder..."
+
 #. Introductory text for sync status panel
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"

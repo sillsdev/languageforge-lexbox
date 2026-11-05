@@ -48,25 +48,35 @@
     <Icon icon="i-mdi-usb-flash-drive-outline" class="size-5" />
     {$t`Sync with a USB drive or another folder`}
   </p>
-  <div class="flex flex-wrap justify-center gap-2">
-    <Button
-      variant="outline"
-      icon="i-mdi-folder-sync-outline"
-      loading={running === 'picked'}
-      disabled={!!syncing && running !== 'picked'}
-      onclick={() => void run('picked', () => platformFeatures.service.pickFolder())}>
-      {$t`Sync with folder...`}
-    </Button>
+  <div class="flex flex-col items-center gap-1">
     {#if rememberedFolder.current}
       {@const path = rememberedFolder.current}
       <Button
-        variant="ghost"
+        variant="outline"
+        class="border-primary text-primary hover:text-primary"
         icon="i-mdi-sync"
+        iconProps={{ class: 'size-5' }}
         title={path}
         loading={running === 'remembered'}
         disabled={!!syncing && running !== 'remembered'}
         onclick={() => void run('remembered', () => Promise.resolve(path))}>
         <span class="max-w-60 truncate">{$t`Sync with ${path} again`}</span>
+      </Button>
+      <Button
+        variant="link"
+        loading={running === 'picked'}
+        disabled={!!syncing && running !== 'picked'}
+        onclick={() => void run('picked', () => platformFeatures.service.pickFolder())}>
+        {$t`Sync with other folder...`}
+      </Button>
+    {:else}
+      <Button
+        variant="outline"
+        icon="i-mdi-folder-sync-outline"
+        loading={running === 'picked'}
+        disabled={!!syncing && running !== 'picked'}
+        onclick={() => void run('picked', () => platformFeatures.service.pickFolder())}>
+        {$t`Sync with folder...`}
       </Button>
     {/if}
   </div>

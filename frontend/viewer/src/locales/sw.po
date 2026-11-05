@@ -4038,6 +4038,10 @@ msgstr ""
 msgid "Sync with folder..."
 msgstr ""
 
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with other folder..."
+msgstr ""
+
 #. Introductory text for sync status panel
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
