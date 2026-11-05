@@ -552,7 +552,7 @@ public class MiniLcmJsInvokable(
         return Task.Run(async () =>
         {
             await using var stream = await streamReference.OpenReadStreamAsync(TenMbFileLimit);
-            var result = await _wrappedApi.SaveFile(stream, metadata);
+            var result = await _wrappedApi.SaveFile(stream, metadata with { Filename = MediaFilename.Sanitize(metadata.Filename) });
             try
             {
                 await streamReference.DisposeAsync();

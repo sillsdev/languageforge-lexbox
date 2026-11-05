@@ -1,6 +1,3 @@
-using System.Buffers;
-using System.Diagnostics.CodeAnalysis;
-
 namespace FwHeadless.Media;
 
 /// <summary>
@@ -13,25 +10,4 @@ namespace FwHeadless.Media;
 public static class MediaFilePath
 {
     public static string Normalize(string path) => path.Replace('\\', '/');
-
-    // Windows' rules, hardcoded: FLEx users receive these files via Send/Receive, and
-    // Path.GetInvalidFileNameChars() only returns the host OS's rules ('/' and '\0' on Linux).
-    private static readonly SearchValues<char> InvalidFilenameChars =
-        SearchValues.Create("\"*/:<>?\\|" + string.Concat(Enumerable.Range(0, 32).Select(i => (char)i)));
-
-    private static readonly HashSet<string> ReservedFilenames = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "CON", "PRN", "AUX", "NUL",
-        "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
-        "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
-    };
-
-    /// <summary>A bare file name that Windows can store.</summary>
-    public static bool IsValidFilename([NotNullWhen(true)] string? filename)
-    {
-        return !string.IsNullOrEmpty(filename)
-            && !filename.AsSpan().ContainsAny(InvalidFilenameChars)
-            && !filename.EndsWith('.') && !filename.EndsWith(' ')
-            && !ReservedFilenames.Contains(filename.Split('.')[0]);
-    }
 }

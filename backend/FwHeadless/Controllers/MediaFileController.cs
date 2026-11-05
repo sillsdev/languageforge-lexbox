@@ -254,7 +254,7 @@ public static class MediaFileController
 
         // If no filename specified in form, get it from uploaded file
         if (string.IsNullOrEmpty(filename)) filename = file.FileName;
-        if (!MediaFilePath.IsValidFilename(filename)) throw new InvalidFilename();
+        if (!MiniLcm.Media.MediaFilename.IsValid(filename)) throw new InvalidFilename();
         metadata = await InitMetadata(metadata, file, filename, httpContext.Request);
         if (mediaFile is null)
         {

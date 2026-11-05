@@ -161,7 +161,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
             {
                 var metadata = lcmResource.Metadata;
                 // Without a safe filename we can't reserve a path, so map the file to a not found when mapping to FLEx
-                if (!MediaFilePath.IsValidFilename(metadata?.Filename)) continue;
+                if (!MediaFilename.IsValid(metadata?.Filename)) continue;
 
                 var subfolder = MediaFileController.GuessSubfolderFromMimeType(metadata.MimeType) ?? "";
                 var pendingRow = new MediaFile
