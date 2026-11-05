@@ -10,9 +10,9 @@
   import {Switch} from '$lib/components/ui/switch';
   import {Textarea} from '$lib/components/ui/textarea';
   import {t} from 'svelte-i18n-lingui';
-  import {onMount, untrack} from 'svelte';
+  import {onDestroy, untrack} from 'svelte';
   import {navigate, useRouter} from 'svelte-routing';
-  import {type IEntry, type IPlugin, SortField, UserProjectRole} from '$lib/dotnet-types';
+  import {type IEntry, SortField, UserProjectRole} from '$lib/dotnet-types';
   import {usePluginService} from '$project/data/plugin-service.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
   import {useWritingSystemService} from '$project/data';
@@ -22,16 +22,15 @@
   import {setLeaveGuard} from '$lib/utils/leave-guard';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import EntryOrSensePicker from '$lib/entry-editor/EntryOrSensePicker.svelte';
-  import {examplePlugins, type ExampleCapability} from '../examples';
-  import {extractPluginHtml, isCompletePluginHtml, pluginHtmlTitle} from '../plugin-html';
+  import type {ExampleCapability} from '../examples';
   import {createPluginDocUrl} from '../plugin-srcdoc';
-  import {buildPluginPrompt, pluginChangeSection, pluginTaskSection, type PluginPromptOptions} from '../plugin-prompt';
-  import {compareManifests, parsePluginManifest} from '../plugin-manifest';
+  import {buildPluginPrompt, pluginTaskSection, type PluginPromptOptions} from '../plugin-prompt';
   import type {PluginPermission} from '../plugin-api-types';
-  import {PluginStudioDraft, type StudioMode} from './plugin-studio-draft.svelte';
+  import type {StudioMode} from './plugin-studio-draft.svelte';
+  import {PluginStudio, setStudio, type StudioStatus, type StudioTab} from './plugin-studio.svelte';
+  import {downloadPluginHtml, downloadPrompt} from './studio-files';
   import PluginSandbox from '../PluginSandbox.svelte';
   import PluginConsentCard from '../PluginConsentCard.svelte';
-  import {computePluginHash} from '../plugin-local-data';
   import type {IconClass} from '$lib/icon-class';
 
   interface Props {
@@ -54,64 +53,26 @@
   const canManage = $derived(!projectContext.projectData || projectContext.projectData.role === UserProjectRole.Manager);
 
   // The route keys this view, so the mode and the plugin/example it is about never change.
-  const draft = untrack(() => new PluginStudioDraft(mode));
-  const example = untrack(() => exampleKey ? examplePlugins.find(candidate => candidate.key === exampleKey) : undefined);
-  const plugin = $derived(pluginId ? pluginService.current.find(candidate => candidate.id === pluginId) : undefined);
-
-  type LoadState = 'loading' | 'ready' | 'missing' | 'offline' | 'error';
-  let loadState = $state<LoadState>(untrack(() => mode) === 'new' ? 'ready' : 'loading');
-  /** The saved plugin the current baseline came from (edit mode), so a save updates the right version. */
-  let savedPlugin = $state.raw<IPlugin>();
-  /** Set once an example or new plugin has been added to the project. */
-  let added = $state.raw<IPlugin>();
-
-  onMount(() => {
-    if (mode !== 'example') return;
-    if (!example) {
-      loadState = 'missing';
-      return;
-    }
-    void example.loadHtml().then(html => {
-      draft.reset({name: example.name, description: example.description, html});
-      loadState = 'ready';
-    });
-  });
-
-  $effect(() => {
-    if (mode !== 'edit' || savedPlugin) return;
-    if (!plugin) {
-      if (pluginService.loaded) loadState = 'missing';
-      return;
-    }
-    const target = plugin;
-    savedPlugin = target;
-    void pluginService.getHtml(target).then(result => {
-      if (result.result === 'ok') {
-        draft.reset({name: target.name, description: target.description ?? '', html: result.html});
-        loadState = 'ready';
-      } else {
-        loadState = result.result;
-      }
-    });
-  });
+  const studio = untrack(() => new PluginStudio({
+    mode,
+    pluginId,
+    exampleKey,
+    pluginService,
+    project: projectContext,
+    onGone: goToPlugins,
+  }));
+  setStudio(studio);
+  onDestroy(() => studio.destroy());
+  const draft = studio.draft;
+  const example = studio.example;
 
   // ---- Preview ----
 
   let reloadToken = $state(0);
   let phoneWidth = $state(false);
-  /** Edit mode: compare against the saved version without losing the new one. */
-  let showSavedVersion = $state(false);
-  const canCompareVersions = $derived(mode === 'edit' && draft.htmlChanged && isCompletePluginHtml(draft.baseline.html));
-  const previewDoc = $derived.by(() => {
-    if (showSavedVersion && canCompareVersions) {
-      return {html: draft.baseline.html, manifest: parsePluginManifest(draft.baseline.html)};
-    }
-    if (!draft.manifest) return undefined;
-    return {html: draft.html, manifest: draft.manifest};
-  });
   let docUrl = $state<string>();
   $effect(() => {
-    const doc = previewDoc;
+    const doc = studio.previewDoc;
     if (!doc) {
       docUrl = undefined;
       return;
@@ -121,30 +82,8 @@
     return () => URL.revokeObjectURL(url);
   });
 
-  // Edit mode: the saved version only runs with the run consent the Run page asks for, since another
-  // manager may have synced in code that never ran on this device. Versions pasted here are the
-  // user's own and don't ask (beyond the internet prompt).
-  let savedApproval = $state<{hash: string; approved: boolean}>();
-  $effect(() => {
-    if (mode !== 'edit' || !savedPlugin || loadState !== 'ready') return;
-    const target = savedPlugin;
-    const html = draft.baseline.html;
-    savedApproval = undefined;
-    void computePluginHash({name: target.name, description: target.description, html}).then(hash => {
-      if (savedPlugin !== target || draft.baseline.html !== html) return; // a newer save owns it
-      savedApproval = {hash, approved: pluginService.consentStore.isGranted(target.id, hash)};
-    });
-  });
-  const savedUnapproved = $derived(mode === 'edit' && savedApproval?.approved !== true);
-  const needsConsent = $derived(savedUnapproved && previewDoc?.html === draft.baseline.html);
-  function approveSaved() {
-    if (!savedPlugin || !savedApproval) return;
-    pluginService.consentStore.grant(savedPlugin.id, savedApproval.hash);
-    savedApproval = {...savedApproval, approved: true};
-  }
-
   // Entry-menu plugins expect an entry to start from; preview them with a real one.
-  const needsEntry = $derived(!!previewDoc?.manifest.contexts.includes('entry'));
+  const needsEntry = $derived(!!studio.previewDoc?.manifest.contexts.includes('entry'));
   let previewEntry = $state.raw<IEntry>();
   $effect(() => {
     if (!needsEntry || previewEntry) return;
@@ -160,18 +99,12 @@
 
   // ---- Tabs ----
 
-  type Tab = 'about' | 'ai' | 'source' | 'details';
-  const tabs: Tab[] = untrack(() => mode === 'example' ? ['about', 'ai', 'source'] : mode === 'new' ? ['ai', 'source', 'details'] : ['ai', 'source', 'details']);
-  let tab = $state<Tab>(tabs[0]);
-  const tabLabels = $derived<Record<Tab, string>>({
+  const tabLabels = $derived<Record<StudioTab, string>>({
     about: $t`About`,
     ai: $t`Ask AI`,
     source: mode === 'new' ? $t`Paste or upload` : $t`Source`,
     details: $t`Details`,
   });
-
-  /** Phones show one pane at a time. */
-  let mobilePane = $state<'preview' | 'edit'>('preview');
 
   // ---- Ask AI (a new plugin) ----
 
@@ -198,49 +131,17 @@
   });
   const newPluginPrompt = $derived(basePrompt ? `${basePrompt}\n\n${pluginTaskSection(aiDescription)}` : '');
 
-  // A download rather than the clipboard: some AI chats cut a long paste short (the prompt is
-  // ~20 KB, more with the plugin's code), while an attached file gets through whole.
-  function downloadPrompt(prompt: string) {
-    downloadText(prompt, `${fileSlug()}-prompt.md`, 'text/markdown');
-  }
-
   // ---- Ask AI (changing a plugin) ----
 
   let changeText = $state('');
-  let buildingChangePrompt = $state(false);
-  /** Asks for changes to the current version, with the same setup body a new plugin gets. */
-  async function withChangePrompt(change: string, use: (prompt: string) => Promise<void> | void, html = draft.html) {
-    buildingChangePrompt = true;
-    try {
-      const body = await buildPluginPrompt(projectContext.api, {
-        projectName: projectContext.projectName,
-        projectCode: projectContext.projectCode,
-      }, {internet: parsePluginManifest(html).permissions.includes('internet')});
-      await use(`${body}\n\n${pluginChangeSection(html, change)}`);
-    } finally {
-      buildingChangePrompt = false;
-    }
-  }
 
   // ---- Reviewing a new version ----
 
-  const review = $derived.by(() => {
-    const baseHtml = draft.reviewBaseHtml;
-    if (!draft.manifest || !baseHtml || baseHtml === draft.html || !isCompletePluginHtml(baseHtml)) return undefined;
-    return {
-      changes: compareManifests(parsePluginManifest(baseHtml), draft.manifest),
-      sizeBefore: Math.max(1, Math.round(baseHtml.length / 1024)),
-    };
-  });
-  /** New permissions the user chose to keep, so their warning goes away. */
-  let keptPermissions = $state<PluginPermission[]>([]);
-  let followUpDownloaded = $state(false);
-  const newPermissions = $derived((review?.changes.added.permissions ?? []).filter(permission => !keptPermissions.includes(permission)));
   const otherChanges = $derived.by(() => {
-    if (!review) return [];
-    const {added, removed} = review.changes;
+    if (!studio.review) return [];
+    const {added, removed} = studio.review.changes;
     return [
-      ...added.permissions.filter(permission => keptPermissions.includes(permission))
+      ...added.permissions.filter(permission => studio.keptPermissions.includes(permission))
         .map(permission => permission === 'internet' ? $t`Now uses the internet` : $t`Now can change the dictionary`),
       ...removed.permissions.map(permission => permission === 'internet' ? $t`No longer uses the internet` : $t`No longer changes the dictionary`),
       ...added.contexts.map(() => $t`Now runs from an entry's menu`),
@@ -254,180 +155,51 @@
     edit: $t`The new version asks to change the dictionary`,
   });
 
-  async function downloadRemovalPrompt(permission: PluginPermission, html = draft.html) {
-    // Addressed to the AI, so English like the rest of the prompt.
-    const consequence = permission === 'internet'
-      ? 'The plugin must work fully offline.'
-      : 'The plugin must only read the dictionary, never change it.';
-    await withChangePrompt(`Remove the \`${permission}\` permission from the \`fwlite-plugin-permissions\` meta tag and everything that needs it. ${consequence} Keep everything else as it is.`, downloadPrompt, html);
-  }
-
-  async function askToRemove(permission: PluginPermission) {
-    await downloadRemovalPrompt(permission);
-    followUpDownloaded = true;
-  }
-
-  /** Saving a new version drops "Always allow" (see PluginService.update); say so up front. */
-  const writeTrustResets = $derived(mode === 'edit' && draft.htmlChanged && !!savedPlugin
-    && pluginService.writeTrustStore.grantedHash(savedPlugin.id) !== undefined);
-
   // ---- Paste / upload ----
 
-  let pasteText = $state('');
-  let pasteError = $state<string>();
-  let pasteNote = $state<string>();
   let fileInput = $state<HTMLInputElement>();
-  // A name taken from the plugin's <title> keeps following new versions until the user types one.
-  let nameFromHtml = $state(false);
-
-  /**
-   * Asked before a version that newly wants the internet runs: the preview runs it at once, and
-   * once online it could send project data anywhere. A version that already had the internet
-   * (the saved plugin, an example, or one allowed earlier here) doesn't ask again.
-   */
-  let internetPrompt = $state<{html: string; resolve: (answer: 'allow' | 'cancel') => void}>();
-  function confirmInternet(html: string): Promise<'allow' | 'cancel'> {
-    if (!parsePluginManifest(html).permissions.includes('internet')) return Promise.resolve('allow');
-    // An unapproved saved version hasn't been allowed anything yet, so it doesn't count.
-    const currentAllowed = !(savedUnapproved && draft.html === draft.baseline.html);
-    if (draft.manifest?.permissions.includes('internet') && currentAllowed) return Promise.resolve('allow');
-    return new Promise(resolve => internetPrompt = {html, resolve});
-  }
-  function answerInternetPrompt(answer: 'allow' | 'cancel') {
-    internetPrompt?.resolve(answer);
-    internetPrompt = undefined;
-  }
-  async function askToRemoveInternetFirst() {
-    const prompt = internetPrompt;
-    if (!prompt) return;
-    await downloadRemovalPrompt('internet', prompt.html);
-    answerInternetPrompt('cancel');
-    pasteNote = $t`Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply here.`;
-  }
-
-  async function useHtml(candidate: string): Promise<boolean> {
-    const html = extractPluginHtml(candidate);
-    if (!isCompletePluginHtml(html)) {
-      pasteError = $t`This doesn't look like a complete plugin. It should be one HTML file that starts with <!DOCTYPE html> and ends with </html>.`;
-      return false;
-    }
-    pasteError = undefined;
-    pasteNote = undefined;
-    const hadInternet = !!draft.manifest?.permissions.includes('internet');
-    if (await confirmInternet(html) === 'cancel') return false;
-    draft.applyVersion(html);
-    showSavedVersion = false;
-    // Allowed just now, so the review card lists it instead of warning about it again.
-    keptPermissions = !hadInternet && draft.manifest?.permissions.includes('internet') ? ['internet'] : [];
-    followUpDownloaded = false;
-    if (mode === 'new' && (!draft.name.trim() || nameFromHtml)) {
-      const title = pluginHtmlTitle(html);
-      if (title) {
-        draft.name = title;
-        nameFromHtml = true;
-      }
-    }
-    mobilePane = 'preview';
-    return true;
-  }
-
-  async function applyPaste() {
-    if (await useHtml(pasteText)) pasteText = '';
-  }
 
   async function uploadFile(event: Event) {
     const input = event.currentTarget as HTMLInputElement;
     const file = input.files?.[0];
     input.value = '';
     if (!file) return;
-    await useHtml(await file.text());
-  }
-
-  function fileSlug(): string {
-    return draft.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'plugin';
-  }
-
-  function downloadText(text: string, fileName: string, type: string) {
-    const url = URL.createObjectURL(new Blob([text], {type}));
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = fileName;
-    anchor.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function downloadHtml() {
-    downloadText(draft.html, `${fileSlug()}.html`, 'text/html');
+    await studio.useHtml(await file.text());
   }
 
   // ---- Saving ----
 
-  let saving = $state(false);
-  function draftToSave() {
-    return {name: draft.name.trim(), description: draft.description.trim() || undefined, html: draft.html};
-  }
-
   async function addToProject() {
-    saving = true;
-    try {
-      added = mode === 'example' && example
-        ? await pluginService.addExample(example, draftToSave(), draft.customized)
-        : await pluginService.create(draftToSave());
-      AppNotification.display($t`"${added.name}" was added for everyone on this project.`, {timeout: 'short', type: 'success'});
-    } finally {
-      saving = false;
-    }
+    const added = await studio.addToProject();
+    AppNotification.display($t`"${added.name}" was added for everyone on this project.`, {timeout: 'short', type: 'success'});
   }
 
   async function saveEdit() {
-    if (!savedPlugin) return;
-    saving = true;
-    try {
-      const saved = draftToSave();
-      const updated = await pluginService.update(savedPlugin, saved, draft.baseline.html);
-      savedPlugin = updated;
-      draft.reset({name: updated.name, description: updated.description ?? '', html: saved.html});
-      AppNotification.display($t`Saved for the team.`, {timeout: 'short', type: 'success'});
-    } finally {
-      saving = false;
-    }
+    await studio.saveEdit();
+    AppNotification.display($t`Saved for the team.`, {timeout: 'short', type: 'success'});
   }
 
   async function removePlugin() {
-    if (!savedPlugin) return;
-    const shouldDelete = await dialogsService.promptDelete($t`Plugin`, savedPlugin.name, {
+    if (!studio.savedPlugin) return;
+    const shouldDelete = await dialogsService.promptDelete($t`Plugin`, studio.savedPlugin.name, {
       isDangerous: true,
       details: $t`This removes the plugin for everyone on this project.`,
     });
-    if (!shouldDelete) return;
-    await pluginService.delete(savedPlugin.id);
-    added = savedPlugin; // nothing left to lose
-    goToPlugins();
+    if (shouldDelete) await studio.removePlugin();
   }
 
   // ---- Leaving ----
 
-  const hasUnsavedWork = $derived(!added && draft.dirty);
-  let leavePrompt = $state<(leave: boolean) => void>();
-  function confirmLeave(): Promise<boolean> {
-    if (!hasUnsavedWork) return Promise.resolve(true);
-    return new Promise(resolve => leavePrompt = resolve);
-  }
-  function answerLeavePrompt(leave: boolean) {
-    leavePrompt?.(leave);
-    leavePrompt = undefined;
-  }
-
-  $effect(() => setLeaveGuard(confirmLeave));
+  $effect(() => setLeaveGuard(() => studio.confirmLeave()));
 
   // Browser/Android back while there's unsaved work asks first; staying re-arms the guard.
   let backGuardVersion = $state(0);
   useBackHandler({
     addToStack: () => {
       backGuardVersion; // eslint-disable-line @typescript-eslint/no-unused-expressions
-      return hasUnsavedWork;
+      return studio.hasUnsavedWork;
     },
-    onBack: () => void confirmLeave().then(leave => {
+    onBack: () => void studio.confirmLeave().then(leave => {
       if (leave) goToPlugins();
       else backGuardVersion++;
     }),
@@ -435,7 +207,7 @@
   });
 
   function onBeforeUnload(event: BeforeUnloadEvent) {
-    if (hasUnsavedWork) event.preventDefault();
+    if (studio.hasUnsavedWork) event.preventDefault();
   }
 
   function goToPlugins() {
@@ -443,26 +215,21 @@
   }
 
   async function leave() {
-    if (await confirmLeave()) goToPlugins();
-  }
-
-  function discardChanges() {
-    draft.reset(draft.baseline);
-    nameFromHtml = false;
+    if (await studio.confirmLeave()) goToPlugins();
   }
 
   // ---- Display ----
 
-  const title = $derived(draft.name.trim() || (mode === 'new' ? $t`New plugin` : example?.name ?? plugin?.name ?? $t`Plugin`));
+  const title = $derived(studio.name ?? (mode === 'new' ? $t`New plugin` : $t`Plugin`));
 
-  const statusChip = $derived.by((): {label: string; tone: 'muted' | 'ok' | 'warn'} | undefined => {
-    if (added) return {label: $t`In this project`, tone: 'ok'};
-    if (mode === 'example') return draft.customized
-      ? {label: $t`Your version, not added yet`, tone: 'muted'}
-      : {label: $t`Example, not in this project`, tone: 'muted'};
-    if (mode === 'new') return {label: $t`Draft, only you can see it`, tone: 'muted'};
-    return draft.dirty ? {label: $t`Unsaved changes`, tone: 'warn'} : undefined;
+  const statusChips = $derived<Record<StudioStatus, {label: string; tone: 'muted' | 'ok' | 'warn'}>>({
+    added: {label: $t`In this project`, tone: 'ok'},
+    example: {label: $t`Example, not in this project`, tone: 'muted'},
+    'example-customized': {label: $t`Your version, not added yet`, tone: 'muted'},
+    new: {label: $t`Draft, only you can see it`, tone: 'muted'},
+    unsaved: {label: $t`Unsaved changes`, tone: 'warn'},
   });
+  const statusChip = $derived(studio.status ? statusChips[studio.status] : undefined);
 
   const capabilityLabels: Record<ExampleCapability, string> = $derived({
     internet: $t`Uses the internet`,
@@ -487,7 +254,10 @@
     return lines;
   });
 
-  const sizeKb = $derived(Math.max(1, Math.round(draft.html.length / 1024)));
+  const pasteMessages = $derived({
+    error: $t`This doesn't look like a complete plugin. It should be one HTML file that starts with <!DOCTYPE html> and ends with </html>.`,
+    note: $t`Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply here.`,
+  });
 </script>
 
 <svelte:window onbeforeunload={onBeforeUnload} />
@@ -497,18 +267,18 @@
     <Label for="plugin-studio-paste">{label}</Label>
     <Textarea
       id="plugin-studio-paste"
-      bind:value={pasteText}
+      bind:value={studio.pasteText}
       spellcheck="false"
       placeholder={$t`Paste the AI's reply or the plugin's HTML here`}
       class="font-mono text-xs min-h-28 max-h-[40vh]"
     />
-    {#if pasteError}
-      <p class="text-sm text-destructive">{pasteError}</p>
+    {#if studio.pasteError}
+      <p class="text-sm text-destructive">{pasteMessages.error}</p>
     {/if}
-    {#if pasteNote}
-      <p class="rounded-md bg-muted px-3 py-2 text-sm">{pasteNote}</p>
+    {#if studio.pasteNote}
+      <p class="rounded-md bg-muted px-3 py-2 text-sm">{pasteMessages.note}</p>
     {/if}
-    <Button variant="outline" size="sm" icon="i-mdi-check" disabled={!pasteText.trim()} onclick={() => void applyPaste()}>
+    <Button variant="outline" size="sm" icon="i-mdi-check" disabled={!studio.pasteText.trim()} onclick={() => void studio.applyPaste()}>
       {$t`Use this version`}
     </Button>
   </div>
@@ -546,7 +316,7 @@
       <p class="text-sm text-muted-foreground">
         {$t`Download the prompt and attach the file in any AI chat (e.g. Claude, ChatGPT or Gemini). It already explains plugins and this project.`}
       </p>
-      <Button icon="i-mdi-download" disabled={!newPluginPrompt} loading={!newPluginPrompt} onclick={() => downloadPrompt(newPluginPrompt)}>
+      <Button icon="i-mdi-download" disabled={!newPluginPrompt} loading={!newPluginPrompt} onclick={() => downloadPrompt(newPluginPrompt, draft.name)}>
         {$t`Download prompt`}
       </Button>
     </li>
@@ -559,29 +329,29 @@
 
 {#snippet changeAi()}
   <div class="space-y-4">
-    {#if review}
+    {#if studio.review}
       <div class="space-y-2" data-testid="plugin-version-review">
         <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{$t`This version`}</h3>
         <div class="rounded-md bg-muted px-3 py-2 text-sm">
-          {#if review.changes.added.permissions.length === 0}
-            {$t`${review.sizeBefore} KB to ${sizeKb} KB, no new permissions`}
+          {#if studio.review.changes.added.permissions.length === 0}
+            {$t`${studio.review.sizeBefore} KB to ${studio.sizeKb} KB, no new permissions`}
           {:else}
-            {$t`${review.sizeBefore} KB to ${sizeKb} KB`}
+            {$t`${studio.review.sizeBefore} KB to ${studio.sizeKb} KB`}
           {/if}
         </div>
-        {#each newPermissions as permission (permission)}
+        {#each studio.newPermissions as permission (permission)}
           <div class="space-y-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm" role="alert">
             <div class="font-semibold text-destructive">{permissionWarnings[permission]}</div>
             <p>{$t`The version before it didn't. If you didn't ask for this, have the AI take it out.`}</p>
             <div class="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" loading={buildingChangePrompt} onclick={() => void askToRemove(permission)}>
+              <Button variant="outline" size="sm" loading={studio.buildingChangePrompt} onclick={() => void studio.askToRemove(permission)}>
                 {$t`Ask the AI to remove it`}
               </Button>
-              <Button variant="ghost" size="sm" onclick={() => keptPermissions = [...keptPermissions, permission]}>{$t`Keep it`}</Button>
+              <Button variant="ghost" size="sm" onclick={() => studio.keepPermission(permission)}>{$t`Keep it`}</Button>
             </div>
           </div>
         {/each}
-        {#if followUpDownloaded}
+        {#if studio.followUpDownloaded}
           <p class="rounded-md bg-muted px-3 py-2 text-sm">
             {$t`Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below.`}
           </p>
@@ -593,7 +363,7 @@
             {/each}
           </ul>
         {/if}
-        {#if writeTrustResets}
+        {#if studio.writeTrustResets}
           <p class="rounded-md bg-muted px-3 py-2 text-sm">
             {$t`Saving turns off "Always allow" on this device, so the new version asks before its first change.`}
           </p>
@@ -602,14 +372,14 @@
     {/if}
 
     <div class="space-y-2">
-      <Label for="plugin-studio-change">{mode === 'example' && !added ? $t`Change it before adding` : $t`Describe a change`}</Label>
+      <Label for="plugin-studio-change">{mode === 'example' && !studio.added ? $t`Change it before adding` : $t`Describe a change`}</Label>
       <Textarea
         id="plugin-studio-change"
         bind:value={changeText}
         class="min-h-20"
         placeholder={$t`e.g. Also show how many entries have a recording.`}
       />
-      <Button icon="i-mdi-download" disabled={!draft.complete} loading={buildingChangePrompt} onclick={() => void withChangePrompt(changeText, downloadPrompt)}>
+      <Button icon="i-mdi-download" disabled={!draft.complete} loading={studio.buildingChangePrompt} onclick={() => void studio.downloadChangePrompt(changeText)}>
         {$t`Download prompt`}
       </Button>
       <p class="text-xs text-muted-foreground">
@@ -620,14 +390,14 @@
     {@render pasteBox($t`Paste the AI's reply`)}
 
     {#if draft.previousVersions.length}
-      <Button variant="ghost" size="sm" icon="i-mdi-undo" onclick={() => { draft.undoVersion(); keptPermissions = []; }}>
+      <Button variant="ghost" size="sm" icon="i-mdi-undo" onclick={() => studio.undoVersion()}>
         {$t`Go back to the previous version`}
       </Button>
     {/if}
   </div>
 {/snippet}
 
-{#snippet panelContent(current: Tab)}
+{#snippet panelContent(current: StudioTab)}
   {#if current === 'about' && example}
     <div class="space-y-4">
       <p>{example.description}</p>
@@ -645,7 +415,7 @@
           {$t`Everyone on this project will see it under Plugins. You can change or remove it later.`}
         </p>
       </div>
-      <Button variant="outline" icon="i-mdi-creation" onclick={() => tab = 'ai'}>{$t`Make it your own with AI`}</Button>
+      <Button variant="outline" icon="i-mdi-creation" onclick={() => studio.tab = 'ai'}>{$t`Make it your own with AI`}</Button>
     </div>
   {:else if current === 'ai'}
     {#if mode === 'new' && !draft.html}
@@ -658,8 +428,8 @@
       <div class="flex flex-wrap gap-2">
         <Button variant="outline" size="sm" icon="i-mdi-upload" onclick={() => fileInput?.click()}>{$t`Upload file`}</Button>
         {#if draft.html}
-          <Button variant="outline" size="sm" icon="i-mdi-download" onclick={downloadHtml}>{$t`Download`}</Button>
-          <span class="self-center text-xs text-muted-foreground">{$t`${sizeKb} KB`}</span>
+          <Button variant="outline" size="sm" icon="i-mdi-download" onclick={() => downloadPluginHtml(draft.html, draft.name)}>{$t`Download`}</Button>
+          <span class="self-center text-xs text-muted-foreground">{$t`${studio.sizeKb} KB`}</span>
         {/if}
         <input bind:this={fileInput} type="file" accept=".html,.htm" class="hidden" onchange={uploadFile} />
       </div>
@@ -680,8 +450,8 @@
     <div class="space-y-4">
       <div class="space-y-2">
         <Label for="plugin-studio-name">{$t`Name`}</Label>
-        <Input id="plugin-studio-name" bind:value={draft.name} oninput={() => nameFromHtml = false} placeholder={$t`e.g. Dictionary stats`} />
-        {#if nameFromHtml}
+        <Input id="plugin-studio-name" bind:value={draft.name} oninput={() => studio.nameFromHtml = false} placeholder={$t`e.g. Dictionary stats`} />
+        {#if studio.nameFromHtml}
           <p class="text-xs text-muted-foreground">{$t`Filled in from the plugin's title. Change it if you like.`}</p>
         {/if}
       </div>
@@ -700,23 +470,23 @@
 {/snippet}
 
 {#snippet headerActions()}
-  {#if added}
+  {#if studio.added}
     <span class="text-sm font-medium text-green-700 dark:text-green-400">{$t`Added for the team`}</span>
-    <Button variant="outline" icon="i-mdi-play" onclick={() => navigate(`${$base.uri}/plugins/${added!.id}`)}>{$t`Run it`}</Button>
+    <Button variant="outline" icon="i-mdi-play" onclick={() => navigate(`${$base.uri}/plugins/${studio.added!.id}`)}>{$t`Run it`}</Button>
     <Button onclick={goToPlugins}>{$t`Back to plugins`}</Button>
   {:else if mode === 'example'}
     <Button variant="outline" onclick={() => void leave()}>{$t`Close`}</Button>
-    <Button icon="i-mdi-plus" disabled={!draft.canSave} loading={saving} onclick={() => void addToProject()}>
+    <Button icon="i-mdi-plus" disabled={!draft.canSave} loading={studio.saving} onclick={() => void addToProject()}>
       {draft.customized ? $t`Add my version` : $t`Add to project`}
     </Button>
   {:else if mode === 'new'}
     <Button variant="outline" onclick={() => void leave()}>{$t`Discard`}</Button>
-    <Button icon="i-mdi-plus" disabled={!draft.canSave} loading={saving} onclick={() => void addToProject()}>
+    <Button icon="i-mdi-plus" disabled={!draft.canSave} loading={studio.saving} onclick={() => void addToProject()}>
       {$t`Add to project`}
     </Button>
   {:else}
-    <Button variant="outline" disabled={!draft.dirty} onclick={discardChanges}>{$t`Discard`}</Button>
-    <Button icon="i-mdi-content-save" disabled={!draft.canSave} loading={saving} onclick={() => void saveEdit()}>
+    <Button variant="outline" disabled={!draft.dirty} onclick={() => studio.discardChanges()}>{$t`Discard`}</Button>
+    <Button icon="i-mdi-content-save" disabled={!draft.canSave} loading={studio.saving} onclick={() => void saveEdit()}>
       {$t`Save for the team`}
     </Button>
   {/if}
@@ -734,11 +504,11 @@
 
 {#if !canManage}
   {@render notice('i-mdi-lock-outline', $t`Only project managers can add or change plugins.`)}
-{:else if loadState === 'missing'}
+{:else if studio.loadState === 'missing'}
   {@render notice('i-mdi-puzzle-remove', mode === 'example' ? $t`This example doesn't exist.` : $t`This plugin no longer exists.`)}
-{:else if loadState === 'offline'}
+{:else if studio.loadState === 'offline'}
   {@render notice('i-mdi-cloud-off-outline', $t`You're offline and this plugin's file isn't on this device yet. Connect and try again.`)}
-{:else if loadState === 'error'}
+{:else if studio.loadState === 'error'}
   {@render notice('i-mdi-alert-circle-outline', $t`Couldn't load the plugin file.`)}
 {:else}
   <div class="h-full flex flex-col bg-background" data-testid="plugin-studio">
@@ -772,7 +542,7 @@
     </header>
 
     {#if IsMobile.value}
-      <Tabs.Root bind:value={mobilePane} class="px-3 pt-2">
+      <Tabs.Root bind:value={studio.mobilePane} class="px-3 pt-2">
         <Tabs.List class="w-full">
           <Tabs.Trigger value="preview" class="flex-1">{$t`Preview`}</Tabs.Trigger>
           <Tabs.Trigger value="edit" class="flex-1">{$t`Edit`}</Tabs.Trigger>
@@ -784,19 +554,19 @@
       <section
         aria-label={$t`Preview`}
         class="flex min-w-0 grow flex-col bg-muted/50"
-        class:hidden={IsMobile.value && mobilePane !== 'preview'}
+        class:hidden={IsMobile.value && studio.mobilePane !== 'preview'}
       >
         <div class="flex flex-wrap items-center gap-2 px-4 py-2 text-sm text-muted-foreground">
           <Badge variant="secondary" class="text-primary">
             <Icon icon="i-mdi-eye-outline" />
             {$t`Preview`}
           </Badge>
-          {#if canCompareVersions}
+          {#if studio.canCompareVersions}
             <div role="group" aria-label={$t`Version`} class="inline-flex gap-0.5 rounded-md bg-muted p-0.5">
-              <Button size="xs" variant={showSavedVersion ? 'secondary' : 'ghost'} aria-pressed={showSavedVersion} onclick={() => showSavedVersion = true}>
+              <Button size="xs" variant={studio.showSavedVersion ? 'secondary' : 'ghost'} aria-pressed={studio.showSavedVersion} onclick={() => studio.showSavedVersion = true}>
                 {$t`Current version`}
               </Button>
-              <Button size="xs" variant={showSavedVersion ? 'ghost' : 'secondary'} aria-pressed={!showSavedVersion} onclick={() => showSavedVersion = false}>
+              <Button size="xs" variant={studio.showSavedVersion ? 'ghost' : 'secondary'} aria-pressed={!studio.showSavedVersion} onclick={() => studio.showSavedVersion = false}>
                 {$t`New version`}
               </Button>
             </div>
@@ -831,23 +601,23 @@
             class:max-w-[390px]={phoneWidth}
             data-testid="plugin-studio-preview"
           >
-            {#if loadState === 'loading'}
+            {#if studio.loadState === 'loading'}
               <div class="absolute inset-0 grid place-items-center text-muted-foreground">
                 <Icon icon="i-mdi-loading" class="animate-spin size-8" />
               </div>
-            {:else if needsConsent && !savedApproval}
+            {:else if studio.needsConsent && !studio.savedApproval}
               <div class="absolute inset-0 grid place-items-center text-muted-foreground">
                 <Icon icon="i-mdi-loading" class="animate-spin size-8" />
               </div>
-            {:else if needsConsent}
-              <PluginConsentCard pluginName={title} manifest={previewDoc?.manifest} onApprove={approveSaved} onGoBack={() => void leave()} />
-            {:else if docUrl && previewDoc && (!needsEntry || previewEntry)}
+            {:else if studio.needsConsent}
+              <PluginConsentCard pluginName={title} manifest={studio.previewDoc?.manifest} onApprove={() => studio.approveSaved()} onGoBack={() => void leave()} />
+            {:else if docUrl && studio.previewDoc && (!needsEntry || previewEntry)}
               {#key `${docUrl}|${previewEntry?.id ?? ''}`}
                 <PluginSandbox
                   pluginId="studio-preview"
                   pluginName={title}
                   {docUrl}
-                  manifest={previewDoc.manifest}
+                  manifest={studio.previewDoc.manifest}
                   writeMode="preview"
                   entryId={needsEntry ? previewEntry?.id : undefined}
                   {reloadToken}
@@ -875,17 +645,17 @@
       <aside
         aria-label={$t`Plugin`}
         class="flex w-full shrink-0 flex-col border-s md:w-[440px]"
-        class:hidden={IsMobile.value && mobilePane !== 'edit'}
+        class:hidden={IsMobile.value && studio.mobilePane !== 'edit'}
       >
-        <Tabs.Root bind:value={tab} class="min-h-0 grow gap-0">
+        <Tabs.Root bind:value={studio.tab} class="min-h-0 grow gap-0">
           <Tabs.List class="m-3 mb-0 w-auto">
-            {#each tabs as candidate (candidate)}
+            {#each studio.tabs as candidate (candidate)}
               <Tabs.Trigger value={candidate} class="flex-1">{tabLabels[candidate]}</Tabs.Trigger>
             {/each}
           </Tabs.List>
-          {#each tabs as candidate (candidate)}
+          {#each studio.tabs as candidate (candidate)}
             <Tabs.Content value={candidate} class="min-h-0 grow overflow-y-auto p-4">
-              {#if loadState === 'ready'}
+              {#if studio.loadState === 'ready'}
                 {@render panelContent(candidate)}
               {/if}
             </Tabs.Content>
@@ -896,7 +666,7 @@
   </div>
 {/if}
 
-<AlertDialog.Root open={!!internetPrompt} onOpenChange={(open) => { if (!open) answerInternetPrompt('cancel'); }}>
+<AlertDialog.Root open={!!studio.internetPrompt} onOpenChange={(open) => { if (!open) studio.answerInternetPrompt('cancel'); }}>
   <AlertDialog.Content data-testid="plugin-internet-prompt">
     <AlertDialog.Header>
       <AlertDialog.Title>{$t`Let this version use the internet?`}</AlertDialog.Title>
@@ -910,16 +680,16 @@
       </AlertDialog.Description>
     </AlertDialog.Header>
     <AlertDialog.Footer class="gap-2">
-      <AlertDialog.Cancel onclick={() => answerInternetPrompt('cancel')}>{$t`Don't run it`}</AlertDialog.Cancel>
-      <Button variant="outline" loading={buildingChangePrompt} onclick={() => void askToRemoveInternetFirst()}>
+      <AlertDialog.Cancel onclick={() => studio.answerInternetPrompt('cancel')}>{$t`Don't run it`}</AlertDialog.Cancel>
+      <Button variant="outline" loading={studio.buildingChangePrompt} onclick={() => void studio.askToRemoveInternetFirst()}>
         {$t`Ask the AI to remove it`}
       </Button>
-      <AlertDialog.Action onclick={() => answerInternetPrompt('allow')}>{$t`Allow and run it`}</AlertDialog.Action>
+      <AlertDialog.Action onclick={() => studio.answerInternetPrompt('allow')}>{$t`Allow and run it`}</AlertDialog.Action>
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>
 
-<AlertDialog.Root open={!!leavePrompt} onOpenChange={(open) => { if (!open) answerLeavePrompt(false); }}>
+<AlertDialog.Root open={!!studio.leavePrompt} onOpenChange={(open) => { if (!open) studio.answerLeavePrompt(false); }}>
   <AlertDialog.Content>
     <AlertDialog.Header>
       <AlertDialog.Title>{$t`Leave without saving?`}</AlertDialog.Title>
@@ -932,8 +702,8 @@
       </AlertDialog.Description>
     </AlertDialog.Header>
     <AlertDialog.Footer>
-      <AlertDialog.Cancel onclick={() => answerLeavePrompt(false)}>{$t`Keep editing`}</AlertDialog.Cancel>
-      <AlertDialog.Action onclick={() => answerLeavePrompt(true)}>{$t`Leave`}</AlertDialog.Action>
+      <AlertDialog.Cancel onclick={() => studio.answerLeavePrompt(false)}>{$t`Keep editing`}</AlertDialog.Cancel>
+      <AlertDialog.Action onclick={() => studio.answerLeavePrompt(true)}>{$t`Leave`}</AlertDialog.Action>
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>
