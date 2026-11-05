@@ -88,7 +88,6 @@ public static class ProxyKernel
         var httpClient = context.RequestServices.GetRequiredService<HttpMessageInvoker>();
         var forwarder = context.RequestServices.GetRequiredService<IHttpForwarder>();
         var eventsService = context.RequestServices.GetRequiredService<ProxyEventsService>();
-        var hgService = context.RequestServices.GetRequiredService<IHgService>();
         var transformer = context.RequestServices.GetRequiredService<HgRequestTransformer>();
         var lexProxyService = context.RequestServices.GetRequiredService<ILexProxyService>();
         var sendReceiveService = context.RequestServices.GetRequiredService<ISendReceiveService>();
@@ -111,11 +110,6 @@ public static class ProxyKernel
                     await eventsService.OnResumableRequest(context);
                     break;
             }
-
-            // We still hold the send/receive ticket here, so don't let a slow hgresume keep the project locked
-            using var statusTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-            if (await hgService.HasAbandonedTransactions(projectCode, statusTimeout.Token))
-                Activity.Current?.AddTag("app.abandoned_transaction_detected", true);
         }
         catch (Exception e)
         {
