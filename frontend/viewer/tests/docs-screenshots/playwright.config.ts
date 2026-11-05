@@ -57,8 +57,6 @@ export default defineConfig({
         viewport: {width: 1024, height: 640},
         deviceScaleFactor: 2,
         userAgent: 'Playwright Chrome',
-        // Lets an environment with a preinstalled Chromium skip `playwright install`.
-        launchOptions: process.env.CHROMIUM_PATH ? {executablePath: process.env.CHROMIUM_PATH} : undefined,
       },
     },
   ],

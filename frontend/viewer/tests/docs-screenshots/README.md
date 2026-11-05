@@ -39,5 +39,3 @@ Shot names are the contract with the pages, so rename one only together with the
 it. Re-run the task when the UI a shot shows changes and commit the new PNGs with that change.
 Fonts, viewport and color scheme are fixed by the config, so re-runs are comparable; small
 anti-aliasing differences between machines are harmless.
-
-Set `CHROMIUM_PATH` to use a preinstalled Chromium instead of the Playwright-managed one.
