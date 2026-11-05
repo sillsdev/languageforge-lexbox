@@ -8,7 +8,7 @@ msgstr ""
 "Language: ms\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-03 05:05\n"
+"PO-Revision-Date: 2026-11-05 05:15\n"
 "Last-Translator: \n"
 "Language-Team: Malay\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -1837,6 +1837,7 @@ msgstr "Fail dimuat"
 
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
 msgstr "Memuatkan aktiviti"
 
@@ -2665,6 +2666,10 @@ msgstr "Rakam Papar sebagai"
 #: src/project/tasks/tasks-service.ts
 msgid "Record Word or Display as"
 msgstr "Rakam Perkataan atau Papar sebagai"
+
+#: src/lib/components/audio/audio-provider.svelte
+msgid "Recording isn't available on this device."
+msgstr "Perekodan tidak tersedia pada peranti ini."
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
