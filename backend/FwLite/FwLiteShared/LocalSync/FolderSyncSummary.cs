@@ -61,8 +61,8 @@ public record FolderSyncSummary(
 /// What the viewer needs to report "Open from folder", flattened from <see cref="OpenFromFolderResult"/>.
 /// </summary>
 /// <param name="ProjectCode">The local project to open, when there is one.</param>
-public record OpenFromFolderSummary(OpenFromFolderOutcome Outcome, string? ProjectCode, FolderSyncSummary? Sync, string? ProjectName)
+public record OpenFromFolderSummary(OpenFromFolderOutcome Outcome, string? ProjectCode, string? ProjectName)
 {
     public static OpenFromFolderSummary From(OpenFromFolderResult result) =>
-        new(result.Outcome, result.ProjectCode, result.Sync is null ? null : FolderSyncSummary.From(result.Sync), result.ProjectName);
+        new(result.Outcome, result.ProjectCode, result.ProjectName);
 }

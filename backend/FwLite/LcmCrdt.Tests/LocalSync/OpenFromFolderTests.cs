@@ -100,7 +100,7 @@ public class OpenFromFolderTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task AProjectThisDeviceAlreadyHas_IsSyncedWithTheFolder()
+    public async Task AProjectThisDeviceAlreadyHas_IsOpenedWithoutSyncing()
     {
         await _source.GetService<FolderSyncService>().SyncWithFolder(_folder.Path);
         (await OpenOnOtherDevice()).Outcome.Should().Be(OpenFromFolderOutcome.Downloaded);
@@ -109,7 +109,22 @@ public class OpenFromFolderTests : IAsyncLifetime
 
         var result = await OpenOnOtherDevice();
 
-        result.Outcome.Should().Be(OpenFromFolderOutcome.Synced);
+        result.Outcome.Should().Be(OpenFromFolderOutcome.AlreadyOnDevice);
+        result.ProjectCode.Should().Be("sena-3");
+        (await GetEntryOnOtherDevice("sena-3", banana.Id)).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task SyncNow_SyncsAProjectThisDeviceAlreadyHas()
+    {
+        await _source.GetService<FolderSyncService>().SyncWithFolder(_folder.Path);
+        await OpenOnOtherDevice();
+        var banana = await _source.Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "banana" } });
+        await _source.GetService<FolderSyncService>().SyncWithFolder(_folder.Path);
+
+        var result = await _otherDevice.GetService<FolderProjectOpener>().SyncWithFolder("sena-3", Path.Combine(_folder.Path, "sena-3"));
+
+        result.Synced.Should().BeTrue();
         (await GetEntryOnOtherDevice("sena-3", banana.Id)).Should().NotBeNull();
     }
 

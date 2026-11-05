@@ -24,8 +24,8 @@
     try {
       const result = await projectsService.openFromFolder(path);
       await refreshProjects();
-      report(result);
-      if (result.projectCode && (result.outcome === OpenFromFolderOutcome.Downloaded || result.outcome === OpenFromFolderOutcome.Synced)) {
+      report(result, path);
+      if (result.projectCode && (result.outcome === OpenFromFolderOutcome.Downloaded || result.outcome === OpenFromFolderOutcome.AlreadyOnDevice)) {
         navigate(`/project/${result.projectCode}`);
       }
     } finally {
@@ -33,18 +33,30 @@
     }
   }
 
-  function report(result: IOpenFromFolderSummary) {
+  async function syncNow(projectCode: string, path: string) {
+    const syncing = AppNotification.loading($t`Syncing with the folder...`);
+    try {
+      const summary = await projectsService.syncProjectWithFolder(projectCode, path);
+      const {message, type, description} = folderSyncMessage(summary, projectCode);
+      AppNotification.display(message, {type, description, timeout: 'long'});
+    } finally {
+      syncing.dismiss();
+    }
+  }
+
+  function report(result: IOpenFromFolderSummary, path: string) {
     switch (result.outcome) {
       case OpenFromFolderOutcome.Downloaded:
         AppNotification.display($t`Opened ${result.projectName ?? result.projectCode ?? ''} from the folder. You can remove the drive.`, {type: 'success', timeout: 'long'});
         return;
-      case OpenFromFolderOutcome.Synced:
-      case OpenFromFolderOutcome.Refused:
-        if (result.sync) {
-          const {message, type, description} = folderSyncMessage(result.sync);
-          AppNotification.display(message, {type, description, timeout: 'long'});
-        }
+      case OpenFromFolderOutcome.AlreadyOnDevice: {
+        const projectCode = result.projectCode ?? '';
+        AppNotification.displayAction(
+          $t`${result.projectName ?? projectCode} is already on this device, so it was opened without syncing.`,
+          {label: $t`Sync now`, callback: () => { void syncNow(projectCode, path); return {dismiss: true}; }},
+          'info');
         return;
+      }
       case OpenFromFolderOutcome.EmptyFolder:
         AppNotification.display($t`This folder is empty. To put a project in it, open that project on a device that has it and choose Sync with a folder.`, {type: 'warning', timeout: 'long'});
         return;

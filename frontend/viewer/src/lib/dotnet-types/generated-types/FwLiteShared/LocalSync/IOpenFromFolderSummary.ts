@@ -4,13 +4,11 @@
 //     the code is regenerated.
 
 import type {OpenFromFolderOutcome} from './OpenFromFolderOutcome';
-import type {IFolderSyncSummary} from './IFolderSyncSummary';
 
 export interface IOpenFromFolderSummary
 {
 	outcome: OpenFromFolderOutcome;
 	projectCode?: string;
-	sync?: IFolderSyncSummary;
 	projectName?: string;
 }
 /* eslint-enable */

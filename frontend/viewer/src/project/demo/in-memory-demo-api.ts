@@ -46,6 +46,7 @@ import type {IUploadFileResponse} from '$lib/dotnet-types/generated-types/MiniLc
 import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
 import {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
 import type {IOpenFromFolderSummary} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IOpenFromFolderSummary';
+import type {IFolderSyncSummary} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IFolderSyncSummary';
 import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IUpdateService';
 import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
 import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-bus';
@@ -206,6 +207,9 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       },
       openFromFolder: function (_path: string): Promise<IOpenFromFolderSummary> {
         return Promise.reject(new Error('Opening from a folder is not available in the demo'));
+      },
+      syncProjectWithFolder: function (_projectCode: string, _path: string): Promise<IFolderSyncSummary> {
+        return Promise.reject(new Error('Folder sync is not available in the demo'));
       }
     });
     return inMemoryLexboxApi;

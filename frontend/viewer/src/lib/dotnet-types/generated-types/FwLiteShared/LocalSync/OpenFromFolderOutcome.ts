@@ -7,8 +7,7 @@ export enum OpenFromFolderOutcome {
 	EmptyFolder = "EmptyFolder",
 	NotASyncFolder = "NotASyncFolder",
 	Downloaded = "Downloaded",
-	Synced = "Synced",
-	Refused = "Refused",
+	AlreadyOnDevice = "AlreadyOnDevice",
 	ProjectCodeInUse = "ProjectCodeInUse",
 	NewerAppNeeded = "NewerAppNeeded"
 }

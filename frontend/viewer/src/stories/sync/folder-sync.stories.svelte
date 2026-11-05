@@ -105,3 +105,11 @@
   </NoFolderPicker>
   <Toaster />
 </Story>
+<Story name="Home: project already on this device">
+  <FakeOpenFromFolder result={{outcome: OpenFromFolderOutcome.AlreadyOnDevice, projectCode: 'test-project', projectName: 'Test Project'}}>
+    <Router>
+      <OpenFromFolderItem refreshProjects={() => Promise.resolve()} />
+    </Router>
+  </FakeOpenFromFolder>
+  <Toaster />
+</Story>

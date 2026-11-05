@@ -130,6 +130,10 @@ msgstr "{0} authors"
 msgid "{0} can't be added: this device already has a different project with the same code, {1}."
 msgstr "{0} can't be added: this device already has a different project with the same code, {1}."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "{0} is already on this device, so it was opened without syncing."
+msgstr "{0} is already on this device, so it was opened without syncing."
+
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "{0} KB"
@@ -4030,6 +4034,10 @@ msgstr "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied 
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Sync FieldWorks Lite and FieldWorks Classic"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Sync now"
+msgstr "Sync now"
+
 #: src/project/sync/FolderSyncSection.svelte
 msgid "Sync with {0}"
 msgstr "Sync with {0}"
@@ -4089,6 +4097,10 @@ msgstr "Synchronize"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr "Synchronizing FieldWorks Lite and FieldWorks Classic..."
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Syncing with the folder..."
+msgstr "Syncing with the folder..."
 
 #. Progress indicator
 #: src/project/sync/FolderSyncSection.svelte
