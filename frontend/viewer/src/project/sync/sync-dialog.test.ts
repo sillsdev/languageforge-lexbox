@@ -126,13 +126,48 @@ describe('SyncDialog', () => {
     window.lexbox.ServiceProvider.setService(DotnetService.PlatformFeaturesService, {
       ...fallbackPlatformFeaturesService,
       supportsFolderSync: () => Promise.resolve(true),
+      hasFolderPicker: () => Promise.resolve(true),
       pickFolder,
     });
     refreshPlatformFeatures();
   }
 
-  it('offers folder sync only where the host can pick a folder', async () => {
+  it('asks for a typed path where the host has no folder picker', async () => {
+    const {fallbackPlatformFeaturesService, refreshPlatformFeatures} = await import('$lib/services/platform-features-service');
+    const folderExists = vi.fn((path: string) => Promise.resolve(path === '/media/usb'));
+    window.lexbox.ServiceProvider.setService(DotnetService.PlatformFeaturesService, {
+      ...fallbackPlatformFeaturesService,
+      supportsFolderSync: () => Promise.resolve(true),
+      folderExists,
+    });
+    refreshPlatformFeatures();
+    const syncService = fakeSyncService();
+    await openDialog(syncService);
+
+    await vi.waitFor(() => getButton(/Sync with folder\.\.\./).click());
+    const input = await vi.waitFor(() => {
+      const input = document.querySelector<HTMLInputElement>('#folder-picker-path');
+      expect(input).toBeTruthy();
+      return input!;
+    });
+    function typePath(path: string) {
+      input.value = path;
+      input.dispatchEvent(new Event('input', {bubbles: true}));
+      flushSync();
+      getButton(/Use this folder/).click();
+    }
+
+    typePath('/media/typo');
+    await vi.waitFor(() => expect(document.body.textContent).toContain(`This folder doesn't exist.`));
+    expect(syncService.syncWithFolder).not.toHaveBeenCalled();
+
+    typePath('/media/usb');
+    await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith('/media/usb'));
+  }, 60_000);
+
+  it('offers folder sync only where the host supports it', async () => {
     const {refreshPlatformFeatures} = await import('$lib/services/platform-features-service');
+    window.lexbox.ServiceProvider.removeService(DotnetService.PlatformFeaturesService);
     refreshPlatformFeatures();
     await openDialog(fakeSyncService());
     await vi.waitFor(() => expect(document.body.textContent).toContain('Pending'));

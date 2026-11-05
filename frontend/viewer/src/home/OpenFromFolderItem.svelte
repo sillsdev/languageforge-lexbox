@@ -8,15 +8,17 @@
   import {OpenFromFolderOutcome} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/OpenFromFolderOutcome';
   import type {IOpenFromFolderSummary} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IOpenFromFolderSummary';
   import {folderSyncMessage} from '../project/sync/folder-sync-messages';
+  import FolderPicker from '../project/sync/FolderPicker.svelte';
 
   const {refreshProjects}: {refreshProjects: () => Promise<void>} = $props();
 
   const projectsService = useProjectsService();
   const platformFeatures = usePlatformFeaturesService();
   let loading = $state(false);
+  let folderPicker = $state<FolderPicker>();
 
   async function openFromFolder() {
-    const path = await platformFeatures.service.pickFolder();
+    const path = await folderPicker!.pick();
     if (!path) return;
     loading = true;
     try {
@@ -50,7 +52,7 @@
         AppNotification.display($t`This folder doesn't hold a FieldWorks Lite project. Choose the project's own folder, named after its project code.`, {type: 'warning', timeout: 'long'});
         return;
       case OpenFromFolderOutcome.ProjectCodeInUse:
-        AppNotification.display($t`A different project with the code ${result.projectCode ?? ''} is already on this device.`, {type: 'warning', timeout: 'long'});
+        AppNotification.display($t`A different project with the code ${result.projectCode ?? ''} is already on this device, and one device can't hold both. Get this project on another device instead.`, {type: 'warning', timeout: 'long'});
         return;
       case OpenFromFolderOutcome.NewerAppNeeded:
         AppNotification.display($t`A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to open it.`, {type: 'warning', timeout: 'long'});
@@ -65,3 +67,4 @@
     <span class="text-sm text-muted-foreground">{$t`Get a project from a USB drive or another folder`}</span>
   </ListItem>
 {/if}
+<FolderPicker bind:this={folderPicker} />

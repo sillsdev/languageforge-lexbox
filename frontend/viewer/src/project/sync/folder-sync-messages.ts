@@ -39,8 +39,8 @@ export function folderSyncMessage(summary: IFolderSyncSummary): FolderSyncMessag
     case FolderSyncStatus.DifferentHistory:
       return {message: gt`This folder holds a separate copy of this project that can't be merged with yours. Choose another folder.`, type: 'warning'};
     case FolderSyncStatus.NoWritingSystemInCommon:
-      return {message: gt`This folder's copy of the project shares no writing system with yours, so it can't be synced.`, type: 'warning'};
+      return {message: gt`This folder's copy of the project shares no writing system with yours, so it can't be synced. Choose another folder, or check which writing systems each copy uses.`, type: 'warning'};
     case FolderSyncStatus.Failed:
-      return {message: gt`Couldn't sync with the folder. Your local changes are safe.`, type: 'warning'};
+      return {message: gt`Couldn't sync with the folder. Your local changes are safe. Check that the drive is still connected, then try again.`, type: 'warning'};
   }
 }

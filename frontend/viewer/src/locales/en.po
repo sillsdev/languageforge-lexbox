@@ -237,8 +237,8 @@ msgid "3. Try it here"
 msgstr "3. Try it here"
 
 #: src/home/OpenFromFolderItem.svelte
-msgid "A different project with the code {0} is already on this device."
-msgstr "A different project with the code {0} is already on this device."
+msgid "A different project with the code {0} is already on this device, and one device can't hold both. Get this project on another device instead."
+msgstr "A different project with the code {0} is already on this device, and one device can't hold both. Get this project on another device instead."
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -728,6 +728,7 @@ msgstr "Can use the internet"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
+#: src/project/sync/FolderPicker.svelte
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -785,6 +786,10 @@ msgstr "Checking for similar words…"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
 msgstr "Checking for updates..."
+
+#: src/project/sync/FolderPicker.svelte
+msgid "Choose a folder"
+msgstr "Choose a folder"
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -1017,8 +1022,8 @@ msgid "Couldn't sync right now — your local changes are safe."
 msgstr "Couldn't sync right now — your local changes are safe."
 
 #: src/project/sync/folder-sync-messages.ts
-msgid "Couldn't sync with the folder. Your local changes are safe."
-msgstr "Couldn't sync with the folder. Your local changes are safe."
+msgid "Couldn't sync with the folder. Your local changes are safe. Check that the drive is still connected, then try again."
+msgstr "Couldn't sync with the folder. Your local changes are safe. Check that the drive is still connected, then try again."
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
@@ -1902,6 +1907,10 @@ msgstr "Find word..."
 #: src/project/tasks/ReviewList.svelte
 msgid "Finish"
 msgstr "Finish"
+
+#: src/project/sync/FolderPicker.svelte
+msgid "Folder path"
+msgstr "Folder path"
 
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
@@ -4223,6 +4232,10 @@ msgstr "This file is only available remotely."
 msgid "This folder already has a folder named after this project, with other files in it. Choose another folder."
 msgstr "This folder already has a folder named after this project, with other files in it. Choose another folder."
 
+#: src/project/sync/FolderPicker.svelte
+msgid "This folder doesn't exist. Check the path, for example /media/yourname/USB."
+msgstr "This folder doesn't exist. Check the path, for example /media/yourname/USB."
+
 #: src/home/OpenFromFolderItem.svelte
 msgid "This folder doesn't hold a FieldWorks Lite project. Choose the project's own folder, named after its project code."
 msgstr "This folder doesn't hold a FieldWorks Lite project. Choose the project's own folder, named after its project code."
@@ -4240,8 +4253,8 @@ msgid "This folder is empty. Sync a project with it first, from the project's sy
 msgstr "This folder is empty. Sync a project with it first, from the project's sync dialog."
 
 #: src/project/sync/folder-sync-messages.ts
-msgid "This folder's copy of the project shares no writing system with yours, so it can't be synced."
-msgstr "This folder's copy of the project shares no writing system with yours, so it can't be synced."
+msgid "This folder's copy of the project shares no writing system with yours, so it can't be synced. Choose another folder, or check which writing systems each copy uses."
+msgstr "This folder's copy of the project shares no writing system with yours, so it can't be synced. Choose another folder, or check which writing systems each copy uses."
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
@@ -4606,6 +4619,10 @@ msgstr "Uploaded pending files"
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
 msgstr "Uploading pictures is not supported here"
+
+#: src/project/sync/FolderPicker.svelte
+msgid "Use this folder"
+msgstr "Use this folder"
 
 #: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Use this version"

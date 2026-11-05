@@ -5,8 +5,8 @@
   import {resource} from 'runed';
   import {AppNotification} from '$lib/notifications/notifications';
   import {useSyncStatusService} from '$lib/services/sync-status-service';
-  import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
   import {folderSyncMessage, shortFolderPath} from './folder-sync-messages';
+  import FolderPicker from './FolderPicker.svelte';
   import type {SyncTarget} from './sync-target';
 
   interface Props {
@@ -18,9 +18,9 @@
   let {syncing = $bindable(), onSynced = () => {}}: Props = $props();
 
   const service = useSyncStatusService();
-  const platformFeatures = usePlatformFeaturesService();
   const rememberedFolder = resource(() => undefined, () => service.getRememberedSyncFolder());
   let running = $state<'picked' | 'remembered'>();
+  let folderPicker = $state<FolderPicker>();
 
   async function syncWith(path: string) {
     const summary = await service.syncWithFolder(path);
@@ -70,7 +70,7 @@
         variant="link"
         loading={running === 'picked'}
         disabled={!!syncing && running !== 'picked'}
-        onclick={() => void run('picked', () => platformFeatures.service.pickFolder())}>
+        onclick={() => void run('picked', () => folderPicker!.pick(rememberedFolder.current))}>
         {$t`Sync with other folder...`}
       </Button>
     {:else}
@@ -79,9 +79,10 @@
         icon="i-mdi-folder-sync-outline"
         loading={running === 'picked'}
         disabled={!!syncing && running !== 'picked'}
-        onclick={() => void run('picked', () => platformFeatures.service.pickFolder())}>
+        onclick={() => void run('picked', () => folderPicker!.pick(rememberedFolder.current))}>
         {$t`Sync with folder...`}
       </Button>
     {/if}
   </div>
 </div>
+<FolderPicker bind:this={folderPicker} />

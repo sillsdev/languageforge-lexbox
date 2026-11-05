@@ -10,6 +10,7 @@
   import OpenFromFolderItem from '../../home/OpenFromFolderItem.svelte';
   import FakeSyncService from './FakeSyncService.svelte';
   import FakeOpenFromFolder from './FakeOpenFromFolder.svelte';
+  import NoFolderPicker from './NoFolderPicker.svelte';
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
   import {FolderSyncStatus} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/FolderSyncStatus';
   import {OpenFromFolderOutcome} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/OpenFromFolderOutcome';
@@ -22,6 +23,7 @@
   window.lexbox.ServiceProvider.setService(DotnetService.PlatformFeaturesService, {
     ...fallbackPlatformFeaturesService,
     supportsFolderSync: () => Promise.resolve(true),
+    hasFolderPicker: () => Promise.resolve(true),
     pickFolder: () => Promise.resolve(String.raw`E:\Example project`),
   });
   refreshPlatformFeatures();
@@ -71,5 +73,35 @@
       <OpenFromFolderItem refreshProjects={() => Promise.resolve()} />
     </Router>
   </FakeOpenFromFolder>
+  <Toaster />
+</Story>
+<Story name="Sync dialog: sync failed">
+  <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, folderSyncResult: {status: FolderSyncStatus.Failed, mediaSent: 0, mediaReceived: 0, mediaFailed: 0}}}>
+    <FwLiteSyncView syncStatus={SyncStatus.Offline} {server} serverId="test-server" projectCode="test-project" />
+  </FakeSyncService>
+  <Toaster />
+</Story>
+<Story name="Sync dialog: no writing system in common">
+  <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, folderSyncResult: {status: FolderSyncStatus.NoWritingSystemInCommon, mediaSent: 0, mediaReceived: 0, mediaFailed: 0}}}>
+    <FwLiteSyncView syncStatus={SyncStatus.Offline} {server} serverId="test-server" projectCode="test-project" />
+  </FakeSyncService>
+  <Toaster />
+</Story>
+<Story name="Home: project code in use">
+  <FakeOpenFromFolder result={{outcome: OpenFromFolderOutcome.ProjectCodeInUse, projectCode: 'test-project'}}>
+    <Router>
+      <OpenFromFolderItem refreshProjects={() => Promise.resolve()} />
+    </Router>
+  </FakeOpenFromFolder>
+  <Toaster />
+</Story>
+<Story name="Home: no folder picker">
+  <NoFolderPicker>
+    <FakeOpenFromFolder result={{outcome: OpenFromFolderOutcome.Downloaded, projectCode: 'test-project', projectName: 'Test Project'}}>
+      <Router>
+        <OpenFromFolderItem refreshProjects={() => Promise.resolve()} />
+      </Router>
+    </FakeOpenFromFolder>
+  </NoFolderPicker>
   <Toaster />
 </Story>

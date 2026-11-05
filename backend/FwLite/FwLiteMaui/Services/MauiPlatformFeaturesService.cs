@@ -102,6 +102,12 @@ public class MauiPlatformFeaturesService(IMediaPicker mediaPicker, IShare share)
     }
 
     [JSInvokable]
+    public Task<bool> HasFolderPicker() => SupportsFolderSync();
+
+    [JSInvokable]
+    public Task<bool> FolderExists(string path) => Task.FromResult(Directory.Exists(path));
+
+    [JSInvokable]
     public async Task<string?> PickFolder()
     {
 #if WINDOWS

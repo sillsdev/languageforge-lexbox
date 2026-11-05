@@ -242,7 +242,7 @@ msgid "3. Try it here"
 msgstr ""
 
 #: src/home/OpenFromFolderItem.svelte
-msgid "A different project with the code {0} is already on this device."
+msgid "A different project with the code {0} is already on this device, and one device can't hold both. Get this project on another device instead."
 msgstr ""
 
 #. Update notification
@@ -733,6 +733,7 @@ msgstr ""
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
+#: src/project/sync/FolderPicker.svelte
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -790,6 +791,10 @@ msgstr "Recherche de mots similaires…"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
 msgstr "Vérification des mises à jour..."
+
+#: src/project/sync/FolderPicker.svelte
+msgid "Choose a folder"
+msgstr ""
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -1022,7 +1027,7 @@ msgid "Couldn't sync right now — your local changes are safe."
 msgstr "Échec de la synchronisation pour le moment, vos modifications locales sont sécurisées."
 
 #: src/project/sync/folder-sync-messages.ts
-msgid "Couldn't sync with the folder. Your local changes are safe."
+msgid "Couldn't sync with the folder. Your local changes are safe. Check that the drive is still connected, then try again."
 msgstr ""
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
@@ -1907,6 +1912,10 @@ msgstr "Rechercher un mot..."
 #: src/project/tasks/ReviewList.svelte
 msgid "Finish"
 msgstr "Terminer"
+
+#: src/project/sync/FolderPicker.svelte
+msgid "Folder path"
+msgstr ""
 
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
@@ -4228,6 +4237,10 @@ msgstr "Ce fichier n'est disponible qu'à distance."
 msgid "This folder already has a folder named after this project, with other files in it. Choose another folder."
 msgstr ""
 
+#: src/project/sync/FolderPicker.svelte
+msgid "This folder doesn't exist. Check the path, for example /media/yourname/USB."
+msgstr ""
+
 #: src/home/OpenFromFolderItem.svelte
 msgid "This folder doesn't hold a FieldWorks Lite project. Choose the project's own folder, named after its project code."
 msgstr ""
@@ -4245,7 +4258,7 @@ msgid "This folder is empty. Sync a project with it first, from the project's sy
 msgstr ""
 
 #: src/project/sync/folder-sync-messages.ts
-msgid "This folder's copy of the project shares no writing system with yours, so it can't be synced."
+msgid "This folder's copy of the project shares no writing system with yours, so it can't be synced. Choose another folder, or check which writing systems each copy uses."
 msgstr ""
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
@@ -4611,6 +4624,10 @@ msgstr "Fichiers en attente envoyés"
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
 msgstr "L'envoi d'images n'est pas pris en charge ici"
+
+#: src/project/sync/FolderPicker.svelte
+msgid "Use this folder"
+msgstr ""
 
 #: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Use this version"
