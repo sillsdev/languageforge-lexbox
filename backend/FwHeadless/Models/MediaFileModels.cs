@@ -11,7 +11,6 @@ public enum FileUploadErrorMessage
     UploadedFilesCannotBeMovedToNewProjects,
     UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders,
     ProjectFolderNotFoundInFwHeadless,
-    InvalidLinkedFilesSubfolder,
     InvalidFilename,
 }
 

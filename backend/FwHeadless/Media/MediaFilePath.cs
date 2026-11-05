@@ -1,4 +1,3 @@
-using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 
 namespace FwHeadless.Media;
@@ -13,15 +12,6 @@ namespace FwHeadless.Media;
 public static class MediaFilePath
 {
     public static string Normalize(string path) => path.Replace('\\', '/');
-
-    private static readonly SearchValues<char> SubfolderChars =
-        SearchValues.Create("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_");
-
-    /// <summary>One plain path segment, e.g. "Pictures".</summary>
-    public static bool IsValidSubfolder([NotNullWhen(true)] string? subfolder)
-    {
-        return !string.IsNullOrEmpty(subfolder) && !subfolder.AsSpan().ContainsAnyExcept(SubfolderChars);
-    }
 
     /// <summary>A bare file name: no directory part, not "." or "..", no control characters.</summary>
     public static bool IsValidFilename([NotNullWhen(true)] string? filename)

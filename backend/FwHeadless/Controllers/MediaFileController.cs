@@ -124,8 +124,6 @@ public static class MediaFileController
             bool newFilesAllowed)
     {
         if (CheckUploadSize(file, httpContext, config) is {} result) return result;
-        if (string.IsNullOrEmpty(linkedFilesSubfolderOverride)) linkedFilesSubfolderOverride = null;
-        else if (!MediaFilePath.IsValidSubfolder(linkedFilesSubfolderOverride)) return TypedResults.BadRequest(FileUploadErrorMessage.InvalidLinkedFilesSubfolder);
         MediaFile? mediaFile;
         bool newFile;
         try
@@ -276,7 +274,7 @@ public static class MediaFileController
             {
                 throw new UploadedFilesCannotBeMovedToNewProjects();
             }
-            if (subfolderOverride is not null && !MediaFilePath.Normalize(mediaFile.Filename).StartsWith(MediaFilePath.Normalize(Path.Join(LinkedFiles, subfolderOverride)) + "/"))
+            if (subfolderOverride is not null && !MediaFilePath.Normalize(mediaFile.Filename).StartsWith(MediaFilePath.Normalize(Path.Join(LinkedFiles, subfolderOverride))))
             {
                 throw new UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders();
             }
