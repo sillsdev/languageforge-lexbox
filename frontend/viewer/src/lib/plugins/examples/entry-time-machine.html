@@ -8,215 +8,180 @@
 <title>Entry Time Machine</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f2f1f6;
+    color-scheme: light;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --surface-alt: #ecebf3;
-    --border: #e0dfea;
-    --text: #1e1c26;
-    --text-muted: #6c6880;
-    --accent: #6d5ac4;
-    --accent-soft: #ece7fb;
-    --spine: #d7d4e4;
-    --add: #2f8f4e;
-    --add-soft: #e3f4e8;
-    --del: #c0432f;
-    --del-soft: #fbe6e1;
-    --shadow: 0 1px 2px rgba(30, 20, 60, 0.06), 0 4px 14px rgba(30, 20, 60, 0.07);
-    --radius: 16px;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
+    --warn: #b45309;
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
   }
   html[data-theme="dark"] {
-    --bg: #131119;
-    --surface: #1c1a24;
-    --surface-alt: #262331;
-    --border: #35313f;
-    --text: #eeecf4;
-    --text-muted: #a29db4;
-    --accent: #a695ef;
-    --accent-soft: #2a2440;
-    --spine: #3a3648;
-    --add: #5cc47a;
-    --add-soft: #16301f;
-    --del: #e8836f;
-    --del-soft: #3a1f18;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
+    --warn: #fbbf24;
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 20px 14px 48px;
-    line-height: 1.45;
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
   }
-  .wrap { width: 100%; max-width: 820px; margin: 0 auto; }
-  .vern { font-family: var(--vern-font, inherit); }
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
+  }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  :root { --spine: var(--border); }
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px; padding: 12px 14px; }
+  .toolbar-entry { flex: 1 1 200px; min-width: 0; }
+  .toolbar-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+  .toolbar-head { font-size: 1.15rem; font-weight: 700; overflow-wrap: anywhere; }
+  .btn[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
 
-  h1 { font-size: 1.35rem; margin: 0 0 2px; letter-spacing: -0.01em; }
-  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.88rem; }
-
-  /* Toolbar */
-  .toolbar {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 12px 14px;
-    margin-bottom: 18px;
-  }
-  .toolbar-entry { flex: 1 1 auto; min-width: 0; }
-  .toolbar-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
-  .toolbar-head { font-size: 1.1rem; font-weight: 700; word-break: break-word; }
-  .toolbar-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-
-  button.btn {
-    font: inherit; font-size: 0.83rem; font-weight: 600;
-    padding: 8px 13px; border-radius: 999px; cursor: pointer;
-    border: 1px solid var(--border); background: var(--surface-alt); color: var(--text);
-    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
-  }
-  button.btn:hover { border-color: var(--accent); }
-  button.btn.primary { background: var(--accent); color: #fff; border-color: transparent; }
-  button.btn.primary:hover { filter: brightness(1.08); }
-  button.btn[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
-
-  /* Layout: timeline + snapshot */
-  .tl-layout {
-    display: grid; grid-template-columns: 1fr; gap: 16px;
-    grid-template-areas: "snap" "time";
-  }
+  .tl-layout { display: grid; grid-template-columns: 1fr; gap: 16px; grid-template-areas: "snap" "time"; }
   @media (min-width: 720px) {
-    .tl-layout {
-      grid-template-columns: minmax(210px, 290px) 1fr;
-      grid-template-areas: "time snap";
-      align-items: start;
-    }
+    .tl-layout { grid-template-columns: minmax(220px, 320px) 1fr; grid-template-areas: "time snap"; align-items: start; }
+    .snapshot-col { position: sticky; top: 8px; }
+    .snapshot-col .card { max-height: calc(100dvh - 24px); overflow: auto; }
   }
   .timeline-col { grid-area: time; min-width: 0; }
-  .snapshot-col { grid-area: snap; position: sticky; top: 8px; min-width: 0; }
+  .snapshot-col { grid-area: snap; min-width: 0; }
 
-  /* Timeline spine */
   .timeline { position: relative; margin: 0; padding: 4px 0 4px 6px; }
-  .timeline::before {
-    content: ""; position: absolute; left: 12px; top: 14px; bottom: 14px;
-    width: 2px; background: var(--spine); border-radius: 2px;
-  }
+  .timeline::before { content: ""; position: absolute; left: 12px; top: 14px; bottom: 14px; width: 2px; background: var(--spine); border-radius: 2px; }
   .node {
-    position: relative; display: block; width: 100%; text-align: left;
-    background: transparent; border: none; cursor: pointer;
-    padding: 8px 10px 8px 34px; margin: 2px 0; border-radius: 12px;
-    color: var(--text); font: inherit;
-    transition: background 0.15s ease;
+    position: relative; display: block; width: 100%; min-height: 44px; text-align: left; background: transparent; border: none; cursor: pointer;
+    padding: 8px 10px 8px 34px; margin: 2px 0; border-radius: var(--radius); color: var(--text); font: inherit;
   }
   .node:hover { background: var(--surface-alt); }
-  .node .dot {
-    position: absolute; left: 6px; top: 12px;
-    width: 15px; height: 15px; border-radius: 50%;
-    background: var(--surface); border: 2px solid var(--spine);
-    box-sizing: border-box;
-  }
+  .node .dot { position: absolute; left: 6px; top: 13px; width: 15px; height: 15px; border-radius: 50%; background: var(--surface); border: 2px solid var(--spine); }
   .node.now .dot { border-color: var(--accent); background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
-  .node[aria-current="true"] {
-    background: var(--accent-soft);
-  }
+  .node[aria-current="true"] { background: var(--accent-soft); }
   .node[aria-current="true"] .dot { border-color: var(--accent); background: var(--accent); }
-  .node-title { font-size: 0.9rem; font-weight: 600; word-break: break-word; }
+  .node-title { font-size: 0.9rem; font-weight: 600; overflow-wrap: anywhere; }
   .node.now .node-title { color: var(--accent); }
-  .node-meta { font-size: 0.76rem; color: var(--text-muted); margin-top: 1px; word-break: break-word; }
+  .node-meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 1px; overflow-wrap: anywhere; }
   .node-meta .sep { opacity: 0.5; margin: 0 5px; }
-  .timeline-note { padding: 10px 12px; font-size: 0.82rem; color: var(--text-muted); }
+  .timeline-note { padding: 10px 12px; font-size: 0.85rem; color: var(--text-muted); }
 
-  /* Snapshot card */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 20px 20px 22px;
-    max-height: calc(100vh - 24px);
-    overflow: auto;
-  }
-  .snap-kicker {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
-    color: var(--accent);
-    background: var(--accent-soft);
-    padding: 4px 10px; border-radius: 999px;
-  }
-  .snap-when { font-size: 0.8rem; color: var(--text-muted); margin: 12px 0 2px; }
+  .snap-kicker { margin-bottom: 4px; }
+  .snap-when { font-size: 0.85rem; color: var(--text-muted); margin: 8px 0 2px; }
   .snap-when .who { color: var(--text); font-weight: 600; }
-  .snap-headword { font-size: 1.7rem; font-weight: 700; margin: 6px 0 16px; word-break: break-word; line-height: 1.15; }
+  .snap-headword { font-size: 1.7rem; font-weight: 700; margin: 6px 0 12px; overflow-wrap: anywhere; line-height: 1.15; }
   .snap-headword.empty { color: var(--text-muted); font-weight: 500; font-size: 1.1rem; }
-
-  .group { margin-top: 16px; }
-  .group-label {
-    font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
-    color: var(--text-muted); margin-bottom: 6px;
-  }
+  .group { margin-top: 14px; }
+  .group-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
   .field { padding: 6px 0; border-top: 1px solid var(--border); }
   .field:first-of-type { border-top: none; }
-  .field-ws { font-size: 0.72rem; color: var(--text-muted); }
-  .field-val { font-size: 0.98rem; word-break: break-word; }
+  .field-ws { font-size: 0.75rem; color: var(--text-muted); }
+  .field-val { overflow-wrap: anywhere; }
   .field-val.vern { font-size: 1.05rem; }
   .sense-block { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border); }
   .sense-head { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
-  .empty-note { color: var(--text-muted); font-size: 0.9rem; font-style: italic; }
+  .empty-note { color: var(--text-muted); font-size: 0.9rem; }
 
-  /* Diff */
-  .diff-head { font-size: 0.86rem; color: var(--text-muted); margin: 14px 0 8px; }
+  .diff-head { font-size: 0.875rem; color: var(--text-muted); margin: 14px 0 8px; }
   .diff-row { padding: 8px 0; border-top: 1px solid var(--border); }
   .diff-row:first-of-type { border-top: none; }
-  .diff-label { font-size: 0.74rem; color: var(--text-muted); margin-bottom: 3px; }
-  .diff-badge {
-    display: inline-block; font-size: 0.66rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.04em; padding: 1px 7px; border-radius: 999px; margin-right: 6px; vertical-align: 1px;
-  }
-  .diff-badge.added { background: var(--add-soft); color: var(--add); }
-  .diff-badge.removed { background: var(--del-soft); color: var(--del); }
-  .diff-badge.changed { background: var(--accent-soft); color: var(--accent); }
-  .diff-old, .diff-new { font-size: 0.98rem; word-break: break-word; padding: 2px 8px; border-radius: 8px; }
-  .diff-old { background: var(--del-soft); color: var(--text); text-decoration: line-through; text-decoration-color: var(--del); }
-  .diff-new { background: var(--add-soft); color: var(--text); margin-top: 3px; }
-  .diff-arrow { color: var(--text-muted); font-size: 0.78rem; margin: 2px 0; }
+  .diff-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 3px; }
+  .diff-badge { margin-right: 6px; }
+  .diff-old, .diff-new { overflow-wrap: anywhere; padding: 2px 8px; border-radius: 8px; }
+  .diff-old { background: var(--bad-soft); text-decoration: line-through; text-decoration-color: var(--bad); }
+  .diff-new { background: var(--good-soft); margin-top: 3px; }
+  .diff-arrow { color: var(--text-muted); font-size: 0.8rem; margin: 2px 0; }
 
-  /* Picker */
-  .search {
-    width: 100%; font: inherit; font-size: 0.92rem;
-    padding: 11px 15px; border-radius: 999px;
-    border: 1px solid var(--border); background: var(--surface); color: var(--text);
-    margin-bottom: 12px;
-  }
-  .count-note { font-size: 0.8rem; color: var(--text-muted); margin: 0 2px 10px; }
+  .search { width: 100%; max-width: 560px; margin-bottom: 12px; }
+  .count-note { font-size: 0.85rem; color: var(--text-muted); margin: 0 2px 10px; }
+  .picker-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 8px; }
   .prow {
-    display: block; width: 100%; text-align: left; font: inherit; cursor: pointer;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    padding: 10px 14px; margin-bottom: 8px; color: var(--text);
-    transition: border-color 0.15s ease, background 0.15s ease;
+    display: block; width: 100%; min-height: 44px; text-align: left; font: inherit; cursor: pointer; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px;
   }
   .prow:hover { border-color: var(--accent); background: var(--accent-soft); }
-  .prow-head { font-size: 1.02rem; font-weight: 600; word-break: break-word; }
-  .prow-gloss { font-size: 0.82rem; color: var(--text-muted); word-break: break-word; }
+  .prow-head { font-size: 1.02rem; font-weight: 600; overflow-wrap: anywhere; }
+  .prow-gloss { font-size: 0.85rem; color: var(--text-muted); overflow-wrap: anywhere; }
 
-  /* States */
-  .center-state { text-align: center; padding: 54px 20px; color: var(--text-muted); }
-  .center-state .big-emoji { font-size: 2.4rem; margin-bottom: 12px; }
-  .center-state p { margin: 6px 0; }
+  .big-emoji { font-size: 2.4rem; margin-bottom: 12px; }
+  .center-state p { margin: 6px auto; max-width: 480px; }
   .center-state strong { color: var(--text); }
-  .spinner {
-    width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--accent);
-    border-radius: 50%; margin: 0 auto 16px; animation: spin 0.8s linear infinite;
-  }
   .spinner.sm { width: 22px; height: 22px; border-width: 2px; margin: 24px auto; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .error-box {
-    border: 1px solid var(--del); background: var(--del-soft);
-    padding: 14px 18px; border-radius: var(--radius); color: var(--text);
+  .hint { font-size: 0.875rem; color: var(--text-muted); }
+  @media (max-width: 600px) {
+    .toolbar-actions { width: 100%; }
+    .toolbar-actions .btn { flex: 1 1 auto; padding: 0 10px; }
   }
-  .hint { font-size: 0.84rem; color: var(--text-muted); }
-  [hidden] { display: none !important; }
 </style>
 </head>
 <body>
@@ -224,32 +189,28 @@
   <h1>Entry Time Machine</h1>
   <p class="subtitle" id="subtitle">See how a single entry has changed over time.</p>
 
-  <!-- Loading -->
   <div id="loading" class="center-state">
     <div class="spinner"></div>
     <div id="loading-text">Loading&hellip;</div>
   </div>
 
-  <!-- History not supported for this project -->
-  <div id="not-supported" class="center-state" hidden>
-    <div class="big-emoji">&#8987;</div>
+  <div id="empty" class="center-state" hidden>
+    <div class="big-emoji" aria-hidden="true">&#8987;</div>
     <p><strong>This project doesn&rsquo;t keep a change history.</strong></p>
-    <p class="hint">The time machine needs a project that records its edit history (a synced CRDT project).
-    Open this plugin from such a project and you&rsquo;ll be able to travel back through any entry&rsquo;s versions.</p>
+    <p class="hint">Without a history there are no past versions to step through. The demo project is one of these.</p>
   </div>
 
-  <!-- Error -->
-  <div id="error" class="error-box" hidden></div>
+  <div id="error" class="error-box" role="alert" hidden></div>
 
-  <!-- Entry picker -->
+  <main id="app" hidden>
   <div id="picker" hidden>
-    <input type="search" class="search" id="picker-search" placeholder="Search for an entry by headword&hellip;" autocomplete="off">
+    <input type="search" class="search" id="picker-search" placeholder="Search for an entry by headword or meaning&hellip;" autocomplete="off" aria-label="Search entries">
     <p class="count-note" id="picker-count"></p>
     <div id="picker-loading" class="center-state" hidden>
       <div class="spinner"></div>
       <div id="picker-loading-text">Loading entries&hellip;</div>
     </div>
-    <div id="picker-list"></div>
+    <div id="picker-list" class="picker-list"></div>
     <div id="picker-empty" class="center-state" hidden>
       <div class="big-emoji">&#128218;</div>
       <p><strong>No entries yet.</strong></p>
@@ -260,15 +221,15 @@
 
   <!-- Timeline view -->
   <div id="timeline-view" hidden>
-    <div class="toolbar">
+    <div class="toolbar card">
       <div class="toolbar-entry">
         <div class="toolbar-label">Entry</div>
         <div class="toolbar-head vern" id="tb-head"></div>
       </div>
-      <div class="toolbar-actions">
+      <div class="toolbar-actions actions">
         <button class="btn" id="btn-compare" type="button" aria-pressed="false">Compare with now</button>
         <button class="btn" id="btn-choose" type="button">Choose entry</button>
-        <button class="btn primary" id="btn-open" type="button">Open in app</button>
+        <button class="btn primary" id="btn-open" type="button">Open entry</button>
       </div>
     </div>
 
@@ -278,10 +239,11 @@
         <div class="timeline-note" id="timeline-note" hidden></div>
       </div>
       <div class="snapshot-col">
-        <div class="card" id="card"></div>
+        <div class="card" id="card" aria-live="polite"></div>
       </div>
     </div>
   </div>
+  </main>
 </div>
 
 <script>
@@ -298,7 +260,6 @@
     audioWs: {},       // wsId -> true
     vernOrder: [],     // vernacular non-audio wsIds, in order
     analysisOrder: [], // analysis non-audio wsIds, in order
-    vernFont: '',
     currentEntry: null,   // the live entry (with computed headword)
     nodes: [],            // [{kind:'now'} | {kind:'commit', item, snapshot?, loaded?, failed?}]
     selectedIndex: 0,
@@ -314,9 +275,12 @@
   function show(id, on) { el(id).hidden = !on; }
   function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
 
-  function applyTheme(theme) {
-    var preferDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', theme || (preferDark ? 'dark' : 'light'));
+  function applyTheme() {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', fwlite.theme || (dark ? 'dark' : 'light'));
+  }
+  function applyVernFont(ws) {
+    if (ws && ws.font) document.documentElement.style.setProperty('--vern-font', '"' + ws.font.replace(/"/g, '') + '", var(--font)');
   }
 
   function isNotSupported(err) {
@@ -325,9 +289,8 @@
 
   function showError(message) {
     show('loading', false);
-    show('picker', false);
-    show('timeline-view', false);
-    show('not-supported', false);
+    show('app', false);
+    show('empty', false);
     var box = el('error');
     box.hidden = false;
     box.textContent = message;
@@ -335,10 +298,9 @@
 
   function showNotSupported() {
     show('loading', false);
-    show('picker', false);
-    show('timeline-view', false);
+    show('app', false);
     show('error', false);
-    show('not-supported', true);
+    show('empty', true);
   }
 
   /** First non-empty text of a multistring, preferring given writing systems, skipping audio ws. */
@@ -434,19 +396,16 @@
     return fw.getWritingSystems().then(function (wsData) {
       var vern = (wsData && wsData.vernacular) || [];
       var analysis = (wsData && wsData.analysis) || [];
-      vern.concat(analysis).forEach(function (w) {
-        if (!w || !w.wsId) return;
-        state.wsName[w.wsId] = w.name || w.wsId;
+      var all = vern.concat(analysis).filter(function (w) { return w && w.wsId; });
+      var nameCount = {};
+      all.forEach(function (w) { nameCount[w.name] = (nameCount[w.name] || 0) + 1; });
+      all.forEach(function (w) {
+        state.wsName[w.wsId] = !w.name ? w.wsId : nameCount[w.name] > 1 ? w.name + ' (' + (w.abbreviation || w.wsId) + ')' : w.name;
         if (w.isAudio) state.audioWs[w.wsId] = true;
       });
       vern.forEach(function (w) { if (w && w.wsId && !w.isAudio) state.vernOrder.push(w.wsId); });
       analysis.forEach(function (w) { if (w && w.wsId && !w.isAudio) state.analysisOrder.push(w.wsId); });
-      var fonts = vern.filter(function (w) { return w && !w.isAudio && w.font; })
-        .map(function (w) { return '"' + w.font + '"'; });
-      if (fonts.length) {
-        state.vernFont = fonts.join(', ');
-        document.documentElement.style.setProperty('--vern-font', state.vernFont + ', system-ui, sans-serif');
-      }
+      applyVernFont(vern.filter(function (w) { return w && !w.isAudio; })[0]);
     });
   }
 
@@ -469,8 +428,9 @@
   function openPicker() {
     show('loading', false);
     show('timeline-view', false);
-    show('not-supported', false);
+    show('empty', false);
     show('error', false);
+    show('app', true);
     show('picker', true);
     el('picker-search').focus();
 
@@ -538,7 +498,7 @@
     if (items.length > 400) {
       var more = document.createElement('p');
       more.className = 'count-note';
-      more.textContent = 'Showing first 400 matches — keep typing to narrow down.';
+      more.textContent = 'Showing the first 400 matches. Keep typing to narrow it down.';
       list.appendChild(more);
     }
   }
@@ -556,8 +516,9 @@
     state.selectedIndex = 0;
     show('loading', false);
     show('picker', false);
-    show('not-supported', false);
+    show('empty', false);
     show('error', false);
+    show('app', true);
     show('timeline-view', true);
     el('tb-head').textContent = fw.headword(entry) || displayHeadword(entry) || '—';
 
@@ -641,7 +602,7 @@
     var note = el('timeline-note');
     if (commitCount === 0) {
       note.hidden = false;
-      note.textContent = 'No recorded changes for this entry yet — showing its current state.';
+      note.textContent = 'No recorded changes for this entry yet, so this is its current state.';
     } else {
       note.hidden = true;
     }
@@ -694,7 +655,7 @@
 
     // Kicker + when/who.
     var kicker = document.createElement('div');
-    kicker.className = 'snap-kicker';
+    kicker.className = 'snap-kicker chip accent';
     kicker.textContent = node.kind === 'now' ? 'Current version' : 'Past version';
     card.appendChild(kicker);
 
@@ -740,7 +701,7 @@
       return;
     }
 
-    renderSnapshotBody(card, entry);
+    renderSnapshotBody(card, entry, node.kind === 'commit');
   }
 
   function addMultiFields(container, multiString, order, vernClass) {
@@ -769,7 +730,7 @@
     return added;
   }
 
-  function renderSnapshotBody(card, entry) {
+  function renderSnapshotBody(card, entry, isPast) {
     if (!entry) {
       var none = document.createElement('p');
       none.className = 'empty-note';
@@ -780,19 +741,21 @@
 
     var anything = false;
 
-    // Word forms.
-    var formsGroup = document.createElement('div');
-    formsGroup.className = 'group';
-    var formsLabel = document.createElement('div');
-    formsLabel.className = 'group-label';
-    formsLabel.textContent = 'Word forms';
-    formsGroup.appendChild(formsLabel);
-    var hasLex = addMultiFields(formsGroup, entry.lexemeForm, state.vernOrder, true);
-    var hasCit = addMultiFields(formsGroup, entry.citationForm, state.vernOrder, true);
-    if (hasLex || hasCit) { card.appendChild(formsGroup); anything = true; }
+    [['Lexeme form', entry.lexemeForm, state.vernOrder, true],
+      ['Citation form', entry.citationForm, state.vernOrder, true],
+      ['Literal meaning', entry.literalMeaning, state.analysisOrder, false],
+      ['Note', entry.note, state.analysisOrder, false]].forEach(function (f) {
+      var group = document.createElement('div');
+      group.className = 'group';
+      var label = document.createElement('div');
+      label.className = 'group-label';
+      label.textContent = f[0];
+      group.appendChild(label);
+      if (addMultiFields(group, f[1], f[2], f[3])) { card.appendChild(group); anything = true; }
+    });
 
-    // Senses.
-    var senses = entry.senses || [];
+    // History snapshots of an entry don't include its senses (each sense keeps its own history).
+    var senses = isPast ? [] : (entry.senses || []);
     if (senses.length) {
       var sensesGroup = document.createElement('div');
       sensesGroup.className = 'group';
@@ -822,9 +785,17 @@
     if (!anything) {
       var note = document.createElement('p');
       note.className = 'empty-note';
-      note.textContent = 'This version has no text in its forms or senses.';
+      note.textContent = 'This version has no text in its forms.';
       card.appendChild(note);
     }
+    if (isPast) appendSenseNote(card);
+  }
+
+  function appendSenseNote(card) {
+    var p = document.createElement('p');
+    p.className = 'empty-note';
+    p.textContent = 'This timeline covers the entry\u2019s own fields. Changes to its senses aren\u2019t shown here.';
+    card.appendChild(p);
   }
 
   // ---------- diff ----------
@@ -835,11 +806,8 @@
     map['~headword'] = { label: 'Headword', text: displayHeadword(entry) };
     collectMulti(map, 'Lexeme', 'lex', entry.lexemeForm);
     collectMulti(map, 'Citation', 'cit', entry.citationForm);
-    var senses = entry.senses || [];
-    senses.forEach(function (sense, i) {
-      collectMulti(map, 'Sense ' + (i + 1) + ' gloss', 'g' + i, sense.gloss);
-      collectMulti(map, 'Sense ' + (i + 1) + ' definition', 'd' + i, sense.definition);
-    });
+    collectMulti(map, 'Literal meaning', 'lit', entry.literalMeaning);
+    collectMulti(map, 'Note', 'note', entry.note);
     return map;
   }
   function collectMulti(map, baseLabel, baseKey, multiString) {
@@ -877,8 +845,9 @@
     if (rows.length === 0) {
       var same = document.createElement('p');
       same.className = 'empty-note';
-      same.textContent = 'No text differences between this version and the current entry.';
+      same.textContent = 'The forms, literal meaning and note are the same as now.';
       card.appendChild(same);
+      appendSenseNote(card);
       return;
     }
 
@@ -892,7 +861,7 @@
       var labelEl = document.createElement('div');
       labelEl.className = 'diff-label';
       var badge = document.createElement('span');
-      badge.className = 'diff-badge ' + row.status;
+      badge.className = 'diff-badge chip ' + ({changed: 'accent', added: 'good', removed: 'bad'})[row.status];
       badge.textContent = row.status;
       labelEl.appendChild(badge);
       labelEl.appendChild(document.createTextNode(row.label));
@@ -918,6 +887,7 @@
       }
       card.appendChild(rowEl);
     });
+    appendSenseNote(card);
   }
 
   // ---------- events ----------
@@ -943,14 +913,15 @@
 
   // ---------- init ----------
   function init(context) {
-    applyTheme(context && context.theme);
+    applyTheme();
+    if (!fw.capabilities.history) { showNotSupported(); return; }
     el('btn-compare').setAttribute('aria-pressed', 'false');
     wireEvents();
 
     Promise.all([loadWritingSystems(), loadPrefs()]).then(function () {
       el('btn-compare').setAttribute('aria-pressed', String(state.compare));
       if (context && context.project && context.project.projectName) {
-        el('subtitle').textContent = 'See how a single entry has changed over time — ' + context.project.projectName + '.';
+        el('subtitle').textContent = 'See how one entry in ' + context.project.projectName + ' has changed over time.';
       }
 
       var launchId = fw.context && fw.context.entryId;

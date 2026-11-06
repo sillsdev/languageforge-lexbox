@@ -7,203 +7,176 @@
 <title>Change Review</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f5f6f8;
+    color-scheme: light;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --surface-alt: #f0f1f4;
-    --border: #e2e4e9;
-    --text: #1c1e21;
-    --text-muted: #6b7280;
-    --accent: #4f46e5;
-    --accent-soft: #eef0ff;
-    --good: #059669;
-    --good-soft: #e3f7ee;
-    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
-    --radius: 14px;
-    --vern-font: inherit;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
+    --warn: #b45309;
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
   }
   html[data-theme="dark"] {
-    --bg: #16171b;
-    --surface: #1f2126;
-    --surface-alt: #26282e;
-    --border: #33353c;
-    --text: #edeef1;
-    --text-muted: #9aa0ab;
-    --accent: #818cf8;
-    --accent-soft: #2a2b5e;
-    --good: #34d399;
-    --good-soft: #123528;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
+    --warn: #fbbf24;
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    padding: 20px 16px 48px;
-    min-height: 100vh;
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
   }
-  .wrap { max-width: 780px; margin: 0 auto; }
-  h1 { font-size: 1.4rem; margin: 0 0 2px; }
-  .subtitle { color: var(--text-muted); margin: 0 0 16px; font-size: 0.9rem; }
-
-  /* Headline / progress card */
-  .headline {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 16px 18px;
-    margin-bottom: 14px;
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    flex-wrap: wrap;
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
   }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
+  }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  .headline { margin-bottom: 14px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
   .headline .big { font-size: 2.3rem; font-weight: 800; line-height: 1; color: var(--accent); }
   .headline.done .big { color: var(--good); }
   .headline .hbody { flex: 1; min-width: 190px; }
   .headline .hmsg { font-weight: 600; margin-bottom: 8px; }
-  .headline .hsub { color: var(--text-muted); font-size: 0.83rem; margin-top: 8px; }
+  .headline .hsub { color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; }
   .bar { background: var(--surface-alt); border-radius: 999px; height: 9px; overflow: hidden; }
   .bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.35s ease; }
   .headline.done .bar > i { background: var(--good); }
 
-  /* Toolbar */
   .toolbar {
-    position: sticky; top: 0; z-index: 6;
-    display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;
-    padding: 8px 0 10px; margin-bottom: 4px;
-    background: linear-gradient(var(--bg), var(--bg) 78%, transparent);
+    position: sticky; top: 0; z-index: 6; display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;
+    margin: 0 -24px 4px; padding: 8px 24px 10px; background: var(--bg);
   }
   .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  .field label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); font-weight: 600; }
-  select {
-    font: inherit; font-size: 0.88rem; padding: 8px 11px; max-width: 100%;
-    border-radius: 9px; border: 1px solid var(--border);
-    background: var(--surface); color: var(--text); font-family: inherit;
-  }
-  select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-  .toggle { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding-bottom: 8px; cursor: pointer; user-select: none; }
-  .toggle input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+  .field label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+  .toggle { display: flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; user-select: none; }
+  .toggle input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
   .spacer { flex: 1 1 auto; }
-  .btn {
-    border: 1px solid var(--border); background: var(--surface-alt); color: var(--text);
-    padding: 9px 14px; border-radius: 9px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit;
-    white-space: nowrap;
-  }
-  .btn:hover { border-color: var(--accent); }
-  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .btn:disabled { opacity: 0.5; cursor: default; }
-  .actions { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+  .showing { color: var(--text-muted); font-size: 0.85rem; margin: 2px 2px 10px; min-height: 1em; }
 
-  .showing { color: var(--text-muted); font-size: 0.8rem; margin: 2px 2px 10px; min-height: 1em; }
-
-  /* Day headers */
-  .day {
-    font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted);
-    margin: 16px 2px 8px; padding: 2px 0;
-  }
+  .day { font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin: 16px 2px 8px; }
   ul.feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-
-  /* Change row */
-  .row {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-    transition: opacity 0.2s ease, border-color 0.12s ease;
-  }
+  .row { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
   .row.reviewed { opacity: 0.6; }
   .row.reviewed .head { background: var(--surface-alt); }
   .head { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; }
   .head-main { flex: 1; min-width: 0; cursor: pointer; }
-  .head-main:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+  .head-main:focus-visible { border-radius: 8px; }
   .meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
-  .avatar {
-    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center;
-    font-size: 0.68rem; font-weight: 700; color: #fff;
-  }
-  .author { font-weight: 600; font-size: 0.88rem; }
-  .time { color: var(--text-muted); font-size: 0.8rem; }
+  .avatar { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center; font-size: 0.7rem; font-weight: 700; color: #fff; }
+  .author { font-weight: 600; font-size: 0.9rem; }
+  .time { color: var(--text-muted); font-size: 0.85rem; }
   .cname { font-size: 0.95rem; font-weight: 600; overflow-wrap: anywhere; }
   .multi { color: var(--text-muted); font-weight: 400; font-size: 0.85rem; }
-  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
-  .chip {
-    font-size: 0.7rem; color: var(--text-muted); background: var(--surface-alt);
-    border: 1px solid var(--border); border-radius: 999px; padding: 2px 9px;
-  }
-  .caret { color: var(--text-muted); font-size: 0.8rem; margin-top: 6px; }
-
-  /* Reviewed checkbox */
+  .targets { font-size: 0.9rem; color: var(--text-muted); margin-top: 2px; overflow-wrap: anywhere; }
+  .targets .hw { color: var(--text); font-weight: 600; font-family: var(--vern-font); }
+  .caret { color: var(--accent); font-size: 0.85rem; font-weight: 600; margin-top: 6px; }
   .review-check {
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
-    flex-shrink: 0; cursor: pointer; user-select: none; padding: 2px 0 0;
-    font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); font-weight: 600;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; flex-shrink: 0;
+    min-width: 44px; min-height: 44px; cursor: pointer; user-select: none; font-size: 0.75rem; color: var(--text-muted); font-weight: 600;
   }
-  .review-check input { width: 20px; height: 20px; accent-color: var(--good); cursor: pointer; }
+  .review-check input { width: 22px; height: 22px; accent-color: var(--good); cursor: pointer; margin: 0; }
 
-  /* Detail */
   .detail { border-top: 1px solid var(--border); padding: 14px; background: var(--surface-alt); }
-  .detail .dline { font-size: 0.86rem; margin-bottom: 10px; }
+  .detail .dline { font-size: 0.875rem; margin-bottom: 10px; }
   .detail .dlabel { color: var(--text-muted); }
   .entry-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
   .entry-chip {
-    display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 0.85rem;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 5px 6px 5px 12px;
+    display: inline-flex; align-items: center; gap: 8px; font-size: 0.875rem; max-width: 100%;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px 4px 4px 12px;
   }
   .entry-chip .hw { font-weight: 600; font-family: var(--vern-font); overflow-wrap: anywhere; }
-  .entry-chip .open {
-    border: none; background: var(--accent); color: #fff; border-radius: 999px;
-    font: inherit; font-size: 0.76rem; font-weight: 600; padding: 4px 11px; cursor: pointer;
-  }
-  .entry-chip .open:hover { filter: brightness(1.08); }
-  .raw-toggle {
-    background: none; border: none; color: var(--accent); font: inherit; font-size: 0.82rem;
-    font-weight: 600; cursor: pointer; padding: 4px 0; margin-top: 2px;
-  }
+  .entry-chip .btn { min-height: 36px; padding: 0 12px; border-radius: 999px; font-size: 0.85rem; }
+  .raw-toggle { background: none; border: none; color: var(--accent); font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; padding: 8px 0; }
   .raw-toggle:hover { text-decoration: underline; }
   pre.raw {
-    margin: 8px 0 0; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; font-size: 0.78rem; line-height: 1.5; overflow-x: auto; max-height: 320px;
-    white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text);
+    margin: 8px 0 0; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    font-size: 0.8rem; line-height: 1.5; overflow-x: auto; max-height: 320px; white-space: pre-wrap; overflow-wrap: anywhere;
   }
-  .dmuted { color: var(--text-muted); font-size: 0.85rem; }
-
-  .more {
-    display: block; margin: 16px auto 0; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 999px; color: var(--text); font: inherit; font-size: 0.85rem; font-weight: 600;
-    padding: 9px 20px; cursor: pointer;
-  }
-  .more:hover { border-color: var(--accent); }
-  .more:disabled { opacity: 0.6; cursor: default; }
-  .more:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-  /* States */
-  .center { text-align: center; padding: 54px 20px; color: var(--text-muted); }
-  .center .big-emoji { font-size: 2.4rem; }
-  .center .headmsg { font-size: 1.05rem; color: var(--text); margin: 8px 0 4px; font-weight: 600; }
-  .spinner {
-    width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent);
-    border-radius: 50%; margin: 0 auto 14px; animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .error-box {
-    border: 1px solid #f5b5b5; background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
-    color: var(--text); padding: 16px 18px; border-radius: var(--radius);
-  }
-  .notsupported {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-    box-shadow: var(--shadow); padding: 40px 24px; text-align: center;
-  }
-  .notsupported .big-emoji { font-size: 2.4rem; }
-  .notsupported .headmsg { font-size: 1.05rem; color: var(--text); margin: 10px 0 6px; font-weight: 600; }
-  .notsupported p { color: var(--text-muted); font-size: 0.9rem; margin: 0 auto; max-width: 420px; }
+  .dmuted { color: var(--text-muted); font-size: 0.875rem; }
+  .more { display: flex; margin: 16px auto 0; }
+  .big-emoji { font-size: 2.4rem; }
+  .headmsg { font-size: 1.05rem; color: var(--text); margin: 8px 0 4px; font-weight: 600; }
+  .hint { max-width: 460px; margin: 0 auto; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  [hidden] { display: none !important; }
-  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } .row, .bar > i { transition: none; } }
+  @media (max-width: 600px) {
+    .toolbar { position: static; margin: 0 0 4px; padding: 0 0 8px; }
+    .field { flex: 1 1 140px; }
+    .field select { width: 100%; }
+    .spacer { display: none; }
+    .toolbar .actions { width: 100%; }
+    .toolbar .actions .btn { flex: 1; }
+    .headline .big { font-size: 1.9rem; }
+  }
 </style>
 </head>
 <body>
@@ -213,25 +186,21 @@
 
   <div id="live" class="sr" aria-live="polite"></div>
 
-  <!-- Loading -->
-  <div id="loading" class="center">
+  <div id="loading" class="center-state">
     <div class="spinner"></div>
     <div>Loading change history&hellip;</div>
   </div>
 
-  <!-- History not supported -->
-  <div id="notsupported" class="notsupported" hidden>
+  <div id="empty" class="center-state" hidden>
     <div class="big-emoji" aria-hidden="true">&#128220;</div>
     <div class="headmsg">Change history isn&rsquo;t available for this project</div>
-    <p>This project doesn&rsquo;t keep a change history, so there&rsquo;s nothing to review here. History is available on projects that sync through Lexbox.</p>
+    <p class="hint">This project doesn&rsquo;t keep a change history, so there&rsquo;s nothing to review here. The demo project is one of these.</p>
   </div>
 
-  <!-- Error -->
-  <div id="error" class="error-box" hidden></div>
+  <div id="error" class="error-box" role="alert" hidden></div>
 
-  <!-- Main app -->
-  <div id="app" hidden>
-    <div class="headline" id="headline">
+  <main id="app" hidden>
+    <div class="headline card" id="headline">
       <div class="big" id="headline-num">&mdash;</div>
       <div class="hbody">
         <div class="hmsg" id="headline-msg"></div>
@@ -252,15 +221,15 @@
       <label class="toggle"><input type="checkbox" id="unreviewed-only"> Unreviewed only</label>
       <div class="spacer"></div>
       <div class="actions">
-        <button class="btn" id="mark-visible" type="button">Mark visible reviewed</button>
+        <button class="btn" id="mark-visible" type="button">Mark shown as reviewed</button>
         <button class="btn" id="refresh" type="button">Refresh</button>
       </div>
     </div>
 
     <div class="showing" id="showing"></div>
     <div id="feed"></div>
-    <div id="feed-empty" class="center" hidden></div>
-  </div>
+    <div id="feed-empty" class="center-state" hidden></div>
+  </main>
 </div>
 
 <script>
@@ -290,7 +259,8 @@
     skip: 0,
     done: false,
     loading: false,
-    detailOpen: {},        // commitId -> 1 (which rows are expanded)
+    detailOpen: {},
+    vernIds: [],        // commitId -> 1 (which rows are expanded)
   };
 
   function el(tag, attrs, text) {
@@ -305,8 +275,11 @@
   function announce(msg) { $('live').textContent = msg; }
 
   function applyTheme() {
-    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', F.theme || (prefersDark ? 'dark' : 'light'));
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', fwlite.theme || (dark ? 'dark' : 'light'));
+  }
+  function applyVernFont(ws) {
+    if (ws && ws.font) document.documentElement.style.setProperty('--vern-font', '"' + ws.font.replace(/"/g, '') + '", var(--font)');
   }
 
   // --- Author helpers (mirror the app's author filter key derivation) --------
@@ -374,9 +347,6 @@
     var label = key.replace(/Change$/, '').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
     return label || key;
   }
-  function typeLabel(key) {
-    return state.typeLabels[key] || humanizeType(key);
-  }
 
   // --- Persistence -----------------------------------------------------------
   function loadReviewed(raw) {
@@ -416,10 +386,6 @@
   }
   function passesFilter(activity) {
     if (state.authorFilter && authorKeyOfActivity(activity) !== state.authorFilter) return false;
-    if (state.typeFilter) {
-      var types = Array.isArray(activity.changeTypes) ? activity.changeTypes : [];
-      if (types.indexOf(state.typeFilter) < 0) return false;
-    }
     if (state.unreviewedOnly && state.reviewed[activity.commitId]) return false;
     return true;
   }
@@ -446,7 +412,7 @@
       num.textContent = String(unreviewed);
       fill.style.width = pct + '%';
       msg.textContent = done
-        ? 'Every change has been reviewed — all caught up!'
+        ? 'Every change has been reviewed. All caught up!'
         : unreviewed + ' change' + (unreviewed === 1 ? '' : 's') + ' still to review';
       sub.textContent = reviewedShown.toLocaleString() + ' of ' + total.toLocaleString() +
         ' change' + (total === 1 ? '' : 's') + ' reviewed (' + pct + '%)';
@@ -459,7 +425,7 @@
       msg.textContent = loadedUnreviewed + ' unreviewed among loaded changes';
       sub.textContent = state.done
         ? reviewed.toLocaleString() + ' reviewed so far'
-        : 'Load more to see the rest — ' + reviewed.toLocaleString() + ' reviewed so far';
+        : 'Load more to see the rest. ' + reviewed.toLocaleString() + ' reviewed so far';
     }
   }
 
@@ -510,7 +476,7 @@
     });
 
     if (!state.done) {
-      var more = el('button', {class: 'more', type: 'button'}, 'Load more changes');
+      var more = el('button', {class: 'btn more', type: 'button'}, 'Load more changes');
       more.addEventListener('click', loadMore);
       feed.appendChild(more);
     }
@@ -562,11 +528,15 @@
     if (changeCount > 1) cname.appendChild(el('span', {class: 'multi'}, '  · ' + changeCount + ' changes'));
     main.appendChild(cname);
 
-    var types = Array.isArray(activity.changeTypes) ? activity.changeTypes : [];
-    if (types.length) {
-      var chips = el('div', {class: 'chips'});
-      types.slice(0, 6).forEach(function (tk) { chips.appendChild(el('span', {class: 'chip'}, typeLabel(tk))); });
-      main.appendChild(chips);
+    var targets = targetEntries(activity);
+    if (targets.length) {
+      var line = el('div', {class: 'targets'}, 'on ');
+      targets.slice(0, 3).forEach(function (name, i) {
+        if (i) line.appendChild(document.createTextNode(', '));
+        line.appendChild(el('span', {class: 'hw'}, name));
+      });
+      if (targets.length > 3) line.appendChild(document.createTextNode(' and ' + (targets.length - 3) + ' more'));
+      main.appendChild(line);
     }
 
     var caret = el('div', {class: 'caret'}, state.detailOpen[activity.commitId] ? 'Hide details ▴' : 'Show details ▾');
@@ -592,7 +562,7 @@
     var check = el('label', {class: 'review-check'});
     var box = el('input', {type: 'checkbox'});
     box.checked = isReviewed;
-    box.setAttribute('aria-label', 'Mark this change reviewed');
+    box.setAttribute('aria-label', 'Reviewed: ' + (activity.changeName || 'change'));
     box.addEventListener('change', function () {
       setReviewed(activity.commitId, box.checked);
       row.classList.toggle('reviewed', box.checked);
@@ -601,13 +571,29 @@
       else { updateHeadline(); updateShowing(); }
     });
     check.appendChild(box);
-    check.appendChild(el('span', {}, 'Done'));
+    check.appendChild(el('span', {}, 'Reviewed'));
     head.appendChild(check);
 
     row.appendChild(head);
     if (state.detailOpen[activity.commitId]) row.appendChild(buildDetail(activity));
     li.appendChild(row);
     return li;
+  }
+
+  // History calls return raw entries without the computed `headword`, so fall back to the forms.
+  function rawHeadword(entry) {
+    return F.headword(entry) || F.firstValue(entry.citationForm, state.vernIds) || F.firstValue(entry.lexemeForm, state.vernIds) || '';
+  }
+
+  function targetEntries(activity) {
+    var seen = {}, names = [];
+    (Array.isArray(activity.changes) ? activity.changes : []).forEach(function (c) {
+      var entry = c && c.info && c.info.entry;
+      if (!entry || !entry.id || seen[entry.id]) return;
+      seen[entry.id] = 1;
+      names.push((entry.headword || 'Untitled entry') + (entry.homographNumber ? ' ' + entry.homographNumber : ''));
+    });
+    return names;
   }
 
   function setReviewed(commitId, on) {
@@ -666,13 +652,11 @@
       entries.forEach(function (entry) {
         if (!entry || typeof entry !== 'object') return;
         var chip = el('div', {class: 'entry-chip'});
-        var hw = '';
-        try { hw = F.headword(entry); } catch (e) { hw = ''; }
-        if (!hw) hw = 'Untitled entry';
+        var hw = rawHeadword(entry) || 'Untitled entry';
         chip.appendChild(el('span', {class: 'hw'}, hw));
         var id = typeof entry.id === 'string' ? entry.id : null;
         if (id) {
-          var open = el('button', {class: 'open', type: 'button'}, 'Open');
+          var open = el('button', {class: 'btn primary', type: 'button'}, 'Open');
           open.addEventListener('click', function () {
             try { F.openEntry(id, {mode: 'view'}); } catch (e) { notify('Could not open the entry.'); }
           });
@@ -772,19 +756,19 @@
   function renderError(err) {
     $('loading').hidden = true;
     $('app').hidden = true;
-    $('notsupported').hidden = true;
+    $('empty').hidden = true;
     var box = $('error');
     box.hidden = false;
     box.textContent = (err && err.code === 'not-supported')
       ? 'Change history isn’t available for this project.'
-      : 'Something went wrong loading the change history: ' + errMsg(err) + ' Use the reload button above to try again.';
+      : 'Could not load the change history: ' + errMsg(err) + '. Reload the plugin to try again.';
   }
 
   function showNotSupported() {
     $('loading').hidden = true;
     $('app').hidden = true;
     $('error').hidden = true;
-    $('notsupported').hidden = false;
+    $('empty').hidden = false;
   }
 
   // --- Filter controls -------------------------------------------------------
@@ -874,10 +858,12 @@
       $('subtitle').textContent = 'Work through recent changes to ' + F.project.projectName + ' and check each one off.';
     }
 
-    // Pick up a vernacular font for entry headwords in the detail view.
+    if (!F.capabilities.history) { showNotSupported(); return; }
+
     F.getWritingSystems().then(function (ws) {
-      var v = (ws.vernacular || []).find(function (w) { return !w.isAudio && w.font; });
-      if (v && v.font) document.documentElement.style.setProperty('--vern-font', '"' + v.font + '", inherit');
+      var vern = (ws.vernacular || []).filter(function (w) { return !w.isAudio; });
+      state.vernIds = vern.map(function (w) { return w.wsId; });
+      applyVernFont(vern[0]);
     }).catch(function () {});
 
     Promise.all([

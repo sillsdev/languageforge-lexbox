@@ -6,268 +6,206 @@
 <title>Audio Dictionary</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f6f4f1;
+    color-scheme: light;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --surface-alt: #f0ece6;
-    --border: #e4ded5;
-    --text: #241f1a;
-    --text-muted: #7a7167;
-    --accent: #c2560f;
-    --accent-soft: #fbe9dd;
-    --good: #2f8f4e;
-    --good-soft: #e3f4e8;
-    --shadow: 0 1px 2px rgba(40, 25, 10, 0.06), 0 2px 8px rgba(40, 25, 10, 0.06);
-    --radius: 16px;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
+    --warn: #b45309;
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
   }
   html[data-theme="dark"] {
-    --bg: #17140f;
-    --surface: #201c16;
-    --surface-alt: #2a251d;
-    --border: #3a342a;
-    --text: #f0ebe2;
-    --text-muted: #a89e8f;
-    --accent: #f08a4b;
-    --accent-soft: #3a2416;
-    --good: #5cc47a;
-    --good-soft: #16301f;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 10px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
+    --warn: #fbbf24;
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 20px 14px 48px;
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
   }
-  .wrap { width: 100%; max-width: 620px; margin: 0 auto; }
-  .vern { font-family: var(--vern-font, inherit); }
-
-  h1 { font-size: 1.35rem; margin: 0 0 2px; }
-  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.88rem; }
-
-  /* Coverage panel */
-  .coverage {
-    display: flex;
-    gap: 18px;
-    align-items: center;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 18px 20px;
-    margin-bottom: 16px;
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
   }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
+  }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  .coverage { display: flex; gap: 18px; align-items: center; margin-bottom: 16px; }
   .ring { flex: 0 0 auto; position: relative; width: 108px; height: 108px; }
   .ring svg { transform: rotate(-90deg); }
   .ring .ring-track { stroke: var(--surface-alt); }
   .ring .ring-fill { stroke: var(--accent); transition: stroke-dashoffset 0.5s ease; stroke-linecap: round; }
-  .ring-label {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center;
-  }
+  .ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
   .ring-pct { font-size: 1.5rem; font-weight: 700; line-height: 1; }
-  .ring-cap { font-size: 0.66rem; color: var(--text-muted); margin-top: 2px; }
+  .ring-cap { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
   .coverage-info { flex: 1 1 auto; min-width: 0; }
-  .coverage-headline { font-size: 0.98rem; font-weight: 600; margin-bottom: 4px; }
-  .coverage-sub { font-size: 0.82rem; color: var(--text-muted); }
+  .coverage-headline { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+  .coverage-sub { font-size: 0.85rem; color: var(--text-muted); }
   .ws-select-row { margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .ws-select-row label { font-size: 0.8rem; color: var(--text-muted); }
-  select, .refresh-btn {
-    font: inherit;
-    font-size: 0.85rem;
-    padding: 6px 10px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--surface-alt);
-    color: var(--text);
-    cursor: pointer;
-  }
-  .refresh-btn:hover { border-color: var(--accent); }
-  .ws-bars { margin: 4px 0 16px; display: flex; flex-direction: column; gap: 8px; }
-  .ws-bar-row { font-size: 0.8rem; }
+  .ws-select-row label { font-size: 0.85rem; color: var(--text-muted); }
+  .ws-bars { margin: 0 0 16px; display: flex; flex-direction: column; gap: 8px; }
+  .ws-bar-row { font-size: 0.85rem; }
   .ws-bar-head { display: flex; justify-content: space-between; margin-bottom: 3px; color: var(--text-muted); }
   .bar { background: var(--surface-alt); border-radius: 999px; height: 7px; overflow: hidden; }
   .bar-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.4s ease; }
 
-  /* Tabs */
-  .tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; max-width: 520px; }
   .tab {
-    flex: 1;
-    padding: 9px 6px;
-    border-radius: 999px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
+    flex: 1; min-height: 44px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-muted); font: inherit; font-weight: 600; cursor: pointer;
   }
   .tab[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
 
-  .search {
-    width: 100%;
-    font: inherit;
-    font-size: 0.9rem;
-    padding: 10px 14px;
-    border-radius: 999px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    margin-bottom: 14px;
-  }
-  .count-note { font-size: 0.8rem; color: var(--text-muted); margin: 0 2px 10px; }
+  .search { width: 100%; max-width: 520px; margin-bottom: 12px; }
+  .count-note { font-size: 0.85rem; color: var(--text-muted); margin: 0 2px 10px; }
+  .hint { font-size: 0.85rem; color: var(--text-muted); }
+  .big-emoji { font-size: 2.4rem; margin-bottom: 12px; }
 
-  /* Entry rows */
+  .rows { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; }
   .row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    transition: border-color 0.2s ease, background 0.2s ease;
+    display: flex; align-items: center; gap: 12px; min-width: 0;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px;
   }
   .row.playing { border-color: var(--accent); background: var(--accent-soft); }
   .row-body { flex: 1 1 auto; min-width: 0; }
-  .row-head { font-size: 1.05rem; font-weight: 600; word-break: break-word; }
-  .row-gloss { font-size: 0.83rem; color: var(--text-muted); word-break: break-word; }
-  .row-fail { font-size: 0.78rem; color: var(--accent); margin-top: 2px; }
+  .row-head { font-size: 1.05rem; font-weight: 600; overflow-wrap: anywhere; }
+  .row-gloss { font-size: 0.85rem; color: var(--text-muted); overflow-wrap: anywhere; }
+  .row-fail { font-size: 0.8rem; color: var(--bad); margin-top: 2px; }
   .row-prog { height: 4px; border-radius: 999px; background: var(--surface-alt); overflow: hidden; margin-top: 6px; display: none; }
   .row.playing .row-prog { display: block; }
   .row-prog-fill { height: 100%; width: 0; background: var(--accent); }
+  .more-wrap { text-align: center; margin-top: 12px; }
 
-  .play-btn {
-    flex: 0 0 auto;
-    width: 46px; height: 46px;
-    border-radius: 50%;
-    border: none;
-    background: var(--accent);
-    color: #fff;
-    font-size: 1.1rem;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: filter 0.15s ease, transform 0.1s ease;
+  .play-btn, .big-play {
+    flex: 0 0 auto; border-radius: 50%; border: none; background: var(--accent); color: var(--accent-fg);
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
   }
-  .play-btn:hover { filter: brightness(1.08); }
-  .play-btn:active { transform: scale(0.94); }
-  .play-btn .spin { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.45); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .play-btn { width: 46px; height: 46px; font-size: 1.1rem; }
+  .play-btn:hover, .big-play:hover { filter: brightness(1.08); }
+  .play-btn .spin, .big-play .spin { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.45); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .record-btn { flex: 0 0 auto; color: var(--accent); border-color: var(--accent); font-size: 0.85rem; padding: 0 12px; }
 
-  .record-btn {
-    flex: 0 0 auto;
-    font: inherit;
-    font-size: 0.82rem;
-    font-weight: 600;
-    padding: 8px 14px;
-    border-radius: 999px;
-    border: 1px solid var(--accent);
-    background: transparent;
-    color: var(--accent);
-    cursor: pointer;
-  }
-  .record-btn:hover { background: var(--accent-soft); }
-
-  /* Practice */
-  .practice-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 28px 22px 24px;
-    text-align: center;
-  }
-  .practice-pos { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 18px; }
-  .big-play {
-    width: 96px; height: 96px;
-    border-radius: 50%;
-    border: none;
-    background: var(--accent);
-    color: #fff;
-    font-size: 2.2rem;
-    cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center;
-    box-shadow: var(--shadow);
-    transition: filter 0.15s ease, transform 0.1s ease;
-  }
-  .big-play:hover { filter: brightness(1.08); }
-  .big-play:active { transform: scale(0.95); }
-  .big-play .spin { width: 34px; height: 34px; border: 3px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .practice-card { max-width: 560px; margin: 0 auto; padding: 28px 20px 24px; text-align: center; }
+  .practice-pos { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 18px; }
+  .big-play { width: 96px; height: 96px; font-size: 2.2rem; box-shadow: var(--shadow); }
+  .big-play .spin { width: 34px; height: 34px; border-width: 3px; }
   .practice-prog { height: 5px; border-radius: 999px; background: var(--surface-alt); overflow: hidden; margin: 18px auto 4px; max-width: 260px; }
   .practice-prog-fill { height: 100%; width: 0; background: var(--accent); }
   .practice-answer { min-height: 64px; margin: 16px 0 6px; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
-  .practice-answer.hidden .answer-content { visibility: hidden; }
-  .answer-head { font-size: 1.6rem; font-weight: 700; word-break: break-word; }
-  .answer-gloss { font-size: 1rem; color: var(--text-muted); word-break: break-word; }
-  .reveal-hint { color: var(--text-muted); font-size: 0.85rem; }
-  .practice-fail { color: var(--accent); font-size: 0.82rem; min-height: 1.1em; margin-top: 4px; }
-  .practice-controls { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
-  .pbtn {
-    font: inherit; font-size: 0.9rem; font-weight: 600;
-    padding: 10px 20px; border-radius: 999px; cursor: pointer;
-    border: 1px solid var(--border); background: var(--surface-alt); color: var(--text);
+  .practice-answer.concealed .answer-content { visibility: hidden; }
+  .answer-head { font-size: 1.6rem; font-weight: 700; overflow-wrap: anywhere; }
+  .answer-gloss { font-size: 1rem; color: var(--text-muted); overflow-wrap: anywhere; }
+  .reveal-hint { color: var(--text-muted); font-size: 0.9rem; }
+  .practice-fail { color: var(--bad); font-size: 0.85rem; min-height: 1.1em; margin-top: 4px; }
+  .practice-controls { justify-content: center; margin-top: 18px; }
+  .practice-controls .btn { min-width: 120px; }
+  kbd { margin-left: 6px; font-size: 0.75rem; opacity: 0.75; font-family: inherit; }
+  .practice-kbd { color: var(--text-muted); font-size: 0.8rem; margin-top: 14px; }
+  @media (hover: none) { kbd, .practice-kbd { display: none; } }
+  @media (max-width: 600px) {
+    .coverage { gap: 14px; padding: 14px; }
+    .ring { width: 88px; height: 88px; }
+    .ring svg { width: 88px; height: 88px; }
+    .ring-pct { font-size: 1.25rem; }
+    .tabs { max-width: none; }
+    .rows { grid-template-columns: 1fr; }
   }
-  .pbtn:hover { border-color: var(--accent); }
-  .pbtn.primary { background: var(--accent); color: #fff; border-color: transparent; }
-  .pbtn.primary:hover { filter: brightness(1.08); }
-  .pbtn kbd { margin-left: 6px; font-size: 0.72rem; opacity: 0.75; font-family: inherit; }
-  .practice-kbd { text-align: center; color: var(--text-muted); font-size: 0.78rem; margin-top: 14px; }
-
-  /* States */
-  .center-state { text-align: center; padding: 54px 20px; color: var(--text-muted); }
-  .center-state .big-emoji { font-size: 2.4rem; margin-bottom: 12px; }
-  .spinner {
-    width: 34px; height: 34px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    margin: 0 auto 16px;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .error-box {
-    border: 1px solid var(--accent);
-    background: var(--accent-soft);
-    padding: 14px 18px;
-    border-radius: var(--radius);
-    color: var(--text);
-  }
-  .hint { font-size: 0.82rem; color: var(--text-muted); }
-  [hidden] { display: none !important; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Audio Dictionary</h1>
-  <p class="subtitle" id="subtitle">Reviewing pronunciation recordings&hellip;</p>
+  <p class="subtitle" id="subtitle">Pronunciation recordings in this project</p>
 
-  <!-- Loading -->
   <div id="loading" class="center-state">
     <div class="spinner"></div>
-    <div id="scan-text">Scanning entries&hellip;</div>
+    <div id="scan-text">Loading entries&hellip;</div>
   </div>
 
-  <!-- No audio writing system in project -->
-  <div id="no-audio-ws" class="center-state" hidden>
+  <div id="empty" class="center-state" hidden>
     <div class="big-emoji">&#128266;</div>
     <p><strong>This project has no audio writing system.</strong></p>
     <p class="hint">Pronunciation recordings are stored in an audio writing system (one marked as audio-only).
-    Add one in the app's writing-system settings, then record pronunciations on an entry &mdash; they'll show up here.</p>
+    Add one in the project's writing systems, record a pronunciation on an entry, then reload.</p>
   </div>
 
-  <!-- Error -->
-  <div id="error" class="error-box" hidden></div>
+  <div id="error" class="error-box" role="alert" hidden></div>
 
-  <!-- Main app -->
-  <div id="app" hidden>
-    <div class="coverage">
+  <main id="app" hidden>
+    <div class="coverage card">
       <div class="ring">
-        <svg width="108" height="108" viewBox="0 0 108 108">
+        <svg width="108" height="108" viewBox="0 0 108 108" aria-hidden="true">
           <circle class="ring-track" cx="54" cy="54" r="48" fill="none" stroke-width="9"></circle>
           <circle class="ring-fill" id="ring-fill" cx="54" cy="54" r="48" fill="none" stroke-width="9"
                   stroke-dasharray="301.6" stroke-dashoffset="301.6"></circle>
@@ -282,10 +220,10 @@
         <div class="coverage-sub" id="coverage-sub"></div>
         <div class="ws-select-row">
           <span id="ws-select-wrap" hidden>
-            <label for="ws-select">Recording:</label>
+            <label for="ws-select">Recordings in</label>
             <select id="ws-select"></select>
           </span>
-          <button class="refresh-btn" id="refresh-btn" type="button">Refresh</button>
+          <button class="btn" id="refresh-btn" type="button">Refresh</button>
         </div>
       </div>
     </div>
@@ -293,36 +231,35 @@
     <div class="ws-bars" id="ws-bars" hidden></div>
 
     <div class="tabs" role="tablist">
-      <button class="tab" id="tab-listen" role="tab" aria-selected="true">Listen</button>
-      <button class="tab" id="tab-practice" role="tab" aria-selected="false">Practice</button>
-      <button class="tab" id="tab-missing" role="tab" aria-selected="false">Missing</button>
+      <button class="tab" id="tab-listen" role="tab" aria-selected="true" aria-controls="view-listen">Listen</button>
+      <button class="tab" id="tab-practice" role="tab" aria-selected="false" aria-controls="view-practice">Practice</button>
+      <button class="tab" id="tab-missing" role="tab" aria-selected="false" aria-controls="view-missing">Missing</button>
     </div>
 
-    <!-- Listen / browse -->
-    <section id="view-listen" role="tabpanel">
-      <input type="search" class="search" id="search" placeholder="Search headword or meaning&hellip;" autocomplete="off">
+    <section id="view-listen" role="tabpanel" aria-labelledby="tab-listen">
+      <input type="search" class="search" id="search" placeholder="Search headword or meaning&hellip;" autocomplete="off" aria-label="Search recordings">
       <p class="count-note" id="listen-count"></p>
-      <div id="listen-list"></div>
+      <div id="listen-list" class="rows"></div>
+      <div class="more-wrap" id="listen-more-wrap" hidden><button class="btn" id="listen-more" type="button"></button></div>
       <div id="listen-empty" class="center-state" hidden>
         <div class="big-emoji">&#127908;</div>
         <p><strong>No recordings yet.</strong></p>
-        <p class="hint">No entry has audio in this writing system. Switch to the <em>Missing</em> tab to add some in the app.</p>
+        <p class="hint">No entry has audio in this writing system. The <em>Missing</em> tab lists entries to record in the app.</p>
       </div>
       <div id="listen-no-match" class="center-state" hidden>No entries match your search.</div>
     </section>
 
-    <!-- Practice -->
-    <section id="view-practice" role="tabpanel" hidden>
+    <section id="view-practice" role="tabpanel" aria-labelledby="tab-practice" hidden>
       <div id="practice-empty" class="center-state" hidden>
         <div class="big-emoji">&#127911;</div>
         <p><strong>Nothing to practice yet.</strong></p>
         <p class="hint">Once entries have recordings, listening practice appears here.</p>
       </div>
-      <div id="practice-card" class="practice-card" hidden>
+      <div id="practice-card" class="practice-card card" hidden>
         <div class="practice-pos" id="practice-pos"></div>
         <button class="big-play" id="big-play" type="button" aria-label="Play recording">&#9654;</button>
         <div class="practice-prog"><div class="practice-prog-fill" id="practice-prog-fill"></div></div>
-        <div class="practice-answer hidden" id="practice-answer">
+        <div class="practice-answer concealed" id="practice-answer" aria-live="polite">
           <div class="reveal-hint" id="reveal-hint">Listen, then reveal the word.</div>
           <div class="answer-content">
             <div class="answer-head vern" id="answer-head"></div>
@@ -330,27 +267,27 @@
           </div>
         </div>
         <div class="practice-fail" id="practice-fail"></div>
-        <div class="practice-controls">
-          <button class="pbtn" id="btn-reveal" type="button">Reveal</button>
-          <button class="pbtn primary" id="btn-next" type="button">Next <kbd>&rarr;</kbd></button>
+        <div class="practice-controls actions">
+          <button class="btn" id="btn-reveal" type="button">Reveal</button>
+          <button class="btn primary" id="btn-next" type="button">Next <kbd>&rarr;</kbd></button>
         </div>
-        <div class="practice-kbd">Space = play &middot; &rarr; = next</div>
+        <div class="practice-kbd">Space plays &middot; &rarr; goes to the next word</div>
       </div>
     </section>
 
-    <!-- Missing worklist -->
-    <section id="view-missing" role="tabpanel" hidden>
+    <section id="view-missing" role="tabpanel" aria-labelledby="tab-missing" hidden>
       <p class="count-note" id="missing-count"></p>
-      <p class="hint" style="margin:0 2px 12px;">This plugin can't record audio. Tap <strong>Record in app</strong> to open the
+      <p class="hint" style="margin:0 2px 12px;">This plugin can't record audio. <strong>Record in app</strong> opens the
       entry in the editor, where you can add a pronunciation.</p>
-      <div id="missing-list"></div>
+      <div id="missing-list" class="rows"></div>
+      <div class="more-wrap" id="missing-more-wrap" hidden><button class="btn" id="missing-more" type="button"></button></div>
       <div id="missing-empty" class="center-state" hidden>
         <div class="big-emoji">&#127881;</div>
         <p><strong>Every entry has a recording.</strong></p>
         <p class="hint">Nothing is missing audio in this writing system.</p>
       </div>
     </section>
-  </div>
+  </main>
 </div>
 
 <audio id="player" preload="none"></audio>
@@ -361,8 +298,8 @@
 
   var fw = window.fwlite;
   var STORAGE_KEY = 'audio-dictionary-v1';
-  var PAGE = 1000;
-  var CAP = 5000;
+  var PAGE = 1000, CAP = 5000;
+  var ROWS_STEP = 120;
   var RING_CIRC = 301.6; // 2*pi*48
 
   var state = {
@@ -370,7 +307,8 @@
     capped: false,
     audioWsList: [],   // [{wsId, name, font}]
     selectedWs: null,
-    vernFont: '',
+    listenShown: ROWS_STEP,
+    missingShown: ROWS_STEP,
     activeTab: 'listen',
     practiceIndex: 0,
     practiceRevealed: false,
@@ -420,9 +358,12 @@
   });
 
   // ---- helpers ----
-  function applyTheme(theme) {
-    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  function applyTheme() {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', fwlite.theme || (dark ? 'dark' : 'light'));
+  }
+  function applyVernFont(ws) {
+    if (ws && ws.font) document.documentElement.style.setProperty('--vern-font', '"' + ws.font.replace(/"/g, '') + '", var(--font)');
   }
   function el(id) { return document.getElementById(id); }
   function show(id, on) { el(id).hidden = !on; }
@@ -474,19 +415,27 @@
   }
 
   // ---- data loading ----
-  function loadAllEntries() {
-    var all = [];
-    state.capped = false;
-    function next(offset) {
-      return fw.getEntries({ limit: PAGE, offset: offset }).then(function (batch) {
-        all = all.concat(batch || []);
-        el('scan-text').textContent = 'Scanning entries… ' + all.length + ' loaded';
-        if (!batch || batch.length < PAGE) return all;
-        if (all.length >= CAP) { state.capped = true; return all; }
-        return next(offset + PAGE);
-      });
+  // Loads up to CAP entries page by page; onProgress(loaded, target) drives a "Loaded N of M" line.
+  async function loadAll(onProgress, cap) {
+    cap = cap || CAP;
+    var total = await fwlite.countEntries({});
+    var target = Math.min(total, cap);
+    var entries = [];
+    while (entries.length < target) {
+      var page = await fwlite.getEntries({limit: Math.min(PAGE, target - entries.length), offset: entries.length});
+      if (!page.length) break;
+      entries = entries.concat(page);
+      if (onProgress) onProgress(entries.length, target);
     }
-    return next(0);
+    return {entries: entries, total: total, capped: total > cap};
+  }
+  function loadAllEntries() {
+    return loadAll(function (loaded, target) {
+      el('scan-text').textContent = 'Loaded ' + loaded.toLocaleString() + ' of ' + target.toLocaleString() + ' entries';
+    }).then(function (result) {
+      state.capped = result.capped;
+      return result.entries;
+    });
   }
 
   // ---- coverage + derived lists ----
@@ -515,11 +464,12 @@
   function renderCoverage() {
     var cov = coverageFor(state.selectedWs);
     var pct = cov.total ? Math.round((cov.have / cov.total) * 100) : 0;
-    el('ring-pct').textContent = pct + '%';
-    el('ring-fill').setAttribute('stroke-dashoffset', String(RING_CIRC * (1 - pct / 100)));
-    el('coverage-headline').textContent = cov.have + ' of ' + cov.total + ' entries have a recording';
-    var sub = cov.total ? pct + '% recorded' : 'No entries in this project';
-    if (state.capped) sub += ' · showing first ' + CAP + ' entries';
+    el('ring-pct').textContent = (cov.have && pct === 0 ? '<1' : pct) + '%';
+    el('ring-fill').setAttribute('stroke-dashoffset', String(RING_CIRC * (1 - (cov.have && pct === 0 ? 1 : pct) / 100)));
+    el('coverage-headline').textContent = cov.have.toLocaleString() + ' of ' + cov.total.toLocaleString() + ' entries have a recording';
+    var missing = cov.total - cov.have;
+    var sub = cov.total ? (missing ? missing.toLocaleString() + ' still need one' : 'Every entry is recorded') : 'No entries in this project';
+    if (state.capped) sub += ' · checked the first ' + CAP.toLocaleString() + ' entries';
     el('coverage-sub').textContent = sub;
 
     // Per-ws bars only when more than one audio ws.
@@ -628,6 +578,7 @@
     var list = el('listen-list');
     list.innerHTML = '';
 
+    show('listen-more-wrap', false);
     if (state.withAudio.length === 0) {
       show('listen-empty', true);
       show('listen-no-match', false);
@@ -647,13 +598,21 @@
     show('listen-no-match', false);
 
     var frag = document.createDocumentFragment();
-    items.forEach(function (it) { frag.appendChild(makeListenRow(it)); });
+    items.slice(0, state.listenShown).forEach(function (it) { frag.appendChild(makeListenRow(it)); });
     list.appendChild(frag);
+    setMore('listen', items.length, state.listenShown);
+  }
+
+  function setMore(kind, total, shown) {
+    var left = total - shown;
+    show(kind + '-more-wrap', left > 0);
+    if (left > 0) el(kind + '-more').textContent = 'Show ' + Math.min(left, ROWS_STEP) + ' more (' + left.toLocaleString() + ' left)';
   }
 
   function renderMissing() {
     var list = el('missing-list');
     list.innerHTML = '';
+    show('missing-more-wrap', false);
     if (state.withoutAudio.length === 0) {
       show('missing-empty', true);
       el('missing-count').textContent = '';
@@ -665,7 +624,7 @@
 
     var canEdit = !fw.capabilities || !fw.capabilities.openEntryModes || fw.capabilities.openEntryModes.indexOf('edit') !== -1;
     var frag = document.createDocumentFragment();
-    state.withoutAudio.forEach(function (item) {
+    state.withoutAudio.slice(0, state.missingShown).forEach(function (item) {
       var row = document.createElement('div');
       row.className = 'row';
       var body = document.createElement('div');
@@ -679,7 +638,7 @@
       body.appendChild(head); body.appendChild(gloss);
 
       var btn = document.createElement('button');
-      btn.className = 'record-btn';
+      btn.className = 'btn record-btn';
       btn.type = 'button';
       btn.textContent = 'Record in app';
       btn.addEventListener('click', function () {
@@ -691,6 +650,7 @@
       frag.appendChild(row);
     });
     list.appendChild(frag);
+    setMore('missing', state.withoutAudio.length, state.missingShown);
   }
 
   // ---- practice ----
@@ -723,7 +683,7 @@
   function setReveal(on) {
     state.practiceRevealed = on;
     var box = el('practice-answer');
-    box.classList.toggle('hidden', !on);
+    box.classList.toggle('concealed', !on);
     el('reveal-hint').style.display = on ? 'none' : 'block';
     el('btn-reveal').textContent = on ? 'Hide' : 'Reveal';
   }
@@ -771,6 +731,7 @@
     state.selectedWs = wsId;
     state.practiceIndex = 0;
     state.practiceRevealed = false;
+    state.listenShown = state.missingShown = ROWS_STEP;
     savePrefs();
     rebuildLists();
     renderCoverage();
@@ -801,7 +762,9 @@
     el('tab-listen').addEventListener('click', function () { setTab('listen'); });
     el('tab-practice').addEventListener('click', function () { setTab('practice'); if (state.withAudio.length) practicePlay(); });
     el('tab-missing').addEventListener('click', function () { setTab('missing'); });
-    el('search').addEventListener('input', renderListen);
+    el('search').addEventListener('input', function () { state.listenShown = ROWS_STEP; renderListen(); });
+    el('listen-more').addEventListener('click', function () { state.listenShown += ROWS_STEP; renderListen(); });
+    el('missing-more').addEventListener('click', function () { state.missingShown += ROWS_STEP; renderMissing(); });
     el('refresh-btn').addEventListener('click', refresh);
     el('big-play').addEventListener('click', function () {
       if (pb.id && !audioEl.paused) { stopPlayback(); setBigPlayIcon('idle'); }
@@ -826,7 +789,7 @@
   }
 
   function init(context) {
-    applyTheme(context.theme);
+    applyTheme();
     wireEvents();
 
     Promise.all([fw.getWritingSystems(), loadPrefs()]).then(function (results) {
@@ -840,14 +803,11 @@
         state.audioWsList.push({ wsId: w.wsId, name: w.name || w.wsId, font: w.font || '' });
       });
 
-      // Vernacular text font for headword display.
-      var vern = (wsData.vernacular || []).filter(function (w) { return !w.isAudio && w.font; });
-      state.vernFont = vern.map(function (w) { return '"' + w.font + '"'; }).join(', ');
-      if (state.vernFont) document.documentElement.style.setProperty('--vern-font', state.vernFont + ', system-ui, sans-serif');
+      applyVernFont((wsData.vernacular || []).filter(function (w) { return !w.isAudio; })[0]);
 
       if (state.audioWsList.length === 0) {
         show('loading', false);
-        show('no-audio-ws', true);
+        show('empty', true);
         return;
       }
 
@@ -860,9 +820,7 @@
         state.entries = entries;
 
         show('loading', false);
-        el('subtitle').textContent = context.project.projectName +
-          ' · ' + state.entries.length + ' entr' + (state.entries.length === 1 ? 'y' : 'ies') +
-          (state.capped ? ' (first ' + CAP + ')' : '');
+        el('subtitle').textContent = 'Pronunciation recordings in ' + context.project.projectName;
         show('app', true);
 
         // Writing-system selector (only when several audio ws).
