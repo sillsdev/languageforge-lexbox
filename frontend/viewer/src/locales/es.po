@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-05 05:15\n"
+"PO-Revision-Date: 2026-11-06 05:27\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -25,6 +25,43 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} cambios)"
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "…and {0} more changes"
+msgstr "Cambios …y {0} más"
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” added an entry"
+msgstr "“{0}” agregó una entrada"
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "“{0}” can now make changes without asking. You can change this from the plugin toolbar or its card."
+msgstr "“{0}” ahora puede hacer cambios sin preguntar. Puede cambiar esto desde la barra de herramientas del plugin o su tarjeta."
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” changed an entry"
+msgstr "“{0}” cambió una entrada"
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” kept asking to change your dictionary after you said no. Reload it to try again."
+msgstr "“{0}” seguía pidiendo cambiar tu diccionario después de que dijiste no. Recargalo para intentarlo de nuevo."
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” made {1}"
+msgstr "“{0}” hizo {1}"
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin."
+msgstr "“{0}” trató de abandonar su página sandbox, que plugins no están permitidos. Puede estar dañado — o intentar enviar datos a algún lugar. Tenga cuidado con este plugin."
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "\"{0}\" was added for everyone on this project."
+msgstr "\"{0}\" fue añadido para todos en este proyecto."
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "“{0}” will ask before making changes again."
+msgstr "“{0}” preguntará antes de hacer cambios de nuevo."
+
 #. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
 #. Shown in place of the sense's number and gloss; "sense" is "meaning" in the Lite view
 #: src/lib/activity/ActivityItemChangePreview.svelte
@@ -40,8 +77,13 @@ msgstr "(eliminado)"
 msgid "(edited)"
 msgstr "(editado)"
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "(empty)"
+msgstr "(vacío)"
+
 #. Activity-log line: placeholder shown in place of a newly created entry's name when it has no headword text yet.
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "(no headword)"
 msgstr "(sin palabras de cabeza)"
 
@@ -56,6 +98,14 @@ msgstr "(desconocido)"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0}"
 msgstr "{0}"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "{0} (copy)"
+msgstr "{0} (copiar)"
+
+#: src/project/data/plugin-service.svelte.ts
+msgid "{0} (custom)"
+msgstr "{0} (personalizado)"
 
 #. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
@@ -81,6 +131,19 @@ msgstr "{0} hace"
 msgid "{0} authors"
 msgstr "{0} autores"
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "{0} KB"
+msgstr "{0} KB"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "{0} KB to {1} KB"
+msgstr "{0} KB a {1} KB"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "{0} KB to {1} KB, no new permissions"
+msgstr "{0} KB a {1} KB, no hay nuevos permisos"
+
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
@@ -105,6 +168,9 @@ msgid "{num, plural, one {(+# more change)} other {(+# more changes)}}"
 msgstr "{num, plural, one {(+# cambio más)} other {(+# cambios más)}}"
 
 #. Number of changes in sync operation
+#: src/lib/plugins/PluginSandbox.svelte
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
@@ -163,10 +229,30 @@ msgstr "# parte de #"
 msgid "1 reply"
 msgstr "1 respuesta"
 
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "1. Describe your plugin"
+msgstr "1. Describe tu plugin"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "2. Have an AI write it"
+msgstr "2. Escribe una IA"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "3. Try it here"
+msgstr "3. Pruébalo aquí"
+
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Una nueva versión de FieldWorks Lite está disponible."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "A project manager can add plugins for the team."
+msgstr "Un gestor de proyecto puede añadir plugins para el equipo."
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "A short summary shown on the plugin's card."
+msgstr "Un breve resumen que se muestra en la tarjeta del plugin."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "A similar word already exists"
@@ -193,6 +279,10 @@ msgstr "una palabra"
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Abbreviation"
 msgstr "Abreviatura"
+
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "About"
+msgstr "Acerca de"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -231,6 +321,11 @@ msgstr "Añadir forma compleja"
 msgid "Add component"
 msgstr "Añadir componente"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Add entry"
+msgstr "Añadir entrada"
+
 #. Button to add example sentence
 #. Adds sentence/phrase showing how a word is used in context
 #. Each example can have translation and source reference
@@ -246,6 +341,10 @@ msgstr "Añadir ejemplo"
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Meaning"
 msgstr "Añadir significado"
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Add my version"
+msgstr "Añadir mi versión"
 
 #. Button in toolbar
 #: src/lib/entry-editor/NewEntryButton.svelte
@@ -285,6 +384,11 @@ msgstr "Añadir algunas palabras primero."
 msgid "Add to dictionary"
 msgstr "Añadir al diccionario"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Add to project"
+msgstr "Añadir al proyecto"
+
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
@@ -319,6 +423,10 @@ msgstr "Comentario añadido"
 msgid "Added component"
 msgstr "Componente añadido"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Added for the team"
+msgstr "Añadido para el equipo"
+
 #. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Removed picture", "Updated picture", "Reordered pictures".
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Added picture"
@@ -338,6 +446,7 @@ msgstr "Avanzado: archivo de configuración"
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+#: src/lib/plugins/PluginsView.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "Todos"
@@ -355,6 +464,18 @@ msgstr "Todos los tipos de actividad"
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
 msgstr "Todos los autores"
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Allow and run it"
+msgstr "Permitir y ejecutarlo"
+
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Already have a plugin file? It runs in the preview straight away, before anyone else can see it."
+msgstr "¿Ya tienes un archivo de plugin? Se ejecuta en la vista previa inmediatamente, antes de que nadie pueda verlo."
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Always allow for this plugin"
+msgstr "Permitir siempre este plugin"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
@@ -419,15 +540,32 @@ msgstr "Cualquier dominio semántico"
 msgid "Any Ws"
 msgstr "Cualquier W"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Apply change"
+msgstr "Aplicar cambio"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Apply changes"
+msgstr "Aplicar cambios"
+
 #. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
 msgstr "¿Estás seguro de que quieres borrar {0}?"
 
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "Ask AI"
+msgstr "Preguntar IA"
+
 #. Button description
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Ask questions and get help on our community forum."
 msgstr "Haz preguntas y recibe ayuda en nuestro foro de la comunidad."
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Ask the AI to remove it"
+msgstr "Pídele a la IA que la elimine"
 
 #. Small marker chip on an activity summary indicating a field value is an audio recording (not text)
 #: src/lib/activity/ChangeSummary.svelte
@@ -484,6 +622,16 @@ msgstr "Sincronización automática"
 msgid "Back"
 msgstr "Atrás"
 
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioNotice.svelte
+msgid "Back to plugins"
+msgstr "Volver a plugins"
+
 #: src/project/tasks/TaskView.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Back to tasks"
@@ -516,6 +664,10 @@ msgstr "Mejor partido"
 msgid "blue"
 msgstr "azul"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Breadcrumb"
+msgstr "migas de pan"
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 #: src/project/tasks/TaskList.svelte
@@ -527,8 +679,29 @@ msgid "Browse view failed"
 msgstr "Vista de navegación fallida"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/plugins/PluginsView.svelte
 msgid "Camera"
 msgstr "Cámara"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Can access the internet (and could send dictionary data there)"
+msgstr "Puede acceder a Internet (y puede enviar datos de diccionario ahí)"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Can change the dictionary"
+msgstr "Puede cambiar el diccionario"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Can change the dictionary, and asks before each change"
+msgstr "Puede cambiar el diccionario, y preguntar antes de cada cambio"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Can change your dictionary — it will ask you first"
+msgstr "Puede cambiar su diccionario — le preguntará primero"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Can use the internet"
+msgstr "Puede usar internet"
 
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
@@ -552,8 +725,17 @@ msgid "Cancel"
 msgstr "Cancelar"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Caption"
 msgstr "Leyenda"
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Change entry"
+msgstr "Cambiar entrada"
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "Change it before adding"
+msgstr "Cambiarlo antes de añadir"
 
 #. Activity-log line. {0} = field label (e.g. "Part of speech") or singular list-item noun (e.g. "complex form type"). Used when the new value is unknown or not displayed.
 #: src/lib/activity/ChangeSummary.svelte
@@ -605,6 +787,7 @@ msgstr "Elegir tema"
 #. Relevant view: Classic
 #. Lite view equivalent: "Display as"
 #. Field label: form for citing in dictionary
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Citation form"
@@ -631,7 +814,9 @@ msgstr "Limpiado {0}"
 #. Button to close popup
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Cerrar"
@@ -653,6 +838,10 @@ msgstr "Tema de comentarios cerrado"
 msgid "Code"
 msgstr "Código"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Collect words"
+msgstr "Recoger palabras"
+
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
 msgid "Color"
@@ -665,6 +854,10 @@ msgstr "Comentario"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Commenter"
 msgstr "Autor del comentario"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "comments"
+msgstr "comentarios"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
@@ -689,6 +882,10 @@ msgstr "Compara la versión justo después de este cambio con la última versió
 msgid "Complete"
 msgstr "Complete"
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Complex form"
+msgstr "Forma compleja"
+
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
@@ -701,6 +898,10 @@ msgstr "Forma compleja"
 #: src/lib/activity/ChangeSummary.svelte
 msgid "complex form type"
 msgstr "tipo de formulario complejo"
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Complex form type"
+msgstr "Tipo de formulario complejo"
 
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). User-defined classifications of compound-word relationships (e.g. "compound", "derivative").
 #: src/lib/activity/ChangeSummary.svelte
@@ -733,6 +934,7 @@ msgstr "componente"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Component"
 msgstr "Componente"
 
@@ -752,6 +954,10 @@ msgstr "Componentes"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Contains"
 msgstr "Contiene"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Contexts"
+msgstr "Contextos"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
@@ -784,6 +990,18 @@ msgstr "No se pudo comprobar palabras similares"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Couldn't get the FieldWorks Classic status from Lexbox."
 msgstr "No se pudo obtener el estado de FieldWorks Classic de Lexbox."
+
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "Couldn't load the plugin file."
+msgstr "No se pudo cargar el archivo del plugin."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Couldn't load the plugin file. {0}"
+msgstr "No se pudo cargar el archivo del plugin. {0}"
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Couldn't load this plugin"
+msgstr "No se pudo cargar este plugin"
 
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
@@ -848,6 +1066,10 @@ msgstr "Creado {0} {1}"
 msgid "Current Entry"
 msgstr "Entrada actual"
 
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Current version"
+msgstr "Versión actual"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Current Entry"
 #. Label in picker: marks the word that is currently being edited
@@ -900,6 +1122,7 @@ msgstr "Directorio de datos"
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Definition"
@@ -910,6 +1133,7 @@ msgstr "Definición"
 #. Action: Prompts confirmation, frees up local storage
 #: src/home/HomeView.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
+#: src/lib/plugins/PluginsView.svelte
 msgid "Delete"
 msgstr "Borrar"
 
@@ -971,12 +1195,27 @@ msgstr "Tema de comentarios borrado"
 msgid "Deleted later"
 msgstr "Eliminado más tarde"
 
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "Describe a change"
+msgstr "Describe un cambio"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Describe it and have an AI write it, or paste a plugin file you already have."
+msgstr "Descríbelo y tenga una IA de escritura, o pegue un archivo de plugin que ya tenga."
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Describe your plugin"
+msgstr "Describe tu plugin"
+
 #: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "Description"
 msgstr "Descripción"
 
 #. Tab in the activity change preview: technical details of the change
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Details"
 msgstr "Detalles"
 
@@ -998,6 +1237,8 @@ msgstr "Vista previa del diccionario"
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Discard"
 msgstr "Descartar"
@@ -1014,10 +1255,18 @@ msgstr "Mostrar como"
 msgid "Do you want to:"
 msgstr "Quieres para:"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Don't allow"
+msgstr "No permitir"
+
 #. Button to cancel deletion
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
 msgstr "No borrar"
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Don't run it"
+msgstr "No ejecutarlo"
 
 #. Tab label
 #: src/project/tasks/TaskView.svelte
@@ -1029,6 +1278,7 @@ msgstr "Hecho"
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 #: src/lib/notifications/NotificationOutlet.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Download"
 msgstr "Descargar"
 
@@ -1050,6 +1300,15 @@ msgstr "Descargar foto"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
 msgstr "Descargar proyecto por código de proyecto"
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Download prompt"
+msgstr "Solicitud de descarga"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Download the prompt and attach the file in any AI chat (e.g. Claude, ChatGPT or Gemini). It already explains plugins and this project."
+msgstr "Descargue el prompt y adjunte el archivo en cualquier chat de AI (por ejemplo, Claude, ChatGPT o Gemini). Ya explica los plugins y este proyecto."
 
 #. Menu option
 #: src/home/Server.svelte
@@ -1081,13 +1340,40 @@ msgstr "Descargando actualización..."
 msgid "Downloading..."
 msgstr "Descargando..."
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Draft, only you can see it"
+msgstr "Borrador, sólo tú puedes verlo"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Duplicate"
+msgstr "Duplicate"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "e.g. A flashcard game that quizzes me on entries missing an English gloss and lets me fill it in when I remember the word."
+msgstr "ej. Un juego de tarjetas que me cuestiona en entradas que no tienen una glosa inglesa y me permite rellenarlo cuando recuerdo la palabra."
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "e.g. Also show how many entries have a recording."
+msgstr "ej. Mostrar también cuántas entradas tienen una grabación."
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "e.g. Dashboard of dictionary statistics"
+msgstr "ej. Panel de control de estadísticas del diccionario"
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "e.g. Dictionary stats"
+msgstr "ej. Estadísticas de diccionario"
+
 #. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
 #: src/home/CreateProjectDialog.svelte
 msgid "e.g. th, sw"
 msgstr "ej. th, sw"
 
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "Edit"
 msgstr "Editar"
 
@@ -1154,6 +1440,14 @@ msgstr "Editor"
 msgid "Editor Lite"
 msgstr "Editor Lite"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Edits — asks first"
+msgstr "Ediciones — pregunta primero"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Edits without asking"
+msgstr "Ediciones sin preguntar"
+
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
 msgstr "Vaciar comentario"
@@ -1164,6 +1458,10 @@ msgstr "Vaciar comentario"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr "Termina con"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Enrich & clean up"
+msgstr "Enriquecer y limpiar"
 
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Refers to dictionary entries (headwords with their senses/definitions).
 #: src/lib/activity/ChangeSummary.svelte
@@ -1211,6 +1509,11 @@ msgstr "Entrada"
 msgid "Entry fields"
 msgstr "Campos de entrada"
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "Entry menu"
+msgstr "Menú de entrada"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Word only"
 #. Label for picker when creating relationships: select only the entry itself (not a specific sense/meaning)
@@ -1224,6 +1527,10 @@ msgstr "Sólo entrada"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry or sense:"
 msgstr "Entrada o acepción:"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Entry the plugin starts from"
+msgstr "La entrada del plugin comienza desde"
 
 #. Filter operator
 #. Search operator: exact match (whole field must equal search term)
@@ -1255,6 +1562,10 @@ msgstr "Cada entrada ya tiene este campo rellenado."
 msgid "Every word already has this field filled in."
 msgstr "Cada palabra ya tiene este campo rellenado."
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Everyone on this project will see it under Plugins. You can change or remove it later."
+msgstr "Todos en este proyecto lo verán en Plugins. Puedes cambiarlo o eliminarlo más tarde."
+
 #. Standalone noun (an example sentence on a sense), interpolated into a reorder activity-log line, e.g. "<sense> · Reordered example".
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
@@ -1265,6 +1576,7 @@ msgstr "ejemplo"
 #. Labels example sentence/phrase section in entry editor
 #. Contains: sentence text, translation, source reference
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Example"
 msgstr "Ejemplo"
@@ -1286,16 +1598,38 @@ msgstr "Ejemplo de frase"
 msgid "Example sentences"
 msgstr "Ejemplos de frases"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Example, not in this project"
+msgstr "Ejemplo, no en este proyecto"
+
 #. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of example sentences under a sense.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "examples"
 msgstr "ejemplos"
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Examples"
+msgstr "Ejemplos"
+
 #. Field label in the activity change-preview diff for a writing system. Exemplars are the list of index letters (e.g. A, B, C…) used for alphabetical browsing.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Exemplars"
 msgstr "Exemplars"
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Exit fullscreen"
+msgstr "Salir de pantalla completa"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Explore & analyze"
+msgstr "Explorar y analizar"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Export"
+msgstr "Exportar"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to change verbose logging"
@@ -1429,6 +1763,11 @@ msgstr "Versión de FieldWorks Lite"
 msgid "FieldWorks logo"
 msgstr "Logo de FieldWorks"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "File"
+msgstr "Fichero"
+
 #. Error message for duplicate file upload
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File already exists"
@@ -1450,6 +1789,10 @@ msgstr "Archivo no encontrado"
 msgid "File saving not supported"
 msgstr "Guardado de archivos no soportado"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "File size"
+msgstr "Tamaño del archivo"
+
 #. Error message for oversized file
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/audio/AudioDialog.svelte
@@ -1467,6 +1810,10 @@ msgstr "Rellenar Mostrar como"
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
 msgstr "Rellenar Palabra o Mostrar como"
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "Filled in from the plugin's title. Change it if you like."
+msgstr "Rellenado desde el título del plugin. Cambialo si quieres."
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1498,6 +1845,10 @@ msgstr "Filtrar por"
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter entries"
 msgstr "Filtrar entradas"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Filter examples"
+msgstr "Filtrar ejemplos"
 
 #. Search field placeholder
 #: src/project/browse/SearchFilter.svelte
@@ -1541,6 +1892,14 @@ msgstr "Encuentra la palabra..."
 msgid "Finish"
 msgstr "Finalizar"
 
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
+msgstr "Contacto de seguimiento descargado. Adjúntalo en el mismo chat de IA, luego pega su respuesta a continuación."
+
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply here."
+msgstr "Contacto de seguimiento descargado. Adjúntalo en el mismo chat de IA, luego pega su respuesta aquí."
+
 #. Field label in the activity change-preview diff. "Font" is the typeface name configured on a writing system.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Font"
@@ -1556,6 +1915,11 @@ msgstr "Para cualquier otra consulta, no dude en enviarnos un correo electrónic
 msgid "From active filter"
 msgstr "De filtro activo"
 
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Fullscreen"
+msgstr "Pantalla completa"
+
 #. Button in feedback menu
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Get support"
@@ -1565,10 +1929,19 @@ msgstr "Obtener soporte"
 #. Brief translation/equivalent (one word or short phrase)
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Glosa"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Go back"
+msgstr "Volver"
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "Go back to the previous version"
+msgstr "Volver a la versión anterior"
 
 #. Button link to navigate to entry
 #. Clicking jumps to an entry (e.g. from change history or a related entry)
@@ -1631,6 +2004,10 @@ msgstr "Información gramatical."
 msgid "green"
 msgstr "verde"
 
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Handle content with cultural care"
+msgstr "Manejar el contenido con cuidado cultural"
+
 #. Success toast after rebuilding Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
@@ -1670,6 +2047,10 @@ msgstr "Ocultar"
 msgid "Hide unchanged fields"
 msgstr "Ocultar campos sin cambios"
 
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "history"
+msgstr "historia"
+
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1681,6 +2062,10 @@ msgstr "Historia"
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Hold to record or#press and release to start recording."
 msgstr "Mantén presionado para grabar o#presionar y liberar para empezar a grabar."
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Homograph number"
+msgstr "Número de Homográfico"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1697,6 +2082,10 @@ msgstr "Entiendo que esto no se puede deshacer"
 msgid "ID"
 msgstr "ID"
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "If you add it"
+msgstr "Si lo agregas"
+
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
 msgid "Import"
@@ -1707,6 +2096,11 @@ msgstr "Importar"
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
 msgstr "en {0}"
+
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "In this project"
+msgstr "En este proyecto"
 
 #. Toggle switch in the filter panel next to the semantic domain selector. When enabled, also matches child semantic domains.
 #: src/project/browse/SearchFilter.svelte
@@ -1728,15 +2122,33 @@ msgstr "Instalar actualización"
 msgid "Installing Update..."
 msgstr "Instalando actualización..."
 
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "Internet"
+msgstr "Internet"
+
 #. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
 msgstr "justo ahora"
 
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Keep editing"
+msgstr "Seguir editando"
+
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr "Continuar"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Keep it"
+msgstr "Mantenerlo"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Keep previewing"
+msgstr "Mantener vista previa"
 
 #. Label showing the date of the last change in the FwLite↔Classic sync panel. # is replaced by a formatted relative date component (e.g., "3 days ago").
 #: src/project/sync/FwClassicSyncView.svelte
@@ -1758,15 +2170,27 @@ msgstr "Cambios posteriores"
 msgid "Learn more"
 msgstr "Aprende más"
 
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Leave"
+msgstr "Abandonar"
+
 #. Placeholder for the release channel text box. Production has no feature flags.
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Leave empty for production"
 msgstr "Dejar vacío para producción"
 
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Leave without saving?"
+msgstr "¿Salir sin guardar?"
+
 #. Field label in the audio editor showing the duration of the audio file.
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr "Longitud:"
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Let this version use the internet?"
+msgstr "¿Permitir que esta versión use internet?"
 
 #. Product name
 #: src/project/SyncDialog.svelte
@@ -1806,6 +2230,7 @@ msgstr "Modo lista"
 #. Field name shown in advanced/classic view
 #. The literal meaning of the vernacular translated into the analysis language
 #. Contrasts with glosses/definitions in the analysis language
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Literal meaning"
 msgstr "Significado literal"
@@ -1921,6 +2346,10 @@ msgstr "Publicación principal"
 msgid "Make a suggestion"
 msgstr "Haz una sugerencia"
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Make it your own with AI"
+msgstr "Hazlo propio con IA"
+
 #. Warning shown in the delete-project confirmation dialog. Markdown link format: [link text]({0}) where {0} = URL to the sync dialog. "Lexbox" is a product name — do not translate.
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
@@ -1992,6 +2421,10 @@ msgstr "Detalles del archivo multimedia"
 msgid "Media Manager"
 msgstr "Gestor de medios"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Microphone"
+msgstr "Micrófono"
+
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"
 msgstr "Falta el formulario de cita {0}"
@@ -2051,6 +2484,10 @@ msgstr "Falta: {0}"
 msgid "Mode"
 msgstr "Modo"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "More"
+msgstr "Más"
+
 #. Accessible name of the arrow button that opens more actions for an entry in the activity change preview
 #: src/lib/activity/EntryActionsButton.svelte
 msgid "More options"
@@ -2066,6 +2503,7 @@ msgid "morph type"
 msgstr "tipo morfh"
 
 #: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Morph type"
 msgstr "Tipo morfológico"
 
@@ -2104,6 +2542,8 @@ msgstr "Mi vista personalizada..."
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Nombre"
@@ -2113,6 +2553,10 @@ msgstr "Nombre"
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr "Se requiere nombre"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Needs {0}, which this project doesn't support, so it may not work properly"
+msgstr "Necesita {0}, que este proyecto no soporta, por lo que puede no funcionar correctamente"
 
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
@@ -2145,6 +2589,11 @@ msgstr "Nuevos datos"
 msgid "New Entry"
 msgstr "Nueva entrada"
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "New plugin"
+msgstr "Nuevo plugin"
+
 #: src/home/CreateProjectDialog.svelte
 msgid "New Project"
 msgstr "Nuevo proyecto"
@@ -2152,6 +2601,10 @@ msgstr "Nuevo proyecto"
 #: src/home/HomeView.svelte
 msgid "New Project (Local only)"
 msgstr "Nuevo proyecto (sólo local)"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "New version"
+msgstr "Nueva versión"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -2232,6 +2685,10 @@ msgstr "Ningún archivo para subir"
 msgid "No history found"
 msgstr "No se han encontrado antecedentes"
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "No internet"
+msgstr "Sin internet"
+
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "No items found"
@@ -2241,6 +2698,22 @@ msgstr "No se han encontrado artículos"
 #: src/lib/activity/ActivityItem.svelte
 msgid "No later changes"
 msgstr "No hay cambios posteriores"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer changes the dictionary"
+msgstr "Ya no cambia el diccionario"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer needs {0}"
+msgstr "Ya no necesita {0}"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer runs from an entry's menu"
+msgstr "Ya no se ejecuta desde el menú de una entrada"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer uses the internet"
+msgstr "Ya no usa Internet"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "No media files found"
@@ -2261,6 +2734,10 @@ msgstr "No hay conversaciones abiertas"
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "No pictures"
 msgstr "No hay fotos"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "No plugins yet"
+msgstr "Aún no hay plugins"
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/FwLiteSyncView.svelte
@@ -2297,6 +2774,7 @@ msgstr "No hay sistemas vernáculos de escritura configurados."
 
 #. Shown in the activity view's change preview when a change only touched things it does not display, e.g. text formatting
 #: src/lib/entry-editor/diff-view/DiffNoVisibleChanges.svelte
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "No visible changes"
 msgstr "No hay cambios visibles"
 
@@ -2315,12 +2793,20 @@ msgstr "No se han encontrado palabras"
 msgid "None"
 msgstr "Ninguno"
 
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Not allowed to use the internet"
+msgstr "No se permite usar internet"
+
 #. Filter operator
 #. Search operator: exclude entries matching the search term (inverse of "Equals")
 #. Related operators: "Equals", "Contains", "Starts with"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Not equal"
 msgstr "No es igual"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Not in this project. Try one on your data, then add it or make it your own."
+msgstr "No en este proyecto. Prueba uno en tus datos, luego añádelo o hazlo propio."
 
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
@@ -2335,6 +2821,7 @@ msgstr "No sincronizado"
 #. Field label
 #. General notes/remarks field in entry editor
 #. Unconstrained text for additional metadata/comments
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Note"
 msgstr "Nota"
@@ -2348,6 +2835,22 @@ msgstr "Nada que copiar"
 #: src/lib/activity/ActivityChangeHeader.svelte
 msgid "Now called: #"
 msgstr "Ahora llamado: #"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now can change the dictionary"
+msgstr "Ahora puede cambiar el diccionario"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now needs {0}, which not every project has"
+msgstr "Ahora necesita {0}, que no todos los proyectos tienen"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now runs from an entry's menu"
+msgstr "Ahora se ejecuta desde el menú de una entrada"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now uses the internet"
+msgstr "Ahora utiliza internet"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
@@ -2392,6 +2895,18 @@ msgstr "En proyectos grandes esto puede tardar un tiempo. No cierre la aplicaci�
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "Un commit de FieldWorks Classic puede consistir en cambios en múltiples entradas o campos. Por otro lado, un commit sólo puede afectar a los datos que no están sincronizados con FieldWorks Lite."
 
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Online, a plugin can send this project's data to any website."
+msgstr "En línea, un plugin puede enviar los datos de este proyecto a cualquier sitio web."
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
+msgstr "Sólo permitir si el plugin necesita conectarse a Internet, por ejemplo para buscar palabras o descargar imágenes."
+
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "Only project managers can add or change plugins."
+msgstr "Sólo los administradores de proyectos pueden añadir o cambiar plugins."
+
 #. Button to open downloaded project
 #: src/home/Server.svelte
 msgid "Open"
@@ -2401,6 +2916,10 @@ msgstr "Abrir"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Directorio de datos abiertos"
+
+#: src/project/browse/EntryMenu.svelte
+msgid "Open in {0}"
+msgstr "Abrir en {0}"
 
 #. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
 #: src/lib/auth/LoginButton.svelte
@@ -2472,6 +2991,8 @@ msgstr "parte de la voz"
 #. Relevant view: Lite
 #. Classic view equivalent: "Grammatical info."
 #. Field label: grammatical category (noun, verb, adjective, etc.)
+#: src/lib/plugins/plugin-api-adapter.ts
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
@@ -2482,9 +3003,26 @@ msgstr "Parte de la oración"
 msgid "parts of speech"
 msgstr "partes de la voz"
 
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Paste HTML"
+msgstr "Pegar HTML"
+
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "Paste or upload"
+msgstr "Pegar o subir"
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
 msgstr "Pegue aquí la configuración que le dio el soporte. Al guardar se reemplaza el archivo y se aplica de inmediato; déjelo vacío para eliminar el archivo. El tamaño y el número de archivos de registro solo cambian después de reiniciar."
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Paste the AI's reply"
+msgstr "Pegar la respuesta de la IA"
+
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "Paste the AI's reply or the plugin's HTML here"
+msgstr "Pegue la respuesta de la IA o el HTML del plugin aquí"
 
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
@@ -2492,9 +3030,21 @@ msgstr "Pegue aquí la configuración que le dio el soporte. Al guardar se reemp
 msgid "Pending"
 msgstr "Pendiente"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Permissions"
+msgstr "Permisos"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Phone width"
+msgstr "Phone width"
+
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of speech"
 msgstr "Escoge una parte de la oración"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Pick an entry"
+msgstr "Escoge una entrada"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick Grammatical info."
@@ -2509,6 +3059,7 @@ msgstr "Elige uno o más dominios semánticos"
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Picture"
 msgstr "Foto"
 
@@ -2539,6 +3090,60 @@ msgstr "Pinned"
 msgid "Platform"
 msgstr "Plataforma"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Play & learn"
+msgstr "Jugar y aprender"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "plugin"
+msgstr "plugin"
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "Plugin"
+msgstr "Plugin"
+
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Plugin HTML"
+msgstr "Plugin HTML"
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "Plugin stopped"
+msgstr "Plugin detenido"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to add an entry"
+msgstr "Plugin quiere añadir una entrada"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to change an entry"
+msgstr "Plugin quiere cambiar una entrada"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to make {0}"
+msgstr "El complemento quiere hacer {0}"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "plugins"
+msgstr "plugins"
+
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Plugins"
+msgstr "Plugins"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Plugins are code written by people on your team (often with AI help). This one hasn't run on this device yet, or it changed since it last ran."
+msgstr "Los plugins son código escrito por la gente de tu equipo (a menudo con ayuda de IA). Este no se ha ejecutado en este dispositivo todavía, o ha cambiado desde la última vez que se ejecutó."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust."
+msgstr "Plugins son código. Funcionan en un sandbox protegido y sólo pueden cambiar los datos del diccionario con tu aprobación, pero todavía debe usar sólo plugins de la gente en la que confía."
+
 #. Field label in the activity change-preview diff for a morph type. "Postfix" is the character(s) appended after a morpheme to mark its grammatical role (e.g. "-" for a suffix).
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Postfix"
@@ -2549,8 +3154,15 @@ msgstr "Postfix"
 msgid "Prefix"
 msgstr "Prefijo"
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Press Esc to exit fullscreen"
+msgstr "Pulse Esc para salir de pantalla completa"
+
 #. View option
 #: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
 msgstr "Vista previa"
@@ -2567,6 +3179,22 @@ msgstr "Vista previa no disponible para este tipo de archivo."
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not supported"
 msgstr "Vista previa no soportada"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Preview with entry"
+msgstr "Vista previa con entrada"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Preview: the plugin would add an entry"
+msgstr "Vista previa: el plugin añadiría una entrada"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Preview: the plugin would change an entry"
+msgstr "Vista previa: el plugin cambiaría una entrada"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Preview: the plugin would make {0}"
+msgstr "Vista previa: el plugin haría {0}"
 
 #. Accessible label for the arrow button that shows the previous picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
@@ -2594,6 +3222,10 @@ msgstr "Proyecto {0} no encontrado en {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "El proyecto {0} en {1} aún no está configurado para FieldWorks Lite"
 
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Prompt options"
+msgstr "Opciones de comprobación"
+
 #. Standalone noun used as {0} in activity-log strings (e.g. "Added publication"). A publication is a dictionary or word list that entries can be assigned to for distribution.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
@@ -2612,12 +3244,20 @@ msgstr "Publicación"
 msgid "publications"
 msgstr "publicaciones"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Publish"
+msgstr "Publicar"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Publish Word in"
 #. Field label: selects which publications an entry appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Entry in"
 msgstr "Publicar entrada en"
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Publish in"
+msgstr "Publicar en"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Publish Entry in"
@@ -2626,10 +3266,23 @@ msgstr "Publicar entrada en"
 msgid "Publish Word in"
 msgstr "Publicar palabra en"
 
+#: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
 msgid "Read-only"
 msgstr "Sólo lectura"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Read-only: cannot change your dictionary"
+msgstr "Sólo lectura: no se puede cambiar el diccionario"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Reads the dictionary, never changes it"
+msgstr "Lee el diccionario, nunca lo cambia"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Record & illustrate"
+msgstr "Registrar e ilustrar"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Citation form"
@@ -2671,9 +3324,14 @@ msgstr "Grabar Palabra o Mostrar como"
 msgid "Recording isn't available on this device."
 msgstr "La grabación no está disponible en este dispositivo."
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Records from the microphone"
+msgstr "Grabaciones desde el micrófono"
+
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
 #. Identifies where the example was found/cited
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Reference"
 msgstr "Referencia"
@@ -2740,6 +3398,14 @@ msgstr "Canal de lanzamiento"
 msgid "Release notes"
 msgstr "Notas de lanzamiento"
 
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Reload"
+msgstr "Reload"
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Reload plugin"
+msgstr "Recargar plugin"
+
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
 msgstr "Solo remoto"
@@ -2753,6 +3419,10 @@ msgstr "Eliminar"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Remove audio"
 msgstr "Eliminar audio"
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "Remove from project"
+msgstr "Eliminar del proyecto"
 
 #. Badge or screen-reader marker in the activity change preview: this change removed the item (e.g. a component link between two entries), or the struck-through text or value
 #: src/lib/activity/ActivityChangeHeader.svelte
@@ -2833,6 +3503,14 @@ msgstr "Responder…"
 msgid "Report a technical problem"
 msgstr "Reportar un problema técnico"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Require approval for edits"
+msgstr "Requiere aprobación para las ediciones"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Requires"
+msgstr "Requiere"
+
 #: src/project/browse/SearchFilter.svelte
 msgid "Reset"
 msgstr "Reset"
@@ -2858,10 +3536,38 @@ msgstr "Restaurar"
 msgid "Review"
 msgstr "Revisión"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Review & history"
+msgstr "Revisión e historial"
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "rose"
 msgstr "rosa"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Run"
+msgstr "Ejecutar"
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Run it"
+msgstr "Ejecutar"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Run plugin"
+msgstr "Ejecutar plugin"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Run this plugin?"
+msgstr "¿Ejecutar este plugin?"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Runs from an entry's menu"
+msgstr "Ejecuta desde el menú de una entrada"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Runs in a sandbox, separate from the app"
+msgstr "Ejecuta en un sandbox, separado de la aplicación"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
@@ -2907,10 +3613,22 @@ msgstr "Guardar como"
 msgid "Save audio"
 msgstr "Guardar audio"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Save for the team"
+msgstr "Guardar para el equipo"
+
 #. Submit button in the edit custom view dialog.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Save View"
 msgstr "Guardar Vista"
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Saved for the team."
+msgstr "Guardado para el equipo."
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Saving turns off \"Always allow\" on this device, so the new version asks before its first change."
+msgstr "Guardar desactiva \"Siempre permitir\" en este dispositivo, por lo que la nueva versión pregunta antes de su primer cambio."
 
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -2926,6 +3644,10 @@ msgstr "Buscar en diccionarios"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Search index regenerated successfully"
 msgstr "Índice de búsqueda regenerado con éxito"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "See all {0} examples"
+msgstr "Ver todos los ejemplos de {0}"
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -2971,6 +3693,7 @@ msgstr "dominio semántico"
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
 #. Used to organize and filter entries by meaning category
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Semantic domain"
 msgstr "Dominio semántico"
@@ -3005,6 +3728,7 @@ msgstr "sentido"
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Sense"
 msgstr "Acepción"
@@ -3023,6 +3747,7 @@ msgstr "sentidos"
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
 #. Paired with "Translation" field for translated version
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Sentencia"
@@ -3099,6 +3824,10 @@ msgstr "Mostrar"
 msgid "Show {0} more..."
 msgstr "Mostrar {0} más..."
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Show fewer examples"
+msgstr "Mostrar menos ejemplos"
+
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Show or hide captions"
 msgstr "Mostrar u ocultar leyendas"
@@ -3173,6 +3902,10 @@ msgstr "Tamaño:"
 msgid "Skip"
 msgstr "Saltar"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Small custom apps that work with this project's dictionary — shared with the whole team."
+msgstr "Pequeñas aplicaciones personalizadas que funcionan con el diccionario de este proyecto — compartidas con todo el equipo."
+
 #. Info popover on the sync dialog, for users whose role can't sync with FieldWorks Classic
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
@@ -3193,6 +3926,10 @@ msgstr "Ordenar reglas"
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
 msgstr "Ordenar sistema"
+
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "Source"
+msgstr "Fuente"
 
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
@@ -3308,6 +4045,10 @@ msgstr "Sincronizando..."
 msgid "System"
 msgstr "Sistema"
 
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Tailor to this project"
+msgstr "o para este proyecto"
+
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
@@ -3342,6 +4083,14 @@ msgstr "La vista *FieldWorks Classic*, por otra parte, está diseñada para usua
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "La vista *FieldWorks Lite* está diseñada para las no-listas y difiere de la vista *FieldWorks Classic* de las siguientes maneras:"
 
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "The new version asks to change the dictionary"
+msgstr "La nueva versión pide cambiar el diccionario"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "The new version asks to use the internet"
+msgstr "La nueva versión pide usar internet"
+
 #. Explanation note
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
@@ -3351,6 +4100,14 @@ msgstr "El número de commits de FieldWorks Classic no necesariamente coincidir�
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "El número de commits de FieldWorks Lite no necesariamente coincidirá con el número de cambios mostrados en el mensaje de resultado de sincronización."
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "The plugin “{0}” is asking to make this change to your dictionary:"
+msgstr "El complemento “{0}” está pidiendo hacer este cambio en tu diccionario:"
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
+msgstr "El prompt incluye la guía API, la configuración de este proyecto y el código actual de este plugin. Adjunta el archivo en cualquier chat de AI."
 
 #. Error message
 #: src/project/tasks/TaskView.svelte
@@ -3362,11 +4119,23 @@ msgstr "La tarea que buscas no existe."
 msgid "The time when you uploaded or downloaded these changes"
 msgstr "El tiempo cuando subiste o descargaste estos cambios"
 
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "The version before it didn't. If you didn't ask for this, have the AI take it out."
+msgstr "La versión anterior no lo hizo. Si no lo has pedido, haz que la IA lo saque."
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "The version before it worked offline. Online, a plugin can send this project's data to any website."
+msgstr "La versión antes de que funcionara sin conexión. En línea, un plugin puede enviar los datos de este proyecto a cualquier sitio web."
+
 #. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Estos cambios no se han subido todavía. Asegúrate de que estás conectado e inicia sesión para compartir tus cambios."
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "These guide how the AI writes the plugin. They don't restrict what the finished plugin can do."
+msgstr "Esta guía de cómo la IA escribe el plugin. No restringen lo que el plugin terminado puede hacer."
 
 #. Alert text shown in EntryView when the currently displayed entry/word has been deleted
 #: src/project/browse/EntryView.svelte
@@ -3383,6 +4152,10 @@ msgstr "Este cambio"
 msgid "This date # and this emoji # are snippets"
 msgstr "Esta fecha # y este emoji # son fragmentos"
 
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "This doesn't look like a complete plugin. It should be one HTML file that starts with <!DOCTYPE html> and ends with </html>."
+msgstr "Esto no parece un complemento completo. Debería ser un archivo HTML que comienza con <!DOCTYPE html> y termina con </html>."
+
 #. Relevant view: Classic
 #. Lite view equivalent: "This word may already exist"
 #. Warning banner in the New Entry dialog when an entry with the exact same headword exists; expands to a list of possible duplicates
@@ -3390,9 +4163,17 @@ msgstr "Esta fecha # y este emoji # son fragmentos"
 msgid "This entry may already exist"
 msgstr "Es posible que esta entrada ya exista"
 
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "This example doesn't exist."
+msgstr "Este ejemplo no existe."
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
 msgstr "Este archivo sólo está disponible de forma remota."
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
+msgstr "Esta es una vista previa, por lo que no se ha guardado nada. Una vez añadido, \"{0}\" pediría hacer este cambio a tu diccionario:"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
@@ -3401,6 +4182,31 @@ msgstr "Esta imagen es demasiado grande para subirla. Intenta reducir la resoluc
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
 msgstr "Esta imagen es demasiado grande para subir. Intente guardarla con una calidad JPEG más baja y subirla de nuevo."
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "This plugin can make changes without asking. Click to make it ask again."
+msgstr "Este plugin puede hacer cambios sin preguntar. Haga clic para volver a preguntar."
+
+#: src/project/data/plugin-service.svelte.ts
+msgid "This plugin file is too big (the limit is 10 MB)"
+msgstr "Este archivo de plugin es demasiado grande (el límite es de 10 MB)"
+
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "This plugin hasn't been added to the project, so it will be lost."
+msgstr "Este plugin no ha sido añadido al proyecto, por lo que se perderá."
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "This plugin isn't on this device yet"
+msgstr "Este plugin aún no está en este dispositivo"
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "This plugin no longer exists."
+msgstr "Este plugin ya no existe."
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "This plugin runs from an entry's menu. Pick an entry to preview it with."
+msgstr "Este plugin se ejecuta desde el menú de una entrada. Elige una entrada para previsualizarla."
 
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -3417,10 +4223,19 @@ msgstr "Esto reconstruye las instantáneas y las tablas proyectadas a partir del
 msgid "This rebuilds the full-text search index from dictionary entries."
 msgstr "Esto reconstruye el índice de búsqueda de texto completo desde entradas de diccionario."
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "This removes the plugin for everyone on this project."
+msgstr "Esto elimina el plugin para todos en este proyecto."
+
 #. Status message
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "Esta tarea está completa"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "This version"
+msgstr "Esta versión"
 
 #. Description of sync operation
 #: src/project/sync/FwClassicSyncView.svelte
@@ -3458,6 +4273,7 @@ msgstr "traducción"
 #. Field label
 #: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "Traducción"
@@ -3476,10 +4292,26 @@ msgstr "Traducción {0}"
 msgid "Troubleshoot"
 msgstr "Solución de problemas"
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Trusted"
+msgstr "Confiado"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Try {0}"
+msgstr "Prueba {0}"
+
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
 msgstr "Inténtalo de nuevo"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Try it"
+msgstr "Pruébalo"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Try one of the examples below on your own data, or make a new plugin with AI help."
+msgstr "Prueba uno de los ejemplos siguientes en tus propios datos, o haz un nuevo plugin con ayuda de IA."
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Turn analytics back on"
@@ -3606,6 +4438,10 @@ msgstr "Resultado de actualización desconocido"
 msgid "Unread"
 msgstr "No leídos"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Unsaved changes"
+msgstr "Cambios sin guardar"
+
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
@@ -3674,6 +4510,10 @@ msgstr "Imagen actualizada"
 msgid "Updates"
 msgstr "Actualizaciones"
 
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Upload file"
+msgstr "Subir archivo"
+
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Upload pending"
 msgstr "Subida pendiente"
@@ -3695,10 +4535,23 @@ msgstr "Archivos pendientes cargados"
 msgid "Uploading pictures is not supported here"
 msgstr "La carga de imágenes no está soportada aquí"
 
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "Use this version"
+msgstr "Usar esta versión"
+
 #. Field label
 #: src/lib/views/entity-config.ts
 msgid "Uses components as"
 msgstr "Utiliza componentes como"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Uses the camera"
+msgstr "Usa la cámara"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Uses the internet"
+msgstr "Usa Internet"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Verbose logging"
@@ -3725,10 +4578,18 @@ msgstr "El sistema de escritura vernácular es requerido"
 msgid "Vernacular writing systems"
 msgstr "Sistemas de escritura vernáculares"
 
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Version"
+msgstr "Versión"
+
 #. Button label
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "Ver"
+
+#: src/lib/entry-editor/EditEntryDialog.svelte
+msgid "View {0}"
+msgstr "Ver {0}"
 
 #. Title/tooltip for an icon button that opens the view picker (switch between Classic, Lite, or a custom view).
 #: src/lib/activity/ActivityViewPicker.svelte
@@ -3757,6 +4618,10 @@ msgstr "También recopilamos informes de errores con detalles técnicos sobre lo
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
 msgstr "Recogemos datos de uso para entender cómo se utiliza FieldWorks Lite y dónde mejorarlo. Cuando has iniciado sesión en Lexbox está vinculado a tu cuenta, y nunca incluye el contenido de tu diccionario."
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "What it asks for"
+msgstr "Lo que pide"
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
 msgstr "¿Qué te gustaría ver aquí?"
@@ -3783,6 +4648,7 @@ msgstr "palabra"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/lib/views/entity-config.ts
 #: src/project/browse/EntryMenu.svelte
@@ -3821,6 +4687,10 @@ msgstr "palabras"
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
 msgstr "Palabras sin Palabra ni Mostrar como"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Works on phones"
+msgstr "Funciona en teléfonos"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
@@ -3898,11 +4768,39 @@ msgstr "Ya has descargado el proyecto {0}"
 msgid "You're offline"
 msgstr "Estás desconectado"
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "You're offline and the plugin file hasn't been downloaded here. Connect to the internet and try again — after that it works offline."
+msgstr "Estás desconectado y el archivo del plugin no ha sido descargado aquí. Conéctate a internet e inténtalo de nuevo, después de eso funciona sin conexión."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "You're offline and this plugin's file isn't on this device yet."
+msgstr "Estás desconectado y el archivo de este plugin aún no está en este dispositivo."
+
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "You're offline and this plugin's file isn't on this device yet. Connect and try again."
+msgstr "Estás desconectado y el archivo de este plugin aún no está en este dispositivo. Conecta e inténtalo de nuevo."
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"
 msgstr "Has superado cada hito. ¡Qué logro!"
 
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Your changes to this plugin will be lost."
+msgstr "Se perderán los cambios en este plugin."
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "Tu diccionario comienza aquí"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Your plugin will run here"
+msgstr "Tu plugin se ejecutará aquí"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Your real dictionary. Changes it tries are shown, not saved."
+msgstr "Tu diccionario real. Cambia sus intentos, no se guardan."
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Your version, not added yet"
+msgstr "Tu versión, aún no se ha añadido"
 
