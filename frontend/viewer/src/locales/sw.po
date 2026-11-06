@@ -2591,6 +2591,10 @@ msgstr "Jina"
 msgid "Name is required"
 msgstr "Jina linahitajika"
 
+#: src/project/SyncDialog.svelte
+msgid "Nearby"
+msgstr ""
+
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
 msgstr ""

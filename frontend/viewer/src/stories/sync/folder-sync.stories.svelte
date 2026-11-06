@@ -6,12 +6,11 @@
   setupServiceProvider();
 </script>
 <script lang="ts">
-  import FwLiteSyncView from '../../project/sync/FwLiteSyncView.svelte';
+  import FolderSyncSection from '../../project/sync/FolderSyncSection.svelte';
   import OpenFromFolderItem from '../../home/OpenFromFolderItem.svelte';
   import FakeSyncService from './FakeSyncService.svelte';
   import FakeOpenFromFolder from './FakeOpenFromFolder.svelte';
   import NoFolderPicker from './NoFolderPicker.svelte';
-  import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
   import {FolderSyncStatus} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/FolderSyncStatus';
   import {OpenFromFolderOutcome} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/OpenFromFolderOutcome';
   import {DotnetService} from '$lib/dotnet-types';
@@ -28,34 +27,29 @@
   });
   refreshPlatformFeatures();
 
-  const server = {
-    id: 'test-server',
-    displayName: 'Lexbox',
-    authority: 'https://test-server.com',
-  };
   const lastSync = new Date(Date.now() - 60 * 60 * 1000).toISOString();
   const localStatus = {local: 4, remote: 0};
 </script>
 
 <Story name="Sync dialog: first folder sync">
   <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync}}>
-    <FwLiteSyncView syncStatus={SyncStatus.Offline} {server} serverId="test-server" projectCode="test-project" />
+    <FolderSyncSection />
   </FakeSyncService>
   <Toaster />
 </Story>
 <Story name="Sync dialog: remembered folder">
   <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, rememberedSyncFolder: String.raw`E:\test-project`}}>
-    <FwLiteSyncView syncStatus={SyncStatus.Offline} {server} serverId="test-server" projectCode="test-project" />
+    <FolderSyncSection />
   </FakeSyncService>
 </Story>
 <Story name="Sync dialog: remembered folder, long path">
   <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, rememberedSyncFolder: String.raw`C:\Users\someone\Documents\Dictionary work\Shared\test-project`}}>
-    <FwLiteSyncView syncStatus={SyncStatus.Offline} {server} serverId="test-server" projectCode="test-project" />
+    <FolderSyncSection />
   </FakeSyncService>
 </Story>
 <Story name="Sync dialog: folder already has other files">
   <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, folderSyncResult: {status: FolderSyncStatus.NotASyncFolder, mediaSent: 0, mediaReceived: 0, mediaFailed: 0}}}>
-    <FwLiteSyncView syncStatus={SyncStatus.Offline} {server} serverId="test-server" projectCode="test-project" />
+    <FolderSyncSection />
   </FakeSyncService>
   <Toaster />
 </Story>
@@ -77,13 +71,13 @@
 </Story>
 <Story name="Sync dialog: sync failed">
   <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, folderSyncResult: {status: FolderSyncStatus.Failed, mediaSent: 0, mediaReceived: 0, mediaFailed: 0}}}>
-    <FwLiteSyncView syncStatus={SyncStatus.Offline} {server} serverId="test-server" projectCode="test-project" />
+    <FolderSyncSection />
   </FakeSyncService>
   <Toaster />
 </Story>
 <Story name="Sync dialog: no writing system in common">
   <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, folderSyncResult: {status: FolderSyncStatus.NoWritingSystemInCommon, mediaSent: 0, mediaReceived: 0, mediaFailed: 0, localWritingSystemIds: ['en', 'seh'], folderWritingSystemIds: ['fr']}}}>
-    <FwLiteSyncView syncStatus={SyncStatus.Offline} {server} serverId="test-server" projectCode="test-project" />
+    <FolderSyncSection />
   </FakeSyncService>
   <Toaster />
 </Story>

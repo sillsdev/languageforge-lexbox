@@ -14,8 +14,6 @@
   import {onErrorEvent} from '$lib/errors/global-errors';
   import {resource} from 'runed';
   import type {SyncTarget} from './sync-target';
-  import FolderSyncSection from './FolderSyncSection.svelte';
-  import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
 
   import * as Popover from '$lib/components/ui/popover';
 
@@ -45,7 +43,6 @@
   }: Props = $props();
 
   const service = useSyncStatusService();
-  const platformFeatures = usePlatformFeaturesService();
   const status = resource(() => syncCount, async (_, _prev, {signal}) => {
     const [pendingCommits, latestSyncedCommitDate] = await Promise.all([
       service.getLocalStatus(),
@@ -90,7 +87,7 @@
     });
   }
 </script>
-<p class="mb-6 text-lg text-center">
+<p class="mb-4 max-md:px-10 text-sm text-muted-foreground text-center">
   {#if explainFieldWorksSync}
     <Popover.Root>
       <Popover.InfoTrigger>
@@ -184,6 +181,4 @@
     <p>{$t`Local`}</p>
   </div>
 </div>
-{#if platformFeatures.features.supportsFolderSync}
-  <FolderSyncSection bind:syncing onSynced={() => void status.refetch()} />
-{/if}
+

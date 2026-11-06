@@ -40,6 +40,9 @@ describe('SyncDialog', () => {
     // bits-ui restores the body style 24ms after the dialog unmounts; let it run before jsdom is torn down
     await new Promise(resolve => setTimeout(resolve, 50));
     document.body.innerHTML = '';
+    // a folder sync test's platform features would otherwise add the Nearby tab to later tests
+    window.lexbox?.ServiceProvider?.removeService(DotnetService.PlatformFeaturesService);
+    (await import('$lib/services/platform-features-service')).refreshPlatformFeatures();
   });
 
   async function openDialog(syncService: ISyncServiceJsInvokable, fieldWorksSync = true) {
@@ -78,7 +81,7 @@ describe('SyncDialog', () => {
   }, 60_000); // first import transforms the dialog's dependencies
 
   // The tabs show once the project's features have loaded
-  async function showTab(name: 'FieldWorks Lite' | 'Lexbox') {
+  async function showTab(name: 'FieldWorks Lite' | 'Lexbox' | 'Nearby') {
     const tab = await vi.waitFor(() => {
       const tab = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find(t => t.textContent?.includes(name));
       expect(tab).toBeTruthy();
@@ -143,6 +146,7 @@ describe('SyncDialog', () => {
     refreshPlatformFeatures();
     const syncService = fakeSyncService();
     await openDialog(syncService);
+    await showTab('Nearby');
 
     await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
     const input = await vi.waitFor(() => {
@@ -171,7 +175,7 @@ describe('SyncDialog', () => {
     refreshPlatformFeatures();
     await openDialog(fakeSyncService());
     await vi.waitFor(() => expect(document.body.textContent).toContain('Pending'));
-    expect(document.body.textContent).not.toContain('Sync with a folder...');
+    expect([...document.querySelectorAll('[role="tab"]')].map(t => t.textContent)).not.toContainEqual(expect.stringContaining('Nearby'));
   }, 60_000);
 
   it('syncs with the picked folder, then offers to sync with it again', async () => {
@@ -181,6 +185,7 @@ describe('SyncDialog', () => {
       .mockResolvedValueOnce(undefined)
       .mockResolvedValue(String.raw`E:\test-project`);
     await openDialog(syncService);
+    await showTab('Nearby');
 
     await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
     await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith(String.raw`E:\test-project`));
@@ -193,6 +198,7 @@ describe('SyncDialog', () => {
     await setFolderSyncSupport(() => Promise.resolve(undefined));
     const syncService = fakeSyncService();
     await openDialog(syncService);
+    await showTab('Nearby');
 
     await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
     await vi.waitFor(() => expect(getButton(/Sync with a folder\.\.\./).disabled).toBe(false));

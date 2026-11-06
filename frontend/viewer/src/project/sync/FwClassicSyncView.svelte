@@ -106,7 +106,7 @@
   }
 </script>
 
-<p class="mb-6 text-lg text-center">
+<p class="mb-4 max-md:px-10 text-sm text-muted-foreground text-center">
   <Popover.Root>
     <Popover.InfoTrigger>
       {$t`Sync FieldWorks Lite and FieldWorks Classic`}

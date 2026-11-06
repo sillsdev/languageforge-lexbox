@@ -1,6 +1,5 @@
 <script lang="ts">
   import {Button} from '$lib/components/ui/button';
-  import {Icon} from '$lib/components/ui/icon';
   import {t} from 'svelte-i18n-lingui';
   import {resource} from 'runed';
   import {AppNotification} from '$lib/notifications/notifications';
@@ -45,9 +44,8 @@
   }
 </script>
 
-<div class="mt-6 pt-4 border-t flex flex-col items-center gap-3">
-  <p class="text-foreground/80 text-center flex items-center gap-2">
-    <Icon icon="i-mdi-usb-flash-drive-outline" class="size-5" />
+<div class="flex flex-col items-center gap-3">
+  <p class="mb-1 max-md:px-10 text-sm text-muted-foreground text-center">
     {$t`Sync with a USB drive or another folder`}
   </p>
   <div class="flex flex-col items-center gap-1">
