@@ -7,64 +7,102 @@
 <title>Gap Finder</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f5f6f8;
+    color-scheme: light;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --surface-alt: #f0f1f4;
-    --border: #e2e4e9;
-    --text: #1c1e21;
-    --text-muted: #6b7280;
-    --accent: #4f46e5;
-    --accent-soft: #eef0ff;
-    --good: #059669;
-    --good-soft: #e3f7ee;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
     --warn: #b45309;
-    --warn-soft: #fef3e0;
-    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
-    --radius: 14px;
-    --vern-font: inherit;
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
   }
   html[data-theme="dark"] {
-    --bg: #16171b;
-    --surface: #1f2126;
-    --surface-alt: #26282e;
-    --border: #33353c;
-    --text: #edeef1;
-    --text-muted: #9aa0ab;
-    --accent: #818cf8;
-    --accent-soft: #2a2b5e;
-    --good: #34d399;
-    --good-soft: #123528;
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
     --warn: #fbbf24;
-    --warn-soft: #3a2f12;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    padding: 20px 16px 48px;
-    min-height: 100vh;
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
   }
-  .wrap { max-width: 880px; margin: 0 auto; }
-  h1 { font-size: 1.4rem; margin: 0 0 2px; }
-  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.9rem; }
-
-  /* Health summary */
-  .health {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 18px 20px;
-    margin-bottom: 20px;
-    display: flex;
-    gap: 18px;
-    align-items: center;
-    flex-wrap: wrap;
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
   }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
+  }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  .health { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
   .health .pct { font-size: 2.4rem; font-weight: 800; line-height: 1; color: var(--accent); }
   .health.complete .pct { color: var(--good); }
   .health .hbody { flex: 1; min-width: 200px; }
@@ -74,107 +112,58 @@
   .bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.35s ease; }
   .health.complete .bar > i { background: var(--good); }
 
-  .toolbar { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 18px; }
-  .field { display: flex; flex-direction: column; gap: 4px; }
-  .field label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); font-weight: 600; }
-  select, input[type="text"] {
-    font: inherit; font-size: 0.9rem; padding: 8px 11px;
-    border-radius: 9px; border: 1px solid var(--border);
-    background: var(--surface); color: var(--text); font-family: inherit;
-  }
-  select:focus, input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
+  .toolbar label { min-width: 0; }
+  .toolbar select { min-width: 0; }
+  .toolbar label { font-size: 0.85rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: 8px; }
   .spacer { flex: 1; }
-  .btn {
-    border: none; padding: 9px 16px; border-radius: 9px;
-    font-size: 0.88rem; font-weight: 600; cursor: pointer; font-family: inherit;
-  }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { filter: brightness(1.08); }
-  .btn-ghost { background: var(--surface-alt); color: var(--text); border: 1px solid var(--border); }
-  .btn-ghost:hover { background: var(--border); }
-  .btn:disabled { opacity: 0.5; cursor: default; }
-  .cap-note {
-    display: inline-block; font-size: 0.78rem; color: var(--warn);
-    background: var(--warn-soft); padding: 4px 12px; border-radius: 999px; margin-bottom: 16px;
-  }
+  .cap-note { margin-bottom: 16px; }
 
-  /* Dashboard grid */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
-  .card {
-    text-align: left; font: inherit; cursor: pointer;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 16px 18px;
-    display: flex; flex-direction: column; gap: 8px;
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+  .check-card {
+    text-align: left; font: inherit; color: var(--text); cursor: pointer;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 16px; display: flex; flex-direction: column; gap: 8px;
     transition: transform 0.12s ease, border-color 0.12s ease;
   }
-  .card:hover { transform: translateY(-2px); border-color: var(--accent); }
-  .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .card h3 { margin: 0; font-size: 0.95rem; font-weight: 700; }
-  .card .count-row { display: flex; align-items: baseline; gap: 8px; }
-  .card .count { font-size: 1.9rem; font-weight: 800; line-height: 1; color: var(--accent); }
-  .card .count-label { font-size: 0.82rem; color: var(--text-muted); }
-  .card .ratio { font-size: 0.78rem; color: var(--text-muted); }
-  .card .mini-bar { background: var(--surface-alt); border-radius: 999px; height: 6px; overflow: hidden; }
-  .card .mini-bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
-  .card .tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--accent); }
-  .card.done { border-color: var(--good-soft); }
-  .card.done .count, .card.done .mini-bar > i { color: var(--good); background: var(--good); }
-  .card.done .count { background: none; }
-  .card.done .check { color: var(--good); font-weight: 800; font-size: 1.4rem; }
+  .check-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .check-card h3 { margin: 0; font-size: 0.95rem; font-weight: 700; }
+  .check-card .count-row { display: flex; align-items: baseline; gap: 8px; }
+  .check-card .count { font-size: 1.9rem; font-weight: 800; line-height: 1; color: var(--accent); }
+  .check-card .count-label, .check-card .ratio { font-size: 0.82rem; color: var(--text-muted); }
+  .check-card .mini-bar { background: var(--surface-alt); border-radius: 999px; height: 6px; overflow: hidden; }
+  .check-card .mini-bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+  .check-card .tag { align-self: flex-start; }
+  .check-card.done .mini-bar > i { background: var(--good); }
+  .check-card.done .check { color: var(--good); font-weight: 800; font-size: 1.4rem; }
 
-  /* Worklist */
-  .wl-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
-  .back-btn {
-    background: var(--surface-alt); border: 1px solid var(--border); color: var(--text);
-    border-radius: 9px; padding: 7px 12px; cursor: pointer; font: inherit; font-size: 0.85rem; font-weight: 600;
-  }
-  .back-btn:hover { background: var(--border); }
+  .wl-head { display: flex; align-items: center; gap: 8px 12px; margin-bottom: 6px; flex-wrap: wrap; }
   .wl-head h2 { margin: 0; font-size: 1.15rem; }
-  .wl-count { background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 2px 12px; font-weight: 700; font-size: 0.82rem; }
-  .wl-blurb { color: var(--text-muted); font-size: 0.88rem; margin: 0 0 16px; }
-
-  .items { display: flex; flex-direction: column; gap: 10px; }
-  .item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 14px;
-    box-shadow: var(--shadow);
-  }
-  .item-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-  .item .hw { font-weight: 700; font-family: var(--vern-font); word-break: break-word; }
-  .item .ctx { color: var(--text-muted); font-size: 0.85rem; margin-top: 2px; word-break: break-word; }
-  .open {
-    color: var(--accent); cursor: pointer; text-decoration: none;
-    font-size: 0.82rem; font-weight: 600; white-space: nowrap; flex-shrink: 0;
-  }
-  .open:hover { text-decoration: underline; }
+  .wl-blurb { color: var(--text-muted); font-size: 0.9rem; margin: 0 0 14px; }
+  .items { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; align-items: start; }
+  .item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; box-shadow: var(--shadow); }
+  .item.saved { border-color: var(--good); }
+  .item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .item .hw { font-weight: 700; font-family: var(--vern-font); font-size: 1.05rem; overflow-wrap: anywhere; }
+  .item .ctx { color: var(--text-muted); font-size: 0.88rem; margin-top: 2px; overflow-wrap: anywhere; }
+  .item .open { min-height: 36px; padding: 0 10px; font-size: 0.85rem; color: var(--accent); margin: -6px -8px 0 0; }
   .fix { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
   .fix-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .fix-row .sctx { flex: 1; min-width: 120px; font-size: 0.85rem; color: var(--text-muted); word-break: break-word; }
-  .fix-row select, .fix-row input[type="text"] { flex: 1; min-width: 150px; }
-  .save-btn {
-    background: var(--accent); color: #fff; border: none; border-radius: 9px;
-    padding: 8px 14px; font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap;
-  }
-  .save-btn:hover { filter: brightness(1.08); }
-  .save-btn:disabled { opacity: 0.5; cursor: default; }
-  .fix-hint { font-size: 0.78rem; color: var(--text-muted); }
-  .list-note { text-align: center; color: var(--text-muted); font-size: 0.82rem; padding: 12px; }
-
-  /* States */
-  .center-state { text-align: center; padding: 56px 20px; color: var(--text-muted); }
+  .fix-row .sctx { flex: 1 1 100%; font-size: 0.85rem; color: var(--text-muted); overflow-wrap: anywhere; }
+  .fix-row select, .fix-row input[type="text"] { flex: 1 1 140px; min-width: 0; }
+  .fix-hint { font-size: 0.8rem; color: var(--text-muted); }
+  .more-row { grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 8px; }
   .celebrate { text-align: center; padding: 48px 20px; }
   .celebrate .big { font-size: 2.6rem; }
   .celebrate .msg { font-weight: 600; color: var(--good); margin-top: 10px; }
-  .spinner { width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; margin: 0 auto 16px; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
   .scan-bar { max-width: 320px; margin: 16px auto 0; }
-  .error-box { border: 1px solid #f5b5b5; background: color-mix(in srgb, #f5b5b5 20%, var(--surface)); color: var(--text); padding: 14px 18px; border-radius: var(--radius); }
-  [hidden] { display: none !important; }
+  @media (max-width: 600px) {
+    .items { grid-template-columns: minmax(0, 1fr); }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .check-card { padding: 12px; }
+    .check-card .count { font-size: 1.5rem; }
+    .health .pct { font-size: 2rem; }
+  }
 </style>
 </head>
 <body>
@@ -192,10 +181,10 @@
     This project has no entries yet. Add some words, then come back for a health check.
   </div>
 
-  <div id="error" class="error-box" hidden></div>
+  <div id="error" class="error-box" role="alert" hidden></div>
 
   <div id="app" hidden>
-    <div class="health" id="health">
+    <div class="card health" id="health">
       <div class="pct" id="health-pct">&mdash;</div>
       <div class="hbody">
         <div class="hmsg" id="health-msg"></div>
@@ -205,15 +194,12 @@
     </div>
 
     <div class="toolbar">
-      <div class="field" id="gloss-ws-field" hidden>
-        <label for="gloss-ws">Show meanings in</label>
-        <select id="gloss-ws"></select>
-      </div>
+      <label id="gloss-ws-field" hidden>Meanings in <select id="gloss-ws"></select></label>
       <div class="spacer"></div>
-      <button class="btn btn-ghost" id="rescan-btn">Rescan</button>
+      <button class="btn" id="rescan-btn" type="button">Rescan</button>
     </div>
 
-    <div id="cap-note" class="cap-note" hidden></div>
+    <div id="cap-note" class="chip warn cap-note" hidden></div>
 
     <!-- Dashboard -->
     <section id="dashboard">
@@ -223,9 +209,9 @@
     <!-- Worklist -->
     <section id="worklist" hidden>
       <div class="wl-head">
-        <button class="back-btn" id="back-btn">&larr; All checks</button>
+        <button class="btn" id="back-btn" type="button">&larr; All checks</button>
         <h2 id="wl-title"></h2>
-        <span class="wl-count" id="wl-count"></span>
+        <span class="chip accent" id="wl-count"></span>
       </div>
       <p class="wl-blurb" id="wl-blurb"></p>
       <div class="items" id="wl-items"></div>
@@ -243,7 +229,7 @@
 
   var PAGE = 1000;          // API max per call
   var CAP = 5000;           // safety cap on entries scanned
-  var WORKLIST_CAP = 500;   // rows rendered per worklist (fix these, then rescan for more)
+  var WORKLIST_PAGE = 50;
   var PREFS_KEY = 'gapfinder-prefs';
 
   var state = {
@@ -259,14 +245,18 @@
     capped: false,
     glossWs: null,       // analysis WS used for showing existing meanings
     view: 'dashboard',   // 'dashboard' or a card id
+    shown: WORKLIST_PAGE, // worklist rows rendered so far
   };
 
   function $(id) { return document.getElementById(id); }
   var F = window.fwlite;
 
-  function applyTheme(theme) {
+  function applyTheme() {
     var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', theme || (dark ? 'dark' : 'light'));
+    document.documentElement.setAttribute('data-theme', F.theme || (dark ? 'dark' : 'light'));
+  }
+  function applyVernFont(ws) {
+    if (ws && ws.font) document.documentElement.style.setProperty('--vern-font', '"' + ws.font.replace(/"/g, '') + '", var(--font)');
   }
   function showError(msg) {
     $('loading').hidden = true;
@@ -340,7 +330,7 @@
     });
     add({id: 'pos', level: 'sense', fix: 'pos',
       title: 'No part of speech',
-      blurb: 'Senses not yet tagged with a part of speech. Pick one from the dropdown to set it.'});
+      blurb: 'Senses not yet tagged with a part of speech. Pick one and press Save.'});
     if (state.defVernWs) add({id: 'example', level: 'sense', fix: null,
       title: 'No example sentence',
       blurb: 'Senses with no example sentence in ' + state.defVernName + '. Open the entry to add one.'});
@@ -425,7 +415,7 @@
       var count = card.items.length;
       var done = count === 0;
       var btn = document.createElement('button');
-      btn.className = 'card' + (done ? ' done' : '');
+      btn.className = 'check-card' + (done ? ' done' : '');
       btn.type = 'button';
 
       var h = document.createElement('h3');
@@ -450,7 +440,7 @@
         row.appendChild(n);
         var lbl = document.createElement('span');
         lbl.className = 'count-label';
-        lbl.textContent = card.level === 'entry' ? 'entries' : 'senses';
+        lbl.textContent = card.level === 'entry' ? (count === 1 ? 'entry' : 'entries') : (count === 1 ? 'sense' : 'senses');
         row.appendChild(lbl);
       }
       btn.appendChild(row);
@@ -473,8 +463,8 @@
 
       if (!done && card.fix) {
         var tag = document.createElement('span');
-        tag.className = 'tag';
-        tag.textContent = 'Fix here';
+        tag.className = 'chip accent tag';
+        tag.textContent = 'Fix right here';
         btn.appendChild(tag);
       }
 
@@ -486,6 +476,8 @@
   // --- Worklist -------------------------------------------------------------
   function openCard(id) {
     state.view = id;
+    state.shown = WORKLIST_PAGE;
+    window.scrollTo(0, 0);
     savePrefs();
     renderView();
   }
@@ -512,25 +504,42 @@
     host.hidden = false;
     celebrate.hidden = true;
 
-    var shown = card.items.slice(0, WORKLIST_CAP);
-    shown.forEach(function (item) {
-      host.appendChild(card.fix === 'gloss' ? renderGlossItem(card, item)
-        : card.fix === 'pos' ? renderPosItem(card, item)
-        : renderPlainItem(card, item));
-    });
-    if (card.items.length > WORKLIST_CAP) {
-      var note = document.createElement('div');
-      note.className = 'list-note';
-      note.textContent = 'Showing the first ' + WORKLIST_CAP.toLocaleString() + ' of ' +
-        card.items.length.toLocaleString() + '. Fix some, then Rescan to see the rest.';
-      host.appendChild(note);
+    appendItems(card, 0, state.shown);
+  }
+
+  function renderItem(card, item) {
+    return card.fix === 'gloss' ? renderGlossItem(card, item)
+      : card.fix === 'pos' ? renderPosItem(card, item)
+      : renderPlainItem(card, item);
+  }
+
+  function appendItems(card, from, to) {
+    var host = $('wl-items');
+    var old = host.querySelector('.more-row');
+    if (old) old.remove();
+    card.items.slice(from, to).forEach(function (item) { host.appendChild(renderItem(card, item)); });
+    var rest = card.items.length - Math.min(to, card.items.length);
+    if (rest > 0) {
+      var more = document.createElement('div');
+      more.className = 'more-row';
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn';
+      btn.textContent = 'Show ' + Math.min(WORKLIST_PAGE, rest) + ' more (' + rest.toLocaleString() + ' left)';
+      btn.addEventListener('click', function () {
+        var start = state.shown;
+        state.shown += WORKLIST_PAGE;
+        appendItems(card, start, state.shown);
+      });
+      more.appendChild(btn);
+      host.appendChild(more);
     }
   }
 
   function updateCardHeader(card) {
     var count = card.items.length;
     $('wl-count').textContent = count === 0 ? 'All clear'
-      : count.toLocaleString() + ' ' + (card.level === 'entry' ? 'entries' : 'senses');
+      : count.toLocaleString() + ' ' + (card.level === 'entry' ? (count === 1 ? 'entry' : 'entries') : (count === 1 ? 'sense' : 'senses'));
   }
 
   function itemShell(item) {
@@ -544,9 +553,11 @@
     hw.textContent = item.headword;
     left.appendChild(hw);
     top.appendChild(left);
-    var open = document.createElement('a');
-    open.className = 'open';
-    open.textContent = 'Open ↗';
+    var open = document.createElement('button');
+    open.type = 'button';
+    open.className = 'btn ghost open';
+    open.textContent = 'Open \u2197';
+    open.title = 'Open this entry in FW Lite';
     open.addEventListener('click', function () { F.openEntry(item.entryId); });
     top.appendChild(open);
     row.appendChild(top);
@@ -586,16 +597,27 @@
       opt.textContent = pos.display;
       select.appendChild(opt);
     });
+    select.setAttribute('aria-label', 'Part of speech for ' + item.headword);
+    var save = document.createElement('button');
+    save.type = 'button';
+    save.className = 'btn primary';
+    save.textContent = 'Save';
+    save.disabled = true;
     fixRow.appendChild(select);
+    fixRow.appendChild(save);
     fix.appendChild(fixRow);
     shell.row.appendChild(fix);
 
-    select.addEventListener('change', function () {
+    // Saving waits for the button: keyboard users change a closed select with the arrow keys.
+    select.addEventListener('change', function () { save.disabled = !select.value; });
+    select.addEventListener('keydown', function (e) { if (e.key === 'Enter' && select.value) { e.preventDefault(); save.click(); } });
+    save.addEventListener('click', function () {
       var posId = select.value;
       if (!posId) return;
       var pos = state.parts.filter(function (p) { return p.id === posId; })[0];
       if (!pos) return;
       select.disabled = true;
+      save.disabled = true;
       applyWrite(item.entryId, function (before, after) {
         var s = findSense(after, item.senseId);
         if (!s) return false;
@@ -604,10 +626,9 @@
         return true;
       }).then(function () {
         removeItem(card, item, shell.row);
-        notify('Part of speech saved for “' + item.headword + '”.');
       }, function (err) {
         select.disabled = false;
-        select.value = '';
+        save.disabled = false;
         handleWriteError(err, card, item, shell.row);
       });
     });
@@ -620,7 +641,7 @@
     fix.className = 'fix';
     var hint = document.createElement('div');
     hint.className = 'fix-hint';
-    hint.textContent = 'Add a ' + card.title.replace('No gloss in ', '') + ' gloss to any sense:';
+    hint.textContent = 'Add a gloss in ' + card.title.replace('No gloss in ', '') + ' to any sense:';
     fix.appendChild(hint);
 
     item.senses.forEach(function (sense) {
@@ -632,8 +653,10 @@
       var input = document.createElement('input');
       input.type = 'text';
       input.placeholder = 'Type a gloss…';
+      input.setAttribute('aria-label', 'Gloss for ' + item.headword + ', ' + sense.ctx);
       var save = document.createElement('button');
-      save.className = 'save-btn';
+      save.type = 'button';
+      save.className = 'btn primary';
       save.textContent = 'Save';
 
       function submit() {
@@ -649,14 +672,13 @@
         }).then(function () {
           // The entry now has a gloss in this WS, so its gap is resolved.
           removeItem(card, item, shell.row);
-          notify('Gloss saved for “' + item.headword + '”.');
         }, function (err) {
           input.disabled = false; save.disabled = false;
           handleWriteError(err, card, item, shell.row);
         });
       }
       save.addEventListener('click', submit);
-      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') submit(); });
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.isComposing) submit(); });
 
       fixRow.appendChild(sctx);
       fixRow.appendChild(input);
@@ -679,12 +701,14 @@
   }
 
   function handleWriteError(err, card, item, row) {
-    if (err && (err.code === 'permission-denied' || err.code === 'preview')) {
-      notify('Not saved — no problem, it’s still in the list.');
+    if (err && err.code === 'preview') {
+      notify('This is a preview, so nothing was saved. Once the plugin is added, approving saves the fix.');
+    } else if (err && err.code === 'permission-denied') {
+      notify('Not saved, because the change wasn\u2019t approved. It is still in the list.');
     } else if (err && (err.code === 'gone' || err.code === 'nochange')) {
       // Entry or sense changed elsewhere; the gap is effectively resolved.
       removeItem(card, item, row);
-      notify('That item changed elsewhere — removed from the list.');
+      notify('That item changed elsewhere, so it was removed from the list.');
     } else {
       notify('Could not save: ' + errMsg(err));
     }
@@ -693,7 +717,13 @@
   function removeItem(card, item, row) {
     var idx = card.items.indexOf(item);
     if (idx >= 0) card.items.splice(idx, 1);
+    var next = row && row.nextElementSibling;
+    var hadFocus = row && row.contains(document.activeElement);
     if (row && row.parentNode) row.parentNode.removeChild(row);
+    state.shown = Math.max(0, state.shown - 1);
+    // Keep the keyboard flow: the next row's first field takes over.
+    var field = hadFocus && next && next.querySelector('input, select');
+    if (field) field.focus();
     updateCardHeader(card);
     updateSummary();
     if (card.items.length === 0) {
@@ -741,8 +771,9 @@
 
   // --- Init -----------------------------------------------------------------
   function init(context) {
-    applyTheme(context.theme);
-    $('subtitle').textContent = 'A friendly completeness check for ' + context.project.projectName + '.';
+    applyTheme();
+    var projectName = context && context.project && context.project.projectName;
+    if (projectName) $('subtitle').textContent = 'A friendly completeness check for ' + projectName + '.';
 
     Promise.all([
       F.getWritingSystems(),
@@ -760,8 +791,7 @@
       if (state.vernacular.length) {
         state.defVernWs = state.vernacular[0].wsId;
         state.defVernName = state.vernacular[0].name;
-        var vf = state.vernacular[0].font;
-        document.documentElement.style.setProperty('--vern-font', (vf ? '"' + vf + '", ' : '') + 'inherit');
+        applyVernFont(state.vernacular[0]);
       }
       state.parts = parts.map(function (p) {
         return {id: p.id, name: p.name, display: (F.firstValue(p.name, state.analysisIds) || Object.values(p.name || {})[0] || '(unnamed)')};

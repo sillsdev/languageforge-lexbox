@@ -47,7 +47,7 @@ export const examplePlugins: ExamplePlugin[] = [
   {
     key: 'rapid-words',
     name: 'Rapid Word Collection',
-    description: 'Work through the semantic-domain framework, rapidly adding new words and glosses to each domain.',
+    description: 'Work through the semantic domains one at a time, quickly adding words and glosses to each, and see how many domains have words.',
     functions: ['collect'],
     loadHtml: async () => (await import('./rapid-words.html?raw')).default,
   },
@@ -63,7 +63,7 @@ export const examplePlugins: ExamplePlugin[] = [
   {
     key: 'gap-finder',
     name: 'Gap Finder',
-    description: 'Find entries missing glosses, parts of speech, examples or domains, and fill them in from a worklist.',
+    description: 'Find entries missing glosses, parts of speech, examples, definitions or domains, and add glosses and parts of speech right from the list.',
     functions: ['enrich', 'explore'],
     loadHtml: async () => (await import('./gap-finder.html?raw')).default,
   },

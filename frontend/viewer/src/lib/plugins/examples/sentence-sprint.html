@@ -7,304 +7,276 @@
 <title>Sentence Sprint</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f5f6f8;
+    color-scheme: light;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --surface-alt: #f0f1f4;
-    --border: #e2e4e9;
-    --text: #1c1e21;
-    --text-muted: #6b7280;
-    --accent: #4f46e5;
-    --accent-soft: #eef0ff;
-    --good: #059669;
-    --good-soft: #e3f7ee;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
     --warn: #b45309;
-    --warn-soft: #fef3e0;
-    --streak: #d97706;
-    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
-    --radius: 14px;
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
   }
   html[data-theme="dark"] {
-    --bg: #16171b;
-    --surface: #1f2126;
-    --surface-alt: #26282e;
-    --border: #33353c;
-    --text: #edeef1;
-    --text-muted: #9aa0ab;
-    --accent: #818cf8;
-    --accent-soft: #2a2b5e;
-    --good: #34d399;
-    --good-soft: #123528;
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
     --warn: #fbbf24;
-    --warn-soft: #3a2f12;
-    --streak: #fbbf24;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 20px 16px 40px;
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
   }
-  .wrap { max-width: 620px; margin: 0 auto; }
-  h1 { font-size: 1.4rem; margin: 0 0 4px; text-align: center; }
-  .subtitle { color: var(--text-muted); text-align: center; margin: 0 0 18px; font-size: 0.9rem; }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 18px 20px;
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
   }
-
-  label { display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; }
-  select, input, textarea {
-    width: 100%;
-    font-size: 0.95rem;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--surface-alt);
-    color: var(--text);
-    font-family: inherit;
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
   }
-  textarea { resize: vertical; min-height: 72px; }
-  select:focus, input:focus, textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
-  }
-  .field { margin-bottom: 14px; }
-
-  .primary-btn {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    padding: 11px 22px;
-    border-radius: 10px;
-    font-size: 0.92rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .primary-btn:hover { filter: brightness(1.08); }
-  .primary-btn:disabled { opacity: 0.55; cursor: default; }
-  .ghost-btn {
-    background: var(--surface-alt);
-    color: var(--text-muted);
-    border: 1px solid var(--border);
-    padding: 11px 18px;
-    border-radius: 10px;
-    font-size: 0.92rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .ghost-btn:hover { color: var(--text); }
-  .ghost-btn:disabled { opacity: 0.55; cursor: default; }
-
-  .stats-bar {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 16px;
-  }
-  .stat-chip {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 6px 14px;
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-  }
-  .stat-chip .num { font-weight: 700; font-size: 0.95rem; color: var(--text); }
-  .stat-chip.streak .num { color: var(--streak); }
-  .stat-chip.session.combo { animation: comboPulse 0.6s ease; }
-  @keyframes comboPulse {
-    0% { transform: scale(1); }
-    35% { transform: scale(1.12); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
-    100% { transform: scale(1); }
-  }
-
-  .target-card { margin-bottom: 16px; transition: opacity 0.22s ease, transform 0.22s ease; }
-  .target-card.leaving { opacity: 0; transform: translateX(-24px); }
-  .target-card.entering { opacity: 0; transform: translateX(24px); transition: none; }
-  .headword { font-size: 1.8rem; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
-  .sense-line { margin-top: 8px; font-size: 1.02rem; }
-  .sense-tag {
-    display: inline-block;
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--accent);
-    background: var(--accent-soft);
-    border-radius: 999px;
-    padding: 2px 9px;
-    margin-right: 8px;
-    vertical-align: middle;
-  }
-  .pos { color: var(--text-muted); font-style: italic; font-size: 0.88rem; margin-left: 6px; }
-  .domain-chips { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
-  .domain-chip {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 2px 10px;
-  }
-  .remaining { text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-bottom: 14px; }
-
-  .btn-row { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
-  .inline-note { font-size: 0.82rem; padding: 8px 12px; border-radius: 8px; margin-top: 12px; }
-  .inline-note.warn { background: var(--warn-soft); color: var(--warn); }
-  .inline-note.good { background: var(--good-soft); color: var(--good); }
-  .hint-row { text-align: center; color: var(--text-muted); font-size: 0.76rem; margin-top: 14px; }
-
-  .center-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
   .spinner {
-    width: 32px; height: 32px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    margin: 0 auto 14px;
-    animation: spin 0.8s linear infinite;
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .error-box {
-    border: 1px solid #f5b5b5;
-    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
-    padding: 14px 18px;
-    border-radius: var(--radius);
-    margin-bottom: 16px;
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
   }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+  select, input[type="text"], textarea { width: 100%; }
+  textarea { resize: vertical; min-height: 88px; }
+  .field { margin-bottom: 14px; }
+  label.check { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: 0.9rem; margin: 0 0 14px; }
+  label.check input { width: 18px; height: 18px; }
 
-  .done-card { text-align: center; padding: 34px 24px; }
+  .stats-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  .stats-bar .chip { font-size: 0.85rem; padding: 4px 12px; }
+  .stats-bar .chip b { color: var(--text); }
+  .chip.streak b { color: var(--warn); }
+  .chip.combo { animation: comboPulse 0.6s ease; }
+  @keyframes comboPulse { 35% { transform: scale(1.12); box-shadow: 0 0 0 4px var(--accent-soft); } }
+  .remaining { color: var(--text-muted); font-size: 0.85rem; margin-left: auto; }
+
+  .target-card { margin-bottom: 12px; transition: opacity 0.22s ease, transform 0.22s ease; }
+  .target-card.leaving { opacity: 0; transform: translateX(-24px); }
+  .target-card.entering { opacity: 0; transform: translateX(24px); transition: none; }
+  .headword { font-family: var(--vern-font); font-size: 1.8rem; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+  .sense-line { margin-top: 6px; font-size: 1.02rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+  .pos { color: var(--text-muted); font-style: italic; font-size: 0.9rem; }
+  .domain-chips { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .sentence { font-family: var(--vern-font); font-size: 1.05rem; }
+  .inline-note { scroll-margin-bottom: 80px; font-size: 0.88rem; padding: 10px 12px; border-radius: var(--radius); margin-bottom: 12px; }
+  .inline-note.warn { background: var(--warn-soft); color: var(--warn); }
+  .inline-note.good { background: var(--good-soft); color: var(--good); }
+  .hint-row { color: var(--text-muted); font-size: 0.8rem; }
+  .actions { margin-top: 12px; }
+  .actions .primary { flex: 1; }
+
+  .done-card { text-align: center; padding: 28px 20px; }
   .done-card .big { font-size: 2.2rem; margin-bottom: 8px; }
-  .done-card h2 { margin: 0 0 6px; }
-  .done-stats { display: flex; justify-content: center; gap: 26px; margin: 20px 0; }
+  .done-stats { display: flex; justify-content: center; gap: 22px; margin: 20px 0; flex-wrap: wrap; }
   .done-stat .num { font-size: 1.5rem; font-weight: 700; color: var(--good); }
-  .done-stat .lbl { font-size: 0.78rem; color: var(--text-muted); }
-
-  #setup-view, #sprint-view, #done-view { display: none; }
+  .done-stat .lbl { font-size: 0.8rem; color: var(--text-muted); }
+  .done-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  #app { flex: 1; display: flex; flex-direction: column; }
+  #sprint-view:not([hidden]) { flex: 1; display: flex; flex-direction: column; }
+  #sprint-form { flex: 1; display: flex; flex-direction: column; }
+  @media (pointer: coarse) { .hint-row { display: none; } }
+  @media (max-width: 600px) {
+    .wrap.narrow .card > .actions { margin: auto -16px -16px; background: var(--surface); border-radius: 0 0 var(--radius) var(--radius); }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap narrow">
   <h1>Sentence Sprint</h1>
-  <p class="subtitle">Fill the gaps: add example sentences to senses that have none.</p>
+  <p class="subtitle">Add example sentences to senses that don't have one yet.</p>
 
-  <div id="loading" class="center-state">
-    <div class="spinner"></div>
-    <div>Loading&hellip;</div>
-  </div>
+  <div id="loading" class="center-state"><div class="spinner"></div><div id="loading-text">Loading&hellip;</div></div>
+  <div id="error" class="error-box" role="alert" hidden></div>
 
-  <div id="error" class="error-box" style="display:none;"></div>
-
-  <div id="setup-view">
-    <div class="card">
+  <main id="app" hidden>
+    <section id="setup-view" class="card" hidden>
       <div class="field">
-        <label for="vern-select">Sentence language (vernacular)</label>
+        <label for="vern-select">Write sentences in</label>
         <select id="vern-select"></select>
       </div>
       <div class="field">
-        <label for="anal-select">Translation language (analysis)</label>
+        <label for="anal-select">Translate them into</label>
         <select id="anal-select"></select>
       </div>
       <div class="field">
-        <label for="domain-select">Semantic domain (optional)</label>
+        <label for="domain-select">Only senses in this semantic domain</label>
         <select id="domain-select"></select>
       </div>
-      <button class="primary-btn" id="start-btn">Start sprint</button>
-    </div>
-  </div>
+      <label class="check"><input type="checkbox" id="content-only" checked> Skip affixes and grammatical words</label>
+      <button class="btn primary" id="start-btn" type="button" style="width:100%;">Start sprint</button>
+    </section>
 
-  <div id="sprint-view">
-    <div class="stats-bar">
-      <div class="stat-chip streak" title="Consecutive days with at least one example added">
-        <span class="num" id="stat-streak">0</span> day streak
+    <section id="sprint-view" hidden>
+      <div class="stats-bar">
+        <span class="chip streak" title="Days in a row with at least one example added"><b id="stat-streak">0</b> day streak</span>
+        <span class="chip" id="session-chip"><b id="stat-session">0</b> this session</span>
+        <span class="chip" title="Examples added with this plugin on this device"><b id="stat-lifetime">0</b> in total</span>
+        <span class="remaining" id="remaining"></span>
       </div>
-      <div class="stat-chip session" id="session-chip">
-        <span class="num" id="stat-session">0</span> this session
-      </div>
-      <div class="stat-chip"><span class="num" id="stat-best">0</span> best session</div>
-      <div class="stat-chip"><span class="num" id="stat-lifetime">0</span> lifetime</div>
-    </div>
-    <div class="remaining" id="remaining"></div>
 
-    <div class="card target-card" id="target-card">
-      <div class="headword" id="headword"></div>
-      <div class="sense-line">
-        <span class="sense-tag" id="sense-tag"></span>
-        <span id="gloss"></span>
-        <span class="pos" id="pos"></span>
+      <div class="card target-card" id="target-card">
+        <div class="headword" id="headword"></div>
+        <div class="sense-line">
+          <span class="chip" id="sense-tag"></span>
+          <span id="gloss"></span>
+          <span class="pos" id="pos"></span>
+        </div>
+        <div class="domain-chips" id="domain-chips"></div>
       </div>
-      <div class="domain-chips" id="domain-chips"></div>
-    </div>
 
-    <form class="card" id="sprint-form">
-      <div class="field">
-        <label for="sentence-input">Example sentence</label>
-        <textarea id="sentence-input" rows="3" placeholder="Write a sentence using this word&hellip;"></textarea>
-      </div>
-      <div class="field">
-        <label for="translation-input">Translation (optional)</label>
-        <input type="text" id="translation-input" placeholder="Meaning of the sentence">
-      </div>
-      <div class="btn-row">
-        <button class="primary-btn" id="submit-btn" type="submit">Add example</button>
-        <button class="ghost-btn" id="skip-btn" type="button">Skip</button>
-      </div>
-      <div id="form-note"></div>
-    </form>
-    <div class="hint-row">Enter submits &middot; Shift+Enter for a new line in the sentence</div>
-  </div>
+      <form class="card" id="sprint-form" autocomplete="off">
+        <div class="field">
+          <label for="sentence-input" id="sentence-label">Example sentence</label>
+          <textarea id="sentence-input" class="sentence" rows="3" placeholder="Write a sentence that uses this word"></textarea>
+        </div>
+        <div class="field">
+          <label for="translation-input" id="translation-label">Translation (optional)</label>
+          <input type="text" id="translation-input">
+        </div>
+        <div id="form-note" aria-live="polite"></div>
+        <div class="hint-row">Enter adds the example. Shift+Enter starts a new line.</div>
+        <div class="actions">
+          <button class="btn" id="skip-btn" type="button">Skip</button>
+          <button class="btn primary" id="submit-btn" type="submit">Add example</button>
+        </div>
+      </form>
+    </section>
 
-  <div id="done-view">
-    <div class="card done-card">
+    <section id="done-view" class="card done-card" hidden>
       <div class="big">&#127881;</div>
-      <h2>All caught up!</h2>
+      <h2 id="done-title">All caught up</h2>
       <p class="subtitle" style="margin-bottom:0;" id="done-message"></p>
       <div class="done-stats">
         <div class="done-stat"><div class="num" id="done-session">0</div><div class="lbl">added this session</div></div>
+        <div class="done-stat"><div class="num" id="done-best">0</div><div class="lbl">best session</div></div>
         <div class="done-stat"><div class="num" id="done-streak">0</div><div class="lbl">day streak</div></div>
       </div>
-      <button class="primary-btn" id="rescan-btn">Check again</button>
-    </div>
-  </div>
+      <div class="done-actions">
+        <button class="btn" id="settings-btn" type="button">Change settings</button>
+        <button class="btn primary" id="rescan-btn" type="button">Check again</button>
+      </div>
+    </section>
+  </main>
 </div>
 
 <script>
 (function () {
   'use strict';
 
+  var fwlite = window.fwlite;
   var STATS_KEY = 'sentence-sprint-stats-v1';
   var SETTINGS_KEY = 'sentence-sprint-settings-v1';
   var PAGE_SIZE = 80;
   var REFILL_THRESHOLD = 5;
+  var AFFIX_TYPES = ['Prefix', 'Suffix', 'Infix', 'Circumfix', 'Simulfix', 'Suprafix', 'Clitic', 'Enclitic', 'Proclitic',
+    'BoundRoot', 'BoundStem', 'PrefixingInterfix', 'InfixingInterfix', 'SuffixingInterfix'];
 
   var state = {
-    vernWs: [],            // WritingSystem objects
+    vernWs: [],
     analWs: [],
     domains: [],
     sentenceWs: '',
     translationWs: '',
     domainCode: '',        // '' = all domains
-    queue: [],             // {entryId, senseId} + display fields
+    contentOnly: true,
+    queue: [],
     seen: {},              // 'entryId:senseId' -> true
     offset: 0,
     exhausted: false,
-    fetching: null,        // in-flight refill promise
+    fetching: null,
     remaining: null,
     session: 0,
+    skipped: 0,
     busy: false,
     stats: {days: {}, bestSession: 0, lifetime: 0},
   };
+
+  function el(id) { return document.getElementById(id); }
+  function show(id, visible) { el(id).hidden = !visible; }
+  function errText(err) { return err && err.message ? err.message : String(err); }
+  function analysisWsIds() { return state.analWs.map(function (ws) { return ws.wsId; }); }
+
+  function applyTheme() {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', fwlite.theme || (dark ? 'dark' : 'light'));
+  }
+  function applyVernFont(ws) {
+    if (ws && ws.font) document.documentElement.style.setProperty('--vern-font', '"' + ws.font.replace(/"/g, '') + '", var(--font)');
+  }
+
+  function showError(message) {
+    show('loading', false);
+    show('app', false);
+    show('error', true);
+    el('error').textContent = message;
+  }
 
   function uuid() {
     if (crypto.randomUUID) return crypto.randomUUID();
@@ -315,73 +287,63 @@
     return hex.slice(0, 8) + '-' + hex.slice(8, 12) + '-' + hex.slice(12, 16) + '-' + hex.slice(16, 20) + '-' + hex.slice(20);
   }
 
-  function el(id) { return document.getElementById(id); }
-
-  function applyTheme(theme) {
-    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  function dayKey(date) {
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
   }
-
-  function showError(message) {
-    el('loading').style.display = 'none';
-    var box = el('error');
-    box.style.display = 'block';
-    box.textContent = message;
-  }
-
-  function errText(err) { return err && err.message ? err.message : String(err); }
-
-  function todayKey() {
-    var d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  }
-
   function computeStreak(days) {
     var d = new Date();
-    function key(date) {
-      return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-    }
-    // A run that ended yesterday still counts as the current streak (today isn't over).
-    if (!days[key(d)]) d.setDate(d.getDate() - 1);
+    // A run that ended yesterday still counts (today isn't over).
+    if (!days[dayKey(d)]) d.setDate(d.getDate() - 1);
     var streak = 0;
-    while (days[key(d)] > 0) {
-      streak++;
-      d.setDate(d.getDate() - 1);
-    }
+    while (days[dayKey(d)] > 0) { streak++; d.setDate(d.getDate() - 1); }
     return streak;
   }
 
-  function analysisWsIds() { return state.analWs.map(function (ws) { return ws.wsId; }); }
+  // Names that occur more than once (e.g. "Sena" for both the orthography and IPA) get their wsId.
+  function wsLabel(ws, list) {
+    var same = list.filter(function (w) { return w.name === ws.name; }).length;
+    return same > 1 ? ws.name + ' (' + ws.wsId + ')' : ws.name;
+  }
+  function wsById(list, id) { return list.filter(function (w) { return w.wsId === id; })[0]; }
+
+  function isContentWord(entry, gloss) {
+    if (entry.morphType && AFFIX_TYPES.indexOf(entry.morphType) >= 0) return false;
+    var hw = fwlite.headword(entry);
+    if (!hw || /^[-=]|[-=]$/.test(hw)) return false;
+    return !gloss || !/^[A-Z0-9.+:_-]{2,}$/.test(gloss.trim());
+  }
 
   function senseHasExampleIn(sense, wsId) {
     return (sense.exampleSentences || []).some(function (example) {
       var rich = example.sentence && example.sentence[wsId];
-      return !!(rich && window.fwlite.asText(rich).trim());
+      return !!(rich && fwlite.asText(rich).trim());
     });
   }
-
   function senseInDomain(sense, code) {
     return (sense.semanticDomains || []).some(function (domain) { return domain.code === code; });
   }
 
   function buildQueueItems(entry) {
     var items = [];
-    (entry.senses || []).forEach(function (sense, index) {
+    var senses = entry.senses || [];
+    senses.forEach(function (sense, index) {
       if (senseHasExampleIn(sense, state.sentenceWs)) return;
       if (state.domainCode && !senseInDomain(sense, state.domainCode)) return;
+      var gloss = fwlite.firstValue(sense.gloss || {}, analysisWsIds()) || '';
+      if (state.contentOnly && !isContentWord(entry, gloss)) return;
       var key = entry.id + ':' + sense.id;
       if (state.seen[key]) return;
       state.seen[key] = true;
       items.push({
         entryId: entry.id,
         senseId: sense.id,
-        headword: window.fwlite.headword(entry),
-        gloss: window.fwlite.firstValue(sense.gloss || {}, analysisWsIds()) || '—',
-        pos: sense.partOfSpeech ? (window.fwlite.firstValue(sense.partOfSpeech.name, analysisWsIds()) || '') : '',
+        headword: fwlite.headword(entry) || '(no headword)',
+        gloss: gloss || fwlite.firstValue(sense.definition || {}, analysisWsIds()) || '(no gloss)',
+        pos: sense.partOfSpeech ? (fwlite.firstValue(sense.partOfSpeech.name, analysisWsIds()) || '') : '',
         senseNumber: index + 1,
-        senseTotal: (entry.senses || []).length,
+        senseTotal: senses.length,
         domains: (sense.semanticDomains || []).map(function (domain) {
-          return domain.code + ' ' + (window.fwlite.firstValue(domain.name, analysisWsIds()) || '');
+          return domain.code + ' ' + (fwlite.firstValue(domain.name, analysisWsIds()) || '');
         }),
       });
     });
@@ -397,15 +359,13 @@
   function refillQueue() {
     if (state.fetching) return state.fetching;
     if (state.exhausted || state.queue.length >= REFILL_THRESHOLD) return Promise.resolve();
-    state.fetching = window.fwlite.getEntries({limit: PAGE_SIZE, offset: state.offset, filter: entryFilter()})
+    state.fetching = fwlite.getEntries({limit: PAGE_SIZE, offset: state.offset, filter: entryFilter()})
       .then(function (entries) {
         state.offset += entries.length;
         if (entries.length < PAGE_SIZE) state.exhausted = true;
-        entries.forEach(function (entry) {
-          state.queue = state.queue.concat(buildQueueItems(entry));
-        });
+        entries.forEach(function (entry) { state.queue = state.queue.concat(buildQueueItems(entry)); });
         state.fetching = null;
-        // The server-side filter may be ignored (demo project), so pages can be all misses.
+        // Pages can be all misses (senses filtered out client-side), so keep going until there's a buffer.
         if (state.queue.length < REFILL_THRESHOLD && !state.exhausted) return refillQueue();
       })
       .catch(function (err) {
@@ -416,32 +376,31 @@
   }
 
   function refreshRemaining() {
-    window.fwlite.countEntries({filter: entryFilter()}).then(function (count) {
+    fwlite.countEntries({filter: entryFilter()}).then(function (count) {
       state.remaining = count;
       renderRemaining();
-    }).catch(function () { /* count is decorative */ });
+    }).catch(function () { /* the count is decorative */ });
   }
-
   function renderRemaining() {
     el('remaining').textContent = state.remaining == null ? ''
-      : '~' + state.remaining + ' entr' + (state.remaining === 1 ? 'y' : 'ies') + ' remaining';
+      : 'about ' + state.remaining.toLocaleString() + (state.remaining === 1 ? ' entry' : ' entries') + ' to go';
   }
 
   function renderStats() {
     el('stat-streak').textContent = String(computeStreak(state.stats.days));
     el('stat-session').textContent = String(state.session);
-    el('stat-best').textContent = String(state.stats.bestSession);
     el('stat-lifetime').textContent = String(state.stats.lifetime);
   }
 
   function setFormNote(message, kind) {
     var note = el('form-note');
-    note.innerHTML = '';
+    note.textContent = '';
     if (!message) return;
     var div = document.createElement('div');
     div.className = 'inline-note ' + (kind || '');
     div.textContent = message;
     note.appendChild(div);
+    div.scrollIntoView({block: 'nearest'});
   }
 
   function currentItem() { return state.queue[0] || null; }
@@ -452,30 +411,35 @@
     el('headword').textContent = item.headword;
     el('gloss').textContent = item.gloss;
     el('pos').textContent = item.pos;
-    el('sense-tag').textContent = item.senseTotal > 1
-      ? 'Sense ' + item.senseNumber + ' of ' + item.senseTotal
-      : 'Sense';
+    el('sense-tag').textContent = item.senseTotal > 1 ? 'Sense ' + item.senseNumber + ' of ' + item.senseTotal : 'Sense';
     var chips = el('domain-chips');
-    chips.innerHTML = '';
+    chips.textContent = '';
     item.domains.forEach(function (label) {
       var chip = document.createElement('span');
-      chip.className = 'domain-chip';
+      chip.className = 'chip';
       chip.textContent = label;
       chips.appendChild(chip);
     });
     el('sentence-input').value = '';
     el('translation-input').value = '';
-    el('sentence-input').focus();
+    el('sentence-input').focus({preventScroll: true});
   }
 
   function showDone() {
-    el('sprint-view').style.display = 'none';
-    el('done-view').style.display = 'block';
+    showView('done-view');
     el('done-session').textContent = String(state.session);
+    el('done-best').textContent = String(state.stats.bestSession);
     el('done-streak').textContent = String(computeStreak(state.stats.days));
-    el('done-message').textContent = state.session > 0
-      ? 'Every sense in scope now has an example sentence. Well done.'
-      : 'No senses are missing an example sentence in this scope.';
+    el('done-title').textContent = state.skipped ? 'End of the list' : 'All caught up';
+    var scope = state.domainCode ? 'in this domain' : 'in this project';
+    if (state.skipped) {
+      el('done-message').textContent = 'You skipped ' + state.skipped + (state.skipped === 1 ? ' sense' : ' senses') +
+        '. Check again to go back to them.';
+    } else {
+      el('done-message').textContent = state.session > 0
+        ? 'Every sense ' + scope + ' now has an example sentence. Well done.'
+        : 'No senses ' + scope + ' are missing an example sentence.';
+    }
   }
 
   function advance() {
@@ -491,10 +455,7 @@
       refillQueue().catch(function (err) {
         setFormNote('Could not load more entries: ' + errText(err), 'warn');
       }).then(function () {
-        if (!currentItem()) {
-          showDone();
-          return;
-        }
+        if (!currentItem()) { showDone(); return; }
         card.classList.add('entering');
         renderTarget();
         requestAnimationFrame(function () { card.classList.remove('entering'); });
@@ -502,19 +463,17 @@
     }, 220);
   }
 
-  function richText(text, wsId) {
-    return {spans: [{text: text, ws: wsId}]};
-  }
+  function richText(text, wsId) { return {spans: [{text: text, ws: wsId}]}; }
 
   function recordSuccess() {
-    var key = todayKey();
+    var key = dayKey(new Date());
     state.stats.days[key] = (state.stats.days[key] || 0) + 1;
     state.stats.lifetime++;
     state.session++;
     if (state.session > state.stats.bestSession) state.stats.bestSession = state.session;
-    window.fwlite.storage.set(STATS_KEY, state.stats);
+    fwlite.storage.set(STATS_KEY, state.stats).catch(function () { /* best-effort */ });
     renderStats();
-    if (state.session > 0 && state.session % 5 === 0) {
+    if (state.session % 5 === 0) {
       var chip = el('session-chip');
       chip.classList.remove('combo');
       void chip.offsetWidth;
@@ -528,7 +487,7 @@
     el('skip-btn').disabled = busy;
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     var item = currentItem();
     if (!item || state.busy) return;
     var sentence = el('sentence-input').value.trim();
@@ -540,116 +499,102 @@
     }
     setBusy(true);
     setFormNote('');
-
-    window.fwlite.getEntry(item.entryId).then(function (before) {
-      if (!before) {
-        setBusy(false);
-        setFormNote('This entry no longer exists — skipping.', 'warn');
-        advance();
-        return;
-      }
-      var after = JSON.parse(JSON.stringify(before));
-      var sense = (after.senses || []).find(function (s) { return s.id === item.senseId; });
+    try {
+      var before = await fwlite.getEntry(item.entryId);
+      var after = before && JSON.parse(JSON.stringify(before));
+      var sense = after && (after.senses || []).filter(function (s) { return s.id === item.senseId; })[0];
       if (!sense) {
         setBusy(false);
-        setFormNote('This sense no longer exists — skipping.', 'warn');
+        fwlite.notify('That sense was deleted elsewhere, so it was skipped.');
         advance();
         return;
       }
       if (senseHasExampleIn(sense, state.sentenceWs)) {
         setBusy(false);
-        setFormNote('This sense already gained an example — moving on.', 'good');
+        fwlite.notify('Someone else just added an example to that sense, so it was skipped.');
         advance();
         return;
       }
-      var example = {
-        id: uuid(),
-        senseId: sense.id,
-        sentence: {},
-        translations: [],
-      };
+      var example = {id: uuid(), senseId: sense.id, sentence: {}, translations: []};
       example.sentence[state.sentenceWs] = richText(sentence, state.sentenceWs);
       if (translation) {
         var text = {};
         text[state.translationWs] = richText(translation, state.translationWs);
         example.translations.push({id: uuid(), text: text});
       }
-      sense.exampleSentences = sense.exampleSentences || [];
-      sense.exampleSentences.push(example);
-
-      return window.fwlite.updateEntry(before, after).then(function () {
-        setBusy(false);
-        recordSuccess();
-        setFormNote('Example added.', 'good');
-        advance();
-      });
-    }).catch(function (err) {
+      sense.exampleSentences = (sense.exampleSentences || []).concat([example]);
+      await fwlite.updateEntry(before, after);
+      // The server-side filter now skips this entry, so the next page starts one earlier.
+      if (after.senses.every(function (s) { return senseHasExampleIn(s, state.sentenceWs); })) state.offset = Math.max(0, state.offset - 1);
       setBusy(false);
-      if (err && (err.code === 'permission-denied' || err.code === 'preview')) {
-        setFormNote('Change was not approved — skipped.', 'warn');
-        advance();
-      } else {
-        setFormNote('Could not save: ' + errText(err), 'warn');
-      }
+      recordSuccess();
+      advance();
+    } catch (err) {
+      setBusy(false);
+      var code = err && err.code;
+      if (code === 'preview') setFormNote('This is a preview, so the example was not saved. Once the plugin is added to the project, approving saves it.', 'warn');
+      else if (code === 'permission-denied') setFormNote('Not saved, because the change wasn’t approved. Your sentence is still here, so you can try again or skip.', 'warn');
+      else setFormNote('Could not save: ' + errText(err), 'warn');
+    }
+  }
+
+  function fillWsSelect(select, systems) {
+    select.textContent = '';
+    systems.forEach(function (ws) {
+      var option = document.createElement('option');
+      option.value = ws.wsId;
+      option.textContent = wsLabel(ws, systems);
+      select.appendChild(option);
     });
   }
 
   function populateSetup() {
-    function fill(select, systems) {
-      select.innerHTML = '';
-      systems.forEach(function (ws) {
-        var option = document.createElement('option');
-        option.value = ws.wsId;
-        option.textContent = ws.name + ' (' + ws.wsId + ')';
-        select.appendChild(option);
-      });
-    }
-    fill(el('vern-select'), state.vernWs);
-    fill(el('anal-select'), state.analWs);
-
+    fillWsSelect(el('vern-select'), state.vernWs);
+    fillWsSelect(el('anal-select'), state.analWs);
     var domainSelect = el('domain-select');
-    domainSelect.innerHTML = '';
+    domainSelect.textContent = '';
     var all = document.createElement('option');
     all.value = '';
-    all.textContent = 'All domains';
+    all.textContent = 'Any domain';
     domainSelect.appendChild(all);
     state.domains.slice().sort(function (a, b) {
       return a.code.localeCompare(b.code, undefined, {numeric: true});
     }).forEach(function (domain) {
       var option = document.createElement('option');
       option.value = domain.code;
-      option.textContent = domain.code + ' ' + (window.fwlite.firstValue(domain.name, analysisWsIds()) || '');
+      option.textContent = domain.code + ' ' + (fwlite.firstValue(domain.name, analysisWsIds()) || '');
       domainSelect.appendChild(option);
     });
   }
 
   function applySavedSettings(saved) {
     if (!saved || typeof saved !== 'object') return;
-    if (saved.sentenceWs && state.vernWs.some(function (ws) { return ws.wsId === saved.sentenceWs; })) {
-      el('vern-select').value = saved.sentenceWs;
-    }
-    if (saved.translationWs && state.analWs.some(function (ws) { return ws.wsId === saved.translationWs; })) {
-      el('anal-select').value = saved.translationWs;
-    }
+    if (wsById(state.vernWs, saved.sentenceWs)) el('vern-select').value = saved.sentenceWs;
+    if (wsById(state.analWs, saved.translationWs)) el('anal-select').value = saved.translationWs;
     if (saved.domainCode && state.domains.some(function (d) { return d.code === saved.domainCode; })) {
       el('domain-select').value = saved.domainCode;
     }
+    if (typeof saved.contentOnly === 'boolean') el('content-only').checked = saved.contentOnly;
+  }
+
+  function showView(name) {
+    ['setup-view', 'sprint-view', 'done-view'].forEach(function (id) { show(id, id === name); });
   }
 
   function startSprint() {
     state.sentenceWs = el('vern-select').value;
     state.translationWs = el('anal-select').value;
     state.domainCode = el('domain-select').value;
-    window.fwlite.storage.set(SETTINGS_KEY, {
-      sentenceWs: state.sentenceWs,
-      translationWs: state.translationWs,
-      domainCode: state.domainCode,
-    });
+    state.contentOnly = el('content-only').checked;
+    fwlite.storage.set(SETTINGS_KEY, {
+      sentenceWs: state.sentenceWs, translationWs: state.translationWs,
+      domainCode: state.domainCode, contentOnly: state.contentOnly,
+    }).catch(function () { /* best-effort */ });
 
-    var vern = state.vernWs.find(function (ws) { return ws.wsId === state.sentenceWs; });
-    var fontStack = (vern && vern.font ? '"' + vern.font + '", ' : '') + 'inherit';
-    el('headword').style.fontFamily = fontStack;
-    el('sentence-input').style.fontFamily = fontStack;
+    var vern = wsById(state.vernWs, state.sentenceWs);
+    applyVernFont(vern);
+    el('sentence-label').textContent = 'Example sentence in ' + wsLabel(vern, state.vernWs);
+    el('translation-label').textContent = 'Translation in ' + wsLabel(wsById(state.analWs, state.translationWs), state.analWs) + ' (optional)';
 
     state.queue = [];
     state.seen = {};
@@ -657,23 +602,19 @@
     state.exhausted = false;
     state.remaining = null;
     state.session = 0;
+    state.skipped = 0;
+    setFormNote('');
 
-    el('setup-view').style.display = 'none';
-    el('done-view').style.display = 'none';
-    el('loading').style.display = 'block';
-
+    showView('');
+    show('loading', true);
     refreshRemaining();
     refillQueue().then(function () {
-      el('loading').style.display = 'none';
+      show('loading', false);
       renderStats();
-      if (!currentItem()) {
-        showDone();
-        return;
-      }
-      el('sprint-view').style.display = 'block';
+      if (!currentItem()) { showDone(); return; }
+      showView('sprint-view');
       renderTarget();
     }).catch(function (err) {
-      el('loading').style.display = 'none';
       showError('Could not load entries: ' + errText(err));
     });
   }
@@ -681,58 +622,53 @@
   function wireEvents() {
     el('start-btn').addEventListener('click', startSprint);
     el('rescan-btn').addEventListener('click', startSprint);
+    el('settings-btn').addEventListener('click', function () { showView('setup-view'); });
     el('sprint-form').addEventListener('submit', function (event) {
       event.preventDefault();
       handleSubmit();
     });
     el('skip-btn').addEventListener('click', function () {
       if (state.busy || !currentItem()) return;
+      state.skipped++;
       setFormNote('');
       advance();
     });
     el('sentence-input').addEventListener('keydown', function (event) {
-      if (event.key === 'Enter' && !event.shiftKey) {
+      if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
         event.preventDefault();
         handleSubmit();
       }
     });
   }
 
-  function init(context) {
-    applyTheme(context.theme);
-    wireEvents();
-
-    Promise.all([
-      window.fwlite.getWritingSystems(),
-      window.fwlite.getSemanticDomains(),
-      window.fwlite.storage.get(STATS_KEY),
-      window.fwlite.storage.get(SETTINGS_KEY),
-    ]).then(function (results) {
-      state.vernWs = results[0].vernacular || [];
-      state.analWs = results[0].analysis || [];
+  async function init() {
+    applyTheme();
+    try {
+      var results = await Promise.all([
+        fwlite.getWritingSystems(), fwlite.getSemanticDomains(), fwlite.storage.get(STATS_KEY), fwlite.storage.get(SETTINGS_KEY),
+      ]);
+      state.vernWs = (results[0].vernacular || []).filter(function (ws) { return !ws.isAudio; });
+      state.analWs = (results[0].analysis || []).filter(function (ws) { return !ws.isAudio; });
       state.domains = results[1] || [];
       if (results[2] && typeof results[2] === 'object') {
-        state.stats = {
-          days: results[2].days || {},
-          bestSession: results[2].bestSession || 0,
-          lifetime: results[2].lifetime || 0,
-        };
+        state.stats = {days: results[2].days || {}, bestSession: results[2].bestSession || 0, lifetime: results[2].lifetime || 0};
       }
-
-      el('loading').style.display = 'none';
-      if (state.vernWs.length === 0 || state.analWs.length === 0) {
-        showError('This project needs at least one vernacular and one analysis writing system.');
+      if (!state.vernWs.length || !state.analWs.length) {
+        showError('Sentence Sprint needs a vernacular writing system for the sentences and an analysis writing system for translations. Add the missing one in the project settings, then reopen this plugin.');
         return;
       }
+      wireEvents();
       populateSetup();
       applySavedSettings(results[3]);
-      el('setup-view').style.display = 'block';
-    }).catch(function (err) {
-      showError('Could not load project data: ' + errText(err));
-    });
+      show('loading', false);
+      show('app', true);
+      showView('setup-view');
+    } catch (err) {
+      showError('Could not load the project: ' + errText(err));
+    }
   }
 
-  window.fwlite.ready.then(init);
+  fwlite.ready.then(init);
 })();
 </script>
 </body>

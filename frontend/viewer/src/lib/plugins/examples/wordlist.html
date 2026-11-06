@@ -7,275 +7,178 @@
 <title>Wordlist</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f5f6f8;
+    color-scheme: light;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --surface-alt: #f0f1f4;
-    --border: #e2e4e9;
-    --text: #1c1e21;
-    --text-muted: #6b7280;
-    --accent: #4f46e5;
-    --accent-soft: #eef0ff;
-    --good: #059669;
-    --good-soft: #e3f7ee;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
     --warn: #b45309;
-    --warn-soft: #fef3e0;
-    --streak: #d97706;
-    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
-    --radius: 14px;
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
   }
   html[data-theme="dark"] {
-    --bg: #16171b;
-    --surface: #1f2126;
-    --surface-alt: #26282e;
-    --border: #33353c;
-    --text: #edeef1;
-    --text-muted: #9aa0ab;
-    --accent: #818cf8;
-    --accent-soft: #2a2b5e;
-    --good: #34d399;
-    --good-soft: #123528;
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
     --warn: #fbbf24;
-    --warn-soft: #3a2f12;
-    --streak: #fbbf24;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 20px 16px 40px;
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
   }
-  .wrap { max-width: 600px; margin: 0 auto; }
-  h1 { font-size: 1.4rem; margin: 0 0 4px; text-align: center; }
-  .subtitle { color: var(--text-muted); text-align: center; margin: 0 0 18px; font-size: 0.9rem; }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 18px 20px;
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
   }
-
-  label { display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; }
-  select, input, textarea {
-    width: 100%;
-    font-size: 0.95rem;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--surface-alt);
-    color: var(--text);
-    font-family: inherit;
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
   }
-  textarea { resize: vertical; min-height: 96px; }
-  select:focus, input:focus, textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
   }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+  select, input[type="text"], textarea { width: 100%; }
+  textarea { resize: vertical; min-height: 120px; }
   .field { margin-bottom: 14px; }
   .field:last-child { margin-bottom: 0; }
-
-  .primary-btn {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    padding: 11px 22px;
-    border-radius: 10px;
-    font-size: 0.92rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .primary-btn:hover { filter: brightness(1.08); }
-  .primary-btn:disabled { opacity: 0.55; cursor: default; }
-  .ghost-btn {
-    background: var(--surface-alt);
-    color: var(--text-muted);
-    border: 1px solid var(--border);
-    padding: 11px 18px;
-    border-radius: 10px;
-    font-size: 0.92rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .ghost-btn:hover { color: var(--text); }
-  .ghost-btn:disabled { opacity: 0.55; cursor: default; }
-  .link-btn {
-    background: none;
-    border: none;
-    color: var(--accent);
-    font: inherit;
-    font-size: 0.82rem;
-    cursor: pointer;
-    padding: 4px 6px;
-    border-radius: 6px;
-  }
+  .link-btn { background: none; border: 0; color: var(--accent); font: inherit; font-size: 0.85rem; cursor: pointer; padding: 8px; margin: -8px; border-radius: 6px; }
   .link-btn:hover { background: var(--accent-soft); }
-  .link-btn:disabled { opacity: 0.5; cursor: default; }
+  .link-btn:disabled { opacity: 0.5; cursor: default; background: none; }
 
-  .stats-bar {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 14px;
-  }
-  .stat-chip {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 6px 14px;
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-  }
-  .stat-chip .num { font-weight: 700; font-size: 0.95rem; color: var(--text); }
-  .stat-chip.streak .num { color: var(--streak); }
-  .stat-chip.session.combo { animation: comboPulse 0.6s ease; }
-  @keyframes comboPulse {
-    0% { transform: scale(1); }
-    35% { transform: scale(1.12); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
-    100% { transform: scale(1); }
-  }
+  .stats-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .stats-bar .chip { font-size: 0.85rem; padding: 4px 12px; }
+  .stats-bar .chip b { color: var(--text); }
+  .chip.streak b { color: var(--warn); }
+  .chip.combo { animation: comboPulse 0.6s ease; }
+  @keyframes comboPulse { 35% { transform: scale(1.12); box-shadow: 0 0 0 4px var(--accent-soft); } }
 
-  .flow-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
-  .position { font-size: 0.8rem; color: var(--text-muted); }
-  .progress-rail {
-    height: 6px;
-    background: var(--surface-alt);
-    border-radius: 999px;
-    overflow: hidden;
-    margin-bottom: 16px;
-    border: 1px solid var(--border);
-  }
-  .progress-fill {
-    height: 100%;
-    width: 0;
-    background: var(--accent);
-    border-radius: 999px;
-    transition: width 0.3s ease;
-  }
+  .flow-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-muted); }
+  .rail { height: 6px; background: var(--surface-alt); border-radius: 999px; overflow: hidden; margin-bottom: 12px; }
+  .rail > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.3s ease; }
 
-  .prompt-card {
-    margin-bottom: 16px;
-    text-align: center;
-    padding: 26px 20px;
-    position: relative;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-  }
+  .prompt-card { text-align: center; padding: 20px 16px; position: relative; margin-bottom: 12px; transition: opacity 0.2s ease, transform 0.2s ease; }
   .prompt-card.leaving { opacity: 0; transform: translateX(-22px); }
   .prompt-card.entering { opacity: 0; transform: translateX(22px); transition: none; }
-  .prompt-label { font-size: 0.76rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
-  .prompt-word { font-size: 2.1rem; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
-  .collected-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 12px;
-    font-size: 0.78rem;
-    color: var(--good);
-    background: var(--good-soft);
-    border-radius: 999px;
-    padding: 4px 12px;
-  }
-  .collected-badge.hidden { display: none; }
-  .plus-one {
-    position: absolute;
-    top: 14px;
-    right: 18px;
-    font-weight: 700;
-    color: var(--good);
-    font-size: 1.1rem;
-    opacity: 0;
-    pointer-events: none;
-  }
+  .prompt-label { font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .prompt-word { font-size: 2rem; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
+  .collected-badge { margin-top: 10px; }
+  .collected-badge .vern { font-weight: 700; }
+  .plus-one { position: absolute; top: 12px; right: 16px; font-weight: 700; color: var(--good); font-size: 1.1rem; opacity: 0; pointer-events: none; }
   .plus-one.fire { animation: plusOne 0.9s ease; }
   @keyframes plusOne {
     0% { opacity: 0; transform: translateY(6px); }
     25% { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-22px); }
   }
-
-  .btn-row { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
-  .btn-row .primary-btn { flex: 1; }
-  .inline-note { font-size: 0.82rem; padding: 8px 12px; border-radius: 8px; margin-top: 12px; }
+  .vern-input { font-family: var(--vern-font); font-size: 1.1rem; }
+  details.more-ws { margin-bottom: 14px; }
+  details.more-ws summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; padding: 6px 0; }
+  details.more-ws .field { margin: 10px 0 0; }
+  .inline-note { scroll-margin-bottom: 80px; font-size: 0.88rem; padding: 10px 12px; border-radius: var(--radius); margin-top: 12px; }
   .inline-note.warn { background: var(--warn-soft); color: var(--warn); }
-  .inline-note.good { background: var(--good-soft); color: var(--good); }
-  .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
-  .hint-row { text-align: center; color: var(--text-muted); font-size: 0.76rem; margin-top: 14px; }
+  .hint-row { color: var(--text-muted); font-size: 0.8rem; margin-top: 10px; }
+  .actions { margin-top: 12px; }
+  .actions .primary { flex: 1; }
 
-  .trail { margin-top: 18px; }
-  .trail-title { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; text-align: center; }
+  .trail { margin-top: 16px; }
+  .trail-title { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
   .trail-list { display: flex; flex-direction: column; gap: 6px; }
-  .trail-item {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 8px 12px;
-    font-size: 0.86rem;
-  }
-  .trail-item.fresh { animation: pop 0.5s ease; }
-  @keyframes pop {
-    from { background: var(--accent-soft); border-color: var(--accent); }
-    to { background: var(--surface); border-color: var(--border); }
-  }
+  .trail-item { display: flex; justify-content: space-between; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; font-size: 0.9rem; }
+  .trail-item.fresh { animation: pop 0.6s ease; }
+  @keyframes pop { from { background: var(--accent-soft); border-color: var(--accent); } }
   .trail-item .meaning { color: var(--text-muted); overflow-wrap: anywhere; }
-  .trail-item .word { font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+  .trail-item .word { font-weight: 700; text-align: right; overflow-wrap: anywhere; font-family: var(--vern-font); }
 
-  .center-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
-  .spinner {
-    width: 32px; height: 32px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    margin: 0 auto 14px;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .error-box {
-    border: 1px solid #f5b5b5;
-    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
-    padding: 14px 18px;
-    border-radius: var(--radius);
-    margin-bottom: 16px;
-  }
-
-  .done-card { text-align: center; padding: 32px 24px; }
+  .done-card { text-align: center; padding: 28px 20px; }
   .done-card .big { font-size: 2.2rem; margin-bottom: 8px; }
-  .done-card h2 { margin: 0 0 6px; }
-  .done-stats { display: flex; justify-content: center; gap: 22px; margin: 22px 0; flex-wrap: wrap; }
+  .done-stats { display: flex; justify-content: center; gap: 22px; margin: 20px 0; flex-wrap: wrap; }
   .done-stat .num { font-size: 1.5rem; font-weight: 700; color: var(--good); }
-  .done-stat .lbl { font-size: 0.78rem; color: var(--text-muted); }
+  .done-stat .lbl { font-size: 0.8rem; color: var(--text-muted); }
   .done-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-
-  #setup-view, #flow-view, #done-view { display: none; }
+  #app { flex: 1; display: flex; flex-direction: column; }
+  #flow-view:not([hidden]) { flex: 1; display: flex; flex-direction: column; }
+  @media (pointer: coarse) { .hint-row { display: none; } }
+  @media (max-width: 600px) {
+    .wrap.narrow .card > .actions { margin: auto -16px -16px; background: var(--surface); border-radius: 0 0 var(--radius) var(--radius); }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap narrow">
   <h1>Wordlist</h1>
   <p class="subtitle">Walk a list of meanings and record the local word for each.</p>
 
-  <div id="loading" class="center-state">
-    <div class="spinner"></div>
-    <div id="loading-text">Loading&hellip;</div>
-  </div>
+  <div id="loading" class="center-state"><div class="spinner"></div><div id="loading-text">Loading&hellip;</div></div>
+  <div id="error" class="error-box" role="alert" hidden></div>
 
-  <div id="error" class="error-box" style="display:none;"></div>
-
-  <!-- SETUP -->
-  <div id="setup-view">
-    <div class="card">
+  <main id="app" hidden>
+    <section id="setup-view" class="card" hidden>
       <div class="field">
         <label for="list-select">Wordlist</label>
         <select id="list-select">
@@ -284,71 +187,68 @@
           <option value="custom">Paste your own&hellip;</option>
         </select>
       </div>
-      <div class="field" id="custom-field" style="display:none;">
-        <label for="custom-input">Meanings (one per line)</label>
-        <textarea id="custom-input" placeholder="water&#10;fire&#10;mother&#10;to walk&#10;&hellip;"></textarea>
+      <div class="field" id="custom-field" hidden>
+        <label for="custom-input">Meanings, one per line</label>
+        <textarea id="custom-input" placeholder="water&#10;fire&#10;mother&#10;to walk"></textarea>
       </div>
-      <div class="field" id="analysis-field" style="display:none;">
-        <label for="analysis-select">Meaning language (gloss is saved here)</label>
+      <div class="field" id="analysis-field" hidden>
+        <label for="analysis-select">Save the meaning as a gloss in</label>
         <select id="analysis-select"></select>
       </div>
-      <button class="primary-btn" id="start-btn" style="width:100%;">Start collecting</button>
-    </div>
-  </div>
-
-  <!-- FLOW -->
-  <div id="flow-view">
-    <div class="stats-bar">
-      <div class="stat-chip session" id="session-chip">
-        <span class="num" id="stat-session">0</span> added this session
-      </div>
-      <div class="stat-chip streak" title="Consecutive days you have added at least one word">
-        <span class="num" id="stat-streak">0</span> day streak
-      </div>
-    </div>
-
-    <div class="flow-top">
-      <span class="position" id="position">&nbsp;</span>
-      <button class="link-btn" id="change-list-btn" type="button">Change list</button>
-    </div>
-    <div class="progress-rail"><div class="progress-fill" id="progress-fill"></div></div>
-
-    <div class="card prompt-card" id="prompt-card">
-      <div class="plus-one" id="plus-one">+1</div>
-      <div class="prompt-label">Meaning</div>
-      <div class="prompt-word" id="prompt-word"></div>
-      <div class="collected-badge hidden" id="collected-badge">&#10003; already in dictionary</div>
-    </div>
-
-    <form class="card" id="flow-form">
       <div class="field">
-        <label for="gloss-input" id="gloss-label">Gloss</label>
-        <input type="text" id="gloss-input" autocomplete="off">
+        <button class="btn primary" id="start-btn" type="button" style="width:100%;">Start collecting</button>
       </div>
-      <div id="vernacular-fields"></div>
-      <div class="btn-row">
-        <button class="primary-btn" id="add-btn" type="submit">Add &amp; next</button>
-        <button class="ghost-btn" id="skip-btn" type="button">Skip</button>
-      </div>
-      <div id="form-note"></div>
-      <div class="nav-row">
-        <button class="link-btn" id="prev-btn" type="button">&#9664; Previous</button>
-        <span class="position" id="resolved-count">&nbsp;</span>
-      </div>
-    </form>
-    <div class="hint-row">Enter to add &amp; continue &middot; Skip to pass without saving</div>
+    </section>
 
-    <div class="trail" id="trail" style="display:none;">
-      <div class="trail-title">Recently added</div>
-      <div class="trail-list" id="trail-list"></div>
-    </div>
-  </div>
+    <section id="flow-view" hidden>
+      <div class="stats-bar">
+        <span class="chip" id="session-chip"><b id="stat-session">0</b> added this session</span>
+        <span class="chip streak" title="Days in a row you have added at least one word"><b id="stat-streak">0</b> day streak</span>
+      </div>
+      <div class="flow-top">
+        <span id="position">&nbsp;</span>
+        <span><button class="link-btn" id="prev-btn" type="button">&larr; Previous</button>
+        &nbsp;<button class="link-btn" id="change-list-btn" type="button">Change list</button></span>
+      </div>
+      <div class="rail"><i id="progress-fill"></i></div>
 
-  <!-- DONE -->
-  <div id="done-view">
-    <div class="card done-card">
+      <div class="card prompt-card" id="prompt-card">
+        <div class="plus-one" id="plus-one">+1</div>
+        <div class="prompt-label">Meaning</div>
+        <div class="prompt-word" id="prompt-word"></div>
+        <div class="chip good collected-badge" id="collected-badge" hidden></div>
+      </div>
+
+      <form class="card" id="flow-form" autocomplete="off">
+        <div class="field">
+          <label for="vern-input-0" id="vern-label-0">Word</label>
+          <input type="text" class="vern-input" id="vern-input-0" placeholder="Type the word">
+        </div>
+        <details class="more-ws" id="more-ws" hidden>
+          <summary id="more-ws-summary">Also in other writing systems</summary>
+          <div id="more-ws-fields"></div>
+        </details>
+        <div class="field">
+          <label for="gloss-input" id="gloss-label">Gloss</label>
+          <input type="text" id="gloss-input">
+        </div>
+        <div id="form-note" aria-live="polite"></div>
+        <div class="hint-row">Enter adds the word and moves on.</div>
+        <div class="actions">
+          <button class="btn" id="skip-btn" type="button">Skip</button>
+          <button class="btn primary" id="add-btn" type="submit">Add &amp; next</button>
+        </div>
+      </form>
+
+      <div class="trail" id="trail" hidden>
+        <div class="trail-title">Recently added</div>
+        <div class="trail-list" id="trail-list"></div>
+      </div>
+    </section>
+
+    <section id="done-view" class="card done-card" hidden>
       <div class="big">&#127881;</div>
-      <h2>List complete!</h2>
+      <h2>List complete</h2>
       <p class="subtitle" style="margin-bottom:0;" id="done-message"></p>
       <div class="done-stats">
         <div class="done-stat"><div class="num" id="done-added">0</div><div class="lbl">words added</div></div>
@@ -356,24 +256,23 @@
         <div class="done-stat"><div class="num" id="done-streak">0</div><div class="lbl">day streak</div></div>
       </div>
       <div class="done-actions">
-        <button class="ghost-btn" id="review-btn" type="button" style="display:none;">Review skipped</button>
-        <button class="primary-btn" id="startover-btn" type="button">Start over</button>
+        <button class="btn" id="review-btn" type="button" hidden>Go back to the skipped ones</button>
+        <button class="btn primary" id="startover-btn" type="button">Start another list</button>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 </div>
 
 <script>
 (function () {
   'use strict';
 
+  var fwlite = window.fwlite;
   var PROGRESS_KEY = 'wordlist-progress-v1';
   var STATS_KEY = 'wordlist-stats-v1';
-  var EXISTING_CAP = 5000;
-  var PAGE_SIZE = 1000;
   var TRAIL_MAX = 6;
 
-  // --- Standard comparative wordlists (bundled offline) -----------------------
+  // Standard comparative wordlists (bundled, so it works offline).
   var SWADESH_100 = [
     'I', 'you (singular)', 'we', 'this', 'that', 'who', 'what', 'not', 'all', 'many',
     'one', 'two', 'big', 'long', 'small', 'woman', 'man (adult male)', 'person', 'fish', 'bird',
@@ -411,12 +310,12 @@
   ];
 
   var state = {
-    vernWs: [],            // WritingSystem objects (non-audio)
-    analWs: [],            // WritingSystem objects (non-audio)
-    analysisWs: '',        // chosen gloss writing system id
-    collected: null,       // Set of lowercased existing sense glosses
+    vernWs: [],
+    analWs: [],
+    analysisWs: '',
+    collected: new Map(),  // lowercased gloss -> a headword that already has it
     listId: 'swadesh100',
-    items: [],             // array of meaning strings
+    items: [],
     statuses: [],          // 'pending' | 'done' | 'skipped', parallel to items
     index: 0,
     trail: [],             // {meaning, word}
@@ -427,104 +326,88 @@
 
   function el(id) { return document.getElementById(id); }
   function errText(err) { return err && err.message ? err.message : String(err); }
+  function show(id, visible) { el(id).hidden = !visible; }
 
-  function applyTheme(theme) {
-    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  function applyTheme() {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', fwlite.theme || (dark ? 'dark' : 'light'));
+  }
+  function applyVernFont(ws) {
+    if (ws && ws.font) document.documentElement.style.setProperty('--vern-font', '"' + ws.font.replace(/"/g, '') + '", var(--font)');
   }
 
   function showError(message) {
-    el('loading').style.display = 'none';
-    var box = el('error');
-    box.style.display = 'block';
-    box.textContent = message;
+    show('loading', false);
+    show('app', false);
+    show('error', true);
+    el('error').textContent = message;
   }
 
-  function analysisWsIds() { return state.analWs.map(function (ws) { return ws.wsId; }); }
-
-  function todayKey() {
-    var d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  // Names that occur more than once (e.g. "Sena" for both the orthography and IPA) get their wsId.
+  function wsLabel(ws, list) {
+    var same = list.filter(function (w) { return w.name === ws.name; }).length;
+    return same > 1 ? ws.name + ' (' + ws.wsId + ')' : ws.name;
   }
 
+  function dayKey(date) {
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+  }
   function computeStreak(days) {
     var d = new Date();
-    function key(date) {
-      return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-    }
-    if (!days[key(d)]) d.setDate(d.getDate() - 1);
+    // A run that ended yesterday still counts (today isn't over).
+    if (!days[dayKey(d)]) d.setDate(d.getDate() - 1);
     var streak = 0;
-    while (days[key(d)] > 0) {
-      streak++;
-      d.setDate(d.getDate() - 1);
-    }
+    while (days[dayKey(d)] > 0) { streak++; d.setDate(d.getDate() - 1); }
     return streak;
   }
 
-  // --- Existing-entry detection ----------------------------------------------
-  function loadCollected() {
-    state.collected = new Set();
-    var wsIds = analysisWsIds();
-    function page(offset) {
-      if (offset >= EXISTING_CAP) return Promise.resolve();
-      return window.fwlite.getEntries({limit: PAGE_SIZE, offset: offset}).then(function (entries) {
-        entries.forEach(function (entry) {
-          (entry.senses || []).forEach(function (sense) {
-            var gloss = sense.gloss || {};
-            wsIds.forEach(function (wsId) {
-              var value = gloss[wsId];
-              if (value && value.trim()) state.collected.add(value.trim().toLowerCase());
-            });
-          });
+  // --- What is already in the dictionary --------------------------------------
+  async function loadCollected() {
+    var PAGE = 1000, CAP = 5000;
+    var wsIds = state.analWs.map(function (ws) { return ws.wsId; });
+    var total = Math.min(await fwlite.countEntries({}), CAP);
+    for (var offset = 0; offset < total; offset += PAGE) {
+      var entries = await fwlite.getEntries({limit: Math.min(PAGE, total - offset), offset: offset});
+      if (!entries.length) break;
+      entries.forEach(function (entry) {
+        var headword = fwlite.headword(entry);
+        (entry.senses || []).forEach(function (sense) {
+          wsIds.forEach(function (wsId) { markCollected(sense.gloss && sense.gloss[wsId], headword); });
         });
-        if (entries.length === PAGE_SIZE) return page(offset + PAGE_SIZE);
       });
+      el('loading-text').textContent = 'Checked ' + Math.min(offset + PAGE, total).toLocaleString() + ' of ' + total.toLocaleString() + ' entries…';
     }
-    return page(0);
+  }
+  function markCollected(text, headword) {
+    var key = text && text.trim().toLowerCase();
+    if (key && !state.collected.has(key)) state.collected.set(key, headword || '');
   }
 
-  function markCollected(text) {
-    if (text && text.trim()) state.collected.add(text.trim().toLowerCase());
-  }
-
-  function isCollected(text) {
-    return !!(state.collected && text && state.collected.has(text.trim().toLowerCase()));
-  }
-
-  // --- Persistence -----------------------------------------------------------
+  // --- Persistence -------------------------------------------------------------
   function saveProgress() {
-    window.fwlite.storage.set(PROGRESS_KEY, {
-      listId: state.listId,
-      items: state.items,
-      statuses: state.statuses,
-      index: state.index,
-      analysisWs: state.analysisWs,
-      trail: state.trail,
-    }).catch(function () { /* progress save is best-effort */ });
+    fwlite.storage.set(PROGRESS_KEY, {
+      listId: state.listId, items: state.items, statuses: state.statuses, index: state.index,
+      analysisWs: state.analysisWs, trail: state.trail,
+    }).catch(function () { /* best-effort */ });
   }
-
   function saveStats() {
-    window.fwlite.storage.set(STATS_KEY, state.stats).catch(function () { /* best-effort */ });
+    fwlite.storage.set(STATS_KEY, state.stats).catch(function () { /* best-effort */ });
   }
 
-  // --- Setup -----------------------------------------------------------------
+  // --- Setup -------------------------------------------------------------------
   function populateSetup() {
-    var analSelect = el('analysis-select');
-    analSelect.innerHTML = '';
+    var select = el('analysis-select');
+    select.textContent = '';
     state.analWs.forEach(function (ws) {
       var option = document.createElement('option');
       option.value = ws.wsId;
-      option.textContent = ws.name + ' (' + ws.wsId + ')';
-      analSelect.appendChild(option);
+      option.textContent = wsLabel(ws, state.analWs);
+      select.appendChild(option);
     });
-    if (state.analWs.length > 1) el('analysis-field').style.display = 'block';
-
-    function syncCustom() {
-      el('custom-field').style.display = el('list-select').value === 'custom' ? 'block' : 'none';
-    }
+    show('analysis-field', state.analWs.length > 1);
     el('list-select').addEventListener('change', syncCustom);
-    syncCustom();
   }
+  function syncCustom() { show('custom-field', el('list-select').value === 'custom'); }
 
   function listItemsFor(listId, customText) {
     if (listId === 'swadesh207') return SWADESH_207.slice();
@@ -536,81 +419,70 @@
   }
 
   function buildVernacularFields() {
-    var container = el('vernacular-fields');
-    container.innerHTML = '';
-    state.vernWs.forEach(function (ws, index) {
+    var first = state.vernWs[0];
+    el('vern-input-0').dataset.ws = first.wsId;
+    el('vern-label-0').textContent = 'Word in ' + wsLabel(first, state.vernWs);
+    var host = el('more-ws-fields');
+    host.textContent = '';
+    state.vernWs.slice(1).forEach(function (ws, i) {
       var field = document.createElement('div');
       field.className = 'field';
       var label = document.createElement('label');
-      label.setAttribute('for', 'vern-input-' + index);
-      var primaryHint = index === 0 ? '' : ', optional';
-      label.textContent = 'Word — ' + ws.name + ' (' + ws.wsId + primaryHint + ')';
+      label.setAttribute('for', 'vern-input-' + (i + 1));
+      label.textContent = wsLabel(ws, state.vernWs);
       var input = document.createElement('input');
       input.type = 'text';
-      input.id = 'vern-input-' + index;
+      input.className = 'vern-input';
+      input.id = 'vern-input-' + (i + 1);
       input.dataset.ws = ws.wsId;
-      input.autocomplete = 'off';
-      input.placeholder = 'Type the word…';
-      if (ws.font) input.style.fontFamily = '"' + ws.font + '", inherit';
       field.appendChild(label);
       field.appendChild(input);
-      container.appendChild(field);
+      host.appendChild(field);
     });
+    show('more-ws', state.vernWs.length > 1);
+  }
+
+  function vernInputs() { return Array.prototype.slice.call(document.querySelectorAll('#flow-form .vern-input')); }
+
+  function showView(name) {
+    ['setup-view', 'flow-view', 'done-view'].forEach(function (id) { show(id, id === name); });
   }
 
   function startList(opts) {
-    // opts: {resume: bool}
     if (!opts || !opts.resume) {
+      var items = listItemsFor(el('list-select').value, el('custom-input').value);
+      if (!items.length) {
+        el('custom-input').focus();
+        fwlite.notify('That list is empty. Paste at least one meaning.');
+        return;
+      }
       state.listId = el('list-select').value;
-      state.items = listItemsFor(state.listId, el('custom-input').value);
-      state.statuses = state.items.map(function () { return 'pending'; });
+      state.items = items;
+      state.statuses = items.map(function () { return 'pending'; });
       state.index = 0;
       state.trail = [];
-      if (state.analWs.length > 1) state.analysisWs = el('analysis-select').value;
+      state.analysisWs = el('analysis-select').value || state.analWs[0].wsId;
     }
-    if (!state.analysisWs) state.analysisWs = state.analWs[0].wsId;
+    var anal = state.analWs.filter(function (ws) { return ws.wsId === state.analysisWs; })[0] || state.analWs[0];
+    state.analysisWs = anal.wsId;
+    el('gloss-label').textContent = 'Gloss in ' + wsLabel(anal, state.analWs);
 
-    if (state.items.length === 0) {
-      setFormNote('');
-      el('setup-view').style.display = 'block';
-      el('custom-input').focus();
-      window.fwlite.notify('That list is empty — paste at least one meaning.');
-      return;
-    }
-
-    buildVernacularFields();
-    el('gloss-label').textContent = 'Gloss (' + state.analysisWs + ')';
-
-    el('setup-view').style.display = 'none';
-    el('done-view').style.display = 'none';
-    el('flow-view').style.display = 'block';
-
+    showView('flow-view');
     renderStats();
     renderTrail();
     if (allResolved()) { showDone(); return; }
     if (state.statuses[state.index] !== 'pending') {
-      var next = firstPending();
+      var next = state.statuses.indexOf('pending');
       if (next !== -1) state.index = next;
     }
     renderItem();
     saveProgress();
   }
 
-  // --- Flow rendering --------------------------------------------------------
+  // --- Flow --------------------------------------------------------------------
   function total() { return state.items.length; }
-  function countStatus(value) {
-    return state.statuses.filter(function (s) { return s === value; }).length;
-  }
-  function allResolved() {
-    return state.statuses.every(function (s) { return s !== 'pending'; });
-  }
-  function firstPending() {
-    return state.statuses.indexOf('pending');
-  }
-  function firstSkipped() {
-    return state.statuses.indexOf('skipped');
-  }
-
+  function countStatus(value) { return state.statuses.filter(function (s) { return s === value; }).length; }
+  function allResolved() { return state.statuses.every(function (s) { return s !== 'pending'; }); }
   function currentMeaning() { return state.items[state.index]; }
 
   function renderStats() {
@@ -620,50 +492,47 @@
 
   function setFormNote(message, kind) {
     var note = el('form-note');
-    note.innerHTML = '';
+    note.textContent = '';
     if (!message) return;
     var div = document.createElement('div');
     div.className = 'inline-note ' + (kind || '');
     div.textContent = message;
     note.appendChild(div);
+    div.scrollIntoView({block: 'nearest'});
   }
 
   function updateCollectedBadge() {
-    var glossValue = el('gloss-input').value;
+    var key = el('gloss-input').value.trim().toLowerCase();
     var badge = el('collected-badge');
-    if (isCollected(glossValue)) badge.classList.remove('hidden');
-    else badge.classList.add('hidden');
+    if (!key || !state.collected.has(key)) { badge.hidden = true; return; }
+    var headword = state.collected.get(key);
+    badge.textContent = '✓ Already in the dictionary' + (headword ? ': ' : '');
+    if (headword) {
+      var word = document.createElement('span');
+      word.className = 'vern';
+      word.textContent = headword;
+      badge.appendChild(word);
+    }
+    badge.hidden = false;
   }
 
   function renderItem() {
     var meaning = currentMeaning();
     el('prompt-word').textContent = meaning == null ? '' : meaning;
-    el('position').textContent = 'Word ' + (state.index + 1) + ' of ' + total();
-
+    el('position').textContent = 'Meaning ' + (state.index + 1) + ' of ' + total();
     var resolved = countStatus('done') + countStatus('skipped');
     el('progress-fill').style.width = (total() ? (resolved / total() * 100) : 0) + '%';
-    el('resolved-count').textContent = resolved + ' of ' + total() + ' done';
-
     el('gloss-input').value = meaning || '';
-    document.querySelectorAll('#vernacular-fields input').forEach(function (input) { input.value = ''; });
+    vernInputs().forEach(function (input) { input.value = ''; });
     updateCollectedBadge();
-
     el('prev-btn').disabled = state.index === 0 || state.busy;
-
-    var firstVern = el('vern-input-0');
-    if (firstVern) firstVern.focus();
+    el('vern-input-0').focus({preventScroll: true});
   }
 
   function renderTrail() {
-    var trailBox = el('trail');
     var list = el('trail-list');
-    if (state.trail.length === 0) {
-      trailBox.style.display = 'none';
-      list.innerHTML = '';
-      return;
-    }
-    trailBox.style.display = 'block';
-    list.innerHTML = '';
+    list.textContent = '';
+    show('trail', state.trail.length > 0);
     state.trail.forEach(function (entry, idx) {
       var item = document.createElement('div');
       item.className = 'trail-item' + (idx === 0 ? ' fresh' : '');
@@ -673,7 +542,6 @@
       var word = document.createElement('span');
       word.className = 'word';
       word.textContent = entry.word;
-      if (state.vernWs[0] && state.vernWs[0].font) word.style.fontFamily = '"' + state.vernWs[0].font + '", inherit';
       item.appendChild(meaning);
       item.appendChild(word);
       list.appendChild(item);
@@ -694,12 +562,11 @@
       card.classList.remove('leaving');
       var next = state.index + 1;
       if (next >= total()) {
-        var pending = firstPending();
+        var pending = state.statuses.indexOf('pending');
         if (pending === -1) { showDone(); return; }
-        state.index = pending;
-      } else {
-        state.index = next;
+        next = pending;
       }
+      state.index = next;
       saveProgress();
       card.classList.add('entering');
       renderItem();
@@ -720,7 +587,7 @@
     plus.classList.remove('fire');
     void plus.offsetWidth;
     plus.classList.add('fire');
-    if (state.session > 0 && state.session % 5 === 0) {
+    if (state.session % 5 === 0) {
       var chip = el('session-chip');
       chip.classList.remove('combo');
       void chip.offsetWidth;
@@ -728,16 +595,15 @@
     }
   }
 
-  function recordSuccess(meaning, primaryWord, glossValue) {
-    var key = todayKey();
+  function recordSuccess(meaning, word, gloss) {
+    var key = dayKey(new Date());
     state.stats.days[key] = (state.stats.days[key] || 0) + 1;
     state.stats.lifetime++;
     state.session++;
     if (state.session > state.stats.bestSession) state.stats.bestSession = state.session;
     saveStats();
-    markCollected(glossValue);
-    markCollected(meaning);
-    state.trail.unshift({meaning: meaning, word: primaryWord});
+    markCollected(gloss, word);
+    state.trail.unshift({meaning: meaning, word: word});
     if (state.trail.length > TRAIL_MAX) state.trail.pop();
     renderStats();
     renderTrail();
@@ -750,50 +616,37 @@
     if (meaning == null) return;
 
     var gloss = el('gloss-input').value.trim();
-    var wordValues = state.vernWs.map(function (ws, index) {
-      var input = el('vern-input-' + index);
-      return {ws: ws.wsId, value: input ? input.value.trim() : ''};
-    });
-    var primary = wordValues.find(function (pair) { return pair.value; });
-
+    var words = vernInputs().map(function (input) { return {ws: input.dataset.ws, value: input.value.trim()}; });
+    var primary = words.filter(function (w) { return w.value; })[0];
     if (!primary) {
-      setFormNote('Type the word in at least one language first.', 'warn');
-      var firstVern = el('vern-input-0');
-      if (firstVern) firstVern.focus();
+      setFormNote('Type the word first.', 'warn');
+      el('vern-input-0').focus();
       return;
     }
     if (!gloss) {
-      setFormNote('Enter a gloss (the meaning).', 'warn');
+      setFormNote('Add a gloss (the meaning).', 'warn');
       el('gloss-input').focus();
       return;
     }
 
     var lexemeForm = {};
-    wordValues.forEach(function (pair) { if (pair.value) lexemeForm[pair.ws] = pair.value; });
+    words.forEach(function (w) { if (w.value) lexemeForm[w.ws] = w.value; });
     var glossField = {};
     glossField[state.analysisWs] = gloss;
-    var entry = {
-      lexemeForm: lexemeForm,
-      citationForm: {},
-      senses: [{gloss: glossField, semanticDomains: []}],
-    };
 
     setBusy(true);
     setFormNote('');
-    window.fwlite.createEntry(entry).then(function () {
+    fwlite.createEntry({lexemeForm: lexemeForm, senses: [{gloss: glossField}]}).then(function () {
       setBusy(false);
       state.statuses[state.index] = 'done';
       recordSuccess(meaning, primary.value, gloss);
-      window.fwlite.notify('Added “' + primary.value + '” (' + meaning + ')');
       advance();
     }).catch(function (err) {
       setBusy(false);
-      if (err && (err.code === 'permission-denied' || err.code === 'preview')) {
-        // Declined write is a normal outcome: keep the item unsaved so they can retry.
-        setFormNote('Not saved — you can edit and try again, or skip.', 'warn');
-      } else {
-        setFormNote('Could not save: ' + errText(err), 'warn');
-      }
+      var code = err && err.code;
+      if (code === 'preview') setFormNote('This is a preview, so the word was not saved. Once the plugin is added to the project, approving saves it.', 'warn');
+      else if (code === 'permission-denied') setFormNote('Not saved, because the change wasn’t approved. Edit and try again, or skip.', 'warn');
+      else setFormNote('Could not save: ' + errText(err), 'warn');
     });
   }
 
@@ -805,37 +658,34 @@
   }
 
   function showDone() {
-    el('flow-view').style.display = 'none';
-    el('done-view').style.display = 'block';
+    showView('done-view');
     var added = countStatus('done');
     var skipped = countStatus('skipped');
     el('done-added').textContent = String(added);
     el('done-skipped').textContent = String(skipped);
     el('done-streak').textContent = String(computeStreak(state.stats.days));
     el('done-message').textContent = added > 0
-      ? 'You documented ' + added + ' word' + (added === 1 ? '' : 's') + ' from this list.'
+      ? 'You recorded ' + added + (added === 1 ? ' word' : ' words') + ' from this list.'
       : 'You reached the end of the list.';
-    el('review-btn').style.display = skipped > 0 ? 'inline-block' : 'none';
+    show('review-btn', skipped > 0);
     saveProgress();
   }
 
   function reviewSkipped() {
-    var skipped = firstSkipped();
+    var skipped = state.statuses.indexOf('skipped');
     if (skipped === -1) return;
+    state.statuses = state.statuses.map(function (s) { return s === 'skipped' ? 'pending' : s; });
     state.index = skipped;
-    el('done-view').style.display = 'none';
-    el('flow-view').style.display = 'block';
+    showView('flow-view');
     setFormNote('');
     renderItem();
     saveProgress();
   }
 
   function backToSetup() {
-    el('flow-view').style.display = 'none';
-    el('done-view').style.display = 'none';
-    el('setup-view').style.display = 'block';
-    el('list-select').value = state.listId === 'custom' ? 'custom' : state.listId;
-    el('custom-field').style.display = el('list-select').value === 'custom' ? 'block' : 'none';
+    showView('setup-view');
+    el('list-select').value = state.listId;
+    syncCustom();
   }
 
   function wireEvents() {
@@ -852,63 +702,48 @@
     el('gloss-input').addEventListener('input', updateCollectedBadge);
   }
 
-  // --- Init ------------------------------------------------------------------
   function restoreProgress(saved) {
     if (!saved || typeof saved !== 'object' || !Array.isArray(saved.items) || saved.items.length === 0) return false;
     if (!Array.isArray(saved.statuses) || saved.statuses.length !== saved.items.length) return false;
-    var analysisValid = saved.analysisWs && state.analWs.some(function (ws) { return ws.wsId === saved.analysisWs; });
     state.listId = saved.listId || 'custom';
     state.items = saved.items;
     state.statuses = saved.statuses;
     state.index = Math.min(Math.max(saved.index || 0, 0), saved.items.length - 1);
-    state.analysisWs = analysisValid ? saved.analysisWs : state.analWs[0].wsId;
+    state.analysisWs = saved.analysisWs;
     state.trail = Array.isArray(saved.trail) ? saved.trail.slice(0, TRAIL_MAX) : [];
     return true;
   }
 
-  function init(context) {
-    applyTheme(context && context.theme);
-    wireEvents();
-
-    Promise.all([
-      window.fwlite.getWritingSystems(),
-      window.fwlite.storage.get(STATS_KEY),
-      window.fwlite.storage.get(PROGRESS_KEY),
-    ]).then(function (results) {
+  async function init() {
+    applyTheme();
+    try {
+      var results = await Promise.all([fwlite.getWritingSystems(), fwlite.storage.get(STATS_KEY), fwlite.storage.get(PROGRESS_KEY)]);
       var writingSystems = results[0] || {};
       state.vernWs = (writingSystems.vernacular || []).filter(function (ws) { return !ws.isAudio; });
       state.analWs = (writingSystems.analysis || []).filter(function (ws) { return !ws.isAudio; });
-
       if (results[1] && typeof results[1] === 'object') {
-        state.stats = {
-          days: results[1].days || {},
-          bestSession: results[1].bestSession || 0,
-          lifetime: results[1].lifetime || 0,
-        };
+        state.stats = {days: results[1].days || {}, bestSession: results[1].bestSession || 0, lifetime: results[1].lifetime || 0};
       }
-
-      if (state.vernWs.length === 0 || state.analWs.length === 0) {
-        showError('Wordlist needs at least one vernacular writing system (the language you are documenting) and one analysis writing system (for the meaning). This project is missing one of them.');
+      if (!state.vernWs.length || !state.analWs.length) {
+        showError('Wordlist needs a vernacular writing system (the language you are documenting) and an analysis writing system (for the meanings). Add the missing one in the project settings, then reopen this plugin.');
         return;
       }
-
+      applyVernFont(state.vernWs[0]);
+      wireEvents();
+      populateSetup();
+      buildVernacularFields();
       el('loading-text').textContent = 'Checking what is already in the dictionary…';
-      var savedProgress = results[2];
-      return loadCollected().then(function () {
-        el('loading').style.display = 'none';
-        populateSetup();
-        if (restoreProgress(savedProgress) && !allResolved()) {
-          startList({resume: true});
-        } else {
-          el('setup-view').style.display = 'block';
-        }
-      });
-    }).catch(function (err) {
-      showError('Could not load project data: ' + errText(err));
-    });
+      await loadCollected();
+      show('loading', false);
+      show('app', true);
+      if (restoreProgress(results[2]) && !allResolved()) startList({resume: true});
+      else showView('setup-view');
+    } catch (err) {
+      showError('Could not load the project: ' + errText(err));
+    }
   }
 
-  window.fwlite.ready.then(init);
+  fwlite.ready.then(init);
 })();
 </script>
 </body>

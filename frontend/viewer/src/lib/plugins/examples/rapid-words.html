@@ -7,319 +7,222 @@
 <title>Rapid Word Collection</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f5f6f8;
+    color-scheme: light;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --surface-alt: #f0f1f4;
-    --border: #e2e4e9;
-    --text: #1c1e21;
-    --text-muted: #6b7280;
-    --accent: #4f46e5;
-    --accent-soft: #eef0ff;
-    --good: #059669;
-    --good-soft: #e3f7ee;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
     --warn: #b45309;
-    --warn-soft: #fef3e0;
-    --danger: #b91c1c;
-    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
-    --radius: 14px;
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
   }
   html[data-theme="dark"] {
-    --bg: #16171b;
-    --surface: #1f2126;
-    --surface-alt: #26282e;
-    --border: #33353c;
-    --text: #edeef1;
-    --text-muted: #9aa0ab;
-    --accent: #818cf8;
-    --accent-soft: #2a2b5e;
-    --good: #34d399;
-    --good-soft: #123528;
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
     --warn: #fbbf24;
-    --warn-soft: #3a2f12;
-    --danger: #f87171;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    padding: 18px;
-    min-height: 100vh;
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
   }
-  .wrap { max-width: 820px; margin: 0 auto; }
-  h1 { font-size: 1.3rem; margin: 0 0 2px; }
-  .subtitle { color: var(--text-muted); margin: 0 0 16px; font-size: 0.88rem; }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 16px 18px;
-    margin-bottom: 14px;
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
   }
-
-  /* Progress rail */
-  .rail-top {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 18px;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-  .rail-stats { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.82rem; color: var(--text-muted); }
-  .rail-stats b { color: var(--text); font-weight: 700; }
-  .bar {
-    height: 8px;
-    border-radius: 6px;
-    background: var(--surface-alt);
-    overflow: hidden;
-  }
-  .bar > span {
-    display: block;
-    height: 100%;
-    width: 0;
-    background: var(--accent);
-    transition: width 0.25s ease;
-  }
-
-  .jump { position: relative; margin-top: 12px; }
-  .jump input { margin: 0; }
-  .jump-results {
-    position: absolute;
-    z-index: 5;
-    left: 0; right: 0;
-    top: calc(100% + 4px);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    box-shadow: var(--shadow);
-    max-height: 260px;
-    overflow-y: auto;
-    display: none;
-  }
-  .jump-results.open { display: block; }
-  .jump-item {
-    padding: 9px 12px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .jump-item:last-child { border-bottom: none; }
-  .jump-item:hover, .jump-item.active { background: var(--accent-soft); }
-  .jump-item .jc { color: var(--accent); font-weight: 700; margin-right: 6px; }
-  .jump-empty { padding: 10px 12px; color: var(--text-muted); font-size: 0.85rem; }
-
-  label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
-  input {
-    width: 100%;
-    font-size: 0.95rem;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--surface-alt);
-    color: var(--text);
-    font-family: inherit;
-  }
-  input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
-  }
-
-  /* Domain header */
-  .dom-pos { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; }
-  .dom-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 12px; }
-  .dom-code {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: var(--accent);
-    letter-spacing: 0.5px;
-  }
-  .dom-name { font-size: 1.5rem; font-weight: 700; line-height: 1.15; }
-
-  /* Collected chips */
-  .collected-head { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px; }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
   .chip {
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 4px 11px;
-    font-size: 0.85rem;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
   }
-  .chip.more { color: var(--text-muted); border-style: dashed; }
-  .chip.new {
-    background: var(--accent-soft);
-    border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
-    color: var(--text);
-    animation: pop 0.35s ease;
-  }
-  @keyframes pop {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-
-  /* Rapid entry rows */
-  .rows { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 14px; }
-  .rwc-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: flex-end;
-    padding: 8px;
-    border-radius: 10px;
-    background: var(--surface-alt);
-  }
-  .rwc-row.filled { outline: 1px solid var(--accent-soft); }
-  .cell { flex: 1 1 150px; min-width: 120px; }
-  .cell .tag { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 3px; display: block; }
-  .cell input { background: var(--surface); }
-  .row-remove {
-    flex: 0 0 auto;
-    align-self: center;
-    border: none;
-    background: transparent;
-    color: var(--text-muted);
-    font-size: 1.2rem;
-    line-height: 1;
-    padding: 6px 8px;
-    border-radius: 8px;
-    cursor: pointer;
-  }
-  .row-remove:hover { color: var(--danger); background: var(--surface); }
-
-  .btn-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  button.btn {
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 600;
-    padding: 10px 16px;
-    border-radius: 10px;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-  }
-  button.btn:hover { border-color: var(--accent); }
-  button.btn:disabled { opacity: 0.55; cursor: default; }
-  button.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-  button.btn.primary:hover { filter: brightness(1.08); }
-  button.btn.ghost { background: transparent; }
-  .spacer { flex: 1 1 auto; }
-
-  .status {
-    font-size: 0.85rem;
-    padding: 9px 12px;
-    border-radius: 8px;
-    margin-top: 12px;
-  }
-  .status.warn { background: var(--warn-soft); color: var(--warn); }
-  .status.good { background: var(--good-soft); color: var(--good); }
-
-  .center-state { text-align: center; padding: 44px 20px; color: var(--text-muted); }
-  .center-state h2 { color: var(--text); font-size: 1.15rem; margin: 0 0 8px; }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
   .spinner {
-    width: 30px; height: 30px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    margin: 0 auto 14px;
-    animation: spin 0.8s linear infinite;
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .error-box {
-    border: 1px solid color-mix(in srgb, var(--danger) 55%, var(--border));
-    background: color-mix(in srgb, var(--danger) 14%, var(--surface));
-    padding: 14px 18px;
-    border-radius: var(--radius);
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
   }
-  .hidden { display: none !important; }
-  .big-num { font-size: 2.2rem; font-weight: 800; color: var(--accent); }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  .bar { height: 8px; border-radius: 999px; background: var(--surface-alt); overflow: hidden; }
+  .bar > span { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.25s ease; }
+  .progress { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .progress-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; font-size: 0.85rem; color: var(--text-muted); }
+  .progress-top b { color: var(--text); }
+
+  .jump { position: relative; }
+  .jump input { width: 100%; }
+  .jump-results {
+    position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + 4px);
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+    max-height: 280px; overflow-y: auto;
+  }
+  .jump-item { display: block; width: 100%; text-align: left; padding: 10px 12px; border: 0; border-bottom: 1px solid var(--border); background: none; color: var(--text); font: inherit; cursor: pointer; }
+  .jump-item:last-child { border-bottom: 0; }
+  .jump-item:hover, .jump-item.active { background: var(--accent-soft); }
+  .jump-item .jc { color: var(--accent); font-weight: 700; margin-right: 6px; }
+  .jump-empty { padding: 10px 12px; color: var(--text-muted); }
+
+  .domain { margin: 12px 0; }
+  .crumbs { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 2px; overflow-wrap: anywhere; }
+  .dom-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
+  .dom-code { font-size: 1.4rem; font-weight: 800; color: var(--accent); }
+  .dom-name { font-size: 1.4rem; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+  .collected-head { font-size: 0.85rem; color: var(--text-muted); margin: 10px 0 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips .chip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--vern-font); font-weight: 500; color: var(--text); }
+  .chips .chip.new { background: var(--accent-soft); color: var(--accent); }
+  .chips .chip.more { color: var(--text-muted); }
+
+  .entry-card { display: flex; flex-direction: column; gap: 10px; }
+  .row-head select { width: 100%; min-height: 36px; padding: 4px 8px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+  .row-head, .rwc-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px; gap: 8px; align-items: center; }
+  .row-head { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; }
+  .rows { display: flex; flex-direction: column; gap: 8px; }
+  .rwc-row input { width: 100%; }
+  .rwc-row input.word { font-family: var(--vern-font); }
+  .row-remove { width: 36px; height: 36px; border: 0; border-radius: 8px; background: transparent; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; }
+  .row-remove:hover { color: var(--bad); background: var(--surface-alt); }
+  .hint { font-size: 0.8rem; color: var(--text-muted); }
+
+  .status { font-size: 0.88rem; padding: 10px 12px; border-radius: var(--radius); margin-top: 12px; }
+  .status.warn { background: var(--warn-soft); color: var(--warn); }
+  .status.good { background: var(--good-soft); color: var(--good); }
+  .actions { margin-top: 12px; }
+  .actions .spacer { flex: 1; }
+  .actions .btn { white-space: nowrap; }
+  .big-num { font-size: 2.4rem; font-weight: 800; color: var(--accent); }
+  #done { margin: auto 0; }
+  @media (max-width: 600px) {
+    .actions .spacer { display: none; }
+    .wrap.narrow .actions #prev-btn { flex: 0 0 auto; }
+  }
+  @media (pointer: coarse) { .hint.keys { display: none; } }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap narrow">
   <h1>Rapid Word Collection</h1>
-  <p class="subtitle">Walk the semantic-domain framework and list every word that belongs to each &mdash; fast.</p>
+  <p class="subtitle">Walk the semantic domains and list every word that belongs in each one.</p>
 
-  <div id="loading" class="center-state">
-    <div class="spinner"></div>
-    <div>Loading domains &amp; entries&hellip;</div>
+  <div id="loading" class="center-state"><div class="spinner"></div><div id="loading-text">Loading domains and entries&hellip;</div></div>
+  <div id="error" class="error-box" role="alert" hidden></div>
+  <div id="empty" class="center-state" hidden>
+    <h2 id="empty-title"></h2>
+    <div id="empty-msg"></div>
   </div>
 
-  <div id="error" class="error-box hidden"></div>
-
-  <div id="no-domains" class="center-state hidden">
-    <h2>No semantic-domain framework</h2>
-    <div>This project has no semantic domains configured, so there is no framework to walk.
-    Rapid Word Collection needs the domain list to guide collection.</div>
-  </div>
-
-  <div id="no-ws" class="center-state hidden">
-    <h2>Writing systems needed</h2>
-    <div id="no-ws-msg"></div>
-  </div>
-
-  <div id="done" class="center-state hidden">
-    <div class="big-num" id="done-count">0</div>
-    <h2>You've reached the end of the framework</h2>
-    <div id="done-msg"></div>
-    <div class="btn-row" style="justify-content:center; margin-top:18px;">
-      <button class="btn primary" id="done-restart" type="button">Back to the start</button>
+  <main id="app" hidden>
+    <div id="done" class="center-state" hidden>
+      <div class="big-num" id="done-count">0</div>
+      <h2>You've reached the end of the domain list</h2>
+      <div id="done-msg"></div>
+      <div style="margin-top:18px;">
+        <button class="btn primary" id="done-restart" type="button">Back to the first domain</button>
+      </div>
     </div>
-  </div>
 
-  <div id="walk" class="hidden">
-    <div class="card">
-      <div class="rail-top">
-        <div class="rail-stats">
+    <div id="walk">
+      <div class="progress">
+        <div class="progress-top">
           <span>Domain <b id="stat-pos">0</b> of <b id="stat-total">0</b></span>
-          <span>Domains with words: <b id="stat-covered">0</b></span>
           <span>Added this session: <b id="stat-session">0</b></span>
         </div>
+        <div class="bar"><span id="progress-fill"></span></div>
+        <div class="progress-top"><span id="stat-covered"></span></div>
       </div>
-      <div class="bar"><span id="progress-fill"></span></div>
       <div class="jump">
-        <input type="text" id="jump-input" placeholder="Jump to a domain by code or name&hellip;" autocomplete="off">
-        <div class="jump-results" id="jump-results"></div>
+        <input type="search" id="jump-input" placeholder="Jump to a domain by code or name" autocomplete="off" aria-label="Jump to a domain">
+        <div class="jump-results" id="jump-results" hidden></div>
       </div>
-    </div>
 
-    <div class="card">
-      <div class="dom-pos" id="dom-pos"></div>
-      <div class="dom-head">
-        <span class="dom-code" id="dom-code"></span>
-        <span class="dom-name" id="dom-name"></span>
-      </div>
-    </div>
+      <section class="domain" aria-live="polite">
+        <div class="crumbs" id="crumbs"></div>
+        <div class="dom-head">
+          <span class="dom-code" id="dom-code"></span>
+          <span class="dom-name" id="dom-name"></span>
+        </div>
+        <div class="collected-head" id="collected-head"></div>
+        <div class="chips" id="collected-chips"></div>
+      </section>
 
-    <div class="card" id="collected-card">
-      <div class="collected-head" id="collected-head"></div>
-      <div class="chips" id="collected-chips"></div>
-    </div>
+      <section class="card entry-card">
+        <div class="row-head">
+          <span><span id="word-head">Word</span><select id="word-ws" aria-label="Writing system for the words"></select></span>
+          <span><span id="gloss-head">Gloss</span><select id="gloss-ws" aria-label="Writing system for the glosses"></select></span>
+          <span></span>
+        </div>
+        <div class="rows" id="rows"></div>
+        <div class="hint keys">Enter moves to the next box. Ctrl+Enter saves and moves to the next domain.</div>
+      </section>
+      <div id="status" aria-live="polite"></div>
 
-    <div class="card">
-      <div style="font-size:0.9rem; font-weight:700; margin-bottom:10px;">Add words for this domain</div>
-      <div class="rows" id="rows"></div>
-      <div class="btn-row">
-        <button class="btn ghost" id="add-row" type="button">+ Add row</button>
+      <div class="actions">
+        <button class="btn" id="prev-btn" type="button">&larr; Back</button>
         <span class="spacer"></span>
-        <button class="btn" id="prev-btn" type="button">&larr; Previous</button>
-        <button class="btn" id="skip-btn" type="button">Skip domain</button>
+        <button class="btn" id="skip-btn" type="button">Skip</button>
         <button class="btn primary" id="save-btn" type="button">Save &amp; next</button>
       </div>
-      <div id="status"></div>
     </div>
-  </div>
+  </main>
 </div>
 
 <script>
@@ -327,63 +230,62 @@
   'use strict';
 
   var fwlite = window.fwlite;
+  var STORAGE_KEY = 'rwc.state.v1';
 
   var state = {
-    domains: [],          // sorted by code, objects from getSemanticDomains()
-    vernWs: [],           // [{wsId, name, font}] non-audio
-    analysisWs: [],       // [{wsId, name}] non-audio
-    analysisIds: [],      // wsId list for firstValue preference
+    domains: [],
+    byCode: {},
+    vernWs: [],
+    analysisWs: [],
+    analysisIds: [],
+    wordWs: '',
+    glossWs: '',
     collected: {},        // code -> [{headword, gloss, session}]
-    index: 0,             // current domain position
+    index: 0,
     sessionCount: 0,
-    drafts: {},           // code -> [{vern:{wsId:val}, gloss}]
+    drafts: {},           // code -> [{word, gloss}]
   };
-
-  var STORAGE_KEY = 'rwc.state.v1';
   var saveTimer = null;
 
-  // ---- small DOM helpers ----
   function $(id) { return document.getElementById(id); }
-  function show(id) { $(id).classList.remove('hidden'); }
-  function hide(id) { $(id).classList.add('hidden'); }
   function msg(err) { return err && err.message ? err.message : String(err); }
-
-  function el(tag, opts, children) {
+  function el(tag, className, text) {
     var node = document.createElement(tag);
-    opts = opts || {};
-    if (opts.className) node.className = opts.className;
-    if (opts.text != null) node.textContent = opts.text;
-    if (opts.type) node.type = opts.type;
-    if (opts.placeholder) node.placeholder = opts.placeholder;
-    if (opts.title) node.title = opts.title;
-    if (opts.style) node.setAttribute('style', opts.style);
-    if (opts.data) { for (var k in opts.data) node.dataset[k] = opts.data[k]; }
-    (children || []).forEach(function (c) { if (c) node.appendChild(c); });
+    if (className) node.className = className;
+    if (text != null) node.textContent = text;
     return node;
   }
 
   function applyTheme() {
-    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', fwlite.theme || (prefersDark ? 'dark' : 'light'));
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', fwlite.theme || (dark ? 'dark' : 'light'));
+  }
+  function applyVernFont(ws) {
+    if (ws && ws.font) document.documentElement.style.setProperty('--vern-font', '"' + ws.font.replace(/"/g, '') + '", var(--font)');
   }
 
   function showError(message) {
-    hide('loading'); hide('walk');
-    var box = $('error');
-    box.classList.remove('hidden');
-    box.textContent = message;
+    $('loading').hidden = true;
+    $('app').hidden = true;
+    $('error').hidden = false;
+    $('error').textContent = message;
+  }
+  function showEmpty(title, text) {
+    $('loading').hidden = true;
+    $('empty-title').textContent = title;
+    $('empty-msg').textContent = text;
+    $('empty').hidden = false;
   }
 
-  function vernFontFamily(font) {
-    var fallback = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    return font ? ('"' + font + '", ' + fallback) : fallback;
-  }
+  function domainName(domain) { return fwlite.firstValue(domain.name, state.analysisIds) || '(unnamed)'; }
+  function domainLabel(domain) { return domain.code + ' ' + domainName(domain); }
+  function currentDomain() { return state.domains[state.index]; }
 
-  function domainName(domain) {
-    return fwlite.firstValue(domain.name, state.analysisIds) || '(unnamed)';
-  }
-  function domainLabel(domain) {
-    return domain.code + ' ' + domainName(domain);
+  // Names that occur more than once (e.g. "Sena" for both the orthography and IPA) get their wsId.
+  function wsLabels(list) {
+    var counts = {};
+    list.forEach(function (ws) { counts[ws.name] = (counts[ws.name] || 0) + 1; });
+    return list.map(function (ws) { return counts[ws.name] > 1 ? ws.name + ' (' + ws.wsId + ')' : ws.name; });
   }
 
   // ---- persistence ----
@@ -393,28 +295,29 @@
   }
   function persist() {
     if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
-    var payload = {
-      index: state.index,
-      sessionCount: state.sessionCount,
-      drafts: state.drafts,
-    };
-    return fwlite.storage.set(STORAGE_KEY, payload).catch(function () { /* non-fatal */ });
+    return fwlite.storage.set(STORAGE_KEY, {
+      index: state.index, drafts: state.drafts, wordWs: state.wordWs, glossWs: state.glossWs,
+    }).catch(function () { /* progress is best-effort */ });
+  }
+  // Drafts saved before words had one writing system kept {vern: {wsId: value}, gloss}.
+  function normalizeDraft(d) {
+    if (!d || typeof d !== 'object') return null;
+    var word = typeof d.word === 'string' ? d.word : (d.vern && Object.values(d.vern)[0]) || '';
+    return {word: word, gloss: d.gloss || ''};
   }
 
-  // ---- entries -> collected map ----
-  function loadAllEntries() {
-    var all = [];
-    var LIMIT = 1000, CAP = 5000;
-    function page(offset) {
-      if (offset >= CAP) return Promise.resolve(all);
-      return fwlite.getEntries({limit: LIMIT, offset: offset}).then(function (batch) {
-        if (!batch || !batch.length) return all;
-        all = all.concat(batch);
-        if (batch.length < LIMIT) return all;
-        return page(offset + LIMIT);
-      });
+  async function loadAllEntries() {
+    var PAGE = 1000, CAP = 5000;
+    var total = await fwlite.countEntries({});
+    var target = Math.min(total, CAP);
+    var entries = [];
+    while (entries.length < target) {
+      var page = await fwlite.getEntries({limit: Math.min(PAGE, target - entries.length), offset: entries.length});
+      if (!page.length) break;
+      entries = entries.concat(page);
+      $('loading-text').textContent = 'Loaded ' + entries.length.toLocaleString() + ' of ' + target.toLocaleString() + ' entries…';
     }
-    return page(0);
+    return entries;
   }
 
   function buildCollected(entries) {
@@ -432,26 +335,13 @@
     return map;
   }
 
-  function currentDomain() { return state.domains[state.index]; }
-
   // ---- rows ----
   function readRows() {
-    var out = [];
-    $('rows').querySelectorAll('.rwc-row').forEach(function (row) {
-      var vern = {};
-      row.querySelectorAll('input[data-ws]').forEach(function (inp) {
-        var v = inp.value.trim();
-        if (v) vern[inp.dataset.ws] = v;
-      });
-      var glossInp = row.querySelector('input[data-gloss]');
-      var gloss = glossInp ? glossInp.value.trim() : '';
-      out.push({vern: vern, gloss: gloss});
+    return Array.prototype.map.call($('rows').querySelectorAll('.rwc-row'), function (row) {
+      return {word: row.querySelector('.word').value.trim(), gloss: row.querySelector('.gloss').value.trim()};
     });
-    return out;
   }
-
-  function hasContent(r) { return Object.keys(r.vern).length > 0 || !!r.gloss; }
-  function isSaveable(r) { return Object.keys(r.vern).length > 0; }
+  function hasContent(r) { return !!(r.word || r.gloss); }
 
   function captureDrafts() {
     var domain = currentDomain();
@@ -461,358 +351,344 @@
     else delete state.drafts[domain.code];
   }
 
-  function markFilled(row) {
-    var filled = false;
-    row.querySelectorAll('input').forEach(function (inp) { if (inp.value.trim()) filled = true; });
-    row.classList.toggle('filled', filled);
-  }
-
   function createRow(draft) {
-    draft = draft || {vern: {}, gloss: ''};
-    var cells = [];
-    state.vernWs.forEach(function (ws, i) {
-      var input = el('input', {
-        type: 'text',
-        placeholder: i === 0 ? 'word' : 'variant',
-        data: {ws: ws.wsId},
-      });
-      input.style.fontFamily = vernFontFamily(ws.font);
-      if (draft.vern && draft.vern[ws.wsId]) input.value = draft.vern[ws.wsId];
-      var tag = el('span', {className: 'tag', text: ws.abbreviation || ws.wsId});
-      cells.push(el('div', {className: 'cell'}, [tag, input]));
-    });
-    // gloss cell
-    var glossWs = state.analysisWs[0];
-    var glossInput = el('input', {type: 'text', placeholder: 'gloss', data: {gloss: '1'}});
-    if (draft.gloss) glossInput.value = draft.gloss;
-    var glossTag = el('span', {className: 'tag', text: 'gloss (' + (glossWs.abbreviation || glossWs.wsId) + ')'});
-    cells.push(el('div', {className: 'cell'}, [glossTag, glossInput]));
-
-    var remove = el('button', {className: 'row-remove', type: 'button', text: '×', title: 'Remove row'});
-    cells.push(remove);
-
-    var row = el('div', {className: 'rwc-row'}, cells);
+    var row = el('div', 'rwc-row');
+    var word = el('input', 'word');
+    word.type = 'text';
+    word.placeholder = 'word';
+    word.autocomplete = 'off';
+    word.setAttribute('aria-label', 'Word');
+    word.value = draft ? draft.word : '';
+    var gloss = el('input', 'gloss');
+    gloss.type = 'text';
+    gloss.placeholder = 'gloss';
+    gloss.autocomplete = 'off';
+    gloss.setAttribute('aria-label', 'Gloss');
+    gloss.value = draft ? draft.gloss : '';
+    var remove = el('button', 'row-remove', '×');
+    remove.type = 'button';
+    remove.title = 'Clear this row';
+    remove.setAttribute('aria-label', 'Clear this row');
+    row.appendChild(word);
+    row.appendChild(gloss);
+    row.appendChild(remove);
 
     remove.addEventListener('click', function () {
-      var rowsEl = $('rows');
-      if (rowsEl.querySelectorAll('.rwc-row').length > 1) {
-        row.remove();
-      } else {
-        row.querySelectorAll('input').forEach(function (inp) { inp.value = ''; });
-      }
-      markFilled(row);
-      ensureTrailingRow();
-      scheduleSave();
-      captureDrafts();
-    });
-
-    row.addEventListener('input', function (e) {
-      markFilled(row);
+      if ($('rows').children.length > 1) row.remove();
+      else { word.value = ''; gloss.value = ''; }
       ensureTrailingRow();
       captureDrafts();
       scheduleSave();
     });
-
-    row.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        focusNextInput(e.target);
-      }
+    row.addEventListener('input', function () {
+      ensureTrailingRow();
+      captureDrafts();
+      scheduleSave();
     });
-
-    markFilled(row);
     return row;
   }
 
   function ensureTrailingRow() {
-    var rowsEl = $('rows');
-    var rows = rowsEl.querySelectorAll('.rwc-row');
-    if (!rows.length) { rowsEl.appendChild(createRow()); return; }
-    var last = rows[rows.length - 1];
-    var lastHasContent = false;
-    last.querySelectorAll('input').forEach(function (inp) { if (inp.value.trim()) lastHasContent = true; });
-    if (lastHasContent) rowsEl.appendChild(createRow());
+    var rows = $('rows');
+    var last = rows.lastElementChild;
+    if (!last || last.querySelector('.word').value.trim() || last.querySelector('.gloss').value.trim()) rows.appendChild(createRow());
   }
 
   function focusNextInput(current) {
     var inputs = Array.prototype.slice.call($('rows').querySelectorAll('input'));
     var idx = inputs.indexOf(current);
     if (idx === -1) return;
-    if (idx < inputs.length - 1) {
-      inputs[idx + 1].focus();
-      return;
-    }
-    // last input: make sure a fresh row exists, then jump to its first field
     ensureTrailingRow();
-    var after = Array.prototype.slice.call($('rows').querySelectorAll('input'));
-    if (after.length > inputs.length) after[inputs.length].focus();
+    var after = $('rows').querySelectorAll('input');
+    if (after[idx + 1]) after[idx + 1].focus();
+  }
+
+  function focusFirstEmpty() {
+    var inputs = $('rows').querySelectorAll('input.word');
+    for (var i = 0; i < inputs.length; i++) if (!inputs[i].value) { inputs[i].focus(); return; }
   }
 
   function renderRows() {
-    var rowsEl = $('rows');
-    rowsEl.textContent = '';
-    var drafts = state.drafts[currentDomain().code] || [];
-    if (drafts.length) drafts.forEach(function (d) { rowsEl.appendChild(createRow(d)); });
-    else rowsEl.appendChild(createRow());
+    var rows = $('rows');
+    rows.textContent = '';
+    (state.drafts[currentDomain().code] || []).forEach(function (d) { rows.appendChild(createRow(d)); });
     ensureTrailingRow();
   }
 
-  // ---- collected chips ----
+  // ---- domain display ----
+  function renderCrumbs(domain) {
+    var parts = domain.code.split('.');
+    var names = [];
+    for (var i = 1; i < parts.length; i++) {
+      var parent = state.byCode[parts.slice(0, i).join('.')];
+      if (parent) names.push(domainLabel(parent));
+    }
+    $('crumbs').textContent = names.join(' › ');
+  }
+
   function renderCollected() {
     var domain = currentDomain();
     var words = state.collected[domain.code] || [];
-    var head = $('collected-head');
     var chips = $('collected-chips');
     chips.textContent = '';
     if (!words.length) {
-      head.textContent = 'No words collected in this domain yet — be the first.';
+      $('collected-head').textContent = 'No words in this domain yet.';
       return;
     }
-    // Show words added in this session first, tinted, so the user sees their contributions.
     var sessionWords = words.filter(function (w) { return w.session; });
-    var existingWords = words.filter(function (w) { return !w.session; });
-    var ordered = sessionWords.concat(existingWords);
-
-    head.textContent = sessionWords.length
-      ? 'Collected here (' + words.length + ') — ' + sessionWords.length + ' added this session:'
-      : 'Already collected here (' + words.length + ') — avoid repeats:';
-
-    var CAP = 80;
+    var ordered = sessionWords.concat(words.filter(function (w) { return !w.session; }));
+    $('collected-head').textContent = words.length.toLocaleString() + ' already here' +
+      (sessionWords.length ? ' (' + sessionWords.length + ' added this session)' : '') + ', so no need to repeat them:';
+    var CAP = 60;
     ordered.slice(0, CAP).forEach(function (w) {
-      var label = w.headword || w.gloss || '—';
-      var chip = el('span', {className: w.session ? 'chip new' : 'chip', text: label});
-      if (w.gloss && w.gloss !== label) chip.title = w.gloss;
+      var chip = el('span', w.session ? 'chip new' : 'chip', w.headword || w.gloss || '—');
+      if (w.gloss) chip.title = w.gloss;
       chips.appendChild(chip);
     });
-    if (ordered.length > CAP) {
-      chips.appendChild(el('span', {className: 'chip more', text: '+' + (ordered.length - CAP) + ' more'}));
-    }
+    if (ordered.length > CAP) chips.appendChild(el('span', 'chip more', '+' + (ordered.length - CAP) + ' more'));
   }
 
-  // ---- progress ----
   function renderProgress() {
     var total = state.domains.length;
     $('stat-pos').textContent = (state.index + 1).toLocaleString();
     $('stat-total').textContent = total.toLocaleString();
     $('stat-session').textContent = state.sessionCount.toLocaleString();
-    var covered = 0;
-    for (var i = 0; i < state.domains.length; i++) {
-      if ((state.collected[state.domains[i].code] || []).length) covered++;
-    }
-    $('stat-covered').textContent = covered.toLocaleString();
-    var pct = total ? ((state.index) / total) * 100 : 0;
-    $('progress-fill').style.width = pct + '%';
+    var covered = state.domains.filter(function (d) { return (state.collected[d.code] || []).length; }).length;
+    $('stat-covered').textContent = covered.toLocaleString() + ' of ' + total.toLocaleString() +
+      ' domains have words (' + Math.round(total ? covered / total * 100 : 0) + '%)';
+    $('progress-fill').style.width = (total ? (state.index / total) * 100 : 0) + '%';
   }
 
-  function renderDomainHeader() {
-    var domain = currentDomain();
-    $('dom-pos').textContent = 'Domain ' + (state.index + 1).toLocaleString() + ' of ' + state.domains.length.toLocaleString();
-    $('dom-code').textContent = domain.code;
-    $('dom-name').textContent = domainName(domain);
-  }
-
-  // ---- status ----
   function setStatus(message, kind) {
     var box = $('status');
     box.textContent = '';
-    if (!message) return;
-    box.appendChild(el('div', {className: 'status ' + (kind || ''), text: message}));
+    if (message) box.appendChild(el('div', 'status ' + (kind || ''), message));
   }
 
-  // ---- navigation ----
   function renderDomain() {
+    var domain = currentDomain();
     setStatus('');
     renderProgress();
-    renderDomainHeader();
+    renderCrumbs(domain);
+    $('dom-code').textContent = domain.code;
+    $('dom-name').textContent = domainName(domain);
     renderCollected();
     renderRows();
+    $('prev-btn').disabled = state.index === 0;
   }
 
   function goTo(index, opts) {
     opts = opts || {};
     if (!opts.skipCapture) captureDrafts();
-    if (index >= state.domains.length) { showDone(); persist(); return; }
-    if (index < 0) index = 0;
-    state.index = index;
+    state.index = Math.max(0, Math.min(index, state.domains.length));
     persist();
-    $('done').classList.add('hidden');
-    show('walk');
+    window.scrollTo(0, 0);
+    if (state.index >= state.domains.length) { showDone(); return; }
+    $('done').hidden = true;
+    $('walk').hidden = false;
     renderDomain();
-    scrollTop();
+    if (opts.focus) focusFirstEmpty();
   }
-
-  function scrollTop() { window.scrollTo(0, 0); }
 
   function showDone() {
-    hide('walk');
+    $('walk').hidden = true;
     $('done-count').textContent = state.sessionCount.toLocaleString();
     $('done-msg').textContent = state.sessionCount
-      ? 'words added this session across ' + state.domains.length.toLocaleString() + ' domains. Great work!'
-      : 'You reached the end of the framework. Jump back to any domain to keep collecting.';
-    show('done');
-    scrollTop();
+      ? (state.sessionCount === 1 ? 'word' : 'words') + ' added this session. Great work!'
+      : 'Jump back to any domain to keep collecting.';
+    $('done').hidden = false;
   }
 
-  // ---- saving a burst ----
+  // ---- saving ----
   function buildEntry(domain, row) {
+    var lexemeForm = {};
+    lexemeForm[state.wordWs] = row.word;
     var gloss = {};
-    if (row.gloss && state.analysisWs[0]) gloss[state.analysisWs[0].wsId] = row.gloss;
-    return {
-      lexemeForm: row.vern,
-      senses: [{gloss: gloss, semanticDomains: [domain]}],
-    };
+    if (row.gloss) gloss[state.glossWs] = row.gloss;
+    return {lexemeForm: lexemeForm, senses: [{gloss: gloss, semanticDomains: [domain]}]};
   }
 
   function saveAndNext() {
     var domain = currentDomain();
+    var saveBtn = $('save-btn');
+    if (!domain || saveBtn.disabled) return;
     captureDrafts();
-    var rows = readRows().filter(isSaveable);
+    var rows = readRows().filter(hasContent);
     if (!rows.length) {
-      setStatus('No words to save here. Use “Skip domain” to move on.', 'warn');
+      setStatus('Nothing to save here yet. Use Skip to move on.', 'warn');
+      focusFirstEmpty();
+      return;
+    }
+    if (rows.some(function (r) { return !r.word; })) {
+      setStatus('A gloss has no word next to it. Add the word or clear that row.', 'warn');
       return;
     }
     var ops = rows.map(function (r) { return {type: 'createEntry', entry: buildEntry(domain, r)}; });
 
-    var saveBtn = $('save-btn');
     saveBtn.disabled = true;
     setStatus('');
-
-    fwlite.applyChanges(ops).then(function (created) {
+    fwlite.applyChanges(ops).then(function () {
       saveBtn.disabled = false;
-      var results = created && created.length ? created : [];
-      var n = results.length || ops.length;
-      state.sessionCount += n;
-      // reflect the new words in the collected map for this domain
+      state.sessionCount += rows.length;
       var list = state.collected[domain.code] || (state.collected[domain.code] = []);
-      (results.length ? results : rows).forEach(function (item, i) {
-        var headword = results.length ? fwlite.headword(item) : (Object.values(rows[i].vern)[0] || '');
-        var gloss = rows[i] ? rows[i].gloss : '';
-        list.push({headword: headword, gloss: gloss, session: true});
-      });
+      rows.forEach(function (r) { list.push({headword: r.word, gloss: r.gloss, session: true}); });
       delete state.drafts[domain.code];
-      fwlite.notify('+' + n + ' word' + (n === 1 ? '' : 's') + ' added to ' + domainLabel(domain));
-      persist();
-      goTo(state.index + 1, {skipCapture: true});
+      fwlite.notify('Added ' + rows.length + (rows.length === 1 ? ' word' : ' words') + ' to ' + domainLabel(domain));
+      goTo(state.index + 1, {skipCapture: true, focus: true});
     }).catch(function (err) {
       saveBtn.disabled = false;
-      if (err && (err.code === 'permission-denied' || err.code === 'preview')) {
-        setStatus('Not saved — the change wasn’t approved. Your words are kept; press “Save & next” to try again.', 'warn');
+      var code = err && err.code;
+      if (code === 'preview') {
+        setStatus('This is a preview, so nothing was saved. Once the plugin is added to the project, approving saves the words.', 'warn');
+      } else if (code === 'permission-denied') {
+        setStatus('Not saved, because the change wasn’t approved. Your words are still here; press Save & next to try again.', 'warn');
       } else {
-        setStatus('Couldn’t save: ' + msg(err) + ' Your words are kept — try again.', 'warn');
+        setStatus('Couldn’t save: ' + msg(err) + ' Your words are still here, so you can try again.', 'warn');
       }
     });
   }
 
-  // ---- jump-to-domain search ----
+  // ---- jump to a domain ----
+  function closeJump() { $('jump-results').hidden = true; }
   function renderJumpResults(query) {
     var box = $('jump-results');
     box.textContent = '';
     var q = query.trim().toLowerCase();
-    if (!q) { box.classList.remove('open'); return; }
+    if (!q) { closeJump(); return; }
     var matches = [];
     for (var i = 0; i < state.domains.length && matches.length < 40; i++) {
       var d = state.domains[i];
-      var name = domainName(d).toLowerCase();
-      if (d.code.toLowerCase().indexOf(q) !== -1 || name.indexOf(q) !== -1) {
-        matches.push({domain: d, index: i});
-      }
+      if (d.code.toLowerCase().indexOf(q) === 0 || domainName(d).toLowerCase().indexOf(q) !== -1) matches.push(i);
     }
-    if (!matches.length) {
-      box.appendChild(el('div', {className: 'jump-empty', text: 'No matching domains.'}));
-      box.classList.add('open');
-      return;
-    }
-    matches.forEach(function (m) {
-      var item = el('div', {className: 'jump-item'}, [
-        el('span', {className: 'jc', text: m.domain.code}),
-        el('span', {text: domainName(m.domain)}),
-      ]);
-      item.addEventListener('mousedown', function (e) {
-        e.preventDefault();
-        $('jump-input').value = '';
-        box.classList.remove('open');
-        goTo(m.index);
-      });
+    if (!matches.length) box.appendChild(el('div', 'jump-empty', 'No matching domains.'));
+    matches.forEach(function (index, n) {
+      var d = state.domains[index];
+      var item = el('button', 'jump-item' + (n === 0 ? ' active' : ''));
+      item.type = 'button';
+      item.dataset.index = index;
+      item.appendChild(el('span', 'jc', d.code));
+      item.appendChild(el('span', null, domainName(d)));
+      item.addEventListener('mousedown', function (e) { e.preventDefault(); pickJump(index); });
+      item.addEventListener('click', function () { pickJump(index); });
       box.appendChild(item);
     });
-    box.classList.add('open');
+    box.hidden = false;
+  }
+  function pickJump(index) {
+    $('jump-input').value = '';
+    closeJump();
+    goTo(index, {focus: true});
   }
 
-  // ---- init ----
-  function init() {
-    applyTheme();
-
-    Promise.all([
-      fwlite.getSemanticDomains(),
-      fwlite.getWritingSystems(),
-      fwlite.storage.get(STORAGE_KEY),
-    ]).then(function (results) {
-      var domains = results[0] || [];
-      var ws = results[1] || {vernacular: [], analysis: []};
-      var saved = results[2];
-
-      state.vernWs = (ws.vernacular || []).filter(function (w) { return !w.isAudio; })
-        .map(function (w) { return {wsId: w.wsId, name: w.name, abbreviation: w.abbreviation, font: w.font}; });
-      state.analysisWs = (ws.analysis || []).filter(function (w) { return !w.isAudio; })
-        .map(function (w) { return {wsId: w.wsId, name: w.name, abbreviation: w.abbreviation}; });
-      state.analysisIds = state.analysisWs.map(function (w) { return w.wsId; });
-
-      state.domains = domains.slice().sort(function (a, b) {
-        return String(a.code).localeCompare(String(b.code), undefined, {numeric: true});
-      });
-
-      hide('loading');
-
-      if (!state.domains.length) { show('no-domains'); return; }
-      if (!state.vernWs.length || !state.analysisWs.length) {
-        var parts = [];
-        if (!state.vernWs.length) parts.push('a vernacular (text) writing system to hold the word');
-        if (!state.analysisWs.length) parts.push('an analysis writing system to hold the gloss');
-        $('no-ws-msg').textContent = 'Rapid Word Collection needs ' + parts.join(' and ') +
-          '. Add the missing writing system in project settings, then reopen this plugin.';
-        show('no-ws');
-        return;
-      }
-
-      if (saved && typeof saved === 'object') {
-        if (typeof saved.index === 'number') state.index = saved.index;
-        if (typeof saved.sessionCount === 'number') state.sessionCount = saved.sessionCount;
-        if (saved.drafts && typeof saved.drafts === 'object') state.drafts = saved.drafts;
-      }
-      if (state.index < 0) state.index = 0;
-      if (state.index >= state.domains.length) state.index = state.domains.length; // triggers done
-
-      wireControls();
-
-      return loadAllEntries().then(function (entries) {
-        state.collected = buildCollected(entries);
-        if (state.index >= state.domains.length) { showDone(); return; }
-        show('walk');
-        renderDomain();
-      });
-    }).catch(function (err) {
-      showError('Could not load the project: ' + msg(err));
+  // ---- writing-system pickers ----
+  function fillWsSelect(select, list, value, prefix) {
+    var labels = wsLabels(list);
+    select.textContent = '';
+    list.forEach(function (ws, i) {
+      var opt = el('option', null, prefix + labels[i]);
+      opt.value = ws.wsId;
+      select.appendChild(opt);
     });
+    select.value = value;
+  }
+  // With one writing system the column head is plain text; with several it is a picker.
+  function renderLangs() {
+    fillWsSelect($('word-ws'), state.vernWs, state.wordWs, 'Word in ');
+    fillWsSelect($('gloss-ws'), state.analysisWs, state.glossWs, 'Gloss in ');
+    $('word-ws').hidden = state.vernWs.length < 2;
+    $('word-head').hidden = !$('word-ws').hidden;
+    $('gloss-ws').hidden = state.analysisWs.length < 2;
+    $('gloss-head').hidden = !$('gloss-ws').hidden;
+    updateHeads();
+  }
+  function updateHeads() {
+    var vern = state.vernWs.filter(function (w) { return w.wsId === state.wordWs; })[0];
+    var anal = state.analysisWs.filter(function (w) { return w.wsId === state.glossWs; })[0];
+    $('word-head').textContent = 'Word (' + vern.name + ')';
+    $('gloss-head').textContent = 'Gloss (' + anal.name + ')';
+    applyVernFont(vern);
   }
 
   function wireControls() {
     $('save-btn').addEventListener('click', saveAndNext);
-    $('skip-btn').addEventListener('click', function () { goTo(state.index + 1); });
-    $('prev-btn').addEventListener('click', function () { goTo(state.index - 1); });
-    $('add-row').addEventListener('click', function () {
-      $('rows').appendChild(createRow());
-    });
+    $('skip-btn').addEventListener('click', function () { goTo(state.index + 1, {focus: true}); });
+    $('prev-btn').addEventListener('click', function () { goTo(state.index - 1, {focus: true}); });
     $('done-restart').addEventListener('click', function () { goTo(0, {skipCapture: true}); });
+    $('rows').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' || e.isComposing) return;
+      e.preventDefault();
+      if (e.ctrlKey || e.metaKey) saveAndNext();
+      else focusNextInput(e.target);
+    });
+    $('word-ws').addEventListener('change', function () { state.wordWs = this.value; updateHeads(); persist(); });
+    $('gloss-ws').addEventListener('change', function () { state.glossWs = this.value; updateHeads(); persist(); });
 
     var jump = $('jump-input');
     jump.addEventListener('input', function () { renderJumpResults(jump.value); });
-    jump.addEventListener('focus', function () { if (jump.value.trim()) renderJumpResults(jump.value); });
-    jump.addEventListener('blur', function () {
-      setTimeout(function () { $('jump-results').classList.remove('open'); }, 150);
-    });
+    jump.addEventListener('blur', function () { setTimeout(closeJump, 150); });
     jump.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') { jump.value = ''; $('jump-results').classList.remove('open'); }
+      var items = Array.prototype.slice.call($('jump-results').querySelectorAll('.jump-item'));
+      var active = items.findIndex(function (i) { return i.classList.contains('active'); });
+      if (e.key === 'Escape') { jump.value = ''; closeJump(); }
+      else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && items.length) {
+        e.preventDefault();
+        var next = (active + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+        items.forEach(function (i, n) { i.classList.toggle('active', n === next); });
+        items[next].scrollIntoView({block: 'nearest'});
+      } else if (e.key === 'Enter' && active >= 0) {
+        e.preventDefault();
+        pickJump(Number(items[active].dataset.index));
+      }
     });
+  }
+
+  async function init() {
+    applyTheme();
+    try {
+      var results = await Promise.all([fwlite.getSemanticDomains(), fwlite.getWritingSystems(), fwlite.storage.get(STORAGE_KEY)]);
+      var ws = results[1] || {};
+      var saved = results[2] && typeof results[2] === 'object' ? results[2] : {};
+      state.vernWs = (ws.vernacular || []).filter(function (w) { return !w.isAudio; });
+      state.analysisWs = (ws.analysis || []).filter(function (w) { return !w.isAudio; });
+      state.analysisIds = state.analysisWs.map(function (w) { return w.wsId; });
+      state.domains = (results[0] || []).slice().sort(function (a, b) {
+        return String(a.code).localeCompare(String(b.code), undefined, {numeric: true});
+      });
+      state.domains.forEach(function (d) { state.byCode[d.code] = d; });
+
+      if (!state.domains.length) {
+        showEmpty('No semantic domains', 'This project has no semantic domains, so there is no list to walk. Import the semantic-domain list into the project (for example in FieldWorks), then reopen this plugin.');
+        return;
+      }
+      if (!state.vernWs.length || !state.analysisWs.length) {
+        var parts = [];
+        if (!state.vernWs.length) parts.push('a vernacular writing system to hold the words');
+        if (!state.analysisWs.length) parts.push('an analysis writing system to hold the glosses');
+        showEmpty('Writing systems needed', 'Rapid Word Collection needs ' + parts.join(' and ') + '. Add it in the project settings, then reopen this plugin.');
+        return;
+      }
+
+      function pick(list, id) { return list.some(function (w) { return w.wsId === id; }) ? id : list[0].wsId; }
+      state.wordWs = pick(state.vernWs, saved.wordWs);
+      state.glossWs = pick(state.analysisWs, saved.glossWs);
+      if (typeof saved.index === 'number') state.index = Math.max(0, Math.min(saved.index, state.domains.length));
+      if (saved.drafts && typeof saved.drafts === 'object') {
+        Object.keys(saved.drafts).forEach(function (code) {
+          var rows = (saved.drafts[code] || []).map(normalizeDraft).filter(function (r) { return r && hasContent(r); });
+          if (rows.length) state.drafts[code] = rows;
+        });
+      }
+
+      state.collected = buildCollected(await loadAllEntries());
+      wireControls();
+      renderLangs();
+      $('loading').hidden = true;
+      $('app').hidden = false;
+      if (state.index >= state.domains.length) showDone();
+      else renderDomain();
+    } catch (err) {
+      showError('Could not load the project: ' + msg(err));
+    }
   }
 
   fwlite.ready.then(init);
