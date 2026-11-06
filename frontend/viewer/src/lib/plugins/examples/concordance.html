@@ -6,185 +6,155 @@
 <title>Concordance</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f5f6f8;
+    color-scheme: light;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --surface-alt: #f0f1f4;
-    --border: #e2e4e9;
-    --text: #1c1e21;
-    --text-muted: #6b7280;
-    --accent: #4f46e5;
-    --accent-soft: #eef0ff;
-    --mark-bg: #fde68a;
-    --mark-text: #422006;
-    --context: #9098a5;
-    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
-    --radius: 12px;
-    --mono: "SFMono-Regular", ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", Menlo, monospace;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
+    --warn: #b45309;
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
   }
   html[data-theme="dark"] {
-    --bg: #16171b;
-    --surface: #1f2126;
-    --surface-alt: #26282e;
-    --border: #33353c;
-    --text: #edeef1;
-    --text-muted: #9aa0ab;
-    --accent: #818cf8;
-    --accent-soft: #2a2b5e;
-    --mark-bg: #b7791f;
-    --mark-text: #fffbeb;
-    --context: #7b828e;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
+    --warn: #fbbf24;
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    padding: 18px 14px 40px;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    -webkit-text-size-adjust: 100%;
-    min-height: 100vh;
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
   }
-  .wrap { max-width: 1000px; margin: 0 auto; }
-  h1 { font-size: 1.35rem; margin: 0 0 2px; }
-  .subtitle { color: var(--text-muted); margin: 0 0 16px; font-size: 0.9rem; }
-
-  .controls {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 14px 16px;
-    margin-bottom: 16px;
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
   }
-  .search-box { position: relative; }
-  .search-box input {
-    font: inherit;
-    font-size: 1.05rem;
-    width: 100%;
-    padding: 11px 14px 11px 40px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--text);
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
   }
-  .search-box input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
-  .search-box .icon {
-    position: absolute;
-    left: 13px; top: 50%; transform: translateY(-50%);
-    width: 16px; height: 16px; color: var(--text-muted); pointer-events: none;
-  }
-
-  .options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 22px;
-    margin-top: 12px;
-    align-items: flex-start;
-  }
-  fieldset {
-    border: none; padding: 0; margin: 0;
-    display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center;
-  }
-  legend, .opt-label { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
-  label.chk { display: inline-flex; align-items: center; gap: 5px; font-size: 0.86rem; cursor: pointer; white-space: nowrap; }
-  label.chk input { accent-color: var(--accent); }
-  .opt-group { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
-  .opt-group select {
-    font: inherit; font-size: 0.84rem; padding: 4px 8px;
-    border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);
-  }
-  .sep { width: 1px; align-self: stretch; background: var(--border); }
-
-  .summary {
-    margin: 4px 2px 14px;
-    font-size: 0.88rem;
-    color: var(--text-muted);
-    min-height: 1.2em;
-  }
-  .summary strong { color: var(--text); }
-  .cap-note {
-    display: inline-block;
-    margin-left: 8px;
-    font-size: 0.78rem;
-    color: #b45309;
-    background: var(--surface-alt);
-    padding: 2px 9px;
-    border-radius: 999px;
-  }
-  html[data-theme="dark"] .cap-note { color: #fcd34d; }
-
-  /* KWIC table — matched term sits in its own centered column so hits align. */
-  .kwic-scroll {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--surface);
-    box-shadow: var(--shadow);
-  }
-  table.kwic { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
-  table.kwic td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: baseline; }
-  table.kwic tr:last-child td { border-bottom: none; }
-  table.kwic tr:hover td { background: var(--accent-soft); }
-
-  .col-head { white-space: nowrap; }
-  .col-head a {
-    color: var(--accent); text-decoration: none; font-weight: 600; cursor: pointer;
-    border-radius: 4px;
-  }
-  .col-head a:hover { text-decoration: underline; }
-  .col-head a.vern { font-family: var(--vern-font, inherit); }
-
-  .badge {
-    display: inline-block;
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    padding: 1px 7px;
-    border-radius: 999px;
-    white-space: nowrap;
-  }
-
-  .kwic-cell { font-family: var(--mono); white-space: nowrap; }
-  .kwic-cell.vern { font-family: var(--vern-font, var(--mono)); }
-  td.left { text-align: right; color: var(--context); max-width: 46vw; overflow: hidden; text-overflow: ellipsis; }
-  td.term { text-align: center; }
-  td.right { text-align: left; color: var(--context); max-width: 46vw; overflow: hidden; text-overflow: ellipsis; }
-  td.term mark {
-    background: var(--mark-bg);
-    color: var(--mark-text);
-    padding: 0 1px;
-    border-radius: 3px;
-    font-weight: 600;
-  }
-
-  /* Async / empty states */
-  .center-state { text-align: center; padding: 54px 20px; color: var(--text-muted); }
-  .center-state .big { font-size: 1.05rem; color: var(--text); margin-bottom: 4px; }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
   .spinner {
-    width: 32px; height: 32px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    margin: 0 auto 16px;
-    animation: spin 0.8s linear infinite;
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .error-box {
-    border: 1px solid #f5b5b5;
-    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
-    color: var(--text);
-    padding: 14px 18px;
-    border-radius: var(--radius);
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
   }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  :root { --mark-bg: #fde68a; --mark-text: #422006; }
+  html[data-theme="dark"] { --mark-bg: #854d0e; --mark-text: #fffbeb; }
 
-  @media (max-width: 560px) {
-    table.kwic { font-size: 0.82rem; }
-    td.left, td.right { max-width: 38vw; }
-    .badge { display: none; }
+  .controls { margin-bottom: 12px; }
+  .search-box { position: relative; }
+  .search-box input { width: 100%; font-size: 1.05rem; padding-left: 40px; }
+  .search-box .icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-muted); pointer-events: none; }
+  .options { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 12px; align-items: center; }
+  fieldset { border: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0 14px; align-items: center; }
+  legend, .opt-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
+  legend { float: left; margin-right: 10px; }
+  label.chk { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; cursor: pointer; white-space: nowrap; }
+  label.chk input { accent-color: var(--accent); width: 18px; height: 18px; }
+  .opt-group { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; }
+  .opt-group select { min-height: 36px; padding: 4px 8px; }
+
+  .summary { margin: 4px 2px 10px; font-size: 0.9rem; color: var(--text-muted); min-height: 1.2em; }
+  .summary strong { color: var(--text); }
+
+  /* The matched term sits in its own centered column so hits line up. */
+  .kwic-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+  table.kwic { border-collapse: collapse; width: 100%; }
+  table.kwic td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: baseline; }
+  table.kwic tr:last-child td { border-bottom: none; }
+  table.kwic tr:hover td { background: var(--surface-alt); }
+  .col-head { white-space: nowrap; }
+  .col-head a { color: var(--accent); text-decoration: none; font-weight: 600; cursor: pointer; border-radius: 4px; font-family: var(--vern-font); }
+  .col-head a:hover { text-decoration: underline; }
+  .kwic-cell { white-space: pre; }
+  table.kwic td.left { padding-right: 0; }
+  table.kwic td.right { padding-left: 0; }
+  table.kwic td.term { padding-left: 0; padding-right: 0; }
+  td .chip { white-space: nowrap; }
+  details.opts > summary { display: none; }
+  .kwic-cell.vern { font-family: var(--vern-font); }
+  td.left { text-align: right; color: var(--text-muted); width: 50%; }
+  td.term { text-align: center; }
+  td.right { text-align: left; color: var(--text-muted); width: 50%; }
+  td.term mark { background: var(--mark-bg); color: var(--mark-text); padding: 0 2px; border-radius: 3px; font-weight: 600; }
+  td.more-cell { text-align: center; padding: 10px; }
+  .center-state .big { font-size: 1.05rem; color: var(--text); margin-bottom: 4px; }
+
+  @media (max-width: 600px) {
+    .options { gap: 6px 16px; }
+    .sep { display: none; }
+    /* KWIC alignment can't fit a phone: each hit becomes a card with its context wrapped below. */
+    table.kwic, table.kwic tbody, table.kwic tr { display: block; }
+    table.kwic tr { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    table.kwic td { display: inline; padding: 0; border: none; background: none !important; }
+    td.col-head { margin-right: 8px; }
+    td.left, td.right, td.term { white-space: pre-wrap; text-align: left; }
+    details.opts > summary { display: inline-flex; min-height: 40px; align-items: center; margin-top: 4px; color: var(--accent); font-weight: 600; cursor: pointer; }
+    td.left::before { content: ""; display: block; height: 4px; }
+    td.more-cell { display: block; text-align: center; }
   }
 </style>
 </head>
@@ -193,64 +163,70 @@
   <h1>Concordance</h1>
   <p class="subtitle" id="subtitle">Keyword-in-context search across every word and phrase in the dictionary.</p>
 
-  <div class="controls" id="controls" style="display:none;">
-    <div class="search-box">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-      </svg>
-      <input id="search" type="text" placeholder="Type a word to search…" autocomplete="off" spellcheck="false" aria-label="Search term">
-    </div>
-
-    <div class="options">
-      <fieldset id="fields" aria-label="Fields to search">
-        <legend>Search in</legend>
-        <label class="chk"><input type="checkbox" data-field="headword" checked> Headwords</label>
-        <label class="chk"><input type="checkbox" data-field="gloss" checked> Glosses</label>
-        <label class="chk"><input type="checkbox" data-field="definition" checked> Definitions</label>
-        <label class="chk"><input type="checkbox" data-field="example" checked> Examples</label>
-        <label class="chk"><input type="checkbox" data-field="translation" checked> Translations</label>
-      </fieldset>
-      <div class="sep" aria-hidden="true"></div>
-      <div class="opt-group">
-        <label class="chk"><input type="checkbox" id="case"> Case-sensitive</label>
-        <label class="chk"><span class="opt-label">Match</span>
-          <select id="match-mode">
-            <option value="substring">Substring</option>
-            <option value="word">Whole word</option>
-          </select>
-        </label>
-        <label class="chk"><span class="opt-label">Sort by</span>
-          <select id="sort-mode">
-            <option value="headword">Headword</option>
-            <option value="match">Match term</option>
-          </select>
-        </label>
-      </div>
-    </div>
-  </div>
-
-  <div class="summary" id="summary"></div>
-
   <div id="loading" class="center-state">
     <div class="spinner"></div>
-    <div id="loading-text">Indexing entries…</div>
+    <div id="loading-text">Indexing entries&hellip;</div>
   </div>
 
-  <div id="error" class="error-box" style="display:none;"></div>
+  <div id="error" class="error-box" role="alert" hidden></div>
+  <div id="empty" class="center-state" hidden>This project has no entries to search yet. Add some in FW Lite, then reload.</div>
 
-  <div id="initial" class="center-state" style="display:none;">
-    <div class="big">Type a word to search</div>
-    <div>Every occurrence appears as a keyword-in-context line, aligned on your search term.</div>
-  </div>
+  <main id="app" hidden>
+    <div class="controls card" id="controls">
+      <div class="search-box">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input id="search" type="search" placeholder="Type a word to search&hellip;" autocomplete="off" spellcheck="false" aria-label="Search term">
+      </div>
 
-  <div id="no-results" class="center-state" style="display:none;">
-    <div class="big">No occurrences found</div>
-    <div>Try a different word, widen the fields, or turn off whole-word / case-sensitive matching.</div>
-  </div>
+      <details class="opts" id="opts" open>
+      <summary>Search options</summary>
+      <div class="options">
+        <fieldset id="fields">
+          <legend>Search in</legend>
+          <label class="chk"><input type="checkbox" data-field="headword" checked> Headwords</label>
+          <label class="chk"><input type="checkbox" data-field="gloss" checked> Glosses</label>
+          <label class="chk"><input type="checkbox" data-field="definition" checked> Definitions</label>
+          <label class="chk"><input type="checkbox" data-field="example" checked> Examples</label>
+          <label class="chk"><input type="checkbox" data-field="translation" checked> Translations</label>
+        </fieldset>
+        <div class="opt-group">
+          <label class="chk"><input type="checkbox" id="case"> Match case</label>
+          <label class="chk"><span class="opt-label">Match</span>
+            <select id="match-mode">
+              <option value="substring">Part of a word</option>
+              <option value="word">Whole word</option>
+            </select>
+          </label>
+          <label class="chk"><span class="opt-label">Sort by</span>
+            <select id="sort-mode">
+              <option value="headword">Headword</option>
+              <option value="left">Word before</option>
+              <option value="right">Word after</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      </details>
+    </div>
 
-  <div id="results-wrap" class="kwic-scroll" style="display:none;">
-    <table class="kwic"><tbody id="results"></tbody></table>
-  </div>
+    <div class="summary" id="summary" aria-live="polite"></div>
+
+    <div id="initial" class="center-state">
+      <div class="big">Type a word to search</div>
+      <div>Every place it occurs is listed with the text around it, lined up on your search term.</div>
+    </div>
+
+    <div id="no-results" class="center-state" hidden>
+      <div class="big">No occurrences found</div>
+      <div>Try a different word, search more fields, or turn off whole-word and case matching.</div>
+    </div>
+
+    <div id="results-wrap" class="kwic-scroll" hidden>
+      <table class="kwic"><tbody id="results"></tbody></table>
+    </div>
+  </main>
 </div>
 
 <script>
@@ -259,8 +235,9 @@
 
   var PAGE_SIZE = 1000;       // API max per call
   var ENTRY_CAP = 5000;       // stop loading after this many entries
-  var RESULT_CAP = 500;       // stop rendering after this many hits
-  var CONTEXT_CHARS = 60;     // characters of context shown each side of a hit
+  var HIT_CAP = 5000;
+  var RESULT_PAGE = 100;
+  var CONTEXT_CHARS = 50;     // characters of context shown each side of a hit
   var DEBOUNCE_MS = 180;
   var STORAGE_KEY = 'concordance.options.v1';
 
@@ -272,13 +249,13 @@
     translation: 'translation'
   };
   var FIELD_ORDER = { headword: 0, gloss: 1, definition: 2, example: 3, translation: 4 };
-  var WORD_CHAR = /[\p{L}\p{N}_]/u;
+  var WORD_CHAR = /[\p{L}\p{M}\p{N}_]/u;
 
   var state = {
     index: [],            // [{entryId, headword, field, ws, vernacular, text}]
     entriesLoaded: 0,
     capped: false,
-    wsInfo: {},           // wsId -> {abbreviation, name, vernacular}
+    wsInfo: {},           // text writing systems only: wsId -> {abbreviation, name, vernacular}
     collator: new Intl.Collator(undefined, {sensitivity: 'base', numeric: true}),
     debounce: null
   };
@@ -293,16 +270,19 @@
   function el(id) { return document.getElementById(id); }
   var fwlite = window.fwlite;
 
-  function applyTheme(theme) {
-    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.dataset.theme = theme || (prefersDark ? 'dark' : 'light');
+  function applyTheme() {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', fwlite.theme || (dark ? 'dark' : 'light'));
+  }
+  function applyVernFont(ws) {
+    if (ws && ws.font) document.documentElement.style.setProperty('--vern-font', '"' + ws.font.replace(/"/g, '') + '", var(--font)');
   }
 
   function showError(message) {
-    el('loading').style.display = 'none';
-    el('controls').style.display = 'none';
+    el('loading').hidden = true;
+    el('app').hidden = true;
     var box = el('error');
-    box.style.display = 'block';
+    box.hidden = false;
     box.textContent = message;
   }
 
@@ -318,7 +298,7 @@
       }
       if (typeof saved.caseSensitive === 'boolean') options.caseSensitive = saved.caseSensitive;
       if (saved.matchMode === 'substring' || saved.matchMode === 'word') options.matchMode = saved.matchMode;
-      if (saved.sortMode === 'headword' || saved.sortMode === 'match') options.sortMode = saved.sortMode;
+      if (['headword', 'left', 'right'].indexOf(saved.sortMode) >= 0) options.sortMode = saved.sortMode;
     }).catch(function () { /* storage is best-effort; defaults are fine */ });
   }
 
@@ -355,7 +335,8 @@
   }
 
   function addUnit(entryId, headword, field, ws, vernacular, value) {
-    var text = fwlite.asText(value);
+    // NFC so a typed "ç" finds data stored decomposed, and a hit never splits a letter from its accent.
+    var text = fwlite.asText(value).normalize('NFC');
     if (!text) return;
     state.index.push({
       entryId: entryId,
@@ -367,10 +348,12 @@
     });
   }
 
-  // Pulls each writing-system value out of a (Rich)MultiString as its own indexable unit.
-  function addMultiString(entryId, headword, field, vernacular, multiString) {
+  // Each text writing system's value becomes its own unit; audio values are file references, not text.
+  function addMultiString(entryId, headword, field, vernacular, multiString, skipIfSame) {
     if (!multiString) return;
     Object.keys(multiString).forEach(function (ws) {
+      if (!state.wsInfo[ws]) return;
+      if (skipIfSame && fwlite.asText(skipIfSame[ws]) === fwlite.asText(multiString[ws])) return;
       addUnit(entryId, headword, field, ws, vernacular, multiString[ws]);
     });
   }
@@ -383,7 +366,7 @@
     entries.forEach(function (entry) {
       var head = headwordOf(entry);
       addMultiString(entry.id, head, 'headword', true, entry.lexemeForm);
-      addMultiString(entry.id, head, 'headword', true, entry.citationForm);
+      addMultiString(entry.id, head, 'headword', true, entry.citationForm, entry.lexemeForm);
       (entry.senses || []).forEach(function (sense) {
         addMultiString(entry.id, head, 'gloss', false, sense.gloss);
         addMultiString(entry.id, head, 'definition', false, sense.definition);
@@ -434,7 +417,7 @@
       entrySet[unit.entryId] = true;
       for (var p = 0; p < positions.length; p++) {
         total++;
-        if (hits.length < RESULT_CAP * 4) {
+        if (hits.length < HIT_CAP) {
           hits.push({ unit: unit, at: positions[p], len: len });
         }
       }
@@ -446,13 +429,15 @@
 
   function sortHits(hits) {
     var c = state.collator;
-    if (options.sortMode === 'match') {
+    if (options.sortMode === 'left' || options.sortMode === 'right') {
+      var right = options.sortMode === 'right';
+      var key = function (h) {
+        return right ? h.unit.text.slice(h.at + h.len).trim()
+          : Array.from(h.unit.text.slice(0, h.at).trim()).reverse().join('');
+      };
+      hits.forEach(function (h) { h.sortKey = key(h); });
       hits.sort(function (a, b) {
-        var ta = a.unit.text.substr(a.at, a.len);
-        var tb = b.unit.text.substr(b.at, b.len);
-        return c.compare(ta, tb) ||
-          c.compare(a.unit.headword, b.unit.headword) ||
-          (FIELD_ORDER[a.unit.field] - FIELD_ORDER[b.unit.field]);
+        return c.compare(a.sortKey, b.sortKey) || c.compare(a.unit.headword, b.unit.headword);
       });
     } else {
       hits.sort(function (a, b) {
@@ -494,7 +479,7 @@
     var ws = state.wsInfo[hit.unit.ws];
     var wsLabel = (ws && ws.abbreviation) || hit.unit.ws;
     var badge = document.createElement('span');
-    badge.className = 'badge';
+    badge.className = 'chip';
     badge.textContent = FIELD_LABELS[hit.unit.field] + ' · ' + wsLabel;
     td.appendChild(badge);
     return td;
@@ -521,12 +506,14 @@
     return [left, termTd, right];
   }
 
-  function renderResults(result) {
+  function renderResults(result, from) {
     var body = el('results');
-    body.textContent = '';
+    if (!from) body.textContent = '';
+    var oldMore = body.querySelector('.more-row');
+    if (oldMore) oldMore.remove();
     var frag = document.createDocumentFragment();
-    var shown = Math.min(result.hits.length, RESULT_CAP);
-    for (var i = 0; i < shown; i++) {
+    var shown = Math.min(result.hits.length, from + RESULT_PAGE);
+    for (var i = from; i < shown; i++) {
       var hit = result.hits[i];
       var tr = document.createElement('tr');
       tr.appendChild(makeHeadCell(hit));
@@ -534,17 +521,32 @@
       makeKwicCells(hit).forEach(function (cell) { tr.appendChild(cell); });
       frag.appendChild(tr);
     }
+    var rest = result.hits.length - shown;
+    if (rest > 0) {
+      var moreRow = document.createElement('tr');
+      moreRow.className = 'more-row';
+      var cell = document.createElement('td');
+      cell.className = 'more-cell';
+      cell.colSpan = 5;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn';
+      btn.textContent = 'Show ' + Math.min(RESULT_PAGE, rest) + ' more (' + rest.toLocaleString() + ' left)';
+      btn.addEventListener('click', function () { renderResults(result, shown); });
+      cell.appendChild(btn);
+      moreRow.appendChild(cell);
+      frag.appendChild(moreRow);
+    }
     body.appendChild(frag);
-    el('results-wrap').style.display = 'block';
   }
 
   function setStates(opts) {
-    el('initial').style.display = opts.initial ? 'block' : 'none';
-    el('no-results').style.display = opts.noResults ? 'block' : 'none';
-    el('results-wrap').style.display = opts.results ? 'block' : 'none';
+    el('initial').hidden = !opts.initial;
+    el('no-results').hidden = !opts.noResults;
+    el('results-wrap').hidden = !opts.results;
   }
 
-  function writeSummary(result, shown) {
+  function writeSummary(result) {
     var s = el('summary');
     s.textContent = '';
     var occ = result.total.toLocaleString() + ' occurrence' + (result.total === 1 ? '' : 's');
@@ -553,16 +555,17 @@
     strong.textContent = occ;
     s.appendChild(strong);
     s.appendChild(document.createTextNode(' in ' + ent));
-    if (shown < result.total) {
+    if (result.hits.length < result.total) {
       var cap = document.createElement('span');
-      cap.className = 'cap-note';
-      cap.textContent = 'showing first ' + shown.toLocaleString();
+      cap.className = 'chip warn';
+      cap.style.marginLeft = '8px';
+      cap.textContent = 'listing the first ' + result.hits.length.toLocaleString();
       s.appendChild(cap);
     }
   }
 
   function runSearch() {
-    var term = el('search').value.trim();
+    var term = el('search').value.trim().normalize('NFC');
     if (!term) {
       el('summary').textContent = '';
       setStates({ initial: true });
@@ -574,10 +577,9 @@
       setStates({ noResults: true });
       return;
     }
-    var shown = Math.min(result.hits.length, RESULT_CAP);
-    writeSummary(result, shown);
+    writeSummary(result);
     setStates({ results: true });
-    renderResults(result);
+    renderResults(result, 0);
   }
 
   function scheduleSearch() {
@@ -609,22 +611,19 @@
   }
 
   function setupWritingSystems(ws) {
-    var fonts = [];
     function register(list, vernacular) {
       (list || []).forEach(function (w) {
+        if (w.isAudio) return;
         state.wsInfo[w.wsId] = { abbreviation: w.abbreviation, name: w.name, vernacular: vernacular };
-        if (vernacular && w.font) fonts.push('"' + w.font + '"');
       });
     }
     register(ws.vernacular, true);
     register(ws.analysis, false);
-    if (fonts.length) {
-      document.documentElement.style.setProperty('--vern-font', fonts.join(', '));
-    }
+    applyVernFont((ws.vernacular || []).filter(function (w) { return !w.isAudio; })[0]);
   }
 
   function init(context) {
-    applyTheme(context.theme);
+    applyTheme();
 
     Promise.all([
       loadOptions(),
@@ -636,8 +635,8 @@
       setupWritingSystems(ws);
 
       if (!total) {
-        el('loading').style.display = 'none';
-        el('subtitle').textContent = 'This project has no entries to search yet.';
+        el('loading').hidden = true;
+        el('empty').hidden = false;
         return;
       }
       state.capped = total > ENTRY_CAP;
@@ -657,8 +656,9 @@
         }
         el('subtitle').textContent = sub;
 
-        el('loading').style.display = 'none';
-        el('controls').style.display = 'block';
+        if (window.innerWidth <= 600) el('opts').open = false;
+        el('loading').hidden = true;
+        el('app').hidden = false;
         setStates({ initial: true });
         el('search').focus();
       });

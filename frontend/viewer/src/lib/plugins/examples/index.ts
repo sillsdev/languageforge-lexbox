@@ -150,7 +150,7 @@ export const examplePlugins: ExamplePlugin[] = [
   {
     key: 'duplicate-finder',
     name: 'Duplicate Finder',
-    description: 'Flag possible duplicate entries — identical, near-identical, or sharing a gloss — for review.',
+    description: 'Flag possible duplicate entries for review: same headword, nearly the same spelling, or the same gloss.',
     functions: ['explore'],
     loadHtml: async () => (await import('./duplicate-finder.html?raw')).default,
   },

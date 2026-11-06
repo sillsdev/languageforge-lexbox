@@ -6,171 +6,163 @@
 <title>Duplicate Finder</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f5f6f8;
+    color-scheme: light;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --surface-alt: #f0f1f4;
-    --border: #e2e4e9;
-    --text: #1c1e21;
-    --text-muted: #6b7280;
-    --accent: #4f46e5;
-    --accent-soft: #eef0ff;
-    --good: #059669;
-    --good-soft: #e3f7ee;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
     --warn: #b45309;
-    --warn-soft: #fef3e0;
-    --info: #0369a1;
-    --info-soft: #e0f2fe;
-    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
-    --radius: 14px;
-    --vern-font: inherit;
-    --connector: color-mix(in srgb, var(--accent) 32%, var(--border));
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
   }
   html[data-theme="dark"] {
-    --bg: #16171b;
-    --surface: #1f2126;
-    --surface-alt: #26282e;
-    --border: #33353c;
-    --text: #edeef1;
-    --text-muted: #9aa0ab;
-    --accent: #818cf8;
-    --accent-soft: #2a2b5e;
-    --good: #34d399;
-    --good-soft: #123528;
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
     --warn: #fbbf24;
-    --warn-soft: #3a2f12;
-    --info: #38bdf8;
-    --info-soft: #0b2c3d;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    padding: 20px 16px 48px;
-    min-height: 100vh;
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
   }
-  .wrap { max-width: 900px; margin: 0 auto; }
-  h1 { font-size: 1.4rem; margin: 0 0 2px; }
-  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.9rem; }
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
+  }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  .toolbar { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 14px; }
+  .field { display: flex; flex-direction: column; gap: 4px; flex: 1 1 180px; min-width: 0; }
+  .field label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+  .field select { width: 100%; }
 
-  /* Toolbar */
-  .toolbar {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 14px 16px;
-    margin-bottom: 16px;
-    display: flex;
-    gap: 14px;
-    align-items: flex-end;
-    flex-wrap: wrap;
-  }
-  .field { display: flex; flex-direction: column; gap: 4px; }
-  .field label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); font-weight: 600; }
-  select {
-    font: inherit; font-size: 0.9rem; padding: 8px 11px;
-    border-radius: 9px; border: 1px solid var(--border);
-    background: var(--surface); color: var(--text); font-family: inherit;
-    min-width: 150px;
-  }
-  select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-
-  /* Summary line */
-  .summary {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    margin: 0 0 14px;
-    line-height: 1.4;
-  }
+  .summary { color: var(--text-muted); margin: 0 0 12px; }
   .summary b { color: var(--text); }
-  .cap-note {
-    display: inline-block; font-size: 0.78rem; color: var(--warn);
-    background: var(--warn-soft); padding: 4px 12px; border-radius: 999px; margin: 0 0 16px;
-  }
+  .cap-note { margin: 0 0 12px; }
 
-  /* Tabs */
-  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .tabs { display: flex; gap: 4px 16px; margin-bottom: 12px; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
   .tab {
-    appearance: none; background: none; border: none; font: inherit; cursor: pointer;
-    padding: 10px 4px; margin-bottom: -1px;
-    color: var(--text-muted); font-weight: 600; font-size: 0.9rem;
-    border-bottom: 2px solid transparent;
-    display: flex; align-items: center; gap: 8px;
+    appearance: none; background: none; border: none; font: inherit; cursor: pointer; white-space: nowrap;
+    min-height: 44px; padding: 0 2px; margin-bottom: -1px; color: var(--text-muted); font-weight: 600;
+    border-bottom: 2px solid transparent; display: flex; align-items: center; gap: 8px;
   }
   .tab:hover { color: var(--text); }
   .tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
-  .tab .badge {
-    font-size: 0.72rem; font-weight: 700; line-height: 1;
-    background: var(--surface-alt); color: var(--text-muted);
-    border-radius: 999px; padding: 3px 8px; min-width: 20px; text-align: center;
-  }
-  .tab[aria-selected="true"] .badge { background: var(--accent-soft); color: var(--accent); }
-  .tab-hint { color: var(--text-muted); font-size: 0.85rem; margin: 0 0 16px; }
+  .tab[aria-selected="true"] .chip { background: var(--accent-soft); color: var(--accent); }
+  .tab-hint { color: var(--text-muted); font-size: 0.9rem; margin: 0 0 12px; }
 
-  /* Cluster cards */
-  .clusters { display: flex; flex-direction: column; gap: 14px; }
-  .cluster {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 14px 16px;
-  }
-  .cluster-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
-  .cluster-title { font-weight: 700; font-size: 1rem; font-family: var(--vern-font); word-break: break-word; }
+  .clusters { display: flex; flex-direction: column; gap: 12px; }
+  .cluster-head { display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .cluster-title { font-weight: 700; font-size: 1.05rem; font-family: var(--vern-font); word-break: break-word; }
   .cluster-title.plain { font-family: inherit; }
-  .cluster-meta { color: var(--text-muted); font-size: 0.82rem; margin-left: auto; white-space: nowrap; }
-  .tag {
-    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.01em;
-    border-radius: 999px; padding: 3px 10px; white-space: nowrap;
-  }
-  .tag.exact { color: var(--text-muted); background: var(--surface-alt); }
-  .tag.accent { color: var(--warn); background: var(--warn-soft); }
-  .tag.spelling { color: var(--info); background: var(--info-soft); }
-  .tag.gloss { color: var(--good); background: var(--good-soft); }
-
-  /* Members with a subtle connecting rail */
-  .members { display: flex; flex-direction: column; gap: 8px; border-left: 2px solid var(--connector); padding-left: 14px; margin-left: 4px; }
+  .cluster-meta { color: var(--text-muted); font-size: 0.85rem; margin-left: auto; white-space: nowrap; }
+  .members { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
   .member {
-    position: relative; text-align: left; font: inherit; cursor: pointer; width: 100%;
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 12px;
-    display: flex; flex-direction: column; gap: 4px;
-    transition: border-color 0.12s ease, transform 0.12s ease;
+    text-align: left; font: inherit; color: inherit; cursor: pointer; width: 100%; min-height: 44px;
+    background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 10px 12px; display: flex; flex-direction: column; gap: 4px;
   }
-  .member::before {
-    content: ""; position: absolute; left: -15px; top: 50%; width: 12px; height: 2px;
-    background: var(--connector); transform: translateY(-50%);
-  }
-  .member:hover { border-color: var(--accent); transform: translateX(2px); }
-  .member:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .member:hover { border-color: var(--accent); }
   .member-top { display: flex; align-items: baseline; gap: 8px; justify-content: space-between; }
   .member .hw { font-weight: 700; font-family: var(--vern-font); word-break: break-word; }
-  .member .open { color: var(--accent); font-size: 0.78rem; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
-  .member:hover .open { text-decoration: underline; }
-  .member .meta { color: var(--text-muted); font-size: 0.84rem; word-break: break-word; }
+  .member .open { color: var(--accent); font-size: 0.8rem; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+  .member .meta { color: var(--text-muted); font-size: 0.85rem; word-break: break-word; }
   .member .meta .sep { opacity: 0.5; margin: 0 6px; }
   .member .meta .pos { font-style: italic; }
-  .member .meta .muted { font-style: italic; opacity: 0.8; }
+  .member .meta .muted { font-style: italic; }
+  .more-row { text-align: center; padding: 4px 0 8px; }
 
-  /* States */
-  .center-state { text-align: center; padding: 56px 20px; color: var(--text-muted); }
   .celebrate { text-align: center; padding: 44px 20px; }
   .celebrate .big { font-size: 2.6rem; }
   .celebrate .msg { font-weight: 600; color: var(--good); margin-top: 10px; }
-  .celebrate .sub { color: var(--text-muted); font-size: 0.86rem; margin-top: 6px; }
-  .spinner { width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; margin: 0 auto 16px; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  .celebrate .sub { color: var(--text-muted); font-size: 0.9rem; margin-top: 6px; }
   .scan-bar { max-width: 320px; margin: 16px auto 0; background: var(--surface-alt); border-radius: 999px; height: 10px; overflow: hidden; }
   .scan-bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.35s ease; }
-  .error-box { border: 1px solid #f5b5b5; background: color-mix(in srgb, #f5b5b5 20%, var(--surface)); color: var(--text); padding: 14px 18px; border-radius: var(--radius); }
-  [hidden] { display: none !important; }
+
+  @media (max-width: 600px) {
+    .field { flex-basis: calc(50% - 6px); }
+    .field.wide { flex-basis: 100%; }
+    .cluster { padding: 12px; }
+    .members { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .member { padding: 8px 10px; }
+    .member .open { display: none; }
+    #summary, .tab .opt { display: none; }
+    .tabs { gap: 4px 10px; }
+    .tab { gap: 5px; }
+    .tab .chip { padding: 2px 7px; }
+    .tab .label { display: inline-block; }
+    .tab .label::first-letter { text-transform: uppercase; }
+  }
 </style>
 </head>
 <body>
@@ -188,9 +180,9 @@
     This project has no entries yet. Add some words, then come back to check for duplicates.
   </div>
 
-  <div id="error" class="error-box" hidden></div>
+  <div id="error" class="error-box" role="alert" hidden></div>
 
-  <div id="app" hidden>
+  <main id="app" hidden>
     <div class="toolbar">
       <div class="field">
         <label for="vern-ws">Compare headwords in</label>
@@ -200,28 +192,28 @@
         <label for="anal-ws">Compare glosses in</label>
         <select id="anal-ws"></select>
       </div>
-      <div class="field">
-        <label for="sensitivity">Near-match sensitivity</label>
+      <div class="field wide">
+        <label for="sensitivity">Near matches</label>
         <select id="sensitivity">
-          <option value="exact">Exact only (off)</option>
-          <option value="fold">Include accents / case</option>
-          <option value="distance">Include close spelling (&le;1 edit)</option>
+          <option value="exact">Off</option>
+          <option value="fold">Accents and letter case only</option>
+          <option value="distance">Also one-letter spelling differences</option>
         </select>
       </div>
     </div>
 
     <p class="summary" id="summary"></p>
-    <div id="cap-note" class="cap-note" hidden></div>
+    <div id="cap-note" class="chip warn cap-note" hidden></div>
 
     <div class="tabs" role="tablist" id="tabs">
-      <button class="tab" role="tab" data-tab="exact" aria-selected="true">
-        <span>Exact headwords</span><span class="badge" id="badge-exact">0</span>
+      <button class="tab" type="button" role="tab" data-tab="exact" aria-selected="true">
+        <span class="label"><span class="opt">Same </span>headword</span><span class="chip" id="badge-exact">0</span>
       </button>
-      <button class="tab" role="tab" data-tab="near" aria-selected="false">
-        <span>Near-identical</span><span class="badge" id="badge-near">0</span>
+      <button class="tab" type="button" role="tab" data-tab="near" aria-selected="false">
+        <span class="label"><span class="opt">Similar </span>spelling</span><span class="chip" id="badge-near">0</span>
       </button>
-      <button class="tab" role="tab" data-tab="gloss" aria-selected="false">
-        <span>Identical glosses</span><span class="badge" id="badge-gloss">0</span>
+      <button class="tab" type="button" role="tab" data-tab="gloss" aria-selected="false">
+        <span class="label"><span class="opt">Same </span>gloss</span><span class="chip" id="badge-gloss">0</span>
       </button>
     </div>
 
@@ -233,7 +225,7 @@
       <div class="msg" id="all-clear-msg"></div>
       <div class="sub" id="all-clear-sub"></div>
     </div>
-  </div>
+  </main>
 </div>
 
 <script>
@@ -244,6 +236,11 @@
   var CAP = 5000;               // safety cap on entries scanned
   var MAX_COMPARISONS = 3000000; // guard for the distance-1 near-match scan
   var MAX_KEY_LEN = 45;         // skip deletion-variant indexing of very long headwords
+  // Shorter words differ by one letter all the time (minimal pairs), so they only match on accents/case.
+  var MIN_EDIT_LEN = 4;
+  var GROUP_PAGE = 30;
+  // Grammatical tags and noun-class numbers ("PST", "3SG", "17") say nothing about meaning.
+  var TAG_GLOSS = /^[A-Z0-9.+:_-]+$/;
   var PREFS_KEY = 'duplicate-finder-prefs';
 
   var state = {
@@ -255,6 +252,7 @@
     analWs: null,
     sensitivity: 'distance',
     activeTab: 'exact',
+    shown: GROUP_PAGE,
     capped: false,
     nearCapped: false,
     results: {exact: [], near: [], gloss: []},
@@ -263,9 +261,9 @@
   function $(id) { return document.getElementById(id); }
   var F = window.fwlite;
 
-  function applyTheme(theme) {
+  function applyTheme() {
     var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', theme || (dark ? 'dark' : 'light'));
+    document.documentElement.setAttribute('data-theme', F.theme || (dark ? 'dark' : 'light'));
   }
   function showError(msg) {
     $('loading').hidden = true;
@@ -280,13 +278,29 @@
     if (!ws || !multi || multi[ws] == null) return '';
     return F.asText(multi[ws]).trim();
   }
-  function hasText(multi) {
-    return !!multi && Object.keys(multi).some(function (ws) { return !!multi[ws]; });
-  }
-  // headword = citationForm || lexemeForm, read in the chosen vernacular WS.
+  // The app's headword (with affix markers, so "a-" and "a" differ) for the default vernacular;
+  // other writing systems read citation form, else lexeme form.
   function headwordOf(entry) {
-    var field = hasText(entry.citationForm) ? entry.citationForm : (entry.lexemeForm || {});
-    return textVal(field, state.vernWs);
+    if (state.vernacular[0] && state.vernWs === state.vernacular[0].wsId) return F.headword(entry);
+    return textVal(entry.citationForm, state.vernWs) || textVal(entry.lexemeForm, state.vernWs);
+  }
+  function glossKeys(entry) {
+    var keys = {};
+    (entry.senses || []).forEach(function (sense) {
+      state.analysisIds.forEach(function (ws) {
+        var g = textVal(sense.gloss, ws);
+        if (g && !TAG_GLOSS.test(g)) keys[exactKey(g)] = true;
+      });
+    });
+    return keys;
+  }
+  function shareGloss(a, b) {
+    var ka = a.glosses || (a.glosses = glossKeys(a.entry));
+    var kb = b.glosses || (b.glosses = glossKeys(b.entry));
+    return Object.keys(ka).some(function (k) { return kb[k]; });
+  }
+  function hasGloss(item) {
+    return !!firstGlossOf(item.entry);
   }
   function firstGlossOf(entry) {
     var senses = entry.senses || [];
@@ -393,11 +407,15 @@
     Object.keys(groups).forEach(function (key) {
       var members = groups[key];
       if (members.length < 2) return;
+      var sameMeaning = members.some(function (m, i) {
+        return members.slice(i + 1).some(function (n) { return shareGloss(m, n); });
+      });
       out.push({
         members: members,
         title: members[0].hw,
         titlePlain: false,
-        tag: {cls: 'exact', label: 'Identical headword'},
+        strong: sameMeaning,
+        tag: sameMeaning ? {cls: 'warn', label: 'Same gloss too'} : null,
       });
     });
     return out;
@@ -435,8 +453,12 @@
         for (var i = 0; i < bucket.length && !state.nearCapped; i++) {
           for (var j = i + 1; j < bucket.length; j++) {
             if (dsu.find(bucket[i]) === dsu.find(bucket[j])) continue;
+            var a = list[bucket[i]], b = list[bucket[j]];
+            if (Array.from(a.fold).length < MIN_EDIT_LEN || Array.from(b.fold).length < MIN_EDIT_LEN) continue;
             if (++comparisons > MAX_COMPARISONS) { state.nearCapped = true; break; }
-            if (within1(list[bucket[i]].fold, list[bucket[j]].fold)) dsu.union(bucket[i], bucket[j]);
+            // A one-letter difference alone is usually a different word; ask for a shared or missing gloss too.
+            if (!within1(a.fold, b.fold)) continue;
+            if (shareGloss(a, b) || !hasGloss(a) || !hasGloss(b)) dsu.union(bucket[i], bucket[j]);
           }
         }
       }
@@ -461,8 +483,8 @@
         title: members[0].hw,
         titlePlain: false,
         tag: sameFold
-          ? {cls: 'accent', label: 'Differ by accents / case'}
-          : {cls: 'spelling', label: 'Close spelling (≤1 edit)'},
+          ? {cls: 'warn', label: 'Accents or case differ'}
+          : {cls: 'accent', label: 'One letter differs'},
       });
     });
     return out;
@@ -475,7 +497,7 @@
       var seen = {};
       (entry.senses || []).forEach(function (sense) {
         var g = textVal(sense.gloss, state.analWs);
-        if (!g) return;
+        if (!g || TAG_GLOSS.test(g)) return;
         var key = exactKey(g);
         if (seen[key]) return;      // count each entry once per gloss
         seen[key] = true;
@@ -491,15 +513,16 @@
         members: grp.members,
         title: '“' + grp.gloss + '”',
         titlePlain: true,
-        tag: {cls: 'gloss', label: 'Shared gloss'},
+        tag: {cls: 'good', label: 'Shared gloss'},
       });
     });
     return out;
   }
 
-  // Sort: most members first, then alphabetically by title.
+  // Likeliest duplicates first, then most members, then alphabetically.
   function sortClusters(clusters) {
     clusters.sort(function (a, b) {
+      if (!!b.strong !== !!a.strong) return b.strong ? 1 : -1;
       if (b.members.length !== a.members.length) return b.members.length - a.members.length;
       return a.title.localeCompare(b.title);
     });
@@ -572,10 +595,12 @@
 
     var head = document.createElement('div');
     head.className = 'cluster-head';
-    var tag = document.createElement('span');
-    tag.className = 'tag ' + cluster.tag.cls;
-    tag.textContent = cluster.tag.label;
-    head.appendChild(tag);
+    if (cluster.tag) {
+      var tag = document.createElement('span');
+      tag.className = 'chip ' + cluster.tag.cls;
+      tag.textContent = cluster.tag.label;
+      head.appendChild(tag);
+    }
     var title = document.createElement('span');
     title.className = 'cluster-title' + (cluster.titlePlain ? ' plain' : '');
     title.textContent = cluster.title;
@@ -594,12 +619,12 @@
   }
 
   var TAB_HINTS = {
-    exact: 'Entries whose headword is identical (ignoring spacing and letter case).',
-    near: 'Headwords that are nearly the same — differing only by accents, case, or a single-character typo.',
-    gloss: 'Different entries that share the same gloss — possible synonyms or duplicate concepts worth a look.',
+    exact: 'Entries with the same headword. Ones that also share a gloss come first; the rest may be real homographs.',
+    near: 'Headwords that differ only in accents or letter case, or by one letter while sharing a gloss.',
+    gloss: 'Different entries with the same gloss. Could be synonyms, or the same word entered twice.',
   };
   var ALL_CLEAR = {
-    exact: {msg: 'No exact-duplicate headwords.', sub: 'Every headword in this writing system is unique.'},
+    exact: {msg: 'No shared headwords.', sub: 'Every headword in this writing system is unique.'},
     near: {msg: 'No near-identical headwords.', sub: 'Nothing matched at the current sensitivity.'},
     gloss: {msg: 'No shared glosses.', sub: 'No two entries share the same gloss in this language.'},
   };
@@ -627,16 +652,35 @@
     }
     $('all-clear').hidden = true;
     host.hidden = false;
-    var frag = document.createDocumentFragment();
-    clusters.forEach(function (c) { frag.appendChild(renderCluster(c)); });
-    host.appendChild(frag);
+    renderClusterPage(host, clusters, 0);
 
     if (tab === 'near' && state.nearCapped) {
       var note = document.createElement('p');
       note.className = 'tab-hint';
-      note.textContent = 'Near-match scanning was limited on this large dataset — some matches may be missing.';
+      note.textContent = 'Near-match scanning stopped early on this large project, so some matches may be missing.';
       host.appendChild(note);
     }
+  }
+
+  function renderClusterPage(host, clusters, from) {
+    var old = host.querySelector('.more-row');
+    if (old) old.remove();
+    var frag = document.createDocumentFragment();
+    var to = Math.min(clusters.length, from + GROUP_PAGE);
+    for (var i = from; i < to; i++) frag.appendChild(renderCluster(clusters[i]));
+    var rest = clusters.length - to;
+    if (rest > 0) {
+      var more = document.createElement('div');
+      more.className = 'more-row';
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn';
+      btn.textContent = 'Show ' + Math.min(GROUP_PAGE, rest) + ' more (' + rest.toLocaleString() + ' left)';
+      btn.addEventListener('click', function () { renderClusterPage(host, clusters, to); });
+      more.appendChild(btn);
+      frag.appendChild(more);
+    }
+    host.appendChild(frag);
   }
 
   function updateBadges() {
@@ -650,12 +694,13 @@
     var totalGroups = ex.length + near.length + gl.length;
     if (totalGroups === 0) {
       $('summary').innerHTML = '';
-      $('summary').textContent = 'No possible duplicates found — your lexicon looks clean.';
+      $('summary').textContent = 'No possible duplicates found. Your lexicon looks clean.';
       return;
     }
     var parts = [];
-    if (ex.length) parts.push(pluralGroups(ex.length) + ' of exact-duplicate headwords covering ' + pluralEntries(countEntries(ex)));
-    if (near.length) parts.push(pluralGroups(near.length) + ' of near-identical headwords');
+    var strong = ex.filter(function (c) { return c.strong; }).length;
+    if (ex.length) parts.push(pluralGroups(ex.length) + ' sharing a headword (' + strong.toLocaleString() + ' with the same gloss too)');
+    if (near.length) parts.push(pluralGroups(near.length) + ' with similar spelling');
     if (gl.length) parts.push(pluralGroups(gl.length) + ' of shared glosses');
     var s = $('summary');
     s.innerHTML = '';
@@ -668,7 +713,7 @@
       else { s.appendChild(document.createTextNode(p)); }
       if (i < parts.length - 1) s.appendChild(document.createTextNode(i === parts.length - 2 ? ', and ' : ', '));
     });
-    s.appendChild(document.createTextNode('. These are review aids — open each to compare, then merge or edit manually.'));
+    s.appendChild(document.createTextNode('. Open an entry to compare and fix it by hand.'));
   }
 
   function refresh() {
@@ -714,7 +759,7 @@
 
   // --- Init -----------------------------------------------------------------
   function init(context) {
-    applyTheme(context.theme);
+    applyTheme();
     $('subtitle').textContent = 'Reviewing ' + context.project.projectName + ' for entries that may be duplicates.';
 
     Promise.all([

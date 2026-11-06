@@ -6,302 +6,221 @@
 <title>Minimal Pairs</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f5f6f8;
+    color-scheme: light;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --surface-alt: #f0f1f4;
-    --border: #e2e4e9;
-    --text: #1c1e21;
-    --text-muted: #6b7280;
-    --accent: #4f46e5;
-    --accent-soft: #eef0ff;
-    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
-    --radius: 12px;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
     --warn: #b45309;
-    --vern-font: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
   }
   html[data-theme="dark"] {
-    --bg: #16171b;
-    --surface: #1f2126;
-    --surface-alt: #26282e;
-    --border: #33353c;
-    --text: #edeef1;
-    --text-muted: #9aa0ab;
-    --accent: #818cf8;
-    --accent-soft: #2a2b5e;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
     --warn: #fbbf24;
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 20px 16px 48px;
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
   }
-  .wrap { max-width: 900px; margin: 0 auto; }
-  h1 { font-size: 1.5rem; margin: 0 0 4px; }
-  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.92rem; }
-
-  .controls {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 14px 16px;
-    margin-bottom: 16px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    align-items: flex-end;
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
   }
-  .field { display: flex; flex-direction: column; gap: 4px; }
-  .field label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
-  .field select {
-    font: inherit;
-    font-size: 0.9rem;
-    padding: 7px 10px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--text);
-    min-width: 160px;
-  }
-  .toggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.88rem;
-    cursor: pointer;
-    user-select: none;
-    padding-bottom: 6px;
-  }
-  .toggle input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
-
-  .stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 22px;
-    margin: 0 2px 18px;
-    font-size: 0.88rem;
-    color: var(--text-muted);
-  }
-  .stats b { color: var(--text); font-weight: 700; }
-
-  .note-band {
-    display: block;
-    font-size: 0.8rem;
-    color: var(--warn);
-    background: var(--surface-alt);
-    padding: 8px 12px;
-    border-radius: 8px;
-    margin: 0 0 16px;
-  }
-
-  section.panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 16px 18px;
-    margin-bottom: 20px;
-  }
-  section.panel h2 {
-    font-size: 1.02rem;
-    margin: 0 0 4px;
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .panel-hint { color: var(--text-muted); font-size: 0.82rem; margin: 0 0 14px; font-weight: 400; }
-
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    max-height: 168px;
-    overflow-y: auto;
-    padding: 2px;
-  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
   .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--text);
-    border-radius: 999px;
-    padding: 6px 12px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    font: inherit;
-    line-height: 1.1;
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
   }
-  .chip:hover { border-color: var(--accent); }
-  .chip .contrast {
-    font-family: var(--vern-font);
-    font-weight: 600;
-  }
-  .chip .cnt {
-    font-size: 0.78rem;
-    color: var(--text-muted);
-    background: var(--surface-alt);
-    border-radius: 999px;
-    padding: 1px 8px;
-    min-width: 20px;
-    text-align: center;
-  }
-  .chip[aria-pressed="true"] {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-  .chip[aria-pressed="true"] .contrast { color: #fff; }
-  .chip[aria-pressed="true"] .cnt { background: rgba(255,255,255,0.22); color: #fff; }
-
-  .pairs-wrap {
-    margin-top: 14px;
-    border-top: 1px solid var(--border);
-    padding-top: 12px;
-  }
-  .pairs-head {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    margin: 0 0 10px;
-  }
-  .pairs-head b { color: var(--text); font-family: var(--vern-font); }
-  .pairs {
-    max-height: 340px;
-    overflow: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .pair {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 10px;
-    padding: 6px 6px;
-    border-radius: 8px;
-    min-width: max-content;   /* long words overflow into .pairs' own scroll, never the page */
-  }
-  .pair:nth-child(odd) { background: var(--surface-alt); }
-  .pair .tilde { color: var(--text-muted); font-size: 0.9rem; }
-  .hw {
-    font-family: var(--vern-font);
-    font-size: 1rem;
-    background: none;
-    border: none;
-    padding: 2px 4px;
-    margin: 0;
-    color: var(--accent);
-    cursor: pointer;
-    border-radius: 6px;
-    white-space: nowrap;
-    line-height: 1.2;
-  }
-  .hw:hover { text-decoration: underline; }
-  .hw.left { text-align: right; justify-self: end; }
-  .hw.right { text-align: left; justify-self: start; }
-  .hw mark {
-    background: var(--accent-soft);
-    color: var(--accent);
-    font-weight: 700;
-    border-radius: 3px;
-    padding: 0 1px;
-  }
-  html[data-theme="dark"] .hw mark { color: var(--text); }
-  .multi-badge {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 0.68rem;
-    color: var(--text-muted);
-    margin-left: 4px;
-    vertical-align: super;
-  }
-  .empty-inline { color: var(--text-muted); font-size: 0.9rem; padding: 6px 2px; }
-
-  /* Shared async states */
-  .center-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
   .spinner {
-    width: 34px; height: 34px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    margin: 0 auto 16px;
-    animation: spin 0.8s linear infinite;
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .error-box {
-    border: 1px solid #f5b5b5;
-    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
-    color: var(--text);
-    padding: 14px 18px;
-    border-radius: var(--radius);
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
   }
-  #results { display: none; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; margin-bottom: 12px; }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .field label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+  .field select { min-width: 180px; }
+  .toggle { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; user-select: none; }
+  .toggle input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; flex: none; }
+
+  .stats { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 0 2px 12px; color: var(--text-muted); }
+  .stats b { color: var(--text); }
+  .note-band { margin: 0 0 12px; }
+
+  .panel { margin-bottom: 16px; }
+  .panel h2 { margin: 0 0 4px; }
+  .panel-hint { color: var(--text-muted); font-size: 0.85rem; margin: 0 0 12px; }
+  .split { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 16px; align-items: start; }
+
+  .contrasts { display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; }
+  .cchip {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    border-radius: 999px; font: inherit; cursor: pointer;
+  }
+  .cchip:hover { border-color: var(--accent); }
+  .cchip .contrast { font-family: var(--vern-font); font-weight: 600; }
+  .cchip .cnt { font-size: 0.78rem; color: var(--text-muted); background: var(--surface-alt); border-radius: 999px; padding: 1px 8px; }
+  .cchip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .cchip[aria-pressed="true"] .cnt { background: rgba(255, 255, 255, 0.22); color: var(--accent-fg); }
+
+  .pairs-wrap { scroll-margin-top: 12px; }
+  .pairs-head { color: var(--text-muted); margin: 0 0 8px; }
+  .pairs-head b { color: var(--text); font-family: var(--vern-font); }
+  .pairs { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .pair { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: start; gap: 10px; padding: 8px 12px; }
+  .pair:nth-child(even) { background: var(--surface-alt); }
+  .pair .tilde { color: var(--text-muted); padding-top: 2px; }
+  .word { min-width: 0; }
+  .word.left { text-align: right; }
+  .hw {
+    font-family: var(--vern-font); font-size: 1.05rem; background: none; border: none; padding: 2px 0; margin: 0;
+    color: var(--accent); cursor: pointer; overflow-wrap: anywhere; text-align: inherit; line-height: 1.3;
+  }
+  .hw:hover { text-decoration: underline; }
+  .hw mark { background: var(--accent-soft); color: var(--accent); font-weight: 700; border-radius: 3px; padding: 0 1px; }
+  html[data-theme="dark"] .hw mark { color: var(--text); }
+  .gl { display: block; color: var(--text-muted); font-size: 0.85rem; overflow-wrap: anywhere; }
+  .multi-badge { font-family: var(--font); font-size: 0.7rem; color: var(--text-muted); margin-left: 4px; vertical-align: super; }
+  .more-row { text-align: center; padding: 8px; }
+  .all-btn { display: none; }
+  .empty-inline { color: var(--text-muted); padding: 6px 2px; }
+
+  @media (max-width: 700px) {
+    .split { grid-template-columns: 1fr; }
+    .contrasts.collapsed .cchip:nth-child(n+13) { display: none; }
+    .contrasts.collapsed .all-btn { display: inline-flex; }
+  }
+  @media (max-width: 600px) {
+    .field, .field select { width: 100%; }
+    .pair { padding: 8px 10px; gap: 8px; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Minimal Pairs</h1>
-  <p class="subtitle" id="subtitle">Finding words that differ by a single sound &mdash; the evidence for phonemic contrasts.</p>
+  <p class="subtitle" id="subtitle">Finding words that differ by a single sound, the evidence for phonemic contrasts.</p>
 
   <div id="loading" class="center-state">
     <div class="spinner"></div>
     <div id="loading-text">Loading entries&hellip;</div>
   </div>
 
-  <div id="empty" class="center-state" style="display:none;">
-    This project has no entries to analyze yet.
-  </div>
+  <div id="empty" class="center-state" hidden>This project has no entries to analyze yet. Add some in FW Lite, then reload.</div>
 
-  <div id="error" class="error-box" style="display:none;"></div>
+  <div id="error" class="error-box" role="alert" hidden></div>
 
-  <div id="results">
+  <main id="app" hidden>
     <div class="controls">
       <div class="field">
-        <label for="ws-select">Analyze writing system</label>
+        <label for="ws-select">Writing system</label>
         <select id="ws-select"></select>
       </div>
       <label class="toggle" for="near-toggle">
         <input type="checkbox" id="near-toggle">
-        Also show near-minimal pairs (one sound added / dropped)
+        Also show pairs where one sound is added or dropped
       </label>
     </div>
 
     <div class="stats" id="stats"></div>
-    <div class="note-band" id="cap-note" style="display:none;"></div>
+    <div class="chip warn note-band" id="cap-note" hidden></div>
 
-    <section class="panel" id="strict-section">
+    <section class="panel card" id="strict-section">
       <h2>Contrasts by substitution</h2>
-      <p class="panel-hint">Each contrast groups word pairs of equal length that differ in exactly one position. Pick a contrast to see its pairs.</p>
-      <div class="chips" id="strict-chips"></div>
-      <div class="pairs-wrap" id="strict-pairs-wrap" style="display:none;">
-        <p class="pairs-head" id="strict-pairs-head"></p>
-        <div class="pairs" id="strict-pairs"></div>
+      <p class="panel-hint">Pairs of words that differ in exactly one sound. Affixes are left out. Pick a contrast to see its pairs.</p>
+      <div class="split">
+        <div class="contrasts" id="strict-chips"></div>
+        <div class="pairs-wrap" id="strict-pairs-wrap" hidden>
+          <p class="pairs-head" id="strict-pairs-head"></p>
+          <div class="pairs" id="strict-pairs"></div>
+        </div>
       </div>
-      <div class="empty-inline" id="strict-empty" style="display:none;">
-        No minimal pairs found for this writing system. Try another, or add more headwords.
+      <div class="empty-inline" id="strict-empty" hidden>
+        No minimal pairs found for this writing system. Try another, or add more words.
       </div>
     </section>
 
-    <section class="panel" id="near-section" style="display:none;">
-      <h2>Near-minimal pairs by length</h2>
-      <p class="panel-hint">These differ by one <em>added or dropped</em> sound (contrast with &empty;). They are suggestive, not strict minimal pairs.</p>
-      <div class="chips" id="near-chips"></div>
-      <div class="pairs-wrap" id="near-pairs-wrap" style="display:none;">
-        <p class="pairs-head" id="near-pairs-head"></p>
-        <div class="pairs" id="near-pairs"></div>
+    <section class="panel card" id="near-section" hidden>
+      <h2>Near-minimal pairs</h2>
+      <p class="panel-hint">Pairs where one word has an extra sound (shown as a contrast with &empty;). Suggestive, not strict minimal pairs.</p>
+      <div class="split">
+        <div class="contrasts" id="near-chips"></div>
+        <div class="pairs-wrap" id="near-pairs-wrap" hidden>
+          <p class="pairs-head" id="near-pairs-head"></p>
+          <div class="pairs" id="near-pairs"></div>
+        </div>
       </div>
-      <div class="empty-inline" id="near-empty" style="display:none;">
+      <div class="empty-inline" id="near-empty" hidden>
         No near-minimal pairs found for this writing system.
       </div>
     </section>
-  </div>
+  </main>
 </div>
 
 <script>
@@ -311,10 +230,10 @@
   var PAGE_SIZE = 1000;             // API max per call
   var ENTRY_CAP = 5000;             // stop paging past this many entries
   var MAX_COMPARISONS = 6000000;    // bound the O(n^2) scan; note shown if hit
-  var MAX_PAIRS_RENDERED = 300;     // per contrast, in the DOM
+  var PAIR_PAGE = 50;
   var WS_KEY = 'ws';
   var NEAR_KEY = 'includeNear';
-  var ZERO = '∅';              // ∅ — stands for "nothing" in an insert/delete contrast
+  var ZERO = '∅';              // "nothing" in an insert/delete contrast
 
   var state = {
     entries: [],
@@ -334,21 +253,23 @@
 
   function el(id) { return document.getElementById(id); }
 
-  function applyTheme(theme) {
-    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  function applyTheme() {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', window.fwlite.theme || (dark ? 'dark' : 'light'));
   }
 
   function showError(message) {
-    el('loading').style.display = 'none';
-    el('results').style.display = 'none';
+    el('loading').hidden = true;
+    el('app').hidden = true;
     var box = el('error');
-    box.style.display = 'block';
+    box.hidden = false;
     box.textContent = message;
   }
 
-  function hasText(multiString) {
-    return multiString && Object.keys(multiString).some(function (ws) { return !!multiString[ws]; });
+  var AFFIX_TYPES = ['Prefix', 'Suffix', 'Infix', 'Circumfix', 'Simulfix', 'Suprafix', 'Clitic', 'Enclitic', 'Proclitic',
+    'BoundRoot', 'BoundStem', 'PrefixingInterfix', 'InfixingInterfix', 'SuffixingInterfix'];
+  function isAffix(entry) {
+    return !!entry.morphType && AFFIX_TYPES.indexOf(entry.morphType) >= 0;
   }
 
   function yieldToUi() { return new Promise(function (r) { setTimeout(r, 0); }); }
@@ -370,17 +291,24 @@
     return loadNext();
   }
 
-  // Headword = citationForm || lexemeForm, in the chosen writing system.
+  // Citation form, else lexeme form, in the chosen writing system. Lowercased so "Mulungu" and
+  // "mulungu" are one form, NFC so composed and decomposed spellings are too.
   function headwordForm(entry) {
-    var field = hasText(entry.citationForm) ? entry.citationForm : (entry.lexemeForm || {});
-    var raw = field[state.ws];
-    if (!raw) return '';
-    // NFC so composed/decomposed spellings of the same word collapse to one form.
-    return window.fwlite.asText(raw).normalize('NFC').trim();
+    var fw = window.fwlite;
+    var raw = fw.asText((entry.citationForm || {})[state.ws]) || fw.asText((entry.lexemeForm || {})[state.ws]);
+    return raw.normalize('NFC').trim().toLowerCase();
+  }
+  function glossOf(entry) {
+    var senses = entry.senses || [];
+    for (var i = 0; i < senses.length; i++) {
+      var g = window.fwlite.firstValue(senses[i].gloss, state.analysisIds);
+      if (g) return g;
+    }
+    return '';
   }
 
   // Split a form into graphemes. We prefer the writing system's multi-character exemplars
-  // (e.g. "ng", "ch") so a digraph counts as ONE segment when comparing — otherwise "sing"
+  // (e.g. "ng", "ch") so a digraph counts as ONE segment when comparing; otherwise "sing"
   // vs "sink" would look like a two-segment difference. With no such exemplars we fall back to
   // Unicode code points via Array.from (not str[i]) so surrogate pairs stay intact.
   function segment(form) {
@@ -421,11 +349,16 @@
   function deriveForms() {
     var byForm = Object.create(null);
     state.entries.forEach(function (entry) {
+      if (isAffix(entry)) return;
       var form = headwordForm(entry);
-      if (!form) return;
+      if (!form || /^[-=]|[-=]$/.test(form)) return;
       var rec = byForm[form];
-      if (!rec) { rec = byForm[form] = {form: form, entryIds: []}; }
-      if (entry.id && rec.entryIds.indexOf(entry.id) === -1) rec.entryIds.push(entry.id);
+      if (!rec) { rec = byForm[form] = {form: form, entryIds: [], glosses: []}; }
+      if (entry.id && rec.entryIds.indexOf(entry.id) === -1) {
+        rec.entryIds.push(entry.id);
+        var g = glossOf(entry);
+        if (g && rec.glosses.indexOf(g) === -1) rec.glosses.push(g);
+      }
     });
     var forms = [];
     Object.keys(byForm).forEach(function (f) {
@@ -574,11 +507,13 @@
   }
 
   // Build a headword element; the grapheme at markIndex (if >= 0) is wrapped in <mark>.
-  // All text goes in via textContent — never innerHTML on dictionary data.
+  // All text goes in via textContent, never innerHTML on dictionary data.
   function renderHeadword(rec, markIndex, side) {
+    var word = document.createElement('div');
+    word.className = 'word ' + side;
     var btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'hw ' + side;
+    btn.className = 'hw';
     rec.graphemes.forEach(function (g, gi) {
       if (gi === markIndex) {
         var m = document.createElement('mark');
@@ -599,15 +534,23 @@
       ? 'Open first of ' + rec.entryIds.length + ' entries for “' + rec.form + '”'
       : 'Open “' + rec.form + '”';
     btn.addEventListener('click', function () { openEntry(rec.entryIds[0]); });
-    return btn;
+    word.appendChild(btn);
+    var gl = document.createElement('span');
+    gl.className = 'gl';
+    gl.textContent = rec.glosses.length ? rec.glosses.join('; ') : 'no gloss';
+    word.appendChild(gl);
+    return word;
   }
 
-  function renderPairs(contrast, headEl, listEl, wrapEl) {
-    listEl.innerHTML = '';
+  function renderPairs(contrast, headEl, listEl, wrapEl, from) {
+    from = from || 0;
+    if (!from) listEl.innerHTML = '';
+    var oldMore = listEl.querySelector('.more-row');
+    if (oldMore) oldMore.remove();
     var pairs = contrast.pairs;
-    var shown = Math.min(pairs.length, MAX_PAIRS_RENDERED);
+    var shown = Math.min(pairs.length, from + PAIR_PAGE);
     var frag = document.createDocumentFragment();
-    for (var i = 0; i < shown; i++) {
+    for (var i = from; i < shown; i++) {
       var p = pairs[i];
       var row = document.createElement('div');
       row.className = 'pair';
@@ -619,25 +562,36 @@
       row.appendChild(renderHeadword(p.b, p.bi, 'right'));
       frag.appendChild(row);
     }
+    var rest = pairs.length - shown;
+    if (rest > 0) {
+      var more = document.createElement('div');
+      more.className = 'more-row';
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn';
+      btn.textContent = 'Show ' + Math.min(PAIR_PAGE, rest) + ' more (' + rest.toLocaleString() + ' left)';
+      btn.addEventListener('click', function () { renderPairs(contrast, headEl, listEl, wrapEl, shown); });
+      more.appendChild(btn);
+      frag.appendChild(more);
+    }
     listEl.appendChild(frag);
 
     headEl.textContent = '';
     var strong = document.createElement('b');
     strong.textContent = contrast.label;
     headEl.appendChild(strong);
-    var tail = ' — ' + pairs.length.toLocaleString() + ' pair' + (pairs.length === 1 ? '' : 's');
-    if (pairs.length > shown) tail += ' (showing first ' + shown.toLocaleString() + ')';
-    headEl.appendChild(document.createTextNode(tail));
-    wrapEl.style.display = 'block';
+    headEl.appendChild(document.createTextNode(': ' + pairs.length.toLocaleString() + ' pair' + (pairs.length === 1 ? '' : 's')));
+    wrapEl.hidden = false;
   }
 
   function renderChips(contrasts, chipsEl, sectionName, headEl, listEl, wrapEl) {
     chipsEl.innerHTML = '';
+    chipsEl.classList.remove('collapsed');
     var frag = document.createDocumentFragment();
     contrasts.forEach(function (contrast) {
       var chip = document.createElement('button');
       chip.type = 'button';
-      chip.className = 'chip';
+      chip.className = 'cchip';
       chip.setAttribute('aria-pressed', String(state.selected[sectionName] === contrast.key));
       var label = document.createElement('span');
       label.className = 'contrast';
@@ -649,20 +603,36 @@
       chip.appendChild(cnt);
       chip.addEventListener('click', function () {
         state.selected[sectionName] = contrast.key;
-        Array.prototype.forEach.call(chipsEl.children, function (c) { c.setAttribute('aria-pressed', 'false'); });
+        Array.prototype.forEach.call(chipsEl.querySelectorAll('.cchip'), function (c) { c.setAttribute('aria-pressed', 'false'); });
         chip.setAttribute('aria-pressed', 'true');
         renderPairs(contrast, headEl, listEl, wrapEl);
+        // Stacked layout: the pairs are below a long list of contrasts, so bring them into view.
+        if (wrapEl.getBoundingClientRect().top > window.innerHeight * 0.6) wrapEl.scrollIntoView({behavior: 'smooth', block: 'start'});
       });
       frag.appendChild(chip);
     });
+    if (contrasts.length > 12) {
+      chipsEl.classList.add('collapsed');
+      var all = document.createElement('button');
+      all.type = 'button';
+      all.className = 'btn ghost all-btn';
+      all.textContent = 'Show all ' + contrasts.length + ' contrasts';
+      all.addEventListener('click', function () { chipsEl.classList.remove('collapsed'); });
+      frag.appendChild(all);
+    }
     chipsEl.appendChild(frag);
+    if (contrasts.length) {
+      state.selected[sectionName] = contrasts[0].key;
+      chipsEl.firstChild.setAttribute('aria-pressed', 'true');
+      renderPairs(contrasts[0], headEl, listEl, wrapEl);
+    }
   }
 
   function renderStrict() {
     var data = state.strict;
     var hasAny = data.contrasts.length > 0;
-    el('strict-empty').style.display = hasAny ? 'none' : 'block';
-    el('strict-pairs-wrap').style.display = 'none';
+    el('strict-empty').hidden = hasAny;
+    el('strict-pairs-wrap').hidden = true;
     state.selected.strict = null;
     renderChips(data.contrasts, el('strict-chips'), 'strict',
       el('strict-pairs-head'), el('strict-pairs'), el('strict-pairs-wrap'));
@@ -670,12 +640,12 @@
 
   function renderNear() {
     var section = el('near-section');
-    if (!state.includeNear) { section.style.display = 'none'; return; }
-    section.style.display = 'block';
+    if (!state.includeNear) { section.hidden = true; return; }
+    section.hidden = false;
     var data = state.near;
     var hasAny = data && data.contrasts.length > 0;
-    el('near-empty').style.display = hasAny ? 'none' : 'block';
-    el('near-pairs-wrap').style.display = 'none';
+    el('near-empty').hidden = hasAny;
+    el('near-pairs-wrap').hidden = true;
     state.selected.near = null;
     renderChips(data ? data.contrasts : [], el('near-chips'), 'near',
       el('near-pairs-head'), el('near-pairs'), el('near-pairs-wrap'));
@@ -702,15 +672,15 @@
     var noteEl = el('cap-note');
     var notes = [];
     if (state.capped) notes.push('Analyzing the first ' + ENTRY_CAP.toLocaleString() + ' entries only.');
-    if (state.truncated) notes.push('Comparison limit reached — results may be incomplete for very large datasets.');
-    if (notes.length) { noteEl.textContent = notes.join(' '); noteEl.style.display = 'block'; }
-    else { noteEl.style.display = 'none'; }
+    if (state.truncated) notes.push('Stopped comparing early on this large project, so some pairs may be missing.');
+    noteEl.textContent = notes.join(' ');
+    noteEl.hidden = !notes.length;
   }
 
   // Re-run analysis for the current ws + toggle, showing the loading state while scanning.
   function analyze() {
-    el('results').style.display = 'none';
-    el('loading').style.display = 'block';
+    el('app').hidden = true;
+    el('loading').hidden = false;
     el('loading-text').textContent = 'Reading headwords…';
     state._comparisons = 0;
     state.truncated = false;
@@ -722,8 +692,8 @@
         renderStats();
         renderStrict();
         renderNear();
-        el('loading').style.display = 'none';
-        el('results').style.display = 'block';
+        el('loading').hidden = true;
+        el('app').hidden = false;
       });
   }
 
@@ -758,7 +728,7 @@
   }
 
   function init(context) {
-    applyTheme(context.theme);
+    applyTheme();
     state.projectName = context.project.projectName;
 
     Promise.all([
@@ -773,10 +743,11 @@
       var savedNear = results[3];
 
       state.vernacular = (ws.vernacular || []).filter(function (w) { return !w.isAudio; });
+      state.analysisIds = (ws.analysis || []).filter(function (w) { return !w.isAudio; }).map(function (w) { return w.wsId; });
       if (!state.vernacular.length) {
-        el('loading').style.display = 'none';
+        el('loading').hidden = true;
         el('empty').textContent = 'This project has no text (non-audio) vernacular writing systems to analyze.';
-        el('empty').style.display = 'block';
+        el('empty').hidden = false;
         return;
       }
       var wsIds = state.vernacular.map(function (w) { return w.wsId; });
@@ -784,8 +755,8 @@
       state.includeNear = savedNear === true;
 
       if (total === 0) {
-        el('loading').style.display = 'none';
-        el('empty').style.display = 'block';
+        el('loading').hidden = true;
+        el('empty').hidden = false;
         return;
       }
       state.capped = total > ENTRY_CAP;
@@ -795,7 +766,7 @@
         fillWsSelect(state.ws);
         el('near-toggle').checked = state.includeNear;
         el('subtitle').textContent = 'Words in ' + state.projectName +
-          ' that differ by a single sound — the evidence for phonemic contrasts.';
+          ' that differ by a single sound, the evidence for phonemic contrasts.';
         wireEvents();
         return analyze();
       });
