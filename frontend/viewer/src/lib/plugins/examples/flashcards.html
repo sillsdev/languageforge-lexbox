@@ -6,458 +6,932 @@
 <title>Flashcards</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f5f6f8;
+    color-scheme: light;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --surface-alt: #f0f1f4;
-    --border: #e2e4e9;
-    --text: #1c1e21;
-    --text-muted: #6b7280;
-    --accent: #4f46e5;
-    --accent-soft: #eef0ff;
-    --good: #059669;
-    --good-soft: #e3f7ee;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
+    --warn: #b45309;
+    --warn-soft: #fdf3e2;
     --bad: #dc2626;
-    --bad-soft: #fdeaea;
-    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
-    --radius: 16px;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
   }
   html[data-theme="dark"] {
-    --bg: #16171b;
-    --surface: #1f2126;
-    --surface-alt: #26282e;
-    --border: #33353c;
-    --text: #edeef1;
-    --text-muted: #9aa0ab;
-    --accent: #818cf8;
-    --accent-soft: #2a2b5e;
-    --good: #34d399;
-    --good-soft: #123528;
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
+    --warn: #fbbf24;
+    --warn-soft: #3a2a0c;
     --bad: #f87171;
-    --bad-soft: #3a1f1f;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px 16px 40px;
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
   }
-  .wrap { width: 100%; max-width: 480px; }
-  h1 { font-size: 1.4rem; margin: 0 0 4px; text-align: center; }
-  .subtitle { color: var(--text-muted); text-align: center; margin: 0 0 20px; font-size: 0.9rem; }
-
-  .progress-bar {
-    background: var(--surface-alt);
-    border-radius: 999px;
-    height: 8px;
-    overflow: hidden;
-    margin-bottom: 22px;
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
   }
-  .progress-bar-fill { height: 100%; background: var(--accent); transition: width 0.25s ease; }
-
-  .card-scene { perspective: 1200px; margin-bottom: 20px; }
-  .card {
-    position: relative;
-    min-height: 240px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    cursor: pointer;
-    transform-style: preserve-3d;
-    transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
-    outline: none;
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
   }
-  .card.flipped { transform: rotateY(180deg); }
-  .card-face {
-    position: absolute;
-    inset: 0;
-    backface-visibility: hidden;
-    border-radius: var(--radius);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 28px 20px;
-    text-align: center;
-  }
-  .card-face.back { transform: rotateY(180deg); justify-content: space-between; }
-  .headword { font-size: 1.9rem; font-weight: 700; }
-  .headword-sub { color: var(--text-muted); font-size: 0.85rem; margin-top: 10px; }
-  .flip-hint { position: absolute; bottom: 14px; color: var(--text-muted); font-size: 0.78rem; }
-
-  .back-body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 10px; width: 100%; }
-  .gloss-line { font-size: 1.15rem; font-weight: 600; }
-  .gloss-ws { color: var(--text-muted); font-size: 0.75rem; font-weight: 500; margin-right: 6px; }
-  .open-link {
-    align-self: center;
-    color: var(--accent);
-    font-size: 0.82rem;
-    text-decoration: none;
-    border: 1px solid var(--border);
-    padding: 5px 12px;
-    border-radius: 999px;
-    background: var(--surface-alt);
-  }
-  .open-link:hover { text-decoration: underline; }
-
-  .grade-row { display: flex; gap: 12px; }
-  .grade-btn {
-    flex: 1;
-    padding: 13px 10px;
-    border-radius: 12px;
-    border: none;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.1s ease, filter 0.15s ease;
-  }
-  .grade-btn:active { transform: scale(0.97); }
-  .grade-btn.again { background: var(--bad-soft); color: var(--bad); }
-  .grade-btn.good { background: var(--good-soft); color: var(--good); }
-  .grade-btn:disabled { opacity: 0.4; cursor: default; }
-  .grade-btn kbd {
-    display: inline-block;
-    margin-left: 6px;
-    font-size: 0.72rem;
-    opacity: 0.7;
-    font-family: inherit;
-  }
-
-  .hint-row { text-align: center; color: var(--text-muted); font-size: 0.78rem; margin-top: 14px; }
-
-  .center-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
   .spinner {
-    width: 34px; height: 34px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    margin: 0 auto 16px;
-    animation: spin 0.8s linear infinite;
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .error-box {
-    border: 1px solid #f5b5b5;
-    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
-    padding: 14px 18px;
-    border-radius: var(--radius);
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
   }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 
-  .summary-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 28px 24px;
-    text-align: center;
+  .view, #app { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .field { margin-bottom: 18px; }
+  .field-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+  .field select { width: 100%; }
+  .seg { display: flex; gap: 4px; padding: 4px; background: var(--surface-alt); border-radius: var(--radius); }
+  .seg button {
+    flex: 1; min-height: 40px; border: 0; border-radius: 7px; background: transparent; color: var(--text-muted);
+    font: inherit; font-weight: 600; cursor: pointer;
   }
-  .summary-card h2 { margin: 0 0 6px; }
-  .summary-stats {
-    display: flex;
-    justify-content: center;
-    gap: 24px;
-    margin: 18px 0;
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+  .deck-summary { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 20px; }
+  .deck-summary .chip { font-size: 0.85rem; padding: 4px 12px; }
+  .fine-print { font-size: 0.8rem; margin: 0 0 16px; }
+  .banner { background: var(--warn-soft); color: var(--text); border: 1px solid var(--warn); border-radius: var(--radius); padding: 8px 12px; margin-bottom: 10px; font-size: 0.9rem; }
+
+  .topbar { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+  .icon-btn { min-width: 44px; padding: 0 10px; font-size: 1.1rem; }
+  .track { flex: 1; height: 8px; border-radius: 999px; background: var(--surface-alt); overflow: hidden; }
+  .track > div { height: 100%; width: 0; background: var(--good); border-radius: 999px; transition: width 0.3s; }
+  .count { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-muted); font-size: 0.9rem; white-space: nowrap; }
+
+  .card-area { flex: 1; display: flex; min-height: 40dvh; padding: 12px 0; perspective: 1400px; }
+  .card-slot { flex: 1; position: relative; touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: pointer; }
+  .card-slot.settle { transition: transform 0.25s ease, opacity 0.25s ease; }
+  .card-slot.fly { transition: transform 0.28s ease-in, opacity 0.28s ease-in; }
+  .card-inner { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform 0.45s cubic-bezier(0.3, 0.7, 0.25, 1); }
+  .card-inner.flipped { transform: rotateY(180deg); }
+  .card-inner.instant { transition: none; }
+  .face {
+    position: absolute; inset: 0; display: flex; flex-direction: column; overflow: auto; touch-action: pan-y; padding: 24px 20px 16px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(9, 9, 11, 0.08), var(--shadow);
+    -webkit-backface-visibility: hidden; backface-visibility: hidden;
   }
-  .summary-stat .num { font-size: 1.6rem; font-weight: 700; }
-  .summary-stat .num.good { color: var(--good); }
-  .summary-stat .num.again { color: var(--bad); }
-  .summary-stat .lbl { font-size: 0.78rem; color: var(--text-muted); }
-  .primary-btn {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    padding: 12px 22px;
-    border-radius: 999px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
+  .face.back { transform: rotateY(180deg); }
+  .face-body { margin: auto 0; text-align: center; }
+  .face-foot { text-align: center; font-size: 0.85rem; color: var(--text-muted); padding-top: 12px; }
+  .word { font-family: var(--vern-font); font-size: clamp(2rem, 9vw, 3rem); font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
+  .word.small { font-size: 1.15rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
+  .meaning { font-size: clamp(1.5rem, 6.5vw, 2.1rem); font-weight: 650; line-height: 1.25; overflow-wrap: anywhere; }
+  .meaning.long { font-size: 1.15rem; font-weight: 500; }
+  .pos { font-style: italic; color: var(--text-muted); margin-top: 6px; }
+  .pic { display: block; max-width: 100%; max-height: 28dvh; margin: 14px auto 0; border-radius: var(--radius); object-fit: contain; }
+  .example { margin: 16px auto 0; max-width: 34rem; padding: 10px 14px; border-radius: var(--radius); background: var(--surface-alt); text-align: left; }
+  .example .s { font-family: var(--vern-font); }
+  .example .t { color: var(--text-muted); font-size: 0.92rem; margin-top: 2px; }
+  .play { margin-top: 14px; border-radius: 999px; }
+  .open { margin-top: 10px; min-height: 36px; font-size: 0.85rem; color: var(--text-muted); }
+  .hint {
+    position: absolute; top: 18px; z-index: 2; padding: 4px 12px; border: 3px solid; border-radius: 8px;
+    font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0; pointer-events: none; background: var(--surface);
   }
-  .primary-btn:hover { filter: brightness(1.08); }
-  #app { display: none; }
+  .hint.good { left: 18px; color: var(--good); transform: rotate(8deg); }
+  .hint.again { right: 18px; color: var(--bad); transform: rotate(-8deg); }
+  .note-again { text-align: center; font-size: 0.85rem; color: var(--bad); min-height: 1.3em; margin-top: -4px; }
+  .study-actions .btn { flex: 1; min-height: 52px; font-size: 1.05rem; }
+  .btn.again { background: var(--bad-soft); border-color: var(--bad-soft); color: var(--bad); }
+  .btn.good { background: var(--good-soft); border-color: var(--good-soft); color: var(--good); }
+  .fine { display: none; }
+  @media (hover: hover) and (pointer: fine) { .fine { display: inline; } .coarse { display: none; } }
+
+  .summary-head { text-align: center; padding: 16px 0 8px; }
+  .big { font-size: 3rem; font-weight: 800; line-height: 1; color: var(--good); }
+  .stats { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin: 12px 0 20px; }
+  .stats .chip { font-size: 0.85rem; padding: 4px 12px; }
+  .work-list { list-style: none; margin: 0; padding: 0; }
+  .work-list li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--border); }
+  .work-list li:first-child { border-top: 0; }
+  .work-list .w { font-family: var(--vern-font); font-weight: 700; }
+  .work-list .m { color: var(--text-muted); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  @media (min-width: 601px) {
+    .card-area { max-height: 560px; }
+    #study-view { justify-content: center; }
+    .study-actions { margin-top: 4px; }
+  }
+  @media (max-width: 600px) {
+    .face { padding: 20px 16px 12px; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Flashcards</h1>
-  <p class="subtitle" id="subtitle">Loading your vocabulary deck&hellip;</p>
-
-  <div id="loading" class="center-state">
-    <div class="spinner"></div>
-    <div>Fetching entries&hellip;</div>
-  </div>
-
-  <div id="empty" class="center-state" style="display:none;">
-    This project has no entries with both a headword and a gloss yet.
-  </div>
-
-  <div id="error" class="error-box" style="display:none;"></div>
-
-  <div id="app">
-    <div class="progress-bar"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
-
-    <div id="study-view">
-      <div class="card-scene">
-        <div class="card" id="card" tabindex="0" role="button" aria-label="Flashcard, click or press space to flip">
-          <div class="card-face front">
-            <div class="headword" id="headword-text"></div>
-            <div class="headword-sub" id="level-hint"></div>
-            <div class="flip-hint">Click or press Space to flip</div>
-          </div>
-          <div class="card-face back">
-            <div class="back-body" id="back-body"></div>
-            <a href="#" class="open-link" id="open-link">Open in dictionary</a>
-          </div>
+<div class="wrap narrow">
+  <div id="setup-view" class="view">
+    <h1>Flashcards</h1>
+    <p class="subtitle" id="subtitle">Learn the words in this dictionary, a few at a time.</p>
+    <div id="loading" class="center-state"><div class="spinner"></div><div id="loading-text">Loading&hellip;</div></div>
+    <div id="error" class="error-box" role="alert" hidden></div>
+    <div id="empty" class="center-state" hidden>There are no words with a meaning to study yet. Add some entries with a gloss, then reload.</div>
+    <main id="app" hidden>
+      <div class="deck-summary" id="deck-summary" aria-live="polite"></div>
+      <div class="field">
+        <label class="field-label" for="scope">Cards from</label>
+        <select id="scope"></select>
+      </div>
+      <div class="field">
+        <span class="field-label" id="direction-label">Show first</span>
+        <div class="seg" role="group" aria-labelledby="direction-label" id="direction">
+          <button type="button" data-value="w2m">Word</button>
+          <button type="button" data-value="m2w">Meaning</button>
         </div>
       </div>
-
-      <div class="grade-row">
-        <button class="grade-btn again" id="btn-again" disabled>Again <kbd>&larr;</kbd></button>
-        <button class="grade-btn good" id="btn-good" disabled>Got it <kbd>&rarr;</kbd></button>
+      <div class="field" id="lang-field">
+        <label class="field-label" for="lang">Meaning language</label>
+        <select id="lang"></select>
       </div>
-      <div class="hint-row">Card <span id="card-index"></span> of <span id="card-total"></span> &middot; flip with Space, grade with arrow keys</div>
+      <div class="field">
+        <span class="field-label" id="size-label">Cards per session</span>
+        <div class="seg" role="group" aria-labelledby="size-label" id="size">
+          <button type="button" data-value="10">10</button>
+          <button type="button" data-value="20">20</button>
+          <button type="button" data-value="40">40</button>
+        </div>
+      </div>
+      <p class="muted fine-print">Your progress is saved on this device. Words you know well come back less often.</p>
+      <div class="actions"><button type="button" class="btn primary" id="start">Start</button></div>
+    </main>
+  </div>
+
+  <div id="study-view" class="view" hidden>
+    <div id="storage-warning" class="banner" hidden>This device can&rsquo;t save more progress. You can keep studying, but new results won&rsquo;t be remembered.</div>
+    <div class="topbar">
+      <button type="button" class="btn ghost icon-btn" id="end" aria-label="End session" title="End session (Esc)">&#x2715;</button>
+      <div class="track" aria-hidden="true"><div id="track-fill"></div></div>
+      <span class="count" id="count"></span>
+      <span class="chip bad" id="retry-chip" hidden></span>
+      <button type="button" class="btn ghost icon-btn" id="undo" aria-label="Undo last answer" title="Undo (Ctrl+Z)" hidden>&#x21B6;</button>
     </div>
-
-    <div id="summary-view" style="display:none;">
-      <div class="summary-card">
-        <h2>Session complete</h2>
-        <p class="subtitle" style="margin-bottom:0;">Nice work!</p>
-        <div class="summary-stats">
-          <div class="summary-stat"><div class="num good" id="sum-good">0</div><div class="lbl">Got it</div></div>
-          <div class="summary-stat"><div class="num again" id="sum-again">0</div><div class="lbl">Again</div></div>
+    <div class="card-area">
+      <div class="card-slot" id="slot">
+        <div class="hint again" id="hint-again">Again</div>
+        <div class="hint good" id="hint-good">Got it</div>
+        <div class="card-inner" id="inner">
+          <div class="face front" id="front"></div>
+          <div class="face back" id="back" inert></div>
         </div>
-        <p class="subtitle" id="overall-progress"></p>
-        <button class="primary-btn" id="btn-restart">Study again</button>
       </div>
+    </div>
+    <div class="note-again" id="note-again"></div>
+    <div class="actions study-actions">
+      <button type="button" class="btn primary" id="show" title="Space">Show answer</button>
+      <button type="button" class="btn again" id="again" title="Left arrow" hidden>Again</button>
+      <button type="button" class="btn good" id="good" title="Right arrow or Space" hidden>Got it</button>
+    </div>
+    <div class="sr" id="live" aria-live="polite"></div>
+  </div>
+
+  <div id="summary-view" class="view" hidden>
+    <div class="summary-head">
+      <h2 id="sum-title">Session done</h2>
+      <div class="big" id="sum-big"></div>
+      <div class="muted" id="sum-sub"></div>
+    </div>
+    <div class="stats" id="sum-stats"></div>
+    <section class="card" id="work-card" hidden>
+      <h2>Words to work on</h2>
+      <ul class="work-list" id="work-list"></ul>
+    </section>
+    <p class="muted fine-print" id="sum-next" style="text-align:center;margin-top:16px"></p>
+    <div class="actions">
+      <button type="button" class="btn" id="practice">Practice these again</button>
+      <button type="button" class="btn primary" id="done">Done</button>
     </div>
   </div>
 </div>
-
 <script>
 (function () {
   'use strict';
-
-  var STORAGE_KEY = 'flashcards-progress-v1';
-  var POOL_SIZE = 200;
-  var SESSION_SIZE = 20;
-  var MAX_LEVEL = 5;
-
-  var state = {
-    progress: {},        // entryId -> {level, seen}
-    deck: [],            // full pool of eligible entries
-    session: [],         // this session's entries (up to SESSION_SIZE)
-    index: 0,
-    flipped: false,
-    goodCount: 0,
-    againCount: 0,
-    vernacularWs: [],
-    analysisWs: [],
-  };
-
-  function esc(value) {
-    var div = document.createElement('div');
-    div.textContent = value == null ? '' : String(value);
-    return div.innerHTML;
+  function applyTheme() {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', fwlite.theme || (dark ? 'dark' : 'light'));
+  }
+  function applyVernFont(ws) {
+    if (ws && ws.font) document.documentElement.style.setProperty('--vern-font', '"' + ws.font.replace(/"/g, '') + '", var(--font)');
+  }
+  var PAGE = 1000, CAP = 5000;
+  async function loadAll(onProgress, cap) {
+    cap = cap || CAP;
+    var total = await fwlite.countEntries({});
+    var target = Math.min(total, cap);
+    var entries = [];
+    while (entries.length < target) {
+      var page = await fwlite.getEntries({limit: Math.min(PAGE, target - entries.length), offset: entries.length});
+      if (!page.length) break;
+      entries = entries.concat(page);
+      if (onProgress) onProgress(entries.length, target);
+    }
+    return {entries: entries, total: total, capped: total > cap};
+  }
+  var AFFIX_TYPES = ['Prefix', 'Suffix', 'Infix', 'Circumfix', 'Simulfix', 'Suprafix', 'Clitic', 'Enclitic', 'Proclitic',
+    'BoundRoot', 'BoundStem', 'PrefixingInterfix', 'InfixingInterfix', 'SuffixingInterfix'];
+  function isContentWord(entry, gloss) {
+    if (entry.morphType && AFFIX_TYPES.indexOf(entry.morphType) >= 0) return false;
+    var hw = fwlite.headword(entry);
+    if (!hw || /^[-=]|[-=]$/.test(hw)) return false;
+    return !gloss || !/^[A-Z0-9.+:_-]{2,}$/.test(gloss.trim());
   }
 
-  function applyTheme(theme) {
-    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
-  }
+  // Leitner box -> days until the card is due again.
+  var INTERVALS = [0, 1, 3, 7, 14, 30];
+  var TOP_BOX = INTERVALS.length - 1;
+  var RETRY_GAP = 3;
+  // Fallback names for the top-level semantic domains when the project's list doesn't have them.
+  var TOP_DOMAINS = {'1': 'Universe, creation', '2': 'Person', '3': 'Language and thought', '4': 'Social behavior',
+    '5': 'Daily life', '6': 'Work and occupation', '7': 'Physical actions', '8': 'States', '9': 'Grammar'};
 
-  function showError(message) {
-    document.getElementById('loading').style.display = 'none';
-    var box = document.getElementById('error');
-    box.style.display = 'block';
-    box.textContent = message;
-  }
+  var ws = {analysis: [], vernText: [], audio: []};
+  var domainsByCode = {};
+  var entries = [];
+  var settings = {scope: 'all', direction: 'w2m', lang: '', size: 20};
+  var sched = {w2m: {}, m2w: {}};
+  var session = null;
+  var mediaCache = {};
 
-  function firstGloss(entry) {
-    for (var i = 0; i < (entry.senses || []).length; i++) {
-      var gloss = entry.senses[i].gloss;
-      if (gloss && Object.keys(gloss).some(function (ws) { return !!gloss[ws]; })) return gloss;
+  function $(id) { return document.getElementById(id); }
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text != null) node.textContent = text;
+    return node;
+  }
+  function show(id, visible) { $(id).hidden = !visible; }
+  function today() { return Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000); }
+  function plural(n, one, many) { return n.toLocaleString() + ' ' + (n === 1 ? one : many); }
+  function shuffle(list) {
+    for (var i = list.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = list[i]; list[i] = list[j]; list[j] = t;
+    }
+    return list;
+  }
+  function reducedMotion() { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+
+  function save(key, value) {
+    return fwlite.storage.set(key, value).catch(function (err) {
+      if (err && err.code === 'storage-full') show('storage-warning', true);
+    });
+  }
+  function saveSched() { return save('sched-' + settings.direction, sched[settings.direction]); }
+
+
+  function senseMeaning(sense, lang) {
+    var gloss = (sense.gloss && sense.gloss[lang] || '').trim();
+    if (gloss) return gloss;
+    var def = fwlite.asText(sense.definition && sense.definition[lang]).trim();
+    return def.length > 140 ? def.slice(0, 137).trimEnd() + '…' : def;
+  }
+  function inScope(sense, scope) {
+    if (scope === 'all') return true;
+    if (scope.indexOf('p:') === 0) {
+      var posId = (sense.partOfSpeech && sense.partOfSpeech.id) || sense.partOfSpeechId;
+      return posId === scope.slice(2);
+    }
+    var code = scope.slice(2);
+    return (sense.semanticDomains || []).some(function (d) { return d.code === code || String(d.code).indexOf(code + '.') === 0; });
+  }
+  function textIn(multi, wsIds) {
+    for (var i = 0; i < wsIds.length; i++) {
+      var t = fwlite.asText(multi && multi[wsIds[i]]).trim();
+      if (t) return t;
+    }
+    return '';
+  }
+  function audioOf(entry) {
+    for (var i = 0; i < ws.audio.length; i++) {
+      var ref = (entry.citationForm && entry.citationForm[ws.audio[i]]) || (entry.lexemeForm && entry.lexemeForm[ws.audio[i]]);
+      if (ref) return ref;
     }
     return null;
   }
 
-  function isEligible(entry) {
-    return !!window.fwlite.headword(entry) && !!firstGloss(entry);
-  }
-
-  function loadProgress() {
-    return window.fwlite.storage.get(STORAGE_KEY).then(function (value) {
-      state.progress = value && typeof value === 'object' ? value : {};
+  // The study card for an entry under the current deck settings, or null when it has nothing to study.
+  function buildCard(entry, scope, lang) {
+    if (!isContentWord(entry)) return null;
+    var senses = (entry.senses || []).filter(function (s) {
+      var m = senseMeaning(s, lang);
+      return m && isContentWord(entry, m) && inScope(s, scope);
     });
-  }
-
-  function saveProgress() {
-    return window.fwlite.storage.set(STORAGE_KEY, state.progress);
-  }
-
-  function levelOf(entryId) {
-    var record = state.progress[entryId];
-    return record ? record.level : 0;
-  }
-
-  /** Builds a session prioritizing cards at lower Leitner levels, capped at SESSION_SIZE. */
-  function buildSession() {
-    var sorted = state.deck.slice().sort(function (a, b) {
-      return levelOf(a.id) - levelOf(b.id);
+    if (!senses.length) return null;
+    var meanings = [];
+    senses.forEach(function (s) {
+      var m = senseMeaning(s, lang);
+      if (meanings.indexOf(m) < 0 && meanings.length < 3) meanings.push(m);
     });
-    return sorted.slice(0, SESSION_SIZE);
-  }
-
-  function updateProgressBar() {
-    var pct = state.session.length ? Math.round((state.index / state.session.length) * 100) : 0;
-    document.getElementById('progress-fill').style.width = pct + '%';
-  }
-
-  function renderCard() {
-    var entry = state.session[state.index];
-    var headword = window.fwlite.headword(entry) || '—';
-    document.getElementById('headword-text').textContent = headword;
-
-    var level = levelOf(entry.id);
-    document.getElementById('level-hint').textContent = 'Box ' + level + ' of ' + MAX_LEVEL;
-
-    var backBody = document.getElementById('back-body');
-    backBody.innerHTML = '';
-    (entry.senses || []).forEach(function (sense) {
-      if (!sense.gloss) return;
-      Object.keys(sense.gloss).forEach(function (ws) {
-        var text = window.fwlite.asText(sense.gloss[ws]);
-        if (!text) return;
-        var line = document.createElement('div');
-        line.className = 'gloss-line';
-        var wsTag = document.createElement('span');
-        wsTag.className = 'gloss-ws';
-        wsTag.textContent = ws;
-        line.appendChild(wsTag);
-        line.appendChild(document.createTextNode(text));
-        backBody.appendChild(line);
+    var pos = '', picture = null, example = null, fallbackExample = null;
+    senses.forEach(function (s) {
+      if (!pos && s.partOfSpeech) pos = fwlite.firstValue(s.partOfSpeech.name, [lang].concat(ws.analysis));
+      if (!picture && s.pictures && s.pictures.length) picture = s.pictures[0].mediaUri;
+      (s.exampleSentences || []).forEach(function (ex) {
+        var sentence = textIn(ex.sentence, ws.vernText);
+        if (!sentence) return;
+        var translation = '';
+        (ex.translations || []).some(function (t) { translation = textIn(t.text, [lang]); return !!translation; });
+        if (translation && !example) example = {s: sentence, t: translation};
+        if (!fallbackExample) fallbackExample = {s: sentence, t: ''};
       });
     });
-    if (!backBody.children.length) {
-      backBody.innerHTML = '<div class="gloss-line" style="color:var(--text-muted)">No gloss available</div>';
-    }
-
-    document.getElementById('open-link').onclick = function (event) {
-      event.preventDefault();
-      window.fwlite.openEntry(entry.id);
+    return {
+      id: entry.id, word: fwlite.headword(entry), meanings: meanings, pos: pos, picture: picture,
+      example: example || fallbackExample, audio: audioOf(entry), rich: !!(example || picture),
     };
+  }
 
-    document.getElementById('card-index').textContent = String(state.index + 1);
-    document.getElementById('card-total').textContent = String(state.session.length);
-    updateProgressBar();
-    setFlipped(false);
+  function deckCards() {
+    return entries.map(function (e) { return buildCard(e, settings.scope, settings.lang); }).filter(Boolean);
+  }
+
+  function deckStats(cards) {
+    var s = sched[settings.direction], now = today(), due = 0, fresh = 0, nextDue = Infinity;
+    cards.forEach(function (c) {
+      var r = s[c.id];
+      if (!r) fresh++;
+      else if (r[1] <= now) due++;
+      else nextDue = Math.min(nextDue, r[1]);
+    });
+    return {total: cards.length, due: due, fresh: fresh, nextIn: nextDue === Infinity ? 0 : nextDue - now};
+  }
+
+
+  function scopeOptions() {
+    var domainCounts = {}, posCounts = {}, posNames = {}, senseDomainNames = {}, all = 0;
+    entries.forEach(function (entry) {
+      if (!isContentWord(entry)) return;
+      var codes = {}, posIds = {}, any = false;
+      (entry.senses || []).forEach(function (s) {
+        var m = senseMeaning(s, settings.lang);
+        if (!m || !isContentWord(entry, m)) return;
+        any = true;
+        (s.semanticDomains || []).forEach(function (d) {
+          if (!senseDomainNames[d.code]) senseDomainNames[d.code] = d.name;
+          var parts = String(d.code).split('.');
+          codes[parts[0]] = true;
+          if (parts.length > 1) codes[parts[0] + '.' + parts[1]] = true;
+        });
+        if (s.partOfSpeech) { posIds[s.partOfSpeech.id] = true; posNames[s.partOfSpeech.id] = s.partOfSpeech.name; }
+      });
+      if (!any) return;
+      all++;
+      Object.keys(codes).forEach(function (c) { domainCounts[c] = (domainCounts[c] || 0) + 1; });
+      Object.keys(posIds).forEach(function (p) { posCounts[p] = (posCounts[p] || 0) + 1; });
+    });
+    function codeKey(code) { return code.split('.').map(function (n) { return ('000' + n).slice(-3); }).join('.'); }
+    var langs = [settings.lang].concat(ws.analysis);
+    var domains = Object.keys(domainCounts).sort(function (a, b) { return codeKey(a) < codeKey(b) ? -1 : 1; }).map(function (code) {
+      var known = senseDomainNames[code] || (domainsByCode[code] && domainsByCode[code].name);
+      var name = (known && fwlite.firstValue(known, langs)) || TOP_DOMAINS[code];
+      if (!name) return null;
+      var indent = code.indexOf('.') > 0 ? '\u00a0\u00a0\u00a0' : '';
+      return {value: 'd:' + code, label: indent + code + ' ' + name + ' (' + domainCounts[code] + ')'};
+    }).filter(Boolean);
+    var pos = Object.keys(posCounts).map(function (id) {
+      return {value: 'p:' + id, label: (fwlite.firstValue(posNames[id], langs) || 'Unnamed') + ' (' + posCounts[id] + ')'};
+    }).sort(function (a, b) { return a.label.localeCompare(b.label); });
+    return {all: all, domains: domains, pos: pos};
+  }
+
+  function renderScope() {
+    var opts = scopeOptions(), select = $('scope');
+    select.textContent = '';
+    var allOpt = el('option', '', 'Whole dictionary (' + opts.all + ')');
+    allOpt.value = 'all';
+    select.appendChild(allOpt);
+    [['Semantic domain', opts.domains], ['Part of speech', opts.pos]].forEach(function (group) {
+      if (!group[1].length) return;
+      var og = document.createElement('optgroup');
+      og.label = group[0];
+      group[1].forEach(function (o) { var opt = el('option', '', o.label); opt.value = o.value; og.appendChild(opt); });
+      select.appendChild(og);
+    });
+    select.value = settings.scope;
+    if (select.value !== settings.scope) { settings.scope = 'all'; select.value = 'all'; }
+  }
+
+  function renderSetup() {
+    renderScope();
+    [['direction', settings.direction], ['size', String(settings.size)]].forEach(function (pair) {
+      $(pair[0]).querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.value === pair[1])); });
+    });
+    $('lang').value = settings.lang;
+    var stats = deckStats(deckCards()), box = $('deck-summary');
+    box.textContent = '';
+    box.appendChild(el('span', 'chip', plural(stats.total, 'word', 'words')));
+    if (stats.due) box.appendChild(el('span', 'chip warn', stats.due.toLocaleString() + ' due'));
+    if (stats.fresh) box.appendChild(el('span', 'chip accent', stats.fresh.toLocaleString() + ' new'));
+    var start = $('start');
+    var count = Math.min(settings.size, stats.due + stats.fresh);
+    start.disabled = !stats.total;
+    if (!stats.total) {
+      start.textContent = 'No words here';
+      box.appendChild(el('span', 'chip bad', 'Pick another deck or meaning language'));
+    } else if (count) {
+      start.textContent = 'Study ' + plural(count, 'card', 'cards');
+    } else {
+      box.appendChild(el('span', 'chip good', 'All caught up' + (stats.nextIn ? ', next review in ' + plural(stats.nextIn, 'day', 'days') : '')));
+      start.textContent = 'Practice anyway';
+    }
+  }
+
+  function wireSetup() {
+    $('scope').addEventListener('change', function () { settings.scope = this.value; renderSetup(); });
+    $('lang').addEventListener('change', function () { settings.lang = this.value; renderSetup(); });
+    [['direction', function (v) { settings.direction = v; }], ['size', function (v) { settings.size = Number(v); }]].forEach(function (pair) {
+      $(pair[0]).addEventListener('click', function (e) {
+        var b = e.target.closest('button');
+        if (b) { pair[1](b.dataset.value); renderSetup(); }
+      });
+    });
+    $('start').addEventListener('click', function () {
+      save('settings', settings);
+      var cards = deckCards(), s = sched[settings.direction], now = today();
+      var due = cards.filter(function (c) { return s[c.id] && s[c.id][1] <= now; })
+        .sort(function (a, b) { return (s[a.id][1] - s[b.id][1]) || (s[a.id][0] - s[b.id][0]); })
+        .slice(0, settings.size);
+      // Weighted shuffle: new words with an example or picture tend to come first.
+      var fresh = cards.filter(function (c) { return !s[c.id]; })
+        .map(function (c) { return {c: c, k: Math.pow(Math.random(), c.rich ? 0.5 : 1)}; })
+        .sort(function (a, b) { return b.k - a.k; })
+        .slice(0, settings.size - due.length)
+        .map(function (x) { return x.c; });
+      var picked = due.concat(fresh);
+      if (picked.length) startSession(shuffle(picked), false);
+      else startSession(shuffle(cards).slice(0, settings.size), true);
+    });
+  }
+
+
+  function mediaUrl(ref) {
+    if (!ref) return Promise.resolve(null);
+    if (!mediaCache[ref]) {
+      mediaCache[ref] = fwlite.getMedia(ref).then(function (m) {
+        return m ? URL.createObjectURL(new Blob([m.data], {type: m.mimeType || ''})) : null;
+      }).catch(function () { return null; });
+    }
+    return mediaCache[ref];
+  }
+
+  function playButton(ref) {
+    var b = el('button', 'btn play', '▶ Listen');
+    b.type = 'button';
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      b.disabled = true;
+      mediaUrl(ref).then(function (url) {
+        if (!url) { b.textContent = 'Recording unavailable'; return; }
+        b.disabled = false;
+        new Audio(url).play().catch(function () { b.textContent = 'Can’t play recording'; });
+      });
+    });
+    return b;
+  }
+
+  function addPicture(parent, ref, alt) {
+    if (!ref) return;
+    var img = el('img', 'pic');
+    img.alt = alt;
+    img.hidden = true;
+    parent.appendChild(img);
+    mediaUrl(ref).then(function (url) { if (url) { img.src = url; img.hidden = false; } });
+  }
+
+  function wordBlock(parent, card, small) {
+    parent.appendChild(el('div', 'word' + (small ? ' small' : ''), card.word));
+  }
+  function meaningBlock(parent, card) {
+    var text = card.meanings.join('; ');
+    parent.appendChild(el('div', 'meaning' + (text.length > 60 ? ' long' : ''), text));
+  }
+  function exampleBlock(parent, card) {
+    if (!card.example) return;
+    var box = el('div', 'example');
+    box.appendChild(el('div', 's', card.example.s));
+    if (card.example.t) box.appendChild(el('div', 't', card.example.t));
+    parent.appendChild(box);
+  }
+
+  function footer(text, touchHint, keyHint) {
+    var foot = el('div', 'face-foot', text);
+    foot.appendChild(el('span', 'coarse', touchHint));
+    foot.appendChild(el('span', 'fine', keyHint));
+    return foot;
+  }
+
+  function renderCard(card) {
+    var front = $('front'), back = $('back');
+    front.textContent = '';
+    back.textContent = '';
+    var fb = el('div', 'face-body'), bb = el('div', 'face-body');
+    var w2m = session.direction === 'w2m';
+    if (w2m) {
+      wordBlock(fb, card);
+      if (card.audio) fb.appendChild(playButton(card.audio));
+      wordBlock(bb, card, true);
+      meaningBlock(bb, card);
+      if (card.pos) bb.appendChild(el('div', 'pos', card.pos));
+      addPicture(bb, card.picture, card.meanings[0]);
+    } else {
+      meaningBlock(fb, card);
+      if (card.pos) fb.appendChild(el('div', 'pos', card.pos));
+      addPicture(fb, card.picture, card.meanings[0]);
+      bb.appendChild(el('div', 'meaning long muted', card.meanings.join('; ')));
+      wordBlock(bb, card);
+      if (card.audio) bb.appendChild(playButton(card.audio));
+    }
+    exampleBlock(bb, card);
+    var open = el('button', 'btn ghost open', 'Open in dictionary');
+    open.type = 'button';
+    open.addEventListener('click', function (e) { e.stopPropagation(); fwlite.openEntry(card.id); });
+    bb.appendChild(open);
+    front.appendChild(fb);
+    front.appendChild(footer(w2m ? 'What does it mean?' : 'What is the word?', ' Tap to check.', ' Press Space to check.'));
+    back.appendChild(bb);
+    back.appendChild(footer('', 'Swipe right if you knew it, left if not.', '\u2192 if you knew it, \u2190 if not.'));
+    var next = session.queue[1];
+    if (next) { mediaUrl(next.picture); }
   }
 
   function setFlipped(flipped) {
-    state.flipped = flipped;
-    var card = document.getElementById('card');
-    card.classList.toggle('flipped', flipped);
-    document.getElementById('btn-again').disabled = !flipped;
-    document.getElementById('btn-good').disabled = !flipped;
-  }
-
-  function grade(good) {
-    if (!state.flipped) return;
-    var entry = state.session[state.index];
-    var record = state.progress[entry.id] || {level: 0, seen: 0};
-    record.seen = (record.seen || 0) + 1;
-    record.level = good ? Math.min(MAX_LEVEL, record.level + 1) : 0;
-    state.progress[entry.id] = record;
-    if (good) state.goodCount++; else state.againCount++;
-    saveProgress();
-
-    state.index++;
-    if (state.index >= state.session.length) {
-      showSummary();
-    } else {
-      renderCard();
+    session.flipped = flipped;
+    $('inner').classList.toggle('flipped', flipped);
+    $('front').inert = flipped;
+    $('back').inert = !flipped;
+    show('show', !flipped);
+    show('again', flipped);
+    show('good', flipped);
+    if (flipped) {
+      $('good').focus({preventScroll: true});
+      var c = session.queue[0];
+      announce((session.direction === 'w2m' ? c.meanings.join('; ') : c.word) + (c.pos ? '. ' + c.pos : ''));
     }
   }
 
-  function showSummary() {
-    document.getElementById('study-view').style.display = 'none';
-    document.getElementById('summary-view').style.display = 'block';
-    document.getElementById('sum-good').textContent = String(state.goodCount);
-    document.getElementById('sum-again').textContent = String(state.againCount);
+  function announce(text) { $('live').textContent = text; }
 
-    var mastered = state.deck.filter(function (entry) { return levelOf(entry.id) >= MAX_LEVEL; }).length;
-    document.getElementById('overall-progress').textContent =
-      mastered + ' of ' + state.deck.length + ' cards mastered overall';
+  function renderProgress() {
+    $('count').textContent = session.cleared + ' / ' + session.total;
+    $('track-fill').style.width = (session.total ? session.cleared / session.total * 100 : 0) + '%';
+    var retry = session.queue.filter(function (c) { return session.missed[c.id]; }).length;
+    $('retry-chip').textContent = '↺ ' + retry + ' to retry';
+    show('retry-chip', retry > 0);
+    show('undo', !!session.undo);
   }
 
-  function startSession() {
-    state.session = buildSession();
-    state.index = 0;
-    state.goodCount = 0;
-    state.againCount = 0;
-    document.getElementById('study-view').style.display = 'block';
-    document.getElementById('summary-view').style.display = 'none';
-    renderCard();
+  function presentCurrent(enter) {
+    var slot = $('slot'), inner = $('inner');
+    inner.classList.add('instant');
+    setFlipped(false);
+    renderCard(session.queue[0]);
+    renderProgress();
+    slot.classList.remove('fly', 'settle');
+    setHints(0);
+    if (enter && !reducedMotion()) {
+      slot.style.transform = 'translateY(14px) scale(0.96)';
+      slot.style.opacity = '0';
+      void slot.offsetWidth;
+      slot.classList.add('settle');
+    }
+    slot.style.transform = '';
+    slot.style.opacity = '';
+    void inner.offsetWidth;
+    inner.classList.remove('instant');
+    session.busy = false;
   }
 
-  function wireEvents() {
-    var card = document.getElementById('card');
-    card.addEventListener('click', function () { setFlipped(!state.flipped); });
-    card.addEventListener('keydown', function (event) {
-      if (event.code === 'Space') {
-        event.preventDefault();
-        setFlipped(!state.flipped);
+  function startSession(cards, practice) {
+    session = {
+      queue: cards.slice(), total: cards.length, cleared: 0, practice: practice, direction: settings.direction,
+      missed: {}, missedOrder: [], movedUp: 0, started: 0, firstTry: 0, flipped: false, busy: false, undo: null,
+    };
+    $('note-again').textContent = practice ? 'Practice round: your schedule won’t change.' : '';
+    show('setup-view', false);
+    show('summary-view', false);
+    show('study-view', true);
+    presentCurrent(true);
+    $('show').focus({preventScroll: true});
+  }
+
+  function grade(good) {
+    if (!session || session.busy || !session.flipped) return;
+    session.busy = true;
+    var card = session.queue[0], s = sched[session.direction], prev = s[card.id];
+    session.undo = {
+      queue: session.queue.slice(), cleared: session.cleared, movedUp: session.movedUp, started: session.started, firstTry: session.firstTry,
+      missed: Object.assign({}, session.missed), missedOrder: session.missedOrder.slice(), id: card.id, rec: prev ? prev.slice() : null,
+    };
+    session.queue.shift();
+    var note = '';
+    if (good) {
+      session.cleared++;
+      if (!session.missed[card.id]) {
+        session.firstTry++;
+        if (!session.practice) {
+          var box = Math.min(TOP_BOX, (prev ? prev[0] : 0) + 1);
+          if (!prev) session.started++;
+          else if (box > prev[0]) session.movedUp++;
+          s[card.id] = [box, today() + INTERVALS[box]];
+        }
       }
-    });
-    document.getElementById('btn-again').addEventListener('click', function () { grade(false); });
-    document.getElementById('btn-good').addEventListener('click', function () { grade(true); });
-    document.getElementById('btn-restart').addEventListener('click', startSession);
-
-    document.addEventListener('keydown', function (event) {
-      if (document.getElementById('study-view').style.display === 'none') return;
-      if (event.key === 'ArrowRight') { event.preventDefault(); grade(true); }
-      else if (event.key === 'ArrowLeft') { event.preventDefault(); grade(false); }
+      announce('Got it');
+    } else {
+      if (!session.missed[card.id]) { session.missed[card.id] = true; session.missedOrder.push(card); }
+      if (!session.practice) s[card.id] = [1, today() + 1];
+      session.queue.splice(Math.min(RETRY_GAP, session.queue.length), 0, card);
+      note = session.queue.length === 1 ? 'One more go at this one.' : 'You’ll see it again in a moment.';
+      announce('Again. ' + note);
+    }
+    if (!session.practice) saveSched();
+    flyOut(good ? 1 : -1, function () {
+      $('note-again').textContent = session.practice && !note ? 'Practice round: your schedule won’t change.' : note;
+      if (!session.queue.length) finish();
+      else { presentCurrent(true); $('show').focus({preventScroll: true}); }
     });
   }
 
-  function init(context) {
-    applyTheme(context.theme);
-    wireEvents();
+  function flyOut(dir, done) {
+    var slot = $('slot');
+    if (reducedMotion()) { done(); return; }
+    var finished = false;
+    function end() { if (finished) return; finished = true; done(); }
+    slot.classList.remove('settle');
+    slot.classList.add('fly');
+    slot.style.transform = 'translateX(' + (dir * 130) + '%) rotate(' + (dir * 14) + 'deg)';
+    slot.style.opacity = '0';
+    setHints(dir);
+    slot.addEventListener('transitionend', end, {once: true});
+    setTimeout(end, 400);
+  }
 
-    Promise.all([
-      window.fwlite.getWritingSystems(),
-      loadProgress(),
-      window.fwlite.getEntries({limit: POOL_SIZE}),
-    ]).then(function (results) {
-      var writingSystems = results[0];
-      var entries = results[2];
-      state.vernacularWs = (writingSystems.vernacular || []).map(function (ws) { return ws.wsId; });
-      state.analysisWs = (writingSystems.analysis || []).map(function (ws) { return ws.wsId; });
+  function setHints(dx) {
+    var v = Math.max(-1, Math.min(1, dx));
+    $('hint-good').style.opacity = v > 0 ? v : 0;
+    $('hint-again').style.opacity = v < 0 ? -v : 0;
+  }
 
-      state.deck = entries.filter(isEligible);
+  function undo() {
+    if (!session || !session.undo || session.busy) return;
+    var u = session.undo, s = sched[session.direction];
+    session.queue = u.queue;
+    session.cleared = u.cleared;
+    session.movedUp = u.movedUp;
+    session.started = u.started;
+    session.firstTry = u.firstTry;
+    session.missed = u.missed;
+    session.missedOrder = u.missedOrder;
+    if (!session.practice) {
+      if (u.rec) s[u.id] = u.rec; else delete s[u.id];
+      saveSched();
+    }
+    session.undo = null;
+    $('note-again').textContent = '';
+    presentCurrent(true);
+    announce('Undone');
+    $('show').focus({preventScroll: true});
+  }
 
-      document.getElementById('loading').style.display = 'none';
+  function finish() {
+    var sess = session, s = sched[sess.direction], now = today();
+    show('study-view', false);
+    show('summary-view', true);
+    var seen = sess.cleared + sess.missedOrder.filter(function (c) { return sess.queue.indexOf(c) >= 0; }).length;
+    var pct = seen ? Math.round(sess.firstTry / seen * 100) : 0;
+    $('sum-title').textContent = !seen ? 'Session ended' : sess.queue.length ? 'Good start' : pct >= 90 ? 'Excellent!' : pct >= 60 ? 'Nice work' : 'Good practice';
+    $('sum-big').textContent = seen ? sess.firstTry + ' / ' + seen : '';
+    $('sum-sub').textContent = seen ? 'right on the first try' : 'No cards answered.';
+    var stats = $('sum-stats');
+    stats.textContent = '';
+    if (sess.queue.length) stats.appendChild(el('span', 'chip', 'Stopped with ' + plural(sess.queue.length, 'card', 'cards') + ' left'));
+    if (sess.missedOrder.length) stats.appendChild(el('span', 'chip bad', plural(sess.missedOrder.length, 'word', 'words') + ' needed another go'));
+    if (sess.started) stats.appendChild(el('span', 'chip accent', plural(sess.started, 'new word', 'new words')));
+    if (sess.movedUp) stats.appendChild(el('span', 'chip good', plural(sess.movedUp, 'word', 'words') + ' moved up a level'));
+    var mastered = entries.filter(function (e) { return s[e.id] && s[e.id][0] === TOP_BOX; }).length;
+    if (mastered) stats.appendChild(el('span', 'chip good', plural(mastered, 'word', 'words') + ' well known'));
+    var list = $('work-list');
+    list.textContent = '';
+    sess.missedOrder.forEach(function (c) {
+      var li = el('li');
+      li.appendChild(el('span', 'w', c.word));
+      li.appendChild(el('span', 'm', c.meanings.join('; ')));
+      if (c.audio) { var p = playButton(c.audio); p.textContent = '▶'; p.setAttribute('aria-label', 'Listen to ' + c.word); p.className = 'btn ghost icon-btn'; li.appendChild(p); }
+      list.appendChild(li);
+    });
+    show('work-card', sess.missedOrder.length > 0);
+    var tomorrow = Object.keys(s).filter(function (id) { return s[id][1] === now + 1; }).length;
+    $('sum-next').textContent = sess.practice ? 'Practice round: your schedule didn’t change.'
+      : (tomorrow ? (tomorrow === 1 ? '1 card is' : tomorrow + ' cards are') + ' due tomorrow. ' : '') + 'Progress is saved on this device.';
+    var practice = $('practice');
+    practice.hidden = !sess.missedOrder.length;
+    practice.textContent = sess.missedOrder.length === 1 ? 'Practice it again' : 'Practice these ' + sess.missedOrder.length;
+    practice.className = 'btn' + (sess.missedOrder.length ? ' primary' : '');
+    $('done').className = 'btn' + (sess.missedOrder.length ? '' : ' primary');
+    session = null;
+    $('done').onclick = backToSetup;
+    practice.onclick = function () { startSession(shuffle(sess.missedOrder.slice()), true); };
+    (sess.missedOrder.length ? practice : $('done')).focus({preventScroll: true});
+  }
 
-      if (state.deck.length === 0) {
-        document.getElementById('empty').style.display = 'block';
+  function backToSetup() {
+    show('summary-view', false);
+    show('study-view', false);
+    show('setup-view', true);
+    renderSetup();
+    $('start').focus({preventScroll: true});
+  }
+
+  function wireStudy() {
+    var slot = $('slot'), drag = null, suppressClick = false;
+    $('show').addEventListener('click', function () { if (session && !session.busy) setFlipped(true); });
+    $('again').addEventListener('click', function () { grade(false); });
+    $('good').addEventListener('click', function () { grade(true); });
+    $('undo').addEventListener('click', undo);
+    $('end').addEventListener('click', function () { if (session && !session.busy) finish(); });
+    slot.addEventListener('click', function (e) {
+      if (suppressClick) { suppressClick = false; return; }
+      if (!session || session.busy || e.target.closest('button')) return;
+      setFlipped(!session.flipped);
+    });
+    slot.addEventListener('pointerdown', function (e) {
+      if (!session || session.busy || e.button > 0 || e.target.closest('button')) return;
+      drag = {x: e.clientX, y: e.clientY, t: Date.now(), dx: 0, active: false, id: e.pointerId};
+    });
+    // Listening on the document, not the card, keeps the drag alive when the finger or mouse leaves the card.
+    document.addEventListener('pointermove', function (e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      if (e.pointerType === 'mouse' && !e.buttons) { release(e); return; }
+      var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (!drag.active) {
+        if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy)) return;
+        drag.active = true;
+        slot.classList.remove('settle', 'fly');
+      }
+      drag.dx = session.flipped ? dx : dx / 5;
+      slot.style.transform = 'translateX(' + drag.dx + 'px) rotate(' + (drag.dx / 25) + 'deg)';
+      if (session.flipped) setHints(drag.dx / (slot.offsetWidth * 0.3));
+    });
+    function release(e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      var d = drag;
+      drag = null;
+      if (!d.active) return;
+      suppressClick = true;
+      setTimeout(function () { suppressClick = false; }, 0);
+      var fast = Math.abs(d.dx) > 40 && Math.abs(d.dx) / Math.max(1, Date.now() - d.t) > 0.6;
+      if (session && session.flipped && (Math.abs(d.dx) > slot.offsetWidth * 0.3 || fast)) {
+        grade(d.dx > 0);
         return;
       }
+      slot.classList.add('settle');
+      slot.style.transform = '';
+      setHints(0);
+    }
+    document.addEventListener('pointerup', release);
+    document.addEventListener('pointercancel', release);
 
-      document.getElementById('subtitle').textContent =
-        state.deck.length + ' card' + (state.deck.length === 1 ? '' : 's') + ' in ' + context.project.projectName;
-      document.getElementById('app').style.display = 'block';
-      startSession();
-    }).catch(function (err) {
-      showError('Could not load flashcards: ' + (err && err.message ? err.message : String(err)));
+    document.addEventListener('keydown', function (e) {
+      if (!session || $('study-view').hidden) return;
+      if (e.target.closest && e.target.closest('input, select, textarea')) return;
+      var onOtherButton = e.target.closest && e.target.closest('button') && !e.target.closest('#show, #again, #good');
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); return; }
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.key === 'Escape') { e.preventDefault(); if (!session.busy) finish(); return; }
+      if ((e.key === ' ' || e.key === 'Enter') && !onOtherButton) {
+        e.preventDefault();
+        if (e.repeat) return;
+        if (!session.flipped) { if (!session.busy) setFlipped(true); } else grade(true);
+      } else if (e.key === 'ArrowLeft' || e.key === '1') {
+        e.preventDefault();
+        grade(false);
+      } else if (e.key === 'ArrowRight' || e.key === '2') {
+        e.preventDefault();
+        grade(true);
+      }
     });
   }
 
-  window.fwlite.ready.then(init);
+
+  async function init() {
+    applyTheme();
+    try {
+      var results = await Promise.all([
+        fwlite.getWritingSystems(), fwlite.getSemanticDomains(),
+        fwlite.storage.get('settings'), fwlite.storage.get('sched-w2m'), fwlite.storage.get('sched-m2w'),
+      ]);
+      var wss = results[0];
+      var vern = wss.vernacular || [];
+      applyVernFont(vern.filter(function (w) { return !w.isAudio; })[0]);
+      ws.vernText = vern.filter(function (w) { return !w.isAudio; }).map(function (w) { return w.wsId; });
+      ws.audio = vern.filter(function (w) { return w.isAudio; }).map(function (w) { return w.wsId; });
+      var analysis = (wss.analysis || []).filter(function (w) { return !w.isAudio; });
+      ws.analysis = analysis.map(function (w) { return w.wsId; });
+      results[1].forEach(function (d) { domainsByCode[d.code] = d; });
+      if (results[2] && typeof results[2] === 'object') Object.assign(settings, results[2]);
+      if (ws.analysis.indexOf(settings.lang) < 0) settings.lang = ws.analysis[0] || '';
+      if (settings.direction !== 'm2w') settings.direction = 'w2m';
+      if ([10, 20, 40].indexOf(settings.size) < 0) settings.size = 20;
+      sched.w2m = results[3] && typeof results[3] === 'object' ? results[3] : {};
+      sched.m2w = results[4] && typeof results[4] === 'object' ? results[4] : {};
+
+      var loaded = await loadAll(function (n, target) {
+        $('loading-text').textContent = 'Loading words… ' + Math.round(n / target * 100) + '%';
+      });
+      entries = loaded.entries;
+      if (!loaded.capped) {
+        var ids = {};
+        entries.forEach(function (e) { ids[e.id] = true; });
+        ['w2m', 'm2w'].forEach(function (dir) {
+          var gone = Object.keys(sched[dir]).filter(function (id) { return !ids[id]; });
+          gone.forEach(function (id) { delete sched[dir][id]; });
+          if (gone.length) save('sched-' + dir, sched[dir]);
+        });
+      }
+
+      var langSelect = $('lang');
+      analysis.forEach(function (w) { var o = el('option', '', w.name || w.wsId); o.value = w.wsId; langSelect.appendChild(o); });
+      show('lang-field', analysis.length > 1);
+      show('loading', false);
+      if (!ws.analysis.length || !entries.some(function (e) { return ws.analysis.some(function (l) { return buildCard(e, 'all', l); }); })) {
+        show('empty', true);
+        return;
+      }
+      wireSetup();
+      wireStudy();
+      renderSetup();
+      show('app', true);
+    } catch (err) {
+      show('loading', false);
+      var box = $('error');
+      box.textContent = 'Could not load the flashcards: ' + (err && err.message ? err.message : String(err));
+      box.hidden = false;
+    }
+  }
+  fwlite.ready.then(init);
 })();
 </script>
 </body>

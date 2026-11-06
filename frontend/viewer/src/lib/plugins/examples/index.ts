@@ -236,7 +236,7 @@ export const examplePlugins: ExamplePlugin[] = [
   {
     key: 'flashcards',
     name: 'Flashcards',
-    description: 'Study vocabulary with flip cards and spaced-repetition-style progress saved per entry.',
+    description: 'Learn the words in your dictionary with flip cards; words you know come back less often.',
     functions: ['play'],
     loadHtml: async () => (await import('./flashcards.html?raw')).default,
   },
