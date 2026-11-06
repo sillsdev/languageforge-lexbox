@@ -45,9 +45,9 @@ test.describe('Missing filter', () => {
   async function filterMissing(label: string): Promise<void> {
     const {page} = projectPage;
     await page.getByRole('button', {name: 'Toggle filters'}).click();
-    await page.getByRole('button', {name: 'Entries missing...'}).click();
+    await page.getByRole('combobox').filter({hasText: 'Entries missing...'}).click();
     await page.getByRole('option', {name: label}).click();
-    await expect(page.getByRole('button', {name: `Missing: ${label}`})).toBeVisible();
+    await expect(page.getByRole('combobox').filter({hasText: `Missing: ${label}`})).toBeVisible();
     await page.keyboard.press('Escape');
   }
 
