@@ -816,7 +816,7 @@
     var total = state.entries.length;
     var have = total - state.worklist.length;
     var pct = total ? Math.round((have / total) * 100) : 0;
-    el('coverage-line').textContent = have + ' of ' + total + ' entr' + (total === 1 ? 'y' : 'ies') + ' recorded';
+    el('coverage-line').textContent = have.toLocaleString() + ' of ' + total.toLocaleString() + ' entr' + (total === 1 ? 'y' : 'ies') + ' recorded';
     el('progress-fill').style.width = pct + '%';
     var sess = state.sessionCount ? 'Recorded this session: ' + state.sessionCount : 'Pick an entry and record its pronunciation.';
     if (state.capped) sess += ' · showing first ' + CAP;
@@ -965,7 +965,7 @@
 
         show('loading', false);
         el('subtitle').textContent = context.project.projectName +
-          ' · ' + state.entries.length + ' entr' + (state.entries.length === 1 ? 'y' : 'ies') +
+          ' · ' + state.entries.length.toLocaleString() + ' entr' + (state.entries.length === 1 ? 'y' : 'ies') +
           (canRecord ? '' : ' · recording unavailable here');
         show('app', true);
 

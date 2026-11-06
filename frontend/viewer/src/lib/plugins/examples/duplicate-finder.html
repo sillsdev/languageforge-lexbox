@@ -126,7 +126,7 @@
   .cluster-title { font-weight: 700; font-size: 1.05rem; font-family: var(--vern-font); word-break: break-word; }
   .cluster-title.plain { font-family: inherit; }
   .cluster-meta { color: var(--text-muted); font-size: 0.85rem; margin-left: auto; white-space: nowrap; }
-  .members { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+  .members { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
   .member {
     text-align: left; font: inherit; color: inherit; cursor: pointer; width: 100%; min-height: 44px;
     background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius);
@@ -153,7 +153,7 @@
     .field { flex-basis: calc(50% - 6px); }
     .field.wide { flex-basis: 100%; }
     .cluster { padding: 12px; }
-    .members { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .members { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
     .member { padding: 8px 10px; }
     .member .open { display: none; }
     #summary, .tab .opt { display: none; }

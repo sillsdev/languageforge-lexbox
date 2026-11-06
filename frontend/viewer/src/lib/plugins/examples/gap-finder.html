@@ -217,7 +217,7 @@
       <div class="items" id="wl-items"></div>
       <div id="wl-celebrate" class="celebrate" hidden>
         <div class="big">&#127881;</div>
-        <div class="msg" id="wl-celebrate-msg">Nothing to fix here &mdash; nicely done!</div>
+        <div class="msg" id="wl-celebrate-msg">Nothing to fix here. Nicely done!</div>
       </div>
     </section>
   </div>
@@ -400,10 +400,10 @@
       : gaps.toLocaleString() + ' gap' + (gaps === 1 ? '' : 's') + ' found across ' + state.cards.length + ' checks. Tap a card to work through them.';
   }
   function healthMessage(pct, complete) {
-    if (complete) return 'Your dictionary looks complete — wonderful work!';
-    if (pct >= 90) return 'Almost there — just a few gaps left.';
+    if (complete) return 'Your dictionary looks complete. Wonderful work!';
+    if (pct >= 90) return 'Almost there, just a few gaps left.';
     if (pct >= 70) return 'Good progress. A steady bit of cleanup to go.';
-    if (pct >= 40) return 'Coming along nicely — plenty of quick wins below.';
+    if (pct >= 40) return 'Coming along nicely, with plenty of quick wins below.';
     return 'Lots of room to grow. Pick a card and chip away.';
   }
 
@@ -729,7 +729,7 @@
     if (card.items.length === 0) {
       $('wl-items').hidden = true;
       $('wl-celebrate').hidden = false;
-      $('wl-celebrate-msg').textContent = 'Every gap here is filled — nicely done!';
+      $('wl-celebrate-msg').textContent = 'Every gap here is filled. Nicely done!';
     }
   }
 
