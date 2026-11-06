@@ -7,37 +7,120 @@
 <title>The Speaking Isles</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f5f6f8;
-    --surface: rgba(252, 252, 254, 0.94);
+    color-scheme: light;
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
+    --warn: #b45309;
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
+  }
+  html[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
+    --warn: #fbbf24;
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
+  }
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
+  }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  /* Game panels float over the 3D world, so they stay slightly translucent. */
+  :root {
+    --surface: rgba(255, 255, 255, 0.94);
     --surface-solid: #ffffff;
-    --border: #e2e4e9;
-    --text: #1c1e21;
-    --text-muted: #6b7280;
-    --accent: #6366f1;
     --gold: #eab308;
-    --good: #16a34a;
-    --danger: #dc2626;
+    --danger: var(--bad);
     --shadow: 0 4px 22px rgba(16, 24, 40, 0.18);
     --radius: 14px;
   }
   html[data-theme="dark"] {
-    --bg: #0a0b12;
-    --surface: rgba(21, 23, 34, 0.92);
-    --surface-solid: #1a1c28;
-    --border: #2d3046;
-    --text: #edeef1;
-    --text-muted: #9aa0ab;
-    --accent: #818cf8;
+    --surface: rgba(24, 24, 27, 0.92);
+    --surface-solid: #18181b;
     --gold: #facc15;
-    --good: #4ade80;
-    --danger: #f87171;
     --shadow: 0 4px 26px rgba(0, 0, 0, 0.55);
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; margin: 0; overflow: hidden; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font);
     background: #0b0e1a;
     color: var(--text);
     touch-action: none;
@@ -101,6 +184,9 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   #boot p { color: #9aa3c7; font-size: 0.9rem; margin-top: 16px; }
+  #boot .error-box { max-width: 460px; text-align: left; }
+  /* A wrapper only: the game's layers are fixed-position and keep their own stacking. */
+  #app { display: contents; }
   #title h1 {
     margin: 0;
     font-size: clamp(2rem, 7vw, 3.6rem);
@@ -183,7 +269,7 @@
   }
   /* Context-aware "what to do next" line, sits just under the top banner. */
   #objective {
-    top: 74px; left: 50%; transform: translateX(-50%);
+    position: absolute; top: 74px; left: 50%; transform: translateX(-50%);
     padding: 6px 15px; font-size: 0.82rem; font-weight: 600; text-align: center;
     max-width: 88vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     pointer-events: none; color: var(--text);
@@ -192,7 +278,7 @@
   #objective.ready { border-color: var(--gold); box-shadow: 0 0 16px rgba(234,179,8,0.4); }
   /* First-run control primer; fades out after the player starts moving/looking. */
   #firsthint {
-    bottom: 150px; left: 50%; transform: translateX(-50%);
+    position: absolute; bottom: 150px; left: 50%; transform: translateX(-50%);
     padding: 12px 18px; font-size: 0.9rem; line-height: 1.7; text-align: center;
     max-width: min(440px, 90vw); pointer-events: none;
     transition: opacity 0.6s; opacity: 1;
@@ -279,6 +365,8 @@
   #contrib .note.good { color: var(--good); }
   /* pause + finale */
   #pause .keys { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 0.88rem; margin: 14px 0; }
+  #pause .keys kbd { align-self: start; }
+  body.touch #pause .keys.desk, body:not(.touch) #pause .keys.tap { display: none; }
   #pause .keys kbd { background: var(--border); border-radius: 5px; padding: 1px 8px; font-family: inherit; font-size: 0.8rem; font-weight: 700; text-align: center; }
   #finale { text-align: center; }
   #finale h2 { font-size: 1.5rem; }
@@ -316,6 +404,8 @@
   body.touch #joy { display: block; }
   body.touch #tbtns { display: flex; }
   body.touch #cross { display: none; }
+  /* Taps act on the block under the screen centre, so show the aim square while building. */
+  body.touch #cross.build { display: block; }
   /* Lift the on-screen controls above the bottom-centre hotbar and keep Echo clear of them. */
   body.touch #joy { bottom: 120px; left: 18px; }
   body.touch #tbtns { bottom: 120px; right: 14px; }
@@ -339,21 +429,31 @@
       min-width: 0; max-width: calc(100vw - 180px); padding: 6px 10px;
     }
     #banner .rname { font-size: 0.84rem; }
-    #banner .rsub { font-size: 0.62rem; }
+    #banner .rsub { font-size: 0.62rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .wide-only { display: none; }
     #stats { padding: 6px 9px; }
     #stats .lum { font-size: 0.76rem; }
     #stats .wds { font-size: 0.62rem; }
-    #objective { max-width: 92vw; font-size: 0.74rem; top: 60px; }
+    #objective {
+      top: 64px; left: 12px; right: 56px; transform: none; max-width: none;
+      white-space: normal; font-size: 0.78rem; text-align: left; padding: 6px 12px;
+    }
+    #helpbtn { top: 64px; }
+    body.touch #echo { top: 128px; }
   }
 </style>
 </head>
 <body>
-<canvas id="gl"></canvas>
-
 <div id="boot">
-  <div class="spinner"></div>
-  <p id="boot-msg">Waking the isles…</p>
+  <div id="loading">
+    <div class="spinner"></div>
+    <p id="boot-msg">Waking the isles…</p>
+  </div>
+  <div id="error" class="error-box" role="alert" hidden></div>
 </div>
+
+<main id="app" hidden>
+<canvas id="gl"></canvas>
 
 <div id="title" class="hidden">
   <h1>The Speaking Isles</h1>
@@ -377,7 +477,7 @@
   <div id="compassbar" class="panel"><span class="arrow" id="compass-arrow">➤</span><span id="compass-label">The Great Beacon</span></div>
   <div id="stats" class="panel">
     <span class="lum">✦ <span id="stat-lumens">0</span> lumens</span>
-    <span class="wds"><span id="stat-words">0</span> / <span id="stat-total">0</span> words learned</span>
+    <span class="wds"><span id="stat-words">0</span> / <span id="stat-total">0</span> words<span class="wide-only"> learned</span></span>
   </div>
   <div id="cross"></div>
   <div id="prompt" class="panel hidden"></div>
@@ -440,7 +540,15 @@
   <div id="pause" class="dialog panel">
     <h2>The Speaking Isles</h2>
     <p class="sub" id="pause-progress"></p>
-    <div class="keys">
+    <div class="keys tap">
+      <kbd>Stick</kbd><span>walk (single steps climb on their own) · drag the world to look</span>
+      <kbd>⤒</kbd><span>jump gaps &amp; ledges (again in water to swim up)</span>
+      <kbd>✦</kbd><span>touch a word-light, shrine or beacon</span>
+      <kbd>⛏</kbd><span>build mode on/off</span>
+      <kbd>Tap</kbd><span>build mode: place a block · <b>long press</b>: break one</span>
+      <kbd>?</kbd><span>this menu</span>
+    </div>
+    <div class="keys desk">
       <kbd>W A S D</kbd><span>walk — single steps climb on their own &nbsp;·&nbsp; drag the world to look</span>
       <kbd>Space</kbd><span>jump gaps &amp; ledges (again in water to swim up)</span>
       <kbd>E</kbd><span>touch a word-light, shrine or beacon</span>
@@ -481,6 +589,7 @@
   <button id="tb-act">✦</button>
   <button id="tb-jump">⤒</button>
 </div>
+</main>
 <script>
 'use strict';
 /* ============================================================================
@@ -685,6 +794,22 @@ var Dict = {
   glossPool: [],
 };
 
+var AFFIX_TYPES = ['Prefix', 'Suffix', 'Infix', 'Circumfix', 'Simulfix', 'Suprafix', 'Clitic', 'Enclitic', 'Proclitic',
+  'BoundRoot', 'BoundStem', 'PrefixingInterfix', 'InfixingInterfix', 'SuffixingInterfix'];
+// Games and drills: skip affixes, clitics and senses glossed with grammatical tags like "PST" or "3SG.SBJ".
+function isContentWord(entry, gloss) {
+  if (entry.morphType && AFFIX_TYPES.indexOf(entry.morphType) >= 0) return false;
+  var hw = fwlite.headword(entry);
+  if (!hw || /^[-=]|[-=]$/.test(hw)) return false;
+  return !gloss || !/^[A-Z0-9.+:_-]{2,}$/.test(gloss.trim());
+}
+
+// Fallback names for the top-level semantic domains when the project's list lacks one.
+var TOP_DOMAIN_NAMES = {
+  '1': 'Universe, creation', '2': 'Person', '3': 'Language and thought', '4': 'Social behavior',
+  '5': 'Daily life', '6': 'Work and occupation', '7': 'Physical actions', '8': 'States', '9': 'Grammar',
+};
+
 function firstAnalysisText(multi) { return fwlite.firstValue(multi, Dict.analysisWsIds); }
 
 function entryGloss(entry) {
@@ -778,7 +903,7 @@ function loadDictionary() {
     }
     return page(0);
   }).then(function (entries) {
-    Dict.entries = entries.filter(function (e) { return fwlite.headword(e); });
+    Dict.entries = entries.filter(function (e) { return fwlite.headword(e) && isContentWord(e, entryGloss(e)); });
     Dict.entries.forEach(function (e) { Dict.byId.set(e.id, e); });
     Dict.glossPool = [];
     Dict.entries.forEach(function (e) {
@@ -808,7 +933,7 @@ function buildRegions() {
   ranked.slice(0, 7).forEach(function (pair) {
     var topCode = pair[0];
     var domain = Dict.domainByCode.get(topCode) || null;
-    regions.push(makeRegion(domain ? domainName(domain) : ('Domain ' + topCode), BIOMES[topCode], domain, topCode, pair[1]));
+    regions.push(makeRegion(domain ? domainName(domain) : TOP_DOMAIN_NAMES[topCode], BIOMES[topCode], domain, topCode, pair[1]));
   });
   ranked.slice(7).forEach(function (pair) { drifting = drifting.concat(pair[1]); });
 
@@ -1433,6 +1558,7 @@ var Renderer = (function () {
   }
 
   function resize() {
+    if (!gl) return;   // a resize can arrive while the dictionary is still loading
     // Fewer pixels on modest hardware: fill rate is the main cost of a full-screen voxel scene.
     var dpr = Math.min(window.devicePixelRatio || 1, LOW_END ? 1.0 : 1.5);
     var wCss = canvas.clientWidth || window.innerWidth;
@@ -1996,7 +2122,7 @@ var Input = (function () {
 
   // Touch: left pad = joystick, canvas drag = look, buttons on the right.
   var joy = $('joy'), nub = $('joy-nub');
-  var joyTouch = null, lookTouch = null, lookLast = null, lookMoved = 0;
+  var joyTouch = null, lookTouch = null, lookLast = null, lookMoved = 0, lookStart = 0;
   function setJoy(t) {
     var rect = joy.getBoundingClientRect();
     var cx = rect.left + rect.width / 2, cyy = rect.top + rect.height / 2;
@@ -2033,7 +2159,8 @@ var Input = (function () {
         nub.style.transform = '';
       }
       if (t.identifier === lookTouch) {
-        if (lookMoved < 10 && api.enabled && api.onClick) api.onClick(false);
+        // Build mode on touch: tap places a block, a long press breaks one.
+        if (lookMoved < 10 && api.enabled && api.onClick) api.onClick(Date.now() - lookStart < 450);
         lookTouch = null; lookLast = null;
       }
     }
@@ -2043,7 +2170,7 @@ var Input = (function () {
     if (!api.enabled) return;
     e.preventDefault();
     var t = e.changedTouches[0];
-    if (lookTouch === null) { lookTouch = t.identifier; lookLast = {x: t.clientX, y: t.clientY}; lookMoved = 0; }
+    if (lookTouch === null) { lookTouch = t.identifier; lookLast = {x: t.clientX, y: t.clientY}; lookMoved = 0; lookStart = Date.now(); }
     Sound.poke();
   }, {passive: false});
 
@@ -2491,7 +2618,14 @@ function startQuiz(orb) {
   var answers;
   if (reverse) {
     // Show the meaning, pick the headword among others from the same isle (or anywhere).
-    var others = shuffled(Dict.entries.filter(function (e) { return e.id !== entry.id && fwlite.headword(e); })).slice(0, 3);
+    var hw = fwlite.headword(entry), seenHw = {};
+    seenHw[hw] = true;
+    var others = shuffled(Dict.entries.filter(function (e) {
+      var h = fwlite.headword(e);
+      if (seenHw[h] || entryGloss(e) === correct) return false;
+      seenHw[h] = true;
+      return true;
+    })).slice(0, 3);
     if (others.length < 1) reverse = false;
     else {
       $('quiz-q').innerHTML = 'Which word means <b>“' + escapeHtml(correct) + '”</b>?';
@@ -2729,6 +2863,11 @@ function toggleBuildMode() {
   $('hotbar').classList.toggle('hidden', !Game.buildMode);
   $('modebadge').classList.toggle('hidden', !Game.buildMode);
   $('cross').classList.toggle('build', Game.buildMode);
+  if (Game.buildMode) {
+    toast(document.body.classList.contains('touch')
+      ? 'Build mode: tap to place at the square, long-press to break'
+      : 'Build mode: click to break, right-click to place');
+  }
   Sound.click();
   markDirty();
 }
@@ -3080,6 +3219,7 @@ function showOverlay(id) {
   var el = $(id);
   if (el.classList.contains('hidden')) {
     el.classList.remove('hidden');
+    $('toast').classList.remove('show');
     openOverlays++;
   }
   Input.enabled = false;
@@ -3284,6 +3424,7 @@ function showTitle(hasSave) {
     : 'WASD to walk · drag the world to look · E to touch the lights';
   $('btn-skip').classList.toggle('hidden', storyPages.length === 1);
   renderStoryPage(hasSave);
+  $('loading').hidden = true;
   $('boot').classList.add('hidden');
   $('title').classList.remove('hidden');
 }
@@ -3333,12 +3474,13 @@ function startGame(hasSave) {
 }
 
 /* ---- pause ---- */
+function plural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
 function togglePause() {
   if (!Game.started) return;
   if ($('pause-overlay').classList.contains('hidden')) {
     $('pause-progress').textContent =
-      Game.learned.size + ' words learned · ' + restoredCount() + ' of ' + liveRegionCount() + ' isles awake · ' +
-      Game.given + ' gifts given · ' + Game.placed + ' blocks placed';
+      plural(Game.learned.size, 'word') + ' learned · ' + restoredCount() + ' of ' + liveRegionCount() + ' isles awake · ' +
+      plural(Game.given, 'gift') + ' given · ' + plural(Game.placed, 'block') + ' placed';
     $('pause-sound').textContent = 'Sound: ' + (Sound.muted ? 'off' : 'on');
     showOverlay('pause-overlay');
   } else {
@@ -3418,6 +3560,20 @@ window.addEventListener('resize', function () { Renderer.resize(); });
 
 /* ---- boot ---- */
 function bootMessage(msg) { $('boot-msg').textContent = msg; }
+function applyTheme() {
+  var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', fwlite.theme || (dark ? 'dark' : 'light'));
+}
+var NO_WEBGL = 'The Speaking Isles needs 3D graphics (WebGL), and this device or browser does not offer it. ' +
+  'Try a newer computer or phone, or turn on hardware acceleration in your browser settings.';
+function hasWebGL() {
+  try { return !!document.createElement('canvas').getContext('webgl'); } catch (e) { return false; }
+}
+function showError(msg) {
+  $('loading').hidden = true;
+  $('error').textContent = msg;
+  $('error').hidden = false;
+}
 
 function boot() {
   // Show touch controls (and touch-worded hints) from the start on phones/tablets —
@@ -3430,7 +3586,8 @@ function boot() {
   }
   bootMessage('Listening for the dictionary…');
   fwlite.ready.then(function () {
-    document.documentElement.setAttribute('data-theme', fwlite.theme || 'light');
+    applyTheme();
+    if (!hasWebGL()) throw new Error(NO_WEBGL);
     bootMessage('Gathering the words of ' + (fwlite.project ? fwlite.project.projectName : 'the project') + '…');
     return loadDictionary();
   }).then(function () {
@@ -3439,6 +3596,7 @@ function boot() {
     return new Promise(function (resolve) { setTimeout(resolve, 30); });
   }).then(function () {
     generateWorld(Dict.project ? Dict.project.projectCode : 'isles', Dict.regions);
+    $('app').hidden = false;
     Renderer.init($('gl'));
     return loadSave();
   }).then(function (save) {
@@ -3456,7 +3614,8 @@ function boot() {
     wireTitle(hasSave);
     requestAnimationFrame(frame);
   }).catch(function (err) {
-    bootMessage('The isles could not wake: ' + (err && err.message || err));
+    var msg = err && err.message || String(err);
+    showError(msg === NO_WEBGL || msg === 'WebGL is not available' ? NO_WEBGL : 'The isles could not wake: ' + msg);
   });
 }
 
