@@ -163,7 +163,7 @@
   .done-stat .lbl { font-size: 0.8rem; color: var(--text-muted); }
   .done-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   #app { flex: 1; display: flex; flex-direction: column; }
-  #flow-view:not([hidden]) { flex: 1; display: flex; flex-direction: column; }
+  #flow-view:not([hidden]), #setup-view:not([hidden]) { flex: 1; display: flex; flex-direction: column; }
   @media (pointer: coarse) { .hint-row { display: none; } }
   @media (max-width: 600px) {
     .wrap.narrow .card > .actions { margin: auto -16px -16px; background: var(--surface); border-radius: 0 0 var(--radius) var(--radius); }
@@ -196,9 +196,7 @@
         <label for="analysis-select">Save the meaning as a gloss in</label>
         <select id="analysis-select"></select>
       </div>
-      <div class="field">
-        <button class="btn primary" id="start-btn" type="button" style="width:100%;">Start collecting</button>
-      </div>
+      <div class="actions"><button class="btn primary" id="start-btn" type="button">Start collecting</button></div>
     </section>
 
     <section id="flow-view" hidden>

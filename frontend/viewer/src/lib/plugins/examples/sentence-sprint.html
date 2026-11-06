@@ -140,7 +140,7 @@
   .done-stat .lbl { font-size: 0.8rem; color: var(--text-muted); }
   .done-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   #app { flex: 1; display: flex; flex-direction: column; }
-  #sprint-view:not([hidden]) { flex: 1; display: flex; flex-direction: column; }
+  #sprint-view:not([hidden]), #setup-view:not([hidden]) { flex: 1; display: flex; flex-direction: column; }
   #sprint-form { flex: 1; display: flex; flex-direction: column; }
   @media (pointer: coarse) { .hint-row { display: none; } }
   @media (max-width: 600px) {
@@ -171,7 +171,7 @@
         <select id="domain-select"></select>
       </div>
       <label class="check"><input type="checkbox" id="content-only" checked> Skip affixes and grammatical words</label>
-      <button class="btn primary" id="start-btn" type="button" style="width:100%;">Start sprint</button>
+      <div class="actions"><button class="btn primary" id="start-btn" type="button">Start sprint</button></div>
     </section>
 
     <section id="sprint-view" hidden>

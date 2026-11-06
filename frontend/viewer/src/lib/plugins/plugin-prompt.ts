@@ -370,7 +370,7 @@ ${culturalSection}## Design guidance
 ${responsiveGuidance}
 - **Theme & palette**: drive every color through the CSS custom properties in the skeleton (\`--bg\`, \`--surface\`, \`--surface-alt\`, \`--border\`, \`--text\`, \`--text-muted\`, \`--accent\`, \`--accent-soft\`, \`--accent-fg\`, \`--good\`, \`--warn\`, \`--bad\` (each with a \`-soft\` background variant), \`--radius\`, \`--font\`, \`--vern-font\`). Keep the skeleton's values: they match FW Lite's own look (its blue accent, neutral greys, 10px corners), so the plugin feels like part of the app. Dark values live under \`html[data-theme="dark"]\`; set \`data-theme\` from \`fwlite.theme\` after ready, falling back to \`prefers-color-scheme\`. Never hard-code raw colors on elements.
 - **Fonts**: use the system font stack (\`--font\`). Show vernacular text with \`font-family: var(--vern-font)\`, and set \`--vern-font\` from the default vernacular writing system's \`font\` when it has one.
-- **Layout**: fill the frame rather than leaving wide empty margins: lists, tables and dashboards up to ~1100px wide; one-card-at-a-time flows ~640px wide and full height, with the main action buttons at the bottom on phones; games and visualizations full-window. Touch targets at least 44px tall.
+- **Layout**: fill the frame rather than leaving wide empty margins: lists and dashboards up to ~1100px wide (\`.wrap\`), wide tables and grids with no width cap (\`.wrap.full\`); one-card-at-a-time flows ~640px wide and full height, with the main action buttons at the bottom on phones; games and visualizations full-window. Touch targets at least 44px tall.
 - Always render **loading**, **empty** and **error** states for async data. Make the empty state specific and say what the user can do about it ("No entries have a recording yet. Record some, then reload."), not just "nothing here".
 - Escape dictionary data before inserting it into the DOM (\`textContent\`, not \`innerHTML\`) — it can contain any characters.
 - **Games and drills** should skip affixes and clitics (\`entry.morphType\` such as \`Prefix\`/\`Suffix\`, or a headword starting or ending with \`-\`/\`=\`) and glosses that are grammatical tags (e.g. \`PST\`, \`3SG.SBJ\`), so players see real words.
@@ -404,6 +404,7 @@ ${skeletonPermissionsMeta}<title>My plugin</title>
   [hidden] { display: none !important; }
   body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
   .wrap { max-width: 1100px; margin: 0 auto; padding: 20px 24px; }
+  .wrap.full { max-width: none; }
   @media (max-width: 600px) { .wrap { padding: 12px; } }
   /* your styles — always reference the variables above */
 </style>

@@ -157,7 +157,12 @@
     .actions .spacer { display: none; }
     .wrap.narrow .actions #prev-btn { flex: 0 0 auto; }
   }
-  @media (pointer: coarse) { .hint.keys { display: none; } }
+  @media (pointer: coarse) {
+    .hint.keys { display: none; }
+    .row-head select { min-height: 44px; }
+    .row-head, .rwc-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px; }
+    .row-remove { width: 44px; height: 44px; }
+  }
 </style>
 </head>
 <body>
