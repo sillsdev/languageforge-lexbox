@@ -8,7 +8,7 @@ msgstr ""
 "Language: vi\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-05 05:15\n"
+"PO-Revision-Date: 2026-11-06 05:28\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -25,6 +25,43 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} các thay đổi)"
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "…and {0} more changes"
+msgstr "…và {0} những thay đổi khác"
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” added an entry"
+msgstr "“{0}” đã thêm một mục"
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "“{0}” can now make changes without asking. You can change this from the plugin toolbar or its card."
+msgstr "“{0}” giờ đây có thể thực hiện các thay đổi mà không cần hỏi ý kiến. Bạn có thể thay đổi cài đặt này từ thanh công cụ của plugin hoặc từ thẻ của plugin."
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” changed an entry"
+msgstr "“{0}” đã thay đổi một mục"
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” kept asking to change your dictionary after you said no. Reload it to try again."
+msgstr "“{0}” cứ liên tục yêu cầu bạn thay đổi từ điển dù bạn đã từ chối. Hãy tải lại trang để thử lại."
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” made {1}"
+msgstr "“{0}” được thực hiện {1}"
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin."
+msgstr "“{0}” đã cố gắng thoát khỏi trang sandbox, điều mà các plugin không được phép làm. Có thể plugin này đã gặp sự cố — hoặc đang cố gắng gửi dữ liệu đi đâu đó. Hãy cẩn thận khi sử dụng plugin này."
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "\"{0}\" was added for everyone on this project."
+msgstr "\"{0}\" đã được thêm vào cho tất cả mọi người tham gia dự án này."
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "“{0}” will ask before making changes again."
+msgstr "“{0}” sẽ hiển thị thông báo hỏi lại trước khi thực hiện thay đổi lần nữa."
+
 #. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
 #. Shown in place of the sense's number and gloss; "sense" is "meaning" in the Lite view
 #: src/lib/activity/ActivityItemChangePreview.svelte
@@ -40,8 +77,13 @@ msgstr "(đã xóa)"
 msgid "(edited)"
 msgstr "(đã chỉnh sửa)"
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "(empty)"
+msgstr "(trống)"
+
 #. Activity-log line: placeholder shown in place of a newly created entry's name when it has no headword text yet.
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "(no headword)"
 msgstr "(không có từ chính)"
 
@@ -56,6 +98,14 @@ msgstr "(không rõ)"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0}"
 msgstr "{0}"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "{0} (copy)"
+msgstr "{0} (sao chép)"
+
+#: src/project/data/plugin-service.svelte.ts
+msgid "{0} (custom)"
+msgstr "{0} (tùy chỉnh)"
 
 #. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
@@ -81,6 +131,19 @@ msgstr "{0} trước"
 msgid "{0} authors"
 msgstr "{0} tác giả"
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "{0} KB"
+msgstr "{0} KB"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "{0} KB to {1} KB"
+msgstr "{0} KB đến {1} KB"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "{0} KB to {1} KB, no new permissions"
+msgstr "{0} KB sang {1} KB, không có quyền truy cập mới"
+
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
@@ -105,6 +168,9 @@ msgid "{num, plural, one {(+# more change)} other {(+# more changes)}}"
 msgstr "{num, plural, one {(+# thay đổi khác)} other {(+# thay đổi khác)}}"
 
 #. Number of changes in sync operation
+#: src/lib/plugins/PluginSandbox.svelte
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
@@ -163,10 +229,30 @@ msgstr "# một phần của #"
 msgid "1 reply"
 msgstr "1 câu trả lời"
 
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "1. Describe your plugin"
+msgstr "1. Mô tả plugin của bạn"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "2. Have an AI write it"
+msgstr "2. Để trí tuệ nhân tạo (AI) viết giúp"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "3. Try it here"
+msgstr "3. Hãy thử ngay tại đây"
+
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Đã có phiên bản mới của FieldWorks Lite."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "A project manager can add plugins for the team."
+msgstr "Người quản lý dự án có thể cài đặt các tiện ích mở rộng cho nhóm."
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "A short summary shown on the plugin's card."
+msgstr "Một bản tóm tắt ngắn được hiển thị trên thẻ của plugin."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "A similar word already exists"
@@ -193,6 +279,10 @@ msgstr "một từ"
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Abbreviation"
 msgstr "Từ viết tắt"
+
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "About"
+msgstr "Giới thiệu"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -231,6 +321,11 @@ msgstr "Thêm mẫu phức tạp"
 msgid "Add component"
 msgstr "Thêm thành phần"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Add entry"
+msgstr "Thêm mục"
+
 #. Button to add example sentence
 #. Adds sentence/phrase showing how a word is used in context
 #. Each example can have translation and source reference
@@ -246,6 +341,10 @@ msgstr "Thêm ví dụ"
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Meaning"
 msgstr "Thêm Ý nghĩa"
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Add my version"
+msgstr "Thêm phiên bản của tôi"
 
 #. Button in toolbar
 #: src/lib/entry-editor/NewEntryButton.svelte
@@ -285,6 +384,11 @@ msgstr "Trước tiên, hãy thêm một vài từ."
 msgid "Add to dictionary"
 msgstr "Thêm vào từ điển"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Add to project"
+msgstr "Thêm vào dự án"
+
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
@@ -319,6 +423,10 @@ msgstr "Đã thêm bình luận"
 msgid "Added component"
 msgstr "Thành phần đã được thêm vào"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Added for the team"
+msgstr "Được thêm vào cho đội"
+
 #. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Removed picture", "Updated picture", "Reordered pictures".
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Added picture"
@@ -338,6 +446,7 @@ msgstr "Nâng cao: tệp cài đặt"
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+#: src/lib/plugins/PluginsView.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "Tất cả"
@@ -355,6 +464,18 @@ msgstr "Tất cả các loại hoạt động"
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
 msgstr "Tất cả các tác giả"
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Allow and run it"
+msgstr "Cho phép và chạy chương trình đó"
+
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Already have a plugin file? It runs in the preview straight away, before anyone else can see it."
+msgstr "Bạn đã có tệp plugin chưa? Nó sẽ chạy ngay trong chế độ xem trước, trước khi bất kỳ ai khác có thể nhìn thấy."
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Always allow for this plugin"
+msgstr "Luôn kích hoạt plugin này"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
@@ -419,15 +540,32 @@ msgstr "Bất kỳ miền ngữ nghĩa nào"
 msgid "Any Ws"
 msgstr "Bất kỳ hệ chữ nào"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Apply change"
+msgstr "Áp dụng thay đổi"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Apply changes"
+msgstr "Áp dụng các thay đổi"
+
 #. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
 msgstr "Bạn có chắc chắn muốn xóa {0}?"
 
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "Ask AI"
+msgstr "Hỏi AI"
+
 #. Button description
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Ask questions and get help on our community forum."
 msgstr "Hỏi câu hỏi và nhận trợ giúp trên diễn đàn cộng đồng của chúng tôi."
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Ask the AI to remove it"
+msgstr "Yêu cầu AI xóa nó đi"
 
 #. Small marker chip on an activity summary indicating a field value is an audio recording (not text)
 #: src/lib/activity/ChangeSummary.svelte
@@ -484,6 +622,16 @@ msgstr "Đang đồng bộ tự động"
 msgid "Back"
 msgstr "Quay lại"
 
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioNotice.svelte
+msgid "Back to plugins"
+msgstr "Quay lại danh sách các plugin"
+
 #: src/project/tasks/TaskView.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Back to tasks"
@@ -516,6 +664,10 @@ msgstr "Khớp tốt nhất"
 msgid "blue"
 msgstr "xanh dương"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Breadcrumb"
+msgstr "Danh sách điều hướng"
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 #: src/project/tasks/TaskList.svelte
@@ -527,8 +679,29 @@ msgid "Browse view failed"
 msgstr "Không thể hiển thị chế độ xem"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/plugins/PluginsView.svelte
 msgid "Camera"
 msgstr "Máy ảnh"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Can access the internet (and could send dictionary data there)"
+msgstr "Có thể truy cập internet (và có thể gửi dữ liệu từ điển lên đó)"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Can change the dictionary"
+msgstr "Có thể thay đổi từ điển"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Can change the dictionary, and asks before each change"
+msgstr "Có thể thay đổi từ điển và sẽ hỏi người dùng trước mỗi lần thay đổi"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Can change your dictionary — it will ask you first"
+msgstr "Có thể thay đổi từ điển của bạn — hệ thống sẽ hỏi ý kiến bạn trước"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Can use the internet"
+msgstr "Có thể sử dụng internet"
 
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
@@ -552,8 +725,17 @@ msgid "Cancel"
 msgstr "Hủy"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Caption"
 msgstr "Chú thích"
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Change entry"
+msgstr "Sửa mục nhập"
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "Change it before adding"
+msgstr "Hãy thay đổi trước khi thêm"
 
 #. Activity-log line. {0} = field label (e.g. "Part of speech") or singular list-item noun (e.g. "complex form type"). Used when the new value is unknown or not displayed.
 #: src/lib/activity/ChangeSummary.svelte
@@ -605,6 +787,7 @@ msgstr "Chọn chủ đề"
 #. Relevant view: Classic
 #. Lite view equivalent: "Display as"
 #. Field label: form for citing in dictionary
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Citation form"
@@ -631,7 +814,9 @@ msgstr "Đã hoàn tất {0}"
 #. Button to close popup
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Đóng"
@@ -653,6 +838,10 @@ msgstr "Chuỗi bình luận đã đóng"
 msgid "Code"
 msgstr "Mã"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Collect words"
+msgstr "Thu thập các từ"
+
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
 msgid "Color"
@@ -665,6 +854,10 @@ msgstr "Bình luận"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Commenter"
 msgstr "Người bình luận"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "comments"
+msgstr "bình luận"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
@@ -689,6 +882,10 @@ msgstr "So sánh phiên bản ngay sau khi thực hiện thay đổi này với 
 msgid "Complete"
 msgstr "Hoàn tất"
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Complex form"
+msgstr "Dạng phức"
+
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
@@ -701,6 +898,10 @@ msgstr "Mẫu phức tạp"
 #: src/lib/activity/ChangeSummary.svelte
 msgid "complex form type"
 msgstr "loại biểu mẫu phức tạp"
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Complex form type"
+msgstr "Loại biểu mẫu phức tạp"
 
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). User-defined classifications of compound-word relationships (e.g. "compound", "derivative").
 #: src/lib/activity/ChangeSummary.svelte
@@ -733,6 +934,7 @@ msgstr "thành phần"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Component"
 msgstr "Thành phần"
 
@@ -752,6 +954,10 @@ msgstr "Các thành phần"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Contains"
 msgstr "Chứa"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Contexts"
+msgstr "Bối cảnh"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
@@ -784,6 +990,18 @@ msgstr "Không thể kiểm tra các từ tương tự"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Couldn't get the FieldWorks Classic status from Lexbox."
 msgstr "Không thể lấy được trạng thái của FieldWorks Classic từ Lexbox."
+
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "Couldn't load the plugin file."
+msgstr "Không thể tải tệp plugin."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Couldn't load the plugin file. {0}"
+msgstr "Không thể tải tệp plugin. {0}"
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Couldn't load this plugin"
+msgstr "Không thể tải plugin này"
 
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
@@ -848,6 +1066,10 @@ msgstr "Được tạo {0} {1}"
 msgid "Current Entry"
 msgstr "Mục hiện tại"
 
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Current version"
+msgstr "Phiên bản hiện tại"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Current Entry"
 #. Label in picker: marks the word that is currently being edited
@@ -900,6 +1122,7 @@ msgstr "Thư mục dữ liệu"
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Definition"
@@ -910,6 +1133,7 @@ msgstr "Định nghĩa"
 #. Action: Prompts confirmation, frees up local storage
 #: src/home/HomeView.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
+#: src/lib/plugins/PluginsView.svelte
 msgid "Delete"
 msgstr "Xóa"
 
@@ -971,12 +1195,27 @@ msgstr "Chuỗi bình luận đã bị xóa"
 msgid "Deleted later"
 msgstr "Đã xóa sau đó"
 
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "Describe a change"
+msgstr "Hãy mô tả một sự thay đổi"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Describe it and have an AI write it, or paste a plugin file you already have."
+msgstr "Hãy mô tả nội dung và để AI viết giúp, hoặc dán tệp plugin mà bạn đã có sẵn."
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Describe your plugin"
+msgstr "Hãy mô tả plugin của bạn"
+
 #: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "Description"
 msgstr "Mô tả"
 
 #. Tab in the activity change preview: technical details of the change
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Details"
 msgstr "Chi tiết"
 
@@ -998,6 +1237,8 @@ msgstr "Xem trước từ điển"
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Discard"
 msgstr "Bỏ"
@@ -1014,10 +1255,18 @@ msgstr "Hiển thị dưới dạng"
 msgid "Do you want to:"
 msgstr "Bạn muốn:"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Don't allow"
+msgstr "Không được phép"
+
 #. Button to cancel deletion
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
 msgstr "Không xóa"
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Don't run it"
+msgstr "Đừng chạy chương trình đó"
 
 #. Tab label
 #: src/project/tasks/TaskView.svelte
@@ -1029,6 +1278,7 @@ msgstr "Hoàn thành"
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 #: src/lib/notifications/NotificationOutlet.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Download"
 msgstr "Tải xuống"
 
@@ -1050,6 +1300,15 @@ msgstr "Tải ảnh xuống"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
 msgstr "Tải dự án theo mã dự án"
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Download prompt"
+msgstr "Tải xuống lời nhắc"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Download the prompt and attach the file in any AI chat (e.g. Claude, ChatGPT or Gemini). It already explains plugins and this project."
+msgstr "Hãy tải xuống lời nhắc và đính kèm tệp đó vào bất kỳ ứng dụng trò chuyện AI nào (ví dụ: Claude, ChatGPT hoặc Gemini). Trong đó đã có giải thích về các plugin và dự án này."
 
 #. Menu option
 #: src/home/Server.svelte
@@ -1081,13 +1340,40 @@ msgstr "Đang tải bản cập nhật..."
 msgid "Downloading..."
 msgstr "Đang tải xuống..."
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Draft, only you can see it"
+msgstr "Bản nháp, chỉ có bạn mới có thể xem được"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Duplicate"
+msgstr "Bản sao"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "e.g. A flashcard game that quizzes me on entries missing an English gloss and lets me fill it in when I remember the word."
+msgstr "Ví dụ: Một trò chơi thẻ học giúp kiểm tra kiến thức của tôi về các mục từ còn thiếu chú thích tiếng Anh và cho phép tôi điền vào khi nhớ ra từ đó."
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "e.g. Also show how many entries have a recording."
+msgstr "Ví dụ: Hiển thị thêm số lượng mục có bản ghi."
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "e.g. Dashboard of dictionary statistics"
+msgstr "Ví dụ: Bảng điều khiển thống kê từ điển"
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "e.g. Dictionary stats"
+msgstr "Ví dụ: Thống kê từ điển"
+
 #. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
 #: src/home/CreateProjectDialog.svelte
 msgid "e.g. th, sw"
 msgstr "ví dụ: th, sw"
 
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "Edit"
 msgstr "Chỉnh sửa"
 
@@ -1154,6 +1440,14 @@ msgstr "Biên tập viên"
 msgid "Editor Lite"
 msgstr "Trình chỉnh sửa Lite"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Edits — asks first"
+msgstr "Chỉnh sửa — hỏi trước"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Edits without asking"
+msgstr "Chỉnh sửa mà không hỏi ý kiến"
+
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
 msgstr "Bình luận trống"
@@ -1164,6 +1458,10 @@ msgstr "Bình luận trống"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr "Kết thúc bằng"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Enrich & clean up"
+msgstr "Bổ sung và làm sạch"
 
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Refers to dictionary entries (headwords with their senses/definitions).
 #: src/lib/activity/ChangeSummary.svelte
@@ -1211,6 +1509,11 @@ msgstr "Mục"
 msgid "Entry fields"
 msgstr "Các trường nhập liệu"
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "Entry menu"
+msgstr "Menu chính"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Word only"
 #. Label for picker when creating relationships: select only the entry itself (not a specific sense/meaning)
@@ -1224,6 +1527,10 @@ msgstr "Chỉ mục"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry or sense:"
 msgstr "Mục hoặc ý nghĩa:"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Entry the plugin starts from"
+msgstr "Plugin bắt đầu từ mục"
 
 #. Filter operator
 #. Search operator: exact match (whole field must equal search term)
@@ -1255,6 +1562,10 @@ msgstr "Mỗi mục đã được điền sẵn trường này."
 msgid "Every word already has this field filled in."
 msgstr "Mỗi từ đều đã được điền sẵn vào trường này."
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Everyone on this project will see it under Plugins. You can change or remove it later."
+msgstr "Tất cả mọi người tham gia dự án này sẽ thấy nó trong mục “Plugins”. Bạn có thể thay đổi hoặc xóa nó sau này."
+
 #. Standalone noun (an example sentence on a sense), interpolated into a reorder activity-log line, e.g. "<sense> · Reordered example".
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
@@ -1265,6 +1576,7 @@ msgstr "ví dụ"
 #. Labels example sentence/phrase section in entry editor
 #. Contains: sentence text, translation, source reference
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Example"
 msgstr "Ví dụ"
@@ -1286,16 +1598,38 @@ msgstr "Câu ví dụ"
 msgid "Example sentences"
 msgstr "Các câu ví dụ"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Example, not in this project"
+msgstr "Ví dụ, không thuộc dự án này"
+
 #. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of example sentences under a sense.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "examples"
 msgstr "ví dụ"
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Examples"
+msgstr "Ví dụ"
+
 #. Field label in the activity change-preview diff for a writing system. Exemplars are the list of index letters (e.g. A, B, C…) used for alphabetical browsing.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Exemplars"
 msgstr "Các ví dụ điển hình"
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Exit fullscreen"
+msgstr "Thoát chế độ toàn màn hình"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Explore & analyze"
+msgstr "Khám phá và phân tích"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Export"
+msgstr "Xuất khẩu"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to change verbose logging"
@@ -1429,6 +1763,11 @@ msgstr "Phiên bản FieldWorks Lite"
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "File"
+msgstr "Tệp"
+
 #. Error message for duplicate file upload
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File already exists"
@@ -1450,6 +1789,10 @@ msgstr "Không tìm thấy tệp"
 msgid "File saving not supported"
 msgstr "Lưu tệp không được hỗ trợ"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "File size"
+msgstr "Kích thước tệp"
+
 #. Error message for oversized file
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/audio/AudioDialog.svelte
@@ -1467,6 +1810,10 @@ msgstr "Điền vào mục “Hiển thị dưới dạng”"
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
 msgstr "Điền vào Từ hoặc Hiển thị dưới dạng"
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "Filled in from the plugin's title. Change it if you like."
+msgstr "Được điền tự động từ tiêu đề của plugin. Bạn có thể thay đổi nếu muốn."
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1498,6 +1845,10 @@ msgstr "Lọc theo"
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter entries"
 msgstr "Lọc mục"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Filter examples"
+msgstr "Ví dụ về bộ lọc"
 
 #. Search field placeholder
 #: src/project/browse/SearchFilter.svelte
@@ -1541,6 +1892,14 @@ msgstr "Tìm từ..."
 msgid "Finish"
 msgstr "Hoàn tất"
 
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
+msgstr "Đã tải xuống lời nhắc tiếp theo. Hãy đính kèm nó vào cùng cuộc trò chuyện AI đó, sau đó dán câu trả lời của nó vào bên dưới."
+
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply here."
+msgstr "Đã tải xuống lời nhắc tiếp theo. Hãy đính kèm nó vào cùng cuộc trò chuyện AI đó, sau đó dán câu trả lời của nó vào đây."
+
 #. Field label in the activity change-preview diff. "Font" is the typeface name configured on a writing system.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Font"
@@ -1556,6 +1915,11 @@ msgstr "Với các yêu cầu khác, vui lòng gửi email cho chúng tôi."
 msgid "From active filter"
 msgstr "Từ bộ lọc đang hoạt động"
 
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Fullscreen"
+msgstr "Toàn màn hình"
+
 #. Button in feedback menu
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Get support"
@@ -1565,10 +1929,19 @@ msgstr "Nhận hỗ trợ"
 #. Brief translation/equivalent (one word or short phrase)
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Ghi chú"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Go back"
+msgstr "Quay lại"
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "Go back to the previous version"
+msgstr "Quay lại phiên bản trước"
 
 #. Button link to navigate to entry
 #. Clicking jumps to an entry (e.g. from change history or a related entry)
@@ -1631,6 +2004,10 @@ msgstr "Thông tin ngữ pháp."
 msgid "green"
 msgstr "xanh"
 
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Handle content with cultural care"
+msgstr "Xử lý nội dung một cách tôn trọng văn hóa"
+
 #. Success toast after rebuilding Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
@@ -1670,6 +2047,10 @@ msgstr "Ẩn"
 msgid "Hide unchanged fields"
 msgstr "Ẩn các trường không thay đổi"
 
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "history"
+msgstr "lịch sử"
+
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1681,6 +2062,10 @@ msgstr "Lịch sử"
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Hold to record or#press and release to start recording."
 msgstr "Giữ nút để ghi âm hoặc#nhấn và thả nút để bắt đầu ghi âm."
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Homograph number"
+msgstr "Số đồng âm"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1697,6 +2082,10 @@ msgstr "Tôi hiểu rằng điều này không thể hoàn tác"
 msgid "ID"
 msgstr "ID"
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "If you add it"
+msgstr "Nếu bạn thêm nó vào"
+
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
 msgid "Import"
@@ -1707,6 +2096,11 @@ msgstr "Nhập"
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
 msgstr "trong {0}"
+
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "In this project"
+msgstr "Trong dự án này"
 
 #. Toggle switch in the filter panel next to the semantic domain selector. When enabled, also matches child semantic domains.
 #: src/project/browse/SearchFilter.svelte
@@ -1728,15 +2122,33 @@ msgstr "Cài đặt bản cập nhật"
 msgid "Installing Update..."
 msgstr "Đang cài đặt bản cập nhật..."
 
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "Internet"
+msgstr "Internet"
+
 #. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
 msgstr "vừa nãy"
 
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Keep editing"
+msgstr "Tiếp tục chỉnh sửa"
+
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr "Tiếp tục"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Keep it"
+msgstr "Giữ lại đi"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Keep previewing"
+msgstr "Tiếp tục xem trước"
 
 #. Label showing the date of the last change in the FwLite↔Classic sync panel. # is replaced by a formatted relative date component (e.g., "3 days ago").
 #: src/project/sync/FwClassicSyncView.svelte
@@ -1758,15 +2170,27 @@ msgstr "Những thay đổi sau này"
 msgid "Learn more"
 msgstr "Tìm hiểu thêm"
 
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Leave"
+msgstr "Rời đi"
+
 #. Placeholder for the release channel text box. Production has no feature flags.
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Leave empty for production"
 msgstr "Để trống cho phiên bản sản xuất"
 
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Leave without saving?"
+msgstr "Rời đi mà không lưu lại?"
+
 #. Field label in the audio editor showing the duration of the audio file.
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr "Độ dài:"
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Let this version use the internet?"
+msgstr "Cho phép phiên bản này truy cập Internet chứ?"
 
 #. Product name
 #: src/project/SyncDialog.svelte
@@ -1806,6 +2230,7 @@ msgstr "Chế độ danh sách"
 #. Field name shown in advanced/classic view
 #. The literal meaning of the vernacular translated into the analysis language
 #. Contrasts with glosses/definitions in the analysis language
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Literal meaning"
 msgstr "Ý nghĩa đen"
@@ -1921,6 +2346,10 @@ msgstr "Ấn phẩm chính"
 msgid "Make a suggestion"
 msgstr "Gợi ý"
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Make it your own with AI"
+msgstr "Hãy tạo nên phong cách riêng của bạn với AI"
+
 #. Warning shown in the delete-project confirmation dialog. Markdown link format: [link text]({0}) where {0} = URL to the sync dialog. "Lexbox" is a product name — do not translate.
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
@@ -1992,6 +2421,10 @@ msgstr "Chi tiết tệp phương tiện"
 msgid "Media Manager"
 msgstr "Trình quản lý phương tiện"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Microphone"
+msgstr "Micro"
+
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"
 msgstr "Thiếu hình thức trích dẫn {0}"
@@ -2051,6 +2484,10 @@ msgstr "Thiếu: {0}"
 msgid "Mode"
 msgstr "Chế độ"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "More"
+msgstr "Xem thêm"
+
 #. Accessible name of the arrow button that opens more actions for an entry in the activity change preview
 #: src/lib/activity/EntryActionsButton.svelte
 msgid "More options"
@@ -2066,6 +2503,7 @@ msgid "morph type"
 msgstr "loại biến thể"
 
 #: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Morph type"
 msgstr "Loại biến hình"
 
@@ -2104,6 +2542,8 @@ msgstr "Chế độ xem tùy chỉnh của tôi..."
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Tên"
@@ -2113,6 +2553,10 @@ msgstr "Tên"
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr "Tên là trường thông tin bắt buộc"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Needs {0}, which this project doesn't support, so it may not work properly"
+msgstr "Cần có thư viện ` {0}`, mà dự án này không hỗ trợ, nên có thể nó sẽ không hoạt động đúng cách"
 
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
@@ -2145,6 +2589,11 @@ msgstr "Dữ liệu mới"
 msgid "New Entry"
 msgstr "Mục mới"
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "New plugin"
+msgstr "Plugin mới"
+
 #: src/home/CreateProjectDialog.svelte
 msgid "New Project"
 msgstr "Dự án mới"
@@ -2152,6 +2601,10 @@ msgstr "Dự án mới"
 #: src/home/HomeView.svelte
 msgid "New Project (Local only)"
 msgstr "Dự án mới (Chỉ cục bộ)"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "New version"
+msgstr "Phiên bản mới"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -2232,6 +2685,10 @@ msgstr "Không có tệp để tải lên"
 msgid "No history found"
 msgstr "Không tìm thấy lịch sử"
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "No internet"
+msgstr "Không có internet"
+
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "No items found"
@@ -2241,6 +2698,22 @@ msgstr "Không tìm thấy mục nào"
 #: src/lib/activity/ActivityItem.svelte
 msgid "No later changes"
 msgstr "Không có thay đổi sau này"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer changes the dictionary"
+msgstr "Không còn thay đổi từ điển nữa"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer needs {0}"
+msgstr "Không còn cần nữa {0}"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer runs from an entry's menu"
+msgstr "Không còn chạy từ menu của mục đó nữa"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer uses the internet"
+msgstr "Không còn sử dụng internet nữa"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "No media files found"
@@ -2261,6 +2734,10 @@ msgstr "Không có cuộc trò chuyện đang diễn ra"
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "No pictures"
 msgstr "Không có hình ảnh"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "No plugins yet"
+msgstr "Hiện chưa có plugin nào"
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/FwLiteSyncView.svelte
@@ -2297,6 +2774,7 @@ msgstr "Chưa có hệ thống chữ viết bản địa nào được cấu hì
 
 #. Shown in the activity view's change preview when a change only touched things it does not display, e.g. text formatting
 #: src/lib/entry-editor/diff-view/DiffNoVisibleChanges.svelte
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "No visible changes"
 msgstr "Không có thay đổi nào rõ rệt"
 
@@ -2315,12 +2793,20 @@ msgstr "Không tìm thấy từ nào"
 msgid "None"
 msgstr "Không có"
 
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Not allowed to use the internet"
+msgstr "Không được phép sử dụng internet"
+
 #. Filter operator
 #. Search operator: exclude entries matching the search term (inverse of "Equals")
 #. Related operators: "Equals", "Contains", "Starts with"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Not equal"
 msgstr "Không bằng"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Not in this project. Try one on your data, then add it or make it your own."
+msgstr "Không có trong dự án này. Hãy thử áp dụng một phương pháp cho dữ liệu của bạn, sau đó thêm nó vào hoặc tùy chỉnh theo ý mình."
 
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
@@ -2335,6 +2821,7 @@ msgstr "Chưa đồng bộ"
 #. Field label
 #. General notes/remarks field in entry editor
 #. Unconstrained text for additional metadata/comments
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Note"
 msgstr "Ghi chú"
@@ -2348,6 +2835,22 @@ msgstr "Không có gì để sao chép"
 #: src/lib/activity/ActivityChangeHeader.svelte
 msgid "Now called: #"
 msgstr "Hiện được gọi là: #"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now can change the dictionary"
+msgstr "Bây giờ có thể chỉnh sửa từ điển"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now needs {0}, which not every project has"
+msgstr "Hiện tại cần có ` {0}`, nhưng không phải dự án nào cũng có"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now runs from an entry's menu"
+msgstr "Hiện được thực hiện từ menu của mục đó"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now uses the internet"
+msgstr "Hiện nay đã sử dụng internet"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
@@ -2392,6 +2895,18 @@ msgstr "Với các dự án quy mô lớn, quá trình này có thể mất mộ
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "Một commit của FieldWorks Classic có thể gồm các thay đổi trên nhiều mục hoặc trường. Ngược lại, một commit có thể chỉ ảnh hưởng tới dữ liệu không được đồng bộ tới FieldWorks Lite."
 
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Online, a plugin can send this project's data to any website."
+msgstr "Trên mạng, một plugin có thể gửi dữ liệu của dự án này đến bất kỳ trang web nào."
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
+msgstr "Chỉ nên cho phép điều này nếu plugin cần kết nối mạng, ví dụ như để tra cứu từ vựng hoặc tải xuống hình ảnh."
+
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "Only project managers can add or change plugins."
+msgstr "Chỉ các quản lý dự án mới có thể thêm hoặc thay đổi các tiện ích mở rộng."
+
 #. Button to open downloaded project
 #: src/home/Server.svelte
 msgid "Open"
@@ -2401,6 +2916,10 @@ msgstr "Mở"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Mở Thư mục Dữ liệu"
+
+#: src/project/browse/EntryMenu.svelte
+msgid "Open in {0}"
+msgstr "Mở trong {0}"
 
 #. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
 #: src/lib/auth/LoginButton.svelte
@@ -2472,6 +2991,8 @@ msgstr "loại từ"
 #. Relevant view: Lite
 #. Classic view equivalent: "Grammatical info."
 #. Field label: grammatical category (noun, verb, adjective, etc.)
+#: src/lib/plugins/plugin-api-adapter.ts
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
@@ -2482,9 +3003,26 @@ msgstr "Loại từ"
 msgid "parts of speech"
 msgstr "các loại từ"
 
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Paste HTML"
+msgstr "Dán mã HTML"
+
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "Paste or upload"
+msgstr "Dán hoặc tải lên"
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
 msgstr "Dán các thiết lập từ phần hỗ trợ vào đây. Khi lưu, tệp sẽ được ghi đè và các thiết lập sẽ được áp dụng ngay lập tức; để trống ô này để xóa tệp. Kích thước và số lượng tệp nhật ký chỉ thay đổi sau khi khởi động lại."
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Paste the AI's reply"
+msgstr "Dán câu trả lời của AI vào đây"
+
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "Paste the AI's reply or the plugin's HTML here"
+msgstr "Hãy dán câu trả lời của AI hoặc mã HTML của plugin vào đây"
 
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
@@ -2492,9 +3030,21 @@ msgstr "Dán các thiết lập từ phần hỗ trợ vào đây. Khi lưu, t�
 msgid "Pending"
 msgstr "Đang chờ xử lý"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Permissions"
+msgstr "Quyền truy cập"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Phone width"
+msgstr "Chiều rộng điện thoại"
+
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of speech"
 msgstr "Chọn một loại từ"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Pick an entry"
+msgstr "Chọn một mục"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick Grammatical info."
@@ -2509,6 +3059,7 @@ msgstr "Chọn một hoặc nhiều miền ngữ nghĩa"
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Picture"
 msgstr "Hình ảnh"
 
@@ -2539,6 +3090,60 @@ msgstr "Đã ghim"
 msgid "Platform"
 msgstr "Nền tảng"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Play & learn"
+msgstr "Vừa chơi vừa học"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "plugin"
+msgstr "plugin"
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "Plugin"
+msgstr "Plugin"
+
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Plugin HTML"
+msgstr "Plugin HTML"
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "Plugin stopped"
+msgstr "Plugin đã ngừng hoạt động"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to add an entry"
+msgstr "Plugin muốn thêm một mục"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to change an entry"
+msgstr "Plugin muốn thay đổi một mục"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to make {0}"
+msgstr "Plugin muốn thực hiện {0}"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "plugins"
+msgstr "tiện ích mở rộng"
+
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Plugins"
+msgstr "Plugin"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Plugins are code written by people on your team (often with AI help). This one hasn't run on this device yet, or it changed since it last ran."
+msgstr "Các plugin là mã nguồn do các thành viên trong nhóm của bạn viết (thường có sự hỗ trợ của trí tuệ nhân tạo). Plugin này chưa từng được chạy trên thiết bị này, hoặc nó đã thay đổi kể từ lần chạy gần nhất."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust."
+msgstr "Các plugin là mã nguồn. Chúng chạy trong một môi trường sandbox được bảo vệ và chỉ có thể thay đổi dữ liệu từ điển khi có sự chấp thuận của bạn, nhưng bạn vẫn chỉ nên sử dụng các plugin từ những người mà bạn tin tưởng."
+
 #. Field label in the activity change-preview diff for a morph type. "Postfix" is the character(s) appended after a morpheme to mark its grammatical role (e.g. "-" for a suffix).
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Postfix"
@@ -2549,8 +3154,15 @@ msgstr "Postfix"
 msgid "Prefix"
 msgstr "Tiền tố"
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Press Esc to exit fullscreen"
+msgstr "Nhấn phím Esc để thoát khỏi chế độ toàn màn hình"
+
 #. View option
 #: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
 msgstr "Xem trước"
@@ -2567,6 +3179,22 @@ msgstr "Không thể xem trước đối với loại tệp này."
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not supported"
 msgstr "Không hỗ trợ xem trước"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Preview with entry"
+msgstr "Xem trước với mục nhập"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Preview: the plugin would add an entry"
+msgstr "Xem trước: plugin này sẽ thêm một mục"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Preview: the plugin would change an entry"
+msgstr "Xem trước: plugin này sẽ thay đổi một mục"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Preview: the plugin would make {0}"
+msgstr "Xem trước: plugin này sẽ giúp {0}"
 
 #. Accessible label for the arrow button that shows the previous picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
@@ -2594,6 +3222,10 @@ msgstr "Dự án {0} không tìm thấy trên {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Dự án {0} trên {1} chưa được thiết lập cho FieldWorks Lite"
 
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Prompt options"
+msgstr "Các tùy chọn lời nhắc"
+
 #. Standalone noun used as {0} in activity-log strings (e.g. "Added publication"). A publication is a dictionary or word list that entries can be assigned to for distribution.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
@@ -2612,12 +3244,20 @@ msgstr "Phát hành"
 msgid "publications"
 msgstr "các ấn phẩm"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Publish"
+msgstr "Xuất bản"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Publish Word in"
 #. Field label: selects which publications an entry appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Entry in"
 msgstr "Đăng bài viết trong"
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Publish in"
+msgstr "Đăng trên"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Publish Entry in"
@@ -2626,10 +3266,23 @@ msgstr "Đăng bài viết trong"
 msgid "Publish Word in"
 msgstr "Xuất bản Từ trong"
 
+#: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
 msgid "Read-only"
 msgstr "Chỉ đọc"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Read-only: cannot change your dictionary"
+msgstr "Chỉ đọc: không thể thay đổi từ điển của bạn"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Reads the dictionary, never changes it"
+msgstr "Đọc từ điển, không bao giờ thay đổi nó"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Record & illustrate"
+msgstr "Ghi chép và minh họa"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Citation form"
@@ -2671,9 +3324,14 @@ msgstr "Ghi lại từ hoặc hiển thị dưới dạng"
 msgid "Recording isn't available on this device."
 msgstr "Tính năng ghi âm không khả dụng trên thiết bị này."
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Records from the microphone"
+msgstr "Các bản ghi từ micro"
+
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
 #. Identifies where the example was found/cited
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Reference"
 msgstr "Tham chiếu"
@@ -2740,6 +3398,14 @@ msgstr "Kênh phát hành"
 msgid "Release notes"
 msgstr "Ghi chú phát hành"
 
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Reload"
+msgstr "Tải lại"
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Reload plugin"
+msgstr "Tải lại plugin"
+
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
 msgstr "Chỉ làm việc từ xa"
@@ -2753,6 +3419,10 @@ msgstr "Gỡ bỏ"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Remove audio"
 msgstr "Xóa âm thanh"
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "Remove from project"
+msgstr "Xóa khỏi dự án"
 
 #. Badge or screen-reader marker in the activity change preview: this change removed the item (e.g. a component link between two entries), or the struck-through text or value
 #: src/lib/activity/ActivityChangeHeader.svelte
@@ -2833,6 +3503,14 @@ msgstr "Trả lời…"
 msgid "Report a technical problem"
 msgstr "Báo lỗi kỹ thuật"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Require approval for edits"
+msgstr "Yêu cầu phê duyệt trước khi chỉnh sửa"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Requires"
+msgstr "Yêu cầu"
+
 #: src/project/browse/SearchFilter.svelte
 msgid "Reset"
 msgstr "Đặt lại"
@@ -2858,10 +3536,38 @@ msgstr "Khôi phục"
 msgid "Review"
 msgstr "Xem lại"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Review & history"
+msgstr "Đánh giá & lịch sử"
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "rose"
 msgstr "hoa hồng"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Run"
+msgstr "Chạy"
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Run it"
+msgstr "Chạy chương trình này"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Run plugin"
+msgstr "Chạy plugin"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Run this plugin?"
+msgstr "Chạy plugin này chứ?"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Runs from an entry's menu"
+msgstr "Chạy từ menu của mục đó"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Runs in a sandbox, separate from the app"
+msgstr "Chạy trong môi trường sandbox, tách biệt với ứng dụng"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
@@ -2907,10 +3613,22 @@ msgstr "Lưu thành"
 msgid "Save audio"
 msgstr "Lưu âm thanh"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Save for the team"
+msgstr "Hãy cống hiến cho đội"
+
 #. Submit button in the edit custom view dialog.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Save View"
 msgstr "Lưu chế độ xem"
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Saved for the team."
+msgstr "Đã lưu lại cho cả đội."
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Saving turns off \"Always allow\" on this device, so the new version asks before its first change."
+msgstr "Việc lưu sẽ tắt tùy chọn “Luôn cho phép” trên thiết bị này, do đó phiên bản mới sẽ yêu cầu xác nhận trước khi thực hiện thay đổi đầu tiên."
 
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -2926,6 +3644,10 @@ msgstr "Tìm từ điển"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Search index regenerated successfully"
 msgstr "Chỉ mục tìm kiếm đã được tạo lại thành công"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "See all {0} examples"
+msgstr "Xem tất cả các ví dụ về {0}"
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -2971,6 +3693,7 @@ msgstr "lĩnh vực ngữ nghĩa"
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
 #. Used to organize and filter entries by meaning category
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Semantic domain"
 msgstr "Miền ngữ nghĩa"
@@ -3005,6 +3728,7 @@ msgstr "ý nghĩa"
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Sense"
 msgstr "Ý nghĩa (sense)"
@@ -3023,6 +3747,7 @@ msgstr "các giác quan"
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
 #. Paired with "Translation" field for translated version
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Câu"
@@ -3099,6 +3824,10 @@ msgstr "Hiển thị"
 msgid "Show {0} more..."
 msgstr "Hiển thị thêm {0}..."
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Show fewer examples"
+msgstr "Hiển thị ít ví dụ hơn"
+
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Show or hide captions"
 msgstr "Hiển thị hoặc ẩn chú thích"
@@ -3173,6 +3902,10 @@ msgstr "Kích thước:"
 msgid "Skip"
 msgstr "Bỏ qua"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Small custom apps that work with this project's dictionary — shared with the whole team."
+msgstr "Các ứng dụng nhỏ tùy chỉnh hoạt động với từ điển của dự án này — được chia sẻ với toàn bộ nhóm."
+
 #. Info popover on the sync dialog, for users whose role can't sync with FieldWorks Classic
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
@@ -3193,6 +3926,10 @@ msgstr "Quy tắc sắp xếp"
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
 msgstr "Phân loại hệ thống chữ viết"
+
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "Source"
+msgstr "Nguồn"
 
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
@@ -3308,6 +4045,10 @@ msgstr "Đang đồng bộ..."
 msgid "System"
 msgstr "Hệ thống"
 
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Tailor to this project"
+msgstr "Thiết kế phù hợp với dự án này"
+
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
@@ -3342,6 +4083,14 @@ msgstr "Ngược lại, chế độ xem *FieldWorks Classic* được thiết k�
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "Chế độ xem *FieldWorks Lite* được thiết kế cho người không chuyên ngôn ngữ và khác với chế độ xem *FieldWorks Classic* theo các cách sau:"
 
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "The new version asks to change the dictionary"
+msgstr "Phiên bản mới yêu cầu thay đổi từ điển"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "The new version asks to use the internet"
+msgstr "Phiên bản mới yêu cầu kết nối internet"
+
 #. Explanation note
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
@@ -3351,6 +4100,14 @@ msgstr "Số commit của FieldWorks Classic không nhất thiết khớp với 
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Số commit của FieldWorks Lite không nhất thiết khớp với số thay đổi hiển thị trong thông báo kết quả đồng bộ."
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "The plugin “{0}” is asking to make this change to your dictionary:"
+msgstr "Plugin “{0}” đang yêu cầu thực hiện thay đổi này đối với từ điển của bạn:"
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
+msgstr "Yêu cầu này bao gồm hướng dẫn API, hướng dẫn thiết lập dự án này và mã nguồn hiện tại của plugin này. Vui lòng đính kèm tệp này vào bất kỳ cuộc trò chuyện AI nào."
 
 #. Error message
 #: src/project/tasks/TaskView.svelte
@@ -3362,11 +4119,23 @@ msgstr "Nhiệm vụ bạn tìm kiếm không tồn tại."
 msgid "The time when you uploaded or downloaded these changes"
 msgstr "Thời gian bạn đã tải lên hoặc tải xuống các thay đổi này"
 
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "The version before it didn't. If you didn't ask for this, have the AI take it out."
+msgstr "Phiên bản trước đó thì không có. Nếu bạn không yêu cầu điều này, hãy bảo AI loại bỏ nó đi."
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "The version before it worked offline. Online, a plugin can send this project's data to any website."
+msgstr "Phiên bản trước đó có thể hoạt động ngoại tuyến. Khi trực tuyến, một plugin có thể gửi dữ liệu của dự án này đến bất kỳ trang web nào."
+
 #. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Những thay đổi này chưa được tải lên. Hãy đảm bảo bạn đang trực tuyến và đã đăng nhập để chia sẻ các thay đổi."
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "These guide how the AI writes the plugin. They don't restrict what the finished plugin can do."
+msgstr "Những hướng dẫn này chỉ ra cách AI viết plugin. Chúng không hạn chế những gì plugin hoàn thiện có thể làm được."
 
 #. Alert text shown in EntryView when the currently displayed entry/word has been deleted
 #: src/project/browse/EntryView.svelte
@@ -3383,6 +4152,10 @@ msgstr "Sự thay đổi này"
 msgid "This date # and this emoji # are snippets"
 msgstr "Ngày này # và biểu tượng cảm xúc này # là đoạn trích"
 
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "This doesn't look like a complete plugin. It should be one HTML file that starts with <!DOCTYPE html> and ends with </html>."
+msgstr "Cái này trông không giống một plugin hoàn chỉnh. Nó phải là một tệp HTML bắt đầu bằng <!DOCTYPE html> và kết thúc bằng </html>."
+
 #. Relevant view: Classic
 #. Lite view equivalent: "This word may already exist"
 #. Warning banner in the New Entry dialog when an entry with the exact same headword exists; expands to a list of possible duplicates
@@ -3390,9 +4163,17 @@ msgstr "Ngày này # và biểu tượng cảm xúc này # là đoạn trích"
 msgid "This entry may already exist"
 msgstr "Mục này có thể đã tồn tại"
 
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "This example doesn't exist."
+msgstr "Ví dụ này không tồn tại."
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
 msgstr "Tệp này chỉ có thể truy cập từ xa."
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
+msgstr "Đây là bản xem trước, nên không có nội dung nào được lưu lại. Sau khi thêm vào, \"{0}\" sẽ yêu cầu bạn thực hiện thay đổi này trong từ điển của bạn:"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
@@ -3401,6 +4182,31 @@ msgstr "Hình ảnh này quá lớn để tải lên. Hãy thử giảm độ ph
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
 msgstr "Ảnh này quá lớn để tải lên. Hãy thử lưu ảnh với chất lượng JPEG thấp hơn rồi tải lên lại."
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "This plugin can make changes without asking. Click to make it ask again."
+msgstr "Plugin này có thể thực hiện các thay đổi mà không cần hỏi ý kiến. Nhấp vào đây để plugin hỏi lại."
+
+#: src/project/data/plugin-service.svelte.ts
+msgid "This plugin file is too big (the limit is 10 MB)"
+msgstr "Tệp plugin này quá lớn (giới hạn là 10 MB)"
+
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "This plugin hasn't been added to the project, so it will be lost."
+msgstr "Plugin này chưa được thêm vào dự án, nên nó sẽ bị mất."
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "This plugin isn't on this device yet"
+msgstr "Plugin này vẫn chưa có trên thiết bị này"
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "This plugin no longer exists."
+msgstr "Plugin này hiện không còn tồn tại nữa."
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "This plugin runs from an entry's menu. Pick an entry to preview it with."
+msgstr "Plugin này được chạy từ menu của một mục. Hãy chọn một mục để xem trước."
 
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -3417,10 +4223,19 @@ msgstr "Thao tác này sẽ tái tạo các bảng snapshot và bảng dự báo
 msgid "This rebuilds the full-text search index from dictionary entries."
 msgstr "Quá trình này sẽ xây dựng lại chỉ mục tìm kiếm toàn văn từ các mục từ điển."
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "This removes the plugin for everyone on this project."
+msgstr "Thao tác này sẽ gỡ bỏ plugin cho tất cả mọi người tham gia dự án này."
+
 #. Status message
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "Nhiệm vụ này đã hoàn thành"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "This version"
+msgstr "Phiên bản này"
 
 #. Description of sync operation
 #: src/project/sync/FwClassicSyncView.svelte
@@ -3458,6 +4273,7 @@ msgstr "bản dịch"
 #. Field label
 #: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "Bản dịch"
@@ -3476,10 +4292,26 @@ msgstr "Bản dịch {0}"
 msgid "Troubleshoot"
 msgstr "Khắc phục sự cố"
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Trusted"
+msgstr "Đáng tin cậy"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Try {0}"
+msgstr "Hãy thử {0}"
+
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
 msgstr "Hãy thử lại"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Try it"
+msgstr "Hãy thử xem"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Try one of the examples below on your own data, or make a new plugin with AI help."
+msgstr "Hãy thử áp dụng một trong các ví dụ dưới đây vào dữ liệu của bạn, hoặc tạo một plugin mới với sự hỗ trợ của AI."
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Turn analytics back on"
@@ -3606,6 +4438,10 @@ msgstr "Kết quả cập nhật không xác định"
 msgid "Unread"
 msgstr "Chưa đọc"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Unsaved changes"
+msgstr "Các thay đổi chưa được lưu"
+
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
@@ -3674,6 +4510,10 @@ msgstr "Hình ảnh đã được cập nhật"
 msgid "Updates"
 msgstr "Cập nhật"
 
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Upload file"
+msgstr "Tải lên tệp"
+
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Upload pending"
 msgstr "Đang chờ tải lên"
@@ -3695,10 +4535,23 @@ msgstr "Các tệp đang chờ xử lý đã được tải lên"
 msgid "Uploading pictures is not supported here"
 msgstr "Tính năng tải ảnh lên không được hỗ trợ tại đây"
 
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "Use this version"
+msgstr "Hãy sử dụng phiên bản này"
+
 #. Field label
 #: src/lib/views/entity-config.ts
 msgid "Uses components as"
 msgstr "Sử dụng các thành phần như"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Uses the camera"
+msgstr "Sử dụng camera"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Uses the internet"
+msgstr "Sử dụng internet"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Verbose logging"
@@ -3725,10 +4578,18 @@ msgstr "Phải có hệ thống chữ viết bản địa"
 msgid "Vernacular writing systems"
 msgstr "Các hệ thống chữ viết bản địa"
 
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Version"
+msgstr "Phiên bản"
+
 #. Button label
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "Xem"
+
+#: src/lib/entry-editor/EditEntryDialog.svelte
+msgid "View {0}"
+msgstr "Xem {0}"
 
 #. Title/tooltip for an icon button that opens the view picker (switch between Classic, Lite, or a custom view).
 #: src/lib/activity/ActivityViewPicker.svelte
@@ -3757,6 +4618,10 @@ msgstr "Chúng tôi cũng thu thập các báo cáo lỗi kèm theo thông tin k
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
 msgstr "Chúng tôi thu thập dữ liệu sử dụng để tìm hiểu cách thức FieldWorks Lite được sử dụng và những điểm cần cải thiện. Khi bạn đăng nhập vào Lexbox, ứng dụng này sẽ được liên kết với tài khoản của bạn, và dữ liệu thu thập tuyệt đối không bao gồm nội dung từ điển của bạn."
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "What it asks for"
+msgstr "Yêu cầu gì"
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
 msgstr "Bạn muốn xem gì ở đây?"
@@ -3783,6 +4648,7 @@ msgstr "từ"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/lib/views/entity-config.ts
 #: src/project/browse/EntryMenu.svelte
@@ -3821,6 +4687,10 @@ msgstr "từ"
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
 msgstr "Các từ thiếu cả “Từ” và “Hiển thị dưới dạng”"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Works on phones"
+msgstr "Hoạt động trên điện thoại"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
@@ -3898,11 +4768,39 @@ msgstr "Bạn đã tải xuống dự án {0}"
 msgid "You're offline"
 msgstr "Bạn đang ở chế độ ngoại tuyến"
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "You're offline and the plugin file hasn't been downloaded here. Connect to the internet and try again — after that it works offline."
+msgstr "Bạn hiện đang ở chế độ ngoại tuyến và tệp plugin chưa được tải xuống tại đây. Hãy kết nối với Internet và thử lại — sau đó, nó sẽ hoạt động ở chế độ ngoại tuyến."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "You're offline and this plugin's file isn't on this device yet."
+msgstr "Bạn hiện đang ở chế độ ngoại tuyến và tệp của plugin này vẫn chưa có trên thiết bị này."
+
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "You're offline and this plugin's file isn't on this device yet. Connect and try again."
+msgstr "Bạn hiện đang ở chế độ ngoại tuyến và tệp của plugin này chưa có trên thiết bị này. Hãy kết nối và thử lại."
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"
 msgstr "Bạn đã vượt qua mọi cột mốc. Thật là một thành tựu đáng tự hào!"
 
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Your changes to this plugin will be lost."
+msgstr "Các thay đổi của bạn đối với plugin này sẽ bị mất."
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "Từ điển của bạn bắt đầu từ đây"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Your plugin will run here"
+msgstr "Plugin của bạn sẽ chạy tại đây"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Your real dictionary. Changes it tries are shown, not saved."
+msgstr "Từ điển thực sự của bạn. Các thay đổi mà bạn thử thực hiện sẽ được hiển thị, chứ không được lưu lại."
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Your version, not added yet"
+msgstr "Phiên bản của bạn chưa được thêm vào"
 
