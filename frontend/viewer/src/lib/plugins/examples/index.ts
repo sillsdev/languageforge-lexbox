@@ -77,14 +77,14 @@ export const examplePlugins: ExamplePlugin[] = [
   {
     key: 'orthography-machine',
     name: 'Orthography Change Machine',
-    description: 'Define spelling-reform rules, preview every affected entry, then apply the changes one approval at a time.',
+    description: 'Define spelling-reform rules, preview every affected entry, then approve the changes in batches.',
     functions: ['enrich'],
     loadHtml: async () => (await import('./orthography-machine.html?raw')).default,
   },
   {
     key: 'bulk-editor',
     name: 'Bulk Editor',
-    description: 'Assign a part of speech or semantic domain to many senses at once, previewing and approving each change.',
+    description: 'Assign a part of speech or semantic domain to many senses at once, previewing every change and approving them in batches.',
     functions: ['enrich'],
     loadHtml: async () => (await import('./bulk-editor.html?raw')).default,
   },

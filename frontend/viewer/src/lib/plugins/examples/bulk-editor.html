@@ -7,877 +7,805 @@
 <title>Bulk Editor</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f5f6f8;
+    color-scheme: light;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --surface-alt: #f0f1f4;
-    --border: #e2e4e9;
-    --text: #1c1e21;
-    --text-muted: #6b7280;
-    --accent: #4f46e5;
-    --accent-soft: #eef0ff;
-    --good: #059669;
-    --good-soft: #e3f7ee;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
     --warn: #b45309;
-    --warn-soft: #fef3e0;
-    --del: #b91c1c;
-    --del-soft: #fde8e8;
-    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
-    --radius: 14px;
-    --vern-font: inherit;
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
   }
   html[data-theme="dark"] {
-    --bg: #16171b;
-    --surface: #1f2126;
-    --surface-alt: #26282e;
-    --border: #33353c;
-    --text: #edeef1;
-    --text-muted: #9aa0ab;
-    --accent: #818cf8;
-    --accent-soft: #2a2b5e;
-    --good: #34d399;
-    --good-soft: #123528;
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
     --warn: #fbbf24;
-    --warn-soft: #3a2f12;
-    --del: #f87171;
-    --del-soft: #3a1414;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    padding: 20px;
-    min-height: 100vh;
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
   }
-  .wrap { max-width: 900px; margin: 0 auto; }
-  h1 { font-size: 1.4rem; margin: 0 0 4px; }
-  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.9rem; }
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
+  }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 
-  .steps { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .wrap.medium { max-width: 820px; }
+  .steps { display: flex; gap: 6px; margin-bottom: 16px; }
   .step {
-    flex: 1; min-width: 120px;
-    display: flex; align-items: center; gap: 8px;
-    padding: 8px 12px; border-radius: 10px;
-    background: var(--surface-alt); color: var(--text-muted);
-    font-size: 0.85rem; font-weight: 600;
+    flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: var(--radius);
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.85rem; font-weight: 600; white-space: nowrap;
   }
   .step.active { background: var(--accent-soft); color: var(--accent); }
   .step.done { color: var(--good); }
-  .step .num {
-    width: 22px; height: 22px; border-radius: 50%;
-    display: grid; place-items: center; font-size: 0.78rem;
-    background: var(--surface); border: 1px solid currentColor;
-  }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 18px 20px;
-    margin-bottom: 16px;
-  }
-  label { display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; }
-  select, input[type="text"] {
-    width: 100%; font-size: 0.95rem; padding: 9px 12px;
-    border-radius: 10px; border: 1px solid var(--border);
-    background: var(--surface-alt); color: var(--text); font-family: inherit;
-  }
-  select:focus, input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .step .num { flex: 0 0 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 0.78rem; border: 1px solid currentColor; }
+  .card + .card { margin-top: 12px; }
+  label.field-label, .field-label { display: block; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; }
   .field { margin-bottom: 14px; }
   .field:last-child { margin-bottom: 0; }
-
-  .op-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media (max-width: 520px) { .op-grid { grid-template-columns: 1fr; } }
-  .op-card {
-    border: 1px solid var(--border); background: var(--surface-alt);
-    border-radius: 12px; padding: 14px; cursor: pointer;
-    display: flex; gap: 10px; align-items: flex-start;
-  }
+  .field select, .field input[type="text"] { width: 100%; }
+  .op-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .op-card { border: 1px solid var(--border); background: var(--surface-alt); border-radius: var(--radius); padding: 12px; cursor: pointer; display: flex; gap: 10px; align-items: flex-start; }
   .op-card.selected { border-color: var(--accent); background: var(--accent-soft); }
-  .op-card input { width: auto; margin-top: 3px; }
-  .op-card .op-title { font-weight: 700; font-size: 0.95rem; color: var(--text); }
-  .op-card .op-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+  .op-card input { margin-top: 4px; }
+  .op-title { display: block; font-weight: 700; }
+  .op-desc { display: block; font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
+  .note { font-size: 0.9rem; padding: 10px 12px; border-radius: var(--radius); margin-top: 10px; }
+  .note.warn { background: var(--warn-soft); color: var(--text); border-left: 3px solid var(--warn); }
+  .note.plain { background: var(--surface-alt); color: var(--text-muted); }
 
-  .btn {
-    border: none; padding: 10px 18px; border-radius: 10px;
-    font-size: 0.9rem; font-weight: 600; cursor: pointer; font-family: inherit;
-  }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { filter: brightness(1.08); }
-  .btn-primary:disabled { opacity: 0.5; cursor: default; }
-  .btn-ghost { background: var(--surface-alt); color: var(--text); }
-  .btn-ghost:hover { background: var(--border); }
-  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+  .list-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .list-head h2 { margin: 0; }
+  .list { display: flex; flex-direction: column; gap: 6px; }
+  .item { display: flex; gap: 12px; align-items: flex-start; background: var(--surface-alt); border-radius: var(--radius); padding: 10px 12px; cursor: pointer; }
+  .item input { margin-top: 4px; width: 18px; height: 18px; flex: 0 0 auto; }
+  .item-body { flex: 1; min-width: 0; }
+  .hw { font-weight: 700; font-family: var(--vern-font); overflow-wrap: anywhere; }
+  .gloss { font-size: 0.88rem; color: var(--text-muted); overflow-wrap: anywhere; }
+  .change { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+  .change .to { color: var(--text-muted); }
+  .chip.before { background: var(--surface); border: 1px solid var(--border); }
+  .more { margin-top: 10px; width: 100%; }
+  .footer { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 16px; }
+  .footer .hint { flex-basis: 100%; font-size: 0.85rem; color: var(--text-muted); margin: 0; }
 
-  .affected-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; gap: 10px; flex-wrap: wrap; }
-  .affected-header h2 { font-size: 1.05rem; margin: 0; }
-  .count-pill { background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 2px 12px; font-weight: 700; font-size: 0.82rem; }
-  .list { display: flex; flex-direction: column; gap: 8px; max-height: 460px; overflow-y: auto; }
-  .aff-item { display: flex; gap: 10px; align-items: flex-start; background: var(--surface-alt); border-radius: 10px; padding: 10px 12px; }
-  .aff-item input[type="checkbox"] { width: auto; margin-top: 3px; }
-  .aff-body { flex: 1; min-width: 0; }
-  .aff-hw { font-weight: 700; font-family: var(--vern-font); word-break: break-word; }
-  .aff-gloss { font-size: 0.85rem; color: var(--text-muted); margin: 2px 0 6px; word-break: break-word; }
-  .chips { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 0.9rem; }
-  .chip { border-radius: 999px; padding: 2px 10px; font-size: 0.82rem; font-weight: 600; }
-  .chip.before { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); }
-  .chip.after { background: var(--accent-soft); color: var(--accent); }
-  .chip.add { background: var(--good-soft); color: var(--good); }
-  .chips .to { color: var(--text-muted); font-weight: 700; }
-
-  .queue-status { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
-  .queue-status .big { font-size: 1.3rem; font-weight: 700; }
   .progress-track { background: var(--surface-alt); border-radius: 999px; height: 10px; overflow: hidden; margin: 12px 0; }
   .progress-fill { height: 100%; background: var(--accent); transition: width 0.2s ease; }
-  .current-box { background: var(--surface-alt); border-radius: 10px; padding: 14px; }
-  .current-box .hw { font-weight: 700; font-family: var(--vern-font); margin-bottom: 4px; }
-  .current-box .gloss { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
-  .waiting { color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; }
-
-  .tallies { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
-  .tally { text-align: center; padding: 14px; border-radius: 10px; background: var(--surface-alt); }
-  .tally .n { font-size: 1.8rem; font-weight: 700; line-height: 1; }
-  .tally .l { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+  .tallies { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
+  .tally { text-align: center; padding: 10px 4px; border-radius: var(--radius); background: var(--surface-alt); }
+  .tally .n { font-size: 1.5rem; font-weight: 700; line-height: 1.1; }
+  .tally .l { font-size: 0.78rem; color: var(--text-muted); }
   .tally.good .n { color: var(--good); }
   .tally.warn .n { color: var(--warn); }
-  .tally.bad .n { color: var(--del); }
-  .link-list { display: flex; flex-direction: column; gap: 6px; }
-  .link-list a { color: var(--accent); cursor: pointer; text-decoration: none; font-size: 0.9rem; font-weight: 600; }
-  .link-list a:hover { text-decoration: underline; }
-  .link-list .why { color: var(--text-muted); font-size: 0.8rem; }
+  .tally.bad .n { color: var(--bad); }
+  .run-status { margin: 0 0 12px; }
+  .batch-names { font-size: 0.88rem; color: var(--text-muted); font-family: var(--vern-font); overflow-wrap: anywhere; }
+  .result-group { margin-top: 14px; }
+  .result-group h3 { font-size: 0.95rem; margin: 0 0 6px; }
+  .link-list { list-style: none; margin: 0; padding: 0; }
+  .link-list li { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; padding: 4px 0; }
+  .link { background: none; border: 0; padding: 6px 0; font: inherit; font-weight: 600; color: var(--accent); cursor: pointer; font-family: var(--vern-font); text-align: left; }
+  .link:hover { text-decoration: underline; }
+  .why { color: var(--text-muted); font-size: 0.85rem; }
+  .resume { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: var(--accent-soft); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px; }
 
-  .note { font-size: 0.85rem; padding: 9px 12px; border-radius: 8px; margin-top: 10px; }
-  .note.warn { background: var(--warn-soft); color: var(--warn); }
-  .note.good { background: var(--good-soft); color: var(--good); }
-  .note.plain { background: var(--surface-alt); color: var(--text-muted); }
-  .resume-banner { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: var(--accent-soft); color: var(--accent); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; }
-  .resume-banner .btn-row { margin-top: 0; }
-
-  .center-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
-  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; margin: 0 auto 14px; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .error-box { border: 1px solid #f5b5b5; background: color-mix(in srgb, #f5b5b5 20%, var(--surface)); padding: 14px 18px; border-radius: var(--radius); margin-bottom: 16px; }
-  #app { display: none; }
-  [hidden] { display: none !important; }
+  @media (max-width: 600px) {
+    .op-grid { grid-template-columns: 1fr; }
+    .step { padding: 8px; }
+    .footer { position: sticky; bottom: 0; margin: 16px -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .footer .btn { flex: 1 1 0; }
+    .footer .btn:not(.primary) { flex: 0 0 auto; }
+    .footer .hint { font-size: 0.8rem; }
+    .run-actions .btn { flex: 1 1 100%; }
+    body:not([data-step="1"]) .subtitle { display: none; }
+    .tally .n { font-size: 1.25rem; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap medium">
   <h1>Bulk Editor</h1>
-  <p class="subtitle">Assign a part of speech or a semantic domain to many senses at once. Preview every change, then approve them one at a time &mdash; nothing is saved until you say so.</p>
-
-  <div id="loading" class="center-state">
-    <div class="spinner"></div>
-    <div id="loading-text">Loading project&hellip;</div>
-  </div>
-
-  <div id="error" class="error-box" style="display:none;"></div>
-
-  <div id="app">
-    <div class="steps">
+  <p class="subtitle">Give many senses the same part of speech or semantic domain. You see every change first, and nothing is saved until you approve it.</p>
+  <div id="loading" class="center-state"><div class="spinner"></div><div id="loading-text">Loading&hellip;</div></div>
+  <div id="error" class="error-box" role="alert" hidden></div>
+  <div id="empty" class="center-state" hidden>This project has no parts of speech or semantic domains to assign yet. Add some in FieldWorks or FW Lite, then reload.</div>
+  <main id="app" hidden>
+    <div class="steps" aria-hidden="true">
       <div class="step" data-step="1"><span class="num">1</span> Choose</div>
       <div class="step" data-step="2"><span class="num">2</span> Preview</div>
       <div class="step" data-step="3"><span class="num">3</span> Apply</div>
     </div>
 
-    <div id="resume-banner" class="resume-banner" hidden>
+    <div id="resume" class="resume" hidden>
       <span id="resume-text"></span>
-      <div class="btn-row">
-        <button class="btn btn-primary" id="resume-btn">Resume</button>
-        <button class="btn btn-ghost" id="discard-btn">Start over</button>
+      <div class="actions">
+        <button class="btn primary" id="resume-btn">Continue</button>
+        <button class="btn" id="discard-btn">Start over</button>
       </div>
     </div>
 
-    <!-- STEP 1: CHOOSE -->
     <section id="section-1" hidden>
       <div class="card">
-        <label>What do you want to do?</label>
+        <span class="field-label">What do you want to do?</span>
         <div class="op-grid">
           <label class="op-card" data-op="pos">
             <input type="radio" name="op" value="pos">
-            <span>
-              <span class="op-title">Set part of speech</span>
-              <span class="op-desc">Give the chosen senses a grammatical category (e.g. Noun).</span>
-            </span>
+            <span><span class="op-title">Set part of speech</span><span class="op-desc">Give the senses a grammatical category, such as Noun.</span></span>
           </label>
           <label class="op-card" data-op="domain">
             <input type="radio" name="op" value="domain">
-            <span>
-              <span class="op-title">Add a semantic domain</span>
-              <span class="op-desc">Tag the chosen senses with a domain (e.g. 5.2 Food).</span>
-            </span>
+            <span><span class="op-title">Add a semantic domain</span><span class="op-desc">Tag the senses with a domain, such as 5.2 Food.</span></span>
           </label>
         </div>
       </div>
-
       <div class="card">
         <div class="field" id="target-pos-field" hidden>
-          <label for="target-pos">Part of speech to set</label>
+          <label class="field-label" for="target-pos">Part of speech to set</label>
           <select id="target-pos"></select>
-          <div id="no-pos" class="note warn" hidden>This project has no parts of speech defined yet.</div>
+          <div id="no-pos" class="note warn" hidden>This project has no parts of speech yet.</div>
         </div>
         <div class="field" id="target-domain-field" hidden>
-          <label for="target-domain">Semantic domain to add</label>
+          <label class="field-label" for="target-domain">Semantic domain to add</label>
           <select id="target-domain"></select>
-          <div id="no-domain" class="note warn" hidden>This project has no semantic domains defined yet.</div>
+          <div id="no-domain" class="note warn" hidden>This project has no semantic domains yet.</div>
         </div>
-
         <div class="field">
-          <label for="criteria">Which senses?</label>
+          <label class="field-label" for="criteria">Which senses?</label>
           <select id="criteria">
-            <option value="missing">Senses missing a part of speech</option>
-            <option value="sourcePos">Senses of a specific part of speech</option>
-            <option value="inDomain">Senses in a specific semantic domain</option>
+            <option value="missing">Senses with no part of speech</option>
+            <option value="sourcePos">Senses with a certain part of speech</option>
+            <option value="inDomain">Senses in a certain semantic domain</option>
             <option value="all">All senses</option>
           </select>
         </div>
         <div class="field" id="source-pos-field" hidden>
-          <label for="source-pos">Part of speech to look for</label>
+          <label class="field-label" for="source-pos">Part of speech to look for</label>
           <select id="source-pos"></select>
         </div>
         <div class="field" id="criteria-domain-field" hidden>
-          <label for="criteria-domain">Semantic domain to look in</label>
+          <label class="field-label" for="criteria-domain">Semantic domain to look in</label>
           <select id="criteria-domain"></select>
         </div>
         <div class="field">
-          <label for="search-box">Narrow by text search <span style="text-transform:none">(optional)</span></label>
-          <input type="text" id="search-box" placeholder="e.g. part of a headword or gloss">
-        </div>
-
-        <div class="btn-row">
-          <button class="btn btn-primary" id="scan-btn">Preview affected senses</button>
+          <label class="field-label" for="search-box">Only entries matching (optional)</label>
+          <input type="text" id="search-box" placeholder="Part of a word or gloss">
         </div>
         <div id="choose-note"></div>
+        <div class="footer">
+          <button class="btn primary" id="scan-btn">Preview changes</button>
+        </div>
       </div>
     </section>
 
-    <!-- STEP 2: PREVIEW -->
     <section id="section-2" hidden>
-      <div id="scan-loading" class="center-state">
-        <div class="spinner"></div>
-        <div id="scan-text">Scanning entries&hellip;</div>
-      </div>
+      <div id="scan-loading" class="center-state"><div class="spinner"></div><div id="scan-text">Looking for senses&hellip;</div></div>
       <div id="preview-body" hidden>
         <div class="card">
-          <div class="affected-header">
-            <h2>Senses to change</h2>
-            <span class="count-pill" id="affected-count">0</span>
+          <div class="list-head">
+            <h2>Senses to change <span class="chip accent" id="affected-count">0</span></h2>
+            <div class="actions" id="select-row">
+              <button class="btn ghost" id="select-all">Select all</button>
+              <button class="btn ghost" id="select-none">Select none</button>
+            </div>
           </div>
           <div id="scan-cap" class="note warn" hidden></div>
-          <div id="no-affected" class="center-state" hidden>No senses need this change. Adjust your choices and try again.</div>
-          <div class="btn-row" id="select-row" hidden>
-            <button class="btn btn-ghost" id="select-all">Select all</button>
-            <button class="btn btn-ghost" id="select-none">Select none</button>
-            <span class="subtitle" id="ticked-count" style="margin:0;"></span>
-          </div>
+          <div id="no-affected" class="center-state" hidden>No senses need this change. Go back and adjust your choices.</div>
           <div class="list" id="affected-list"></div>
+          <button class="btn more" id="show-more" hidden></button>
         </div>
-        <div class="btn-row">
-          <button class="btn btn-ghost" id="back-to-choose">Back</button>
-          <button class="btn btn-primary" id="start-apply">Apply changes</button>
+        <div class="footer">
+          <p class="hint" id="apply-hint"></p>
+          <button class="btn" id="back-to-choose">Back</button>
+          <button class="btn primary" id="start-apply">Apply changes</button>
         </div>
       </div>
     </section>
 
-    <!-- STEP 3: APPLY -->
     <section id="section-3" hidden>
-      <div id="apply-running" hidden>
-        <div class="card">
-          <div class="queue-status">
-            <span class="big" id="queue-progress">Sense 0 of 0</span>
-            <span class="subtitle" id="queue-tally" style="margin:0;"></span>
-          </div>
-          <div class="progress-track"><div class="progress-fill" id="queue-fill" style="width:0%"></div></div>
-          <div class="current-box" id="current-box">
-            <div class="hw" id="current-hw"></div>
-            <div class="gloss" id="current-gloss"></div>
-            <div id="current-chips"></div>
-            <div class="waiting" id="current-waiting">Waiting for your approval in the app&hellip;</div>
-          </div>
-          <div class="btn-row">
-            <button class="btn btn-ghost" id="pause-btn">Pause</button>
-          </div>
+      <div class="card" id="run-card">
+        <h2 id="run-title" tabindex="-1">Applying changes</h2>
+        <div class="progress-track"><div class="progress-fill" id="run-fill" style="width:0%"></div></div>
+        <div class="tallies">
+          <div class="tally good"><div class="n" id="n-applied">0</div><div class="l">Applied</div></div>
+          <div class="tally warn"><div class="n" id="n-declined">0</div><div class="l">Declined</div></div>
+          <div class="tally"><div class="n" id="n-skipped">0</div><div class="l">Skipped</div></div>
+          <div class="tally bad"><div class="n" id="n-failed">0</div><div class="l">Failed</div></div>
         </div>
+        <p class="run-status" id="run-status" aria-live="polite"></p>
+        <div class="batch-names" id="batch-names"></div>
+        <div id="decline-note" class="note warn" hidden>If you decline 3 times in a row, FW Lite stops this plugin. Your progress is saved, so you can open it again and carry on.</div>
+        <div class="actions run-actions" id="run-actions" style="margin-top:14px"></div>
       </div>
-
-      <div id="apply-finish" hidden>
-        <div class="card">
-          <h2 style="margin:0 0 14px; font-size:1.1rem;">All done</h2>
-          <div class="tallies">
-            <div class="tally good"><div class="n" id="t-applied">0</div><div class="l">Applied</div></div>
-            <div class="tally warn"><div class="n" id="t-skipped">0</div><div class="l">Skipped</div></div>
-            <div class="tally bad"><div class="n" id="t-failed">0</div><div class="l">Failed</div></div>
-          </div>
-          <div id="skipped-section" hidden>
-            <label>Skipped &mdash; open to review</label>
-            <div class="link-list" id="skipped-list"></div>
-          </div>
-          <div id="failed-section" hidden style="margin-top:12px;">
-            <label>Failed</label>
-            <div class="link-list" id="failed-list"></div>
-          </div>
-          <div class="btn-row">
-            <button class="btn btn-primary" id="finish-restart">Start a new bulk edit</button>
-          </div>
+      <div class="card" id="finish-card" hidden>
+        <h2 id="finish-title" tabindex="-1">All done</h2>
+        <div class="tallies">
+          <div class="tally good"><div class="n" id="f-applied">0</div><div class="l">Applied</div></div>
+          <div class="tally warn"><div class="n" id="f-declined">0</div><div class="l">Declined</div></div>
+          <div class="tally"><div class="n" id="f-skipped">0</div><div class="l">Skipped</div></div>
+          <div class="tally bad"><div class="n" id="f-failed">0</div><div class="l">Failed</div></div>
+        </div>
+        <p class="muted" id="finish-note"></p>
+        <div id="finish-lists"></div>
+        <div class="actions" style="margin-top:16px">
+          <button class="btn" id="retry-declined" hidden></button>
+          <button class="btn primary" id="finish-restart">Start a new bulk edit</button>
         </div>
       </div>
     </section>
-  </div>
+  </main>
 </div>
 
 <script>
 (function () {
   'use strict';
+  function applyTheme() {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', fwlite.theme || (dark ? 'dark' : 'light'));
+  }
+  function applyVernFont(ws) {
+    if (ws && ws.font) document.documentElement.style.setProperty('--vern-font', '"' + ws.font.replace(/"/g, '') + '", var(--font)');
+  }
 
-  var PAGE = 1000, CAP = 5000, STORAGE_KEY = 'bulk-editor-session';
+  var PAGE = 1000, CAP = 5000, BATCH = 25, SHOW_STEP = 100, LIST_CAP = 50, STORAGE_KEY = 'bulk-editor-run';
 
-  var state = {
-    vernacular: [],       // [{wsId, name, font}]
-    analysisWs: [],       // [wsId]
-    pos: [],              // [{id, name}]
-    domains: [],          // [{id, name, code}]
-    // choices
-    op: null,             // 'pos' | 'domain'
-    targetPosId: null,
-    targetDomainId: null,
-    criteria: 'missing',  // 'missing' | 'sourcePos' | 'inDomain' | 'all'
-    sourcePosId: null,
-    criteriaDomainId: null,
-    search: '',
-    // work
-    affected: [],         // [{entryId, senseId, headword, gloss, before, after, isAdd, include}]
-    capped: false,
-    queue: [],            // [{entryId, senseId, headword, gloss}]
-    total: 0,
-    results: {applied: 0, skipped: [], failed: []},
-    paused: false,
-    running: false,
-  };
+  var analysisWs = [], posList = [], domains = [];
+  var choice = {op: null, targetPosId: null, targetDomainId: null, criteria: 'missing', sourcePosId: null, criteriaDomainId: null, search: ''};
+  var affected = [], capped = false, shown = SHOW_STEP;
+  var run = null;
 
   function $(id) { return document.getElementById(id); }
-  function applyTheme(theme) {
-    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', theme || (dark ? 'dark' : 'light'));
+  function show(id, visible) { $(id).hidden = !visible; }
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text != null) node.textContent = text;
+    return node;
   }
-  function showError(msg) { $('loading').style.display = 'none'; var b = $('error'); b.style.display = 'block'; b.textContent = msg; }
   function errMsg(err) { return err && err.message ? err.message : String(err); }
+  function plural(n, one, many) { return n.toLocaleString() + ' ' + (n === 1 ? one : many); }
 
-  // --- Name resolution ---------------------------------------------------------
-  function nameOf(multiString) {
-    if (!multiString) return '';
-    return window.fwlite.firstValue(multiString, state.analysisWs) || '';
-  }
-  function posById(id) { for (var i = 0; i < state.pos.length; i++) if (state.pos[i].id === id) return state.pos[i]; return null; }
-  function domainById(id) { for (var i = 0; i < state.domains.length; i++) if (state.domains[i].id === id) return state.domains[i]; return null; }
-  function posLabel(id) { var p = posById(id); return p ? (nameOf(p.name) || '(part of speech)') : '(part of speech)'; }
-  function domainLabel(d) { if (!d) return ''; return (d.code ? d.code + ' ' : '') + (nameOf(d.name) || ''); }
-
-  function headwordOf(entry) {
-    return window.fwlite.headword(entry) || '(no headword)';
-  }
+  function nameOf(ms) { return (ms && fwlite.firstValue(ms, analysisWs)) || ''; }
+  function posById(id) { return posList.filter(function (p) { return p.id === id; })[0] || null; }
+  function domainById(id) { return domains.filter(function (d) { return d.id === id; })[0] || null; }
+  function posLabel(id) { var p = posById(id); return p ? nameOf(p.name) || '(unnamed)' : '(unknown)'; }
+  function domainLabel(d) { return d ? ((d.code ? d.code + ' ' : '') + nameOf(d.name)).trim() : ''; }
   function glossOf(sense) {
-    return window.fwlite.firstValue(sense.gloss || {}, state.analysisWs) ||
-      (sense.definition ? window.fwlite.asText(window.fwlite.firstValue(sense.definition, state.analysisWs) || '') : '') ||
-      '(no gloss)';
+    return fwlite.firstValue(sense.gloss, analysisWs) || fwlite.asText(fwlite.firstValue(sense.definition, analysisWs)) || '(no gloss)';
   }
 
-  // --- Criteria & change checks ------------------------------------------------
-  function senseMatchesCriteria(sense) {
-    switch (state.criteria) {
-      case 'missing':
-        return !(sense.partOfSpeech && sense.partOfSpeech.id);
-      case 'sourcePos':
-        return !!(sense.partOfSpeech && sense.partOfSpeech.id === state.sourcePosId);
-      case 'inDomain':
-        return (sense.semanticDomains || []).some(function (d) { return d && d.id === state.criteriaDomainId; });
-      case 'all':
-        return true;
-      default:
-        return false;
+  function senseMatches(sense) {
+    switch (choice.criteria) {
+      case 'missing': return !(sense.partOfSpeech && sense.partOfSpeech.id) && !sense.partOfSpeechId;
+      case 'sourcePos': return (sense.partOfSpeechId || (sense.partOfSpeech && sense.partOfSpeech.id)) === choice.sourcePosId;
+      case 'inDomain': return (sense.semanticDomains || []).some(function (d) { return d && d.id === choice.criteriaDomainId; });
+      default: return true;
     }
   }
-  // Returns true only when the change would genuinely alter this sense.
   function senseNeedsChange(sense) {
-    if (state.op === 'pos') {
-      return !(sense.partOfSpeech && sense.partOfSpeech.id === state.targetPosId);
-    }
-    return !(sense.semanticDomains || []).some(function (d) { return d && d.id === state.targetDomainId; });
+    if (choice.op === 'pos') return (sense.partOfSpeechId || (sense.partOfSpeech && sense.partOfSpeech.id)) !== choice.targetPosId;
+    return !(sense.semanticDomains || []).some(function (d) { return d && d.id === choice.targetDomainId; });
   }
-  function inScope(sense) { return senseMatchesCriteria(sense) && senseNeedsChange(sense); }
-
   function describeChange(sense) {
-    if (state.op === 'pos') {
-      var before = (sense.partOfSpeech && sense.partOfSpeech.id)
-        ? (nameOf(sense.partOfSpeech.name) || posLabel(sense.partOfSpeech.id))
-        : '(no part of speech)';
-      return {before: before, after: posLabel(state.targetPosId), isAdd: false};
+    if (choice.op === 'pos') {
+      var current = sense.partOfSpeech && sense.partOfSpeech.id ? nameOf(sense.partOfSpeech.name) || posLabel(sense.partOfSpeech.id) : 'No part of speech';
+      return {before: current, after: posLabel(choice.targetPosId)};
     }
-    return {before: '', after: domainLabel(domainById(state.targetDomainId)), isAdd: true};
+    return {add: domainLabel(domainById(choice.targetDomainId))};
   }
-
-  // Mutates the deep-copied sense to carry out the chosen change.
-  function applyChangeToSense(sense) {
-    if (state.op === 'pos') {
-      var pos = posById(state.targetPosId);
-      if (!pos) return false;
-      sense.partOfSpeech = {id: pos.id, name: pos.name};
+  function changeSense(sense) {
+    if (choice.op === 'pos') {
+      var pos = posById(choice.targetPosId);
+      sense.partOfSpeech = pos.raw;
       sense.partOfSpeechId = pos.id;
-      return true;
-    }
-    var dom = domainById(state.targetDomainId);
-    if (!dom) return false;
-    if (!Array.isArray(sense.semanticDomains)) sense.semanticDomains = [];
-    if (sense.semanticDomains.some(function (d) { return d && d.id === dom.id; })) return false;
-    sense.semanticDomains.push({id: dom.id, name: dom.name, code: dom.code});
-    return true;
-  }
-
-  function backendFilter() {
-    var filter = {};
-    if (state.criteria === 'missing') filter.missingPartOfSpeech = true;
-    else if (state.criteria === 'sourcePos' && state.sourcePosId) filter.partOfSpeechId = state.sourcePosId;
-    else if (state.criteria === 'inDomain' && state.criteriaDomainId) {
-      var d = domainById(state.criteriaDomainId);
-      if (d && d.code) filter.semanticDomainCode = d.code;
-    }
-    return filter;
-  }
-
-  // --- Chip rendering ----------------------------------------------------------
-  function renderChips(host, change) {
-    host.innerHTML = '';
-    var box = document.createElement('div');
-    box.className = 'chips';
-    if (change.isAdd) {
-      var add = document.createElement('span');
-      add.className = 'chip add';
-      add.textContent = '+ ' + change.after;
-      box.appendChild(add);
     } else {
-      var b = document.createElement('span');
-      b.className = 'chip before';
-      b.textContent = change.before;
-      var arrow = document.createElement('span');
-      arrow.className = 'to';
-      arrow.textContent = '→';
-      var a = document.createElement('span');
-      a.className = 'chip after';
-      a.textContent = change.after;
-      box.appendChild(b); box.appendChild(arrow); box.appendChild(a);
+      sense.semanticDomains = (sense.semanticDomains || []).concat([domainById(choice.targetDomainId).raw]);
     }
-    host.appendChild(box);
   }
-
-  // --- Navigation --------------------------------------------------------------
-  function showStep(n) {
-    [1, 2, 3].forEach(function (s) { $('section-' + s).hidden = s !== n; });
-    document.querySelectorAll('.step').forEach(function (el) {
-      var s = Number(el.dataset.step);
-      el.classList.toggle('active', s === n);
-      el.classList.toggle('done', s < n);
-    });
+  function backendFilter() {
+    if (choice.criteria === 'missing') return {missingPartOfSpeech: true};
+    if (choice.criteria === 'sourcePos') return {partOfSpeechId: choice.sourcePosId};
+    var d = choice.criteria === 'inDomain' && domainById(choice.criteriaDomainId);
+    return d && d.code ? {semanticDomainCode: d.code} : {};
   }
-  function setNote(id, msg, kind) {
-    var host = $(id); host.innerHTML = '';
-    if (!msg) return;
-    var d = document.createElement('div');
-    d.className = 'note ' + (kind || '');
-    d.textContent = msg;
-    host.appendChild(d);
-  }
-
-  // --- Storage -----------------------------------------------------------------
-  function persist() {
-    window.fwlite.storage.set(STORAGE_KEY, {
-      op: state.op, targetPosId: state.targetPosId, targetDomainId: state.targetDomainId,
-      criteria: state.criteria, sourcePosId: state.sourcePosId, criteriaDomainId: state.criteriaDomainId,
-      search: state.search,
-      queue: state.queue, total: state.total, results: state.results,
-    }).catch(function () {});
-  }
-  function clearStorage() { window.fwlite.storage.remove(STORAGE_KEY).catch(function () {}); }
-
-  // --- Step 1: choices UI ------------------------------------------------------
-  function fillSelect(sel, items, valueOf, labelOf) {
-    sel.innerHTML = '';
-    items.forEach(function (it) {
-      var opt = document.createElement('option');
-      opt.value = valueOf(it);
-      opt.textContent = labelOf(it);
-      sel.appendChild(opt);
-    });
-  }
-
-  function syncOpUI() {
-    document.querySelectorAll('.op-card').forEach(function (el) {
-      el.classList.toggle('selected', el.dataset.op === state.op);
-    });
-    $('target-pos-field').hidden = state.op !== 'pos';
-    $('target-domain-field').hidden = state.op !== 'domain';
-  }
-  function syncCriteriaUI() {
-    $('source-pos-field').hidden = state.criteria !== 'sourcePos';
-    $('criteria-domain-field').hidden = state.criteria !== 'inDomain';
-  }
-
-  function validateChoices() {
-    if (!state.op) return 'Choose what you want to do first.';
-    if (state.op === 'pos') {
-      if (state.pos.length === 0) return 'This project has no parts of speech to assign.';
-      if (!state.targetPosId) return 'Choose a part of speech to set.';
-    }
-    if (state.op === 'domain') {
-      if (state.domains.length === 0) return 'This project has no semantic domains to add.';
-      if (!state.targetDomainId) return 'Choose a semantic domain to add.';
-    }
-    if (state.criteria === 'sourcePos' && !state.sourcePosId) return 'Choose a part of speech to look for.';
-    if (state.criteria === 'inDomain' && !state.criteriaDomainId) return 'Choose a semantic domain to look in.';
+  function validate() {
+    if (choice.op === 'pos' && !choice.targetPosId) return 'This project has no parts of speech to set.';
+    if (choice.op === 'domain' && !choice.targetDomainId) return 'This project has no semantic domains to add.';
+    if (choice.criteria === 'sourcePos' && !choice.sourcePosId) return 'Choose a part of speech to look for.';
+    if (choice.criteria === 'inDomain' && !choice.criteriaDomainId) return 'Choose a semantic domain to look in.';
     return '';
   }
 
-  // --- Step 2: scan ------------------------------------------------------------
-  function scan() {
-    var problem = validateChoices();
-    if (problem) { setNote('choose-note', problem, 'warn'); return; }
+  function renderChange(host, change) {
+    host.innerHTML = '';
+    if (change.add) {
+      host.appendChild(el('span', 'chip good', '+ ' + change.add));
+      return;
+    }
+    host.appendChild(el('span', 'chip before', change.before));
+    host.appendChild(el('span', 'to', '→'));
+    host.appendChild(el('span', 'chip accent', change.after));
+  }
+
+  function showStep(n) {
+    document.body.dataset.step = n;
+    [1, 2, 3].forEach(function (s) { show('section-' + s, s === n); });
+    document.querySelectorAll('.step').forEach(function (node) {
+      var s = Number(node.dataset.step);
+      node.classList.toggle('active', s === n);
+      node.classList.toggle('done', s < n);
+    });
+  }
+  function setNote(id, message) {
+    var host = $(id);
+    host.innerHTML = '';
+    if (message) host.appendChild(el('div', 'note warn', message));
+  }
+
+  function fillSelect(select, items, labelOf) {
+    select.innerHTML = '';
+    items.forEach(function (item) {
+      var option = el('option', '', labelOf(item));
+      option.value = item.id;
+      select.appendChild(option);
+    });
+  }
+  function syncChoiceUI() {
+    document.querySelectorAll('input[name="op"]').forEach(function (r) { r.checked = r.value === choice.op; });
+    document.querySelectorAll('.op-card').forEach(function (card) { card.classList.toggle('selected', card.dataset.op === choice.op); });
+    show('target-pos-field', choice.op === 'pos');
+    show('target-domain-field', choice.op === 'domain');
+    show('source-pos-field', choice.criteria === 'sourcePos');
+    show('criteria-domain-field', choice.criteria === 'inDomain');
+    if (choice.targetPosId) $('target-pos').value = choice.targetPosId;
+    if (choice.targetDomainId) $('target-domain').value = choice.targetDomainId;
+    if (choice.sourcePosId) $('source-pos').value = choice.sourcePosId;
+    if (choice.criteriaDomainId) $('criteria-domain').value = choice.criteriaDomainId;
+    $('criteria').value = choice.criteria;
+    $('search-box').value = choice.search;
+  }
+  function wireStep1() {
+    var posLabelOf = function (p) { return nameOf(p.name) || '(unnamed)'; };
+    var sortedDomains = domains.slice().sort(function (a, b) { return (a.code || '').localeCompare(b.code || '', undefined, {numeric: true}); });
+    fillSelect($('target-pos'), posList, posLabelOf);
+    fillSelect($('source-pos'), posList, posLabelOf);
+    fillSelect($('target-domain'), sortedDomains, function (d) { return domainLabel(d) || '(unnamed)'; });
+    fillSelect($('criteria-domain'), sortedDomains, function (d) { return domainLabel(d) || '(unnamed)'; });
+    show('no-pos', !posList.length);
+    show('no-domain', !domains.length);
+    choice.targetPosId = choice.sourcePosId = posList[0] ? posList[0].id : null;
+    choice.targetDomainId = choice.criteriaDomainId = sortedDomains[0] ? sortedDomains[0].id : null;
+    choice.op = posList.length ? 'pos' : 'domain';
+    syncChoiceUI();
+
+    document.querySelectorAll('input[name="op"]').forEach(function (radio) {
+      radio.addEventListener('change', function () { choice.op = radio.value; syncChoiceUI(); setNote('choose-note', ''); });
+    });
+    [['target-pos', 'targetPosId'], ['target-domain', 'targetDomainId'], ['source-pos', 'sourcePosId'], ['criteria-domain', 'criteriaDomainId'], ['criteria', 'criteria']].forEach(function (pair) {
+      $(pair[0]).addEventListener('change', function () { choice[pair[1]] = $(pair[0]).value; syncChoiceUI(); });
+    });
+    $('search-box').addEventListener('input', function () { choice.search = $('search-box').value.trim(); });
+    $('scan-btn').addEventListener('click', scan);
+    $('back-to-choose').addEventListener('click', function () { showStep(1); });
+    $('start-apply').addEventListener('click', startRun);
+    $('select-all').addEventListener('click', function () { setAll(true); });
+    $('select-none').addEventListener('click', function () { setAll(false); });
+    $('show-more').addEventListener('click', function () { shown += SHOW_STEP; renderAffected(); });
+    $('finish-restart').addEventListener('click', function () { run = null; affected = []; syncChoiceUI(); showStep(1); });
+    $('retry-declined').addEventListener('click', retryDeclined);
+  }
+
+  async function scan() {
+    var problem = validate();
+    if (problem) { setNote('choose-note', problem); return; }
     setNote('choose-note', '');
-
     showStep(2);
-    $('scan-loading').hidden = false;
-    $('preview-body').hidden = true;
-    state.affected = [];
-
-    var offset = 0, scanned = 0, capped = false;
-    var filter = backendFilter();
-    var query = {limit: PAGE, filter: filter};
-    if (state.search) query.search = state.search;
-
-    function loadPage() {
-      query.offset = offset;
-      return window.fwlite.getEntries(query).then(function (page) {
+    show('scan-loading', true);
+    show('preview-body', false);
+    affected = [];
+    shown = SHOW_STEP;
+    var query = {limit: PAGE, offset: 0, filter: backendFilter()};
+    if (choice.search) query.search = choice.search;
+    try {
+      capped = false;
+      while (true) {
+        var page = await fwlite.getEntries(query);
         page.forEach(function (entry) {
           (entry.senses || []).forEach(function (sense) {
-            if (!inScope(sense)) return;   // client-side re-check; demo ignores filters
-            var change = describeChange(sense);
-            state.affected.push({
-              entryId: entry.id, senseId: sense.id,
-              headword: headwordOf(entry), gloss: glossOf(sense),
-              before: change.before, after: change.after, isAdd: change.isAdd,
-              include: true,
-            });
+            if (!senseMatches(sense) || !senseNeedsChange(sense)) return;
+            affected.push({entryId: entry.id, senseId: sense.id, headword: fwlite.headword(entry) || '(no headword)', gloss: glossOf(sense), change: describeChange(sense), include: true});
           });
         });
-        scanned += page.length;
-        offset += page.length;
-        $('scan-text').textContent = 'Scanned ' + scanned.toLocaleString() + ' entries, found ' + state.affected.length.toLocaleString() + ' senses to change…';
-        if (page.length < PAGE) return;
-        if (scanned >= CAP) { capped = true; return; }
-        return loadPage();
-      });
-    }
-    loadPage().then(function () {
-      state.capped = capped;
-      $('scan-loading').hidden = true;
-      $('preview-body').hidden = false;
+        query.offset += page.length;
+        $('scan-text').textContent = 'Checked ' + query.offset.toLocaleString() + ' entries, found ' + plural(affected.length, 'sense', 'senses') + '…';
+        if (page.length < PAGE) break;
+        if (query.offset >= CAP) { capped = true; break; }
+      }
+      show('scan-loading', false);
+      show('preview-body', true);
       renderAffected();
-    }).catch(function (err) {
+    } catch (err) {
       showStep(1);
-      setNote('choose-note', 'Could not scan entries: ' + errMsg(err), 'warn');
-    });
+      setNote('choose-note', 'Could not look through the entries: ' + errMsg(err));
+    }
   }
+
+  function setAll(on) { affected.forEach(function (a) { a.include = on; }); renderAffected(); }
 
   function renderAffected() {
-    $('affected-count').textContent = state.affected.length.toLocaleString();
-    $('scan-cap').hidden = !state.capped;
-    if (state.capped) $('scan-cap').textContent = 'Stopped after the first ' + CAP.toLocaleString() + ' entries. Run again after applying to catch the rest.';
-
-    var empty = state.affected.length === 0;
-    $('no-affected').hidden = !empty;
-    $('select-row').hidden = empty;
-    $('start-apply').disabled = empty;
-
+    $('affected-count').textContent = affected.length.toLocaleString();
+    show('scan-cap', capped);
+    $('scan-cap').textContent = 'Only the first ' + CAP.toLocaleString() + ' entries were checked. Run it again afterwards to catch the rest.';
+    show('no-affected', !affected.length);
+    show('select-row', affected.length > 1);
     var list = $('affected-list');
     list.innerHTML = '';
-    state.affected.forEach(function (item) {
-      var row = document.createElement('div');
-      row.className = 'aff-item';
-      var cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.checked = item.include;
-      cb.addEventListener('change', function () { item.include = cb.checked; updateTicked(); });
-      var body = document.createElement('div');
-      body.className = 'aff-body';
-      var hw = document.createElement('div');
-      hw.className = 'aff-hw';
-      hw.textContent = item.headword;
-      var gl = document.createElement('div');
-      gl.className = 'aff-gloss';
-      gl.textContent = item.gloss;
-      var chips = document.createElement('div');
-      renderChips(chips, {before: item.before, after: item.after, isAdd: item.isAdd});
-      body.appendChild(hw); body.appendChild(gl); body.appendChild(chips);
-      row.appendChild(cb); row.appendChild(body);
+    affected.slice(0, shown).forEach(function (item) {
+      var row = el('label', 'item');
+      var box = el('input');
+      box.type = 'checkbox';
+      box.checked = item.include;
+      box.addEventListener('change', function () { item.include = box.checked; updateApplyButton(); });
+      var body = el('div', 'item-body');
+      body.appendChild(el('div', 'hw', item.headword));
+      body.appendChild(el('div', 'gloss', item.gloss));
+      var change = el('div', 'change');
+      renderChange(change, item.change);
+      body.appendChild(change);
+      row.appendChild(box);
+      row.appendChild(body);
       list.appendChild(row);
     });
-    updateTicked();
-  }
-  function tickedCount() { return state.affected.filter(function (a) { return a.include; }).length; }
-  function updateTicked() {
-    var n = tickedCount();
-    $('ticked-count').textContent = n.toLocaleString() + ' selected';
-    $('start-apply').disabled = n === 0;
+    var hidden = affected.length - shown;
+    show('show-more', hidden > 0);
+    $('show-more').textContent = 'Show ' + Math.min(hidden, SHOW_STEP) + ' more (' + hidden.toLocaleString() + ' not shown)';
+    updateApplyButton();
   }
 
-  // --- Step 3: apply queue -----------------------------------------------------
-  function startApply(fromResume) {
-    if (!fromResume) {
-      state.queue = state.affected.filter(function (a) { return a.include; }).map(function (a) {
-        return {entryId: a.entryId, senseId: a.senseId, headword: a.headword, gloss: a.gloss};
-      });
-      state.total = state.queue.length;
-      state.results = {applied: 0, skipped: [], failed: []};
-      persist();
-    }
-    state.paused = false;
-    showStep(3);
-    $('apply-finish').hidden = true;
-    $('apply-running').hidden = false;
-    $('pause-btn').textContent = 'Pause';
-    renderQueue(null);
-    pump();
+  function updateApplyButton() {
+    var n = affected.filter(function (a) { return a.include; }).length;
+    var btn = $('start-apply');
+    btn.disabled = n === 0;
+    btn.textContent = n ? 'Apply ' + plural(n, 'change', 'changes') : 'Apply changes';
+    var batches = Math.ceil(entryCount(affected.filter(function (a) { return a.include; })) / BATCH);
+    $('apply-hint').textContent = !n ? '' : batches <= 1
+      ? 'FW Lite shows you the changes and asks you to approve them.'
+      : 'FW Lite asks you to approve ' + BATCH + ' entries at a time (' + batches + ' approvals). Choosing “Always allow for this plugin” there skips the rest.';
+  }
+  function entryCount(items) {
+    var ids = {};
+    items.forEach(function (i) { ids[i.entryId] = true; });
+    return Object.keys(ids).length;
   }
 
-  function pump() {
-    if (state.paused || state.running) return;
-    if (state.queue.length === 0) { finish(); return; }
-    state.running = true;
-    var item = state.queue[0];
+  function newRun(items) {
+    return {
+      choice: JSON.parse(JSON.stringify(choice)),
+      queue: items.map(function (a) { return {entryId: a.entryId, senseId: a.senseId, headword: a.headword}; }),
+      total: items.length, applied: 0, declined: [], skipped: [], failed: [],
+      state: 'running', declines: 0, lastBatch: 0
+    };
+  }
+  function startRun() {
+    run = newRun(affected.filter(function (a) { return a.include; }));
+    save();
+    continueRun();
+  }
+  function retryDeclined() {
+    var items = run.declined;
+    run = newRun(items);
+    save();
+    continueRun();
+  }
 
-    // Re-fetch the entry right before writing; data may have changed since the scan.
-    window.fwlite.getEntry(item.entryId).then(function (entry) {
-      if (!entry) return recordSkip(item, 'Entry no longer exists');
-      var sense = (entry.senses || []).filter(function (s) { return s.id === item.senseId; })[0];
-      if (!sense) return recordSkip(item, 'Sense no longer exists');
-      if (!senseMatchesCriteria(sense)) return recordSkip(item, 'No longer matches the filter');
-      if (!senseNeedsChange(sense)) {
-        return recordSkip(item, state.op === 'pos' ? 'Already has this part of speech' : 'Already has this domain');
+  // Takes whole entries from the front of the queue so one entry's senses always travel together.
+  function nextBatch() {
+    var ids = {}, count = 0, items = [];
+    for (var i = 0; i < run.queue.length; i++) {
+      var item = run.queue[i];
+      if (!ids[item.entryId]) {
+        if (count === BATCH) break;
+        ids[item.entryId] = true;
+        count++;
       }
-
-      var after = JSON.parse(JSON.stringify(entry));
-      var afterSense = after.senses.filter(function (s) { return s.id === item.senseId; })[0];
-      if (!afterSense || !applyChangeToSense(afterSense)) return recordSkip(item, 'Nothing to change');
-
-      var change = describeChange(sense);
-      renderQueue({headword: headwordOf(entry), gloss: glossOf(sense), change: change});
-
-      return window.fwlite.updateEntry(entry, after).then(function () {
-        state.results.applied++;
-      }, function (err) {
-        if (err && (err.code === 'permission-denied' || err.code === 'preview')) recordSkip(item, 'You did not approve this change');
-        else state.results.failed.push({id: item.entryId, headword: item.headword, msg: errMsg(err)});
-      });
-    }).catch(function (err) {
-      state.results.failed.push({id: item.entryId, headword: item.headword || '(entry)', msg: errMsg(err)});
-    }).then(advance);
-  }
-
-  function recordSkip(item, reason) { state.results.skipped.push({id: item.entryId, headword: item.headword, reason: reason}); }
-
-  function advance() {
-    state.queue.shift();
-    state.running = false;
-    persist();
-    renderQueue(null);
-    if (!state.paused) pump();
-  }
-
-  function renderQueue(current) {
-    var handled = state.total - state.queue.length;
-    var shown = Math.min(state.total, handled + (state.queue.length ? 1 : 0));
-    $('queue-progress').textContent = 'Sense ' + shown + ' of ' + state.total;
-    $('queue-tally').textContent = state.results.applied + ' applied · ' + state.results.skipped.length + ' skipped · ' + state.results.failed.length + ' failed';
-    $('queue-fill').style.width = (state.total ? Math.round((handled / state.total) * 100) : 0) + '%';
-    if (current) {
-      $('current-hw').textContent = current.headword;
-      $('current-gloss').textContent = current.gloss;
-      renderChips($('current-chips'), current.change);
+      items.push(item);
     }
-    if (state.paused && state.queue.length) { $('current-waiting').textContent = 'Paused. Resume to continue.'; }
-    else if (current) { $('current-waiting').textContent = 'Waiting for your approval in the app…'; }
+    return items;
   }
 
-  function togglePause() {
-    state.paused = !state.paused;
-    $('pause-btn').textContent = state.paused ? 'Resume' : 'Pause';
-    if (!state.paused) pump();
-    else renderQueue(null);
+  async function prepare(items) {
+    var ops = [], sent = [], skipped = [];
+    var groups = {}, order = [];
+    items.forEach(function (item) {
+      if (!groups[item.entryId]) { groups[item.entryId] = []; order.push(item.entryId); }
+      groups[item.entryId].push(item);
+    });
+    for (var g = 0; g < order.length; g++) {
+      var group = groups[order[g]];
+      var entry = await fwlite.getEntry(order[g]);
+      if (!entry) { group.forEach(function (i) { skipped.push({item: i, why: 'The entry was deleted'}); }); continue; }
+      var after = JSON.parse(JSON.stringify(entry));
+      var changed = [];
+      group.forEach(function (item) {
+        var sense = (after.senses || []).filter(function (s) { return s.id === item.senseId; })[0];
+        if (!sense) skipped.push({item: item, why: 'The sense was deleted'});
+        else if (!senseNeedsChange(sense)) skipped.push({item: item, why: 'Already done'});
+        else if (!senseMatches(sense)) skipped.push({item: item, why: 'Changed since the preview'});
+        else { changeSense(sense); changed.push(item); }
+      });
+      if (changed.length) { ops.push({type: 'updateEntry', before: entry, after: after}); sent = sent.concat(changed); }
+    }
+    return {ops: ops, sent: sent, skipped: skipped};
+  }
+
+  async function continueRun() {
+    choice = run.choice;
+    run.state = 'running';
+    showStep(3);
+    show('run-card', true);
+    show('finish-card', false);
+    render();
+    while (run.queue.length && run.state === 'running') {
+      var items = nextBatch();
+      run.lastBatch = items.length;
+      render(items);
+      var outcome = await sendBatch(items);
+      if (outcome === 'declined' || outcome === 'preview') {
+        run.declines++;
+        run.state = outcome;
+        save();
+        render(items);
+        $('run-title').focus();
+        return;
+      }
+      run.queue.splice(0, items.length);
+      save();
+      render();
+    }
+    if (!run.queue.length) { finish(); return; }
+    run.state = 'paused';
+    render();
+  }
+
+  async function sendBatch(items, isRetry) {
+    var prepared;
+    try {
+      prepared = await prepare(items);
+      if (prepared.ops.length) await fwlite.applyChanges(prepared.ops);
+    } catch (err) {
+      var code = err && err.code;
+      if (code === 'permission-denied') return 'declined';
+      if (code === 'preview') return 'preview';
+      if (code === 'conflict' && !isRetry) return sendBatch(items, true);
+      if (!prepared) { items.forEach(function (i) { run.failed.push({item: i, why: errMsg(err)}); }); return 'failed'; }
+      // applyChanges applies one entry after another, so some may have been saved before the error.
+      run.skipped = run.skipped.concat(prepared.skipped);
+      for (var i = 0; i < prepared.sent.length; i++) {
+        var item = prepared.sent[i];
+        var entry = await fwlite.getEntry(item.entryId).catch(function () { return null; });
+        var sense = entry && (entry.senses || []).filter(function (s) { return s.id === item.senseId; })[0];
+        if (sense && !senseNeedsChange(sense)) run.applied++;
+        else run.failed.push({item: item, why: errMsg(err)});
+      }
+      return 'failed';
+    }
+    run.declines = 0;
+    run.skipped = run.skipped.concat(prepared.skipped);
+    run.applied += prepared.sent.length;
+    return 'ok';
+  }
+
+  function skipDeclinedBatch() {
+    var items = run.queue.splice(0, run.lastBatch);
+    run.declined = run.declined.concat(items);
+    save();
+  }
+
+  function button(label, primary, onClick) {
+    var b = el('button', 'btn' + (primary ? ' primary' : ''), label);
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  function render(batch) {
+    var done = run.total - run.queue.length;
+    $('run-fill').style.width = (run.total ? Math.round(done / run.total * 100) : 0) + '%';
+    $('n-applied').textContent = run.applied;
+    $('n-declined').textContent = run.declined.length;
+    $('n-skipped').textContent = run.skipped.length;
+    $('n-failed').textContent = run.failed.length;
+    var actions = $('run-actions');
+    actions.innerHTML = '';
+    $('batch-names').textContent = '';
+    show('decline-note', (run.state === 'declined' || run.state === 'preview') && run.declines > 0);
+    if (run.state === 'running') {
+      $('run-title').textContent = 'Applying changes: ' + done + ' of ' + run.total;
+      $('run-status').textContent = 'Waiting for your approval in FW Lite. If you chose “Always allow”, this carries on by itself.';
+      if (batch) $('batch-names').textContent = 'This batch: ' + uniqueHeadwords(batch).join(', ');
+      actions.appendChild(button('Pause after this batch', false, function () { run.state = 'pausing'; render(); }));
+    } else if (run.state === 'pausing') {
+      $('run-status').textContent = 'Pausing once FW Lite has an answer for this batch…';
+    } else if (run.state === 'paused') {
+      $('run-title').textContent = 'Paused: ' + done + ' of ' + run.total;
+      $('run-status').textContent = plural(run.queue.length, 'change is', 'changes are') + ' still waiting. Nothing more is sent until you continue.';
+      actions.appendChild(button('Continue', true, continueRun));
+      actions.appendChild(button('Stop here', false, finish));
+    } else {
+      var batchItems = run.queue.slice(0, run.lastBatch);
+      var what = plural(batchItems.length, 'change', 'changes') + ' to ' + plural(uniqueHeadwords(batchItems).length, 'entry', 'entries');
+      var rest = run.queue.length - run.lastBatch;
+      var waiting = rest ? ' ' + plural(rest, 'more change is', 'more changes are') + ' waiting.' : '';
+      if (run.state === 'preview') {
+        $('run-title').textContent = 'Preview only';
+        $('run-status').textContent = 'This is a preview, so the ' + what + ' were not saved. Once the plugin is added, approving saves them.' + waiting;
+      } else {
+        $('run-title').textContent = 'Batch not applied';
+        $('run-status').textContent = 'You declined ' + what + ', so none of them were saved.' + waiting;
+      }
+      if (rest) actions.appendChild(button('Continue with the rest', true, function () { skipDeclinedBatch(); continueRun(); }));
+      actions.appendChild(button('Try this batch again', !rest, continueRun));
+      actions.appendChild(button('Stop here', false, function () { skipDeclinedBatch(); finish(); }));
+    }
+  }
+
+  function uniqueHeadwords(items) {
+    var seen = {}, out = [];
+    items.forEach(function (i) { if (!seen[i.entryId]) { seen[i.entryId] = true; out.push(i.headword); } });
+    return out;
   }
 
   function finish() {
-    clearStorage();
-    $('apply-running').hidden = true;
-    $('apply-finish').hidden = false;
-    $('t-applied').textContent = state.results.applied;
-    $('t-skipped').textContent = state.results.skipped.length;
-    $('t-failed').textContent = state.results.failed.length;
-    renderLinkList('skipped-section', 'skipped-list', state.results.skipped, function (s) { return s.reason; });
-    renderLinkList('failed-section', 'failed-list', state.results.failed, function (f) { return f.msg; });
+    var notSent = run.queue.length;
+    run.state = 'finished';
+    clearSaved();
+    show('run-card', false);
+    show('finish-card', true);
+    $('f-applied').textContent = run.applied;
+    $('f-declined').textContent = run.declined.length;
+    $('f-skipped').textContent = run.skipped.length;
+    $('f-failed').textContent = run.failed.length;
+    $('finish-title').textContent = notSent ? 'Stopped' : 'All done';
+    $('finish-note').textContent = notSent ? plural(notSent, 'change was', 'changes were') + ' not sent.' : '';
+    var lists = $('finish-lists');
+    lists.innerHTML = '';
+    addList(lists, 'Declined', run.declined.map(function (i) { return {item: i, why: ''}; }));
+    addList(lists, 'Skipped', run.skipped);
+    addList(lists, 'Failed', run.failed);
+    show('retry-declined', run.declined.length > 0);
+    $('retry-declined').textContent = 'Try the declined ones again (' + run.declined.length + ')';
+    $('finish-title').focus();
   }
 
-  function renderLinkList(sectionId, listId, items, whyOf) {
-    $(sectionId).hidden = items.length === 0;
-    var host = $(listId);
-    host.innerHTML = '';
-    items.forEach(function (item) {
-      var wrap = document.createElement('div');
-      var a = document.createElement('a');
-      a.textContent = item.headword || '(entry)';
-      a.addEventListener('click', function () { window.fwlite.openEntry(item.id); });
-      var why = document.createElement('span');
-      why.className = 'why';
-      why.textContent = '  — ' + whyOf(item);
-      wrap.appendChild(a);
-      wrap.appendChild(why);
-      host.appendChild(wrap);
+  function addList(host, title, rows) {
+    if (!rows.length) return;
+    var group = el('div', 'result-group');
+    group.appendChild(el('h3', '', title));
+    var list = el('ul', 'link-list');
+    rows.slice(0, LIST_CAP).forEach(function (row) {
+      var li = el('li');
+      var link = el('button', 'link', row.item.headword);
+      link.addEventListener('click', function () { fwlite.openEntry(row.item.entryId).catch(function () {}); });
+      li.appendChild(link);
+      if (row.why) li.appendChild(el('span', 'why', row.why));
+      list.appendChild(li);
     });
+    group.appendChild(list);
+    if (rows.length > LIST_CAP) group.appendChild(el('p', 'muted', 'and ' + (rows.length - LIST_CAP) + ' more'));
+    host.appendChild(group);
   }
 
-  // --- Resume support ----------------------------------------------------------
+  function save() {
+    fwlite.storage.set(STORAGE_KEY, run).catch(function () {});
+  }
+  function clearSaved() { fwlite.storage.remove(STORAGE_KEY).catch(function () {}); }
   function offerResume(saved) {
-    restoreChoices(saved);
-    state.queue = saved.queue || [];
-    state.total = saved.total || state.queue.length;
-    state.results = saved.results || {applied: 0, skipped: [], failed: []};
-    var banner = $('resume-banner');
-    banner.hidden = false;
-    var what = saved.op === 'pos' ? 'part-of-speech' : 'semantic-domain';
-    $('resume-text').textContent = 'A ' + what + ' bulk edit is in progress: ' + state.queue.length + ' of ' + state.total + ' senses still to review.';
-    $('resume-btn').onclick = function () { banner.hidden = true; startApply(true); };
-    $('discard-btn').onclick = function () { banner.hidden = true; clearStorage(); resetToChoices(); };
+    var what = saved.choice.op === 'pos' ? 'part of speech' : 'semantic domain';
+    $('resume-text').textContent = 'You have an unfinished ' + what + ' edit: ' + plural(saved.queue.length, 'change', 'changes') + ' still to apply.';
+    show('resume', true);
+    $('resume-btn').addEventListener('click', function () {
+      show('resume', false);
+      run = saved;
+      run.declines = 0;
+      continueRun();
+    });
+    $('discard-btn').addEventListener('click', function () { show('resume', false); clearSaved(); });
   }
 
-  function restoreChoices(saved) {
-    state.op = saved.op || null;
-    state.targetPosId = saved.targetPosId || null;
-    state.targetDomainId = saved.targetDomainId || null;
-    state.criteria = saved.criteria || 'missing';
-    state.sourcePosId = saved.sourcePosId || null;
-    state.criteriaDomainId = saved.criteriaDomainId || null;
-    state.search = saved.search || '';
-    reflectChoicesInUI();
-  }
-  function reflectChoicesInUI() {
-    document.querySelectorAll('input[name="op"]').forEach(function (r) { r.checked = r.value === state.op; });
-    syncOpUI();
-    if (state.targetPosId) $('target-pos').value = state.targetPosId;
-    if (state.targetDomainId) $('target-domain').value = state.targetDomainId;
-    $('criteria').value = state.criteria;
-    syncCriteriaUI();
-    if (state.sourcePosId) $('source-pos').value = state.sourcePosId;
-    if (state.criteriaDomainId) $('criteria-domain').value = state.criteriaDomainId;
-    $('search-box').value = state.search;
-  }
-
-  function resetToChoices() {
-    state.affected = [];
-    state.queue = [];
-    state.results = {applied: 0, skipped: [], failed: []};
-    reflectChoicesInUI();
-    setNote('choose-note', '');
-    showStep(1);
-  }
-
-  // --- Init --------------------------------------------------------------------
-  function init(context) {
-    applyTheme(context.theme);
-    Promise.all([
-      window.fwlite.getWritingSystems(),
-      window.fwlite.getPartsOfSpeech(),
-      window.fwlite.getSemanticDomains(),
-      window.fwlite.storage.get(STORAGE_KEY),
-    ]).then(function (res) {
-      var wsData = res[0], saved = res[3];
-      state.vernacular = (wsData.vernacular || []).filter(function (w) { return !w.isAudio; })
-        .map(function (w) { return {wsId: w.wsId, name: w.name, font: w.font}; });
-      state.analysisWs = (wsData.analysis || []).map(function (w) { return w.wsId; });
-      state.pos = (res[1] || []).map(function (p) { return {id: p.id, name: p.name}; });
-      state.domains = (res[2] || []).map(function (d) { return {id: d.id, name: d.name, code: d.code}; });
-
-      var vf = state.vernacular[0] && state.vernacular[0].font;
-      document.documentElement.style.setProperty('--vern-font', (vf ? '"' + vf + '", ' : '') + 'inherit');
-
-      $('loading').style.display = 'none';
-      $('app').style.display = 'block';
-
-      buildStep1UI();
+  async function init() {
+    applyTheme();
+    try {
+      var results = await Promise.all([fwlite.getWritingSystems(), fwlite.getPartsOfSpeech(), fwlite.getSemanticDomains(), fwlite.storage.get(STORAGE_KEY)]);
+      var ws = results[0];
+      applyVernFont((ws.vernacular || []).filter(function (w) { return !w.isAudio; })[0]);
+      analysisWs = (ws.analysis || []).filter(function (w) { return !w.isAudio; }).map(function (w) { return w.wsId; });
+      posList = (results[1] || []).map(function (p) { return {id: p.id, name: p.name, raw: p}; });
+      domains = (results[2] || []).map(function (d) { return {id: d.id, name: d.name, code: d.code, raw: d}; });
+      show('loading', false);
+      if (!posList.length && !domains.length) { show('empty', true); return; }
+      show('app', true);
+      wireStep1();
       showStep(1);
-
-      if (saved && saved.queue && saved.queue.length) offerResume(saved);
-    }).catch(function (err) {
-      showError('Could not start: ' + errMsg(err));
-    });
-  }
-
-  function buildStep1UI() {
-    // POS selects (target + source)
-    if (state.pos.length === 0) {
-      $('no-pos').hidden = false;
+      var saved = results[3];
+      if (saved && saved.queue && saved.queue.length && saved.choice) offerResume(saved);
+    } catch (err) {
+      show('loading', false);
+      $('error').textContent = 'Could not start: ' + errMsg(err);
+      show('error', true);
     }
-    var posValueOf = function (p) { return p.id; };
-    var posLabelOf = function (p) { return nameOf(p.name) || '(unnamed)'; };
-    fillSelect($('target-pos'), state.pos, posValueOf, posLabelOf);
-    fillSelect($('source-pos'), state.pos, posValueOf, posLabelOf);
-
-    // Domain selects (target + criteria)
-    if (state.domains.length === 0) {
-      $('no-domain').hidden = false;
-    }
-    var sorted = state.domains.slice().sort(function (a, b) { return (a.code || '').localeCompare(b.code || ''); });
-    var domValueOf = function (d) { return d.id; };
-    var domLabelOf = function (d) { return domainLabel(d) || '(unnamed)'; };
-    fillSelect($('target-domain'), sorted, domValueOf, domLabelOf);
-    fillSelect($('criteria-domain'), sorted, domValueOf, domLabelOf);
-
-    // Defaults
-    state.targetPosId = state.pos[0] ? state.pos[0].id : null;
-    state.sourcePosId = state.pos[0] ? state.pos[0].id : null;
-    state.targetDomainId = sorted[0] ? sorted[0].id : null;
-    state.criteriaDomainId = sorted[0] ? sorted[0].id : null;
-
-    // Default operation: pos if available, else domain.
-    state.op = state.pos.length ? 'pos' : (state.domains.length ? 'domain' : 'pos');
-    reflectChoicesInUI();
-
-    // Wire events
-    document.querySelectorAll('input[name="op"]').forEach(function (r) {
-      r.addEventListener('change', function () { if (r.checked) { state.op = r.value; syncOpUI(); setNote('choose-note', ''); } });
-    });
-    document.querySelectorAll('.op-card').forEach(function (card) {
-      card.addEventListener('click', function () {
-        var radio = card.querySelector('input');
-        if (radio && !radio.checked) { radio.checked = true; state.op = radio.value; syncOpUI(); setNote('choose-note', ''); }
-      });
-    });
-    $('target-pos').addEventListener('change', function () { state.targetPosId = $('target-pos').value; });
-    $('target-domain').addEventListener('change', function () { state.targetDomainId = $('target-domain').value; });
-    $('source-pos').addEventListener('change', function () { state.sourcePosId = $('source-pos').value; });
-    $('criteria-domain').addEventListener('change', function () { state.criteriaDomainId = $('criteria-domain').value; });
-    $('criteria').addEventListener('change', function () { state.criteria = $('criteria').value; syncCriteriaUI(); });
-    $('search-box').addEventListener('input', function () { state.search = $('search-box').value.trim(); });
-
-    $('scan-btn').addEventListener('click', scan);
-    $('back-to-choose').addEventListener('click', function () { showStep(1); });
-    $('start-apply').addEventListener('click', function () { startApply(false); });
-    $('pause-btn').addEventListener('click', togglePause);
-    $('select-all').addEventListener('click', function () { state.affected.forEach(function (a) { a.include = true; }); renderAffected(); });
-    $('select-none').addEventListener('click', function () { state.affected.forEach(function (a) { a.include = false; }); renderAffected(); });
-    $('finish-restart').addEventListener('click', resetToChoices);
   }
-
-  window.fwlite.ready.then(init);
+  fwlite.ready.then(init);
 })();
 </script>
 </body>
