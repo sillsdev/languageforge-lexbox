@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-05 05:15\n"
+"PO-Revision-Date: 2026-11-06 05:28\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -25,6 +25,43 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} mabadiliko)"
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "…and {0} more changes"
+msgstr "…na {0} mabadiliko zaidi"
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” added an entry"
+msgstr "{0}\" aliongeza kijumlisho"
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "“{0}” can now make changes without asking. You can change this from the plugin toolbar or its card."
+msgstr "{0}sasa inaweza kufanya mabadiliko bila kuuliza. Unaweza kubadilisha hili kutoka kwa upau wa zana wa programu-jalizi au kadi yake."
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” changed an entry"
+msgstr "\"{0}\" ilibadilisha kumbukumbu"
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” kept asking to change your dictionary after you said no. Reload it to try again."
+msgstr "{0}\" iliendelea kukuomba ubadilishe kamusi yako baada ya wewe kusema hapana. Ipakie tena ili kujaribu tena."
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” made {1}"
+msgstr "{0}\" imetengenezwa {1}"
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin."
+msgstr "{0}\" ilijaribu kuondoka kwenye ukurasa wake wa sandbox, jambo ambalo programu-jalizi haziruhusiwi kufanya. Inaweza kuwa imevunjika — au inajaribu kutuma data mahali fulani. Kuwa mwangalifu na programu-jalizi hii."
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "\"{0}\" was added for everyone on this project."
+msgstr "\"{0}\" iliongezwa kwa kila mtu kwenye mradi huu."
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "“{0}” will ask before making changes again."
+msgstr "\"{0}\" itakuuliza kabla ya kufanya mabadiliko tena."
+
 #. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
 #. Shown in place of the sense's number and gloss; "sense" is "meaning" in the Lite view
 #: src/lib/activity/ActivityItemChangePreview.svelte
@@ -40,8 +77,13 @@ msgstr "(imefutwa)"
 msgid "(edited)"
 msgstr "(imehaririwa)"
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "(empty)"
+msgstr "(tupu)"
+
 #. Activity-log line: placeholder shown in place of a newly created entry's name when it has no headword text yet.
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "(no headword)"
 msgstr "(Hakuna neno kuu)"
 
@@ -56,6 +98,14 @@ msgstr "(Haijulikani)"
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0}"
 msgstr "{0}"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "{0} (copy)"
+msgstr "{0} (nakala)"
+
+#: src/project/data/plugin-service.svelte.ts
+msgid "{0} (custom)"
+msgstr "{0} (kibinafsi)"
 
 #. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
@@ -81,6 +131,19 @@ msgstr "{0} iliyopita"
 msgid "{0} authors"
 msgstr "{0} waandishi"
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "{0} KB"
+msgstr "{0} Juu"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "{0} KB to {1} KB"
+msgstr "{0} KB hadi {1} KB"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "{0} KB to {1} KB, no new permissions"
+msgstr "{0} KB hadi {1} KB, hakuna ruhusa mpya"
+
 #. File size display with unit
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
@@ -105,6 +168,9 @@ msgid "{num, plural, one {(+# more change)} other {(+# more changes)}}"
 msgstr "{num, plural, one {(+# mabadiliko zaidi)} other {(+# mabadiliko zaidi)}}"
 
 #. Number of changes in sync operation
+#: src/lib/plugins/PluginSandbox.svelte
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
@@ -163,10 +229,30 @@ msgstr "# sehemu ya #"
 msgid "1 reply"
 msgstr "Jibu 1"
 
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "1. Describe your plugin"
+msgstr "1. Elezea programu-jalizi yako"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "2. Have an AI write it"
+msgstr "2. Acha AI iandike"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "3. Try it here"
+msgstr "3. Jaribu hapa"
+
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Toleo jipya la FieldWorks Lite linapatikana."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "A project manager can add plugins for the team."
+msgstr "Msimamizi wa mradi anaweza kuongeza programu-jalizi kwa timu."
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "A short summary shown on the plugin's card."
+msgstr "Muhtasari mfupi unaoonyeshwa kwenye kadi ya programu-jalizi."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "A similar word already exists"
@@ -193,6 +279,10 @@ msgstr "neno"
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Abbreviation"
 msgstr "Fupisho"
+
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "About"
+msgstr "Kuhusu"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -231,6 +321,11 @@ msgstr "Ongeza fomu changamano"
 msgid "Add component"
 msgstr "Ongeza sehemu"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Add entry"
+msgstr "Ongeza ingizo"
+
 #. Button to add example sentence
 #. Adds sentence/phrase showing how a word is used in context
 #. Each example can have translation and source reference
@@ -246,6 +341,10 @@ msgstr "Ongeza Mfano"
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 msgid "Add Meaning"
 msgstr "Ongeza Maana"
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Add my version"
+msgstr "Ongeza toleo langu"
 
 #. Button in toolbar
 #: src/lib/entry-editor/NewEntryButton.svelte
@@ -285,6 +384,11 @@ msgstr "Ongeza maneno machache kwanza."
 msgid "Add to dictionary"
 msgstr "Ongeza kwenye kamusi"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Add to project"
+msgstr "Ongeza kwenye mradi"
+
 #. Dialog title
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Add Word"
@@ -319,6 +423,10 @@ msgstr "Ongezeko la maoni"
 msgid "Added component"
 msgstr "Sehemu iliyoongezwa"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Added for the team"
+msgstr "Imeongezwa kwa ajili ya timu"
+
 #. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Removed picture", "Updated picture", "Reordered pictures".
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Added picture"
@@ -338,6 +446,7 @@ msgstr "Zaidi: faili ya mipangilio"
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+#: src/lib/plugins/PluginsView.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "Vyote"
@@ -355,6 +464,18 @@ msgstr "Aina zote za shughuli"
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
 msgstr "Waandishi wote"
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Allow and run it"
+msgstr "Ruhusu na uendeshe"
+
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Already have a plugin file? It runs in the preview straight away, before anyone else can see it."
+msgstr "Tayari una faili ya programu-jalizi? Inaendeshwa kwenye muonekano wa awali mara moja, kabla mtu mwingine yeyote haijione."
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Always allow for this plugin"
+msgstr "Daima ruhusu programu-jalizi hii"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "a word"
@@ -419,15 +540,32 @@ msgstr "Kikoa chochote cha kumkutania"
 msgid "Any Ws"
 msgstr "Ws yoyote"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Apply change"
+msgstr "Tumia mabadiliko"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Apply changes"
+msgstr "Tumia mabadiliko"
+
 #. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
 msgstr "Je, una uhakika kuwa unataka kufuta {0}?"
 
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "Ask AI"
+msgstr "Uliza AI"
+
 #. Button description
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Ask questions and get help on our community forum."
 msgstr "Uliza maswali na upate msaada kwenye jukwaa letu la jamii."
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Ask the AI to remove it"
+msgstr "Muulize AI kuiondoa."
 
 #. Small marker chip on an activity summary indicating a field value is an audio recording (not text)
 #: src/lib/activity/ChangeSummary.svelte
@@ -484,6 +622,16 @@ msgstr "Kuoanisha otomatiki"
 msgid "Back"
 msgstr "Rudi nyuma"
 
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioNotice.svelte
+msgid "Back to plugins"
+msgstr "Rudi kwenye programu-jalizi"
+
 #: src/project/tasks/TaskView.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Back to tasks"
@@ -516,6 +664,10 @@ msgstr "Ujumbe bora"
 msgid "blue"
 msgstr "buluu"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Breadcrumb"
+msgstr "Vipengele vya urambazaji"
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 #: src/project/tasks/TaskList.svelte
@@ -527,8 +679,29 @@ msgid "Browse view failed"
 msgstr "Uangaliaji wa kuvinjari umeshindikana"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/plugins/PluginsView.svelte
 msgid "Camera"
 msgstr "Kamera"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Can access the internet (and could send dictionary data there)"
+msgstr "Inaweza kufikia intaneti (na inaweza kutuma data ya kamusi huko)"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Can change the dictionary"
+msgstr "Unaweza kubadilisha kamusi"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Can change the dictionary, and asks before each change"
+msgstr "Inaweza kubadilisha kamusi, na kuuliza kabla ya kila mabadiliko"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Can change your dictionary — it will ask you first"
+msgstr "Unaweza kubadilisha kamusi yako — itakuuliza kwanza"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Can use the internet"
+msgstr "Anaweza kutumia intaneti"
 
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
@@ -552,8 +725,17 @@ msgid "Cancel"
 msgstr "Ghairi"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Caption"
 msgstr "Maelezo ya picha"
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Change entry"
+msgstr "Badilisha maingizo"
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "Change it before adding"
+msgstr "Badilisha kabla ya kuongeza"
 
 #. Activity-log line. {0} = field label (e.g. "Part of speech") or singular list-item noun (e.g. "complex form type"). Used when the new value is unknown or not displayed.
 #: src/lib/activity/ChangeSummary.svelte
@@ -605,6 +787,7 @@ msgstr "Chagua mandhari"
 #. Relevant view: Classic
 #. Lite view equivalent: "Display as"
 #. Field label: form for citing in dictionary
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Citation form"
@@ -631,7 +814,9 @@ msgstr "Imesafishwa {0}"
 #. Button to close popup
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Funga"
@@ -653,6 +838,10 @@ msgstr "Mfululizo wa maoni umefungwa"
 msgid "Code"
 msgstr "Msimbo"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Collect words"
+msgstr "Kusanya maneno"
+
 #. Tab or section
 #: src/lib/components/ThemePicker.svelte
 msgid "Color"
@@ -665,6 +854,10 @@ msgstr "Maoni"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Commenter"
 msgstr "Mtoa maoni"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "comments"
+msgstr "Maoni"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
@@ -689,6 +882,10 @@ msgstr "Inalinganisha toleo lililotolewa mara tu baada ya mabadiliko haya na tol
 msgid "Complete"
 msgstr "Kamilika"
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Complex form"
+msgstr "Fomu tata"
+
 #. Field label
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
@@ -700,6 +897,10 @@ msgstr "Fomu Changamano"
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "complex form type"
+msgstr "Aina ya fomu tata"
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Complex form type"
 msgstr "Aina ya fomu tata"
 
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). User-defined classifications of compound-word relationships (e.g. "compound", "derivative").
@@ -733,6 +934,7 @@ msgstr "Sehemu"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Component"
 msgstr "Sehemu"
 
@@ -752,6 +954,10 @@ msgstr "Sehemu"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Contains"
 msgstr "Ina"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Contexts"
+msgstr "Muktadha"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
@@ -784,6 +990,18 @@ msgstr "Haikuweza kukagua maneno yanayofanana"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Couldn't get the FieldWorks Classic status from Lexbox."
 msgstr "Haikuweza kupata hadhi ya FieldWorks Classic kutoka Lexbox."
+
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "Couldn't load the plugin file."
+msgstr "Haikuweza kupakia faili la programu-jalizi."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Couldn't load the plugin file. {0}"
+msgstr "Haikuweza kupakia faili la programu-jalizi. {0}"
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Couldn't load this plugin"
+msgstr "Haikuweza kupakia programu-jalizi hii"
 
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
@@ -848,6 +1066,10 @@ msgstr "Imetengenezwa {0} {1}"
 msgid "Current Entry"
 msgstr "Ingizo Sasa"
 
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Current version"
+msgstr "Toleo la sasa"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Current Entry"
 #. Label in picker: marks the word that is currently being edited
@@ -900,6 +1122,7 @@ msgstr "Faharasa ya Data"
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Definition"
@@ -910,6 +1133,7 @@ msgstr "Maana"
 #. Action: Prompts confirmation, frees up local storage
 #: src/home/HomeView.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
+#: src/lib/plugins/PluginsView.svelte
 msgid "Delete"
 msgstr "Futa"
 
@@ -971,12 +1195,27 @@ msgstr "Mfululizo wa maoni uliofutwa"
 msgid "Deleted later"
 msgstr "Imefutwa baadaye"
 
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "Describe a change"
+msgstr "Elezea mabadiliko"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Describe it and have an AI write it, or paste a plugin file you already have."
+msgstr "Ieleze na uiandike kwa AI, au bandika faili ya programu-jalizi uliyonayo tayari."
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Describe your plugin"
+msgstr "Elezea programu-jalizi yako"
+
 #: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "Description"
 msgstr "Maelezo"
 
 #. Tab in the activity change preview: technical details of the change
 #: src/lib/activity/ActivityItem.svelte
+#: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Details"
 msgstr "Maelezo"
 
@@ -998,6 +1237,8 @@ msgstr "Mjumbe wa Kamusi"
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Discard"
 msgstr "Kataa mabadiliko"
@@ -1014,10 +1255,18 @@ msgstr "Onyesha kama"
 msgid "Do you want to:"
 msgstr "Je, unataka:"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Don't allow"
+msgstr "Usiruhusu"
+
 #. Button to cancel deletion
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
 msgstr "Usifute"
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Don't run it"
+msgstr "Usikiendeshe"
 
 #. Tab label
 #: src/project/tasks/TaskView.svelte
@@ -1029,6 +1278,7 @@ msgstr "Imekamilika"
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 #: src/lib/notifications/NotificationOutlet.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Download"
 msgstr "Pakua"
 
@@ -1050,6 +1300,15 @@ msgstr "Pakua picha"
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
 msgstr "Pakua mradi kwa nambari ya mradi"
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Download prompt"
+msgstr "Pakua sasa"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Download the prompt and attach the file in any AI chat (e.g. Claude, ChatGPT or Gemini). It already explains plugins and this project."
+msgstr "Pakua maelekezo na uambatanishe faili katika mazungumzo yoyote ya AI (kwa mfano Claude, ChatGPT au Gemini). Tayari inaelezea programu-jalizi na mradi huu."
 
 #. Menu option
 #: src/home/Server.svelte
@@ -1081,13 +1340,40 @@ msgstr "Inapakua sasisho..."
 msgid "Downloading..."
 msgstr "Inapakua..."
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Draft, only you can see it"
+msgstr "Rasimu, ni wewe tu unaweza kuiona"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Duplicate"
+msgstr "Nakala"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "e.g. A flashcard game that quizzes me on entries missing an English gloss and lets me fill it in when I remember the word."
+msgstr "k.m. mchezo wa flashcard unaoniuliza maswali kuhusu maingizo yanayokosa ufafanuzi wa Kiingereza na kuniruhusu kujaza ninapokumbuka neno."
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "e.g. Also show how many entries have a recording."
+msgstr "k.m. Pia onyesha ni maingizo mangapi yana rekodi."
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "e.g. Dashboard of dictionary statistics"
+msgstr "k.m. Dashibodi ya takwimu za kamusi"
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "e.g. Dictionary stats"
+msgstr "mfano takwimu za kamusi"
+
 #. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
 #: src/home/CreateProjectDialog.svelte
 msgid "e.g. th, sw"
 msgstr "mfano: th, sw"
 
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "Edit"
 msgstr "Hariri"
 
@@ -1154,6 +1440,14 @@ msgstr "Mhariri"
 msgid "Editor Lite"
 msgstr "Mhariri Mwepesi"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Edits — asks first"
+msgstr "Marekebisho — uliza kwanza"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Edits without asking"
+msgstr "Marekebisho bila kuuliza"
+
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
 msgstr "Maoni tupu"
@@ -1164,6 +1458,10 @@ msgstr "Maoni tupu"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr "Inaishia na"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Enrich & clean up"
+msgstr "Tajirisha na kusafisha"
 
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Refers to dictionary entries (headwords with their senses/definitions).
 #: src/lib/activity/ChangeSummary.svelte
@@ -1211,6 +1509,11 @@ msgstr "Ingizo"
 msgid "Entry fields"
 msgstr "Sehemu za kuingizia"
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "Entry menu"
+msgstr "Menyu ya kuingia"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Word only"
 #. Label for picker when creating relationships: select only the entry itself (not a specific sense/meaning)
@@ -1224,6 +1527,10 @@ msgstr "Ingizo tu"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry or sense:"
 msgstr "Ingizo au maana:"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Entry the plugin starts from"
+msgstr "Kuingia programu-jalizi huanza kutoka"
 
 #. Filter operator
 #. Search operator: exact match (whole field must equal search term)
@@ -1255,6 +1562,10 @@ msgstr "Kila ingizo tayari lina sehemu hii imejazwa."
 msgid "Every word already has this field filled in."
 msgstr "Kila neno tayari lina sehemu hii imejazwa."
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Everyone on this project will see it under Plugins. You can change or remove it later."
+msgstr "Kila mtu kwenye mradi huu ataiona chini ya Viendelezi. Unaweza kuibadilisha au kuiondoa baadaye."
+
 #. Standalone noun (an example sentence on a sense), interpolated into a reorder activity-log line, e.g. "<sense> · Reordered example".
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
@@ -1265,6 +1576,7 @@ msgstr "mfano"
 #. Labels example sentence/phrase section in entry editor
 #. Contains: sentence text, translation, source reference
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Example"
 msgstr "Mfano"
@@ -1286,16 +1598,38 @@ msgstr "Sentensi ya mfano"
 msgid "Example sentences"
 msgstr "Sentensi za mfano"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Example, not in this project"
+msgstr "Mfano, si katika mradi huu"
+
 #. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of example sentences under a sense.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "examples"
 msgstr "mifano"
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Examples"
+msgstr "Mifano"
+
 #. Field label in the activity change-preview diff for a writing system. Exemplars are the list of index letters (e.g. A, B, C…) used for alphabetical browsing.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Exemplars"
 msgstr "Mifano bora"
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Exit fullscreen"
+msgstr "Toka kwenye skrini kamili"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Explore & analyze"
+msgstr "Chunguza na uchambue"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Export"
+msgstr "Tuma nje"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to change verbose logging"
@@ -1429,6 +1763,11 @@ msgstr "Toleo la FieldWorks Lite"
 msgid "FieldWorks logo"
 msgstr "Nembo ya FieldWorks"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "File"
+msgstr "Faili"
+
 #. Error message for duplicate file upload
 #: src/lib/components/audio/AudioDialog.svelte
 msgid "File already exists"
@@ -1450,6 +1789,10 @@ msgstr "Faili haijapatikana"
 msgid "File saving not supported"
 msgstr "Hifadhi ya faili hailinganiswi"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "File size"
+msgstr "Ukubwa wa faili"
+
 #. Error message for oversized file
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/audio/AudioDialog.svelte
@@ -1467,6 +1810,10 @@ msgstr "Jaza Onyesha kama"
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
 msgstr "Jaza Neno au Onyesha kama"
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "Filled in from the plugin's title. Change it if you like."
+msgstr "Imejazwa kutoka kwa kichwa cha programu-jalizi. Badilisha ikiwa unapenda."
 
 #. Accessible label for the browse search input that filters entries or words
 #: src/project/browse/SearchFilter.svelte
@@ -1498,6 +1845,10 @@ msgstr "Chuja Kwa"
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter entries"
 msgstr "Kichuja ingizo"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Filter examples"
+msgstr "Mifano ya kichujio"
 
 #. Search field placeholder
 #: src/project/browse/SearchFilter.svelte
@@ -1541,6 +1892,14 @@ msgstr "Tafuta neno..."
 msgid "Finish"
 msgstr "Maliza"
 
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
+msgstr "Ombi la ufuatiliaji limepakuliwa. Kiambatanishe kwenye mazungumzo yale yale ya AI, kisha bandika jibu lake hapa chini."
+
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply here."
+msgstr "Ombi la ufuatiliaji limepakuliwa. Kiambatanishe kwenye mazungumzo yale yale ya AI, kisha bandika jibu lake hapa."
+
 #. Field label in the activity change-preview diff. "Font" is the typeface name configured on a writing system.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Font"
@@ -1556,6 +1915,11 @@ msgstr "Kwa kuuliza kingine chochote, tafadhali tuambii imeli."
 msgid "From active filter"
 msgstr "Kutoka kwa kichuja kilichoanzishwa"
 
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Fullscreen"
+msgstr "Skrini nzima"
+
 #. Button in feedback menu
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Get support"
@@ -1565,10 +1929,19 @@ msgstr "Pata msaada"
 #. Brief translation/equivalent (one word or short phrase)
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Glosi"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Go back"
+msgstr "Rudi nyuma"
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "Go back to the previous version"
+msgstr "Rudi kwenye toleo la awali"
 
 #. Button link to navigate to entry
 #. Clicking jumps to an entry (e.g. from change history or a related entry)
@@ -1631,6 +2004,10 @@ msgstr "Taarifa ya sarufi"
 msgid "green"
 msgstr "kijani"
 
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Handle content with cultural care"
+msgstr "Shughulikia maudhui kwa uangalifu wa kitamaduni"
+
 #. Success toast after rebuilding Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
@@ -1670,6 +2047,10 @@ msgstr "Ficha"
 msgid "Hide unchanged fields"
 msgstr "Ficha sehemu zisizobadilika"
 
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "history"
+msgstr "historia"
+
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
 #: src/project/browse/EntryMenu.svelte
@@ -1681,6 +2062,10 @@ msgstr "Historia"
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Hold to record or#press and release to start recording."
 msgstr "Shika ili kurekodi au#bonyeza na kutoleza kuanza kurekodi."
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Homograph number"
+msgstr "Nambari ya homografi"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1697,6 +2082,10 @@ msgstr "Ninaelewa kuwa hii haiwezi kurudishwa nyuma"
 msgid "ID"
 msgstr "Kitambulisho"
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "If you add it"
+msgstr "Ukiongeza"
+
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
 msgid "Import"
@@ -1707,6 +2096,11 @@ msgstr "Ingiza"
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
 msgstr "katika {0}"
+
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "In this project"
+msgstr "Katika mradi huu"
 
 #. Toggle switch in the filter panel next to the semantic domain selector. When enabled, also matches child semantic domains.
 #: src/project/browse/SearchFilter.svelte
@@ -1728,15 +2122,33 @@ msgstr "Sakinisha Sasisho"
 msgid "Installing Update..."
 msgstr "Inasakinisha Sasisho..."
 
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "Internet"
+msgstr "Intaneti"
+
 #. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
 msgstr "punde hivi"
 
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Keep editing"
+msgstr "Endelea kuhariri"
+
 #. Button to continue to next task
 #: src/project/tasks/DoneView.svelte
 msgid "Keep going"
 msgstr "Endelea"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Keep it"
+msgstr "Iweke"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Keep previewing"
+msgstr "Endelea kuangalia awali"
 
 #. Label showing the date of the last change in the FwLite↔Classic sync panel. # is replaced by a formatted relative date component (e.g., "3 days ago").
 #: src/project/sync/FwClassicSyncView.svelte
@@ -1758,15 +2170,27 @@ msgstr "Mabadiliko ya baadaye"
 msgid "Learn more"
 msgstr "Jifunze zaidi"
 
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Leave"
+msgstr "Acha"
+
 #. Placeholder for the release channel text box. Production has no feature flags.
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Leave empty for production"
 msgstr "Acha tupu kwa ajili ya uzalishaji"
 
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Leave without saving?"
+msgstr "Kuondoka bila kuhifadhi?"
+
 #. Field label in the audio editor showing the duration of the audio file.
 #: src/lib/components/audio/audio-editor.svelte
 msgid "Length:"
 msgstr "Urefu:"
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Let this version use the internet?"
+msgstr "Je, toleo hili litumie intaneti?"
 
 #. Product name
 #: src/project/SyncDialog.svelte
@@ -1806,6 +2230,7 @@ msgstr "Hali ya orodha"
 #. Field name shown in advanced/classic view
 #. The literal meaning of the vernacular translated into the analysis language
 #. Contrasts with glosses/definitions in the analysis language
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Literal meaning"
 msgstr "Maana halisi"
@@ -1921,6 +2346,10 @@ msgstr "Uchapishaji mkuu"
 msgid "Make a suggestion"
 msgstr "Tengeneza pendekezo"
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Make it your own with AI"
+msgstr "Ibuni yako mwenyewe kwa AI"
+
 #. Warning shown in the delete-project confirmation dialog. Markdown link format: [link text]({0}) where {0} = URL to the sync dialog. "Lexbox" is a product name — do not translate.
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
@@ -1992,6 +2421,10 @@ msgstr "Maelezo ya faili ya media"
 msgid "Media Manager"
 msgstr "Msimamizi wa Vyombo vya Habari"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Microphone"
+msgstr "Mikrofoni"
+
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"
 msgstr "Fomu ya nukuu inayokosekana {0}"
@@ -2051,6 +2484,10 @@ msgstr "Yenye kushindwa: {0}"
 msgid "Mode"
 msgstr "Hali"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "More"
+msgstr "Zaidi"
+
 #. Accessible name of the arrow button that opens more actions for an entry in the activity change preview
 #: src/lib/activity/EntryActionsButton.svelte
 msgid "More options"
@@ -2066,6 +2503,7 @@ msgid "morph type"
 msgstr "aina ya mabadiliko"
 
 #: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Morph type"
 msgstr "Aina ya mabadiliko"
 
@@ -2104,6 +2542,8 @@ msgstr "Mtazamo wangu maalum..."
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Jina"
@@ -2113,6 +2553,10 @@ msgstr "Jina"
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr "Jina linahitajika"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Needs {0}, which this project doesn't support, so it may not work properly"
+msgstr "Inahitaji {0}, ambayo mradi huu hauungi mkono, hivyo huenda isifanye kazi ipasavyo."
 
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
@@ -2145,6 +2589,11 @@ msgstr "Data mpya"
 msgid "New Entry"
 msgstr "Ingizo Mpya"
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "New plugin"
+msgstr "Plugini mpya"
+
 #: src/home/CreateProjectDialog.svelte
 msgid "New Project"
 msgstr "Mradi Mpya"
@@ -2152,6 +2601,10 @@ msgstr "Mradi Mpya"
 #: src/home/HomeView.svelte
 msgid "New Project (Local only)"
 msgstr "Mradi Mpya (Kwenye eneo tu)"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "New version"
+msgstr "Toleo jipya"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "New Entry"
@@ -2232,6 +2685,10 @@ msgstr "Hakuna faili la kuweka"
 msgid "No history found"
 msgstr "Hakuna historia iliyopatikana"
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "No internet"
+msgstr "Hakuna intaneti"
+
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "No items found"
@@ -2241,6 +2698,22 @@ msgstr "Hakuna kitu kilichopatikana"
 #: src/lib/activity/ActivityItem.svelte
 msgid "No later changes"
 msgstr "Hakuna mabadiliko ya baadaye"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer changes the dictionary"
+msgstr "Haibadilishi tena kamusi"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer needs {0}"
+msgstr "Hakihitaji tena {0}"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer runs from an entry's menu"
+msgstr "Haikimbii tena kutoka kwenye menyu ya kuingia"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer uses the internet"
+msgstr "Hatumi tena intaneti"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "No media files found"
@@ -2261,6 +2734,10 @@ msgstr "Hakuna mazungumzo wazi"
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "No pictures"
 msgstr "Hakuna picha"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "No plugins yet"
+msgstr "Bado hakuna programu-jalizi"
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
 #: src/project/sync/FwLiteSyncView.svelte
@@ -2297,6 +2774,7 @@ msgstr "Hakuna mifumo ya maandishi ya kienyeji iliyosanidiwa."
 
 #. Shown in the activity view's change preview when a change only touched things it does not display, e.g. text formatting
 #: src/lib/entry-editor/diff-view/DiffNoVisibleChanges.svelte
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "No visible changes"
 msgstr "Hakuna mabadiliko yanayoonekana"
 
@@ -2315,12 +2793,20 @@ msgstr "Hakuna neno liliyopatikana"
 msgid "None"
 msgstr "Hamna"
 
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Not allowed to use the internet"
+msgstr "Haijaruhusiwa kutumia intaneti"
+
 #. Filter operator
 #. Search operator: exclude entries matching the search term (inverse of "Equals")
 #. Related operators: "Equals", "Contains", "Starts with"
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Not equal"
 msgstr "Sio sawa"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Not in this project. Try one on your data, then add it or make it your own."
+msgstr "Sio katika mradi huu. Jaribu moja kwenye data yako, kisha uiongeze au uifanye yako mwenyewe."
 
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
@@ -2335,6 +2821,7 @@ msgstr "Haijaoanishwa"
 #. Field label
 #. General notes/remarks field in entry editor
 #. Unconstrained text for additional metadata/comments
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Note"
 msgstr "Tanbihi"
@@ -2348,6 +2835,22 @@ msgstr "Hakuna kitu cha kunakili"
 #: src/lib/activity/ActivityChangeHeader.svelte
 msgid "Now called: #"
 msgstr "Sasa inaitwa: #"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now can change the dictionary"
+msgstr "Sasa unaweza kubadilisha kamusi."
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now needs {0}, which not every project has"
+msgstr "Sasa inahitaji {0}, ambayo si kila mradi unao."
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now runs from an entry's menu"
+msgstr "Sasa inaendeshwa kutoka kwenye menyu ya kuingia."
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now uses the internet"
+msgstr "Sasa inatumia intaneti"
 
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
@@ -2392,6 +2895,18 @@ msgstr "Kwenye miradi mikubwa, hii inaweza kuchukua muda. Usifunge programu au k
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "Kumbuka moja ya FieldWorks Classic inaweza kuwa na mabadiliko kwa ingizo au sehemu kadhaa. Kwa upande mwingine, kumbuka inaweza tu kuathiri data ambayo haijaoanishwa kwa FieldWorks Lite."
 
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Online, a plugin can send this project's data to any website."
+msgstr "Mtandaoni, programu-jalizi inaweza kutuma data za mradi huu kwa tovuti yoyote."
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
+msgstr "Ruhusu tu ikiwa programu-jalizi inahitaji kuunganishwa mtandaoni, kwa mfano kutafuta maneno au kupakua picha."
+
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "Only project managers can add or change plugins."
+msgstr "Ni wasimamizi wa miradi pekee wanaoweza kuongeza au kubadilisha programu-jalizi."
+
 #. Button to open downloaded project
 #: src/home/Server.svelte
 msgid "Open"
@@ -2401,6 +2916,10 @@ msgstr "Fungua"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Fungua Faharasa ya Data"
+
+#: src/project/browse/EntryMenu.svelte
+msgid "Open in {0}"
+msgstr "Fungua katika {0}"
 
 #. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
 #: src/lib/auth/LoginButton.svelte
@@ -2472,6 +2991,8 @@ msgstr "Aina ya neno"
 #. Relevant view: Lite
 #. Classic view equivalent: "Grammatical info."
 #. Field label: grammatical category (noun, verb, adjective, etc.)
+#: src/lib/plugins/plugin-api-adapter.ts
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
@@ -2482,9 +3003,26 @@ msgstr "Sehemu za mazungumzo"
 msgid "parts of speech"
 msgstr "Aina za maneno"
 
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Paste HTML"
+msgstr "Bandika HTML"
+
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "Paste or upload"
+msgstr "Bandika au pakia"
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
 msgstr "Bandika mipangilio kutoka kwa msaada hapa. Kuhifadhi kunabadilisha faili na kuitumia mara moja; acha tupu ili kuondoa faili. Ukubwa wa faili ya kumbukumbu na hesabu hubadilika tu baada ya kuanzisha upya."
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Paste the AI's reply"
+msgstr "Bandika jibu la AI"
+
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "Paste the AI's reply or the plugin's HTML here"
+msgstr "Bandika jibu la AI au HTML ya programu-jalizi hapa"
 
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
@@ -2492,9 +3030,21 @@ msgstr "Bandika mipangilio kutoka kwa msaada hapa. Kuhifadhi kunabadilisha faili
 msgid "Pending"
 msgstr "Inasubiri"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Permissions"
+msgstr "Ruhusa"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Phone width"
+msgstr "Upana wa simu"
+
 #: src/project/tasks/tasks-service.ts
 msgid "Pick a Part of speech"
 msgstr "Chagua aina ya neno"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Pick an entry"
+msgstr "Chagua kipengee"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick Grammatical info."
@@ -2509,6 +3059,7 @@ msgstr "Chagua kimoja au zaidi ya maeneo ya semantiki"
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Picture"
 msgstr "Picha"
 
@@ -2539,6 +3090,60 @@ msgstr "Imebandikwa"
 msgid "Platform"
 msgstr "Jukwaa"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Play & learn"
+msgstr "Cheza na ujifunze"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "plugin"
+msgstr "Programu-jalizi"
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "Plugin"
+msgstr "Plugini"
+
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Plugin HTML"
+msgstr "Plugini ya HTML"
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "Plugin stopped"
+msgstr "Plugini imesimama"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to add an entry"
+msgstr "Plugini inataka kuongeza kijumlisho."
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to change an entry"
+msgstr "Plugini inataka kubadilisha kumbukumbu."
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to make {0}"
+msgstr "Plugini inataka kufanya {0}"
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "plugins"
+msgstr "Viendelezi"
+
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Plugins"
+msgstr "Viendelezi"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Plugins are code written by people on your team (often with AI help). This one hasn't run on this device yet, or it changed since it last ran."
+msgstr "Plugins ni msimbo ulioandikwa na watu katika timu yako (mara nyingi kwa msaada wa AI). Hii bado haijafanya kazi kwenye kifaa hiki, au imebadilika tangu ilipofanya kazi mara ya mwisho."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust."
+msgstr "Plugins ni msimbo. Zinafanya kazi katika mazingira salama yaliyolindwa na zinaweza kubadilisha tu data ya kamusi kwa idhini yako, lakini bado unapaswa kutumia tu plugins kutoka kwa watu unaowaamini."
+
 #. Field label in the activity change-preview diff for a morph type. "Postfix" is the character(s) appended after a morpheme to mark its grammatical role (e.g. "-" for a suffix).
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Postfix"
@@ -2549,8 +3154,15 @@ msgstr "Postfix"
 msgid "Prefix"
 msgstr "Kiambishi awali"
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Press Esc to exit fullscreen"
+msgstr "Bonyeza Esc ili kutoka kwenye skrini kamili"
+
 #. View option
 #: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
 msgstr "Hakiki"
@@ -2567,6 +3179,22 @@ msgstr "Tazama awali haipatikani kwa aina hii ya faili."
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not supported"
 msgstr "Onyesho la awali halitumiki"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Preview with entry"
+msgstr "Tazama awali na kuingia"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Preview: the plugin would add an entry"
+msgstr "Mtazamo wa awali: programu-jalizi itaongeza kijumlishi"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Preview: the plugin would change an entry"
+msgstr "Angalizo: programu-jalizi itabadilisha kijumlisha"
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Preview: the plugin would make {0}"
+msgstr "Muhtasari: programu-jalizi ingefanya {0}"
 
 #. Accessible label for the arrow button that shows the previous picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
@@ -2594,6 +3222,10 @@ msgstr "Mradi {0} haipatikani kwenye {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Mradi {0} kwenye {1} haujajajengwa kwa FieldWorks Lite"
 
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Prompt options"
+msgstr "Chaguzi za maagizo"
+
 #. Standalone noun used as {0} in activity-log strings (e.g. "Added publication"). A publication is a dictionary or word list that entries can be assigned to for distribution.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
@@ -2612,12 +3244,20 @@ msgstr "Uchapishaji"
 msgid "publications"
 msgstr "machapisho"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Publish"
+msgstr "Chapisha"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Publish Word in"
 #. Field label: selects which publications an entry appears in.
 #: src/lib/views/entity-config.ts
 msgid "Publish Entry in"
 msgstr "Chapisha Ingizo katika"
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Publish in"
+msgstr "Chapisha katika"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Publish Entry in"
@@ -2626,10 +3266,23 @@ msgstr "Chapisha Ingizo katika"
 msgid "Publish Word in"
 msgstr "Chapisha Neno katika"
 
+#: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
 msgid "Read-only"
 msgstr "Soma tu"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Read-only: cannot change your dictionary"
+msgstr "Soma tu: huwezi kubadilisha kamusi yako"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Reads the dictionary, never changes it"
+msgstr "Husoma kamusi, haibadilishi kamwe"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Record & illustrate"
+msgstr "Rekodi na kuonyesha"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Citation form"
@@ -2671,9 +3324,14 @@ msgstr "Rekodi Neno au Onyesha kama"
 msgid "Recording isn't available on this device."
 msgstr "Kurekodi hakupatikani kwenye kifaa hiki."
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Records from the microphone"
+msgstr "Rekodi kutoka kwa kipaza sauti"
+
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
 #. Identifies where the example was found/cited
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Reference"
 msgstr "Rejeleo"
@@ -2740,6 +3398,14 @@ msgstr "Kituo cha utoaji"
 msgid "Release notes"
 msgstr "Maelezo ya toleo"
 
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Reload"
+msgstr "Pakia tena"
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Reload plugin"
+msgstr "Pakia tena programu-jalizi"
+
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
 msgstr "Kwa mbali tu"
@@ -2753,6 +3419,10 @@ msgstr "Ondoa"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Remove audio"
 msgstr "Ondoa sauti"
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "Remove from project"
+msgstr "Ondoa kutoka kwenye mradi"
 
 #. Badge or screen-reader marker in the activity change preview: this change removed the item (e.g. a component link between two entries), or the struck-through text or value
 #: src/lib/activity/ActivityChangeHeader.svelte
@@ -2833,6 +3503,14 @@ msgstr "Jibu…"
 msgid "Report a technical problem"
 msgstr "Ripoti tatizo la kiufundi"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Require approval for edits"
+msgstr "Hitaji idhini kwa mabadiliko"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Requires"
+msgstr "Inahitaji"
+
 #: src/project/browse/SearchFilter.svelte
 msgid "Reset"
 msgstr "Weka upya"
@@ -2858,10 +3536,38 @@ msgstr "Rejesha"
 msgid "Review"
 msgstr "Tathmini"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Review & history"
+msgstr "Mapitio na historia"
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "rose"
 msgstr "waridi"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Run"
+msgstr "Kimbia"
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Run it"
+msgstr "Endesha"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Run plugin"
+msgstr "Endesha programu-jalizi"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Run this plugin?"
+msgstr "Endesha programu-jalizi hii?"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Runs from an entry's menu"
+msgstr "Huruka kutoka kwenye menyu ya kuingia"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Runs in a sandbox, separate from the app"
+msgstr "Hufanya kazi katika mazingira ya sandbox, tofauti na programu."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
@@ -2907,10 +3613,22 @@ msgstr "Hifadhi Kama"
 msgid "Save audio"
 msgstr "Hifadhi sauti"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Save for the team"
+msgstr "Weka akiba kwa timu"
+
 #. Submit button in the edit custom view dialog.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Save View"
 msgstr "Hifadhi Muonekano"
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Saved for the team."
+msgstr "Imehifadhiwa kwa ajili ya timu."
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Saving turns off \"Always allow\" on this device, so the new version asks before its first change."
+msgstr "Kuhifadhi kunazima \"Ruhusu kila wakati\" kwenye kifaa hiki, hivyo toleo jipya linauliza kabla ya mabadiliko yake ya kwanza."
 
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -2926,6 +3644,10 @@ msgstr "Tafuta Kamusi"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Search index regenerated successfully"
 msgstr "Faharasa ya utafutaji imetengenezwa upya kwa mafanikio"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "See all {0} examples"
+msgstr "Tazama mifano yote ya {0}"
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -2971,6 +3693,7 @@ msgstr "Uwanja wa maana"
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
 #. Used to organize and filter entries by meaning category
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Semantic domain"
 msgstr "Kikoa cha kumkutania"
@@ -3005,6 +3728,7 @@ msgstr "hisia"
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Sense"
 msgstr "Kwa maana"
@@ -3023,6 +3747,7 @@ msgstr "hisia"
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
 #. Paired with "Translation" field for translated version
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Sentensi"
@@ -3099,6 +3824,10 @@ msgstr "Onyesha"
 msgid "Show {0} more..."
 msgstr "Onyesha {0} zaidi..."
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Show fewer examples"
+msgstr "Onyesha mifano michache"
+
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Show or hide captions"
 msgstr "Onyesha au ficha maelezo ya picha"
@@ -3173,6 +3902,10 @@ msgstr "Ukubwa:"
 msgid "Skip"
 msgstr "Ruka"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Small custom apps that work with this project's dictionary — shared with the whole team."
+msgstr "Programu ndogo maalum zinazofanya kazi na kamusi ya mradi huu — iliyoshirikiwa na timu nzima."
+
 #. Info popover on the sync dialog, for users whose role can't sync with FieldWorks Classic
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
@@ -3193,6 +3926,10 @@ msgstr "Kanuni za kupanga"
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
 msgstr "Panga mfumo wa uandishi"
+
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "Source"
+msgstr "Chanzo"
 
 #. Filter option
 #: src/project/browse/SearchFilter.svelte
@@ -3308,6 +4045,10 @@ msgstr "Inaoanisha..."
 msgid "System"
 msgstr "Mfumo"
 
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Tailor to this project"
+msgstr "Tengeneza maalum kwa mradi huu"
+
 #. Error message
 #: src/project/tasks/TaskView.svelte
 msgid "Task not found: {0}"
@@ -3342,6 +4083,14 @@ msgstr "Muonekano wa *FieldWorks Classic*, kwa upande mwingine, umeuundwa kwa wa
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "Muonekano wa *FieldWorks Lite* umeuundwa kwa watu ambao si wafahamu wa lugha na hutofautiana na muonekano wa *FieldWorks Classic* kwa njia zifuatazo:"
 
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "The new version asks to change the dictionary"
+msgstr "Toleo jipya linaomba kubadilisha kamusi."
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "The new version asks to use the internet"
+msgstr "Toleo jipya linaomba kutumia intaneti."
+
 #. Explanation note
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
@@ -3351,6 +4100,14 @@ msgstr "Idadi ya kumbukas za FieldWorks Classic haitabindanishi lazima na idadi 
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Idadi ya kumbukas za FieldWorks Lite haitabindanishi lazima na idadi ya mabadiliko yaliyoonyeshwa katika ujumbe wa matokeo ya kuoanisha."
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "The plugin “{0}” is asking to make this change to your dictionary:"
+msgstr "Plugini \"{0}\" inaomba kufanya mabadiliko haya kwenye kamusi yako:"
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
+msgstr "Maelekezo yanajumuisha mwongozo wa API, usanidi wa mradi huu na msimbo wa sasa wa programu-jalizi hii. Panga faili hiyo katika gumzo lolote la AI."
 
 #. Error message
 #: src/project/tasks/TaskView.svelte
@@ -3362,11 +4119,23 @@ msgstr "Jukumu unalolitafuta halipo."
 msgid "The time when you uploaded or downloaded these changes"
 msgstr "Wakati ulipoweka au kupakua mabadiliko haya"
 
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "The version before it didn't. If you didn't ask for this, have the AI take it out."
+msgstr "Toleo lililotangulia halikufanya hivyo. Ikiwa hukuliiomba hili, aombe AI iiondoe."
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "The version before it worked offline. Online, a plugin can send this project's data to any website."
+msgstr "Toleo lililotangulia lilifanya kazi bila mtandao. Mtandaoni, programu-jalizi inaweza kutuma data za mradi huu kwa tovuti yoyote."
+
 #. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Mabadiliko haya hayajawekwa bado. Hakikisha unaunganishwa na kuingia ili kushiriki mabadiliko yako."
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "These guide how the AI writes the plugin. They don't restrict what the finished plugin can do."
+msgstr "Hizi zinaongoza jinsi AI inavyoandika programu-jalizi. Hazizuizi kile programu-jalizi iliyokamilika inaweza kufanya."
 
 #. Alert text shown in EntryView when the currently displayed entry/word has been deleted
 #: src/project/browse/EntryView.svelte
@@ -3383,6 +4152,10 @@ msgstr "Mabadiliko haya"
 msgid "This date # and this emoji # are snippets"
 msgstr "Tarehe hii # na emoji hii # ni vigezo"
 
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "This doesn't look like a complete plugin. It should be one HTML file that starts with <!DOCTYPE html> and ends with </html>."
+msgstr "Hii haionekani kama programu-jalizi kamili. Inapaswa kuwa faili moja la HTML linaloanza na <!DOCTYPE html> na kumalizika na </html>."
+
 #. Relevant view: Classic
 #. Lite view equivalent: "This word may already exist"
 #. Warning banner in the New Entry dialog when an entry with the exact same headword exists; expands to a list of possible duplicates
@@ -3390,9 +4163,17 @@ msgstr "Tarehe hii # na emoji hii # ni vigezo"
 msgid "This entry may already exist"
 msgstr "Ingizo hili linaweza kuwepo tayari"
 
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "This example doesn't exist."
+msgstr "Mfano huu haupo."
+
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
 msgstr "Faili hii inapatikana tu kwa mbali."
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
+msgstr "Hii ni awali, kwa hivyo hakuna chochote kinachohifadhiwa. Mara tu itakapoongezwa, \"{0}\" itakuomba kufanya mabadiliko haya kwenye kamusi yako:"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
@@ -3401,6 +4182,31 @@ msgstr "Picha hii ni kubwa mno kupakia. Jaribu kupunguza azimio na kupakia tena.
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
 msgstr "Picha hii ni kubwa mno kupakia. Jaribu kuihifadhi kwa ubora wa JPEG wa chini na upakie tena."
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "This plugin can make changes without asking. Click to make it ask again."
+msgstr "Plugini hii inaweza kufanya mabadiliko bila kuuliza. Bonyeza ili iulize tena."
+
+#: src/project/data/plugin-service.svelte.ts
+msgid "This plugin file is too big (the limit is 10 MB)"
+msgstr "Faili hii ya programu-jalizi ni kubwa mno (kikomo ni 10 MB)"
+
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "This plugin hasn't been added to the project, so it will be lost."
+msgstr "Plugini hii haijaongezwa kwenye mradi, hivyo itapotea."
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "This plugin isn't on this device yet"
+msgstr "Plugini hii bado haipo kwenye kifaa hiki."
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "This plugin no longer exists."
+msgstr "Plugini hii haipo tena."
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "This plugin runs from an entry's menu. Pick an entry to preview it with."
+msgstr "Plugini hii inaendeshwa kutoka kwenye menyu ya kipengee. Chagua kipengee ili kuona awali."
 
 #. Help message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -3417,10 +4223,19 @@ msgstr "Hii inajenga upya jedwali za muhtasari na zilizotabiriwa kutoka kwenye h
 msgid "This rebuilds the full-text search index from dictionary entries."
 msgstr "Hii inajenga upya faharasa ya utafutaji wa maandishi yote kutoka kwa maingizo ya kamusi."
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "This removes the plugin for everyone on this project."
+msgstr "Hii inaondoa programu-jalizi kwa kila mtu kwenye mradi huu."
+
 #. Status message
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "Jukumu hili limekamilika"
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "This version"
+msgstr "Toleo hili"
 
 #. Description of sync operation
 #: src/project/sync/FwClassicSyncView.svelte
@@ -3458,6 +4273,7 @@ msgstr "Tafsiri"
 #. Field label
 #: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "Tafsiri"
@@ -3476,10 +4292,26 @@ msgstr "Tafsiri {0}"
 msgid "Troubleshoot"
 msgstr "Tatanua"
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Trusted"
+msgstr "Inaaminika"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Try {0}"
+msgstr "Jaribu {0}"
+
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
 msgstr "Jaribu tena"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Try it"
+msgstr "Jaribu"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Try one of the examples below on your own data, or make a new plugin with AI help."
+msgstr "Jaribu mojawapo ya mifano hapa chini kwenye data yako mwenyewe, au tengeneza programu-jalizi mpya kwa msaada wa AI."
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Turn analytics back on"
@@ -3606,6 +4438,10 @@ msgstr "Matokeo ya sasisho yasiyojulikana"
 msgid "Unread"
 msgstr "Haijasomwa"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Unsaved changes"
+msgstr "Mabadiliko yasiyohifadhiwa"
+
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
@@ -3674,6 +4510,10 @@ msgstr "Picha iliyosasishwa"
 msgid "Updates"
 msgstr "Masasisho"
 
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Upload file"
+msgstr "Pakia faili"
+
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Upload pending"
 msgstr "Upakiaji unasubiri"
@@ -3695,10 +4535,23 @@ msgstr "Faili zilizopakiwa zinasubiri"
 msgid "Uploading pictures is not supported here"
 msgstr "Kupakia picha hakutumiki hapa"
 
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "Use this version"
+msgstr "Tumia toleo hili"
+
 #. Field label
 #: src/lib/views/entity-config.ts
 msgid "Uses components as"
 msgstr "Inatumia sehemu kama"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Uses the camera"
+msgstr "Inatumia kamera"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Uses the internet"
+msgstr "Inatumia intaneti"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Verbose logging"
@@ -3725,10 +4578,18 @@ msgstr "Mfumo wa uandishi wa lugha ya kienyeji unahitajika"
 msgid "Vernacular writing systems"
 msgstr "Mifumo ya uandishi ya lugha za kienyeji"
 
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Version"
+msgstr "Toleo"
+
 #. Button label
 #: src/project/browse/ViewPicker.svelte
 msgid "View"
 msgstr "Muonekano"
+
+#: src/lib/entry-editor/EditEntryDialog.svelte
+msgid "View {0}"
+msgstr "Tazama {0}"
 
 #. Title/tooltip for an icon button that opens the view picker (switch between Classic, Lite, or a custom view).
 #: src/lib/activity/ActivityViewPicker.svelte
@@ -3757,6 +4618,10 @@ msgstr "Pia tunakusanya ripoti za makosa zenye maelezo ya kiufundi kuhusu kilich
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
 msgstr "Tunakusanya data za matumizi ili kuelewa jinsi FieldWorks Lite inavyotumika na wapi tunahitaji kuiboresha. Unapoingia kwenye Lexbox, data hizo zinaunganishwa na akaunti yako, na kamwe hazijumuishi maudhui ya kamusi yako."
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "What it asks for"
+msgstr "Kinachotakiwa"
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
 msgstr "Ungependa kuona nini hapa?"
@@ -3783,6 +4648,7 @@ msgstr "Neno"
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/lib/views/entity-config.ts
 #: src/project/browse/EntryMenu.svelte
@@ -3821,6 +4687,10 @@ msgstr "maneno"
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"
 msgstr "Maneno yanayokosa Neno na Onyesha kama"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Works on phones"
+msgstr "Inafanya kazi kwenye simu"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
@@ -3898,11 +4768,39 @@ msgstr "Umeshapakua mradi wa {0}"
 msgid "You're offline"
 msgstr "Haupo mtandaoni"
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "You're offline and the plugin file hasn't been downloaded here. Connect to the internet and try again — after that it works offline."
+msgstr "Uko nje ya mtandao na faili ya programu-jalizi haijasomeka hapa. Unganisha kwenye mtandao na jaribu tena — baadaye itaweza kufanya kazi bila mtandao."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "You're offline and this plugin's file isn't on this device yet."
+msgstr "Uko nje ya mtandao na faili ya programu-jalizi hii bado haipo kwenye kifaa hiki."
+
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "You're offline and this plugin's file isn't on this device yet. Connect and try again."
+msgstr "Uko nje ya mtandao na faili ya programu-jalizi hii bado haipo kwenye kifaa hiki. Ungana na jaribu tena."
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"
 msgstr "Umefikia kila hatua muhimu. Ni mafanikio makubwa!"
 
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Your changes to this plugin will be lost."
+msgstr "Mabadiliko yako kwenye programu-jalizi hii yatapotea."
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "Kamusi yako inaanza hapa"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Your plugin will run here"
+msgstr "Plugini yako itafanya kazi hapa"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Your real dictionary. Changes it tries are shown, not saved."
+msgstr "Kamusi yako halisi. Mabadiliko yanayojaribiwa yanaonyeshwa, siyo kuhifadhiwa."
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Your version, not added yet"
+msgstr "Toleo lako, bado halijaongezwa"
 
