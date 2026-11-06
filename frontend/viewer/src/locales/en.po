@@ -848,6 +848,10 @@ msgstr "Close Dictionary"
 msgid "Closed comment thread"
 msgstr "Closed comment thread"
 
+#: src/project/SyncDialog.svelte
+msgid "Cloud"
+msgstr "Cloud"
+
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/entry-editor/diff-view/diff-fields.ts
@@ -1749,10 +1753,9 @@ msgstr "Field"
 msgid "Fields"
 msgstr "Fields"
 
-#. Product name
 #: src/project/SyncDialog.svelte
-msgid "FieldWorks Lite"
-msgstr "FieldWorks Lite"
+msgid "FieldWorks Classic"
+msgstr "FieldWorks Classic"
 
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
@@ -2223,11 +2226,6 @@ msgstr "Length:"
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Let this version use the internet?"
 msgstr "Let this version use the internet?"
-
-#. Product name
-#: src/project/SyncDialog.svelte
-msgid "Lexbox"
-msgstr "Lexbox"
 
 #. Alt text for the Lexbox logo image shown in the home screen app bar. "Lexbox" is a product name — do not translate.
 #: src/home/HomeView.svelte
