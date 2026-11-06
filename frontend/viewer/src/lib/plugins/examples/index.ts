@@ -173,7 +173,7 @@ export const examplePlugins: ExamplePlugin[] = [
   {
     key: 'change-review',
     name: 'Change Review',
-    description: "Work through the project's recent change history one commit at a time, checking each off as reviewed.",
+    description: 'What the team changed recently, one card per entry with each field before and after. Pick up where you left off with "since my last review".',
     functions: ['review'],
     loadHtml: async () => (await import('./change-review.html?raw')).default,
   },

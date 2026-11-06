@@ -102,165 +102,160 @@
     .wrap.narrow .actions .btn { flex: 1; }
   }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
-  .headline { margin-bottom: 14px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-  .headline .big { font-size: 2.3rem; font-weight: 800; line-height: 1; color: var(--accent); }
-  .headline.done .big { color: var(--good); }
-  .headline .hbody { flex: 1; min-width: 190px; }
-  .headline .hmsg { font-weight: 600; margin-bottom: 8px; }
-  .headline .hsub { color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; }
-  .bar { background: var(--surface-alt); border-radius: 999px; height: 9px; overflow: hidden; }
-  .bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.35s ease; }
-  .headline.done .bar > i { background: var(--good); }
-
+  .wrap.feed-wrap { max-width: 760px; }
   .toolbar {
-    position: sticky; top: 0; z-index: 6; display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;
-    margin: 0 -24px 4px; padding: 8px 24px 10px; background: var(--bg);
+    position: sticky; top: 0; z-index: 6; display: flex; gap: 8px; align-items: center;
+    margin: 0 -24px; padding: 8px 24px; background: var(--bg); border-bottom: 1px solid var(--border);
   }
-  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  .field label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
-  .toggle { display: flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; user-select: none; }
-  .toggle input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
-  .spacer { flex: 1 1 auto; }
-  .showing { color: var(--text-muted); font-size: 0.85rem; margin: 2px 2px 10px; min-height: 1em; }
-
-  .day { font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin: 16px 2px 8px; }
-  ul.feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-  .row { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-  .row.reviewed { opacity: 0.6; }
-  .row.reviewed .head { background: var(--surface-alt); }
-  .head { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; }
-  .head-main { flex: 1; min-width: 0; cursor: pointer; }
-  .head-main:focus-visible { border-radius: 8px; }
-  .meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
-  .avatar { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center; font-size: 0.7rem; font-weight: 700; color: #fff; }
-  .author { font-weight: 600; font-size: 0.9rem; }
-  .time { color: var(--text-muted); font-size: 0.85rem; }
-  .cname { font-size: 0.95rem; font-weight: 600; overflow-wrap: anywhere; }
-  .multi { color: var(--text-muted); font-weight: 400; font-size: 0.85rem; }
-  .targets { font-size: 0.9rem; color: var(--text-muted); margin-top: 2px; overflow-wrap: anywhere; }
-  .targets .hw { color: var(--text); font-weight: 600; font-family: var(--vern-font); }
-  .caret { color: var(--accent); font-size: 0.85rem; font-weight: 600; margin-top: 6px; }
-  .review-check {
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; flex-shrink: 0;
-    min-width: 44px; min-height: 44px; cursor: pointer; user-select: none; font-size: 0.75rem; color: var(--text-muted); font-weight: 600;
+  .toolbar select { flex: 1 1 0; min-width: 0; }
+  .toolbar .btn { flex: 0 0 auto; }
+  .summary { margin: 10px 0 0; font-size: 0.9rem; color: var(--text-muted); }
+  .summary b { color: var(--text); }
+  .tip {
+    display: flex; gap: 8px; align-items: flex-start; margin: 10px 0 0; padding: 10px 6px 10px 14px;
+    border-radius: var(--radius); background: var(--accent-soft); font-size: 0.9rem;
   }
-  .review-check input { width: 22px; height: 22px; accent-color: var(--good); cursor: pointer; margin: 0; }
-
-  .detail { border-top: 1px solid var(--border); padding: 14px; background: var(--surface-alt); }
-  .detail .dline { font-size: 0.875rem; margin-bottom: 10px; }
-  .detail .dlabel { color: var(--text-muted); }
-  .entry-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
-  .entry-chip {
-    display: inline-flex; align-items: center; gap: 8px; font-size: 0.875rem; max-width: 100%;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px 4px 4px 12px;
+  .tip p { margin: 0; flex: 1; padding-top: 2px; }
+  .tip .btn { min-height: 36px; padding: 0 10px; }
+  .day {
+    position: sticky; top: var(--toolbar-h, 61px); z-index: 4; margin: 14px 0 8px; padding: 4px 2px;
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); background: var(--bg);
   }
-  .entry-chip .hw { font-weight: 600; font-family: var(--vern-font); overflow-wrap: anywhere; }
-  .entry-chip .btn { min-height: 36px; padding: 0 12px; border-radius: 999px; font-size: 0.85rem; }
-  .raw-toggle { background: none; border: none; color: var(--accent); font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; padding: 8px 0; }
-  .raw-toggle:hover { text-decoration: underline; }
-  pre.raw {
-    margin: 8px 0 0; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-    font-size: 0.8rem; line-height: 1.5; overflow-x: auto; max-height: 320px; white-space: pre-wrap; overflow-wrap: anywhere;
+  ul.cards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .card.change { padding: 12px 14px; border-left: 3px solid var(--accent); content-visibility: auto; contain-intrinsic-size: auto 180px; }
+  .card.change.reviewed { background: var(--surface-alt); border-left: 1px solid var(--border); box-shadow: none; }
+  .c-head { display: flex; gap: 10px; align-items: baseline; }
+  .c-title { flex: 1; min-width: 0; }
+  .c-title h3 { margin: 0; font-size: 1.1rem; line-height: 1.3; overflow-wrap: anywhere; }
+  .hw-btn {
+    border: 0; background: none; padding: 0; margin: 0; font: inherit; color: var(--text); cursor: pointer; text-align: left;
+    font-family: var(--vern-font); font-weight: 700; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 3px;
   }
-  .dmuted { color: var(--text-muted); font-size: 0.875rem; }
-  .more { display: flex; margin: 16px auto 0; }
-  .big-emoji { font-size: 2.4rem; }
-  .headmsg { font-size: 1.05rem; color: var(--text); margin: 8px 0 4px; font-weight: 600; }
-  .hint { max-width: 460px; margin: 0 auto; }
+  .hw-btn:hover { text-decoration-color: var(--accent); }
+  .hw { font-family: var(--vern-font); }
+  .c-title sub { font-size: 0.7em; color: var(--text-muted); font-family: var(--font); }
+  .kind { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .c-time { flex-shrink: 0; font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; }
+  .c-who { margin-top: 2px; font-size: 0.85rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+  .c-who .chip { font-size: 0.72rem; }
+  .c-body { margin-top: 8px; display: flex; flex-direction: column; gap: 10px; }
+  .reviewed .c-body, .reviewed .edits { display: none; }
+  .blk-head { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; overflow-wrap: anywhere; }
+  .blk-head .vern { color: var(--text); font-weight: 600; }
+  .blk-head .by { font-weight: 400; }
+  .rows { margin: 0; display: grid; grid-template-columns: minmax(84px, max-content) 1fr; gap: 4px 12px; }
+  .rows dt { font-size: 0.85rem; color: var(--text-muted); padding-top: 2px; overflow-wrap: anywhere; }
+  .rows dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  .rows dd.stack { display: flex; flex-direction: column; gap: 3px; }
+  del, ins { text-decoration: none; border-radius: 4px; padding: 0 3px; }
+  del { background: var(--bad-soft); color: var(--text); text-decoration: line-through; text-decoration-color: var(--bad); }
+  ins { background: var(--good-soft); color: var(--text); }
+  .stack del, .stack ins { display: block; padding: 3px 6px; white-space: pre-wrap; }
+  .stack del.words, .stack ins.words { background: transparent; text-decoration: none; border: 1px solid var(--border); }
+  .stack del.words del, .stack ins.words ins { display: inline; padding: 0 2px; }
+  .arrow { color: var(--text-muted); margin: 0 4px; }
+  .cleared { color: var(--text-muted); font-size: 0.85rem; margin-left: 4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chips ins, .chips del { font-size: 0.85rem; padding: 1px 8px; border-radius: 999px; }
+  .lines { margin: 0; padding: 0; list-style: none; font-size: 0.9rem; }
+  .lines li { padding: 1px 0; overflow-wrap: anywhere; }
+  .lines.muted li, .quiet { color: var(--text-muted); }
+  .quiet { font-size: 0.9rem; font-style: italic; }
+  .state-line { font-size: 0.9rem; font-weight: 600; }
+  .state-line.added { color: var(--good); }
+  .state-line.deleted { color: var(--bad); }
+  .c-foot { display: flex; align-items: center; gap: 4px 8px; flex-wrap: wrap; margin-top: 10px; }
+  .c-foot .spacer { flex: 1; }
+  .c-foot .btn { min-height: 40px; padding: 0 12px; font-size: 0.875rem; }
+  .rev-btn[aria-pressed="true"] { color: var(--good); border-color: var(--good); background: var(--good-soft); }
+  .edits { width: 100%; font-size: 0.85rem; }
+  .edits summary { cursor: pointer; color: var(--accent); font-weight: 600; min-height: 40px; display: inline-flex; align-items: center; }
+  .edits ol { margin: 4px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .edits li { display: grid; grid-template-columns: max-content 1fr; gap: 0 10px; color: var(--text-muted); }
+  .edits li span:last-child { color: var(--text); overflow-wrap: anywhere; }
+  .card-err { margin-top: 8px; font-size: 0.85rem; color: var(--bad); }
+  .card-err .link-btn { color: var(--accent); }
+  .link-btn { border: 0; background: none; padding: 0 2px; font: inherit; font-weight: 600; color: var(--accent); cursor: pointer; }
+  .more { text-align: center; margin: 18px 0 4px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .note { font-size: 0.85rem; color: var(--text-muted); margin: 6px 0 0; text-align: center; }
+  .big { font-size: 2.4rem; margin-bottom: 8px; }
+  .lead { font-size: 1.05rem; color: var(--text); margin-bottom: 4px; font-weight: 600; }
+  .snack {
+    position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 20; width: max-content; max-width: calc(100% - 24px);
+    display: flex; gap: 12px; align-items: center; padding: 6px 6px 6px 16px; border-radius: var(--radius);
+    background: var(--text); color: var(--bg); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  }
+  .snack .btn { min-height: 40px; background: transparent; border-color: transparent; color: var(--bg); text-decoration: underline; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   @media (max-width: 600px) {
-    .toolbar { position: static; margin: 0 0 4px; padding: 0 0 8px; }
-    .field { flex: 1 1 140px; }
-    .field select { width: 100%; }
-    .spacer { display: none; }
-    .toolbar .actions { width: 100%; }
-    .toolbar .actions .btn { flex: 1; }
-    .headline .big { font-size: 1.9rem; }
+    .toolbar { margin: 0 -12px; padding: 8px 12px; }
+    .toolbar .btn { padding: 0 12px; }
+    .card.change { padding: 12px; }
+    .rows { grid-template-columns: 1fr; gap: 0; }
+    .rows dt { padding-top: 6px; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap feed-wrap">
   <h1>Change Review</h1>
-  <p class="subtitle" id="subtitle">Work through recent changes to the dictionary and check each one off.</p>
-
-  <div id="live" class="sr" aria-live="polite"></div>
+  <p class="subtitle" id="subtitle">Recent changes, one card per entry, with each field as it was and as it is now.</p>
 
   <div id="loading" class="center-state">
     <div class="spinner"></div>
-    <div>Loading change history&hellip;</div>
+    <div id="loading-text">Loading changes&hellip;</div>
   </div>
 
   <div id="empty" class="center-state" hidden>
-    <div class="big-emoji" aria-hidden="true">&#128220;</div>
-    <div class="headmsg">Change history isn&rsquo;t available for this project</div>
-    <p class="hint">This project doesn&rsquo;t keep a change history, so there&rsquo;s nothing to review here. The demo project is one of these.</p>
+    <div class="big" aria-hidden="true">&#128220;</div>
+    <div class="lead">Change history isn&rsquo;t available for this project</div>
+    <div>This project doesn&rsquo;t keep a change history, so there&rsquo;s nothing to review here. The demo project is one of these.</div>
   </div>
 
   <div id="error" class="error-box" role="alert" hidden></div>
 
   <main id="app" hidden>
-    <div class="headline card" id="headline">
-      <div class="big" id="headline-num">&mdash;</div>
-      <div class="hbody">
-        <div class="hmsg" id="headline-msg"></div>
-        <div class="bar"><i id="headline-fill" style="width:0%"></i></div>
-        <div class="hsub" id="headline-sub"></div>
-      </div>
+    <div class="toolbar" id="toolbar">
+      <label class="sr" for="range">Show changes</label>
+      <select id="range"></select>
+      <button type="button" class="btn primary" id="mark-all">Mark all reviewed</button>
     </div>
-
-    <div class="toolbar">
-      <div class="field">
-        <label for="author-filter">Author</label>
-        <select id="author-filter"></select>
-      </div>
-      <div class="field">
-        <label for="type-filter">Change type</label>
-        <select id="type-filter"></select>
-      </div>
-      <label class="toggle"><input type="checkbox" id="unreviewed-only"> Unreviewed only</label>
-      <div class="spacer"></div>
-      <div class="actions">
-        <button class="btn" id="mark-visible" type="button">Mark shown as reviewed</button>
-        <button class="btn" id="refresh" type="button">Refresh</button>
-      </div>
+    <p class="summary" id="summary" aria-live="polite"></p>
+    <div class="tip" id="tip" hidden>
+      <p>When you&rsquo;ve gone through the list, tap <b>Mark all reviewed</b>. Next time, &ldquo;Since my last review&rdquo; shows only what changed after that. This is remembered on this device only.</p>
+      <button type="button" class="btn ghost" id="tip-close" aria-label="Dismiss tip">&#10005;</button>
     </div>
-
-    <div class="showing" id="showing"></div>
+    <div id="live" class="sr" aria-live="polite"></div>
     <div id="feed"></div>
-    <div id="feed-empty" class="center-state" hidden></div>
   </main>
 </div>
+<div class="snack" id="snack" role="status" hidden><span id="snack-text"></span><button type="button" class="btn" id="undo">Undo</button></div>
 
 <script>
 (function () {
   'use strict';
 
   var F = window.fwlite;
-  var TAKE = 40;
-  var LOAD_MORE_PAGE_CAP = 6;   // when "unreviewed only" is on, keep paging up to this many pages per click
-  var RAW_CAP = 4000;           // cap raw JSON detail length
-  var STATE_KEY = 'change-review-state-v1';
-  var PREFS_KEY = 'change-review-prefs-v1';
-  var UNKNOWN_AUTHOR_KEY = '__unknown__';
-  var SYSTEM_AUTHOR_KEY = '00000000-0000-0000-0000-000000000001';
-  var AVATAR_COLORS = ['#4f46e5', '#0891b2', '#059669', '#d97706', '#db2777', '#7c3aed', '#0284c7', '#65a30d'];
+  var STORE_KEY = 'change-review-v2';
+  var PAGE = 250;
+  var COMMIT_CAP = 3000;
+  var CARDS_PER_PAGE = 30;
+  var DAY = 86400000;
+  var RANGES = { '1': 'Last 24 hours', '7': 'Last 7 days', '30': 'Last 30 days' };
+  var DIFFABLE = { Entry: true, Sense: true, ExampleSentence: true };
 
   var state = {
-    rows: [],              // IProjectActivity[] (deduped by commitId)
-    seen: {},              // commitId -> 1
-    reviewed: {},          // commitId -> 1 (persisted)
-    authors: [],           // {authorId?, authorName?, commitCount}
-    typeLabels: {},        // changeType key -> label
-    totalCommits: null,    // project-wide commit total (from authors), or null if unknown
-    authorFilter: '',      // '' = all, else author filter key
-    typeFilter: '',        // '' = all, else change type key
-    unreviewedOnly: false,
-    skip: 0,
-    done: false,
-    loading: false,
-    detailOpen: {},
-    vernIds: [],        // commitId -> 1 (which rows are expanded)
+    store: { marker: null, cards: {}, range: '', tipClosed: false },
+    range: '7',
+    commits: [],
+    cards: [],
+    shown: CARDS_PER_PAGE,
+    loadStart: 0,
+    capped: false,
+    runId: 0,
+    diffs: {},
+    ws: { vern: [], anal: [], audio: new Set(), abbr: {} },
+    undo: null,
   };
 
   function el(tag, attrs, text) {
@@ -270,8 +265,9 @@
     return e;
   }
   function $(id) { return document.getElementById(id); }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
   function errMsg(err) { return err && err.message ? err.message : String(err); }
-  function notify(msg) { try { F.notify(msg); } catch (e) { /* toast is best-effort */ } }
+  function plural(n, one, many) { return n.toLocaleString() + ' ' + (n === 1 ? one : many); }
   function announce(msg) { $('live').textContent = msg; }
 
   function applyTheme() {
@@ -282,631 +278,869 @@
     if (ws && ws.font) document.documentElement.style.setProperty('--vern-font', '"' + ws.font.replace(/"/g, '') + '", var(--font)');
   }
 
-  // --- Author helpers (mirror the app's author filter key derivation) --------
-  function authorKeyOf(author) {
-    if (!author) return UNKNOWN_AUTHOR_KEY;
-    if (!author.authorId && !author.authorName) return UNKNOWN_AUTHOR_KEY;
-    if (author.authorId) return author.authorId;
-    return 'name:' + author.authorName;
+  // Payloads over the bridge may be camelCase or PascalCase.
+  function prop(obj, key) {
+    if (!obj || typeof obj !== 'object') return undefined;
+    var camel = key[0].toLowerCase() + key.slice(1), pascal = key[0].toUpperCase() + key.slice(1);
+    return camel in obj ? obj[camel] : obj[pascal];
   }
-  function authorKeyOfActivity(activity) {
-    var meta = (activity && activity.metadata) || {};
-    return authorKeyOf({authorId: meta.authorId, authorName: meta.authorName});
+  function asText(v) {
+    try { return (F.asText(v == null ? '' : v) || '').trim(); } catch (e) { return typeof v === 'string' ? v.trim() : ''; }
   }
-  function authorLabel(author) {
-    var key = authorKeyOf(author);
-    if (key === UNKNOWN_AUTHOR_KEY) return 'Unknown';
-    if (key === SYSTEM_AUTHOR_KEY) return 'System';
-    return author.authorName || author.authorId || 'Unknown';
+  function firstText(multi, ids) {
+    if (!multi || typeof multi !== 'object') return '';
+    var keys = ids.concat(Object.keys(multi).filter(function (k) { return !state.ws.audio.has(k); }));
+    for (var i = 0; i < keys.length; i++) { var v = asText(multi[keys[i]]); if (v) return v; }
+    return '';
   }
-  function activityAuthorName(activity) {
-    var meta = (activity && activity.metadata) || {};
-    var key = authorKeyOfActivity(activity);
-    if (key === UNKNOWN_AUTHOR_KEY) return 'Unknown';
-    if (key === SYSTEM_AUTHOR_KEY) return 'System';
-    return meta.authorName || meta.authorId || 'Unknown';
+  function timeOf(iso) { var t = new Date(iso).getTime(); return isNaN(t) ? 0 : t; }
+  // The local sync date is "yyyy-MM-dd HH:mm:ssZ"; null until this device has synced the commit.
+  function syncTime(act) {
+    var extra = prop(prop(act, 'metadata'), 'extraMetadata') || {};
+    var raw = extra.SyncDate || extra.syncDate;
+    return raw ? timeOf(String(raw).replace(' ', 'T')) || null : null;
   }
-  function initials(name) {
-    if (!name) return '?';
-    var parts = String(name).trim().split(/\s+/);
-    var s = (parts[0] ? parts[0][0] : '') + (parts.length > 1 ? parts[parts.length - 1][0] : '');
-    return s.toUpperCase() || '?';
-  }
-  function avatarColor(name) {
-    var h = 0, str = name || '?';
-    for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
-    return AVATAR_COLORS[h % AVATAR_COLORS.length];
+  function authorOf(act) {
+    var m = prop(act, 'metadata') || {};
+    return prop(m, 'authorName') || 'Unknown';
   }
 
-  // --- Time helpers ----------------------------------------------------------
-  function relTime(iso) {
-    var t = new Date(iso).getTime();
-    if (isNaN(t)) return '';
+  // ---- time ----
+  function relTime(t) {
     var s = Math.floor((Date.now() - t) / 1000);
     if (s < 45) return 'just now';
-    var m = Math.floor(s / 60); if (m < 60) return m + 'm ago';
-    var h = Math.floor(m / 60); if (h < 24) return h + 'h ago';
-    var d = Math.floor(h / 24); if (d < 7) return d + 'd ago';
-    return new Date(t).toLocaleDateString(undefined, {day: 'numeric', month: 'short'});
+    var m = Math.floor(s / 60); if (m < 60) return m + ' min ago';
+    if (dayGroup(t) === 'Today') return Math.floor(m / 60) + ' h ago';
+    return new Date(t).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
   }
-  function dayLabel(iso) {
-    var d = new Date(iso);
-    if (isNaN(d.getTime())) return 'Earlier';
+  // The edit log spans days, so it names the day too.
+  function logTime(t) { return dayGroup(t) === 'Today' ? relTime(t) : shortStamp(t); }
+  function shortStamp(t) {
+    var d = new Date(t);
+    var sameYear = d.getFullYear() === new Date().getFullYear();
+    return d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: sameYear ? undefined : 'numeric' }) +
+      ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  }
+  function dayGroup(t) {
     var now = new Date();
-    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    var that = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    var diff = Math.round((today - that) / 86400000);
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    var d = new Date(t);
+    var diff = Math.round((today - new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()) / DAY);
     if (diff <= 0) return 'Today';
     if (diff === 1) return 'Yesterday';
-    if (diff < 7) return diff + ' days ago';
-    return d.toLocaleDateString(undefined, {day: 'numeric', month: 'short', year: 'numeric'});
+    return d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' });
   }
 
-  function humanizeType(key) {
-    if (!key) return '';
-    var label = key.replace(/Change$/, '').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
-    return label || key;
+  // ---- review state (per device) ----
+  // A commit is covered by "Mark all reviewed" if this device had it when the mark was made.
+  function covered(c) {
+    var m = state.store.marker;
+    if (!m) return false;
+    if (c.sync) return c.sync <= m.at || m.pending.indexOf(c.id) >= 0;
+    return c.time <= m.at;
+  }
+  function isReviewed(card) {
+    var flag = state.store.cards[card.key];
+    if (flag === card.latestId) return true;
+    if (flag === '!' + card.latestId) return false;
+    return card.commitIds.every(function (id) { return covered(state.commitById[id]); });
+  }
+  function save() {
+    state.store.range = state.range;
+    return F.storage.set(STORE_KEY, state.store).catch(function () {});
   }
 
-  // --- Persistence -----------------------------------------------------------
-  function loadReviewed(raw) {
-    // Versioned envelope: {v:1, reviewed:{commitId:true}}. Tolerate older/plain shapes.
-    if (raw && typeof raw === 'object') {
-      if (raw.reviewed && typeof raw.reviewed === 'object') return Object.assign({}, raw.reviewed);
-      if (raw.v === undefined && !raw.reviewed) return Object.assign({}, raw); // plain map fallback
-    }
-    return {};
-  }
-  function saveReviewed() {
-    F.storage.set(STATE_KEY, {v: 1, reviewed: state.reviewed}).catch(function () { /* storage best-effort */ });
-  }
-  function loadPrefs(raw) {
-    if (!raw || typeof raw !== 'object') return;
-    if (typeof raw.authorFilter === 'string') state.authorFilter = raw.authorFilter;
-    if (typeof raw.typeFilter === 'string') state.typeFilter = raw.typeFilter;
-    if (typeof raw.unreviewedOnly === 'boolean') state.unreviewedOnly = raw.unreviewedOnly;
-  }
-  function savePrefs() {
-    F.storage.set(PREFS_KEY, {
-      v: 1,
-      authorFilter: state.authorFilter,
-      typeFilter: state.typeFilter,
-      unreviewedOnly: state.unreviewedOnly,
-    }).catch(function () {});
-  }
-
-  function reviewedCount() { return Object.keys(state.reviewed).length; }
-
-  // --- Filtering (server params + client-side safety net) --------------------
-  function serverParams() {
-    var p = {take: TAKE, skip: state.skip, sort: 'NewestFirst'};
-    if (state.authorFilter) p.authorFilterKeys = [state.authorFilter];
-    if (state.typeFilter) p.changeTypeKeys = [state.typeFilter];
-    return p;
-  }
-  function passesFilter(activity) {
-    if (state.authorFilter && authorKeyOfActivity(activity) !== state.authorFilter) return false;
-    if (state.unreviewedOnly && state.reviewed[activity.commitId]) return false;
-    return true;
-  }
-  function visibleRows() {
-    return state.rows.filter(passesFilter);
-  }
-
-  // --- Headline / progress ---------------------------------------------------
-  function updateHeadline() {
-    var total = state.totalCommits;
-    var reviewed = reviewedCount();
-    var num = $('headline-num');
-    var fill = $('headline-fill');
-    var msg = $('headline-msg');
-    var sub = $('headline-sub');
-    var headline = $('headline');
-
-    if (total && total > 0) {
-      var unreviewed = Math.max(0, total - reviewed);
-      var reviewedShown = Math.min(reviewed, total);
-      var pct = Math.round(reviewedShown / total * 100);
-      var done = unreviewed === 0;
-      headline.classList.toggle('done', done);
-      num.textContent = String(unreviewed);
-      fill.style.width = pct + '%';
-      msg.textContent = done
-        ? 'Every change has been reviewed. All caught up!'
-        : unreviewed + ' change' + (unreviewed === 1 ? '' : 's') + ' still to review';
-      sub.textContent = reviewedShown.toLocaleString() + ' of ' + total.toLocaleString() +
-        ' change' + (total === 1 ? '' : 's') + ' reviewed (' + pct + '%)';
-    } else {
-      // Total unknown: fall back to what we've loaded.
-      var loadedUnreviewed = state.rows.filter(function (a) { return !state.reviewed[a.commitId]; }).length;
-      headline.classList.toggle('done', loadedUnreviewed === 0 && state.done && state.rows.length > 0);
-      num.textContent = String(loadedUnreviewed);
-      fill.style.width = '0%';
-      msg.textContent = loadedUnreviewed + ' unreviewed among loaded changes';
-      sub.textContent = state.done
-        ? reviewed.toLocaleString() + ' reviewed so far'
-        : 'Load more to see the rest. ' + reviewed.toLocaleString() + ' reviewed so far';
-    }
-  }
-
-  function updateShowing() {
-    var vis = visibleRows().length;
-    var filtered = state.authorFilter || state.typeFilter || state.unreviewedOnly;
-    $('showing').textContent = filtered
-      ? 'Showing ' + vis + ' change' + (vis === 1 ? '' : 's') + ' in this view' + (state.done ? '' : ' so far')
-      : '';
-  }
-
-  // --- Rendering the feed ----------------------------------------------------
-  function render() {
-    updateHeadline();
-    updateShowing();
-
-    var feed = $('feed');
-    var emptyBox = $('feed-empty');
-    feed.textContent = '';
-
-    var rows = visibleRows();
-    if (rows.length === 0) {
-      feed.hidden = true;
-      emptyBox.hidden = false;
-      emptyBox.textContent = '';
-      if (state.loading && !state.done) {
-        emptyBox.appendChild(el('div', {class: 'spinner'}));
-        emptyBox.appendChild(el('div', {}, 'Loading changes…'));
-      } else {
-        renderEmpty(emptyBox);
-      }
-      return;
-    }
-    feed.hidden = false;
-    emptyBox.hidden = true;
-
-    var groups = [], map = {};
-    rows.forEach(function (a) {
-      var d = dayLabel(a.timestamp);
-      if (!map[d]) { map[d] = []; groups.push(d); }
-      map[d].push(a);
-    });
-    groups.forEach(function (d) {
-      feed.appendChild(el('h2', {class: 'day'}, d));
-      var ul = el('ul', {class: 'feed'});
-      map[d].forEach(function (a) { ul.appendChild(renderRow(a)); });
-      feed.appendChild(ul);
-    });
-
-    if (!state.done) {
-      var more = el('button', {class: 'btn more', type: 'button'}, 'Load more changes');
-      more.addEventListener('click', loadMore);
-      feed.appendChild(more);
-    }
-  }
-
-  function renderEmpty(box) {
-    if (state.unreviewedOnly && reviewedCount() > 0) {
-      box.appendChild(el('div', {class: 'big-emoji', 'aria-hidden': 'true'}, '🎉'));
-      box.appendChild(el('div', {class: 'headmsg'}, 'You’re all caught up.'));
-      box.appendChild(el('div', {}, 'No unreviewed changes in this view.'));
-    } else if (state.authorFilter || state.typeFilter) {
-      box.appendChild(el('div', {class: 'headmsg'}, 'No changes match these filters.'));
-      box.appendChild(el('div', {}, 'Try clearing the author or change-type filter.'));
-    } else {
-      box.appendChild(el('div', {class: 'big-emoji', 'aria-hidden': 'true'}, '📭'));
-      box.appendChild(el('div', {class: 'headmsg'}, 'No changes yet'));
-      box.appendChild(el('div', {}, 'When edits are made to this project, they’ll show up here to review.'));
-    }
-  }
-
-  function renderRow(activity) {
-    var isReviewed = !!state.reviewed[activity.commitId];
-    var li = el('li', {});
-    var row = el('div', {class: 'row' + (isReviewed ? ' reviewed' : '')});
-    row.setAttribute('data-commit', activity.commitId);
-
-    var head = el('div', {class: 'head'});
-
-    // Main clickable area (expands detail)
-    var main = el('div', {class: 'head-main', role: 'button', tabindex: '0'});
-    main.setAttribute('aria-expanded', state.detailOpen[activity.commitId] ? 'true' : 'false');
-
-    var meta = el('div', {class: 'meta'});
-    var name = activityAuthorName(activity);
-    var av = el('span', {class: 'avatar', 'aria-hidden': 'true'}, initials(name));
-    av.style.background = avatarColor(name);
-    meta.appendChild(av);
-    meta.appendChild(el('span', {class: 'author'}, name));
-    var time = el('time', {class: 'time'}, relTime(activity.timestamp));
-    if (activity.timestamp) {
-      time.setAttribute('datetime', activity.timestamp);
-      try { time.title = new Date(activity.timestamp).toLocaleString(); } catch (e) {}
-    }
-    meta.appendChild(time);
-    main.appendChild(meta);
-
-    var cname = el('div', {class: 'cname'}, activity.changeName || 'Change');
-    var changeCount = Array.isArray(activity.changes) ? activity.changes.length : 0;
-    if (changeCount > 1) cname.appendChild(el('span', {class: 'multi'}, '  · ' + changeCount + ' changes'));
-    main.appendChild(cname);
-
-    var targets = targetEntries(activity);
-    if (targets.length) {
-      var line = el('div', {class: 'targets'}, 'on ');
-      targets.slice(0, 3).forEach(function (name, i) {
-        if (i) line.appendChild(document.createTextNode(', '));
-        line.appendChild(el('span', {class: 'hw'}, name));
-      });
-      if (targets.length > 3) line.appendChild(document.createTextNode(' and ' + (targets.length - 3) + ' more'));
-      main.appendChild(line);
-    }
-
-    var caret = el('div', {class: 'caret'}, state.detailOpen[activity.commitId] ? 'Hide details ▴' : 'Show details ▾');
-    main.appendChild(caret);
-
-    function toggleDetail() {
-      if (state.detailOpen[activity.commitId]) delete state.detailOpen[activity.commitId];
-      else state.detailOpen[activity.commitId] = 1;
-      var open = !!state.detailOpen[activity.commitId];
-      main.setAttribute('aria-expanded', open ? 'true' : 'false');
-      caret.textContent = open ? 'Hide details ▴' : 'Show details ▾';
-      var existing = row.querySelector('.detail');
-      if (existing) existing.parentNode.removeChild(existing);
-      if (open) row.appendChild(buildDetail(activity));
-    }
-    main.addEventListener('click', toggleDetail);
-    main.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDetail(); }
-    });
-    head.appendChild(main);
-
-    // Reviewed checkbox
-    var check = el('label', {class: 'review-check'});
-    var box = el('input', {type: 'checkbox'});
-    box.checked = isReviewed;
-    box.setAttribute('aria-label', 'Reviewed: ' + (activity.changeName || 'change'));
-    box.addEventListener('change', function () {
-      setReviewed(activity.commitId, box.checked);
-      row.classList.toggle('reviewed', box.checked);
-      // If we're hiding reviewed rows, a newly-reviewed row should drop out.
-      if (state.unreviewedOnly && box.checked) { render(); }
-      else { updateHeadline(); updateShowing(); }
-    });
-    check.appendChild(box);
-    check.appendChild(el('span', {}, 'Reviewed'));
-    head.appendChild(check);
-
-    row.appendChild(head);
-    if (state.detailOpen[activity.commitId]) row.appendChild(buildDetail(activity));
-    li.appendChild(row);
-    return li;
-  }
-
-  // History calls return raw entries without the computed `headword`, so fall back to the forms.
-  function rawHeadword(entry) {
-    return F.headword(entry) || F.firstValue(entry.citationForm, state.vernIds) || F.firstValue(entry.lexemeForm, state.vernIds) || '';
-  }
-
-  function targetEntries(activity) {
-    var seen = {}, names = [];
-    (Array.isArray(activity.changes) ? activity.changes : []).forEach(function (c) {
-      var entry = c && c.info && c.info.entry;
-      if (!entry || !entry.id || seen[entry.id]) return;
-      seen[entry.id] = 1;
-      names.push((entry.headword || 'Untitled entry') + (entry.homographNumber ? ' ' + entry.homographNumber : ''));
-    });
-    return names;
-  }
-
-  function setReviewed(commitId, on) {
-    if (on) state.reviewed[commitId] = 1;
-    else delete state.reviewed[commitId];
-    saveReviewed();
-  }
-
-  // --- Detail (defensive rendering of a loosely-specified ChangeContext) -----
-  function buildDetail(activity) {
-    var detail = el('div', {class: 'detail'});
-    var loading = el('div', {class: 'dmuted'}, 'Loading details…');
-    detail.appendChild(loading);
-
-    var changeIndex = 0;
-    if (Array.isArray(activity.changes) && activity.changes[0] && typeof activity.changes[0].index === 'number') {
-      changeIndex = activity.changes[0].index;
-    }
-
-    F.getChangeContext({commitId: activity.commitId, changeIndex: changeIndex}).then(function (ctx) {
-      detail.textContent = '';
-      renderDetail(detail, activity, ctx);
-    }).catch(function (err) {
-      detail.textContent = '';
-      var box = el('div', {class: 'dmuted'});
-      box.textContent = (err && err.code === 'not-supported')
-        ? 'Details aren’t available for this change.'
-        : 'Couldn’t load the details for this change.';
-      detail.appendChild(box);
-    });
-    return detail;
-  }
-
-  function renderDetail(detail, activity, ctx) {
-    ctx = (ctx && typeof ctx === 'object') ? ctx : {};
-
-    var cname = ctx.changeName || activity.changeName;
-    if (cname) {
-      var line = el('div', {class: 'dline'});
-      line.appendChild(el('span', {class: 'dlabel'}, 'Change: '));
-      line.appendChild(document.createTextNode(String(cname)));
-      detail.appendChild(line);
-    }
-
-    if (ctx.entityType) {
-      var etype = el('div', {class: 'dline'});
-      etype.appendChild(el('span', {class: 'dlabel'}, 'Affected: '));
-      etype.appendChild(document.createTextNode(humanizeType(String(ctx.entityType))));
-      detail.appendChild(etype);
-    }
-
-    // Affected entries -> offer Open + show headword. Degrade gracefully if none.
-    var entries = Array.isArray(ctx.affectedEntries) ? ctx.affectedEntries : [];
-    if (entries.length) {
-      var chips = el('div', {class: 'entry-chips'});
-      entries.forEach(function (entry) {
-        if (!entry || typeof entry !== 'object') return;
-        var chip = el('div', {class: 'entry-chip'});
-        var hw = rawHeadword(entry) || 'Untitled entry';
-        chip.appendChild(el('span', {class: 'hw'}, hw));
-        var id = typeof entry.id === 'string' ? entry.id : null;
-        if (id) {
-          var open = el('button', {class: 'btn primary', type: 'button'}, 'Open');
-          open.addEventListener('click', function () {
-            try { F.openEntry(id, {mode: 'view'}); } catch (e) { notify('Could not open the entry.'); }
-          });
-          chip.appendChild(open);
+  // ---- loading ----
+  function loadCommits() {
+    var run = ++state.runId;
+    state.loadStart = Date.now();
+    var since = state.range === 'since' ? state.store.marker : null;
+    var cutoff = since ? 0 : Date.now() - Number(state.range) * DAY;
+    var out = [];
+    // "Since" goes by when this device received a commit, so work synced late from offline editors still shows up.
+    var sort = since ? 'SyncedNewestFirst' : 'NewestFirst';
+    function page(skip) {
+      return F.getActivity({ skip: skip, take: PAGE, sort: sort }).then(function (acts) {
+        if (run !== state.runId) return null;
+        acts = Array.isArray(acts) ? acts : [];
+        var stop = false;
+        for (var i = 0; i < acts.length; i++) {
+          var c = { id: prop(acts[i], 'commitId'), time: timeOf(prop(acts[i], 'timestamp')), sync: syncTime(acts[i]), author: authorOf(acts[i]), act: acts[i] };
+          if (since) {
+            if (c.sync && c.sync <= since.at) { stop = true; break; }
+            if (covered(c)) continue;
+          } else if (c.time < cutoff) { stop = true; break; }
+          out.push(c);
         }
-        chips.appendChild(chip);
+        skip += acts.length;
+        $('loading-text').textContent = 'Loading changes… ' + out.length.toLocaleString();
+        state.capped = !stop && skip >= COMMIT_CAP && acts.length === PAGE;
+        if (stop || acts.length < PAGE || skip >= COMMIT_CAP) return out;
+        return page(skip);
       });
-      if (chips.childNodes.length) detail.appendChild(chips);
+    }
+    return page(0);
+  }
+
+  // ---- change model ----
+  function entityKind(type) {
+    var m = /^(?:jsonPatch|delete):(\w+)$/.exec(type);
+    if (m) return m[1];
+    switch (type) {
+      case 'CreateEntryChange': case 'AddComplexFormTypeChange': case 'RemoveComplexFormTypeChange':
+      case 'AddPublicationChange': case 'RemovePublicationChange': case 'ReplacePublicationChange':
+        return 'Entry';
+      case 'CreateSenseChange': case 'AddSemanticDomainChange': case 'RemoveSemanticDomainChange': case 'ReplaceSemanticDomainChange':
+      case 'SetPartOfSpeechChange': case 'MoveSenseToEntryChange': case 'CreateSensePictureChange': case 'RemoveSensePictureChange':
+      case 'UpdateSensePictureChange': case 'ReorderSensePictureChange':
+        return 'Sense';
+      case 'CreateExampleSentenceChange': case 'AddTranslationChange': case 'UpdateTranslationChange': case 'RemoveTranslationChange':
+      case 'SetFirstTranslationIdChange': case 'MoveExampleSentenceToSenseChange':
+        return 'ExampleSentence';
+      default: return '';
+    }
+  }
+
+  var FIELD_LABELS = {
+    lexemeForm: 'Word', citationForm: 'Citation form', literalMeaning: 'Literal meaning', note: 'Note', morphType: 'Morph type',
+    complexFormTypes: 'Complex form type', publishIn: 'Publish in', gloss: 'Gloss', definition: 'Definition',
+    partOfSpeech: 'Part of speech', partOfSpeechId: 'Part of speech', semanticDomains: 'Semantic domain',
+    sentence: 'Sentence', translations: 'Translation', reference: 'Reference', pictures: 'Picture', homographNumber: 'Homograph number',
+  };
+  function fieldName(key) {
+    var k = key ? key[0].toLowerCase() + key.slice(1) : '';
+    return FIELD_LABELS[k] || k.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, function (s) { return s.toUpperCase(); });
+  }
+  var OBJECT_NOUNS = {
+    PartOfSpeech: 'part of speech', SemanticDomain: 'semantic domain', Publication: 'publication', ComplexFormType: 'complex form type',
+    WritingSystem: 'writing system', MorphType: 'morph type', CustomView: 'custom view', Plugin: 'plugin',
+  };
+
+  // One plain sentence per change, for the edit log and for anything the field diff doesn't cover.
+  function describe(change, info) {
+    var type = change.$type || '';
+    var target = info && info.target && info.target.text;
+    var m = /^(jsonPatch|delete):(\w+)$/.exec(type);
+    var noun = function (kind) { return kind === 'Entry' ? 'the entry' : kind === 'Sense' ? 'a sense' : kind === 'ExampleSentence' ? 'an example' : OBJECT_NOUNS[kind] || kind; };
+    if (m && m[1] === 'jsonPatch') {
+      var ops = prop(change, 'patchDocument');
+      var fields = [];
+      (Array.isArray(ops) ? ops : []).forEach(function (op) {
+        var seg = String(prop(op, 'path') || '').split('/').filter(Boolean);
+        if (!seg.length) return;
+        var label = fieldName(seg[0]);
+        if (fields.indexOf(label) < 0) fields.push(label);
+      });
+      var what = OBJECT_NOUNS[m[2]] ? OBJECT_NOUNS[m[2]] + (info && info.objectName ? ' “' + info.objectName + '”' : '') + ': ' : '';
+      return 'Edited ' + what + (fields.length ? fields.join(', ') : 'fields');
+    }
+    if (m) return 'Deleted ' + noun(m[2]) + (OBJECT_NOUNS[m[2]] && info && info.objectName ? ' “' + info.objectName + '”' : '');
+    var created = /^Create(\w+?)(Change)?$/.exec(type);
+    switch (type) {
+      case 'CreateEntryChange': return 'Added the entry';
+      case 'CreateSenseChange': return 'Added a sense';
+      case 'CreateExampleSentenceChange': return 'Added an example';
+      case 'AddSemanticDomainChange': return 'Added semantic domain' + (target ? ' ' + target : '');
+      case 'RemoveSemanticDomainChange': return 'Removed semantic domain' + (target ? ' ' + target : '');
+      case 'ReplaceSemanticDomainChange': return 'Changed a semantic domain';
+      case 'SetPartOfSpeechChange': return target ? 'Set part of speech to ' + target : 'Cleared the part of speech';
+      case 'AddPublicationChange': case 'RemovePublicationChange': case 'ReplacePublicationChange': return 'Changed Publish in';
+      case 'AddComplexFormTypeChange': case 'RemoveComplexFormTypeChange': return 'Changed Complex form type';
+      case 'AddEntryComponentChange': return 'Linked component' + (target ? ' ' + target : '');
+      case 'AddTranslationChange': case 'UpdateTranslationChange': case 'RemoveTranslationChange': case 'SetFirstTranslationIdChange':
+        return 'Edited Translation';
+      case 'MoveSenseToEntryChange': return 'Moved a sense';
+      case 'MoveExampleSentenceToSenseChange': return 'Moved an example';
+      case 'SetOrderChange:Sense': return 'Reordered senses';
+      case 'SetOrderChange:ExampleSentence': return 'Reordered examples';
+      case 'SetOrderChange:ComplexFormComponent': return 'Reordered components';
+      case 'CreateSensePictureChange': return 'Added a picture';
+      case 'RemoveSensePictureChange': return 'Removed a picture';
+      case 'UpdateSensePictureChange': case 'ReorderSensePictureChange': return 'Changed pictures';
+      case 'CreateCommentThreadChange': return '';
+      case 'CreateUserCommentChange': return 'Commented';
+      case 'EditUserCommentChange': return 'Edited a comment';
+      case 'SetCommentThreadStatusChange': return prop(change, 'status') === 'Closed' ? 'Resolved a comment thread' : 'Reopened a comment thread';
+      case 'delete:ComplexFormComponent': return 'Removed a component link';
+    }
+    if (created) return 'Added ' + (OBJECT_NOUNS[created[1]] || created[1]) + (info && info.objectName ? ' “' + info.objectName + '”' : '');
+    return type.replace(/Change$/, '').replace(/[:]/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2');
+  }
+
+  // Cards: one per entry (or per vocabulary item), holding every change in range.
+  function buildCards(commits) {
+    var byKey = {}, list = [];
+    state.commitById = {};
+    commits.forEach(function (c) {
+      state.commitById[c.id] = c;
+      var changes = prop(c.act, 'changes') || [];
+      changes.forEach(function (ch) {
+        var ent = prop(ch, 'entity') || {};
+        var change = prop(ent, 'change');
+        if (!change) return;
+        var info = prop(ch, 'info') || {};
+        var entry = prop(info, 'entry');
+        var type = change.$type || '';
+        var entityId = prop(ent, 'entityId');
+        var key = entry && entry.id ? 'e:' + entry.id : 'o:' + entityId;
+        var card = byKey[key];
+        if (!card) {
+          card = byKey[key] = {
+            key: key, entry: entry && entry.id ? entry : null, objectName: prop(info, 'objectName') || '',
+            objectKind: /:(\w+)$/.exec(type) ? /:(\w+)$/.exec(type)[1] : (/^Create(\w+?)(Change)?$/.exec(type) || [])[1] || '',
+            latest: 0, latestId: null, commitIds: [], authors: [], entities: {}, entityOrder: [], log: [], comments: 0, extra: [],
+          };
+          list.push(card);
+        }
+        if (c.time > card.latest) { card.latest = c.time; card.latestId = c.id; }
+        if (card.commitIds.indexOf(c.id) < 0) card.commitIds.push(c.id);
+        if (card.authors.indexOf(c.author) < 0) card.authors.push(c.author);
+        if (entry && entry.headword && !card.entry.headword) card.entry = entry;
+        var text = describe(change, info);
+        if (text) card.log.push({ time: c.time, author: c.author, text: text, commitId: c.id });
+
+        var kind = entityKind(type);
+        if (type === 'CreateUserCommentChange') { card.comments++; return; }
+        if (!DIFFABLE[kind]) { if (text) card.extra.push(text); return; }
+        var target = entityId;
+        var e = card.entities[target];
+        if (!e) {
+          e = card.entities[target] = { id: target, kind: kind, first: null, info: info, authors: [], edits: 0, created: false, deleted: false, fallback: [] };
+          card.entityOrder.push(target);
+        }
+        e.edits++;
+        if (e.authors.indexOf(c.author) < 0) e.authors.push(c.author);
+        if (/^Create/.test(type)) e.created = true;
+        if (/^delete:/.test(type)) e.deleted = true;
+        if (text && e.fallback.indexOf(text) < 0) e.fallback.push(text);
+        // The diff starts from just before this entity's earliest change in range.
+        if (!e.first || c.time < e.first.time) e.first = { time: c.time, commitId: c.id, index: prop(ent, 'index') || 0 };
+      });
+    });
+    list.forEach(function (card) {
+      card.log.sort(function (a, b) { return b.time - a.time; });
+      var rank = { Entry: 0, Sense: 1, ExampleSentence: 2 };
+      card.entityOrder.sort(function (a, b) {
+        var ea = card.entities[a], eb = card.entities[b];
+        return rank[ea.kind] - rank[eb.kind] || senseNo(ea) - senseNo(eb);
+      });
+    });
+    return list.sort(function (a, b) { return b.latest - a.latest; });
+  }
+  function senseNo(e) { var s = e.info && prop(e.info, 'sense'); return (s && s.number) || 0; }
+
+  // ---- net diff per entity ----
+  var queue = [], inFlight = 0;
+  function requestDiff(card, entityId) {
+    var e = card.entities[entityId];
+    var k = entityId + '@' + e.first.commitId;
+    if (state.diffs[k]) return;
+    state.diffs[k] = { status: 'loading' };
+    queue.push({ k: k, e: e, card: card });
+    pump();
+  }
+  function pump() {
+    while (inFlight < 3 && queue.length) {
+      var job = queue.shift();
+      inFlight++;
+      (function (job) {
+        F.getChangeContext({ commitId: job.e.first.commitId, changeIndex: job.e.first.index }).then(function (ctx) {
+          state.diffs[job.k] = { status: 'done', before: prop(ctx, 'previousSnapshot') || null, now: prop(ctx, 'currentSnapshot') || null };
+        }, function (err) {
+          state.diffs[job.k] = { status: 'error', message: errMsg(err) };
+        }).then(function () {
+          inFlight--;
+          rerenderCard(job.card);
+          pump();
+        });
+      })(job);
+    }
+  }
+  function diffOf(e) { return state.diffs[e.id + '@' + e.first.commitId]; }
+
+  function alive(obj) { return obj && !prop(obj, 'deletedAt') ? obj : null; }
+  function wsLabel(wsId) { return state.ws.abbr[wsId] || wsId; }
+  function isMulti(v) { return v && typeof v === 'object' && !Array.isArray(v) && !('spans' in v) && !('Spans' in v); }
+  function refName(v) {
+    if (!v || typeof v !== 'object') return '';
+    var name = firstText(prop(v, 'name'), state.ws.anal);
+    var code = prop(v, 'code');
+    return (code ? code + ' ' : '') + (name || '');
+  }
+
+  var FIELDS = {
+    Entry: ['lexemeForm', 'citationForm', 'morphType', 'literalMeaning', 'note', 'complexFormTypes', 'publishIn'],
+    Sense: ['gloss', 'definition', 'partOfSpeech', 'semanticDomains', 'pictures'],
+    ExampleSentence: ['sentence', 'translations', 'reference'],
+  };
+  var VERN_FIELDS = { lexemeForm: 1, citationForm: 1, sentence: 1 };
+
+  // Rows: {label, before, after, vern} for text, or {label, added:[], removed:[]} for lists.
+  function fieldRows(kind, before, after) {
+    var rows = [];
+    FIELDS[kind].forEach(function (f) {
+      var b = before ? prop(before, f) : undefined, a = after ? prop(after, f) : undefined;
+      var label = fieldName(f);
+      if (f === 'partOfSpeech') {
+        var bn = refName(b), an = refName(a);
+        if (bn !== an) rows.push({ label: label, before: bn, after: an });
+      } else if (f === 'semanticDomains' || f === 'complexFormTypes' || f === 'publishIn') {
+        setRows(label, b, a, rows);
+      } else if (f === 'pictures') {
+        var bc = Array.isArray(b) ? b.length : 0, ac = Array.isArray(a) ? a.length : 0;
+        if (bc !== ac) rows.push({ label: 'Pictures', before: bc ? String(bc) : '', after: ac ? String(ac) : '' });
+      } else if (f === 'translations') {
+        translationRows(b, a, rows);
+      } else if (f === 'morphType') {
+        if ((b || '') !== (a || '') && (before || a !== 'Stem')) rows.push({ label: label, before: b || '', after: a || '' });
+      } else if (isMulti(b) || isMulti(a)) {
+        multiRows(label, b || {}, a || {}, rows, !!VERN_FIELDS[f]);
+      } else {
+        var bt = asText(b), at = asText(a);
+        if (bt !== at) rows.push({ label: label, before: bt, after: at });
+      }
+    });
+    return rows;
+  }
+  function multiRows(label, b, a, rows, vern) {
+    var keys = Object.keys(b).concat(Object.keys(a).filter(function (k) { return !(k in b); }));
+    var many = keys.length > 1 || (vern ? state.ws.vern.length : state.ws.anal.length) > 1;
+    keys.forEach(function (ws) {
+      var full = many ? label + ' · ' + wsLabel(ws) : label;
+      if (state.ws.audio.has(ws)) {
+        var bh = !!asText(b[ws]), ah = !!asText(a[ws]);
+        if (asText(b[ws]) !== asText(a[ws])) rows.push({ label: full, before: bh ? 'Recording' : '', after: ah ? (bh ? 'New recording' : 'Recording') : '' });
+        return;
+      }
+      var bt = asText(b[ws]), at = asText(a[ws]);
+      if (bt !== at) rows.push({ label: full, before: bt, after: at, vern: vern });
+    });
+  }
+  function setRows(label, b, a, rows) {
+    var bl = Array.isArray(b) ? b : [], al = Array.isArray(a) ? a : [];
+    var ids = function (l) { return l.map(function (x) { return prop(x, 'id'); }); };
+    var bIds = ids(bl), aIds = ids(al);
+    var added = al.filter(function (x) { return bIds.indexOf(prop(x, 'id')) < 0; }).map(refName);
+    var removed = bl.filter(function (x) { return aIds.indexOf(prop(x, 'id')) < 0; }).map(refName);
+    if (added.length || removed.length) rows.push({ label: label, added: added, removed: removed });
+  }
+  function translationRows(b, a, rows) {
+    var bl = Array.isArray(b) ? b : [], al = Array.isArray(a) ? a : [];
+    var byId = {};
+    bl.forEach(function (t) { byId[prop(t, 'id')] = { b: prop(t, 'text') || {} }; });
+    al.forEach(function (t) { var x = byId[prop(t, 'id')] || (byId[prop(t, 'id')] = {}); x.a = prop(t, 'text') || {}; });
+    var keys = Object.keys(byId);
+    keys.forEach(function (id, i) {
+      multiRows(keys.length > 1 ? 'Translation ' + (i + 1) : 'Translation', byId[id].b || {}, byId[id].a || {}, rows, false);
+    });
+  }
+
+  // Word-level diff for long text, so a one-word fix in a definition is easy to spot.
+  function wordDiff(a, b) {
+    var x = a.split(/(\s+)/), y = b.split(/(\s+)/);
+    if (x.length * y.length > 40000) return null;
+    var n = x.length, m = y.length, dp = [];
+    for (var i = 0; i <= n; i++) { dp.push(new Array(m + 1).fill(0)); }
+    for (i = n - 1; i >= 0; i--) for (var j = m - 1; j >= 0; j--) dp[i][j] = x[i] === y[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    var del = [], ins = [];
+    i = 0; j = 0;
+    while (i < n || j < m) {
+      if (i < n && j < m && x[i] === y[j]) { del.push([x[i], 0]); ins.push([y[j], 0]); i++; j++; }
+      else if (j < m && (i === n || dp[i][j + 1] >= dp[i + 1][j])) { ins.push([y[j], 1]); j++; }
+      else { del.push([x[i], 1]); i++; }
+    }
+    return { del: runs(del), ins: runs(ins) };
+  }
+  // Joins changed words with the spaces between them; spaces at a run's edges stay unmarked.
+  function runs(parts) {
+    var out = [];
+    parts.forEach(function (p, k) {
+      var changed = p[1];
+      if (!changed && /^\s+$/.test(p[0])) {
+        var prev = parts[k - 1], next = parts[k + 1];
+        changed = !!(prev && next && prev[1] && next[1]);
+      }
+      if (changed && /^\s+$/.test(p[0]) && !(out.length && out[out.length - 1][1])) changed = 0;
+      var last = out[out.length - 1];
+      if (last && !!last[1] === !!changed) last[0] += p[0];
+      else out.push([p[0], changed ? 1 : 0]);
+    });
+    return out.map(function (r) {
+      var m = r[1] && /\s+$/.exec(r[0]);
+      return m ? [[r[0].slice(0, -m[0].length), 1], [m[0], 0]] : [r];
+    }).reduce(function (a, b) { return a.concat(b); }, []);
+  }
+
+  // ---- rendering ----
+  function headwordOf(card) {
+    var hw = card.entry && card.entry.headword;
+    return hw || '(no headword)';
+  }
+  function senseHeading(e, snap) {
+    var s = prop(e.info, 'sense') || {};
+    var gloss = (snap && firstText(prop(snap, 'gloss'), state.ws.anal)) || s.label || '';
+    var head = s.number ? 'Sense ' + s.number : 'Sense';
+    return gloss ? head + ' · “' + gloss + '”' : head;
+  }
+  function blockHeading(e, snap) {
+    if (e.kind === 'Sense') return senseHeading(e, snap);
+    if (e.kind === 'ExampleSentence') {
+      var s = prop(e.info, 'sense');
+      if (!s || !(s.number || s.label)) return 'Example';
+      if (!s.number) return 'Example in “' + s.label + '”';
+      return 'Example in sense ' + s.number + (s.label ? ' · “' + s.label + '”' : '');
+    }
+    return '';
+  }
+
+  function valueNode(text, tag, vern) {
+    var n = el(tag, { dir: 'auto' }, text);
+    if (vern) n.classList.add('vern');
+    return n;
+  }
+  function rowNodes(row) {
+    var dt = el('dt', {}, row.label), dd = el('dd', {});
+    if (row.added || row.removed) {
+      dd.className = 'chips';
+      row.added.forEach(function (t) { var n = el('ins', {}, '+ ' + t); n.prepend(el('span', { class: 'sr' }, 'added ')); dd.appendChild(n); });
+      row.removed.forEach(function (t) { var n = el('del', {}, '− ' + t); n.prepend(el('span', { class: 'sr' }, 'removed ')); dd.appendChild(n); });
+      return [dt, dd];
+    }
+    var b = row.before, a = row.after;
+    if (!b) {
+      dd.appendChild(el('span', { class: 'sr' }, 'added: '));
+      dd.appendChild(valueNode(a, 'ins', row.vern));
+    } else if (!a) {
+      dd.appendChild(el('span', { class: 'sr' }, 'removed: '));
+      dd.appendChild(valueNode(b, 'del', row.vern));
+      dd.appendChild(el('span', { class: 'cleared' }, '(cleared)'));
+    } else if (b.length + a.length <= 48 && !/\n/.test(b + a)) {
+      dd.appendChild(el('span', { class: 'sr' }, 'was '));
+      dd.appendChild(valueNode(b, 'del', row.vern));
+      dd.appendChild(el('span', { class: 'arrow', 'aria-hidden': 'true' }, '→'));
+      dd.appendChild(el('span', { class: 'sr' }, ' now '));
+      dd.appendChild(valueNode(a, 'ins', row.vern));
     } else {
-      detail.appendChild(el('div', {class: 'dmuted'}, 'No linked entry for this change.'));
+      dd.className = 'stack';
+      var wd = wordDiff(b, a);
+      if (wd) {
+        var dn = el('del', { class: 'words', dir: 'auto' }), inn = el('ins', { class: 'words', dir: 'auto' });
+        dn.appendChild(el('span', { class: 'sr' }, 'was: '));
+        inn.appendChild(el('span', { class: 'sr' }, 'now: '));
+        wd.del.forEach(function (p) { dn.appendChild(p[1] ? el('del', {}, p[0]) : document.createTextNode(p[0])); });
+        wd.ins.forEach(function (p) { inn.appendChild(p[1] ? el('ins', {}, p[0]) : document.createTextNode(p[0])); });
+        if (row.vern) { dn.classList.add('vern'); inn.classList.add('vern'); }
+        dd.appendChild(dn); dd.appendChild(inn);
+      } else {
+        dd.appendChild(valueNode(b, 'del', row.vern));
+        dd.appendChild(valueNode(a, 'ins', row.vern));
+      }
     }
-
-    // Raw snapshot (fully defensive: whatever the shape, JSON.stringify + textContent, capped).
-    if (ctx.snapshot && typeof ctx.snapshot === 'object') {
-      var raw = null;
-      var toggle = el('button', {class: 'raw-toggle', type: 'button'}, 'Show raw change data');
-      detail.appendChild(toggle);
-      toggle.addEventListener('click', function () {
-        if (raw) { raw.parentNode.removeChild(raw); raw = null; toggle.textContent = 'Show raw change data'; return; }
-        raw = el('pre', {class: 'raw'});
-        var text;
-        try { text = JSON.stringify(ctx.snapshot, null, 2); } catch (e) { text = String(ctx.snapshot); }
-        if (typeof text === 'string' && text.length > RAW_CAP) text = text.slice(0, RAW_CAP) + '\n… (truncated)';
-        raw.textContent = text;
-        detail.appendChild(raw);
-        toggle.textContent = 'Hide raw change data';
-      });
-    }
+    return [dt, dd];
+  }
+  function rowsList(rows) {
+    var dl = el('dl', { class: 'rows' });
+    rows.forEach(function (r) { rowNodes(r).forEach(function (n) { dl.appendChild(n); }); });
+    return dl;
   }
 
-  // --- Loading pages ---------------------------------------------------------
-  function loadPage() {
-    return F.getActivity(serverParams()).then(function (activities) {
-      activities = Array.isArray(activities) ? activities : [];
-      if (activities.length < TAKE) state.done = true;
-      state.skip += activities.length;
-      var gained = 0;
-      activities.forEach(function (a) {
-        if (!a || !a.commitId) return;
-        if (state.seen[a.commitId]) return;
-        state.seen[a.commitId] = 1;
-        state.rows.push(a);
-        if (passesFilter(a)) gained++;
+  function renderEntity(card, e) {
+    var blk = el('div', { class: 'blk' });
+    var d = diffOf(e);
+    var before = d && d.status === 'done' ? alive(d.before) : null;
+    var now = d && d.status === 'done' ? alive(d.now) : null;
+    var heading = blockHeading(e, now || (d && d.before) || null);
+    var byLine = card.authors.length > 1 ? e.authors.join(', ') : '';
+    if (heading || byLine) {
+      var h = el('div', { class: 'blk-head', dir: 'auto' }, heading);
+      if (byLine) h.appendChild(el('span', { class: 'by' }, (heading ? ' · ' : '') + 'by ' + byLine));
+      blk.appendChild(h);
+    }
+    if (!d || d.status === 'loading') {
+      var ul = el('ul', { class: 'lines muted' });
+      e.fallback.slice(0, 4).forEach(function (t) { ul.appendChild(el('li', {}, t)); });
+      blk.appendChild(ul);
+      return blk;
+    }
+    if (d.status === 'error') {
+      var ul2 = el('ul', { class: 'lines muted' });
+      e.fallback.slice(0, 4).forEach(function (t) { ul2.appendChild(el('li', {}, t)); });
+      blk.appendChild(ul2);
+      var err = el('div', { class: 'card-err' }, 'Couldn’t load the before and after. ');
+      var retry = el('button', { type: 'button', class: 'link-btn' }, 'Retry');
+      retry.addEventListener('click', function () { delete state.diffs[e.id + '@' + e.first.commitId]; requestDiff(card, e.id); rerenderCard(card); });
+      err.appendChild(retry);
+      blk.appendChild(err);
+      return blk;
+    }
+    var noun = e.kind === 'Entry' ? 'entry' : e.kind === 'Sense' ? 'sense' : 'example';
+    if (!before && !now) {
+      blk.appendChild(el('div', { class: 'quiet' }, 'Added and then deleted again'));
+    } else if (!before) {
+      if (e.kind !== 'Entry') blk.appendChild(el('div', { class: 'state-line added' }, 'New ' + noun));
+      var rows = fieldRows(e.kind, null, now);
+      if (rows.length) blk.appendChild(rowsList(rows));
+    } else if (!now) {
+      blk.appendChild(el('div', { class: 'state-line deleted' }, 'Deleted ' + noun));
+      var gone = fieldRows(e.kind, before, null);
+      if (gone.length) {
+        var det = el('details', {});
+        det.appendChild(el('summary', { class: 'link-btn' }, 'What it said'));
+        det.appendChild(rowsList(gone));
+        blk.appendChild(det);
+      }
+    } else {
+      var changed = fieldRows(e.kind, before, now);
+      if (changed.length) blk.appendChild(rowsList(changed));
+      else blk.appendChild(el('div', { class: 'quiet' }, e.edits > 1 ? 'No net change after ' + e.edits + ' edits' : 'No visible change'));
+    }
+    return blk;
+  }
+
+  function cardStatus(card) {
+    var entryEntity = card.entry && card.entities[card.entry.id];
+    if (!entryEntity) return '';
+    var d = diffOf(entryEntity);
+    if (d && d.status === 'done') {
+      if (!alive(d.now)) return alive(d.before) ? 'deleted' : '';
+      if (!alive(d.before)) return 'new';
+      return '';
+    }
+    return entryEntity.deleted ? 'deleted' : entryEntity.created ? 'new' : '';
+  }
+
+  function renderCard(card) {
+    var reviewed = isReviewed(card);
+    var status = cardStatus(card);
+    var node = el('article', { class: 'card change' + (reviewed ? ' reviewed' : ''), 'data-key': card.key });
+    var head = el('div', { class: 'c-head' });
+    var title = el('div', { class: 'c-title' });
+    var h3 = el('h3', {});
+    if (card.entry) {
+      var hw = headwordOf(card);
+      if (status !== 'deleted') {
+        var btn = el('button', { type: 'button', class: 'hw-btn', dir: 'auto' }, hw);
+        btn.setAttribute('aria-label', 'Open entry ' + hw);
+        btn.addEventListener('click', function () { openEntry(card, node); });
+        h3.appendChild(btn);
+      } else {
+        h3.appendChild(el('span', { class: 'hw', dir: 'auto' }, hw));
+      }
+      if (card.entry.homographNumber) h3.appendChild(el('sub', {}, String(card.entry.homographNumber)));
+    } else {
+      h3.appendChild(el('span', { class: 'kind' }, OBJECT_NOUNS[card.objectKind] || 'Project setting'));
+      h3.appendChild(document.createTextNode(card.objectName || '(unnamed)'));
+    }
+    title.appendChild(h3);
+    var who = el('div', { class: 'c-who' });
+    who.appendChild(el('span', {}, card.authors.length > 2 ? card.authors[0] + ' +' + (card.authors.length - 1) : card.authors.join(', ')));
+    if (status === 'new') who.appendChild(el('span', { class: 'chip good' }, 'New entry'));
+    if (status === 'deleted') who.appendChild(el('span', { class: 'chip bad' }, 'Deleted'));
+    title.appendChild(who);
+    head.appendChild(title);
+    var time = el('time', { class: 'c-time', datetime: new Date(card.latest).toISOString() }, relTime(card.latest));
+    time.title = new Date(card.latest).toLocaleString();
+    head.appendChild(time);
+    node.appendChild(head);
+
+    var body = el('div', { class: 'c-body' });
+    card.entityOrder.forEach(function (id) { body.appendChild(renderEntity(card, card.entities[id])); });
+    var extra = card.extra.filter(function (t, i, l) { return l.indexOf(t) === i; });
+    if (card.comments) extra.push(plural(card.comments, 'comment', 'comments') + ' added');
+    if (extra.length) {
+      var ul = el('ul', { class: 'lines' });
+      extra.forEach(function (t) { ul.appendChild(el('li', {}, t)); });
+      body.appendChild(ul);
+    }
+    node.appendChild(body);
+
+    var foot = el('div', { class: 'c-foot' });
+    if (card.log.length > 1) {
+      var det = el('details', { class: 'edits' });
+      det.appendChild(el('summary', {}, 'Show ' + card.log.length + ' edits'));
+      det.addEventListener('toggle', function () {
+        if (!det.open || det.querySelector('ol')) return;
+        var ol = el('ol', {});
+        card.log.forEach(function (l) {
+          var li = el('li', {});
+          li.appendChild(el('span', { title: new Date(l.time).toLocaleString() }, logTime(l.time) + ' · ' + l.author));
+          li.appendChild(el('span', {}, l.text));
+          ol.appendChild(li);
+        });
+        det.appendChild(ol);
       });
-      return gained;
+      foot.appendChild(det);
+    }
+    foot.appendChild(el('span', { class: 'spacer' }));
+    if (card.entry && status !== 'deleted') {
+      var open = el('button', { type: 'button', class: 'btn ghost open' }, 'Open entry');
+      open.addEventListener('click', function () { openEntry(card, node); });
+      foot.appendChild(open);
+    }
+    var rev = el('button', { type: 'button', class: 'btn rev-btn', 'aria-pressed': String(reviewed) }, reviewed ? '✓ Reviewed' : 'Mark reviewed');
+    rev.addEventListener('click', function () { toggleReviewed(card); });
+    foot.appendChild(rev);
+    node.appendChild(foot);
+    var err = el('div', { class: 'card-err', role: 'alert' });
+    err.hidden = true;
+    node.appendChild(err);
+    return node;
+  }
+
+  function openEntry(card, node) {
+    F.openEntry(card.entry.id, { mode: 'view' }).catch(function () {
+      var err = node.querySelector('.card-err');
+      err.hidden = false;
+      err.textContent = 'Couldn’t open this entry. It may have been deleted.';
     });
   }
 
-  function loadMore() {
-    if (state.loading || state.done) return;
-    state.loading = true;
-    var btn = $('feed').querySelector('.more');
-    if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+  function rerenderCard(card) {
+    var old = document.querySelector('article[data-key="' + CSS.escape(card.key) + '"]');
+    if (!old) return;
+    var focusedRev = document.activeElement && old.contains(document.activeElement) && document.activeElement.classList.contains('rev-btn');
+    var fresh = renderCard(card);
+    old.replaceWith(fresh);
+    observe(fresh, card);
+    if (focusedRev) fresh.querySelector('.rev-btn').focus();
+  }
 
-    // When hiding reviewed rows, one page may be entirely reviewed and add nothing
-    // visible, so keep paging (up to a cap) until we surface at least one new row.
-    var pagesLeft = LOAD_MORE_PAGE_CAP;
-    function step() {
-      return loadPage().then(function (gained) {
-        pagesLeft--;
-        if (!state.done && pagesLeft > 0 && state.unreviewedOnly && gained === 0) return step();
-      });
+  function toggleReviewed(card) {
+    var was = isReviewed(card);
+    state.store.cards[card.key] = was ? '!' + card.latestId : card.latestId;
+    save();
+    rerenderCard(card);
+    renderSummary();
+    var left = state.cards.filter(function (c) { return !isReviewed(c); }).length;
+    announce((card.entry ? headwordOf(card) : card.objectName) + (was ? ' marked not reviewed. ' : ' marked reviewed. ') + plural(left, 'card', 'cards') + ' to review.');
+  }
+
+  var observer = null;
+  function observe(node, card) {
+    if (isReviewed(card)) return;
+    var pending = card.entityOrder.some(function (id) { return !diffOf(card.entities[id]); });
+    if (!pending) return;
+    if (!observer) {
+      observer = new IntersectionObserver(function (items) {
+        items.forEach(function (it) {
+          if (!it.isIntersecting) return;
+          observer.unobserve(it.target);
+          var c = it.target.__card;
+          c.entityOrder.forEach(function (id) { requestDiff(c, id); });
+        });
+      }, { rootMargin: '600px 0px' });
     }
-    step().then(function () {
-      state.loading = false;
-      render();
-      var vis = visibleRows().length;
-      announce(vis + ' change' + (vis === 1 ? '' : 's') + ' shown');
-    }).catch(function (err) {
-      state.loading = false;
-      state.done = true;
-      render();
-      notify('Could not load more changes: ' + errMsg(err));
+    node.__card = card;
+    observer.observe(node);
+  }
+
+  function rangeLabel(r) {
+    if (r === 'since') return 'Since my last review';
+    return RANGES[r];
+  }
+  function renderRangeSelect() {
+    var sel = $('range');
+    clear(sel);
+    var opts = (state.store.marker ? ['since'] : []).concat(['1', '7', '30']);
+    opts.forEach(function (r) {
+      var o = el('option', { value: r }, rangeLabel(r));
+      if (r === state.range) o.selected = true;
+      sel.appendChild(o);
     });
   }
 
-  // --- Reset + reload (filter change / refresh) ------------------------------
-  function reload() {
-    state.rows = [];
-    state.seen = {};
-    state.skip = 0;
-    state.done = false;
-    state.loading = true;
-    $('feed').textContent = '';
-    $('feed-empty').hidden = true;
+  function renderSummary() {
+    var s = $('summary');
+    clear(s);
+    var n = state.cards.length;
+    var left = state.cards.filter(function (c) { return !isReviewed(c); }).length;
+    $('mark-all').disabled = left === 0;
+    if (!n) return;
+    if (state.range === 'since') s.appendChild(document.createTextNode('Since ' + shortStamp(state.store.marker.at) + ': '));
+    s.appendChild(el('b', {}, plural(n, 'entry', 'entries') + ' changed'));
+    s.appendChild(document.createTextNode(' · ' + plural(state.commits.length, 'edit', 'edits') + ' · ' + (left ? left + ' to review' : 'all reviewed')));
+  }
+
+  function render() {
+    renderRangeSelect();
+    renderSummary();
+    $('tip').hidden = !!(state.store.marker || state.store.tipClosed) || !state.cards.length;
+    var feed = $('feed');
+    clear(feed);
+    if (observer) observer.disconnect();
+    if (!state.cards.length) return renderEmptyFeed(feed);
+    var shown = state.cards.slice(0, state.shown), group = null, ul = null;
+    shown.forEach(function (card) {
+      var g = dayGroup(card.latest);
+      if (g !== group) {
+        group = g;
+        feed.appendChild(el('h2', { class: 'day' }, g));
+        ul = el('ul', { class: 'cards' });
+        feed.appendChild(ul);
+      }
+      var li = el('li', {});
+      var node = renderCard(card);
+      li.appendChild(node);
+      ul.appendChild(li);
+      observe(node, card);
+    });
+    var more = el('div', { class: 'more' });
+    if (state.cards.length > state.shown) {
+      var btn = el('button', { type: 'button', class: 'btn' }, 'Show more (' + (state.cards.length - state.shown) + ' left)');
+      btn.addEventListener('click', function () { state.shown += CARDS_PER_PAGE; render(); });
+      more.appendChild(btn);
+    } else if (state.cards.some(function (c) { return !isReviewed(c); })) {
+      var all = el('button', { type: 'button', class: 'btn primary' }, 'Mark all reviewed');
+      all.addEventListener('click', markAll);
+      more.appendChild(all);
+    }
+    if (state.capped) more.appendChild(el('p', { class: 'note' }, 'Only the newest ' + COMMIT_CAP.toLocaleString() + ' edits were loaded. Pick a shorter range to see everything in it.'));
+    feed.appendChild(more);
+    measureToolbar();
+  }
+
+  function renderEmptyFeed(feed) {
+    var box = el('div', { class: 'center-state' });
+    if (state.range === 'since') {
+      box.appendChild(el('div', { class: 'big', 'aria-hidden': 'true' }, '✓'));
+      box.appendChild(el('div', { class: 'lead', tabindex: '-1', id: 'uptodate' }, 'You’re up to date'));
+      box.appendChild(el('div', {}, 'Nothing has changed since ' + shortStamp(state.store.marker.at) + '.'));
+      box.appendChild(rangeButton('7', 'Show the last 7 days'));
+    } else {
+      box.appendChild(el('div', { class: 'lead' }, 'No changes in the ' + RANGES[state.range].toLowerCase()));
+      if (state.range !== '30') box.appendChild(rangeButton('30', 'Show the last 30 days'));
+    }
+    feed.appendChild(box);
+  }
+  function rangeButton(r, label) {
+    var b = el('button', { type: 'button', class: 'btn', style: 'margin-top:14px' }, label);
+    b.addEventListener('click', function () { setRange(r); });
+    return b;
+  }
+
+  // ---- actions ----
+  function markAll() {
+    var prev = { marker: state.store.marker, cards: state.store.cards, range: state.range, commits: state.commits, cards2: state.cards };
+    var pending = state.commits.filter(function (c) { return !c.sync; }).map(function (c) { return c.id; }).slice(0, 2000);
+    var n = state.cards.filter(function (c) { return !isReviewed(c); }).length;
+    // The load start, not "now": anything that arrives while reading stays unreviewed.
+    state.store.marker = { at: state.loadStart, pending: pending };
+    state.store.cards = {};
+    state.store.tipClosed = true;
+    if (state.range === 'since') { state.commits = []; state.cards = []; }
+    save();
     render();
-    loadPage().then(function () {
-      state.loading = false;
+    var focus = $('uptodate');
+    if (focus) focus.focus();
+    showSnack('Marked ' + plural(n, 'entry', 'entries') + ' reviewed', function () {
+      state.store.marker = prev.marker;
+      state.store.cards = prev.cards;
+      state.range = prev.range;
+      state.commits = prev.commits;
+      state.cards = prev.cards2;
+      save();
       render();
-    }).catch(function (err) {
-      state.loading = false;
-      state.done = true;
-      renderError(err);
+      $('mark-all').focus();
     });
   }
 
-  function renderError(err) {
-    $('loading').hidden = true;
-    $('app').hidden = true;
-    $('empty').hidden = true;
-    var box = $('error');
-    box.hidden = false;
-    box.textContent = (err && err.code === 'not-supported')
-      ? 'Change history isn’t available for this project.'
-      : 'Could not load the change history: ' + errMsg(err) + '. Reload the plugin to try again.';
+  var snackTimer = null;
+  function showSnack(text, onUndo) {
+    $('snack-text').textContent = text;
+    $('snack').hidden = false;
+    state.undo = onUndo;
+    clearTimeout(snackTimer);
+    snackTimer = setTimeout(hideSnack, 8000);
+  }
+  function hideSnack() { $('snack').hidden = true; state.undo = null; }
+
+  function setRange(r) {
+    state.range = r;
+    save();
+    reload();
   }
 
-  function showNotSupported() {
+  function reload() {
+    hideSnack();
+    state.diffs = {};
+    var feed = $('feed');
+    clear(feed);
+    $('summary').textContent = '';
+    var sk = el('div', { class: 'center-state' });
+    sk.appendChild(el('div', { class: 'spinner' }));
+    var txt = el('div', {}, 'Loading changes…');
+    sk.appendChild(txt);
+    feed.appendChild(sk);
+    var run = state.runId + 1;
+    return loadCommits().then(function (commits) {
+      if (!commits || run !== state.runId) return;
+      state.commits = commits;
+      state.cards = buildCards(commits);
+      state.shown = CARDS_PER_PAGE;
+      render();
+    }, function (err) {
+      clear(feed);
+      var box = el('div', { class: 'center-state' });
+      box.appendChild(el('div', { class: 'lead' }, 'Couldn’t load changes'));
+      box.appendChild(el('div', {}, errMsg(err)));
+      var retry = el('button', { type: 'button', class: 'btn', style: 'margin-top:14px' }, 'Retry');
+      retry.addEventListener('click', reload);
+      box.appendChild(retry);
+      feed.appendChild(box);
+    });
+  }
+
+  function measureToolbar() {
+    document.documentElement.style.setProperty('--toolbar-h', $('toolbar').offsetHeight + 'px');
+  }
+
+  function showUnavailable() {
     $('loading').hidden = true;
-    $('app').hidden = true;
-    $('error').hidden = true;
     $('empty').hidden = false;
   }
 
-  // --- Filter controls -------------------------------------------------------
-  function populateFilters() {
-    var authorSel = $('author-filter');
-    authorSel.textContent = '';
-    authorSel.appendChild(new Option('All authors', ''));
-    var sorted = state.authors.slice().sort(function (a, b) {
-      return authorLabel(a).localeCompare(authorLabel(b));
-    });
-    sorted.forEach(function (a) {
-      var key = authorKeyOf(a);
-      var opt = new Option(authorLabel(a) + ' (' + (a.commitCount || 0) + ')', key);
-      authorSel.appendChild(opt);
-    });
-    if (state.authorFilter && !sorted.some(function (a) { return authorKeyOf(a) === state.authorFilter; })) {
-      state.authorFilter = '';
-    }
-    authorSel.value = state.authorFilter;
-
-    var typeSel = $('type-filter');
-    typeSel.textContent = '';
-    typeSel.appendChild(new Option('All change types', ''));
-    var typeList = Object.keys(state.typeLabels).map(function (k) {
-      return {key: k, label: state.typeLabels[k]};
-    }).sort(function (a, b) { return a.label.localeCompare(b.label); });
-    typeList.forEach(function (t) { typeSel.appendChild(new Option(t.label, t.key)); });
-    if (state.typeFilter && !state.typeLabels[state.typeFilter]) state.typeFilter = '';
-    typeSel.value = state.typeFilter;
-
-    $('unreviewed-only').checked = state.unreviewedOnly;
-  }
-
-  function wireControls() {
-    $('author-filter').addEventListener('change', function () {
-      state.authorFilter = this.value; savePrefs(); reload();
-    });
-    $('type-filter').addEventListener('change', function () {
-      state.typeFilter = this.value; savePrefs(); reload();
-    });
-    $('unreviewed-only').addEventListener('change', function () {
-      state.unreviewedOnly = this.checked; savePrefs(); render();
-    });
-    $('refresh').addEventListener('click', function () {
-      var btn = this; btn.disabled = true;
-      refreshTotals().then(function () { reload(); }).then(function () { btn.disabled = false; }, function () { btn.disabled = false; });
-    });
-    $('mark-visible').addEventListener('click', function () {
-      var rows = visibleRows();
-      var changed = 0;
-      rows.forEach(function (a) { if (!state.reviewed[a.commitId]) { state.reviewed[a.commitId] = 1; changed++; } });
-      if (changed === 0) { notify('Nothing new to mark here.'); return; }
-      saveReviewed();
-      render();
-      notify('Marked ' + changed + ' change' + (changed === 1 ? '' : 's') + ' reviewed.');
-      announce(changed + ' changes marked reviewed');
-    });
-  }
-
-  function refreshTotals() {
-    return Promise.all([
-      F.listActivityAuthors().catch(function () { return state.authors; }),
-      F.listActivityChangeTypes().catch(function () { return null; }),
-    ]).then(function (res) {
-      if (Array.isArray(res[0])) {
-        state.authors = res[0];
-        var total = 0, ok = false;
-        res[0].forEach(function (a) {
-          if (a && typeof a.commitCount === 'number') { total += a.commitCount; ok = true; }
-        });
-        state.totalCommits = ok ? total : null;
-      }
-      if (Array.isArray(res[1])) {
-        state.typeLabels = {};
-        res[1].forEach(function (t) {
-          if (t && typeof t.key === 'string') state.typeLabels[t.key] = t.label || humanizeType(t.key);
-        });
-      }
-      populateFilters();
-    });
-  }
-
-  // --- Init ------------------------------------------------------------------
   function init() {
     applyTheme();
-    if (F.project && F.project.projectName) {
-      $('subtitle').textContent = 'Work through recent changes to ' + F.project.projectName + ' and check each one off.';
-    }
-
-    if (!F.capabilities.history) { showNotSupported(); return; }
-
-    F.getWritingSystems().then(function (ws) {
-      var vern = (ws.vernacular || []).filter(function (w) { return !w.isAudio; });
-      state.vernIds = vern.map(function (w) { return w.wsId; });
-      applyVernFont(vern[0]);
-    }).catch(function () {});
+    if (!F.capabilities.history) return showUnavailable();
+    $('range').addEventListener('change', function () { setRange($('range').value); });
+    $('mark-all').addEventListener('click', markAll);
+    $('undo').addEventListener('click', function () { var u = state.undo; hideSnack(); if (u) u(); });
+    $('tip-close').addEventListener('click', function () { state.store.tipClosed = true; $('tip').hidden = true; save(); measureToolbar(); });
+    window.addEventListener('resize', measureToolbar);
 
     Promise.all([
-      F.storage.get(STATE_KEY).catch(function () { return null; }),
-      F.storage.get(PREFS_KEY).catch(function () { return null; }),
-    ]).then(function (stored) {
-      state.reviewed = loadReviewed(stored[0]);
-      loadPrefs(stored[1]);
-
-      // Authors + change types gate history support: they reject with 'not-supported'
-      // when the project has no history at all.
-      return Promise.all([F.listActivityAuthors(), F.listActivityChangeTypes()]);
-    }).then(function (res) {
-      if (Array.isArray(res[0])) {
-        state.authors = res[0];
-        var total = 0, ok = false;
-        res[0].forEach(function (a) {
-          if (a && typeof a.commitCount === 'number') { total += a.commitCount; ok = true; }
-        });
-        state.totalCommits = ok ? total : null;
+      F.getWritingSystems().catch(function () { return { vernacular: [], analysis: [] }; }),
+      F.storage.get(STORE_KEY).catch(function () { return null; }),
+    ]).then(function (res) {
+      var ws = res[0] || {}, saved = res[1];
+      (ws.vernacular || []).concat(ws.analysis || []).forEach(function (w) {
+        if (w.isAudio) state.ws.audio.add(w.wsId);
+        state.ws.abbr[w.wsId] = w.abbreviation || w.wsId;
+      });
+      var vern = (ws.vernacular || []).filter(function (w) { return !w.isAudio; });
+      applyVernFont(vern[0]);
+      state.ws.vern = vern.map(function (w) { return w.wsId; });
+      state.ws.anal = (ws.analysis || []).filter(function (w) { return !w.isAudio; }).map(function (w) { return w.wsId; });
+      if (saved && typeof saved === 'object') {
+        if (saved.marker && typeof saved.marker.at === 'number') state.store.marker = { at: saved.marker.at, pending: Array.isArray(saved.marker.pending) ? saved.marker.pending : [] };
+        if (saved.cards && typeof saved.cards === 'object') state.store.cards = saved.cards;
+        state.store.tipClosed = saved.tipClosed === true;
+        state.range = saved.range;
       }
-      if (Array.isArray(res[1])) {
-        res[1].forEach(function (t) {
-          if (t && typeof t.key === 'string') state.typeLabels[t.key] = t.label || humanizeType(t.key);
-        });
-      }
-
-      populateFilters();
-      wireControls();
-
+      if (state.range === 'since' ? !state.store.marker : !RANGES[state.range]) state.range = state.store.marker ? 'since' : '7';
+      return loadCommits();
+    }).then(function (commits) {
+      state.commits = commits || [];
+      state.cards = buildCards(state.commits);
       $('loading').hidden = true;
       $('app').hidden = false;
-
-      // First page of the feed.
-      state.loading = true;
       render();
-      return loadPage().then(function () {
-        state.loading = false;
-        render();
-      });
     }).catch(function (err) {
-      if (err && err.code === 'not-supported') showNotSupported();
-      else renderError(err);
+      $('loading').hidden = true;
+      if (err && err.code === 'not-supported') return showUnavailable();
+      var box = $('error');
+      box.textContent = 'Couldn’t load the change history: ' + errMsg(err);
+      box.hidden = false;
     });
   }
 

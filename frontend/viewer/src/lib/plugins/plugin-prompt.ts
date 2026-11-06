@@ -276,7 +276,9 @@ fwlite.getChangeContext({commitId, changeIndex}): Promise<ChangeContext>
 fwlite.getObjectAtCommit({commitId, entityId}): Promise<object>    // entity state at a point in time
 fwlite.listActivityAuthors(): Promise<{authorId?, authorName?, commitCount}[]>
 fwlite.listActivityChangeTypes(): Promise<{key, label, commitCount}[]>
-// Activity: {commitId, timestamp, changeName, changeTypes, metadata: {authorName?, authorId?}}
+// Activity: {commitId, timestamp, changeName, metadata: {authorName?, authorId?}, changes: ActivityChange[]}
+// ActivityChange: {entity: {entityId, index, change: {$type, ...payload}}, info: {entry?: {id, headword?, homographNumber}, sense?: {label?, number?}, objectName?}}
+// ChangeContext: {previousSnapshot?, snapshot?, currentSnapshot?}  // the entity before the change, right after it, and now
 \`\`\`
 
 Not every host supports history (check \`fwlite.capabilities.history\`; calls reject with \`'not-supported'\` where missing). If your plugin is useless without it, declare \`<meta name="fwlite-plugin-requires" content="history">\` so the app can warn the user up front.
