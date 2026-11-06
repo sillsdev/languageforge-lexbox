@@ -47,7 +47,6 @@
   useProjectEventBus().onSync(e => {
     if (e.status === SyncStatus.Success) syncCount++;
   });
-  const cloudIcon = $derived(syncStatus === SyncStatus.Offline ? 'i-mdi-cloud-off-outline' : 'i-mdi-cloud-outline');
 
   // The dialog's content unmounts on close, so each view loads its own status when it's first shown
   watch(() => openQueryParam.current, (open) => {
@@ -73,15 +72,16 @@
   <Tabs.Root bind:value={tab} class="flex md:flex-col flex-col-reverse">
     {#if showClassic || showNearby}
       <Tabs.List class="w-full md:mb-2 max-md:mt-4 max-md:sticky bottom-0 z-1">
-        <Tabs.Trigger class="flex-1 gap-2" value="lite"><Icon icon={cloudIcon} class="-my-1" /> {$t`Cloud`}</Tabs.Trigger>
+        <Tabs.Trigger class="flex-auto" value="lite">{$t`Cloud`}</Tabs.Trigger>
         {#if showNearby}
-          <Tabs.Trigger class="flex-1" value="folder">{$t`Nearby`}</Tabs.Trigger>
+          <Tabs.Trigger class="flex-auto" value="folder">{$t`Nearby`}</Tabs.Trigger>
         {/if}
         {#if showClassic}
-          <Tabs.Trigger class="flex-1 gap-1" value="classic" aria-label={$t`FieldWorks Classic`}>
+          <Tabs.Trigger class="flex-auto gap-1" value="classic">
             <img src={flexLogo} alt="" class="size-5" />
             <Icon icon="i-mdi-swap-horizontal" class="-my-1" />
             <img src={mode.current === 'dark' ? fwLiteLogoReversed : fwLiteLogo} alt="" class="size-5" />
+            {$t`Lexbox`}
           </Tabs.Trigger>
         {/if}
       </Tabs.List>

@@ -1753,10 +1753,6 @@ msgstr "Field"
 msgid "Fields"
 msgstr "Fields"
 
-#: src/project/SyncDialog.svelte
-msgid "FieldWorks Classic"
-msgstr "FieldWorks Classic"
-
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite collects usage data to help us improve it."
@@ -2226,6 +2222,10 @@ msgstr "Length:"
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Let this version use the internet?"
 msgstr "Let this version use the internet?"
+
+#: src/project/SyncDialog.svelte
+msgid "Lexbox"
+msgstr "Lexbox"
 
 #. Alt text for the Lexbox logo image shown in the home screen app bar. "Lexbox" is a product name — do not translate.
 #: src/home/HomeView.svelte

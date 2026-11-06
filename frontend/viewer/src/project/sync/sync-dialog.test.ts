@@ -75,15 +75,15 @@ describe('SyncDialog', () => {
 
     await vi.waitFor(() => expect(document.body.textContent).toContain('Auto syncing'));
     expect(syncService.executeSync).toHaveBeenCalledOnce();
-    // Only loaded once the FieldWorks Classic tab is shown
+    // Only loaded once the Lexbox tab is shown
     expect(syncService.getSyncStatus).not.toHaveBeenCalled();
     expect([...document.querySelectorAll('button')].some(b => b.textContent?.includes('Sync your changes'))).toBe(false);
   }, 60_000); // first import transforms the dialog's dependencies
 
   // The tabs show once the project's features have loaded
-  async function showTab(name: 'Cloud' | 'Nearby' | 'FieldWorks Classic') {
+  async function showTab(name: 'Cloud' | 'Nearby' | 'Lexbox') {
     const tab = await vi.waitFor(() => {
-      const tab = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find(t => (t.getAttribute('aria-label') ?? t.textContent)?.includes(name));
+      const tab = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find(t => t.textContent?.includes(name));
       expect(tab).toBeTruthy();
       return tab!;
     });
@@ -96,7 +96,7 @@ describe('SyncDialog', () => {
   it('loads the FieldWorks Classic status when its tab is first shown', async () => {
     const syncService = fakeSyncService();
     await openDialog(syncService);
-    await showTab('FieldWorks Classic');
+    await showTab('Lexbox');
     await vi.waitFor(() => expect(syncService.getSyncStatus).toHaveBeenCalledOnce());
   }, 60_000);
 
@@ -104,7 +104,7 @@ describe('SyncDialog', () => {
     const syncService = fakeSyncService();
     syncService.getSyncStatus.mockImplementation(() => Promise.reject(new Error('Lexbox unreachable')));
     await openDialog(syncService);
-    await showTab('FieldWorks Classic');
+    await showTab('Lexbox');
     await vi.waitFor(() => expect(document.body.textContent).toContain(`Couldn't get the FieldWorks Classic status from Lexbox.`));
   }, 60_000);
 
@@ -116,10 +116,10 @@ describe('SyncDialog', () => {
       pendingMercurialChanges: 5,
     }));
     await openDialog(syncService);
-    await showTab('FieldWorks Classic');
+    await showTab('Lexbox');
     await vi.waitFor(() => expect(document.body.textContent).toContain('New data'));
     await showTab('Cloud');
-    await showTab('FieldWorks Classic');
+    await showTab('Lexbox');
     expect(document.body.textContent).toContain('New data');
     expect(syncService.getSyncStatus).toHaveBeenCalledOnce();
   }, 60_000);
