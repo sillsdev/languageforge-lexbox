@@ -45,9 +45,9 @@ public class FakeSyncSource(Commit[] commits, SyncState? currentSyncState = null
         {
             var config = new HarmonyConfig();
             LcmCrdtKernel.ConfigureCrdt(config);
-            // Full external options (resolver + Harmony's IChange converter); the resolver alone can't
+            // Full sync options (resolver + Harmony's IChange converter); the resolver alone can't
             // deserialize the ChangeEntity<IChange> fields in the captured sync payload.
-            options = config.MakeLcmCrdtExternalJsonOptions();
+            options = config.MakeLcmCrdtSyncJsonOptions();
         }
 
         using var file = File.OpenRead(path);
