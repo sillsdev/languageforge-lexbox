@@ -178,12 +178,12 @@ export const examplePlugins: ExamplePlugin[] = [
     loadHtml: async () => (await import('./change-review.html?raw')).default,
   },
   {
-    key: 'comments-inbox',
-    name: 'Comments Inbox',
-    description: "Triage your team's comment threads across the dictionary, with unread tracking and per-entry context.",
+    key: 'comments-feed',
+    name: 'Comments Feed',
+    description: "Every comment thread in the project, newest first, resolved ones included. From an entry's menu, just that entry's threads.",
     functions: ['review'],
     capabilities: ['entry-menu'],
-    loadHtml: async () => (await import('./comments-inbox.html?raw')).default,
+    loadHtml: async () => (await import('./comments-feed.html?raw')).default,
   },
 
   // ---- Publish ----

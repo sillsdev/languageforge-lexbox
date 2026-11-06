@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="fwlite-plugin-contexts" content="entry">
+<meta name="fwlite-plugin-requires" content="comments history">
+<title>Comments Feed</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
+    --warn: #b45309;
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
+  }
+  html[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
+    --warn: #fbbf24;
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
+  }
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
+  }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  .wrap.feed-wrap { max-width: 760px; }
+  .ctx-banner {
+    margin: 0 0 8px; padding: 6px 6px 6px 14px; border-radius: var(--radius); background: var(--accent-soft);
+    display: flex; align-items: center; gap: 4px 10px; flex-wrap: wrap;
+  }
+  .ctx-banner .lbl { font-size: 0.85rem; color: var(--text-muted); }
+  .ctx-banner .hw { font-weight: 700; font-family: var(--vern-font); overflow-wrap: anywhere; }
+  .ctx-banner .btn { margin-left: auto; color: var(--accent); }
+  .toolbar {
+    position: sticky; top: 0; z-index: 6; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    margin: 0 -24px; padding: 8px 24px; background: var(--bg);
+  }
+  .toggle {
+    min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); font: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+  }
+  .toggle:hover { background: var(--surface-alt); }
+  .toggle[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .toggle[aria-pressed="true"]::before { content: "\2713\00a0"; }
+  .spacer { flex: 1; }
+  .day {
+    position: sticky; top: var(--toolbar-h, 60px); z-index: 4; margin: 14px 0 8px; padding: 4px 2px;
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); background: var(--bg);
+  }
+  ul.feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .thread {
+    background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: var(--radius); box-shadow: var(--shadow); padding: 12px 14px;
+  }
+  .thread.resolved { background: var(--surface-alt); border-left-width: 1px; border-left-color: var(--border); box-shadow: none; }
+  .t-head { display: flex; gap: 10px; align-items: flex-start; }
+  .t-title { flex: 1; min-width: 0; }
+  .t-title h3 { margin: 0; font-size: 1.05rem; line-height: 1.3; overflow-wrap: anywhere; outline-offset: 2px; }
+  .t-title h3.vern { font-family: var(--vern-font); }
+  .t-title h3 sub { font-size: 0.7em; color: var(--text-muted); font-family: var(--font); }
+  .where { color: var(--text-muted); font-size: 0.85rem; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .where .vern { color: var(--text); }
+  .open-btn { flex-shrink: 0; min-height: 40px; padding: 0 12px; font-size: 0.875rem; color: var(--accent); }
+  .t-meta { display: flex; align-items: center; gap: 6px 10px; flex-wrap: wrap; margin-top: 8px; }
+  .t-meta:empty { display: none; }
+  .status { display: inline-flex; align-items: center; gap: 6px; color: var(--good); font-size: 0.85rem; font-weight: 600; }
+  .status .muted { font-weight: 400; }
+  .conv { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .msg { display: flex; gap: 10px; }
+  .avatar { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center; font-size: 0.72rem; font-weight: 700; color: #fff; }
+  .m-body { flex: 1; min-width: 0; }
+  .m-top { display: flex; align-items: center; gap: 4px 8px; flex-wrap: wrap; margin-bottom: 2px; }
+  .m-author { font-weight: 600; font-size: 0.875rem; }
+  .m-time { color: var(--text-muted); font-size: 0.8rem; }
+  .m-time.recent { color: var(--accent); font-weight: 600; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .m-text { font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .m-text.clamp-2, .m-text.clamp-6 { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+  .m-text.clamp-2 { -webkit-line-clamp: 2; line-clamp: 2; }
+  .m-text.clamp-6 { -webkit-line-clamp: 6; line-clamp: 6; }
+  .msg.outcome .m-text { color: var(--text); }
+  .link-btn {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 0 2px; border: 0; background: transparent;
+    color: var(--accent); font: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; text-align: left;
+  }
+  .link-btn:hover { text-decoration: underline; }
+  .conv .link-btn { min-height: 32px; margin-left: 38px; }
+  .full-btn { min-height: 32px; }
+  .card-err { margin-top: 8px; font-size: 0.85rem; color: var(--bad); }
+  .more { text-align: center; margin: 18px 0 4px; }
+  .note { font-size: 0.85rem; color: var(--text-muted); margin: 6px 0 0; }
+  .big { font-size: 2.4rem; margin-bottom: 8px; }
+  .lead { font-size: 1.05rem; color: var(--text); margin-bottom: 4px; font-weight: 600; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  @media (max-width: 600px) {
+    .toolbar { margin: 0 -12px; padding: 8px 12px; }
+    .thread { padding: 12px; }
+    .avatar { width: 24px; height: 24px; font-size: 0.65rem; }
+    .conv .link-btn { margin-left: 34px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap feed-wrap">
+  <h1>Comments Feed</h1>
+  <p class="subtitle" id="subtitle">Every comment thread in the project, newest first.</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="loading-text">Loading comments&hellip;</div>
+  </div>
+
+  <div id="empty" class="center-state" hidden>
+    <div class="big" aria-hidden="true">&#128172;</div>
+    <div class="lead" id="empty-lead">Comments aren&rsquo;t available for this project</div>
+    <div id="empty-text">This project doesn&rsquo;t support team comments, so there&rsquo;s nothing to show here. The demo project is one of these.</div>
+  </div>
+
+  <div id="error" class="error-box" role="alert" hidden></div>
+
+  <main id="app" hidden>
+    <div class="ctx-banner" id="ctx-banner" hidden>
+      <span class="lbl">Comments on</span>
+      <span class="hw" id="ctx-hw" dir="auto"></span>
+      <button type="button" class="btn ghost" id="view-all" hidden>Show the whole project</button>
+    </div>
+
+    <div class="toolbar" id="toolbar">
+      <button type="button" class="toggle" id="f-open" aria-pressed="false">Open</button>
+      <button type="button" class="toggle" id="f-unread" aria-pressed="false">Unread</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn ghost" id="refresh">Refresh</button>
+    </div>
+
+    <div id="live" class="sr" aria-live="polite"></div>
+    <div id="content"></div>
+  </main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var F = window.fwlite;
+  var PREFS_KEY = 'comments-feed-filters';
+  var PAGE_SIZE = 50;
+  var ACTIVITY_PAGE = 500;
+  var ACTIVITY_CAP = 20000;
+  // There is no "all threads" call, so the project feed finds threads through the comment changes in the history.
+  var COMMENT_CHANGES = ['CreateCommentThreadChange', 'CreateUserCommentChange', 'SetCommentThreadStatusChange'];
+  var AVATAR_COLORS = ['#4f46e5', '#0891b2', '#059669', '#d97706', '#db2777', '#7c3aed', '#0284c7', '#65a30d'];
+  var DAY = 86400000;
+
+  var state = {
+    mode: 'project',
+    entry: null,
+    threads: [],
+    filters: { open: false, unread: false },
+    shown: PAGE_SIZE,
+    expanded: {},
+    fullText: {},
+    entries: {},
+    analysisIds: [],
+    vernIds: [],
+    audioIds: new Set(),
+    runId: 0,
+    loading: false,
+  };
+
+  function el(tag, attrs, text) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) { if (k === 'class') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); }
+    if (text != null) e.appendChild(document.createTextNode(text));
+    return e;
+  }
+  function $(id) { return document.getElementById(id); }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+  function errMsg(err) { return err && err.message ? err.message : String(err); }
+  function isNotSupported(err) { return err && err.code === 'not-supported'; }
+  function announce(msg) { $('live').textContent = msg; }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+
+  function applyTheme() {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', fwlite.theme || (dark ? 'dark' : 'light'));
+  }
+  function applyVernFont(ws) {
+    if (ws && ws.font) document.documentElement.style.setProperty('--vern-font', '"' + ws.font.replace(/"/g, '') + '", var(--font)');
+  }
+
+  // Change payloads may arrive camelCase or PascalCase.
+  function prop(obj, key) {
+    if (!obj || typeof obj !== 'object') return undefined;
+    var camel = key[0].toLowerCase() + key.slice(1), pascal = key[0].toUpperCase() + key.slice(1);
+    return camel in obj ? obj[camel] : obj[pascal];
+  }
+  function asText(v) {
+    try { return (F.asText(v == null ? '' : v) || '').trim(); } catch (e) { return typeof v === 'string' ? v : ''; }
+  }
+  function firstText(multi, ids) {
+    if (!multi) return '';
+    var keys = ids.concat(Object.keys(multi).filter(function (k) { return !state.audioIds.has(k); }));
+    for (var i = 0; i < keys.length; i++) { var v = asText(multi[keys[i]]); if (v) return v; }
+    return '';
+  }
+  function timeOf(iso) { var t = new Date(iso).getTime(); return isNaN(t) ? 0 : t; }
+
+  function initials(name) {
+    var parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return '?';
+    return ((parts[0][0] || '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+  }
+  function avatarColor(name) {
+    var h = 0, str = name || '?';
+    for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+    return AVATAR_COLORS[h % AVATAR_COLORS.length];
+  }
+
+  function relTime(t) {
+    var s = Math.floor((Date.now() - t) / 1000);
+    if (s < 45) return 'just now';
+    var m = Math.floor(s / 60); if (m < 60) return m + ' min ago';
+    var h = Math.floor(m / 60); if (h < 24) return h + ' h ago';
+    var d = Math.floor(h / 24); if (d < 7) return plural(d, 'day', 'days') + ' ago';
+    return new Date(t).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  function timeEl(iso, cls) {
+    var t = timeOf(iso);
+    var node = el('time', { class: cls + (t && Date.now() - t < DAY ? ' recent' : ''), datetime: iso || '' }, t ? relTime(t) : '');
+    if (t) node.title = new Date(t).toLocaleString();
+    return node;
+  }
+  function dayGroup(t) {
+    if (!t) return 'Undated';
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    var d = new Date(t);
+    var that = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    var diff = Math.round((today - that) / DAY);
+    if (diff <= 0) return 'Today';
+    if (diff === 1) return 'Yesterday';
+    if (diff < 7) return 'Last 7 days';
+    return d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+  }
+
+  // Runs fn over items with at most `limit` calls in flight.
+  function mapLimit(items, limit, fn) {
+    var results = new Array(items.length), next = 0;
+    function worker() {
+      if (next >= items.length) return Promise.resolve();
+      var i = next++;
+      return Promise.resolve(fn(items[i], i)).then(function (r) { results[i] = r; return worker(); });
+    }
+    var workers = [];
+    for (var k = 0; k < Math.min(limit, items.length); k++) workers.push(worker());
+    return Promise.all(workers).then(function () { return results; });
+  }
+
+  // ---- thread model ----
+  function normComment(c) {
+    return { id: c.id, text: asText(c.text), author: c.authorName || '', created: c.createdAt || c.updatedAt || '' };
+  }
+  function buildThread(thread, comments, unreadIds, hint) {
+    var list = (comments || []).filter(Boolean).map(normComment).sort(function (a, b) { return timeOf(a.created) - timeOf(b.created); });
+    var unread = list.filter(function (c) { return unreadIds.has(c.id); }).map(function (c) { return c.id; });
+    var last = list[list.length - 1];
+    hint = hint || {};
+    return {
+      id: thread.id,
+      subjectType: thread.subjectType,
+      subjectId: thread.subjectId,
+      resolved: thread.status === 'Closed',
+      comments: list,
+      unread: new Set(unread),
+      sortTime: last ? timeOf(last.created) : timeOf(thread.createdAt),
+      entryId: (hint.entry && hint.entry.id) || (thread.subjectType === 'Entry' ? thread.subjectId : null),
+      hintHeadword: hint.entry && hint.entry.headword,
+      hintHomograph: hint.entry && hint.entry.homographNumber,
+      hintSense: hint.sense || null,
+      resolvedBy: hint.resolve || null,
+    };
+  }
+  function sortThreads(list) {
+    return list.sort(function (a, b) { return b.sortTime - a.sortTime; });
+  }
+
+  // ---- project feed ----
+  function scanCommentActivity(onProgress) {
+    var found = {};
+    function hint(id) { return found[id] || (found[id] = { id: id }); }
+    function page(skip) {
+      return F.getActivity({ skip: skip, take: ACTIVITY_PAGE, changeTypeKeys: COMMENT_CHANGES, sort: 'NewestFirst' }).then(function (acts) {
+        acts = Array.isArray(acts) ? acts : [];
+        acts.forEach(function (act) {
+          (act.changes || []).forEach(function (ch) {
+            var ent = ch && ch.entity;
+            var change = ent && ent.change;
+            if (!change) return;
+            var type = change.$type, h;
+            if (type === 'CreateCommentThreadChange') {
+              h = hint(ent.entityId);
+              h.subjectType = prop(change, 'subjectType');
+              h.subjectId = prop(change, 'subjectId');
+            } else if (type === 'CreateUserCommentChange') {
+              var tid = prop(change, 'commentThreadId');
+              if (!tid) return;
+              h = hint(tid);
+            } else if (type === 'SetCommentThreadStatusChange') {
+              h = hint(ent.entityId);
+              // Newest first, so the first status change seen is the current one.
+              if (!h.statusSeen) {
+                h.statusSeen = true;
+                if (prop(change, 'status') === 'Closed') h.resolve = { by: act.metadata && act.metadata.authorName, at: act.timestamp };
+              }
+            } else {
+              return;
+            }
+            var info = ch.info || {};
+            if (info.entry && !h.entry) h.entry = info.entry;
+            if (info.sense && !h.sense) h.sense = info.sense;
+          });
+        });
+        skip += acts.length;
+        if (onProgress) onProgress(Object.keys(found).length);
+        if (acts.length < ACTIVITY_PAGE || skip >= ACTIVITY_CAP) return found;
+        return page(skip);
+      });
+    }
+    return page(0);
+  }
+
+  function loadProjectFeed() {
+    state.mode = 'project';
+    var run = ++state.runId;
+    var unreadIds;
+    return Promise.all([
+      F.getUnreadComments({}).catch(function () { return []; }),
+      scanCommentActivity(function (n) { setLoadingText('Loading comments… ' + plural(n, 'thread', 'threads') + ' found'); }),
+    ]).then(function (res) {
+      var unread = Array.isArray(res[0]) ? res[0] : [];
+      var found = res[1];
+      unreadIds = new Set(unread.map(function (c) { return c && c.id; }));
+      unread.forEach(function (c) { if (c && c.commentThreadId && !found[c.commentThreadId]) found[c.commentThreadId] = { id: c.commentThreadId }; });
+
+      var subjects = {}, loose = [];
+      Object.keys(found).forEach(function (id) {
+        var h = found[id];
+        if (h.subjectType && h.subjectId) {
+          var key = h.subjectType + '|' + h.subjectId;
+          if (!subjects[key]) subjects[key] = { subjectType: h.subjectType, subjectId: h.subjectId };
+        } else {
+          loose.push(id);
+        }
+      });
+      var bySubject = mapLimit(Object.keys(subjects).map(function (k) { return subjects[k]; }), 8, function (s) {
+        return F.getCommentThreads({ subjectType: s.subjectType, subjectId: s.subjectId, includeComments: true })
+          .then(function (threads) {
+            return (Array.isArray(threads) ? threads : []).map(function (t) { return buildThread(t, t.comments, unreadIds, found[t.id]); });
+          })
+          .catch(function () { return []; });
+      });
+      var byId = mapLimit(loose, 8, function (id) {
+        return Promise.all([F.getCommentThread(id), F.getUserComments(id)]).then(function (r) {
+          return r[0] ? [buildThread(r[0], r[1], unreadIds, found[id])] : [];
+        }).catch(function () { return []; });
+      });
+      return Promise.all([bySubject, byId]);
+    }).then(function (res) {
+      if (run !== state.runId) return;
+      var seen = {}, all = [];
+      res[0].concat(res[1]).forEach(function (list) {
+        list.forEach(function (t) { if (!seen[t.id]) { seen[t.id] = true; all.push(t); } });
+      });
+      state.threads = sortThreads(all);
+      return render();
+    });
+  }
+
+  // ---- entry mode ----
+  function loadEntryFeed(entryId) {
+    state.mode = 'entry';
+    var run = ++state.runId;
+    return F.getEntry(entryId).then(function (entry) {
+      if (!entry) throw new Error('This entry could not be found');
+      state.entry = entry;
+      state.entries[entry.id] = entry;
+      $('ctx-hw').textContent = F.headword(entry) || '(untitled entry)';
+      $('ctx-banner').hidden = false;
+      var subjects = [{ type: 'Entry', id: entry.id }];
+      (entry.senses || []).forEach(function (s) {
+        subjects.push({ type: 'Sense', id: s.id });
+        (s.exampleSentences || []).forEach(function (ex) { subjects.push({ type: 'ExampleSentence', id: ex.id }); });
+      });
+      return mapLimit(subjects, 8, function (s, i) {
+        var threads = F.getCommentThreads({ subjectType: s.type, subjectId: s.id, includeComments: true });
+        // Only the entry itself decides whether comments work at all; the rest fail quietly.
+        if (i > 0) threads = threads.catch(function () { return []; });
+        return threads.then(function (list) {
+          list = Array.isArray(list) ? list : [];
+          if (!list.length) return [];
+          return F.getUnreadCommentsForSubject({ subjectType: s.type, subjectId: s.id }).catch(function () { return []; }).then(function (unread) {
+            var ids = new Set((Array.isArray(unread) ? unread : []).map(function (c) { return c && c.id; }));
+            return list.map(function (t) { return buildThread(t, t.comments, ids, { entry: { id: entry.id } }); });
+          });
+        });
+      });
+    }).then(function (lists) {
+      if (run !== state.runId) return;
+      state.threads = sortThreads([].concat.apply([], lists));
+      return addResolvers(state.threads.filter(function (t) { return t.resolved; }));
+    }).then(function () {
+      if (run !== state.runId) return;
+      return render();
+    });
+  }
+
+  function addResolvers(threads) {
+    if (!F.capabilities.history || !threads.length) return Promise.resolve();
+    return mapLimit(threads, 6, function (t) {
+      return F.getEntityHistory(t.id).then(function (items) {
+        var latest = null;
+        (Array.isArray(items) ? items : []).forEach(function (it) {
+          var change = it && it.change && it.change.change;
+          if (!change || change.$type !== 'SetCommentThreadStatusChange') return;
+          if (!latest || timeOf(it.timestamp) > timeOf(latest.timestamp)) latest = it;
+        });
+        if (latest && prop(latest.change.change, 'status') === 'Closed') {
+          t.resolvedBy = { by: latest.metadata && latest.metadata.authorName, at: latest.timestamp };
+        }
+      }).catch(function () {});
+    });
+  }
+
+  // ---- entry lookups for the cards on screen ----
+  function ensureEntries(threads) {
+    var ids = [];
+    threads.forEach(function (t) {
+      if (t.entryId && !(t.entryId in state.entries) && ids.indexOf(t.entryId) < 0) ids.push(t.entryId);
+    });
+    return mapLimit(ids, 8, function (id) {
+      return F.getEntry(id).then(function (e) { state.entries[id] = e || null; }, function () { state.entries[id] = null; });
+    });
+  }
+
+  function findSense(entry, senseId) {
+    var senses = (entry && entry.senses) || [];
+    for (var i = 0; i < senses.length; i++) if (senses[i].id === senseId) return { sense: senses[i], index: i, count: senses.length };
+    return null;
+  }
+  function findExample(entry, exampleId) {
+    var senses = (entry && entry.senses) || [];
+    for (var i = 0; i < senses.length; i++) {
+      var exs = senses[i].exampleSentences || [];
+      for (var j = 0; j < exs.length; j++) if (exs[j].id === exampleId) return exs[j];
+    }
+    return null;
+  }
+  function senseLabel(number, gloss) {
+    var s = number ? 'Sense ' + number : 'Sense';
+    return gloss ? s + ' · “' + gloss + '”' : s;
+  }
+
+  // What the thread is attached to: {headword, homograph, where, entryId (null when the entry is gone)}.
+  function locate(t) {
+    var entry = t.entryId ? state.entries[t.entryId] : null;
+    var out = {
+      headword: (entry && F.headword(entry)) || t.hintHeadword || '',
+      homograph: entry ? entry.homographNumber : t.hintHomograph,
+      where: null,
+      entryId: entry ? entry.id : null,
+    };
+    if (t.subjectType === 'Sense') {
+      var found = entry && findSense(entry, t.subjectId);
+      if (found) {
+        var gloss = firstText(found.sense.gloss, state.analysisIds) || firstText(found.sense.definition, state.analysisIds);
+        out.where = { text: senseLabel(found.count > 1 ? found.index + 1 : 0, gloss) };
+      } else if (t.hintSense) {
+        out.where = { text: senseLabel(t.hintSense.number, t.hintSense.label) };
+      } else {
+        out.where = { text: 'A sense that no longer exists' };
+      }
+    } else if (t.subjectType === 'ExampleSentence') {
+      var ex = entry && findExample(entry, t.subjectId);
+      var sentence = ex ? firstText(ex.sentence, state.vernIds) : '';
+      out.where = sentence ? { label: 'Example · ', vern: sentence } : { text: ex ? 'Example' : 'An example that no longer exists' };
+    }
+    return out;
+  }
+
+  // ---- rendering ----
+  function setLoadingText(msg) { $('loading-text').textContent = msg; }
+
+  function visibleThreads() {
+    return state.threads.filter(function (t) {
+      if (state.filters.open && t.resolved) return false;
+      if (state.filters.unread && !t.unread.size) return false;
+      return true;
+    });
+  }
+
+  function updateToolbar() {
+    var unreadThreads = state.threads.filter(function (t) { return t.unread.size; }).length;
+    $('f-unread').textContent = unreadThreads ? 'Unread · ' + unreadThreads : 'Unread';
+    $('f-unread').hidden = !unreadThreads && !state.filters.unread;
+    $('f-open').hidden = !state.threads.length;
+    $('f-unread').setAttribute('aria-pressed', String(state.filters.unread));
+    $('f-open').setAttribute('aria-pressed', String(state.filters.open));
+  }
+
+  function render(focusIndex) {
+    var rows = visibleThreads();
+    var page = rows.slice(0, state.shown);
+    return ensureEntries(page).then(function () {
+      $('loading').hidden = true;
+      $('error').hidden = true;
+      $('app').hidden = false;
+      updateToolbar();
+      var c = $('content');
+      clear(c);
+      if (!state.threads.length) { c.appendChild(emptyState()); measureToolbar(); return; }
+      if (!rows.length) { c.appendChild(filteredEmptyState()); measureToolbar(); return; }
+
+      var group = null, ul = null;
+      page.forEach(function (t) {
+        var g = state.mode === 'project' ? dayGroup(t.sortTime) : '';
+        if (!ul || g !== group) {
+          group = g;
+          if (g) c.appendChild(el('h2', { class: 'day' }, g));
+          ul = el('ul', { class: 'feed' });
+          c.appendChild(ul);
+        }
+        ul.appendChild(renderCard(t));
+      });
+
+      var left = rows.length - page.length;
+      if (left > 0) {
+        var more = el('div', { class: 'more' });
+        var btn = el('button', { type: 'button', class: 'btn' },
+          left > PAGE_SIZE ? 'Show ' + PAGE_SIZE + ' more (' + left + ' left)' : 'Show ' + left + ' more');
+        btn.addEventListener('click', function () {
+          var from = state.shown;
+          state.shown += PAGE_SIZE;
+          render(from);
+        });
+        more.appendChild(btn);
+        c.appendChild(more);
+      }
+      markOverflow(c);
+      measureToolbar();
+      announce('Showing ' + page.length + ' of ' + plural(rows.length, 'thread', 'threads') + '.');
+      if (focusIndex != null) {
+        var heads = c.querySelectorAll('article h3');
+        if (heads[focusIndex]) heads[focusIndex].focus();
+      }
+    });
+  }
+
+  function renderCard(t) {
+    var li = el('li', { 'data-thread': t.id });
+    var card = el('article', { class: 'thread' + (t.resolved ? ' resolved' : '') });
+    var loc = locate(t);
+
+    var head = el('div', { class: 't-head' });
+    var title = el('div', { class: 't-title' });
+    if (state.mode === 'project') {
+      var h3 = el('h3', { class: 'vern', dir: 'auto', tabindex: '-1' }, loc.headword || '(untitled entry)');
+      if (loc.homograph) h3.appendChild(el('sub', {}, String(loc.homograph)));
+      title.appendChild(h3);
+      if (loc.where || !loc.entryId) title.appendChild(whereLine(loc));
+    } else {
+      var hw = loc.where ? (loc.where.text || loc.where.label + loc.where.vern) : 'Entry';
+      title.appendChild(el('h3', { dir: 'auto', tabindex: '-1' }, hw));
+    }
+    head.appendChild(title);
+    if (state.mode === 'project' && loc.entryId) {
+      var open = el('button', { type: 'button', class: 'btn ghost open-btn' }, 'Open entry');
+      open.setAttribute('aria-label', 'Open entry ' + (loc.headword || ''));
+      open.addEventListener('click', function () {
+        F.openEntry(loc.entryId, { mode: 'view' }).catch(function () {
+          var err = card.querySelector('.card-err');
+          err.hidden = false;
+          err.textContent = 'Couldn’t open this entry. It may have been deleted.';
+        });
+      });
+      head.appendChild(open);
+    }
+    card.appendChild(head);
+
+    var meta = el('div', { class: 't-meta' });
+    if (t.resolved) meta.appendChild(resolvedLine(t));
+    if (t.unread.size) meta.appendChild(el('span', { class: 'chip accent' }, t.unread.size + ' unread'));
+    card.appendChild(meta);
+
+    renderConversation(t, card);
+    var err = el('div', { class: 'card-err', role: 'alert' });
+    err.hidden = true;
+    card.appendChild(err);
+    li.appendChild(card);
+    return li;
+  }
+
+  function whereLine(loc) {
+    var line = el('div', { class: 'where', dir: 'auto' });
+    if (loc.where && loc.where.vern) {
+      line.appendChild(document.createTextNode(loc.where.label));
+      line.appendChild(el('span', { class: 'vern' }, loc.where.vern));
+    } else if (loc.where) {
+      line.appendChild(document.createTextNode(loc.where.text));
+    }
+    if (!loc.entryId) line.appendChild(document.createTextNode((loc.where ? ' · ' : '') + 'entry deleted'));
+    return line;
+  }
+
+  function resolvedLine(t) {
+    var s = el('span', { class: 'status' });
+    s.appendChild(el('span', { 'aria-hidden': 'true' }, '✓'));
+    var r = t.resolvedBy;
+    s.appendChild(document.createTextNode(r && r.by ? 'Resolved by ' + r.by : 'Resolved'));
+    if (r && r.at) {
+      s.appendChild(el('span', { class: 'muted', 'aria-hidden': 'true' }, '·'));
+      s.appendChild(timeEl(r.at, 'm-time'));
+    }
+    return s;
+  }
+
+  // Which comments a card shows. Open threads: the first (the topic), unread ones and the newest,
+  // with the rest folded. Resolved threads: just the last word, unless something in them is unread.
+  function plan(t) {
+    var n = t.comments.length, expanded = !!state.expanded[t.id];
+    if (expanded) return { show: t.comments.map(function (_, i) { return i; }), clamp: 6 };
+    if (t.resolved && !t.unread.size) return { show: n ? [n - 1] : [], clamp: 2, outcome: true };
+    if (n <= 3) return { show: t.comments.map(function (_, i) { return i; }), clamp: 6 };
+    var keep = {};
+    keep[0] = true; keep[n - 1] = true;
+    var unreadIdx = [];
+    t.comments.forEach(function (c, i) { if (t.unread.has(c.id)) unreadIdx.push(i); });
+    unreadIdx.slice(-3).forEach(function (i) { keep[i] = true; });
+    return { show: Object.keys(keep).map(Number).sort(function (a, b) { return a - b; }), clamp: 6, firstClamp: 2 };
+  }
+
+  function renderConversation(t, card) {
+    var n = t.comments.length;
+    var p = plan(t);
+    var expanded = !!state.expanded[t.id];
+    var conv = el('ul', { class: 'conv' });
+    var hidden = n - p.show.length;
+    var foldPlaced = false;
+    var prev = -1;
+    p.show.forEach(function (i, k) {
+      if (!p.outcome && hidden > 0 && !foldPlaced && i - prev > 1) {
+        conv.appendChild(foldItem(t, 'Show ' + plural(hidden, 'more comment', 'more comments')));
+        foldPlaced = true;
+      }
+      var clamp = (k === 0 && p.firstClamp) || p.clamp;
+      conv.appendChild(renderComment(t, t.comments[i], clamp, p.outcome));
+      prev = i;
+    });
+    if (!n) conv.appendChild(el('li', { class: 'muted' }, 'All comments in this thread were deleted.'));
+    card.appendChild(conv);
+
+    if (p.outcome && n > 1) card.appendChild(foldButton(t, 'Show conversation (' + n + ' comments)'));
+    else if (expanded && (t.resolved ? n > 1 : n > 3)) {
+      card.appendChild(foldButton(t, t.resolved ? 'Hide conversation' : 'Hide comments'));
+    }
+  }
+
+  function foldItem(t, label) {
+    var li = el('li', {});
+    li.appendChild(foldButton(t, label));
+    return li;
+  }
+  function foldButton(t, label) {
+    var b = el('button', { type: 'button', class: 'link-btn', 'aria-expanded': String(!!state.expanded[t.id]) }, label);
+    b.addEventListener('click', function () {
+      state.expanded[t.id] = !state.expanded[t.id];
+      patchCard(t, true);
+    });
+    return b;
+  }
+
+  function renderComment(t, c, clamp, outcome) {
+    var li = el('li', { class: 'msg' + (outcome ? ' outcome' : '') });
+    var author = c.author || 'Someone';
+    var av = el('span', { class: 'avatar', 'aria-hidden': 'true' }, initials(author));
+    av.style.background = avatarColor(author);
+    li.appendChild(av);
+    var body = el('div', { class: 'm-body' });
+    var top = el('div', { class: 'm-top' });
+    if (t.unread.has(c.id)) {
+      top.appendChild(el('span', { class: 'dot', 'aria-hidden': 'true' }));
+      top.appendChild(el('span', { class: 'sr' }, 'Unread.'));
+    }
+    top.appendChild(el('span', { class: 'm-author' }, author));
+    if (c.created) top.appendChild(timeEl(c.created, 'm-time'));
+    body.appendChild(top);
+    var full = !!state.fullText[c.id];
+    var text = el('div', { class: 'm-text' + (full ? '' : ' clamp-' + clamp), dir: 'auto', 'data-comment': c.id }, c.text || '(no text)');
+    body.appendChild(text);
+    li.appendChild(body);
+    return li;
+  }
+
+  // Adds "Show full comment" under clamped comments that actually overflow.
+  function markOverflow(root) {
+    var texts = root.querySelectorAll('.m-text.clamp-2, .m-text.clamp-6');
+    for (var i = 0; i < texts.length; i++) {
+      var text = texts[i];
+      if (text.scrollHeight <= text.clientHeight + 1) continue;
+      if (text.nextSibling && text.nextSibling.classList && text.nextSibling.classList.contains('full-btn')) continue;
+      (function (text) {
+        var b = el('button', { type: 'button', class: 'link-btn full-btn' }, 'Show full comment');
+        b.addEventListener('click', function () {
+          state.fullText[text.getAttribute('data-comment')] = true;
+          text.classList.remove('clamp-2', 'clamp-6');
+          b.parentNode.removeChild(b);
+          text.focus();
+        });
+        text.setAttribute('tabindex', '-1');
+        text.parentNode.insertBefore(b, text.nextSibling);
+      })(text);
+    }
+  }
+
+  function patchCard(t, refocus) {
+    var li = $('content').querySelector('li[data-thread="' + t.id + '"]');
+    if (!li) return;
+    var fresh = renderCard(t);
+    li.parentNode.replaceChild(fresh, li);
+    markOverflow(fresh);
+    if (refocus) {
+      var btns = fresh.querySelectorAll('.link-btn[aria-expanded]');
+      if (btns.length) btns[btns.length - 1].focus();
+    }
+  }
+
+  function emptyState() {
+    var div = el('div', { class: 'center-state' });
+    div.appendChild(el('div', { class: 'big', 'aria-hidden': 'true' }, '💬'));
+    if (state.mode === 'entry') {
+      div.appendChild(el('div', { class: 'lead' }, 'No comments on this entry yet'));
+      div.appendChild(el('div', {}, 'Comments on this entry, its senses or its examples will show up here.'));
+    } else {
+      div.appendChild(el('div', { class: 'lead' }, 'No comments in this project yet'));
+      div.appendChild(el('div', {}, 'Comments are added from an entry’s Comments panel.'));
+    }
+    return div;
+  }
+
+  function filteredEmptyState() {
+    var div = el('div', { class: 'center-state' });
+    div.appendChild(el('div', { class: 'lead' }, 'No threads match these filters'));
+    var b = el('button', { type: 'button', class: 'btn' }, 'Clear filters');
+    b.addEventListener('click', function () {
+      state.filters.open = false;
+      state.filters.unread = false;
+      savePrefs();
+      state.shown = PAGE_SIZE;
+      render().then(function () { $('f-open').focus(); });
+    });
+    div.appendChild(b);
+    return div;
+  }
+
+  function showUnavailable(lead, text) {
+    $('loading').hidden = true;
+    $('app').hidden = true;
+    $('empty-lead').textContent = lead;
+    $('empty-text').textContent = text;
+    $('empty').hidden = false;
+  }
+
+  function handleTopError(err) {
+    if (isNotSupported(err)) {
+      showUnavailable('Comments aren’t available for this project', 'This project doesn’t support team comments, so there’s nothing to show here.');
+      return;
+    }
+    $('loading').hidden = true;
+    $('app').hidden = false;
+    clear($('content'));
+    var box = $('error');
+    box.hidden = false;
+    box.textContent = 'Couldn’t load comments: ' + errMsg(err) + '. Use Refresh to try again.';
+  }
+
+  // ---- filters, reload ----
+  function savePrefs() { F.storage.set(PREFS_KEY, state.filters).catch(function () {}); }
+  function toggleFilter(key) {
+    state.filters[key] = !state.filters[key];
+    state.shown = PAGE_SIZE;
+    savePrefs();
+    render();
+  }
+
+  function load() {
+    if (state.loading) return Promise.resolve();
+    state.loading = true;
+    $('refresh').disabled = true;
+    $('error').hidden = true;
+    var run = state.mode === 'entry' ? loadEntryFeed(state.entry ? state.entry.id : F.context.entryId) : loadProjectFeed();
+    return run.catch(handleTopError).then(function () {
+      state.loading = false;
+      $('refresh').disabled = false;
+    });
+  }
+
+  function reload() {
+    state.shown = PAGE_SIZE;
+    if (!$('app').hidden) {
+      clear($('content'));
+      var box = el('div', { class: 'center-state' });
+      box.appendChild(el('div', { class: 'spinner' }));
+      box.appendChild(el('div', {}, 'Loading comments…'));
+      $('content').appendChild(box);
+    }
+    load();
+  }
+
+  // Keeps day headers docked just below the sticky toolbar, whatever height it wraps to.
+  function measureToolbar() {
+    document.documentElement.style.setProperty('--toolbar-h', $('toolbar').offsetHeight + 'px');
+  }
+
+  function init() {
+    applyTheme();
+    if (!F.capabilities.comments) {
+      showUnavailable('Comments aren’t available for this project', 'This project doesn’t support team comments, so there’s nothing to show here. The demo project is one of these.');
+      return;
+    }
+    var entryId = F.context && F.context.entryId;
+    if (!entryId && !F.capabilities.history) {
+      showUnavailable('This project can’t list all its comments', 'The project-wide feed needs the project’s change history, which this project doesn’t have. Open the feed from an entry’s menu to see that entry’s comments.');
+      return;
+    }
+    $('f-open').addEventListener('click', function () { toggleFilter('open'); });
+    $('f-unread').addEventListener('click', function () { toggleFilter('unread'); });
+    $('refresh').addEventListener('click', reload);
+    window.addEventListener('resize', measureToolbar);
+    $('view-all').hidden = !F.capabilities.history;
+    $('view-all').addEventListener('click', function () {
+      if (state.loading) return;
+      $('ctx-banner').hidden = true;
+      state.mode = 'project';
+      state.entry = null;
+      state.expanded = {};
+      $('subtitle').textContent = 'Every comment thread in the project, newest first.';
+      reload();
+    });
+
+    Promise.all([
+      F.getWritingSystems().catch(function () { return { vernacular: [], analysis: [] }; }),
+      F.storage.get(PREFS_KEY).catch(function () { return null; }),
+    ]).then(function (res) {
+      var ws = res[0] || {}, prefs = res[1];
+      (ws.vernacular || []).concat(ws.analysis || []).forEach(function (w) { if (w.isAudio) state.audioIds.add(w.wsId); });
+      var vern = (ws.vernacular || []).filter(function (w) { return !w.isAudio; });
+      applyVernFont(vern[0]);
+      state.vernIds = vern.map(function (w) { return w.wsId; });
+      state.analysisIds = (ws.analysis || []).filter(function (w) { return !w.isAudio; }).map(function (w) { return w.wsId; });
+      if (prefs && typeof prefs === 'object') {
+        state.filters.open = prefs.open === true;
+        state.filters.unread = prefs.unread === true;
+      }
+      if (entryId) {
+        state.mode = 'entry';
+        $('subtitle').textContent = 'Comment threads on this entry, newest first.';
+      }
+      return load();
+    });
+  }
+
+  F.ready.then(init);
+})();
+</script>
+</body>
+</html>
