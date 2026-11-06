@@ -92,7 +92,8 @@ public interface IMiniLcmWriteApi
     Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? position = null);
     Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update);
     Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null);
-    Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position);
+    Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder);
+    Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder);
     Task DeleteSense(Guid entryId, Guid senseId);
     Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain);
     Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId);
@@ -118,7 +119,8 @@ public interface IMiniLcmWriteApi
         ExampleSentence before,
         ExampleSentence after,
         IMiniLcmApi? api = null);
-    Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position);
+    Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder);
+    Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder);
 
     Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId);
 
@@ -183,6 +185,21 @@ public interface IMiniLcmWriteApi
     Task DeleteCustomView(Guid id)
     {
         throw new NotSupportedException("Custom views are only supported by CRDT projects");
+    }
+    #endregion
+
+    #region Plugin
+    Task<Plugin> CreatePlugin(Plugin plugin)
+    {
+        throw new NotSupportedException("Plugins are only supported by CRDT projects");
+    }
+    Task<Plugin> UpdatePlugin(Plugin plugin)
+    {
+        throw new NotSupportedException("Plugins are only supported by CRDT projects");
+    }
+    Task DeletePlugin(Guid id)
+    {
+        throw new NotSupportedException("Plugins are only supported by CRDT projects");
     }
     #endregion
 
@@ -267,6 +284,15 @@ public interface IMiniLcmWriteApi
     Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
         return Task.FromResult(new UploadFileResponse(UploadFileResult.NotSupported));
+    }
+
+    /// <summary>
+    /// Forgets a media file: the resource is deleted from the project and the local copy removed.
+    /// The server copy stays until Harmony can delete remote resources (sillsdev/harmony#168).
+    /// </summary>
+    Task DeleteFile(MediaUri mediaUri)
+    {
+        throw new NotSupportedException("Deleting files is only supported by CRDT projects");
     }
 }
 

@@ -28,12 +28,10 @@ public static class QueryHelpers
     public static void Finalize(this ExampleSentence exampleSentence)
     {
         var firstTranslation = exampleSentence.Translations.FirstOrDefault();
-#pragma warning disable CS0618 // Type or member is obsolete
-        if (firstTranslation?.Id == Translation.MissingTranslationId)
+        if (Translation.IsMissingTranslationId(firstTranslation?.Id))
         {
             firstTranslation.Id = exampleSentence.DefaultFirstTranslationId;
         }
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     private static void ApplySortOrder<T>(this List<T> items) where T : IOrderable
@@ -46,11 +44,11 @@ public static class QueryHelpers
         });
     }
 
-    public static IComparer<ComplexFormComponent> AsComplexFormComparer(this CompareInfo compareInfo)
+    public static IComparer<ComplexFormComponent> AsComplexFormComparer(this IComparer<string> headwordComparer)
     {
         return Comparer<ComplexFormComponent>.Create((a, b) =>
         {
-            var result = compareInfo.Compare(a.ComplexFormHeadword, b.ComplexFormHeadword, CompareOptions.IgnoreCase);
+            var result = headwordComparer.Compare(a.ComplexFormHeadword, b.ComplexFormHeadword);
             if (result != 0) return result;
             return a.ComplexFormEntryId.CompareTo(b.ComplexFormEntryId);
         });

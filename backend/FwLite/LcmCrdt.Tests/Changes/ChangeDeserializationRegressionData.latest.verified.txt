@@ -1670,7 +1670,6 @@
         }
       }
     ],
-    "Translation": null,
     "Reference": {
       "Spans": [
         {
@@ -1769,19 +1768,6 @@
     "OcmCodes": "e-markets",
     "LouwNidaCodes": "Court",
     "EntityId": "83854dd5-2b69-bbd8-8172-181036df378f"
-  },
-  {
-    "$type": "CreateWritingSystemChange",
-    "WsId": "zms",
-    "Name": "quantify",
-    "Abbreviation": "Ergonomic",
-    "Font": "software",
-    "Exemplars": [
-      "Berkshire"
-    ],
-    "Type": 1,
-    "Order": 0.7988004089201804,
-    "EntityId": "0fccfaaa-1e55-f6fb-966f-5c1e6caedf45"
   },
   {
     "$type": "AddComplexFormTypeChange",
@@ -2397,5 +2383,64 @@
   {
     "$type": "delete:UserComment",
     "EntityId": "4be242d0-b1a6-986f-cc0d-b35860e69e60"
+  },
+  {
+    "$type": "MoveExampleSentenceToSenseChange",
+    "SenseId": "7a5a8e98-b078-b380-c682-9765cf435468",
+    "Order": 0.3296040037939726,
+    "EntityId": "085ee084-3965-d19c-2413-5d4de7b0ad5b"
+  },
+  {
+    "$type": "CreateWritingSystemChange",
+    "WsId": "jow",
+    "Name": "Incredible Rubber Mouse",
+    "Abbreviation": "payment",
+    "Font": "matrix",
+    "Exemplars": [
+      "web services"
+    ],
+    "IcuCollationRules": "fuchsia",
+    "SystemCollationLocale": "application",
+    "Type": 1,
+    "Order": 0.26752684125181847,
+    "EntityId": "ff400435-e634-d4fe-8ef0-7db95241cced"
+  },
+  {
+    "$type": "CreatePluginChange",
+    "Name": "Cambridgeshire",
+    "Description": "firewall",
+    "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+    "FileSize": 2887990446864026234,
+    "Permissions": [
+      "Drive"
+    ],
+    "Contexts": [
+      "Eritrea"
+    ],
+    "Requires": [
+      "Tools"
+    ],
+    "EntityId": "ab00017f-0de2-a45f-ef10-ff3a59c60015"
+  },
+  {
+    "$type": "EditPluginChange",
+    "Name": "Factors",
+    "Description": "Implemented",
+    "MediaUri": "sil-media://not-found/00000000-0000-0000-0000-000000000000",
+    "FileSize": -5410298635370337575,
+    "Permissions": [
+      "Human"
+    ],
+    "Contexts": [
+      "Generic"
+    ],
+    "Requires": [
+      "Ridges"
+    ],
+    "EntityId": "816d242e-16e8-2461-1a06-771518b0ca91"
+  },
+  {
+    "$type": "delete:Plugin",
+    "EntityId": "13ced028-f898-d4db-113c-5ed794c2f9b5"
   }
 ]

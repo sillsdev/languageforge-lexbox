@@ -35,6 +35,17 @@ public record WritingSystem: IObjectWithId<WritingSystem>, IOrderableNoId
     public string[] Exemplars { get; set; } = [];
     //todo probably need more stuff here, see wesay for ideas
 
+    /// <summary>
+    /// Compiled ICU tailoring rules imported from FLEx (Custom Simple / Custom ICU).
+    /// Null uses legacy collation fallback at runtime. Not persisted as empty on import.
+    /// </summary>
+    public virtual string? IcuCollationRules { get; set; }
+
+    /// <summary>
+    /// .NET locale tag for FLEx "same as another language" collation.
+    /// </summary>
+    public virtual string? SystemCollationLocale { get; set; }
+
     public static string[] LatinExemplars => Enumerable.Range('A', 'Z' - 'A' + 1).Select(c => ((char)c).ToString()).ToArray();
 
     [MiniLcmInternal]
@@ -59,6 +70,8 @@ public record WritingSystem: IObjectWithId<WritingSystem>, IOrderableNoId
             Abbreviation = Abbreviation,
             Font = Font,
             Exemplars = [..Exemplars],
+            IcuCollationRules = IcuCollationRules,
+            SystemCollationLocale = SystemCollationLocale,
             DeletedAt = DeletedAt,
             Type = Type,
             Order = Order

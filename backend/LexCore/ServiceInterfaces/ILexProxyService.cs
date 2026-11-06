@@ -8,6 +8,7 @@ public interface ILexProxyService
 {
     Task<LexAuthUser?> Login(LoginRequest loginRequest);
     Task QueueProjectMetadataUpdate(string projectCode);
+    ValueTask<Guid?> LookupProjectId(string projectCode);
     RequestInfo GetDestinationPrefix(HgType type);
 }
 

@@ -1,4 +1,5 @@
 import {msg} from 'svelte-i18n-lingui';
+import type {IEntry, IExampleSentence, ISense} from '$lib/dotnet-types';
 import {vt, type ViewText} from './view-text';
 
 interface FieldData {
@@ -10,6 +11,25 @@ interface EntityData {
   $label: ViewText;
   [key: string]: FieldData | ViewText;
 }
+
+// Topic pages live directly under this root. `helpBaseUrl` points at the RoboHelp shell instead, so
+// only this root is fetchable — see check-all-helps.manual.test.ts.
+export const helpDocRoot = 'https://downloads.languagetechnology.org/fieldworks/Documentation/en/';
+
+export const helpBaseUrl = `${helpDocRoot}index.htm#t=`;
+
+type EntityModels = {entry: IEntry; sense: ISense; example: IExampleSentence};
+
+// Model fields with no editor field. A new model field has to be added here or to entityConfig, so it can't be forgotten.
+type NotEditorFields = {
+  // morphType is diffed by DiffEntryPrimitive; homographNumber isn't shown anywhere yet
+  entry: 'id' | 'deletedAt' | 'senses' | 'morphType' | 'homographNumber';
+  sense: 'id' | 'deletedAt' | 'entryId' | 'partOfSpeech' | 'exampleSentences';
+  example: 'id' | 'deletedAt' | 'senseId';
+};
+
+type EditorFields<E extends keyof EntityModels> = {$label: ViewText} &
+  Record<Exclude<keyof EntityModels[E], NotEditorFields[E]>, FieldData>;
 
 export const entityConfig = {
   entry: {
@@ -24,7 +44,7 @@ export const entityConfig = {
     },
     complexForms: {
       label: vt(msg`Complex forms`, msg`Part of`),
-      helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Complex_Forms.htm',
+      helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Complex_Forms_entry.htm',
     },
     complexFormTypes: {
       label: vt(msg`Complex form types`, msg`Uses components as`),
@@ -48,7 +68,7 @@ export const entityConfig = {
     },
   },
   sense: {
-    $label: msg`Sense`,
+    $label: vt(msg`Sense`, msg`Meaning`),
     gloss: {
       label: msg`Gloss`,
       helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Gloss_field_Sense.htm',
@@ -85,7 +105,7 @@ export const entityConfig = {
       helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Reference_field.htm',
     },
   },
-} as const satisfies Record<string, EntityData>;
+} as const satisfies {[E in keyof EntityModels]: EditorFields<E>};
 
 export type EntityType = keyof typeof entityConfig;
 export type EntityFields<T extends EntityType> = Exclude<keyof (typeof entityConfig[T]), '$label'> & string;

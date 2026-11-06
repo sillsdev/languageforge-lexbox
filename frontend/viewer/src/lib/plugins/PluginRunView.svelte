@@ -1,0 +1,243 @@
+<script lang="ts">
+  import {Badge} from '$lib/components/ui/badge';
+  import {Button} from '$lib/components/ui/button';
+  import {Icon} from '$lib/components/ui/icon';
+  import {t} from 'svelte-i18n-lingui';
+  import {untrack} from 'svelte';
+  import {navigate, useLocation, useRouter} from 'svelte-routing';
+  import {usePluginService} from '$project/data/plugin-service.svelte';
+  import {AppNotification} from '$lib/notifications/notifications';
+  import {createPluginDocUrl} from './plugin-srcdoc';
+  import {parsePluginManifest, type PluginManifest} from './plugin-manifest';
+  import {computePluginHash} from './plugin-local-data';
+  import PluginSandbox from './PluginSandbox.svelte';
+  import PluginConsentCard from './PluginConsentCard.svelte';
+
+  interface Props {
+    pluginId: string;
+  }
+
+  const {pluginId}: Props = $props();
+
+  const pluginService = usePluginService();
+  const {base} = useRouter();
+  const location = useLocation();
+
+  const launchEntryId = $derived.by(() => {
+    const param = new URLSearchParams($location.search).get('entryId') ?? undefined;
+    return param && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(param) ? param : undefined;
+  });
+
+  const plugin = $derived(pluginService.current.find(candidate => candidate.id === pluginId));
+
+  /**
+   * The plugin's HTML lives in a media file (downloaded on demand, cached locally), so running has
+   * an async load step with offline/error outcomes. Everything trust-related — the manifest, the
+   * consent hash, the sandbox CSP — is derived from these actual bytes, never from entity metadata.
+   */
+  type HtmlState =
+    | {status: 'loading'}
+    | {status: 'offline'}
+    | {status: 'error'; message?: string}
+    | {status: 'ready'; docUrl: string; manifest: PluginManifest; hash: string};
+  // $state.raw: replaced wholesale, and its contents feed postMessage — a deep $state proxy
+  // would make structuredClone (and so the init message) throw DataCloneError.
+  let htmlState = $state.raw<HtmlState>({status: 'loading'});
+
+  // Keyed on the fields that determine the content, not object identity: a plugin-list refetch
+  // rebuilds the objects, and that must not tear down a running plugin.
+  const pluginKey = $derived(plugin
+    ? [plugin.id, plugin.mediaUri, plugin.name, plugin.description ?? ''].join('\u0000')
+    : undefined);
+  $effect(() => {
+    const requestedKey = pluginKey;
+    if (!requestedKey) return;
+    const requested = untrack(() => plugin)!;
+    htmlState = {status: 'loading'};
+    let superseded = false;
+    void pluginService.getHtml(requested).then(async result => {
+      if (result.result === 'ok') {
+        const manifest = parsePluginManifest(result.html);
+        const hash = await computePluginHash({name: requested.name, description: requested.description, html: result.html});
+        if (superseded) return;
+        // The HTML goes into a Blob the iframe loads by URL, not into state, so it stays GC-able.
+        const docUrl = createPluginDocUrl(result.html, manifest.permissions);
+        htmlState = {status: 'ready', manifest, hash, docUrl};
+      } else if (superseded) {
+        return;
+      } else if (result.result === 'offline') {
+        htmlState = {status: 'offline'};
+      } else {
+        htmlState = {status: 'error', message: result.message};
+      }
+    });
+    return () => { superseded = true; };
+  });
+
+  $effect(() => {
+    const current = htmlState;
+    return () => {
+      if (current.status === 'ready') URL.revokeObjectURL(current.docUrl);
+    };
+  });
+
+  const manifest = $derived(htmlState.status === 'ready' ? htmlState.manifest : undefined);
+
+  // Run consent + write trust are device-local and pinned to the content hash (see plugin-local-data).
+  const approved = $derived(htmlState.status === 'ready' ? pluginService.consentStore.isGranted(pluginId, htmlState.hash) : undefined);
+  const writesTrusted = $derived(htmlState.status === 'ready' && pluginService.writeTrustStore.isGranted(pluginId, htmlState.hash));
+
+  function approve() {
+    if (htmlState.status !== 'ready') return;
+    pluginService.consentStore.grant(pluginId, htmlState.hash);
+  }
+
+  function trustWrites() {
+    if (htmlState.status !== 'ready' || !plugin) return;
+    pluginService.writeTrustStore.grant(pluginId, htmlState.hash);
+    AppNotification.display(
+      $t`“${plugin.name}” can now make changes without asking. You can change this from the plugin toolbar or its card.`,
+      {timeout: 'long'});
+  }
+
+  function revokeWriteTrust() {
+    if (!plugin) return;
+    pluginService.writeTrustStore.revoke(pluginId);
+    AppNotification.display($t`“${plugin.name}” will ask before making changes again.`, {timeout: 'short'});
+  }
+
+  const docUrl = $derived(htmlState.status === 'ready' && approved ? htmlState.docUrl : undefined);
+  let reloadToken = $state(0);
+
+  // No Fullscreen API in the Android WebView.
+  const canFullscreen = document.fullscreenEnabled;
+  let containerElement = $state<HTMLElement>();
+  let isFullscreen = $state(false);
+  function enterFullscreen() {
+    void containerElement?.requestFullscreen();
+  }
+  function exitFullscreen() {
+    if (document.fullscreenElement) void document.exitFullscreen();
+  }
+  function onFullscreenChange() {
+    const nowFullscreen = !!document.fullscreenElement;
+    if (nowFullscreen && !isFullscreen) AppNotification.display($t`Press Esc to exit fullscreen`, {timeout: 'short'});
+    isFullscreen = nowFullscreen;
+  }
+
+  function goBack() {
+    navigate(`${$base.uri}/plugins`);
+  }
+</script>
+
+<svelte:document onfullscreenchange={onFullscreenChange} />
+
+<div class="h-full flex flex-col bg-background" bind:this={containerElement}>
+  {#if !isFullscreen}
+    <div class="flex items-center gap-2 border-b px-2 py-1.5">
+      <Button variant="ghost" size="icon" icon="i-mdi-arrow-left" title={$t`Back to plugins`} onclick={goBack} />
+      <Icon icon="i-mdi-puzzle" class="text-primary" />
+      <span class="font-medium truncate">{plugin?.name ?? $t`Plugin`}</span>
+      {#if manifest?.permissions.includes('internet')}
+        <Badge variant="destructive">
+          <Icon icon="i-mdi-web" />
+          {$t`Internet`}
+        </Badge>
+      {/if}
+      <div class="grow"></div>
+      {#if approved}
+        {#if writesTrusted}
+          <Button
+            variant="ghost"
+            size="sm"
+            icon="i-mdi-shield-check"
+            class="text-muted-foreground"
+            title={$t`This plugin can make changes without asking. Click to make it ask again.`}
+            onclick={revokeWriteTrust}
+          >
+            {$t`Trusted`}
+          </Button>
+        {/if}
+        <Button variant="ghost" size="icon" icon="i-mdi-refresh" title={$t`Reload plugin`} onclick={() => reloadToken++} />
+        {#if canFullscreen}
+          <Button variant="ghost" size="icon" icon="i-mdi-fullscreen" title={$t`Fullscreen`} aria-label={$t`Fullscreen`} onclick={enterFullscreen} />
+        {/if}
+      {/if}
+    </div>
+  {/if}
+
+  <div class="grow relative min-h-0">
+    {#if !plugin}
+      {#if !pluginService.loaded}
+        <div class="absolute inset-0 grid place-items-center text-muted-foreground">
+          <Icon icon="i-mdi-loading" class="animate-spin size-8" />
+        </div>
+      {:else}
+        <div class="absolute inset-0 grid place-items-center">
+          <div class="text-center space-y-3">
+            <Icon icon="i-mdi-puzzle-remove" class="size-10 text-muted-foreground" />
+            <div>{$t`This plugin no longer exists.`}</div>
+            <Button variant="outline" onclick={goBack}>{$t`Back to plugins`}</Button>
+          </div>
+        </div>
+      {/if}
+    {:else if htmlState.status === 'loading'}
+      <div class="absolute inset-0 grid place-items-center text-muted-foreground">
+        <Icon icon="i-mdi-loading" class="animate-spin size-8" />
+      </div>
+    {:else if htmlState.status === 'offline'}
+      <div class="absolute inset-0 grid place-items-center p-4">
+        <div class="text-center space-y-3 max-w-md">
+          <Icon icon="i-mdi-cloud-off-outline" class="size-10 text-muted-foreground" />
+          <div class="font-medium">{$t`This plugin isn't on this device yet`}</div>
+          <p class="text-sm text-muted-foreground">
+            {$t`You're offline and the plugin file hasn't been downloaded here. Connect to the internet and try again — after that it works offline.`}
+          </p>
+          <Button variant="outline" onclick={goBack}>{$t`Back to plugins`}</Button>
+        </div>
+      </div>
+    {:else if htmlState.status === 'error'}
+      <div class="absolute inset-0 grid place-items-center p-4">
+        <div class="text-center space-y-3 max-w-md">
+          <Icon icon="i-mdi-alert-circle-outline" class="size-10 text-destructive" />
+          <div class="font-medium">{$t`Couldn't load this plugin`}</div>
+          {#if htmlState.message}
+            <p class="text-sm text-muted-foreground break-words">{htmlState.message}</p>
+          {/if}
+          <Button variant="outline" onclick={goBack}>{$t`Back to plugins`}</Button>
+        </div>
+      </div>
+    {:else if approved === false}
+      <PluginConsentCard pluginName={plugin.name} {manifest} onApprove={approve} onGoBack={goBack} />
+    {:else if docUrl && manifest}
+      <PluginSandbox
+        {pluginId}
+        pluginName={plugin.name}
+        {docUrl}
+        {manifest}
+        writeMode="live"
+        entryId={launchEntryId}
+        {reloadToken}
+        {writesTrusted}
+        onTrustWrites={trustWrites}
+      >
+        {#snippet stoppedActions()}
+          <Button variant="outline" onclick={goBack}>{$t`Back to plugins`}</Button>
+        {/snippet}
+      </PluginSandbox>
+      {#if isFullscreen}
+        <!-- The plugin owns a sandboxed iframe, so pointer events don't reach the host: an
+             auto-hiding-on-mouse-move control can't work here. Keep it persistent but faded. -->
+        <Button
+          variant="secondary"
+          size="icon"
+          icon="i-mdi-fullscreen-exit"
+          title={$t`Exit fullscreen`}
+          aria-label={$t`Exit fullscreen`}
+          onclick={exitFullscreen}
+          class="absolute top-2 end-2 z-10 opacity-40 shadow-md transition-opacity hover:opacity-100 focus-visible:opacity-100 motion-reduce:transition-none"
+        />
+      {/if}
+    {/if}
+  </div>
+</div>

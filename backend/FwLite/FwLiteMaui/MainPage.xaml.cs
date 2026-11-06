@@ -57,7 +57,7 @@ public partial class MainPage : ContentPage
         }
     }
 
-#if ANDROID || WINDOWS
+#if ANDROID || WINDOWS || IOS || MACCATALYST
     private partial void BlazorWebViewInitializing(object? sender, BlazorWebViewInitializingEventArgs e);
     private partial void BlazorWebViewInitialized(object? sender, BlazorWebViewInitializedEventArgs e);
 #else
@@ -70,7 +70,7 @@ public partial class MainPage : ContentPage
     }
 #endif
 
-#if ANDROID
+#if ANDROID || IOS || MACCATALYST
     private partial void BlazorWebViewOnUrlLoading(object? sender, UrlLoadingEventArgs e);
 #else
 

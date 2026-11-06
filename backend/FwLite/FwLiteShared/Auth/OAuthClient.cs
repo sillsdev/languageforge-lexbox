@@ -62,7 +62,12 @@ public class OAuthClient
             .WithHttpClientFactory(new HttpClientFactoryAdapter(httpMessageHandlerFactory))
             .WithParentActivityOrWindow(() => options.Value.GetParentActivityOrWindow?.Invoke())
             .WithOidcAuthority(lexboxServer.Authority.ToString());
-        if (!options.Value.SystemWebViewLogin)
+        if (options.Value.CustomWebUiFactory is not null)
+        {
+            // the custom scheme is intercepted by the authentication session itself; must be registered on the server
+            builder.WithRedirectUri(options.Value.CustomWebUiRedirectUri ?? $"msal{options.Value.ClientId}://auth");
+        }
+        else if (!options.Value.SystemWebViewLogin)
         {
             builder.WithRedirectUri(RedirectUrl);
         }

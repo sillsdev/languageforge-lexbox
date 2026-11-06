@@ -1,8 +1,14 @@
 import {toast} from 'svelte-sonner';
+import {copyText} from '$lib/services/clipboard';
 
 interface NotificationAction {
   label: string;
   callback: () => {dismiss: boolean} | void;
+}
+
+export interface LoadingNotification {
+  update(message: string, description?: string): void;
+  dismiss(): void;
 }
 
 type NotificationType = 'plain' | 'success' | 'error' | 'info' | 'warning';
@@ -58,12 +64,24 @@ export class AppNotification {
         label: '',
         onClick: (event) => {
           event.preventDefault();
-          void navigator.clipboard.writeText(clipboardText);
+          //Capture the button synchronously: currentTarget is nulled once the handler returns.
           const actionButton = event.currentTarget as HTMLButtonElement | null;
-          actionButton?.classList.add('copied');
+          void copyText(clipboardText).then(
+            () => actionButton?.classList.add('copied'),
+            () => {/* best-effort copy; nothing more to fall back to */},
+          );
         },
       },
     });
+  }
+
+  /** A spinner toast the user can't close: the caller updates it in place and ends it with `dismiss` */
+  public static loading(message: string, description?: string): LoadingNotification {
+    const id = toast.loading(message, {description, duration: INFINITY, dismissable: false});
+    return {
+      update: (message, description) => toast.loading(message, {id, description, duration: INFINITY, dismissable: false}),
+      dismiss: () => toast.dismiss(id),
+    };
   }
 
   public static promise<T>(promise: Promise<T>, options: PromiseToastOptions<T>) {

@@ -25,26 +25,33 @@ public class ApiTestBase
     }
 
     /// <summary>
-    /// creates an HttpClient which will retry on transient failures
+    /// creates an HttpClient which will retry on transient failures (unless retry is false)
     /// </summary>
     /// <param name="baseUrl">bas url for the client</param>
     /// <param name="useCookies">enable or disable cookies for the client</param>
-    public static (SocketsHttpHandler Handler, HttpClient Client) NewHttpClient(string? baseUrl = null, bool useCookies = true)
+    /// <param name="retry">retry transient failures (incl. 5xx responses), disable to observe error responses exactly as returned</param>
+    public static (SocketsHttpHandler Handler, HttpClient Client) NewHttpClient(string? baseUrl = null, bool useCookies = true, bool retry = true)
     {
+        var socketsHttpHandler = new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(15), UseCookies = useCookies };
+        if (!retry) return (socketsHttpHandler, WithBaseUrl(new HttpClient(socketsHttpHandler), baseUrl));
+
         var retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
             .AddRetry(new HttpRetryStrategyOptions { BackoffType = DelayBackoffType.Linear, MaxRetryAttempts = 3 })
             .Build();
 
-        var socketsHttpHandler = new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(15), UseCookies = useCookies };
 #pragma warning disable EXTEXP0001
         var resilienceHandler = new ResilienceHandler(retryPipeline) { InnerHandler = socketsHttpHandler };
 #pragma warning restore EXTEXP0001
-        var httpClient = new HttpClient(resilienceHandler);
+        return (socketsHttpHandler, WithBaseUrl(new HttpClient(resilienceHandler), baseUrl));
+    }
+
+    private static HttpClient WithBaseUrl(HttpClient httpClient, string? baseUrl)
+    {
         if (!string.IsNullOrEmpty(baseUrl))
         {
             httpClient.BaseAddress = new Uri(baseUrl);
         }
-        return (socketsHttpHandler, httpClient);
+        return httpClient;
     }
 
     // This needs to be virtual so it can be mocked in IntegrationFixtureTests
@@ -76,22 +83,23 @@ public class ApiTestBase
 
     public async Task<DateTimeOffset?> GetProjectLastCommit(string projectCode)
     {
-        var jsonResult = await ExecuteGql($$"""
-query projectLastCommit {
-    projectByCode(code: "{{projectCode}}") {
-        lastCommit
-    }
-}
-""");
-        var project = jsonResult?["data"]?["projectByCode"].Should().BeOfType<JsonObject>().Subject;
-        var stringDate = project?["lastCommit"]?.ToString();
-        return stringDate == null ? null : DateTimeOffset.Parse(stringDate);
+        var state = await this.GetProjectRepoState(projectCode);
+        return state.LastCommit;
     }
 
     public async Task StartLexboxProjectReset(string projectCode)
     {
         var response = await HttpClient.PostAsync($"{BaseUrl}/api/project/resetProject/{projectCode}", null);
         response.EnsureSuccessStatusCode();
+    }
+
+    /// <summary>
+    /// Finishes a reset without uploading a zip, leaving the project with an empty repo
+    /// </summary>
+    public async Task FinishLexboxProjectResetWithoutUpload(string projectCode)
+    {
+        var response = await HttpClient.PostAsync($"{BaseUrl}/api/project/finishResetProject/{projectCode}", null);
+        response.ShouldBeSuccessful();
     }
 
     public async Task<string> GetSendAndReceiveJwt()

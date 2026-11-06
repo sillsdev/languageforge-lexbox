@@ -19,6 +19,7 @@
 
   let {
     canComment,
+    canResolve,
     loading,
     saving,
     threadViews,
@@ -28,6 +29,7 @@
     addingComment = $bindable(false),
     expandedThreadIds = new SvelteSet<string>(),
     mobileThreadId = $bindable<string | null>(null),
+    arrivals = new Set<string>(),
     onClose,
     onStartThread,
     onReply,
@@ -40,6 +42,7 @@
     onMarkUnread,
   }: {
     canComment: boolean;
+    canResolve: boolean;
     loading: boolean;
     saving: boolean;
     threadViews: ThreadView[];
@@ -50,6 +53,7 @@
     expandedThreadIds?: SvelteSet<string>;
     mobileThreadId?: string | null;
     unreadThreadIds?: Set<string>;
+    arrivals?: Set<string>;
     onClose?: () => void;
     onStartThread: () => void;
     onReply: (threadView: ThreadView, text: string) => void | Promise<void>;
@@ -137,7 +141,7 @@
                 bind:value={newThreadText}
                 placeholder={$t`Start a conversation…`}
                 rows={3}
-                disabled={loading || saving}
+                disabled={saving}
                 class="max-h-40 overflow-y-auto text-sm"
                 onkeydown={(e) => {
                   if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
@@ -150,7 +154,7 @@
                 <Button variant="outline" size="sm" onclick={cancelAdding} disabled={saving}>
                   {$t`Cancel`}
                 </Button>
-                <Button size="sm" onclick={submitNewThread} disabled={!newThreadText.trim() || loading} loading={saving}>
+                <Button size="sm" onclick={submitNewThread} disabled={!newThreadText.trim()} loading={saving}>
                   {$t`Comment`}
                 </Button>
               </div>
@@ -177,6 +181,7 @@
         >
           {$t`Back`}
         </Button>
+        {#if canResolve}
         <Button
           variant="outline"
           size="xs"
@@ -190,14 +195,16 @@
         >
           {mobileResolved ? $t`Reopen` : $t`Resolve`}
         </Button>
+        {/if}
       </div>
 
-      <div class="min-h-0 flex-1 overflow-y-auto p-3.5">
+      <div class="min-h-0 flex-1 overflow-y-auto px-2 py-3.5">
         <div class="flex flex-col">
           {#each mobileThreadView.comments as comment, index (comment.id)}
             <CommentItem
               {comment}
               compact={index > 0}
+              arrived={arrivals.has(comment.id)}
               canEdit={Boolean(currentUserId && comment.authorId === currentUserId)}
               {saving}
               editing={editingCommentId === comment.id}
@@ -243,9 +250,11 @@
               <CommentThread
                 {threadView}
                 {canComment}
+                {canResolve}
                 {saving}
                 {currentUserId}
                 {editingCommentId}
+                {arrivals}
                 hasUnread={unreadThreadIds.has(threadView.thread.id)}
                 expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
                 onToggle={() => toggleExpanded(threadView.thread.id)}
@@ -275,9 +284,11 @@
                     <CommentThread
                       {threadView}
                       {canComment}
+                      {canResolve}
                       {saving}
                       {currentUserId}
                       {editingCommentId}
+                      {arrivals}
                       hasUnread={unreadThreadIds.has(threadView.thread.id)}
                       expanded={!useThreadDetail && expandedThreadIds.has(threadView.thread.id)}
                       onToggle={() => toggleExpanded(threadView.thread.id)}

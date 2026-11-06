@@ -266,7 +266,13 @@ public class OauthController(
                 }));
         }
 
-        var lexAuthClaims = lexAuthUser.GetClaims();
+        List<Claim> lexAuthClaims = [
+            .. lexAuthUser.GetClaims(),
+            // MSAL derives IAccount.Username from preferred_username. Without it, most platforms fall back to the
+            // name claim, but MSAL on iOS falls back to the literal "Missing from the token response", and FwLite
+            // then persists that as the commit author. Emit the same value other platforms end up with.
+            new Claim(OpenIddictConstants.Claims.PreferredUsername, lexAuthUser.Name),
+        ];
         IEnumerable<Claim> allClaims = [
             .. lexAuthClaims,
             // include claims the oauth client sent / is expecting that we don't already have
@@ -327,6 +333,7 @@ public class OauthController(
         switch (claim.Type)
         {
             case OpenIddictConstants.Claims.Name:
+            case OpenIddictConstants.Claims.PreferredUsername:
                 yield return OpenIddictConstants.Destinations.AccessToken;
 
                 if (claimsIdentity.HasScope(OpenIddictConstants.Scopes.Profile))

@@ -1,0 +1,21 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "viewer",
+  "projectType": "application",
+  "sourceRoot": "frontend/viewer/src",
+  "tags": ["pnpm"],
+  "_comment": "Registers the FW Lite viewer as an nx project for affected detection only. The viewer lives in the frontend/ pnpm workspace, which nx cannot see from the repo root, hence this file. pnpm scripts stay the way to build and test it; the one target below is never run.",
+  "targets": {
+    "ci-affected": {
+      "executor": "nx:noop",
+      "inputs": [
+        "default",
+        "{workspaceRoot}/frontend/tests/envVars.ts",
+        "{workspaceRoot}/frontend/tests/pages/**/*"
+      ],
+      "metadata": {
+        "description": "Never run. Its `default` input (which includes nx.json's sharedGlobals) makes a shared-file change mark this project affected; the frontend/tests files are imported by the viewer's Playwright tests."
+      }
+    }
+  }
+}

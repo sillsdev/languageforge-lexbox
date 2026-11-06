@@ -4,6 +4,7 @@ using FwLiteShared;
 using FwLiteShared.Auth;
 using FwLiteShared.Services;
 using LcmCrdt;
+using LcmCrdt.Culture;
 using FwLiteWeb;
 using FwLiteWeb.Components;
 using FwLiteWeb.Routes;
@@ -67,6 +68,7 @@ public static class FwLiteWebServer
         configure?.Invoke(builder);
         var app = builder.Build();
         app.Logger.LogInformation("FwLite FwLiteWeb startup");
+        IcuInit.TryInitialize(app.Logger);
         EnsureDataDirectoriesExist(app);
 // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
@@ -96,7 +98,7 @@ public static class FwLiteWebServer
             {
                 var fwDataProjectContext = context.RequestServices.GetRequiredService<FwDataProjectContext>();
                 var fwProjectList = context.RequestServices.GetRequiredService<FieldWorksProjectList>();
-                fwDataProjectContext.Project = fwProjectList.GetProject(fwData) ?? throw new InvalidOperationException($"FwData {fwData} not found");
+                fwDataProjectContext.Project = fwProjectList.GetProject(fwData) ?? throw new InvalidOperationException($"FwData '{fwData}' not found");
             }
 
             await next(context);
@@ -109,7 +111,7 @@ public static class FwLiteWebServer
         app.MapTest();
         app.MapImport();
         app.MapAuthRoutes();
-        app.MapMiniLcmRoutes("/api/mini-lcm");
+        app.MapLocalMiniLcmRoutes("/api/mini-lcm");
         app.MapHealthChecks("/health");
 
         app.MapOpenApi();
@@ -119,7 +121,8 @@ public static class FwLiteWebServer
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode(endpointOptions =>
             {
-                endpointOptions.ContentSecurityFrameAncestorsPolicy = "self http://localhost:*";
+                // file: lets packaged Platform.Bible (loaded from file://) frame this UI
+                endpointOptions.ContentSecurityFrameAncestorsPolicy = "'self' http://localhost:* file:";
             })
             .AddAdditionalAssemblies(typeof(FwLiteShared._Imports).Assembly);
         return app;

@@ -22,10 +22,8 @@
   import {Switch} from '$lib/components/ui/switch';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
-  import {Button} from '$lib/components/ui/button';
+  import {Button, XButton} from '$lib/components/ui/button';
   import Hotkey from '$lib/components/hotkey/hotkey.svelte';
-  import FlagContent from '$lib/feature-flags/FlagContent.svelte';
-  import {hasFlag} from '$lib/feature-flags/feature-flags.svelte';
   import {useFeatures} from '$lib/services/feature-service';
 
   const features = useFeatures();
@@ -58,16 +56,7 @@
   let includeSubDomains = $state(false);
   let userFilterActive = $state(false);
   let hasComments = $state(false);
-
-  // Comment filters only exist on channels with the comments flag. FlagContent
-  // hides the controls, so clear their state when the flag turns off (e.g.
-  // switching back to production) or they'd keep constraining the query while hidden.
-  $effect(() => {
-    if (!hasFlag('comments')) {
-      hasComments = false;
-      unreadComments = false;
-    }
-  });
+  let openComments = $state(false);
 
   function focusSearch() {
     inputRef?.focus();
@@ -130,6 +119,10 @@
       newFilter.push('UnreadComments!=null');
     }
 
+    if (openComments) {
+      newFilter.push('OpenCommentThreads!=null');
+    }
+
     // all user selected filters should be before this line!
     userFilterActive = newFilter.length > 0;
 
@@ -164,6 +157,7 @@
     publication = undefined;
     hasComments = false;
     unreadComments = false;
+    openComments = false;
   }
 
   let filtersExpanded = $state(false);
@@ -187,6 +181,9 @@
   <Sidebar.Trigger icon="i-mdi-menu" class="aspect-square p-0" />
   <ComposableInput bind:value={search} bind:inputRef inputProps={{ 'aria-label': $t`Filter` }} {placeholder} autofocus class="px-1 items-center overflow-x-hidden h-12 md:h-10">
     {#snippet after()}
+      {#if search}
+        <XButton onclick={() => search = ''} class="bg-transparent"/>
+      {/if}
       <ResponsivePopup
         bind:open={filtersExpanded}
         title={$t`Filters`}
@@ -249,12 +246,11 @@
             <MissingSelect bind:value={missingField} />
           </div>
           {#if features.comments}
-            <FlagContent flag="comments">
-              <div class="flex flex-col">
-                <Switch bind:checked={hasComments} label={$t`Has comments`} />
-                <Switch class="mt-1.5" bind:checked={unreadComments} label={$t`Has unread comments`} />
-              </div>
-            </FlagContent>
+            <div class="flex flex-col">
+              <Switch bind:checked={hasComments} label={$t`Has comments`} />
+              <Switch class="mt-1.5" bind:checked={unreadComments} label={$t`Has unread comments`} />
+              <Switch class="mt-1.5" bind:checked={openComments} label={$t`Has unresolved comments`} />
+            </div>
           {/if}
         </div>
       </ResponsivePopup>

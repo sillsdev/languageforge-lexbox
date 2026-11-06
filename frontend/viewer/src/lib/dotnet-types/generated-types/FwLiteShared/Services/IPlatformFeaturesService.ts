@@ -9,5 +9,9 @@ export interface IPlatformFeaturesService
 {
 	supportsImageCapture() : Promise<boolean>;
 	captureImage() : Promise<ICameraResult | undefined>;
+	copyToClipboard(text: string) : Promise<void>;
+	supportsShareFile() : Promise<boolean>;
+	shareFile(file: Blob | ArrayBuffer | Uint8Array, fileName: string, contentType?: string) : Promise<void>;
+	hasHardwareKeyboard() : Promise<boolean>;
 }
 /* eslint-enable */

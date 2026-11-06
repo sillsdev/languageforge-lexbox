@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Simulator counterpart of Entitlements.plist. Ad-hoc simulator builds have no $(AppIdentifierPrefix), and MSAL
+         derives its TeamId from the first dot-component of this group, so a literal placeholder prefix is required. -->
+    <key>keychain-access-groups</key>
+    <array>
+        <string>SIMULATOR.com.microsoft.adalcache</string>
+    </array>
+</dict>
+</plist>

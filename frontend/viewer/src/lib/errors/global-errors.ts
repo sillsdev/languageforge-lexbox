@@ -1,6 +1,5 @@
 import {AppNotification} from '$lib/notifications/notifications';
 import type {IJsInvokableLogger} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IJsInvokableLogger';
-import {LogLevel} from '$lib/dotnet-types/generated-types/Microsoft/Extensions/Logging/LogLevel';
 import {delay} from '$lib/utils/time';
 import {useJsInvokableLogger} from '$lib/services/js-invokable-logger';
 
@@ -81,17 +80,18 @@ export function setupGlobalErrorHandlers() {
 export function onErrorEvent(event: ErrorEvent | PromiseRejectionEvent | Error) {
   const errorEvent = unifyErrorEvent(event);
   if (shouldIgnoreError(errorEvent.message)) return;
-  void tryLogErrorToDotNet(errorEvent);
   const {message: simpleMessage, detail} = processErrorIntoDetails(errorEvent);
+  void tryLogErrorToDotNet(errorEvent, simpleMessage, detail);
   AppNotification.error(simpleMessage, detail);
 }
 
-async function tryLogErrorToDotNet(error: UnifiedErrorEvent) {
+// .NET writes it to the log file and reports it to Mixpanel (scrubbed, unless the user opted out of analytics)
+async function tryLogErrorToDotNet(error: UnifiedErrorEvent, message: string, detail: string | undefined) {
   try {
-    const details = getErrorString(error);
-    if (!safeToLogErrorToDotNet(details)) return;
+    const stack = getErrorStack(error, detail);
+    if (!safeToLogErrorToDotNet(`${message}\n${stack}`)) return;
     const logger = await tryGetLogger();
-    if (logger) await logger.log(LogLevel.Error, details);
+    if (logger) await logger.logError(message, stack);
     else console.warn('No DotNet logger available to log error', error);
   } catch (err) {
     console.error('Failed to log error to DotNet', err);
@@ -120,18 +120,17 @@ async function tryGetLogger(): Promise<IJsInvokableLogger | undefined> {
   return logger;
 }
 
-function getErrorString(event: UnifiedErrorEvent) {
-  const details = [`Message: ${event.message}`];
-  if (event.at) details.push(`at ${event.at}`);
+/** Everything after the message: where it was thrown, the stack (JS frames or a relayed .NET stack) and any cause. */
+export function getErrorStack(event: UnifiedErrorEvent, detail: string | undefined): string {
+  const lines: string[] = [];
+  if (event.at) lines.push(`at ${event.at}`);
+  if (detail) lines.push(detail);
   if (event.error instanceof Error) {
-    const error: Error = event.error;
-    if (error.stack) details.push(`Stack: ${error.stack}`);
-    if (error.cause) details.push(`Cause: ${tryStringify(error.cause)}`);
+    if (event.error.cause) lines.push(`Cause: ${tryStringify(event.error.cause)}`);
   } else if (event.error) {
-    details.push(`Error: ${tryStringify(event.error)}`);
+    lines.push(`Error: ${tryStringify(event.error)}`);
   }
-
-  return details.join('\n');
+  return lines.join('\n');
 }
 
 function tryStringify(value: unknown): string | undefined {

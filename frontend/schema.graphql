@@ -256,6 +256,7 @@ type LexAuthUser {
   emailVerificationRequired: Boolean
   canCreateProjects: Boolean
   createdByAdmin: Boolean
+  optedOutOfAnalytics: Boolean
   locale: String!
 }
 
@@ -436,7 +437,7 @@ type Project {
   users: [ProjectUsers!]!
   harmonyCommits(skip: Int = 0 take: Int = 100 orderBy: [ServerCommitSortInput!] @cost(weight: "10") where: ServerCommitFilterInput @cost(weight: "10")): [ServerCommit!]
   changesets: [Changeset!]! @cost(weight: "10")
-  hasAbandonedTransactions: Boolean!
+  hasAbandonedTransactions: Boolean! @cost(weight: "10")
   isLanguageForgeProject: Boolean! @cost(weight: "10")
   hasHarmonyCommits: Boolean! @cost(weight: "10")
   parentId: UUID
@@ -630,6 +631,7 @@ type User {
   createdById: UUID
   createdBy: User
   usersICreated: [User!]!
+  optedOutOfAnalytics: Boolean!
   organizations: [OrgMember!]!
   featureFlags: [FeatureFlag!]!
   id: UUID!
@@ -776,6 +778,7 @@ input ChangeEntityOfServerJsonChangeFilterInput {
   commitId: UuidOperationFilterInput
   entityId: UuidOperationFilterInput
   change: ServerJsonChangeFilterInput
+  authoredModelVersion: IntOperationFilterInput
 }
 
 input ChangeOrgMemberRoleInput {
@@ -815,6 +818,7 @@ input ChangeUserAccountByAdminInput {
 
 input ChangeUserAccountBySelfInput {
   locale: String!
+  optedOutOfAnalytics: Boolean
   userId: UUID!
   email: String
   name: String!
@@ -1526,6 +1530,8 @@ enum LexboxAuthScope {
   FORGOT_PASSWORD
   SEND_AND_RECEIVE
   SEND_AND_RECEIVE_REFRESH
+  LEXICON_READ
+  LEXICON_WRITE
 }
 
 enum MediaFileLicense {
@@ -1553,6 +1559,8 @@ enum ProjectRole {
   MANAGER
   EDITOR
   OBSERVER
+  COMMENTER
+  EDITOR_LITE
 }
 
 enum ProjectType {

@@ -8,6 +8,7 @@ using LexBoxApi.Otel;
 using LexBoxApi.Services;
 using LexBoxApi.Services.Email;
 using LexCore;
+using LexCore.Analytics;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.Exceptions;
@@ -24,7 +25,7 @@ namespace LexBoxApi.GraphQL;
 public class UserMutations
 {
     public record ChangeUserAccountDataInput(Guid UserId, [property: EmailAddress] string? Email, string Name);
-    public record ChangeUserAccountBySelfInput(Guid UserId, string? Email, string Name, string Locale)
+    public record ChangeUserAccountBySelfInput(Guid UserId, string? Email, string Name, string Locale, bool? OptedOutOfAnalytics = null)
         : ChangeUserAccountDataInput(UserId, Email, Name);
     public record ChangeUserAccountByAdminInput(Guid UserId, string? Email, string Name, UserRole Role, FeatureFlag[]? FeatureFlags)
         : ChangeUserAccountDataInput(UserId, Email, Name);
@@ -131,7 +132,8 @@ public class UserMutations
         LoggedInContext loggedInContext,
         CreateGuestUserByAdminInput input,
         LexBoxDbContext dbContext,
-        IEmailService emailService
+        IEmailService emailService,
+        ILexboxAnalyticsService analytics
     )
     {
         using var createGuestUserActivity = LexBoxActivitySource.Get().StartActivity("CreateGuestUser");
@@ -169,6 +171,7 @@ public class UserMutations
         }
         dbContext.Users.Add(userEntity);
         await dbContext.SaveChangesAsync();
+        _ = analytics.TrackAccountCreated(userEntity.Id, AccountCreatedVia.Admin);
         if (!string.IsNullOrEmpty(input.Email))
         {
             await emailService.SendVerifyAddressEmail(userEntity);
@@ -221,6 +224,10 @@ public class UserMutations
             if (!string.IsNullOrEmpty(selfInput.Locale))
             {
                 user.LocalizationCode = selfInput.Locale;
+            }
+            if (selfInput.OptedOutOfAnalytics is { } optedOut)
+            {
+                user.OptedOutOfAnalytics = optedOut;
             }
         }
 

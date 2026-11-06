@@ -5,6 +5,7 @@ using LexBoxApi.Proxies;
 using LexBoxApi.Services;
 using LexBoxApi.Services.Email;
 using LexBoxApi.Services.FwLiteReleases;
+using LexCore.Analytics;
 using LexCore.Config;
 using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy;
@@ -51,6 +52,22 @@ public static class LexBoxKernel
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddHttpClient();
+        // Mixpanel analytics (shared core in LexCore). Bound from the "Analytics" section so it can be
+        // toggled per-environment via config (e.g. Analytics__Enabled in k8s). Off unless the config
+        // enables it and a production token is present; CI always forces it off.
+        services.AddHttpClient(MixpanelClient.HttpClientName, client => client.Timeout = TimeSpan.FromSeconds(10));
+        services.AddSingleton<MixpanelClient>();
+        // Scoped: the implementation resolves the current user via LoggedInContext (scoped).
+        services.AddScoped<ILexboxAnalyticsService, LexboxAnalyticsService>();
+        services.AddOptions<AnalyticsConfigBase>()
+            .BindConfiguration("Analytics")
+            .PostConfigure(config =>
+            {
+                if (string.IsNullOrEmpty(config.Product))
+                    config.Product = MixpanelProducts.Lexbox;
+                if (AnalyticsCiEnvironment.IsCiEnvironment())
+                    config.Enabled = false;
+            });
         services.AddServiceDiscovery();
         services.AddHttpClient<FwHeadlessClient>(client => client.BaseAddress = new ("http://fwHeadless"))
             .AddServiceDiscovery();//service discovery means that we lookup the hostname in Services__fwHeadless__http in config
@@ -65,8 +82,9 @@ public static class LexBoxKernel
         services.AddScoped<TusService>();
         services.AddScoped<TurnstileService>();
         services.AddScoped<IHgService, HgService>();
+        // Uploading a reset zip or copying a large repo can far outlast HttpClient's 100s default
+        services.AddHttpClient(HgService.ManageClientName, client => client.Timeout = TimeSpan.FromMinutes(30));
         services.AddSingleton<FwLiteReleaseService>();
-        services.AddHostedService<HgService>();
         services.AddTransient<HgWebHealthCheck>();
         services.AddTransient<FwHeadlessHealthCheck>();
         services.AddScoped<ILexProxyService, LexProxyService>();
@@ -80,6 +98,7 @@ public static class LexBoxKernel
             ;
         services.AddSyncProxy();
         services.AddFileUploadProxy();
+        services.AddLexiconProxy();
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);
     }

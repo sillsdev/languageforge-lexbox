@@ -10,6 +10,7 @@ using SIL.Harmony;
 using SIL.Harmony.Db;
 using SIL.Harmony.Core;
 using LinqToDB.EntityFrameworkCore;
+using LcmCrdt.Utils;
 
 namespace LcmCrdt;
 
@@ -102,7 +103,7 @@ public class SnapshotAtCommitService(
             var fieldWorksIds = await context.Commits.ToLinqToDB()
                 .Where(c => idsAfter.Contains(c.Id) &&
                     // JSON Sqlite gotcha: null != "FieldWorks" == false (apparently)
-                    (Json.Value(c.Metadata, m => m.AuthorName) ?? "") == "FieldWorks")
+                    (Json.Value(c.Metadata, m => m.AuthorName) ?? "") == CommitHelpers.FieldWorksAuthorName)
                 .Select(c => c.Id)
                 .ToArrayAsyncLinqToDB();
             idsAfter = idsAfter.Except(fieldWorksIds).ToArray();

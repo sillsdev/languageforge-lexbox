@@ -8,6 +8,7 @@ using FwLiteProjectSync;
 using LcmCrdt;
 using LcmCrdt.MediaServer;
 using LcmCrdt.RemoteSync;
+using LcmCrdt.Utils;
 using LexCore.Sync;
 using LexCore.Utils;
 using Microsoft.Extensions.Caching.Memory;
@@ -124,6 +125,9 @@ public class SyncWorker(
 
         syncStatusService.StartSyncing(projectId);
         using var stopSyncing = Defer.Action(() => syncStatusService.StopSyncing(projectId));
+        // every commit this merge writes carries FieldWorks' changes
+        using var stampFieldWorks = services.GetRequiredService<CommitMetadataInterceptor>()
+            .Intercept(metadata => metadata.AuthorName = CommitHelpers.FieldWorksAuthorName);
 
         var projectCode = await projectLookupService.GetProjectCode(projectId);
         if (projectCode is null)
@@ -181,10 +185,10 @@ public class SyncWorker(
             activity?.SetStatus(ActivityStatusCode.Error, e.Message);
             return new SyncJobResult(SyncJobStatusEnum.ProjectIncompatible, e.Message);
         }
+        await using var deferCloseFwData = fwDataFactory.DeferCloseAsync(fwDataProject);
         //always do this as existing projects need to run this even if they didn't S&R due to no pending changes
         await mediaFileService.SyncMediaFiles(fwdataApi.Cache);
 
-        await using var deferCloseFwData = fwDataFactory.DeferCloseAsync(fwDataProject);
         var crdtProject = await SetupCrdtProject(crdtFile,
             projectLookupService,
             projectId,

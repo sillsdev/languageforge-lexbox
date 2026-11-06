@@ -4,4 +4,5 @@
   let {...restProps}: TooltipPrimitive.ProviderProps = $props();
 </script>
 
-<TooltipPrimitive.Provider {...restProps} />
+<!-- Focus that arrives by click or from a closing dialog shouldn't open a tooltip; keyboard focus still does -->
+<TooltipPrimitive.Provider ignoreNonKeyboardFocus {...restProps} />

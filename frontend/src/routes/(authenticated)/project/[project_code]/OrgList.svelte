@@ -42,7 +42,7 @@
       {:else}
         <Dropdown>
           <ActionBadge actionIcon="i-mdi-dots-vertical">
-            <span class="pr-3 whitespace-nowrap overflow-ellipsis overflow-x-clip" title={org.name}>
+            <span class="pr-3 whitespace-nowrap x-ellipsis" title={org.name}>
               {org.name}
             </span>
           </ActionBadge>

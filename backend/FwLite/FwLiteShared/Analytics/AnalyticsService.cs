@@ -1,7 +1,7 @@
-using System.Net.Http.Json;
+using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
-using System.Text.Json.Serialization;
 using FwLiteShared.Services;
+using LexCore.Analytics;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -10,7 +10,7 @@ using Microsoft.JSInterop;
 namespace FwLiteShared.Analytics;
 
 public class AnalyticsService(
-    IHttpClientFactory httpClientFactory,
+    MixpanelClient mixpanelClient,
     IOptions<FwLiteConfig> config,
     IOptions<AnalyticsConfig> analyticsConfig,
     IHostEnvironment environment,
@@ -25,6 +25,7 @@ public class AnalyticsService(
     private string? _userId;
     private readonly IAnalyticsEventEnricher[] _enrichers = enrichers?.ToArray() ?? [];
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
+    private readonly ConcurrentDictionary<Task, byte> _pendingSends = new();
 
     [JSInvokable]
     public bool GetAnalyticsEnabled()
@@ -52,7 +53,25 @@ public class AnalyticsService(
             return;
         var occurredAt = time ?? _clock.GetUtcNow();
         var insertId = Guid.NewGuid().ToString();
-        _ = Task.Run(() => TrackAsync(eventName, properties, occurredAt, insertId));
+        var send = Task.Run(() => TrackAsync(eventName, properties, occurredAt, insertId));
+        _pendingSends.TryAdd(send, 0);
+        _ = send.ContinueWith(t => _pendingSends.TryRemove(t, out _), TaskScheduler.Default);
+    }
+
+    public async Task FlushAsync(TimeSpan timeout)
+    {
+        var pending = _pendingSends.Keys.ToArray();
+        if (pending.Length == 0)
+            return;
+        try
+        {
+            // Called with a blocking wait from the unhandled-exception handler, possibly on the UI thread.
+            await Task.WhenAll(pending).WaitAsync(timeout).ConfigureAwait(false);
+        }
+        catch (TimeoutException)
+        {
+            logger.LogWarning("Timed out flushing {Count} analytics events", pending.Length);
+        }
     }
 
     public void Identify(string userId)
@@ -136,23 +155,13 @@ public class AnalyticsService(
                 deviceId,
                 userId,
                 time ?? _clock.GetUtcNow(),
-                insertId ?? Guid.NewGuid().ToString());
+                insertId ?? Guid.NewGuid().ToString(),
+                analytics.Product);
             foreach (var enricher in _enrichers)
                 enricher.Enrich(eventProperties);
             Merge(eventProperties, properties);
-            var payload = new[]
-            {
-                new MixpanelTrackEvent(eventName, eventProperties)
-            };
-
-            var client = httpClientFactory.CreateClient(MixpanelAnalytics.HttpClientName);
-            using var response = await client.PostAsJsonAsync(MixpanelAnalytics.TrackUrl + "?ip=1", payload);
-            if (!response.IsSuccessStatusCode)
-            {
-                logger.LogWarning("Mixpanel track returned {Status} for {Event}",
-                    (int)response.StatusCode,
-                    eventName);
-            }
+            // FwLite runs on the user's device, so the request IP is the user's — let Mixpanel geolocate from it.
+            await mixpanelClient.SendAsync(eventName, eventProperties, geolocateFromRequestIp: true);
         }
         catch (Exception e)
         {
@@ -167,19 +176,15 @@ public class AnalyticsService(
         string deviceId,
         string? userId,
         DateTimeOffset time,
-        string insertId)
+        string insertId,
+        string? product)
     {
-        var properties = new Dictionary<string, object?>
-        {
-            ["token"] = token,
-            ["$device_id"] = deviceId,
-            ["$app_version_string"] = fwLite.AppVersion,
-            ["$os"] = fwLite.Os.ToString(),
-            ["$os_version"] = RuntimeInformation.OSDescription,
-            ["edition"] = fwLite.Edition.ToString(),
-            ["time"] = time.ToUnixTimeSeconds(),
-            ["$insert_id"] = insertId,
-        };
+        var properties = MixpanelProperties.CreateBase(token, product, time, insertId);
+        properties["$device_id"] = deviceId;
+        properties["$app_version_string"] = fwLite.AppVersion;
+        properties["$os"] = fwLite.Os.ToString();
+        properties["$os_version"] = RuntimeInformation.OSDescription;
+        properties["edition"] = fwLite.Edition.ToString();
         if (!string.IsNullOrEmpty(userId))
             properties["$user_id"] = userId;
         if (!string.IsNullOrEmpty(host))
@@ -223,8 +228,4 @@ public class AnalyticsService(
         _deviceId = next;
         preferences.Set(nameof(PreferenceKey.AnalyticsDeviceId), next);
     }
-
-    private sealed record MixpanelTrackEvent(
-        [property: JsonPropertyName("event")] string Event,
-        Dictionary<string, object?> Properties);
 }

@@ -264,6 +264,12 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var setExampleSentenceOrderChange = new LcmCrdt.Changes.SetOrderChange<ExampleSentence>(exampleSentence.Id, 10);
         yield return new ChangeWithDependencies(setExampleSentenceOrderChange, [createExampleSentenceChange]);
 
+        var exampleMoveTargetSense = new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "example move target" } } };
+        var createExampleMoveTargetSenseChange = new CreateSenseChange(exampleMoveTargetSense, entry.Id);
+        yield return new ChangeWithDependencies(createExampleMoveTargetSenseChange, [createEntryChange]);
+        var moveExampleSentenceToSenseChange = new MoveExampleSentenceToSenseChange(exampleSentence.Id, exampleMoveTargetSense.Id, 1);
+        yield return new ChangeWithDependencies(moveExampleSentenceToSenseChange, [createExampleSentenceChange, createExampleMoveTargetSenseChange]);
+
         var setPictureOrderChange = new ReorderSensePictureChange(picture.Id, sense.Id, 10);
         yield return new ChangeWithDependencies(setPictureOrderChange, [createSenseChange, createSensePictureChange]);
 
@@ -343,6 +349,28 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
                 Analysis = null
             });
         yield return new ChangeWithDependencies(editCustomViewChange, [createCustomViewChange]);
+
+        var plugin = new Plugin
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test Plugin",
+            MediaUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org"),
+            FileSize = 42,
+            Permissions = ["edit"],
+            Contexts = ["entry"],
+            Requires = ["history"],
+        };
+        var createPluginChange = new CreatePluginChange(plugin.Id, plugin);
+        yield return new ChangeWithDependencies(createPluginChange);
+        var editPluginChange = new EditPluginChange(
+            plugin.Id,
+            plugin with
+            {
+                Name = "Updated Plugin",
+                MediaUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org"),
+                FileSize = 43,
+            });
+        yield return new ChangeWithDependencies(editPluginChange, [createPluginChange]);
 
         var commentThread = new CommentThread
         {

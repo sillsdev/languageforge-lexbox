@@ -172,7 +172,7 @@ internal sealed class SyncWorkerTestHarness : IDisposable
     /// FwHeadless pipeline. The handler must isolate the worker in its own scope so this doesn't
     /// collide in CurrentProjectService.SetupProjectContext.
     /// </summary>
-    public async Task<Results<Ok, NotFound<string>>> RunHarmonyRouteWithPrePopulatedContextAsync()
+    public async Task<Results<Ok, NotFound<string>, ProblemHttpResult>> RunHarmonyRouteWithPrePopulatedContextAsync()
     {
         Steps.Clear();
         _didCrdtSyncOrImport = false;
@@ -284,7 +284,7 @@ internal sealed class SyncWorkerTestHarness : IDisposable
 
         // SyncWorker only passes this through to MediaFileService.
         services.AddSingleton(_ =>
-            new Mock<LcmCrdt.MediaServer.LcmMediaService>(MockBehavior.Loose, null!, null!, Options.Create(new HarmonyConfig()), null!, null!, NullLogger<LcmCrdt.MediaServer.LcmMediaService>.Instance).Object);
+            new Mock<LcmCrdt.MediaServer.LcmMediaService>(MockBehavior.Loose, null!, null!, null!, Options.Create(new HarmonyConfig()), null!, null!, NullLogger<LcmCrdt.MediaServer.LcmMediaService>.Instance).Object);
 
         var syncService = new Mock<CrdtFwdataProjectSyncService>(
             MockBehavior.Strict,

@@ -7,6 +7,7 @@ using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using MiniLcm.Project;
+using MiniLcmWeb;
 
 namespace FwHeadless;
 
@@ -16,7 +17,10 @@ public static class FwHeadlessKernel
     public static IServiceCollection AddFwHeadless(this IServiceCollection services)
     {
         services
-            .AddLogging(builder => builder.AddConsole().AddDebug().AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning));
+            .AddLogging(builder => builder.AddConsole().AddDebug()
+                .AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning)
+                // LinqToDB logs every SQL command (with parameter values) at Information: 3 records per query
+                .AddFilter("LinqToDB", LogLevel.Warning));
         services.AddOptions<FwHeadlessConfig>()
             .BindConfiguration("FwHeadlessConfig")
             .ValidateDataAnnotations()
@@ -27,7 +31,8 @@ public static class FwHeadlessKernel
         services.AddScoped<ProjectDeletionService>();
         services.AddScoped<LogSanitizerService>();
         services.AddScoped<SafeLoggingProgress>();
-        services.AddScoped<IProjectMetadataService, ProjectMetadataService>();
+        // Singleton so its file lock is shared across requests and the sync worker
+        services.AddSingleton<IProjectMetadataService, ProjectMetadataService>();
         services
             .AddLcmCrdtClientCore()
             .AddFwDataBridge(ServiceLifetime.Scoped)
@@ -39,6 +44,9 @@ public static class FwHeadlessKernel
 
         services.AddSingleton<SyncHostedService>();
         services.AddHostedService(s => s.GetRequiredService<SyncHostedService>());
+        services.AddSingleton<HarmonySyncScheduler>();
+        services.AddHostedService(s => s.GetRequiredService<HarmonySyncScheduler>());
+        services.AddMiniLcmRouteServices();
 
         services.AddScoped<CrdtSyncService>();
         services.AddScoped<ProjectContextFromIdService>();

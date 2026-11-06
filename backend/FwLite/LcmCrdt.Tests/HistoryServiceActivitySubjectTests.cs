@@ -1,3 +1,4 @@
+using MiniLcm.Media;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Comments;
 using LcmCrdt.Changes.Entries;
@@ -27,8 +28,8 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
-        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.Subject == "plain");
-        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.Subject == "homograph₂");
+        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.EntryHeadword() == "plain" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null);
+        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.EntryHeadword() == "homograph" && a.Changes[0].Info.EntryHomographNumber() == 2 && a.Changes[0].Info.Sense == null);
     }
 
     [Fact]
@@ -48,7 +49,7 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
-        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.Subject == "nyumba");
+        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.EntryHeadword() == "nyumba" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null);
     }
 
     [Fact]
@@ -64,7 +65,7 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
-        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.Subject == "-ness");
+        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.EntryHeadword() == "-ness" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null);
     }
 
     [Fact]
@@ -76,29 +77,26 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // A lone sense needs no number (nothing to disambiguate): "run · Added sense to run".
-        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.Subject == "run" && a.Changes[0].Info.Target == "to run");
+        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null && a.Changes[0].Info.TargetText() == "to run");
     }
 
     [Fact]
-    public async Task ProjectActivity_ChangeInfo_MultipleSenses_NumberedPositionally()
+    public async Task ProjectActivity_ChangeInfo_Senses_NamedByGlossThenDefinition()
     {
         var entryId = await CreateEntry("run");
         await CreateSense(entryId, gloss: "to run", order: 1.0);
-        await CreateSense(entryId, gloss: "a jog", order: 2.0);
+        await CreateSense(entryId, gloss: null, order: 2.0, definition: "move quickly on foot");
         await CreateSense(entryId, gloss: null, order: 3.0);
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
-        // With more than one sense every sense is numbered by position (like FieldWorks), independent of the
-        // gloss — unique or not — shown as a subscript after the gloss, like a homograph number. An empty
-        // gloss shows a dotted-circle placeholder for the subscript to attach to.
-        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.Subject == "run" && a.Changes[0].Info.Target == "to run₁");
-        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.Subject == "run" && a.Changes[0].Info.Target == "a jog₂");
-        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.Subject == "run" && a.Changes[0].Info.Target == "◌₃");
+        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null && a.Changes[0].Info.TargetText() == "to run");
+        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null && a.Changes[0].Info.TargetText() == "move quickly on foot");
+        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Entity.Change is CreateSenseChange && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null && a.Changes[0].Info.Target == null);
     }
 
     [Fact]
-    public async Task ProjectActivity_ChangeInfo_EmptyEntryHasNullSubject()
+    public async Task ProjectActivity_ChangeInfo_EmptyEntryHasNullHeadword()
     {
         var entryId = Guid.NewGuid();
         await DataModel.AddChange(ClientId, new CreateEntryChange(new Entry { Id = entryId }),
@@ -106,16 +104,17 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
-        // No displayable headword: the subject and owning-entry headword are null (the frontend renders its
+        // No displayable headword: the entry headword is null (the frontend renders its
         // placeholder, never "(Unknown)"), but the change still resolves to its owning entry.
         activities.Should().Contain(a => a.Changes.Count == 1
-            && a.Changes[0].Info.OwningEntryId == entryId
-            && a.Changes[0].Info.Subject == null
-            && a.Changes[0].Info.OwningEntryHeadword == null);
+            && a.Changes[0].Info.EntryId() == entryId
+            && a.Changes[0].Info.EntryHeadword() == null
+            && a.Changes[0].Info.EntryHomographNumber() == 0
+            && a.Changes[0].Info.Sense == null);
     }
 
     [Fact]
-    public async Task ProjectActivity_ChangeInfo_UnlabellableSenseHasNullSubject()
+    public async Task ProjectActivity_ChangeInfo_UnlabellableSenseHasNullLabel()
     {
         var entryId = Guid.NewGuid();
         await DataModel.AddChange(ClientId, new CreateEntryChange(new Entry { Id = entryId }), Meta());
@@ -126,11 +125,13 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
-        // Neither a headword nor a gloss to label the sense with: the subject is null (the frontend just
-        // omits the leading subject token), never a hardcoded English placeholder.
+        // Neither a headword nor a gloss to label the sense with: both are null (the frontend just
+        // omits them), never a hardcoded English placeholder.
         activities.Should().Contain(a => a.Changes.Count == 1
-            && a.Changes[0].Info.OwningEntryId == entryId
-            && a.Changes[0].Info.Subject == null);
+            && a.Changes[0].Info.EntryId() == entryId
+            && a.Changes[0].Info.EntryHeadword() == null
+            && a.Changes[0].Info.Sense != null
+            && a.Changes[0].Info.SenseLabel() == null);
     }
 
     // --- Possibilities, writing systems, and custom views name themselves by their display name, and recover
@@ -145,16 +146,15 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         var live = await Service.ProjectActivity(0, 100, new ActivityQuery());
         // A possibility names itself by its display name and has no owning entry (so no owning-entry headword either).
         live.Should().Contain(a => a.Changes.Count == 1
-            && a.Changes[0].Info.Subject == "Verb"
-            && a.Changes[0].Info.OwningEntryId == null
-            && a.Changes[0].Info.OwningEntryHeadword == null);
+            && a.Changes[0].Info.ObjectName == "Verb"
+            && a.Changes[0].Info.Entry == null);
 
         await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<PartOfSpeech>(id), Meta());
 
         var afterDelete = await Service.ProjectActivity(0, 100, new ActivityQuery());
         // The delete drops it from the projection; its label is recovered from the last snapshot.
         afterDelete.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is SIL.Harmony.Changes.DeleteChange<PartOfSpeech>)
-            && a.Changes[0].Info.Subject == "Verb");
+            && a.Changes[0].Info.ObjectName == "Verb");
     }
 
     [Fact]
@@ -166,14 +166,14 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         var live = await Service.ProjectActivity(0, 100, new ActivityQuery());
         // A domain shows as "code name".
         live.Should().Contain(a => a.Changes.Count == 1
-            && a.Changes[0].Info.Subject == "5.2 Food"
-            && a.Changes[0].Info.OwningEntryId == null);
+            && a.Changes[0].Info.ObjectName == "5.2 Food"
+            && a.Changes[0].Info.Entry == null);
 
         await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<SemanticDomain>(id), Meta());
 
         var afterDelete = await Service.ProjectActivity(0, 100, new ActivityQuery());
         afterDelete.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is SIL.Harmony.Changes.DeleteChange<SemanticDomain>)
-            && a.Changes[0].Info.Subject == "5.2 Food");
+            && a.Changes[0].Info.ObjectName == "5.2 Food");
     }
 
     [Fact]
@@ -184,14 +184,14 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         var live = await Service.ProjectActivity(0, 100, new ActivityQuery());
         live.Should().Contain(a => a.Changes.Count == 1
-            && a.Changes[0].Info.Subject == "Main Dictionary"
-            && a.Changes[0].Info.OwningEntryId == null);
+            && a.Changes[0].Info.ObjectName == "Main Dictionary"
+            && a.Changes[0].Info.Entry == null);
 
         await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<Publication>(id), Meta());
 
         var afterDelete = await Service.ProjectActivity(0, 100, new ActivityQuery());
         afterDelete.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is SIL.Harmony.Changes.DeleteChange<Publication>)
-            && a.Changes[0].Info.Subject == "Main Dictionary");
+            && a.Changes[0].Info.ObjectName == "Main Dictionary");
     }
 
     [Fact]
@@ -202,14 +202,14 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         var live = await Service.ProjectActivity(0, 100, new ActivityQuery());
         live.Should().Contain(a => a.Changes.Count == 1
-            && a.Changes[0].Info.Subject == "Compound"
-            && a.Changes[0].Info.OwningEntryId == null);
+            && a.Changes[0].Info.ObjectName == "Compound"
+            && a.Changes[0].Info.Entry == null);
 
         await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<ComplexFormType>(id), Meta());
 
         var afterDelete = await Service.ProjectActivity(0, 100, new ActivityQuery());
         afterDelete.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is SIL.Harmony.Changes.DeleteChange<ComplexFormType>)
-            && a.Changes[0].Info.Subject == "Compound");
+            && a.Changes[0].Info.ObjectName == "Compound");
     }
 
     [Fact]
@@ -229,15 +229,15 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         var live = await Service.ProjectActivity(0, 100, new ActivityQuery());
         // A writing system names itself by its plain display name and has no owning entry.
         live.Should().Contain(a => a.Changes.Count == 1
-            && a.Changes[0].Info.Subject == "French"
-            && a.Changes[0].Info.OwningEntryId == null);
+            && a.Changes[0].Info.ObjectName == "French"
+            && a.Changes[0].Info.Entry == null);
 
         await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<WritingSystem>(id), Meta());
 
         var afterDelete = await Service.ProjectActivity(0, 100, new ActivityQuery());
         // The delete drops it from the projection; its name is recovered from the last snapshot.
         afterDelete.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is SIL.Harmony.Changes.DeleteChange<WritingSystem>)
-            && a.Changes[0].Info.Subject == "French");
+            && a.Changes[0].Info.ObjectName == "French");
     }
 
     [Fact]
@@ -253,14 +253,37 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         var live = await Service.ProjectActivity(0, 100, new ActivityQuery());
         live.Should().Contain(a => a.Changes.Count == 1
-            && a.Changes[0].Info.Subject == "My View"
-            && a.Changes[0].Info.OwningEntryId == null);
+            && a.Changes[0].Info.ObjectName == "My View"
+            && a.Changes[0].Info.Entry == null);
 
         await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<CustomView>(id), Meta());
 
         var afterDelete = await Service.ProjectActivity(0, 100, new ActivityQuery());
         afterDelete.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is SIL.Harmony.Changes.DeleteChange<CustomView>)
-            && a.Changes[0].Info.Subject == "My View");
+            && a.Changes[0].Info.ObjectName == "My View");
+    }
+
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_NamesPluginSubject_EvenAfterDelete()
+    {
+        var id = Guid.NewGuid();
+        await DataModel.AddChange(ClientId, new CreatePluginChange(id, new Plugin
+        {
+            Id = id,
+            Name = "My Plugin",
+            MediaUri = new MediaUri(Guid.NewGuid(), "test.lexbox.org"),
+        }), Meta());
+
+        var live = await Service.ProjectActivity(0, 100, new ActivityQuery());
+        live.Should().Contain(a => a.Changes.Count == 1
+            && a.Changes[0].Info.ObjectName == "My Plugin"
+            && a.Changes[0].Info.Entry == null);
+
+        await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<Plugin>(id), Meta());
+
+        var afterDelete = await Service.ProjectActivity(0, 100, new ActivityQuery());
+        afterDelete.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is SIL.Harmony.Changes.DeleteChange<Plugin>)
+            && a.Changes[0].Info.ObjectName == "My Plugin");
     }
 
     [Fact]
@@ -274,7 +297,7 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
-        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.Subject == "suffix");
+        activities.Should().Contain(a => a.Changes.Count == 1 && a.Changes[0].Info.ObjectName == "suffix");
     }
 
     // --- Deleted entries and senses recover their labels from the last snapshot. ---
@@ -289,8 +312,7 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         // The deleted entry is gone from the projected tables; its label is recovered from its last snapshot.
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is SIL.Harmony.Changes.DeleteChange<Entry>)
-            && a.Changes[0].Info.Subject == "run"
-            && a.Changes[0].Info.OwningEntryHeadword == "run");
+            && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null);
     }
 
     [Fact]
@@ -303,10 +325,102 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         // Removing a sense mirrors adding one: the entry is the subject, the removed sense the target.
-        // Recovered from its snapshot; absent from the live sibling list, so the target gloss carries no number.
+        // Recovered from its snapshot, so the target carries the gloss; Sense stays null (and so has no number).
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is SIL.Harmony.Changes.DeleteChange<Sense>)
-            && a.Changes[0].Info.Subject == "run"
-            && a.Changes[0].Info.Target == "to run");
+            && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null
+            && a.Changes[0].Info.TargetText() == "to run");
+    }
+
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_SenseEdit_NumbersSenseByCurrentPosition()
+    {
+        var entryId = await CreateEntry("run");
+        await CreateSense(entryId, gloss: "to run", order: 1.0);
+        var secondId = await CreateSense(entryId, gloss: "to flow", order: 2.0);
+        var patch = new JsonPatchDocument<Sense>();
+        patch.Replace(s => s.Gloss["en"], "to flow fast");
+        await DataModel.AddChange(ClientId, new JsonPatchChange<Sense>(secondId, patch), Meta());
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
+
+        activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is JsonPatchChange<Sense>)
+            && a.Changes[0].Info.SenseLabel() == "to flow fast"
+            && a.Changes[0].Info.SenseNumber() == 2);
+    }
+
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_SenseEdit_OfSenseDeletedSince_HasNoNumber()
+    {
+        var entryId = await CreateEntry("run");
+        await CreateSense(entryId, gloss: "to run", order: 1.0);
+        var secondId = await CreateSense(entryId, gloss: "to flow", order: 2.0);
+        await CreateSense(entryId, gloss: "to hurry", order: 3.0);
+        var patch = new JsonPatchDocument<Sense>();
+        patch.Replace(s => s.Gloss["en"], "to flow fast");
+        await DataModel.AddChange(ClientId, new JsonPatchChange<Sense>(secondId, patch), Meta());
+        await DataModel.AddChange(ClientId, new SIL.Harmony.Changes.DeleteChange<Sense>(secondId), Meta());
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
+
+        // Recovered from its snapshot, the sense is absent from the live order (which still has two senses)
+        activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is JsonPatchChange<Sense>)
+            && a.Changes[0].Info.SenseLabel() == "to flow fast"
+            && a.Changes[0].Info.SenseNumber() == null);
+    }
+
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_SenseEdit_OnLoneSense_HasNoNumber()
+    {
+        var entryId = await CreateEntry("run");
+        var senseId = await CreateSense(entryId, gloss: "to run", order: 1.0);
+        var patch = new JsonPatchDocument<Sense>();
+        patch.Replace(s => s.Gloss["en"], "to run fast");
+        await DataModel.AddChange(ClientId, new JsonPatchChange<Sense>(senseId, patch), Meta());
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
+
+        activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is JsonPatchChange<Sense>)
+            && a.Changes[0].Info.SenseLabel() == "to run fast"
+            && a.Changes[0].Info.SenseNumber() == null);
+    }
+
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_ExampleChange_CarriesParentSenseNumber()
+    {
+        var entryId = await CreateEntry("run");
+        await CreateSense(entryId, gloss: "to run", order: 1.0);
+        var secondId = await CreateSense(entryId, gloss: "to flow", order: 2.0);
+        await DataModel.AddChange(ClientId, new CreateExampleSentenceChange(new ExampleSentence
+        {
+            Id = Guid.NewGuid(),
+            Sentence = new() { ["en"] = new RichString("the river runs") }
+        }, secondId), Meta());
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
+
+        activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is CreateExampleSentenceChange)
+            && a.Changes[0].Info.SenseLabel() == "to flow"
+            && a.Changes[0].Info.SenseNumber() == 2);
+    }
+
+    [Fact]
+    public async Task ProjectActivity_ChangeInfo_ComponentTarget_CarriesHomographNumber()
+    {
+        var complexFormId = await CreateEntry("blackbird");
+        var componentId = Guid.NewGuid();
+        await DataModel.AddChange(ClientId, new CreateEntryChange(new Entry
+        {
+            Id = componentId,
+            LexemeForm = new MultiString { ["en"] = "bird" },
+            HomographNumber = 2
+        }), Meta());
+        await AddComponent(complexFormId, componentId);
+
+        var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
+
+        activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is AddEntryComponentChange)
+            && a.Changes[0].Info.TargetText() == "bird"
+            && a.Changes[0].Info.TargetHomographNumber() == 2);
     }
 
     // --- Reference changes name the entity holding the reference (subject) and the referenced object (target),
@@ -329,8 +443,8 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         // The set-part-of-speech change names the sense as its subject and the assigned part of speech as its target.
         activities.Should().Contain(a => a.Changes.Count == 1
-            && a.Changes[0].Info.Subject == "run › to run"
-            && a.Changes[0].Info.Target == "Noun");
+            && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.SenseLabel() == "to run"
+            && a.Changes[0].Info.TargetText() == "Noun");
     }
 
     [Fact]
@@ -346,8 +460,8 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is AddSemanticDomainChange)
-            && a.Changes[0].Info.Subject == "run › to run"
-            && a.Changes[0].Info.Target == "5.2 Food");
+            && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.SenseLabel() == "to run"
+            && a.Changes[0].Info.TargetText() == "5.2 Food");
     }
 
     [Fact]
@@ -364,8 +478,8 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         // The remove change names the sense as subject and the removed domain as target.
         activities.Should().Contain(a => a.Changes.Count == 1
-            && a.Changes[0].Info.Subject == "run › to run"
-            && a.Changes[0].Info.Target == "5.2 Food");
+            && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.SenseLabel() == "to run"
+            && a.Changes[0].Info.TargetText() == "5.2 Food");
     }
 
     [Fact]
@@ -380,8 +494,8 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is AddPublicationChange)
-            && a.Changes[0].Info.Subject == "run"
-            && a.Changes[0].Info.Target == "Main Dictionary");
+            && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null
+            && a.Changes[0].Info.TargetText() == "Main Dictionary");
     }
 
     [Fact]
@@ -398,8 +512,8 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         // The remove change names the entry as subject and the removed publication as target.
         activities.Should().Contain(a => a.Changes.Count == 1
-            && a.Changes[0].Info.Subject == "run"
-            && a.Changes[0].Info.Target == "Main Dictionary");
+            && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null
+            && a.Changes[0].Info.TargetText() == "Main Dictionary");
     }
 
     [Fact]
@@ -414,8 +528,8 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is AddComplexFormTypeChange)
-            && a.Changes[0].Info.Subject == "blackbird"
-            && a.Changes[0].Info.Target == "Compound");
+            && a.Changes[0].Info.EntryHeadword() == "blackbird" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null
+            && a.Changes[0].Info.TargetText() == "Compound");
     }
 
     [Fact]
@@ -431,8 +545,8 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         var activities = await Service.ProjectActivity(0, 100, new ActivityQuery());
 
         activities.Should().Contain(a => a.Changes.Count == 1
-            && a.Changes[0].Info.Subject == "blackbird"
-            && a.Changes[0].Info.Target == "Compound");
+            && a.Changes[0].Info.EntryHeadword() == "blackbird" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null
+            && a.Changes[0].Info.TargetText() == "Compound");
     }
 
     [Fact]
@@ -446,9 +560,9 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         // The link's subject is the complex form; the target is the component being linked.
         activities.Should().Contain(a => a.Changes.Count == 1
-            && a.Changes[0].Info.Subject == "blackbird"
-            && a.Changes[0].Info.OwningEntryId == complexFormId
-            && a.Changes[0].Info.Target == "bird");
+            && a.Changes[0].Info.EntryHeadword() == "blackbird" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null
+            && a.Changes[0].Info.EntryId() == complexFormId
+            && a.Changes[0].Info.TargetText() == "bird");
     }
 
     [Fact]
@@ -464,8 +578,8 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         // The delete still names the complex form (subject) and component (target) for orientation.
         activities.Should().Contain(a => a.Changes.Count == 1
-            && a.Changes[0].Info.Subject == "blackbird"
-            && a.Changes[0].Info.Target == "bird");
+            && a.Changes[0].Info.EntryHeadword() == "blackbird" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null
+            && a.Changes[0].Info.TargetText() == "bird");
     }
 
     [Fact]
@@ -484,10 +598,9 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         // An example resolves to its parent sense's subject and its owning entry (id + headword); the target is a
         // short snippet of the sentence text (here short enough to show whole).
         activities.Should().Contain(a => a.Changes.Count == 1
-            && a.Changes[0].Info.Subject == "run › to run"
-            && a.Changes[0].Info.OwningEntryId == entryId
-            && a.Changes[0].Info.OwningEntryHeadword == "run"
-            && a.Changes[0].Info.Target == "I run daily");
+            && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.SenseLabel() == "to run"
+            && a.Changes[0].Info.EntryId() == entryId
+            && a.Changes[0].Info.TargetText() == "I run daily");
     }
 
     [Fact]
@@ -507,8 +620,8 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         // The deleted example is gone from the projection; its snippet is recovered from the last snapshot.
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is SIL.Harmony.Changes.DeleteChange<ExampleSentence>)
-            && a.Changes[0].Info.Subject == "run › to run"
-            && a.Changes[0].Info.Target == "I run daily");
+            && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.SenseLabel() == "to run"
+            && a.Changes[0].Info.TargetText() == "I run daily");
     }
 
     // --- Comments resolve to whatever their thread is attached to (subject), with the comment text as a
@@ -524,8 +637,8 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         // A thread reads at the level of the thing it's on: the commented entry's headword and its owning entry.
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is CreateCommentThreadChange)
-            && a.Changes[0].Info.Subject == "run"
-            && a.Changes[0].Info.OwningEntryId == entryId);
+            && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null
+            && a.Changes[0].Info.EntryId() == entryId);
     }
 
     [Fact]
@@ -540,9 +653,9 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         // The comment resolves to its sense (subject + owning entry) with the comment text as the target.
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is CreateUserCommentChange)
-            && a.Changes[0].Info.Subject == "run › to run"
-            && a.Changes[0].Info.OwningEntryId == entryId
-            && a.Changes[0].Info.Target == "looks wrong");
+            && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.SenseLabel() == "to run"
+            && a.Changes[0].Info.EntryId() == entryId
+            && a.Changes[0].Info.TargetText() == "looks wrong");
     }
 
     [Fact]
@@ -556,7 +669,7 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         // Long comment text is truncated to the example-snippet budget, backing off to the last whole word.
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is CreateUserCommentChange)
-            && a.Changes[0].Info.Target == "this gloss looks…");
+            && a.Changes[0].Info.TargetText() == "this gloss looks…");
     }
 
     [Fact]
@@ -571,8 +684,8 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
 
         // The deleted comment is gone from the projection; its snippet is recovered from the last snapshot.
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is SIL.Harmony.Changes.DeleteChange<UserComment>)
-            && a.Changes[0].Info.Subject == "run"
-            && a.Changes[0].Info.Target == "looks wrong");
+            && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null
+            && a.Changes[0].Info.TargetText() == "looks wrong");
     }
 
     // --- Reorder changes name the parent as the subject and (where applicable) the moved child as the target. ---
@@ -599,7 +712,7 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         // The reorder names the parent entry as the subject and the moved sense's gloss as the target.
         // Pin to the reorder change: the create-sense commit resolves to the same subject/target.
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is LcmCrdt.Changes.SetOrderChange<Sense>)
-            && a.Changes.Count == 1 && a.Changes[0].Info.Subject == "run" && a.Changes[0].Info.Target == "to run");
+            && a.Changes.Count == 1 && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null && a.Changes[0].Info.TargetText() == "to run");
     }
 
     [Fact]
@@ -622,10 +735,9 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         // Pin to the reorder change: the create-example commit resolves to the same subject/owning entry.
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is LcmCrdt.Changes.SetOrderChange<ExampleSentence>)
             && a.Changes.Count == 1
-            && a.Changes[0].Info.Subject == "run › to run"
-            && a.Changes[0].Info.OwningEntryId == entryId
-            && a.Changes[0].Info.OwningEntryHeadword == "run"
-            && a.Changes[0].Info.Target == "I run");
+            && a.Changes[0].Info.EntryHeadword() == "run" && a.Changes[0].Info.SenseLabel() == "to run"
+            && a.Changes[0].Info.EntryId() == entryId
+            && a.Changes[0].Info.TargetText() == "I run");
     }
 
     [Fact]
@@ -642,8 +754,8 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
         // Pin to the reorder change: the add-component commit resolves to the same subject/target.
         activities.Should().Contain(a => a.Changes.Any(c => c.Entity.Change is LcmCrdt.Changes.SetOrderChange<ComplexFormComponent>)
             && a.Changes.Count == 1
-            && a.Changes[0].Info.Subject == "blackbird"
-            && a.Changes[0].Info.OwningEntryId == complexFormId
-            && a.Changes[0].Info.Target == "bird");
+            && a.Changes[0].Info.EntryHeadword() == "blackbird" && a.Changes[0].Info.EntryHomographNumber() == 0 && a.Changes[0].Info.Sense == null
+            && a.Changes[0].Info.EntryId() == complexFormId
+            && a.Changes[0].Info.TargetText() == "bird");
     }
 }

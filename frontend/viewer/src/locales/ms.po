@@ -8,7 +8,7 @@ msgstr ""
 "Language: ms\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-05-28 10:55\n"
+"PO-Revision-Date: 2026-10-23 18:34\n"
 "Last-Translator: \n"
 "Language-Team: Malay\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -25,14 +25,71 @@ msgstr ""
 msgid "– ({0} changes)"
 msgstr "– ({0} perubahan)"
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "…and {0} more changes"
+msgstr ""
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” added an entry"
+msgstr ""
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "“{0}” can now make changes without asking. You can change this from the plugin toolbar or its card."
+msgstr ""
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” changed an entry"
+msgstr ""
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” kept asking to change your dictionary after you said no. Reload it to try again."
+msgstr ""
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” made {1}"
+msgstr ""
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "“{0}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin."
+msgstr ""
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "\"{0}\" was added for everyone on this project."
+msgstr ""
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "“{0}” will ask before making changes again."
+msgstr ""
+
+#. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
+#. Shown in place of the sense's number and gloss; "sense" is "meaning" in the Lite view
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "(deleted sense)"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "(deleted)"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(edited)"
+msgstr "(disunting)"
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "(empty)"
+msgstr ""
+
+#. Activity-log line: placeholder shown in place of a newly created entry's name when it has no headword text yet.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "(no headword)"
 msgstr ""
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "(unknown)"
-msgstr ""
+msgstr "(tidak diketahui)"
 
 #. Generic placeholder for dynamic content
 #: src/home/HomeView.svelte
@@ -41,6 +98,14 @@ msgstr ""
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0}"
 msgstr "{0}"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "{0} (copy)"
+msgstr ""
+
+#: src/project/data/plugin-service.svelte.ts
+msgid "{0} (custom)"
+msgstr ""
 
 #. Suffix for field labels
 #: src/lib/components/editor/field/field-title.svelte
@@ -54,7 +119,7 @@ msgstr "{0} (FieldWorks)"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} activity types"
-msgstr ""
+msgstr "{0} jenis aktiviti"
 
 #. Time display format
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
@@ -64,6 +129,19 @@ msgstr "{0} yang lalu"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} authors"
+msgstr "{0} penulis"
+
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "{0} KB"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "{0} KB to {1} KB"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "{0} KB to {1} KB, no new permissions"
 msgstr ""
 
 #. File size display with unit
@@ -73,41 +151,59 @@ msgstr "{0} MB"
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
-msgstr ""
+msgstr "{0} balasan"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "{0} resolved"
-msgstr ""
+msgstr "{0} telah diselesaikan"
 
 #. Display name for server
 #: src/home/Server.svelte
 msgid "{0} Server"
 msgstr "Pelayan {0}"
 
+#. Activity list row footer: how many further changes in this commit were left off the row (# = count). Clicking the row shows them all.
+#: src/lib/activity/ActivityView.svelte
+msgid "{num, plural, one {(+# more change)} other {(+# more changes)}}"
+msgstr ""
+
 #. Number of changes in sync operation
-#: src/project/SyncDialog.svelte
-#: src/project/SyncDialog.svelte
+#: src/lib/plugins/PluginSandbox.svelte
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, other {# perubahan}}"
 
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "{num, plural, one {# entry to go} other {# entries to go}}"
+msgstr "{num, plural, one {# entri lagi} other {# entri lagi}}"
+
 #. Commit count display
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
 msgstr "{num, plural, other {# komit FieldWorks Classic baharu}}"
 
 #. Commit count display
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks Lite commits}}"
 msgstr "{num, plural, other {# komit FieldWorks Lite baharu}}"
 
 #: src/project/browse/filter/UnreadCommentBadge.svelte
 msgid "{num, plural, one {# unread comment} other {# unread comments}}"
-msgstr ""
+msgstr "{num, plural, one {# komen belum dibaca} other {# komen belum dibaca}}"
+
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "{num, plural, one {# word to go} other {# words to go}}"
+msgstr "{num, plural, one {# perkataan lagi} other {# perkataan lagi}}"
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
-msgstr ""
+msgstr "{num, plural, one {Tunjukkan # lebih banyak...} other {Tunjukkan # lebih banyak...}}"
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -124,8 +220,25 @@ msgstr "**Lebih sedikit jenis morfem** (hanya *Akar*, *Akar Terikat*, *Batang*, 
 msgid "**Simpler terminology** (e.g. *Word* instead of *Lexeme form*, *Meaning* instead of *Sense*)"
 msgstr "**Terminologi lebih mudah** (cth. *Perkataan* bukan *bentuk leksem*, *Makna* bukan *Sense*)"
 
+#. A link between two dictionary entries: first # is the component (a word plus maybe its sense), second # is the complex form it belongs to
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "# part of #"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "1 reply"
+msgstr "1 balasan"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "1. Describe your plugin"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "2. Have an AI write it"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "3. Try it here"
 msgstr ""
 
 #. Update notification
@@ -133,25 +246,43 @@ msgstr ""
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Versi baharu FieldWorks Lite tersedia."
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "A project manager can add plugins for the team."
+msgstr ""
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "A short summary shown on the plugin's card."
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "A similar word already exists"
 #. Warning banner in the New Entry dialog when exactly one possible duplicate was found (none an exact headword match)
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "A similar entry already exists"
-msgstr ""
+msgstr "Satu entri yang serupa sudah wujud."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "A similar entry already exists"
 #. Warning banner in the New Word dialog when exactly one possible duplicate was found (none spelled exactly the same)
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "A similar word already exists"
-msgstr ""
+msgstr "Satu perkataan yang serupa sudah wujud."
 
 #. Relevant view: Lite
 #. Classic view equivalent: "an entry"
 #: src/project/browse/BrowseView.svelte
 msgid "a word"
 msgstr "satu perkataan"
+
+#. Field label in the activity change-preview diff for vocabulary objects (part of speech, semantic domain, etc.). Shows the abbreviated form alongside the full name.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Abbreviation"
+msgstr ""
+
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "About"
+msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
@@ -162,6 +293,11 @@ msgstr "Akaun"
 #: src/project/ProjectSidebar.svelte
 msgid "Activity"
 msgstr "Aktiviti"
+
+#. Error boundary title shown if the whole Activity view crashes while rendering.
+#: src/lib/activity/ActivityView.svelte
+msgid "Activity view failed"
+msgstr ""
 
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
@@ -185,6 +321,11 @@ msgstr "Tambah bentuk kompleks"
 msgid "Add component"
 msgstr "Tambah komponen"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Add entry"
+msgstr ""
+
 #. Button to add example sentence
 #. Adds sentence/phrase showing how a word is used in context
 #. Each example can have translation and source reference
@@ -201,6 +342,10 @@ msgstr "Tambah Contoh"
 msgid "Add Meaning"
 msgstr "Tambah Makna"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Add my version"
+msgstr ""
+
 #. Button in toolbar
 #: src/lib/entry-editor/NewEntryButton.svelte
 msgid "Add new word"
@@ -215,7 +360,7 @@ msgstr "Tambah sebahagian daripada"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Add Picture"
-msgstr ""
+msgstr "Tambah gambar"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add Meaning"
@@ -225,10 +370,23 @@ msgstr ""
 msgid "Add Sense"
 msgstr "Tambah Makna"
 
+#: src/project/tasks/TaskList.svelte
+msgid "Add some entries first."
+msgstr "Tambah beberapa entri terlebih dahulu."
+
+#: src/project/tasks/TaskList.svelte
+msgid "Add some words first."
+msgstr "Tambah beberapa patah perkataan dahulu."
+
 #. Subtitle of a placeholder row shown at the end of the entry list while searching (also in the no-results state)
 #. The search text is displayed above it as a headword; clicking opens the new-entry dialog pre-filled with that text
 #: src/project/browse/EntriesList.svelte
 msgid "Add to dictionary"
+msgstr "Tambah ke kamus"
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Add to project"
 msgstr ""
 
 #. Dialog title
@@ -238,11 +396,57 @@ msgstr "Tambah Perkataan"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Add your first entry to start building your dictionary."
+msgstr "Tambah entri pertama anda untuk mula membina kamus anda."
+
+#. Badge or screen-reader marker in the activity change preview: this change created the item, or added the highlighted text or value
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityView.svelte
+#: src/lib/entry-editor/diff-view/DiffMarker.svelte
+msgid "Added"
 msgstr ""
+
+#. Activity-log line in the dictionary edit history. {0} = singular noun for a list-item type (e.g. "semantic domain", "complex form type", "publication", "translation"). A second chip with the new item's name follows this text.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added {0}"
+msgstr ""
+
+#. Activity-log line: a user posted a discussion comment (on an entry). A chip with the comment text may follow.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added comment"
+msgstr ""
+
+#. Activity-log line: a complex-form component entry was added to another entry's Components list; a chip with the component's name may follow.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added component"
+msgstr ""
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Added for the team"
+msgstr ""
+
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Removed picture", "Updated picture", "Reordered pictures".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added picture"
+msgstr ""
+
+#. Activity-log line, fallback when the added list item has no dedicated noun. {0} = the field's label (e.g. "Publications"); a chip with the added value may follow.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Added to {0}"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Advanced: settings file"
+msgstr "Lanjutan: fail tetapan"
 
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+#: src/lib/plugins/PluginsView.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "All"
 msgstr "Semua"
@@ -252,13 +456,25 @@ msgstr "Semua"
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All activity types"
-msgstr ""
+msgstr "Semua jenis aktiviti"
 
 #. Filter option in activity view author dropdown — show commits from every author.
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
+msgstr "Semua pengarang"
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Allow and run it"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Already have a plugin file? It runs in the preview straight away, before anyone else can see it."
+msgstr ""
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Always allow for this plugin"
 msgstr ""
 
 #. Relevant view: Classic
@@ -270,6 +486,7 @@ msgstr "satu entri"
 
 #. Section heading in custom view writing system picker.
 #. Labels the analysis language writing systems (e.g., English definitions/glosses).
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Analysis"
 msgstr "Analisis"
@@ -277,15 +494,16 @@ msgstr "Analisis"
 #. Field label in the create-project dialog. An optional additional analysis writing system to create (English is always included), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Analysis writing system code"
-msgstr ""
+msgstr "Kod sistem penulisan analisis"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Analysis writing systems"
-msgstr ""
+msgstr "Sistem penulisan analisis"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Analytics are turned off."
-msgstr ""
+msgstr "Analitik telah dimatikan."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -322,20 +540,54 @@ msgstr "Mana-mana domain semantik"
 msgid "Any Ws"
 msgstr "Mana-mana Ws"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Apply change"
+msgstr ""
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Apply changes"
+msgstr ""
+
 #. Confirmation prompt
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
 msgstr "Adakah anda pasti mahu memadam {0}?"
+
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "Ask AI"
+msgstr ""
 
 #. Button description
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Ask questions and get help on our community forum."
 msgstr "Tanya soalan dan dapatkan bantuan di forum komuniti kami."
 
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Ask the AI to remove it"
+msgstr ""
+
+#. Small marker chip on an activity summary indicating a field value is an audio recording (not text)
+#: src/lib/activity/ChangeSummary.svelte
+msgid "audio"
+msgstr ""
+
+#. Field label in the activity change-preview diff for a writing system. Shows whether it's an audio writing system (Yes/No).
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/project/tasks/TaskList.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "Audio"
+msgstr "Audio"
+
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
 msgstr "Fail audio tidak termasuk dalam Hantar & Terima"
+
+#. Noun for a media resource that is an audio recording, e.g. "Added audio recording" in the activity log
+#: src/lib/activity/ChangeSummary.svelte
+msgid "audio recording"
+msgstr ""
 
 #. Success message for audio sync
 #: src/lib/components/audio/AudioDialog.svelte
@@ -349,7 +601,7 @@ msgstr "Audio disimpan secara setempat"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"
-msgstr ""
+msgstr "Pengarang"
 
 #. Label for author name in activity details
 #: src/lib/activity/ActivityItem.svelte
@@ -362,12 +614,32 @@ msgid "Auto"
 msgstr "Auto"
 
 #. Status indicator
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Auto syncing"
 msgstr "Segerakkan automatik"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Back"
+msgstr "Balik"
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioNotice.svelte
+msgid "Back to plugins"
+msgstr ""
+
+#: src/project/tasks/TaskView.svelte
+#: src/project/tasks/TasksView.svelte
+msgid "Back to tasks"
+msgstr "Kembali ke tugasan"
+
+#. Field label in the activity change-preview diff for a custom view. Shows which base view ("FieldWorks Classic" or "FieldWorks Lite") the custom view extends.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Base view"
 msgstr ""
 
 #. Section label in custom view form.
@@ -392,17 +664,43 @@ msgstr "Padanan terbaik"
 msgid "blue"
 msgstr "biru"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Breadcrumb"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TaskList.svelte
 msgid "Browse"
 msgstr "Terokai"
 
 #: src/project/browse/BrowseView.svelte
 msgid "Browse view failed"
-msgstr ""
+msgstr "Paparan semak imbas gagal"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/plugins/PluginsView.svelte
 msgid "Camera"
+msgstr "Kamera"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Can access the internet (and could send dictionary data there)"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Can change the dictionary"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Can change the dictionary, and asks before each change"
+msgstr ""
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Can change your dictionary — it will ask you first"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Can use the internet"
 msgstr ""
 
 #. Button to close dialog without saving
@@ -427,16 +725,38 @@ msgid "Cancel"
 msgstr "Batal"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Caption"
+msgstr "Kapsyen"
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Change entry"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "Change it before adding"
+msgstr ""
+
+#. Activity-log line. {0} = field label (e.g. "Part of speech") or singular list-item noun (e.g. "complex form type"). Used when the new value is unknown or not displayed.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Changed {0}"
+msgstr ""
+
+#. Activity-log line. {0} = field label (e.g. "Part of speech"); a chip showing the new value follows this text.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Changed {0} to"
 msgstr ""
 
 #. Explanation of sync behavior
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
 msgstr "Perubahan juga boleh menjadi hasil daripada medan yang ditambahkan ke versi baharu FieldWorks Lite."
 
 #. Explanation of commits vs changes
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Mengubah medan yang sama dua kali, sebagai contoh, boleh menghasilkan dua komit tetapi hanya satu perubahan yang perlu digunakan pada FieldWorks Classic. Komit juga boleh terdiri daripada berbilang perubahan."
 
@@ -445,14 +765,14 @@ msgstr "Mengubah medan yang sama dua kali, sebagai contoh, boleh menghasilkan du
 #. Status line in the New Entry dialog while searching for possible duplicate entries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Checking for similar entries…"
-msgstr ""
+msgstr "Semak entri serupa…"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Checking for similar entries…"
 #. Status line in the New Word dialog while searching for possible duplicate words
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Checking for similar words…"
-msgstr ""
+msgstr "Semak perkataan serupa…"
 
 #. Status message while checking for updates
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -467,6 +787,7 @@ msgstr "Pilih tema"
 #. Relevant view: Classic
 #. Lite view equivalent: "Display as"
 #. Field label: form for citing in dictionary
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Citation form"
@@ -484,10 +805,18 @@ msgstr "Projek FieldWorks Klasik"
 msgid "clear"
 msgstr "padam"
 
+#. Activity-log line. {0} = field label (e.g. "Gloss", "Definition"). Means the field's value was erased.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Cleared {0}"
+msgstr ""
+
 #. Button to close popup
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Close"
 msgstr "Tutup"
@@ -498,9 +827,19 @@ msgstr "Tutup"
 msgid "Close Dictionary"
 msgstr "Tutup Kamus"
 
+#. Activity-log line: a user closed (resolved) a discussion thread. Matches the "Closed" status in the comments dialog.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Closed comment thread"
+msgstr ""
+
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Code"
+msgstr "Kod"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Collect words"
 msgstr ""
 
 #. Tab or section
@@ -510,15 +849,41 @@ msgstr "Warna"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Comment"
+msgstr "Komen"
+
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Commenter"
+msgstr "Pengulas"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "comments"
 msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 msgid "Comments"
-msgstr ""
+msgstr "Komen"
 
 #: src/project/browse/EntryView.svelte
 msgid "Comments, {0} unread"
+msgstr "Komen, {0} belum dibaca"
+
+#. Note on the "Later changes" tab. "Version" means the item's data at one moment; two moments are compared: just after this change, and now
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Compares the version right after this change with the current version."
+msgstr ""
+
+#. Note on the "Deleted later" tab. The item was deleted later; the second version is its data just before that deletion
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Compares the version right after this change with the last version before deletion."
+msgstr ""
+
+#: src/project/tasks/TaskList.svelte
+msgid "Complete"
+msgstr "Lengkap"
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Complex form"
 msgstr ""
 
 #. Field label
@@ -528,6 +893,21 @@ msgstr ""
 msgid "Complex Form"
 msgstr "Bentuk Kompleks"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added complex form type"). Refers to a user-defined classification of compound-word relationships (e.g. "compound", "derivative").
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "complex form type"
+msgstr ""
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Complex form type"
+msgstr ""
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). User-defined classifications of compound-word relationships (e.g. "compound", "derivative").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "complex form types"
+msgstr ""
+
 #. Field label
 #. Classifies the type of complex form relationship (user-configurable)
 #. Examples: "compound", "derivative", "inflectional" (varies by project)
@@ -535,15 +915,16 @@ msgstr "Bentuk Kompleks"
 msgid "Complex form types"
 msgstr "Jenis bentuk kompleks"
 
-#. Label in change preview
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Complex form:"
-msgstr "Bentuk kompleks:"
-
 #. Field label
 #: src/lib/views/entity-config.ts
 msgid "Complex forms"
 msgstr "Bentuk kompleks"
+
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added component"). Refers to an entry that is a constituent part of a compound word (e.g. "sun" is a component of "sunflower").
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "component"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Part"
@@ -553,13 +934,14 @@ msgstr "Bentuk kompleks"
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexFormComponents.svelte
 #: src/lib/entry-editor/field-editors/ComplexForms.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Component"
 msgstr "Komponen"
 
-#. Label in change preview
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Component:"
-msgstr "Komponen:"
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of component entries in a compound word.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "components"
+msgstr ""
 
 #. Field label
 #: src/lib/views/entity-config.ts
@@ -573,9 +955,13 @@ msgstr "Komponen-komponen"
 msgid "Contains"
 msgstr "Mengandungi"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Contexts"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
-msgstr ""
+msgstr "Perbualan"
 
 #. Success message after copying text
 #: src/lib/components/ui/button/copy-button.svelte
@@ -592,30 +978,46 @@ msgstr "Salin versi"
 #. Status line in the New Entry dialog when the background duplicate search failed (e.g. connection lost); typing again retries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar entries"
-msgstr ""
+msgstr "Tidak dapat memeriksa entri yang serupa"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Could not check for similar entries"
 #. Status line in the New Word dialog when the background duplicate search failed (e.g. connection lost); typing again retries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar words"
+msgstr "Tidak dapat memeriksa perkataan yang serupa"
+
+#: src/project/sync/FwClassicSyncView.svelte
+msgid "Couldn't get the FieldWorks Classic status from Lexbox."
+msgstr "Tidak dapat memperoleh status FieldWorks Classic daripada Lexbox."
+
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "Couldn't load the plugin file."
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Couldn't load the plugin file. {0}"
+msgstr ""
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Couldn't load this plugin"
 msgstr ""
 
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Couldn't sync right now — your local changes are safe."
-msgstr ""
+msgstr "Tidak dapat menyegerakkan sekarang — perubahan tempatan anda selamat."
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
 msgid "Create"
-msgstr ""
+msgstr "Mencipta"
 
 #. Subtitle on the dev-only New Project button; the new project is a blank, local-only FieldWorks Lite project.
 #: src/home/HomeView.svelte
 msgid "Create a new FieldWorks Lite project"
-msgstr ""
+msgstr "Buat projek FieldWorks Lite baru"
 
 #. Dialog title when creating a new custom view.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
@@ -644,6 +1046,18 @@ msgstr "Cipta Projek Contoh"
 msgid "Create View"
 msgstr "Buat Pandangan"
 
+#. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "custom view"); a chip with the created item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Created {0}"
+msgstr ""
+
+#. Activity-log line for a batch of same-type creations. {0} = count (number, always ≥ 2); {1} = plural noun for the created object type (e.g. "entries", "semantic domains").
+#. Example: "Created 100 semantic domains". Order and inflection of {0} and {1} may vary by language.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Created {0} {1}"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Current Word"
 #. Label in picker: marks the entry that is currently being edited
@@ -652,10 +1066,9 @@ msgstr "Buat Pandangan"
 msgid "Current Entry"
 msgstr "Entri Semasa"
 
-#. Column header
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Current version"
-msgstr "Versi semasa"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Current Entry"
@@ -671,10 +1084,20 @@ msgstr "Perkataan Semasa"
 msgid "Custom"
 msgstr "Kustom"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Created custom view"). A custom view is a user-defined configuration of which dictionary fields and writing systems are visible.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "custom view"
+msgstr ""
+
 #. Label used in delete confirmation prompt for a custom view.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
 msgid "Custom view"
 msgstr "Paparan tersuai"
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). User-defined configurations of which dictionary fields and writing systems are visible.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "custom views"
+msgstr ""
 
 #. Theme option
 #: src/lib/components/ThemePicker.svelte
@@ -689,7 +1112,7 @@ msgstr "Papan Pemuka"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Dashboard failed to load"
-msgstr ""
+msgstr "Papan pemuka gagal dimuatkan"
 
 #. Field label
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -699,6 +1122,7 @@ msgstr "Direktori Data"
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Definition"
@@ -709,6 +1133,7 @@ msgstr "Definisi"
 #. Action: Prompts confirmation, frees up local storage
 #: src/home/HomeView.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
+#: src/lib/plugins/PluginsView.svelte
 msgid "Delete"
 msgstr "Hapus"
 
@@ -727,7 +1152,7 @@ msgstr "Padam Entri"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Delete Picture"
-msgstr ""
+msgstr "Padam Gambar"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Delete Entry"
@@ -736,14 +1161,61 @@ msgstr ""
 msgid "Delete Word"
 msgstr "Padam Perkataan"
 
-#. Change type indicator
-#: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#. Badge in the activity change preview: the item itself was deleted. Compare "Removed", where only a link was removed and the item still exists
+#: src/lib/activity/ActivityChangeHeader.svelte
 msgid "Deleted"
 msgstr "Dipadamkan"
 
-#. Button to view activity details
+#. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "writing system"); a chip with the deleted item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted {0}"
+msgstr ""
+
+#. Activity-log line. {0} = singular entity noun (e.g. "example", "meaning"/"sense"). A chip with the parent entry/sense name follows (e.g. "Deleted example from «Apfel»").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted {0} from"
+msgstr ""
+
+#. Activity-log line: a user deleted a discussion comment.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted comment"
+msgstr ""
+
+#. Activity-log line: a user deleted a whole discussion thread with its comments.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Deleted comment thread"
+msgstr ""
+
+#. Status on a tab: the item was deleted after this change. Not an instruction to delete it later.
 #: src/lib/activity/ActivityItem.svelte
+msgid "Deleted later"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "Describe a change"
+msgstr ""
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Describe it and have an AI write it, or paste a plugin file you already have."
+msgstr ""
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Describe your plugin"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "Description"
+msgstr ""
+
+#. Tab in the activity change preview: technical details of the change
+#: src/lib/activity/ActivityItem.svelte
+#: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Details"
 msgstr "Butiran"
 
@@ -765,6 +1237,9 @@ msgstr "Pratonton Kamus"
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Discard"
 msgstr "Buang"
 
@@ -780,10 +1255,18 @@ msgstr "Papar sebagai"
 msgid "Do you want to:"
 msgstr "Adakah anda mahu:"
 
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Don't allow"
+msgstr ""
+
 #. Button to cancel deletion
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Don't delete"
 msgstr "Jangan padam"
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Don't run it"
+msgstr ""
 
 #. Tab label
 #: src/project/tasks/TaskView.svelte
@@ -795,6 +1278,7 @@ msgstr "Selesai"
 #: src/lib/components/audio/audio-editor.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 #: src/lib/notifications/NotificationOutlet.svelte
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Download"
 msgstr "Muat turun"
 
@@ -810,12 +1294,21 @@ msgstr "Halaman muat turun"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Download Picture"
-msgstr ""
+msgstr "Muat turun gambar"
 
 #. Dialog description
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Download project by project code"
 msgstr "Muat turun projek mengikut kod projek"
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Download prompt"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Download the prompt and attach the file in any AI chat (e.g. Claude, ChatGPT or Gemini). It already explains plugins and this project."
+msgstr ""
 
 #. Menu option
 #: src/home/Server.svelte
@@ -838,23 +1331,62 @@ msgstr "Telah memuat turun {0}"
 msgid "Downloading {0}..."
 msgstr "Memuat turun {0}..."
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Downloading update..."
+msgstr "Muat turun kemas kini..."
+
 #. Generic progress message
 #: src/home/Server.svelte
 msgid "Downloading..."
 msgstr "Memuat turun..."
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Draft, only you can see it"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Duplicate"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "e.g. A flashcard game that quizzes me on entries missing an English gloss and lets me fill it in when I remember the word."
+msgstr ""
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "e.g. Also show how many entries have a recording."
+msgstr ""
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "e.g. Dashboard of dictionary statistics"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "e.g. Dictionary stats"
+msgstr ""
+
 #. Placeholder in the Vernacular writing system input. The example IETF language tags don't need to be translated.
 #: src/home/CreateProjectDialog.svelte
 msgid "e.g. th, sw"
-msgstr ""
+msgstr "contohnya th, sw"
 
+#: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "Edit"
-msgstr ""
+msgstr "Sunting"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit comment"
+msgstr "Sunting komen"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit complex form"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit component"
 msgstr ""
 
 #. Dialog title when editing an existing custom view.
@@ -862,8 +1394,41 @@ msgstr ""
 msgid "Edit Custom View"
 msgstr "Sunting Tinjauan Tersuai"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "Edit Word"
+#. Button on a change in the activity view; opens the changed entry in an edit dialog
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Edit Entry"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Edit Picture"
+msgstr "Sunting Gambar"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Edit whole word"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Edit Entry"
+#. Button on a change in the activity view; opens the changed word in an edit dialog
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Edit Word"
+msgstr ""
+
+#. Tooltip/aria-label for the "changed" change-category badge icon on an activity row (paired with "Added", "Removed", "Reordered").
+#: src/lib/activity/ActivityView.svelte
+msgid "Edited"
+msgstr ""
+
+#. Activity-log line. {0} = singular noun for a vocabulary object type (e.g. "part of speech", "morph type"); a chip with the edited item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Edited {0}"
+msgstr ""
+
+#. Activity-log line: a user edited their discussion comment. A chip with the new comment text may follow.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Edited comment"
 msgstr ""
 
 #. Role selector option
@@ -871,9 +1436,21 @@ msgstr ""
 msgid "Editor"
 msgstr "Editor"
 
+#: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+msgid "Editor Lite"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Edits — asks first"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Edits without asking"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Empty comment"
-msgstr ""
+msgstr "Komen kosong"
 
 #. Filter operator
 #. Search operator: matches fields ending with the search term
@@ -881,6 +1458,19 @@ msgstr ""
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Ends with"
 msgstr "Berakhir dengan"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Enrich & clean up"
+msgstr ""
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Refers to dictionary entries (headwords with their senses/definitions).
+#: src/lib/activity/ChangeSummary.svelte
+msgid "entries"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Entries missing both Lexeme form and Citation form"
+msgstr "Entri yang hilang kedua-dua bentuk leksem dan bentuk petikan"
 
 #. Filter option label
 #. Dropdown to filter entries by missing fields
@@ -891,13 +1481,14 @@ msgstr "Entri yang hilang..."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with examples"
-msgstr ""
+msgstr "Entri dengan contoh"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with senses"
-msgstr ""
+msgstr "Entri dengan makna"
 
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
+#: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
 msgid "entry"
 msgstr "Entri"
@@ -905,7 +1496,6 @@ msgstr "Entri"
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
 #. Item type label: dictionary entry (word/headword with definitions)
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -913,6 +1503,16 @@ msgstr "Entri"
 #: src/project/browse/EntryMenu.svelte
 msgid "Entry"
 msgstr "Entri"
+
+#. Field label in the activity change-preview diff for a custom view: which entry-level fields it shows.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Entry fields"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "Entry menu"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Word only"
@@ -927,6 +1527,10 @@ msgstr "Entri Sahaja"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Entry or sense:"
 msgstr "Entri atau makna:"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Entry the plugin starts from"
+msgstr ""
 
 #. Filter operator
 #. Search operator: exact match (whole field must equal search term)
@@ -946,28 +1550,90 @@ msgid "Error getting sync status"
 msgstr "Ralat mendapatkan status penyegerakan"
 
 #. Error notification
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Error getting sync status."
 msgstr "Ralat mendapatkan status penyegerakan."
+
+#: src/project/tasks/TaskView.svelte
+msgid "Every entry already has this field filled in."
+msgstr "Setiap entri sudah mempunyai medan ini diisi."
+
+#: src/project/tasks/TaskView.svelte
+msgid "Every word already has this field filled in."
+msgstr "Setiap perkataan sudah mempunyai medan ini diisi."
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Everyone on this project will see it under Plugins. You can change or remove it later."
+msgstr ""
+
+#. Standalone noun (an example sentence on a sense), interpolated into a reorder activity-log line, e.g. "<sense> · Reordered example".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "example"
+msgstr ""
 
 #. Section header
 #. Labels example sentence/phrase section in entry editor
 #. Contains: sentence text, translation, source reference
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Example"
 msgstr "Contoh"
+
+#. Field label in the activity change-preview diff for a custom view: which example-sentence fields it shows.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Example fields"
+msgstr ""
 
 #. Field label
 #. Sentence/phrase showing usage of a word
 #. Appears under each Sense/Meaning; can have multiple examples per meaning
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Example sentence"
 msgstr "Ayat contoh"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
+msgstr "Contoh ayat"
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Example, not in this project"
 msgstr ""
+
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of example sentences under a sense.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "examples"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Examples"
+msgstr ""
+
+#. Field label in the activity change-preview diff for a writing system. Exemplars are the list of index letters (e.g. A, B, C…) used for alphabetical browsing.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Exemplars"
+msgstr ""
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Exit fullscreen"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Explore & analyze"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Export"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to change verbose logging"
+msgstr "Gagal menukar log perincian"
 
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
@@ -983,7 +1649,7 @@ msgstr "Gagal memuat turun {0}"
 #: src/lib/activity/ActivityView.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "Failed to load activity"
-msgstr ""
+msgstr "Gagal memuatkan aktiviti"
 
 #. Error message when entries fail to load
 #: src/project/browse/EntriesList.svelte
@@ -993,19 +1659,19 @@ msgstr "Gagal memuatkan entri"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load file"
-msgstr ""
+msgstr "Gagal memuatkan fail"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load files"
-msgstr ""
+msgstr "Gagal memuatkan fail"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to load media files"
-msgstr ""
+msgstr "Gagal memuatkan fail media"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Failed to load metadata"
-msgstr ""
+msgstr "Gagal memuatkan metadata"
 
 #. Error message
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -1020,16 +1686,20 @@ msgstr "Gagal membuka URL: {0}"
 #. Error toast when snapshot regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate Harmony snapshots"
-msgstr ""
+msgstr "Gagal menjana semula snapshot Harmony"
 
 #. Error toast when search index regeneration fails in the Troubleshoot dialog
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to regenerate search index"
-msgstr ""
+msgstr "Gagal menjana semula indeks carian"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Failed to save file"
-msgstr ""
+msgstr "Gagal menyimpan fail"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Failed to save settings"
+msgstr "Gagal menyimpan tetapan"
 
 #. Error notification
 #: src/lib/services/sync-status-service.ts
@@ -1038,7 +1708,7 @@ msgstr "Gagal menyegerak"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Failed to upload files"
-msgstr ""
+msgstr "Gagal memuat naik fail"
 
 #. Sidebar menu item
 #: src/home/HomeView.svelte
@@ -1060,21 +1730,20 @@ msgid "Fields"
 msgstr "Medan"
 
 #. Product name
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/SyncDialog.svelte
 msgid "FieldWorks Lite"
 msgstr "FieldWorks Lite"
 
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
-msgstr ""
+msgstr "FieldWorks Lite mengumpul data penggunaan untuk membantu kami memperbaikinya."
 
-#. Success notification shown after FieldWorks Lite auto-updates. "FieldWorks Lite" is a product name — do not translate.
 #: src/lib/notifications/NotificationOutlet.svelte
-msgid "FieldWorks Lite has been updated successfully. Please restart the app to apply the changes."
-msgstr "FieldWorks Lite telah dikemas kini dengan berjaya. Sila mulai semula aplikasi untuk menggunakan perubahan."
+msgid "FieldWorks Lite has been updated. Restart to finish installing."
+msgstr "FieldWorks Lite telah dikemas kini. Mulakan semula untuk menamatkan pemasangan."
 
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
 msgstr "Pengguna FieldWorks Lite akan menerima perubahan yang dibuat dalam FieldWorks Classic secara automatik. Pengguna FieldWorks Classic akan melihat perubahan yang dibuat dalam FieldWorks Lite selepas mereka melakukan Hantar/Terima."
 
@@ -1089,10 +1758,15 @@ msgstr "Versi FieldWorks Lite"
 #: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "File"
+msgstr ""
 
 #. Error message for duplicate file upload
 #: src/lib/components/audio/AudioDialog.svelte
@@ -1115,6 +1789,10 @@ msgstr "Fail tidak ditemui"
 msgid "File saving not supported"
 msgstr "Penyimpanan fail tidak disokong"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "File size"
+msgstr ""
+
 #. Error message for oversized file
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/audio/AudioDialog.svelte
@@ -1123,6 +1801,18 @@ msgstr "Fail terlalu besar"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Filename"
+msgstr "Nama fail"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Fill in Display as"
+msgstr "Isikan Papar sebagai"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Fill in Word or Display as"
+msgstr "Isikan Perkataan atau Papar sebagai"
+
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "Filled in from the plugin's title. Change it if you like."
 msgstr ""
 
 #. Accessible label for the browse search input that filters entries or words
@@ -1155,6 +1845,10 @@ msgstr "Tapis Mengikut"
 #: src/project/browse/SearchFilter.svelte
 msgid "Filter entries"
 msgstr "Tapis entri"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Filter examples"
+msgstr ""
 
 #. Search field placeholder
 #: src/project/browse/SearchFilter.svelte
@@ -1198,6 +1892,19 @@ msgstr "Cari perkataan..."
 msgid "Finish"
 msgstr "Tamatkan"
 
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
+msgstr ""
+
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply here."
+msgstr ""
+
+#. Field label in the activity change-preview diff. "Font" is the typeface name configured on a writing system.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Font"
+msgstr ""
+
 #. Contact information in feedback dialog
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
@@ -1208,6 +1915,11 @@ msgstr "Untuk sebarang pertanyaan lain, jangan ragu untuk menghantar kami e-mel.
 msgid "From active filter"
 msgstr "Dari penapis aktif"
 
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Fullscreen"
+msgstr ""
+
 #. Button in feedback menu
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Get support"
@@ -1217,24 +1929,51 @@ msgstr "Dapatkan sokongan"
 #. Brief translation/equivalent (one word or short phrase)
 #. Different from "Definition" (longer explanation)
 #. Appears under each sense/meaning; concise translation
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Glos"
 
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Go back"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "Go back to the previous version"
+msgstr ""
+
 #. Button link to navigate to entry
 #. Clicking jumps to an entry (e.g. from change history or a related entry)
 #. {0} = entry/word name (e.g., "Go to banana")
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 msgid "Go to {0}"
 msgstr "Pergi ke {0}"
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to complex form"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to component"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Go to word"
 #. Tooltip on a possible-duplicate result in the New Entry dialog; clicking closes the dialog and opens that entry
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to entry"
+msgstr "Pergi ke entri"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Go to Word"
+#. Menu option on a change in the activity view; leaves the activity view and opens the changed entry in the dictionary
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Go to Entry"
+msgstr ""
+
+#: src/lib/activity/ActivityItemChangePreview.svelte
+msgid "Go to whole word"
 msgstr ""
 
 #. Relevant view: Lite
@@ -1242,6 +1981,13 @@ msgstr ""
 #. Tooltip on a possible-duplicate result in the New Word dialog; clicking closes the dialog and opens that word
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Go to word"
+msgstr "Pergi ke perkataan"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Go to Entry"
+#. Menu option on a change in the activity view; leaves the activity view and opens the changed word in the dictionary
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "Go to Word"
 msgstr ""
 
 #. Filter option label
@@ -1258,34 +2004,52 @@ msgstr "Maklumat tatabahasa."
 msgid "green"
 msgstr "hijau"
 
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Handle content with cultural care"
+msgstr ""
+
 #. Success toast after rebuilding Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
-msgstr ""
+msgstr "Snapshot Harmony telah dijana semula dengan jayanya"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has comments"
-msgstr ""
+msgstr "Ada komen"
 
 #: src/project/browse/SearchFilter.svelte
 msgid "Has unread comments"
-msgstr ""
+msgstr "Ada komen yang belum dibaca"
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Has unresolved comments"
+msgstr "Mempunyai komen yang belum diselesaikan"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
 #: src/project/browse/sort/SortMenu.svelte
+#: src/project/tasks/tasks-service.ts
 msgid "Headword"
 msgstr "Kata Utama"
 
 #: src/project/ProjectSidebar.svelte
 msgid "Help & More"
-msgstr ""
+msgstr "Bantuan & Lain-lain"
 
 #. Radio button option to hide the Dictionary Preview panel in the entry editor. Paired with "Show" and "Pinned".
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Hide"
 msgstr "Sembunyi"
+
+#. Button in the activity view's change preview. It hides again the fields that this change did not modify
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "Hide unchanged fields"
+msgstr ""
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "history"
+msgstr ""
 
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/history/HistoryView.svelte
@@ -1298,6 +2062,10 @@ msgstr "Sejarah"
 #: src/lib/components/audio/audio-provider.svelte
 msgid "Hold to record or#press and release to start recording."
 msgstr "Tahan untuk merakam atau#tekan dan lepas untuk mula merakam."
+
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Homograph number"
+msgstr ""
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -1312,6 +2080,10 @@ msgstr "Saya faham bahawa ini tidak boleh dibuat asal"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "ID"
+msgstr "ID"
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "If you add it"
 msgstr ""
 
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
@@ -1324,6 +2096,11 @@ msgstr "Masukkan"
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "in {0}"
 msgstr "dalam {0}"
+
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "In this project"
+msgstr ""
 
 #. Toggle switch in the filter panel next to the semantic domain selector. When enabled, also matches child semantic domains.
 #: src/project/browse/SearchFilter.svelte
@@ -1345,9 +2122,19 @@ msgstr "Pasang Kemas Kini"
 msgid "Installing Update..."
 msgstr "Memasang Kemas Kini..."
 
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/PluginsView.svelte
+msgid "Internet"
+msgstr ""
+
 #. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
+msgstr "sekarang juga"
+
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Keep editing"
 msgstr ""
 
 #. Button to continue to next task
@@ -1355,24 +2142,45 @@ msgstr ""
 msgid "Keep going"
 msgstr "Teruskan"
 
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Keep it"
+msgstr ""
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Keep previewing"
+msgstr ""
+
 #. Label showing the date of the last change in the FwLite↔Classic sync panel. # is replaced by a formatted relative date component (e.g., "3 days ago").
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Last change: #"
 msgstr "Perubahan terakhir: #"
 
 #. Label showing the timestamp of the last local sync in the sync panel. # is replaced by a formatted relative date component (e.g., "5 minutes ago").
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Last sync: #"
 msgstr "Sinkron terakhir: #"
 
+#. Tab: shows changes made to this item after this change.
+#: src/lib/activity/ActivityItem.svelte
+msgid "Later changes"
+msgstr ""
+
 #: src/home/HomeView.svelte
 msgid "Learn more"
+msgstr "Ketahui lebih lanjut"
+
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Leave"
 msgstr ""
 
 #. Placeholder for the release channel text box. Production has no feature flags.
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Leave empty for production"
+msgstr "Biarkan kosong untuk pengeluaran"
+
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Leave without saving?"
 msgstr ""
 
 #. Field label in the audio editor showing the duration of the audio file.
@@ -1380,8 +2188,12 @@ msgstr ""
 msgid "Length:"
 msgstr "Panjang:"
 
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Let this version use the internet?"
+msgstr ""
+
 #. Product name
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/SyncDialog.svelte
 msgid "Lexbox"
 msgstr "Lexbox"
 
@@ -1418,6 +2230,7 @@ msgstr "Mod senarai"
 #. Field name shown in advanced/classic view
 #. The literal meaning of the vernacular translated into the analysis language
 #. Contrasts with glosses/definitions in the analysis language
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Literal meaning"
 msgstr "Makna harfiah"
@@ -1425,36 +2238,37 @@ msgstr "Makna harfiah"
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Load"
-msgstr ""
+msgstr "Muat"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Load all"
-msgstr ""
+msgstr "Muat semua"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Load it to preview or export."
-msgstr ""
+msgstr "Muatkannya untuk pratonton atau eksport."
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Load picture"
-msgstr ""
+msgstr "Muat gambar"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded {0} file(s)"
-msgstr ""
+msgstr "{0} fail dimuatkan"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loaded file"
-msgstr ""
+msgstr "Fail dimuat"
 
 #. Accessible label on the activity view loading spinner while filtered commits are fetched.
 #: src/lib/activity/ActivityView.svelte
+#: src/lib/activity/ActivityView.svelte
 msgid "Loading activity"
-msgstr ""
+msgstr "Memuatkan aktiviti"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Loading comments..."
-msgstr ""
+msgstr "Memuatkan komen..."
 
 #. Loading state text shown in the project/dictionary dropdown while the list of dictionaries is being fetched.
 #: src/project/ProjectDropdown.svelte
@@ -1463,11 +2277,11 @@ msgstr "Memuatkan Kamus..."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Loading metadata..."
-msgstr ""
+msgstr "Memuatkan metadata..."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Loading preview..."
-msgstr ""
+msgstr "Memuat pratonton..."
 
 #: src/home/HomeView.svelte
 msgid "loading..."
@@ -1475,17 +2289,17 @@ msgstr "memuat..."
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Loading..."
-msgstr ""
+msgstr "Memuat..."
 
 #. Section label for the local device box in the sync panel, and section header on the home screen project list.
 #: src/home/HomeView.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Local"
 msgstr "Tempatan"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Local and remote"
-msgstr ""
+msgstr "Tempatan dan jauh"
 
 #. Subtitle shown on a project card when the project has no server configured (no sync partner).
 #: src/home/HomeView.svelte
@@ -1494,15 +2308,15 @@ msgid "Local only"
 msgstr "Tempatan sahaja"
 
 #. Button label in the sync panel when the user is not logged in. Initiates authentication with the server.
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Login"
 msgstr "Log masuk"
 
 #. Toast shown when the user closes or cancels the login dialog before signing in.
 #: src/lib/auth/LoginButton.svelte
 msgid "Login cancelled."
-msgstr ""
+msgstr "Log masuk dibatalkan."
 
 #. Default button label on the login button when not yet authenticated. Clicking opens the login flow for a server.
 #: src/lib/auth/LoginButton.svelte
@@ -1514,20 +2328,37 @@ msgstr "Log masuk untuk melihat projek"
 msgid "Logout"
 msgstr "Log keluar"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Louw-Nida codes"
+msgstr ""
+
 #. Footer text in the project sidebar. The emoji flags are the countries of origin of the development team — do not translate.
 #: src/project/ProjectSidebar.svelte
 msgid "Made with ❤️ from 🇦🇹 🇹🇭 🇺🇸"
 msgstr "Dibuat dengan ❤️ dari 🇦🇹 🇹🇭 🇺🇸"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Main publication"
+msgstr ""
 
 #. Button label in the Feedback & Support dialog. Opens an external link to submit a feature suggestion.
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Make a suggestion"
 msgstr "Buat cadangan"
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Make it your own with AI"
+msgstr ""
+
 #. Warning shown in the delete-project confirmation dialog. Markdown link format: [link text]({0}) where {0} = URL to the sync dialog. "Lexbox" is a product name — do not translate.
 #: src/home/HomeView.svelte
 msgid "Make sure your [changes are synced]({0}) to Lexbox."
 msgstr "Pastikan [perubahan anda diselaraskan]({0}) ke Lexbox."
+
+#. Detail under "Still opening the project...". After an app update, opening a project can rebuild its data, and closing the app restarts that work.
+#: src/DotnetProjectView.svelte
+msgid "Making sure the project is up to date can take a few minutes. Please keep the app open."
+msgstr ""
 
 #. Button label in view picker; opens the manage custom views dialog.
 #. Only visible to project managers.
@@ -1550,32 +2381,62 @@ msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Kemas kini manual diperlukan. Sila ikut arahan yang diberikan."
 
 #. Relevant view: Lite
+#. Classic view equivalent: "sense"
+#. Lowercase singular noun interpolated into activity-log lines (e.g. "Added meaning «happy»"). A sense is one meaning of a word.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "meaning"
+msgstr ""
+
+#. Relevant view: Lite
 #. Classic view equivalent: "Sense"
 #. Field label: one meaning/definition of a word
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/views/entity-config.ts
 msgid "Meaning"
 msgstr "Makna"
 
+#. Relevant view: Lite
+#. Classic view equivalent: "senses"
+#. Lowercase plural noun interpolated into activity-log lines (e.g. "Reordered meanings"). Paired with singular "meaning".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "meanings"
+msgstr ""
+
+#. Noun for a media resource of non-audio/unknown type, e.g. "Added media file" in the activity log
+#: src/lib/activity/ChangeSummary.svelte
+msgid "media file"
+msgstr ""
+
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Media file details"
-msgstr ""
+msgstr "Butiran fail media"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Media Manager"
+msgstr "Pengurus Media"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Microphone"
 msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Citation form {0}"
-msgstr ""
+msgstr "Bentuk petikan hilang {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking a definition in that writing system.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Definition {0}"
 msgstr "Definisi hilang {0}"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Display as {0}"
+msgstr "Papar sebagai hilang {0}"
 
 #. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies entries lacking an example sentence in that writing system.
 #: src/project/tasks/tasks-service.ts
@@ -1588,21 +2449,28 @@ msgid "Missing Gloss {0}"
 msgstr "Glos hilang {0}"
 
 #: src/project/tasks/tasks-service.ts
+msgid "Missing Grammatical info."
+msgstr "Maklumat tatabahasa hilang."
+
+#: src/project/tasks/tasks-service.ts
 msgid "Missing Headword {0}"
-msgstr ""
+msgstr "Kata utama yang hilang {0}"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Lexeme form {0}"
-msgstr ""
-
-#. Task subject label in the task list. Identifies senses/meanings that have no part-of-speech (grammatical category) assigned.
-#: src/project/tasks/tasks-service.ts
-msgid "Missing Part of Speech"
-msgstr "Jenis Perkataan Tiada"
+msgstr "Bentuk leksem hilang {0}"
 
 #: src/project/tasks/tasks-service.ts
-msgid "Missing Semantic domain"
-msgstr ""
+msgid "Missing Part of speech"
+msgstr "Jenis Perkataan hilang"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Semantic domains"
+msgstr "Domain semantik yang hilang"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Word {0}"
+msgstr "Perkataan hilang {0}"
 
 #. Filter result label
 #. Shows "Missing: Definition" or "Missing: Example" in filtered results
@@ -1616,10 +2484,53 @@ msgstr "Hilang: {0}"
 msgid "Mode"
 msgstr "Mod"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "More"
+msgstr ""
+
+#. Accessible name of the arrow button that opens more actions for an entry in the activity change preview
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "More options"
+msgstr ""
+
+#: src/lib/activity/EntryActionsButton.svelte
+msgid "More options for {0}"
+msgstr ""
+
+#. Standalone noun used as {0} in activity-log strings (e.g. "Edited morph type"). Morph type classifies the morphological status of an entry (e.g. "root", "stem", "bound stem").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "morph type"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Morph type"
+msgstr ""
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Morph types classify the morphological status of entries (e.g. "root", "stem", "bound stem").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "morph types"
+msgstr ""
+
 #. Drag-handle or button tooltip to reorder an item in a list (e.g., senses or examples within an entry).
 #: src/lib/entry-editor/ItemListItem.svelte
 msgid "Move"
 msgstr "Gerak"
+
+#. Badge or screen-reader marker in the activity change preview: this change only moved the item to another place in its list (e.g. reordered senses)
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/entry-editor/diff-view/DiffMarker.svelte
+msgid "Moved"
+msgstr ""
+
+#. Activity-log line. Shown when a sense was moved into the entry it now belongs to (shown as the subject) from a different entry.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Moved from another entry"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Moved from another sense"
+msgstr ""
 
 #. Placeholder text in the name input of the custom view form.
 #: src/lib/views/custom/CustomViewForm.svelte
@@ -1628,6 +2539,11 @@ msgstr "Pandangan tersuai saya..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 msgid "Name"
 msgstr "Nama"
@@ -1638,9 +2554,13 @@ msgstr "Nama"
 msgid "Name is required"
 msgstr "Nama diperlukan"
 
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Needs {0}, which this project doesn't support, so it may not work properly"
+msgstr ""
+
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Never"
 msgstr "Tidak Pernah"
 
@@ -1656,7 +2576,7 @@ msgid "New Custom View"
 msgstr "Tampilan Tersuai Baru"
 
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are pending changes waiting to be applied. Paired with "No new data".
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "New data"
 msgstr "Data baru"
 
@@ -1669,12 +2589,21 @@ msgstr "Data baru"
 msgid "New Entry"
 msgstr "Entri Baru"
 
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "New plugin"
+msgstr ""
+
 #: src/home/CreateProjectDialog.svelte
 msgid "New Project"
-msgstr ""
+msgstr "Projek Baru"
 
 #: src/home/HomeView.svelte
 msgid "New Project (Local only)"
+msgstr "Projek Baru (Tempatan sahaja)"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "New version"
 msgstr ""
 
 #. Relevant view: Lite
@@ -1689,7 +2618,7 @@ msgstr "Perkataan Baru"
 #. Sort option in activity view — most recent commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Newest first"
-msgstr ""
+msgstr "Yang terbaru dahulu"
 
 #: src/project/tasks/SubjectPopup.svelte
 msgid "Next"
@@ -1697,25 +2626,29 @@ msgstr "Seterusnya"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Next milestone: {0}. {1} to go."
-msgstr ""
+msgstr "Sasaran seterusnya: {0}. {1} tinggal."
 
 #. Accessible label for the arrow button that shows the next picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Next picture"
+msgstr "Gambar seterusnya"
+
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+msgid "No"
 msgstr ""
 
 #. Empty state when activity list filters exclude every commit.
 #: src/lib/activity/ActivityView.svelte
 msgid "No activity matches these filters"
-msgstr ""
+msgstr "Tiada aktiviti yang memenuhi penapis ini"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No activity types"
-msgstr ""
+msgstr "Tiada jenis aktiviti"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No analysis writing systems configured."
-msgstr ""
+msgstr "Tiada sistem penulisan analisis dikonfigurasikan."
 
 #. Placeholder when no audio file
 #. Shows in audio field when empty (no file uploaded yet)
@@ -1725,7 +2658,7 @@ msgstr "Tiada audio"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "No authors"
-msgstr ""
+msgstr "Tiada pengarang"
 
 #. Empty state message in the manage custom views dialog when none exist.
 #: src/lib/views/custom/ManageCustomViewsDialog.svelte
@@ -1752,32 +2685,62 @@ msgstr "Tiada fail untuk dimuat naik"
 msgid "No history found"
 msgstr "Tiada sejarah ditemui"
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "No internet"
+msgstr ""
+
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "No items found"
 msgstr "Tiada item ditemui"
 
-#: src/lib/media-manager/MediaManagerView.svelte
-msgid "No media files found"
+#. Status on a tab: nothing was changed in this item after this change.
+#: src/lib/activity/ActivityItem.svelte
+msgid "No later changes"
 msgstr ""
 
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer changes the dictionary"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer needs {0}"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer runs from an entry's menu"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "No longer uses the internet"
+msgstr ""
+
+#: src/lib/media-manager/MediaManagerView.svelte
+msgid "No media files found"
+msgstr "Tiada fail media ditemui"
+
 #. Sync status indicator in the FwLite↔Classic sync panel. Shown when there are no pending changes. Paired with "New data".
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "No new data"
 msgstr "Tiada data baru"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "No open conversations"
-msgstr ""
+msgstr "Tiada perbualan terbuka"
 
 #. Empty state shown read-only in the Pictures field when a sense has no pictures
+#: src/lib/entry-editor/diff-view/DiffPictures.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "No pictures"
+msgstr "Tiada gambar"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "No plugins yet"
 msgstr ""
 
 #. Sync status label shown in the sync panel when no server is associated with this project.
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "No server"
 msgstr "Tiada pelayan"
 
@@ -1791,14 +2754,14 @@ msgstr "Tiada pelayan dikonfigurasikan"
 #. Status line in the New Entry dialog: the duplicate check found no existing entries like the one being typed
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "No similar entries found"
-msgstr ""
+msgstr "Tiada entri serupa ditemui"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "No similar entries found"
 #. Status line in the New Word dialog: the duplicate check found no existing words like the one being typed
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "No similar words found"
-msgstr ""
+msgstr "Tiada perkataan serupa ditemui"
 
 #. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
 #: src/project/tasks/SubjectPopup.svelte
@@ -1807,6 +2770,12 @@ msgstr "Tiada subjek, tidak dapat membuat {0} baru"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
+msgstr "Tiada sistem tulisan tempatan yang dikonfigurasikan."
+
+#. Shown in the activity view's change preview when a change only touched things it does not display, e.g. text formatting
+#: src/lib/entry-editor/diff-view/DiffNoVisibleChanges.svelte
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "No visible changes"
 msgstr ""
 
 #. Relevant view: Lite
@@ -1820,8 +2789,13 @@ msgstr "Tiada perkataan ditemui"
 #. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
 msgid "None"
 msgstr "Tiada"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Not allowed to use the internet"
+msgstr ""
 
 #. Filter operator
 #. Search operator: exclude entries matching the search term (inverse of "Equals")
@@ -1830,11 +2804,9 @@ msgstr "Tiada"
 msgid "Not equal"
 msgstr "Tidak sama"
 
-#. Placeholder shown in the activity change preview when a referenced entry or sense no longer exists in the dictionary.
-#: src/lib/activity/ActivityItemChangePreview.svelte
-#: src/lib/activity/ActivityItemChangePreview.svelte
-msgid "Not found"
-msgstr "Tidak ditemui"
+#: src/lib/plugins/PluginsView.svelte
+msgid "Not in this project. Try one on your data, then add it or make it your own."
+msgstr ""
 
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
@@ -1849,6 +2821,7 @@ msgstr "Tidak disegerakkan"
 #. Field label
 #. General notes/remarks field in entry editor
 #. Unconstrained text for additional metadata/comments
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Note"
 msgstr "Nota"
@@ -1858,13 +2831,38 @@ msgstr "Nota"
 msgid "Nothing to copy"
 msgstr "Tiada yang boleh disalin"
 
+#. Under a change's headword in the activity view. # is the entry's current headword; shown when a later change renamed it
+#: src/lib/activity/ActivityChangeHeader.svelte
+msgid "Now called: #"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now can change the dictionary"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now needs {0}, which not every project has"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now runs from an entry's menu"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Now uses the internet"
+msgstr ""
+
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
 msgid "Observer"
 msgstr "Pemerhati"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "OCM codes"
+msgstr ""
+
 #. Status indicator
 #: src/project/ProjectSidebar.svelte
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Offline"
 msgstr "Luar talian"
 
@@ -1875,27 +2873,39 @@ msgstr "Luar talian, tidak dapat memuat turun"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
-msgstr ""
+msgstr "Luar talian, tidak dapat membuka fail"
 
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Oldest first"
-msgstr ""
+msgstr "Yang tertua dahulu"
 
 #. Warning in regenerate-snapshots confirm dialog: operation is slow and must not be interrupted
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "On large projects this may take a long time. Do not close the app or interrupt the process."
-msgstr ""
+msgstr "Pada projek besar, ini mungkin mengambil masa yang lama. Jangan tutup aplikasi atau mengganggu proses."
 
 #. Warning in regenerate-search-index confirm dialog: operation may be slow
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "On large projects this may take a while. Do not close the app or interrupt the process."
-msgstr ""
+msgstr "Pada projek besar, ini mungkin mengambil sedikit masa. Jangan tutup aplikasi atau mengganggu proses."
 
 #. Explanation of sync behavior
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "One FieldWorks Classic commit may consist of changes to multiple entries or fields. On the other hand, a commit may only affect data that is not synced to FieldWorks Lite."
 msgstr "Satu komit FieldWorks Classic mungkin terdiri daripada perubahan pada berbilang entri atau medan. Sebaliknya, satu komit mungkin hanya menjejaskan data yang tidak diselaraskan ke FieldWorks Lite."
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Online, a plugin can send this project's data to any website."
+msgstr ""
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
+msgstr ""
+
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "Only project managers can add or change plugins."
+msgstr ""
 
 #. Button to open downloaded project
 #: src/home/Server.svelte
@@ -1907,10 +2917,14 @@ msgstr "Buka"
 msgid "Open Data Directory"
 msgstr "Buka Direktori Data"
 
+#: src/project/browse/EntryMenu.svelte
+msgid "Open in {0}"
+msgstr ""
+
 #. Action button on the offline-login warning toast; opens the server's site in a browser so the user can check the connection.
 #: src/lib/auth/LoginButton.svelte
 msgid "Open in browser"
-msgstr ""
+msgstr "Buka dalam pelayar"
 
 #. Button label
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -1918,7 +2932,7 @@ msgid "Open in FieldWorks"
 msgstr "Buka dalam FieldWorks"
 
 #. Menu option
-#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/EntryActionsButton.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in new Window"
@@ -1934,9 +2948,14 @@ msgstr "Buka fail Log"
 msgid "Opening in FieldWorks…"
 msgstr "Membuka dalam FieldWorks…"
 
+#. Loading notification shown while a project opens.
+#: src/DotnetProjectView.svelte
+msgid "Opening project..."
+msgstr ""
+
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Opt out of analytics"
-msgstr ""
+msgstr "Tolak analitik"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -1964,50 +2983,99 @@ msgstr "Bahagian"
 msgid "Part of"
 msgstr "Sebahagian daripada"
 
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added part of speech", "Changed part of speech to"). Refers to the grammatical category of a word (noun, verb, adjective, etc.). Classic view calls this "Grammatical info."
+#: src/lib/activity/ChangeSummary.svelte
+msgid "part of speech"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Grammatical info."
 #. Field label: grammatical category (noun, verb, adjective, etc.)
+#: src/lib/plugins/plugin-api-adapter.ts
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Part of speech"
 msgstr "Jenis Perkataan"
 
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Grammatical categories (noun, verb, adjective, etc.). Classic view calls these "Grammatical info."
+#: src/lib/activity/ChangeSummary.svelte
+msgid "parts of speech"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Paste HTML"
+msgstr ""
+
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "Paste or upload"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
+msgstr "Tampal tetapan daripada sokongan di sini. Penyimpanan menggantikan fail dan menerapkannya serta-merta; biarkan kosong untuk membuang fail tersebut. Saiz dan bilangan fail log hanya berubah selepas memulakan semula."
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Paste the AI's reply"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "Paste the AI's reply or the plugin's HTML here"
+msgstr ""
+
 #. Sync status
 #. Status badge: Changes exist locally but haven't been synced yet
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Pending"
 msgstr "Tertunda"
 
-#. Task instruction
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Permissions"
+msgstr ""
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Phone width"
+msgstr ""
+
 #: src/project/tasks/tasks-service.ts
-msgid "Pick a Part of Speech"
-msgstr "Pilih Bahagian Pertuturan"
+msgid "Pick a Part of speech"
+msgstr "Pilih Jenis Perkataan"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Pick an entry"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Pick Grammatical info."
+msgstr "Pilih maklumat tatabahasa."
 
 #: src/project/tasks/tasks-service.ts
 msgid "Pick one or more Semantic domains"
-msgstr ""
+msgstr "Pilih satu atau lebih domain semantik"
 
 #. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 msgid "Picture"
-msgstr ""
+msgstr "Gambar"
 
 #. Accessible label for the three-dots button that opens a picture's actions menu (Edit/Download/Delete)
 #: src/lib/entry-editor/field-editors/PictureActionsMenu.svelte
 msgid "Picture actions"
-msgstr ""
+msgstr "Tindakan gambar"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Picture not found"
-msgstr ""
+msgstr "Gambar tidak ditemui"
 
 #. Sense-level field label in the entry editor for the FieldWorks Pictures field (attached images)
 #: src/lib/views/entity-config.ts
 msgid "Pictures"
-msgstr ""
+msgstr "Gambar"
 
 #. View option
 #. Pin the dictionary preview panel above the entry editor form
@@ -2022,9 +3090,79 @@ msgstr "Disemat"
 msgid "Platform"
 msgstr "Platform"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Play & learn"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "plugin"
+msgstr ""
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "Plugin"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Plugin HTML"
+msgstr ""
+
+#: src/lib/plugins/PluginSandbox.svelte
+msgid "Plugin stopped"
+msgstr ""
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to add an entry"
+msgstr ""
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to change an entry"
+msgstr ""
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Plugin wants to make {0}"
+msgstr ""
+
+#: src/lib/activity/ChangeSummary.svelte
+msgid "plugins"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/StudioHeader.svelte
+#: src/project/ProjectSidebar.svelte
+msgid "Plugins"
+msgstr ""
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Plugins are code written by people on your team (often with AI help). This one hasn't run on this device yet, or it changed since it last ran."
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust."
+msgstr ""
+
+#. Field label in the activity change-preview diff for a morph type. "Postfix" is the character(s) appended after a morpheme to mark its grammatical role (e.g. "-" for a suffix).
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Postfix"
+msgstr ""
+
+#. Field label in the activity change-preview diff for a morph type. "Prefix" is the character(s) prepended before a morpheme to mark its grammatical role (e.g. "-" for a prefix).
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Prefix"
+msgstr ""
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Press Esc to exit fullscreen"
+msgstr ""
+
 #. View option
-#: src/lib/activity/ActivityItem.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+#: src/lib/plugins/studio/StudioPreview.svelte
 #: src/project/browse/EntryListViewOptions.svelte
 msgid "Preview"
 msgstr "Pratonton"
@@ -2036,22 +3174,38 @@ msgstr "Pratonton tidak tersedia"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not available for this file type."
-msgstr ""
+msgstr "Pratonton tidak tersedia untuk jenis fail ini."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Preview not supported"
+msgstr "Pratonton tidak disokong"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Preview with entry"
+msgstr ""
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Preview: the plugin would add an entry"
+msgstr ""
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Preview: the plugin would change an entry"
+msgstr ""
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "Preview: the plugin would make {0}"
 msgstr ""
 
 #. Accessible label for the arrow button that shows the previous picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Previous picture"
-msgstr ""
+msgstr "Gambar sebelumnya"
 
 #: src/home/HomeView.svelte
 #: src/lib/about/PrivacyDialog.svelte
 #: src/project/ProjectSidebar.svelte
 msgid "Privacy"
-msgstr ""
+msgstr "Privasi"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -2068,12 +3222,31 @@ msgstr "Projek {0} tidak ditemui pada {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Projek {0} pada {1} belum disediakan untuk FieldWorks Lite"
 
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Prompt options"
+msgstr ""
+
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added publication"). A publication is a dictionary or word list that entries can be assigned to for distribution.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "publication"
+msgstr ""
+
 #. Filter option
 #. Publication type/dictionary for entries
 #. Used to organize entries by which publication(s) they should appear in
 #: src/project/browse/SearchFilter.svelte
 msgid "Publication"
 msgstr "Penerbitan"
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Publications are dictionaries or word lists that entries can be assigned to for distribution.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "publications"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Publish"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Publish Word in"
@@ -2082,6 +3255,10 @@ msgstr "Penerbitan"
 msgid "Publish Entry in"
 msgstr "Terbitkan Kemasukan dalam"
 
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Publish in"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "Publish Entry in"
 #. Field label: selects which publications a word appears in.
@@ -2089,38 +3266,72 @@ msgstr "Terbitkan Kemasukan dalam"
 msgid "Publish Word in"
 msgstr "Terbitkan Perkataan dalam"
 
+#: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
 msgid "Read-only"
+msgstr "Hanya baca"
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Read-only: cannot change your dictionary"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Reads the dictionary, never changes it"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Record & illustrate"
 msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Citation form"
-msgstr ""
+msgstr "Rakam bentuk petikan"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Definition"
-msgstr ""
+msgstr "Rakam definisi"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Gloss"
-msgstr ""
+msgstr "Rakamkan gloss"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form"
-msgstr ""
+msgstr "Rakam bentuk leksem"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Lexeme form or Citation form"
-msgstr ""
+msgstr "Rakam bentuk leksem atau bentuk petikan"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Word"
+msgstr "Rakam Satu Perkataan"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record an example sentence"
+msgstr "Rakam satu ayat contoh"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record Display as"
+msgstr "Rakam Papar sebagai"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Record Word or Display as"
+msgstr "Rakam Perkataan atau Papar sebagai"
+
+#: src/lib/components/audio/audio-provider.svelte
+msgid "Recording isn't available on this device."
+msgstr ""
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Records from the microphone"
 msgstr ""
 
 #. Field label for citation source
 #. Source attribution for an example sentence (book title, page, URL, etc.)
 #. Identifies where the example was found/cited
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Reference"
 msgstr "Rujukan"
@@ -2133,7 +3344,7 @@ msgstr "Perhalusi penapis anda untuk melihat lebih banyak..."
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Refresh"
-msgstr ""
+msgstr "Segarkan"
 
 #. Button to reload project list
 #: src/home/HomeView.svelte
@@ -2145,51 +3356,59 @@ msgstr "Segarkan Semula Projek"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate"
-msgstr ""
+msgstr "Jana semula"
 
 #. Troubleshoot dialog button: rebuilds Harmony snapshot/projected tables from commit history
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots"
-msgstr ""
+msgstr "Jana semula snapshot Harmony"
 
 #. Alert dialog title before starting Harmony snapshot regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate Harmony snapshots?"
-msgstr ""
+msgstr "Jana semula snapshot Harmony?"
 
 #. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index"
-msgstr ""
+msgstr "Jana semula indeks carian"
 
 #. Alert dialog title before starting search index regeneration
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerate search index?"
-msgstr ""
+msgstr "Jana semula indeks carian?"
 
 #. Blocking progress message while Harmony snapshots are being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
-msgstr ""
+msgstr "Menjana semula snapshot Harmony. Ini mungkin mengambil masa yang lama — jangan tutup aplikasi."
 
 #. Blocking progress message while the entry search index is being rebuilt
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Regenerating search index. This may take a while — do not close the app."
-msgstr ""
+msgstr "Menjana semula indeks carian. Ini mungkin mengambil sedikit masa — jangan tutup aplikasi."
 
 #. Field label in Troubleshoot. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Release channel"
-msgstr ""
+msgstr "Saluran pelepasan"
 
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Release notes"
 msgstr "Nota keluaran"
 
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Reload"
+msgstr ""
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Reload plugin"
+msgstr ""
+
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
-msgstr ""
+msgstr "Jauh sahaja"
 
 #. Button to delete item
 #: src/lib/entry-editor/ItemListItem.svelte
@@ -2201,6 +3420,37 @@ msgstr "Tanggalkan"
 msgid "Remove audio"
 msgstr "Buang audio"
 
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "Remove from project"
+msgstr ""
+
+#. Badge or screen-reader marker in the activity change preview: this change removed the item (e.g. a component link between two entries), or the struck-through text or value
+#: src/lib/activity/ActivityChangeHeader.svelte
+#: src/lib/activity/ActivityView.svelte
+#: src/lib/entry-editor/diff-view/DiffMarker.svelte
+msgid "Removed"
+msgstr ""
+
+#. Activity-log line. {0} = singular noun for a list-item type (e.g. "semantic domain", "component"); a chip with the removed item's name follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed {0}"
+msgstr ""
+
+#. Activity-log line: a complex-form component entry was removed from another entry's Components list; a chip with the component's name may follow.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed component"
+msgstr ""
+
+#. Activity-log line (fallback for list fields without a singular noun). {0} = plural field label (e.g. a field label from entity config). A leading entry chip may precede this text.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed from {0}"
+msgstr ""
+
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Updated picture", "Reordered pictures".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Removed picture"
+msgstr ""
+
 #. Button to reopen in FieldWorks
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
@@ -2209,6 +3459,27 @@ msgstr "Buang audio"
 msgid "Reopen"
 msgstr "Buka semula"
 
+#. Activity-log line: a user reopened a previously closed discussion thread.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Reopened comment thread"
+msgstr ""
+
+#. Tooltip/aria-label for the "reordered" change-category badge icon on an activity row (paired with "Added", "Removed", "Edited").
+#: src/lib/activity/ActivityView.svelte
+msgid "Reordered"
+msgstr ""
+
+#. Activity-log line. {0} = plural collection noun: "senses", "examples", "components", or "writing systems".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Reordered {0}"
+msgstr ""
+
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Removed picture", "Updated picture".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Reordered pictures"
+msgstr ""
+
 #. Button to overwrite audio file
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Replace audio"
@@ -2216,31 +3487,44 @@ msgstr "Ganti audio"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Replace Picture"
-msgstr ""
+msgstr "Gantikan Gambar"
 
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 msgid "Reply"
-msgstr ""
+msgstr "Balas"
 
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 msgid "Reply…"
-msgstr ""
+msgstr "Balas…"
 
 #. Button text
 #: src/lib/about/FeedbackDialog.svelte
 msgid "Report a technical problem"
 msgstr "Laporkan masalah teknikal"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Require approval for edits"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Requires"
+msgstr ""
+
 #: src/project/browse/SearchFilter.svelte
 msgid "Reset"
-msgstr ""
+msgstr "Reset"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Resolve"
-msgstr ""
+msgstr "Menyelesaikan"
+
+#: src/lib/notifications/NotificationOutlet.svelte
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Restart"
+msgstr "Mulakan semula"
 
 #. Button label to restore a deleted Entry or Word inside EntryView
 #: src/project/browse/EntryView.svelte
@@ -2252,24 +3536,52 @@ msgstr "Pulihkan"
 msgid "Review"
 msgstr "Semak"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Review & history"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "rose"
 msgstr "merah jambu"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Run"
+msgstr ""
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Run it"
+msgstr ""
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Run plugin"
+msgstr ""
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Run this plugin?"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Runs from an entry's menu"
+msgstr ""
+
+#: src/lib/plugins/PluginConsentCard.svelte
+msgid "Runs in a sandbox, separate from the app"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same headword"
-msgstr ""
+msgstr "Kata utama yang sama"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: only its lexeme form matches the typed text, while its citation form (shown as the headword) differs — deliberately NOT claiming "Same headword"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same lexeme form"
-msgstr ""
+msgstr "Bentuk leksem yang sama"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Same headword"
@@ -2277,15 +3589,19 @@ msgstr ""
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Same word"
-msgstr ""
+msgstr "Perkataan yang sama"
 
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
-msgstr ""
+msgstr "Simpan"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Save and apply"
+msgstr "Simpan dan terpakai"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Save as"
-msgstr ""
+msgstr "Simpan sebagai"
 
 #. Dialog button to save audio with new name
 #: src/lib/components/field-editors/audio-input.svelte
@@ -2297,10 +3613,22 @@ msgstr "Simpan Sebagai"
 msgid "Save audio"
 msgstr "Simpan audio"
 
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Save for the team"
+msgstr ""
+
 #. Submit button in the edit custom view dialog.
 #: src/lib/views/custom/EditCustomViewDialog.svelte
 msgid "Save View"
 msgstr "Simpan Paparan"
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Saved for the team."
+msgstr ""
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "Saving turns off \"Always allow\" on this device, so the new version asks before its first change."
+msgstr ""
 
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -2315,6 +3643,10 @@ msgstr "Cari Kamus"
 #. Success toast after rebuilding the FTS entry search index
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Search index regenerated successfully"
+msgstr "Indeks carian telah dijana semula dengan jayanya"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "See all {0} examples"
 msgstr ""
 
 #. Dialog title with field name
@@ -2327,10 +3659,10 @@ msgstr "Pilih {0}"
 msgid "Select {0} to view details"
 msgstr "Pilih {0} untuk melihat butiran"
 
-#. Empty state message
-#: src/project/tasks/TasksView.svelte
-msgid "Select a new task to work on"
-msgstr "Pilih tugas baru untuk dikerjakan"
+#. Shown in the Activity detail pane when no change (commit) is selected.
+#: src/lib/activity/ActivityView.svelte
+msgid "Select a change to view details"
+msgstr ""
 
 #. Validation error when no analysis writing systems are selected in custom view form.
 #: src/lib/views/custom/validation.ts
@@ -2350,14 +3682,26 @@ msgstr "Pilih fail"
 
 #: src/lib/components/field-editors/multi-select.svelte
 msgid "Selected"
+msgstr "Dipilih"
+
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added semantic domain"). A semantic domain is a meaning category assigned to a sense (e.g. "plants", "emotions", "body parts").
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "semantic domain"
 msgstr ""
 
 #. Filter option
 #. Semantic categorization system (e.g., "plants", "emotions", "body parts")
 #. Used to organize and filter entries by meaning category
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Semantic domain"
 msgstr "Domain semantik"
+
+#. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Semantic domains are meaning categories assigned to senses (e.g. "plants", "emotions", "body parts").
+#: src/lib/activity/ChangeSummary.svelte
+msgid "semantic domains"
+msgstr ""
 
 #. Field label
 #. Assigns sense/meaning to semantic categories (e.g., word can belong to multiple domains)
@@ -2371,6 +3715,12 @@ msgstr "Domain semantik"
 msgid "Send us a message"
 msgstr "Hantar kami mesej"
 
+#. Standalone noun (one meaning of a word), interpolated into a reorder activity-log line followed by the sense's gloss, e.g. "Apfel · Reordered sense apple".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "sense"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Meaning"
 #. Field label: one meaning/definition of an entry
@@ -2378,21 +3728,71 @@ msgstr "Hantar kami mesej"
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Sense"
 msgstr "Makna"
 
+#. Field label in the activity change-preview diff for a custom view: which sense-level fields it shows.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Sense fields"
+msgstr ""
+
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of senses (meanings) within a dictionary entry.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "senses"
+msgstr ""
+
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
 #. Paired with "Translation" field for translated version
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Ayat"
+
+#. Activity-log line. {0} = field label; used when the new value is an audio recording (an audio marker chip follows instead of a text value). Compare "Set {0} to", which shows a text value chip.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set {0}"
+msgstr ""
+
+#. Activity-log line. {0} = field label (e.g. "Definition"); a chip with the new value follows. Used when there is no writing-system qualifier.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set {0} to"
+msgstr ""
+
+#. First # is a field label plus writing-system abbreviation, second # is the new value
+#. First # is a field label plus writing-system abbreviation, second # is the new value
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set # to #"
+msgstr ""
+
+#. Activity-log line. A leading chip names the publication. Means this publication was marked as the project's single main (default) publication.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set as the main publication"
+msgstr ""
+
+#. Activity-log line. The default/primary free translation of an example sentence was set; no chip follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set default translation"
+msgstr ""
+
+#. Activity-log line. The FieldWorks homograph number (disambiguates entries with the same headword) was set; a chip with the number follows.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Set homograph number to"
+msgstr ""
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Settings"
 msgstr "Tetapan"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Settings saved and applied"
+msgstr "Tetapan disimpan dan diterapkan"
 
 #. Test/demo component
 #: src/lib/sandbox/Sandbox.svelte
@@ -2424,55 +3824,64 @@ msgstr "Tunjukkan"
 msgid "Show {0} more..."
 msgstr "Tunjukkan {0} lagi..."
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Show fewer examples"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Show or hide captions"
+msgstr "Tunjukkan atau sembunyikan kapsyen"
+
+#. Button in the activity view's change preview. It also shows the fields that this change did not modify
+#: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
+msgid "Show unchanged fields"
 msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
-msgstr ""
+msgstr "Log masuk untuk menambah komen."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar words already exist"
 #. Warning banner in the New Entry dialog; expands to a list of possible duplicate entries
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar entries already exist"
-msgstr ""
+msgstr "Entri yang serupa sudah wujud"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar meaning"
 #. Badge on a possible-duplicate result: one of its glosses matches the gloss being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar gloss"
-msgstr ""
+msgstr "Glos serupa"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Similar word"
 #. Badge on a possible-duplicate result: its headword partly matches the one being typed in the New Entry dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar headword"
-msgstr ""
+msgstr "Kata utama yang serupa"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar gloss"
 #. Badge on a possible-duplicate result: one of its meanings matches the meaning being typed in the New Word dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar meaning"
-msgstr ""
+msgstr "Makna serupa"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar headword"
 #. Badge on a possible-duplicate result: it is spelled almost like the word being typed in the New Word dialog
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar word"
-msgstr ""
+msgstr "Perkataan yang serupa"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Similar entries already exist"
 #. Warning banner in the New Word dialog; expands to a list of possible duplicate words
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Similar words already exist"
-msgstr ""
+msgstr "Perkataan yang serupa sudah wujud"
 
 #. View option
 #: src/project/browse/EntryListViewOptions.svelte
@@ -2481,7 +3890,7 @@ msgstr "Mudah"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Size"
-msgstr ""
+msgstr "Saiz"
 
 #. Label for audio file size
 #: src/lib/components/audio/audio-editor.svelte
@@ -2493,12 +3902,33 @@ msgstr "Saiz:"
 msgid "Skip"
 msgstr "Langkau"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Small custom apps that work with this project's dictionary — shared with the whole team."
+msgstr ""
+
+#. Info popover on the sync dialog, for users whose role can't sync with FieldWorks Classic
+#: src/project/sync/FwLiteSyncView.svelte
+msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
+msgstr ""
+
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
+msgstr "Sesuatu telah berlaku dengan salah"
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Sort language"
+msgstr ""
+
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Sort rules"
 msgstr ""
 
 #: src/project/browse/sort/SortWritingSystemMenu.svelte
 msgid "Sort writing system"
+msgstr "Susun sistem penulisan"
+
+#: src/lib/plugins/studio/StudioSidePanel.svelte
+msgid "Source"
 msgstr ""
 
 #. Filter option
@@ -2508,11 +3938,11 @@ msgstr "Medan tertentu"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Start a conversation"
-msgstr ""
+msgstr "Mulakan perbualan"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Start a conversation…"
-msgstr ""
+msgstr "Mulakan perbualan…"
 
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
@@ -2520,6 +3950,11 @@ msgstr ""
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Bermula dengan"
+
+#. Title of a loading notification shown when opening a project takes a while.
+#: src/DotnetProjectView.svelte
+msgid "Still opening the project..."
+msgstr ""
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -2540,7 +3975,7 @@ msgid "Submit"
 msgstr "Hantar"
 
 #. Button or tab label
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync"
 msgstr "Segerak"
 
@@ -2550,17 +3985,17 @@ msgid "Sync Changes"
 msgstr "Segerakkan Perubahan"
 
 #. Success message showing change counts
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied to FieldWorks Lite."
 msgstr "Segerak selesai. {0} telah digunakan pada FieldWorks Classic. {1} telah digunakan pada FieldWorks Lite."
 
 #. Section title
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Segerakkan FieldWorks Lite dan FieldWorks Classic"
 
 #. Introductory text for sync status panel
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
 msgstr "Segerakkan perubahan anda dengan pengguna FieldWorks Lite yang lain"
 
@@ -2572,12 +4007,12 @@ msgstr "Disegerakkan"
 #. Sort option in activity view — by upload/download time, newest synced first (unsynced commits last).
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Synced newest"
-msgstr ""
+msgstr "Disegerakkan yang terbaru"
 
 #. Sort option in activity view — by upload/download time, oldest synced first (unsynced commits last).
 #: src/lib/activity/ActivityFilter.svelte
 msgid "Synced oldest"
-msgstr ""
+msgstr "Yang tertua disegerakkan"
 
 #. Status showing sync source server
 #: src/home/HomeView.svelte
@@ -2595,12 +4030,12 @@ msgid "Synchronize"
 msgstr "Segerakkan"
 
 #. Progress message during sync
-#: src/project/SyncDialog.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr "Menyegerakkan FieldWorks Lite dan FieldWorks Classic..."
 
 #. Progress indicator
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Syncing..."
 msgstr "Sedang disegerakkan..."
 
@@ -2610,10 +4045,9 @@ msgstr "Sedang disegerakkan..."
 msgid "System"
 msgstr "Sistem"
 
-#. Page title with task name
-#: src/project/tasks/TasksView.svelte
-msgid "Task {0}"
-msgstr "Tugasan {0}"
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Tailor to this project"
+msgstr ""
 
 #. Error message
 #: src/project/tasks/TaskView.svelte
@@ -2622,10 +4056,11 @@ msgstr "Tugasan tidak ditemui: {0}"
 
 #: src/project/tasks/TasksView.svelte
 msgid "Task view failed"
-msgstr ""
+msgstr "Paparan tugas gagal"
 
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
+#: src/project/tasks/TasksView.svelte
 msgid "Tasks"
 msgstr "Tugasan"
 
@@ -2636,7 +4071,7 @@ msgstr "Beritahu kami mengenai pepijat atau isu yang anda temui."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Tell us how you work and what would help most. Your ideas guide what we build."
-msgstr ""
+msgstr "Beritahu kami bagaimana anda bekerja dan apa yang paling membantu. Idea anda membimbing apa yang kami bina."
 
 #. View description
 #: src/project/browse/ViewPicker.svelte
@@ -2648,15 +4083,31 @@ msgstr "Sebaliknya, paparan *FieldWorks Classic* direka untuk pengguna yang bias
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "Paparan *FieldWorks Lite* direka untuk bukan ahli linguistik dan berbeza daripada paparan *FieldWorks Classic* dalam cara berikut:"
 
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "The new version asks to change the dictionary"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "The new version asks to use the internet"
+msgstr ""
+
 #. Explanation note
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "The number of FieldWorks Classic commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Bilangan komit FieldWorks Classic tidak semestinya sepadan dengan bilangan perubahan yang ditunjukkan dalam mesej hasil segerak."
 
 #. Explanation note
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Bilangan komit FieldWorks Lite tidak semestinya sepadan dengan bilangan perubahan yang ditunjukkan dalam mesej hasil segerak."
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "The plugin “{0}” is asking to make this change to your dictionary:"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
+msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
+msgstr ""
 
 #. Error message
 #: src/project/tasks/TaskView.svelte
@@ -2668,39 +4119,93 @@ msgstr "Tugas yang anda cari tidak wujud."
 msgid "The time when you uploaded or downloaded these changes"
 msgstr "Masa apabila anda memuat naik atau memuat turun perubahan ini"
 
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "The version before it didn't. If you didn't ask for this, have the AI take it out."
+msgstr ""
+
+#: src/lib/plugins/studio/InternetPromptDialog.svelte
+msgid "The version before it worked offline. Online, a plugin can send this project's data to any website."
+msgstr ""
+
 #. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte
 #: src/lib/activity/ActivityView.svelte
 msgid "These changes have not been uploaded yet. Ensure you're online and logged in to share your changes."
 msgstr "Perubahan ini belum dimuat naik. Pastikan anda dalam talian dan log masuk untuk berkongsi perubahan anda."
 
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "These guide how the AI writes the plugin. They don't restrict what the finished plugin can do."
+msgstr ""
+
 #. Alert text shown in EntryView when the currently displayed entry/word has been deleted
 #: src/project/browse/EntryView.svelte
 msgid "This {0} was deleted"
 msgstr "Item {0} telah dipadam"
+
+#. Tab that shows what this one change did to the item
+#: src/lib/activity/ActivityItem.svelte
+msgid "This change"
+msgstr ""
 
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
 msgstr "Tarikh ini # dan emoji ini # adalah coretan"
 
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "This doesn't look like a complete plugin. It should be one HTML file that starts with <!DOCTYPE html> and ends with </html>."
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "This word may already exist"
 #. Warning banner in the New Entry dialog when an entry with the exact same headword exists; expands to a list of possible duplicates
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "This entry may already exist"
+msgstr "Entri ini mungkin sudah wujud"
+
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "This example doesn't exist."
 msgstr ""
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
+msgstr "Fail ini hanya tersedia secara jauh."
+
+#: src/lib/plugins/PluginWriteConfirmDialog.svelte
+msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
-msgstr ""
+msgstr "Gambar ini terlalu besar untuk dimuat naik. Cuba kurangkan resolusinya dan muat naik semula."
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try saving it at a lower JPEG quality and uploading again."
+msgstr "Gambar ini terlalu besar untuk dimuat naik. Cuba simpannya pada kualiti JPEG yang lebih rendah dan muat naik semula."
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "This plugin can make changes without asking. Click to make it ask again."
+msgstr ""
+
+#: src/project/data/plugin-service.svelte.ts
+msgid "This plugin file is too big (the limit is 10 MB)"
+msgstr ""
+
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "This plugin hasn't been added to the project, so it will be lost."
+msgstr ""
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "This plugin isn't on this device yet"
+msgstr ""
+
+#: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "This plugin no longer exists."
+msgstr ""
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "This plugin runs from an entry's menu. Pick an entry to preview it with."
 msgstr ""
 
 #. Help message
@@ -2711,11 +4216,16 @@ msgstr "Projek ini kini dibuka dalam FieldWorks. Untuk terus bekerja dalam Field
 #. Warning in regenerate-snapshots confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds snapshot and projected tables from commit history."
-msgstr ""
+msgstr "Ini membina semula jadual snapshot dan terproyeksikan daripada sejarah komit."
 
 #. Warning in regenerate-search-index confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "This rebuilds the full-text search index from dictionary entries."
+msgstr "Ini membina semula indeks carian teks penuh daripada entri kamus."
+
+#: src/lib/plugins/PluginsView.svelte
+#: src/lib/plugins/studio/panels/DetailsPanel.svelte
+msgid "This removes the plugin for everyone on this project."
 msgstr ""
 
 #. Status message
@@ -2723,8 +4233,12 @@ msgstr ""
 msgid "This task is complete"
 msgstr "Tugasan ini selesai"
 
+#: src/lib/plugins/studio/panels/VersionReview.svelte
+msgid "This version"
+msgstr ""
+
 #. Description of sync operation
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
 msgstr "Ini akan menyegerakkan salinan FieldWorks Lite dan FieldWorks Classic projek anda dalam Lexbox."
 
@@ -2733,7 +4247,7 @@ msgstr "Ini akan menyegerakkan salinan FieldWorks Lite dan FieldWorks Classic pr
 #. Warning banner in the New Word dialog when a word with the exact same spelling exists; expands to a list of possible duplicates
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "This word may already exist"
-msgstr ""
+msgstr "Perkataan ini mungkin sudah wujud."
 
 #. Button to show/hide filter panel
 #: src/project/browse/SearchFilter.svelte
@@ -2749,15 +4263,23 @@ msgstr "Togol disemat"
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
 msgid "Total entries"
+msgstr "Jumlah entri"
+
+#. Standalone noun used as {0} in activity-log strings (e.g. "Added translation"). Refers to one of an example sentence's free translations.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "translation"
 msgstr ""
 
 #. Field label
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Translation"
 msgstr "Terjemahan"
 
 #. Field title in the example editor when an entry has multiple translations. {0} = 1-based index number (e.g., "Translation 1", "Translation 2"). When there is only one translation, "Translation" is used instead.
+#: src/lib/entry-editor/diff-view/DiffExamplePrimitive.svelte
 #: src/lib/entry-editor/object-editors/ExampleEditorPrimitive.svelte
 msgid "Translation {0}"
 msgstr "Terjemahan {0}"
@@ -2770,22 +4292,40 @@ msgstr "Terjemahan {0}"
 msgid "Troubleshoot"
 msgstr "Selesaikan masalah"
 
+#: src/lib/plugins/PluginRunView.svelte
+msgid "Trusted"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Try {0}"
+msgstr ""
+
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Try again"
+msgstr "Cuba lagi"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Try it"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Try one of the examples below on your own data, or make a new plugin with AI help."
 msgstr ""
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Turn analytics back on"
-msgstr ""
+msgstr "Hidupkan semula analitik"
 
+#. Field label in the activity change-preview diff for a writing system. Shows whether it's a Vernacular or Analysis writing system.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Type"
-msgstr ""
+msgstr "Jenis"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Citation form"
-msgstr ""
+msgstr "Taip borang petikan"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2799,11 +4339,15 @@ msgstr "Taip Glos"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form"
-msgstr ""
+msgstr "Taip bentuk leksem"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form or Citation form"
-msgstr ""
+msgstr "Taip bentuk leksem atau bentuk petikan"
+
+#: src/project/tasks/tasks-service.ts
+msgid "Type a Word"
+msgstr "Taip satu perkataan"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
@@ -2817,30 +4361,30 @@ msgstr "Jenis:"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to convert captured image from {0} to a jpeg"
-msgstr ""
+msgstr "Tidak dapat menukar imej yang dirakam daripada {0} kepada jpeg"
 
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to download the picture"
-msgstr ""
+msgstr "Tidak dapat memuat turun gambar"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to export file"
-msgstr ""
+msgstr "Tidak dapat mengeksport fail"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to load audio"
-msgstr ""
+msgstr "Tidak dapat memuatkan audio"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "Unable to load picture"
-msgstr ""
+msgstr "Tidak dapat memuatkan gambar"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Unable to open file"
-msgstr ""
+msgstr "Tidak dapat membuka fail"
 
 #. Error message
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -2849,13 +4393,13 @@ msgstr "Tidak dapat membuka dalam FieldWorks"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Unable to upload the picture"
-msgstr ""
+msgstr "Tidak dapat memuat naik gambar"
 
 #. Fallback value shown when author name or last-change date is unavailable (e.g., in activity history or the sync panel).
 #: src/lib/activity/AuthorLabel.svelte
 #: src/lib/activity/utils.ts
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Unknown"
 msgstr "Tidak Diketahui"
 
@@ -2872,7 +4416,7 @@ msgstr "Ralat tidak diketahui {0}"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Unknown error creating project"
-msgstr ""
+msgstr "Ralat tidak diketahui semasa mencipta projek"
 
 #. Error message
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
@@ -2880,7 +4424,7 @@ msgid "Unknown error downloading {0}"
 msgstr "Ralat tidak diketahui semasa memuat turun {0}"
 
 #. Error placeholder
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Unknown server"
 msgstr "Pelayan tidak diketahui"
 
@@ -2892,17 +4436,28 @@ msgstr "Hasil kemas kini tidak diketahui"
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Unread"
+msgstr "Belum dibaca"
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Unsaved changes"
 msgstr ""
 
 #. Placeholder for missing value
 #. Displayed when a word/entry/field has no content yet
 #. Used in: entry list, activity changes, change preview, field labels
 #. Short & neutral in tone
+#: src/lib/activity/ActivityChangeHeader.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ActivityItemChangePreview.svelte
+#: src/lib/activity/ChangeSummary.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/entry-editor/diff-view/DiffAnchor.svelte
+#: src/lib/entry-editor/diff-view/DiffMultiSelect.svelte
+#: src/lib/entry-editor/diff-view/DiffSelect.svelte
 #: src/project/browse/EntryMenu.svelte
 #: src/project/browse/EntryRow.svelte
 #: src/project/browse/EntryView.svelte
@@ -2910,7 +4465,7 @@ msgid "Untitled"
 msgstr "Tanpa Tajuk"
 
 #. Sync status - no pending changes
-#: src/project/sync/SyncStatusPrimitive.svelte
+#: src/project/sync/FwLiteSyncView.svelte
 msgid "Up to date"
 msgstr "Terkini"
 
@@ -2925,25 +4480,28 @@ msgstr "Kemas kini {0}"
 msgid "Update available: {0}"
 msgstr "Kemas kini tersedia: {0}"
 
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update downloaded. Restart to apply."
+msgstr "Kemas kini dimuat turun. Mulakan semula untuk menerapkan."
+
+#: src/lib/updates/UpdateDialogContent.svelte
+msgid "Update downloading in the background. Restart to apply once it's finished."
+msgstr "Kemas kini memuat turun di latar belakang. Mulakan semula untuk menerapkan setelah selesai."
+
 #. Error message when update fails to install
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
 msgstr "Kemas kini gagal dipasang."
 
-#. Success message after update installs
-#: src/lib/updates/UpdateDialogContent.svelte
-msgid "Update installed successfully! Please restart the application."
-msgstr "Kemas kini berjaya dipasang! Sila mulakan semula aplikasi."
-
-#. Info message when update runs in background
-#: src/lib/updates/UpdateDialogContent.svelte
-msgid "Update started in the background. Restart the application after the update is complete."
-msgstr "Kemas kini bermula di latar belakang. Mulakan semula aplikasi selepas kemas kini selesai."
-
 #. Error message when update is blocked by permissions
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update was disallowed by permission settings."
 msgstr "Kemas kini tidak dibenarkan oleh tetapan kebenaran."
+
+#. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Removed picture", "Reordered pictures".
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Updated picture"
+msgstr ""
 
 #. Menu item and dialog title for app updates
 #: src/home/HomeView.svelte
@@ -2952,20 +4510,33 @@ msgstr "Kemas kini tidak dibenarkan oleh tetapan kebenaran."
 msgid "Updates"
 msgstr "Kemas kini"
 
+#: src/lib/plugins/studio/panels/SourcePanel.svelte
+msgid "Upload file"
+msgstr ""
+
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Upload pending"
-msgstr ""
+msgstr "Pemunggahan sedang menunggu"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Uploaded"
+msgstr "Dimuat naik"
+
+#. Activity-log line. {0} = "audio recording" or "media file"; a marker chip follows when it's audio.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Uploaded {0}"
 msgstr ""
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Uploaded pending files"
-msgstr ""
+msgstr "Fail belum selesai telah dimuat naik"
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
+msgstr "Memuat naik gambar tidak disokong di sini."
+
+#: src/lib/plugins/studio/panels/PasteBox.svelte
+msgid "Use this version"
 msgstr ""
 
 #. Field label
@@ -2973,8 +4544,22 @@ msgstr ""
 msgid "Uses components as"
 msgstr "Menggunakan komponen sebagai"
 
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Uses the camera"
+msgstr ""
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "Uses the internet"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Verbose logging"
+msgstr "Log perincian"
+
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 #: src/lib/views/custom/CustomViewWritingSystems.svelte
 msgid "Vernacular"
 msgstr "Bahasaan"
@@ -2982,14 +4567,19 @@ msgstr "Bahasaan"
 #. Field label in the create-project dialog. The writing system for the language being documented (the vernacular), entered as an IETF language tag.
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system code"
-msgstr ""
+msgstr "Kod sistem penulisan Vernakular"
 
 #: src/home/CreateProjectDialog.svelte
 msgid "Vernacular writing system is required"
-msgstr ""
+msgstr "Sistem tulisan vernakular diperlukan"
 
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/project/dashboard/DashboardView.svelte
 msgid "Vernacular writing systems"
+msgstr "Sistem tulisan vernakular"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Version"
 msgstr ""
 
 #. Button label
@@ -2997,14 +4587,23 @@ msgstr ""
 msgid "View"
 msgstr "Lihat"
 
+#: src/lib/entry-editor/EditEntryDialog.svelte
+msgid "View {0}"
+msgstr ""
+
+#. Title/tooltip for an icon button that opens the view picker (switch between Classic, Lite, or a custom view).
+#: src/lib/activity/ActivityViewPicker.svelte
+msgid "View options"
+msgstr ""
+
 #. Accessible label for a sense picture; activating it opens the picture in the fullscreen viewer
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "View Picture"
-msgstr ""
+msgstr "Lihat gambar"
 
 #: src/lib/about/PrivacyDialog.svelte
 msgid "View the SIL privacy policy"
-msgstr ""
+msgstr "Lihat dasar privasi SIL"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -3012,12 +4611,20 @@ msgid "violet"
 msgstr "ungu"
 
 #: src/lib/about/PrivacyDialog.svelte
+msgid "We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details."
+msgstr "Kami juga mengumpul laporan ralat dengan butiran teknikal tentang apa yang salah. Sebelum menghantarnya, kami cuba mengalih keluar apa sahaja yang mungkin mengandungi teks kamus, nama fail atau butiran peribadi lain."
+
+#: src/lib/about/PrivacyDialog.svelte
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
+msgstr "Kami mengumpul data penggunaan untuk memahami bagaimana FieldWorks Lite digunakan dan di mana ia boleh diperbaiki. Apabila anda log masuk ke Lexbox, ia dikaitkan dengan akaun anda, dan ia tidak pernah merangkumi kandungan kamus anda."
+
+#: src/lib/plugins/studio/panels/AboutPanel.svelte
+msgid "What it asks for"
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
-msgstr ""
+msgstr "Apa yang anda ingin lihat di sini?"
 
 #. External link button text for help
 #: src/home/Server.svelte
@@ -3025,22 +4632,23 @@ msgid "Where are my projects?"
 msgstr "Di manakah projek saya?"
 
 #. Expandable help question
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
-#: src/project/sync/FwLiteToFwMergeDetails.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "Mengapa begitu?"
 
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
+#: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
 msgid "word"
 msgstr "Perkataan"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Lexeme form" (field) / "Entry" (object)
-#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/EntryOrSenseItemList.svelte
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
+#: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 #: src/lib/views/entity-config.ts
 #: src/project/browse/EntryMenu.svelte
@@ -3069,15 +4677,51 @@ msgstr "Perkataan atau Papar Sebagai diperlukan"
 msgid "Word or meaning:"
 msgstr "Perkataan atau makna:"
 
+#. Relevant view: Lite
+#. Classic view equivalent: "entries"
+#. Lowercase plural noun interpolated into activity-log lines (e.g. "Created 5 words"). Paired with "words" / "entries" terminology across the app.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "words"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "Words missing both Word and Display as"
+msgstr "Perkataan yang hilang kedua-dua Perkataan dan Papar sebagai"
+
+#: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
+msgid "Works on phones"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
+msgstr "Menulis log terperinci, termasuk diagnostik log masuk, ke dalam fail log. Matikan semula setelah pasukan sokongan mempunyai apa yang mereka perlukan."
+
+#. Standalone singular noun used as {0} in "Reordered {0}" when naming one item, e.g. "Reordered writing system" plus a chip with its name. Paired with plural "writing systems".
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "writing system"
+msgstr ""
+
 #. Column header
 #: src/project/browse/filter/WsSelect.svelte
 msgid "Writing System"
 msgstr "Sistem Penulisan"
 
+#. Field label in the activity change-preview diff for a writing system. "Writing system code" is the technical identifier (e.g. "en", "fr-Latn"), distinct from its display name.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Writing system code"
+msgstr ""
+
 #. Tooltip on a text span in the rich-text editor. {0} = writing system code (e.g., "en", "fr-IPA"). Identifies which writing system the span belongs to.
 #: src/lib/components/lcm-rich-text-editor/editor-schema.ts
 msgid "Writing system: {0}"
 msgstr "Sistem penulisan: {0}"
+
+#. Standalone plural noun used as {0} in "Reordered {0}". Refers to the list of writing systems configured in the project.
+#: src/lib/activity/ChangeSummary.svelte
+#: src/lib/activity/ChangeSummary.svelte
+msgid "writing systems"
+msgstr ""
 
 #. Section label in custom view form.
 #. Configures which vernacular and analysis writing systems are shown.
@@ -3090,10 +4734,14 @@ msgstr "Sistem tulisan"
 msgid "Writing Systems"
 msgstr "Sistem Penulisan"
 
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+msgid "Yes"
+msgstr ""
+
 #. Warning toast shown when a login attempt can't connect to the server. {0} is the server name (e.g. "Lexbox").
 #: src/lib/auth/LoginButton.svelte
 msgid "You appear to be offline. Can you connect to {0}?"
-msgstr ""
+msgstr "Anda nampaknya tidak dalam talian. Bolehkah anda menyambung ke {0}?"
 
 #. Status message when no updates are available
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -3118,12 +4766,40 @@ msgstr "Anda telah pun memuat turun projek {0}"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "You're offline"
+msgstr "Anda tidak dalam talian"
+
+#: src/lib/plugins/PluginRunView.svelte
+msgid "You're offline and the plugin file hasn't been downloaded here. Connect to the internet and try again — after that it works offline."
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "You're offline and this plugin's file isn't on this device yet."
+msgstr ""
+
+#: src/lib/plugins/studio/PluginStudioView.svelte
+msgid "You're offline and this plugin's file isn't on this device yet. Connect and try again."
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "You've passed every milestone. What an achievement!"
+msgstr "Anda telah mencapai setiap pencapaian penting. Betapa hebatnya pencapaian ini!"
+
+#: src/lib/plugins/studio/LeaveDialog.svelte
+msgid "Your changes to this plugin will be lost."
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
+msgstr "Kamus anda bermula di sini"
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Your plugin will run here"
+msgstr ""
+
+#: src/lib/plugins/studio/StudioPreview.svelte
+msgid "Your real dictionary. Changes it tries are shown, not saved."
+msgstr ""
+
+#: src/lib/plugins/studio/StudioHeader.svelte
+msgid "Your version, not added yet"
 msgstr ""

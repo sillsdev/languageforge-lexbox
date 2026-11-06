@@ -20,9 +20,9 @@
   let installPromise = $state<Promise<UpdateResult>>();
 
   const eventBus = useEventBus();
-  let installProgress = $state<number>();
+  let downloadProgress = $state<{bytesDownloaded: number; bytesPerSecond: number}>();
   eventBus.onEventType<IAppUpdateProgressEvent>(FwEventType.AppUpdateProgress, event => {
-    installProgress = event.percentage;
+    downloadProgress = {bytesDownloaded: event.bytesDownloaded, bytesPerSecond: event.bytesPerSecond};
   });
 
   watch(() => open, () => {
@@ -33,7 +33,7 @@
   });
 
   async function installUpdate(update: IAvailableUpdate) {
-    installProgress = undefined;
+    downloadProgress = undefined;
     installPromise = updateService.applyUpdate(update);
     try {
       const updateResult = await installPromise;
@@ -44,6 +44,11 @@
       console.error('Error installing update:', error);
       throw error;
     }
+  }
+
+  function restartApp() {
+    // On success this terminates the app and relaunches on the new version, so it never resolves.
+    void updateService.restartToApplyUpdate();
   }
 
   const appVersion = config.appVersion;
@@ -68,7 +73,8 @@
       {checkPromise}
       {installPromise}
       {installUpdate}
-      {installProgress} />
+      {restartApp}
+      {downloadProgress} />
 
     <div class="flex justify-center gap-3">
       <Anchor

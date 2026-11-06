@@ -312,6 +312,16 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         await _api.SubmitMoveComplexFormComponent(complexFormComponent, between);
     }
 
+    public Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    {
+        return _api.SubmitMoveSense(entryId, senseId, position, kind);
+    }
+
+    public Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    {
+        return _api.SubmitMoveExampleSentence(entryId, senseId, exampleSentenceId, position, kind);
+    }
+
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
         return _api.DeleteComplexFormComponent(complexFormComponent);
@@ -390,9 +400,9 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.UpdateSense(entryId, NormalizeSense(before), NormalizeSense(after), api);
     }
 
-    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position)
+    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.MoveSense(entryId, senseId, position);
+        return _api.MoveSense(entryId, senseId, position, kind);
     }
 
     public Task DeleteSense(Guid entryId, Guid senseId)
@@ -457,9 +467,9 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.UpdateExampleSentence(entryId, senseId, NormalizeExampleSentence(before), NormalizeExampleSentence(after), api);
     }
 
-    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.MoveExampleSentence(entryId, senseId, exampleSentenceId, position);
+        return _api.MoveExampleSentence(entryId, senseId, exampleSentenceId, position, kind);
     }
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
@@ -593,6 +603,26 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     #endregion
 
+    #region Plugin
+
+    // Plugin metadata (name, description, manifest tokens) is not user-entered linguistic text, so no normalization is applied.
+    public async Task<Plugin> CreatePlugin(Plugin plugin)
+    {
+        return await _api.CreatePlugin(plugin);
+    }
+
+    public async Task<Plugin> UpdatePlugin(Plugin plugin)
+    {
+        return await _api.UpdatePlugin(plugin);
+    }
+
+    public Task DeletePlugin(Guid id)
+    {
+        return _api.DeletePlugin(id);
+    }
+
+    #endregion
+
     #region Comments
 
     public Task<CommentThread> CreateCommentThread(CommentThread thread, UserComment firstComment)
@@ -661,6 +691,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     {
         // File metadata is not user-entered text, so don't normalize
         return _api.SaveFile(stream, metadata);
+    }
+
+    public Task DeleteFile(MediaUri mediaUri)
+    {
+        return _api.DeleteFile(mediaUri);
     }
 
     #endregion

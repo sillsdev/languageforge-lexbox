@@ -85,17 +85,20 @@ public partial class CrdtProjectsService(
         await Task.WhenAll(tasks);
     }
 
-    public async ValueTask UpdateProjectServerInfo(CrdtProject project,
+    /// <returns>true if the role changed</returns>
+    public async ValueTask<bool> UpdateProjectServerInfo(CrdtProject project,
         string? userName,
         string? userId,
         UserProjectRole role)
     {
-        if (project.Data?.LastUserName == userName && project.Data?.LastUserId == userId && project.Data?.Role == role) return;
+        if (project.Data?.LastUserName == userName && project.Data?.LastUserId == userId && project.Data?.Role == role) return false;
+        var roleChanged = false;
         await ExecInProject(project, async (scopedServices, currentProjectService) =>
         {
             await currentProjectService.UpdateLastUser(userName, userId);
-            await currentProjectService.UpdateUserRole(role);
+            roleChanged = await currentProjectService.UpdateUserRole(role);
         });
+        return roleChanged;
     }
 
     public IEnumerable<CrdtProject> ListProjects()
@@ -129,7 +132,7 @@ public partial class CrdtProjectsService(
         var stopwatch = Stopwatch.StartNew();
         logger.LogInformation("Regenerating Harmony snapshots for project {ProjectCode}", projectCode);
 
-        var project = GetProject(projectCode) ?? throw new ArgumentException($"Project {projectCode} not found");
+        var project = GetProject(projectCode) ?? throw new ArgumentException($"Project '{projectCode}' not found");
 
         await ExecInProject(project, async (services, _) =>
         {
@@ -150,7 +153,7 @@ public partial class CrdtProjectsService(
         var stopwatch = Stopwatch.StartNew();
         logger.LogInformation("Regenerating entry search table for project {ProjectCode}", projectCode);
 
-        var project = GetProject(projectCode) ?? throw new ArgumentException($"Project {projectCode} not found");
+        var project = GetProject(projectCode) ?? throw new ArgumentException($"Project '{projectCode}' not found");
 
         await ExecInProject(project, async (services, _) =>
         {
@@ -175,12 +178,18 @@ public partial class CrdtProjectsService(
         Guid? FwProjectId = null,
         string? AuthenticatedUser = null,
         string? AuthenticatedUserId = null,
-        UserProjectRole? Role = null);
+        UserProjectRole? Role = null,
+        // Exact db path to create the project at, used verbatim instead of computing "{Path}/{Code}.sqlite".
+        // May be a sqlite URI (tests use an in-memory shared-cache db). Mutually exclusive with Path.
+        string? DbPath = null);
 
     public async Task<CrdtProject> CreateExampleProject(string name)
     {
         // Code must satisfy the lowercase-only ProjectCode rule; the display name keeps its casing.
-        return await CreateProjectFromTemplate(new(name, name.ToLowerInvariant(), AfterCreate: ExampleProjectData.Seed, Role: UserProjectRole.Manager, AuthenticatedUser: "Example User", AuthenticatedUserId: "example-user"), vernacularWs: "de");
+        return await CreateProjectFromTemplate(
+            new(name, name.ToLowerInvariant(), AfterCreate: ExampleProjectData.Seed, Role: UserProjectRole.Manager, AuthenticatedUser: "Example User", AuthenticatedUserId: "example-user"),
+            vernacularWs: "de",
+            configureVernacular: ws => ws with { IcuCollationRules = ExampleProjectData.DemoIcuCollationRules });
     }
 
     /// <summary>
@@ -193,7 +202,8 @@ public partial class CrdtProjectsService(
     public virtual async Task<CrdtProject> CreateProjectFromTemplate(
         CreateProjectRequest request,
         WritingSystemId vernacularWs,
-        WritingSystemId? analysisWs = null)
+        WritingSystemId? analysisWs = null,
+        Func<WritingSystem, WritingSystem>? configureVernacular = null)
     {
         // Templated projects are created locally; this path has no way to associate one with a server
         // at creation time, so reject a Domain up front — the invariant holds where the project is born.
@@ -211,7 +221,7 @@ public partial class CrdtProjectsService(
             {
                 var api = provider.GetRequiredService<IMiniLcmApi>();
                 var jsonOptions = provider.GetRequiredService<IOptions<HarmonyConfig>>().Value.JsonSerializerOptions;
-                var snapshot = ProjectTemplate.CreateNewSnapshot(jsonOptions, vernacularWs, analysisWs);
+                var snapshot = ProjectTemplate.CreateNewSnapshot(jsonOptions, vernacularWs, analysisWs, configureVernacular);
                 var commitMetadataInterceptor = provider.GetRequiredService<CommitMetadataInterceptor>();
                 using (commitMetadataInterceptor.Intercept(CommitHelpers.StampAsTemplate))
                 {
@@ -233,9 +243,16 @@ public partial class CrdtProjectsService(
             throw new InvalidOperationException(nameIsInvalid);
         }
 
+        if (request is { DbPath: not null, Path: not null })
+        {
+            var conflictingPaths = $"Only one of {nameof(request.DbPath)} and {nameof(request.Path)} may be specified";
+            activity?.SetStatus(ActivityStatusCode.Error, conflictingPaths);
+            throw new ArgumentException(conflictingPaths, nameof(request));
+        }
+
         //poor man's sanitation
         var code = Path.GetFileName(request.Code);
-        var sqliteFile = Path.Combine(request.Path ?? config.Value.ProjectPath, $"{code}.sqlite");
+        var sqliteFile = request.DbPath ?? Path.Combine(request.Path ?? config.Value.ProjectPath, $"{code}.sqlite");
         if (File.Exists(sqliteFile))
         {
             var alreadyExists = $"Project already exists at '{sqliteFile}'";
@@ -257,6 +274,8 @@ public partial class CrdtProjectsService(
                 Guid.NewGuid(), request.FwProjectId, request.AuthenticatedUser, request.AuthenticatedUserId, request.Role ?? UserProjectRole.Editor);
             crdtProject.Data = projectData;
             await InitProjectDb(db, projectData);
+            // Stores the current model versions while the db is empty, or the reconcile after AfterCreate rebuilds every snapshot it wrote
+            await serviceScope.ServiceProvider.GetRequiredService<DataModel>().ReconcileModelVersions();
             await currentProjectService.RefreshProjectData();
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
             // Run EF migrate + FTS regenerate-if-missing (same path as opening an existing project).
@@ -366,7 +385,7 @@ public partial class CrdtProjectsService(
             {
                 logger.LogError("Failed to delete sqlite file {SqliteFile} after 10 attempts", safeSqliteFile);
                 if (!suppressException)
-                    throw new IOException($"Failed to delete sqlite file {safeSqliteFile} after 10 attempts");
+                    throw new IOException($"Failed to delete sqlite file '{safeSqliteFile}' after 10 attempts");
             }
         });
     }
@@ -375,13 +394,13 @@ public partial class CrdtProjectsService(
 
     public async Task DeleteProject(string code)
     {
-        var project = GetProject(code) ?? throw new InvalidOperationException($"Project {code} not found");
+        var project = GetProject(code) ?? throw new InvalidOperationException($"Project '{code}' not found");
         var projectResourceCachePath = LcmMediaService.ProjectCachePath(project, provider.GetRequiredService<IOptions<HarmonyConfig>>().Value);
         if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
         await EnsureDeleteProject(project.DbPath);
     }
 
-    internal static async Task InitProjectDb(LcmCrdtDbContext db, ProjectData data)
+    private static async Task InitProjectDb(LcmCrdtDbContext db, ProjectData data)
     {
         await db.Database.MigrateAsync();
         db.ProjectData.Add(data);

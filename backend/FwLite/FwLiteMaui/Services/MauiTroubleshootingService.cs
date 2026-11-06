@@ -1,5 +1,6 @@
 using FwLiteShared.Services;
 using LcmCrdt;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
@@ -9,6 +10,7 @@ namespace FwLiteMaui.Services;
 public class MauiTroubleshootingService(
     IOptions<FwLiteMauiConfig> config,
     ILogger<MauiTroubleshootingService> logger,
+    IConfigurationRoot configuration,
     CrdtProjectsService projectsService,
     ILauncher launcher,
     IBrowser browser,
@@ -57,32 +59,82 @@ public class MauiTroubleshootingService(
         {
             var mainLogFile = new ShareFile(Config.AppLogFilePath, "text/plain");
             var secondLogFile = new ShareFile(Config.AppLogAlternateFilePath, "text/plain");
-            var shareRequest = new ShareMultipleFilesRequest("FieldWorks Lite logs", [mainLogFile, secondLogFile]);
+            var shareRequest = new ShareMultipleFilesRequest("FieldWorks Lite logs", [mainLogFile, secondLogFile])
+            {
+                PresentationSourceBounds = PresentationSourceBounds()
+            };
             await _share.RequestAsync(shareRequest);
         }
         else
         {
             var shareRequest =
-                new ShareFileRequest("FieldWorks Lite logs", new ShareFile(Config.AppLogFilePath, "text/plain"));
+                new ShareFileRequest("FieldWorks Lite logs", new ShareFile(Config.AppLogFilePath, "text/plain"))
+                {
+                    PresentationSourceBounds = PresentationSourceBounds()
+                };
             await _share.RequestAsync(shareRequest);
         }
+    }
+
+    [JSInvokable]
+    public Task<bool> GetCanManageSettingsFile() => Task.FromResult(true);
+
+    [JSInvokable]
+    public Task<bool> GetVerboseLogging() =>
+        Task.FromResult(FwLiteMauiConfiguration.IsVerboseLogging(configuration));
+
+    [JSInvokable]
+    public Task SetVerboseLogging(bool enabled)
+    {
+        FwLiteMauiConfiguration.SetVerboseLogging(Config.SettingsFilePath, enabled);
+        //applies the new log levels now, on every platform, without relying on a file watcher
+        configuration.Reload();
+        logger.LogInformation("Verbose logging {State}", enabled ? "enabled" : "disabled");
+        return Task.CompletedTask;
+    }
+
+    [JSInvokable]
+    public Task<string> GetSettingsFile() =>
+        Task.FromResult(File.Exists(Config.SettingsFilePath) ? File.ReadAllText(Config.SettingsFilePath) : "");
+
+    [JSInvokable]
+    public Task SetSettingsFile(string contents)
+    {
+        FwLiteMauiConfiguration.WriteSettingsFile(Config.SettingsFilePath, contents);
+        configuration.Reload();
+        logger.LogInformation("Settings file updated from the troubleshoot dialog");
+        return Task.CompletedTask;
+    }
+
+    // iPadOS presents the share sheet as a popover anchored to this rectangle; without a source rect
+    // UIKit throws. The request originates from a WebView button whose screen position we don't have,
+    // so anchor to the centre of the display. Ignored on platforms that don't use a popover.
+    internal static Rect PresentationSourceBounds()
+    {
+        var display = DeviceDisplay.Current.MainDisplayInfo;
+        var width = display.Width / display.Density;
+        var height = display.Height / display.Density;
+        return new Rect(width / 2, height / 2, 0, 0);
     }
 
     [JSInvokable]
     public async Task ShareCrdtProject(string projectCode)
     {
         var crdtProject = projectsService.GetProject(projectCode);
-        if (crdtProject is null) throw new ArgumentException($"Project {projectCode} not found");
+        if (crdtProject is null) throw new ArgumentException($"Project '{projectCode}' not found");
         var filePath = crdtProject.DbPath;
         var shareTitle = $"FieldWorks Lite project {projectCode}";
-        await _share.RequestAsync(new ShareFileRequest(shareTitle, new ShareFile(filePath, "application/x-sqlite3")));
+        await _share.RequestAsync(new ShareFileRequest(shareTitle, new ShareFile(filePath, "application/x-sqlite3"))
+        {
+            PresentationSourceBounds = PresentationSourceBounds()
+        });
     }
 
     [JSInvokable]
     public Task RegenerateHarmonySnapshots(string projectCode) =>
-        projectsService.RegenerateHarmonySnapshotsAsync(projectCode);
+        Task.Run(async () => await projectsService.RegenerateHarmonySnapshotsAsync(projectCode));
 
     [JSInvokable]
     public Task RegenerateEntrySearchTable(string projectCode) =>
-        projectsService.RegenerateEntrySearchTableAsync(projectCode);
+        Task.Run(async () => await projectsService.RegenerateEntrySearchTableAsync(projectCode));
 }

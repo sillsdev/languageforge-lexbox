@@ -15,8 +15,11 @@ public class MiniLcmCrdtAdapter : ICustomAdapter<MiniLcmCrdtAdapter, IObjectWith
     }
 
     public IObjectWithId Obj { get; set; }
+
+    [JsonIgnore]
     public Guid Id => Obj.Id;
 
+    [JsonIgnore]
     public DateTimeOffset? DeletedAt
     {
         get => Obj.DeletedAt;

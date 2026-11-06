@@ -5,6 +5,7 @@ using LexBoxApi.Models;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;
 using LexCore;
+using LexCore.Analytics;
 using LexCore.Auth;
 using LexData;
 using Microsoft.AspNetCore.Authentication;
@@ -25,7 +26,8 @@ public class LoginController(
     LoggedInContext loggedInContext,
     IEmailService emailService,
     UserService userService,
-    TurnstileService turnstileService)
+    TurnstileService turnstileService,
+    ILexboxAnalyticsService analytics)
     : ControllerBase
 {
     /// <summary>
@@ -90,6 +92,9 @@ public class LoginController(
             (authUser, userEntity) = await lexAuthService.GetUser(googleEmail);
         }
 
+        // A login is only "completed" for an existing user; a null authUser here means we're about to
+        // send a new Google user through registration, which is not a login.
+        var isExistingUserLogin = authUser is not null;
         if (authUser is null)
         {
             authUser = new LexAuthUser()
@@ -132,6 +137,8 @@ public class LoginController(
 
         await HttpContext.SignInAsync(authUser.GetPrincipal("google"),
             new AuthenticationProperties { IsPersistent = true });
+        if (isExistingUserLogin)
+            _ = analytics.TrackLoginCompleted(authUser, ILexboxAnalyticsService.GoogleLoginType);
         return returnTo;
     }
 
@@ -200,6 +207,7 @@ public class LoginController(
         await userService.UpdatePasswordStrength(user.Id, loginRequest);
         await HttpContext.SignInAsync(user.GetPrincipal("Password"),
             new AuthenticationProperties { IsPersistent = true });
+        _ = analytics.TrackLoginCompleted(user, ILexboxAnalyticsService.PasswordLoginType);
         return user;
     }
 

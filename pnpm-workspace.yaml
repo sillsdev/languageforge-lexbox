@@ -1,0 +1,20 @@
+# Repo-root pnpm config for the nx affected-detection tooling (see package.json).
+#
+# This is NOT the web-app workspace: that one stays at frontend/pnpm-workspace.yaml
+# (pnpm picks the nearest pnpm-workspace.yaml walking up from the cwd, so commands
+# run under frontend/ keep using it and its own lockfile). This file deliberately
+# declares no `packages`, so the root workspace contains only the root package.
+# nx discovers frontend/viewer through frontend/viewer/project.json instead.
+
+# Same supply-chain policy as frontend/pnpm-workspace.yaml.
+minimumReleaseAge: 1440
+engineStrict: true
+
+# Same store layout as the frontend workspace (shared across worktrees).
+virtualStoreType: global
+
+# nx's postinstall only pre-warms its project-graph cache; pnpm 12 refuses to
+# install until each build script is allowed or denied, and graph-only use
+# does not need it (nx builds the cache on first run instead).
+allowBuilds:
+  nx: false

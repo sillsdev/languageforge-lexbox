@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using FwLiteShared.Analytics;
 using FwLiteShared.Auth;
 using FwLiteShared.Projects;
 using FwLiteShared.Sync;
@@ -17,7 +18,8 @@ public class ProjectServicesProvider(
     CrdtProjectsService crdtProjectsService,
     IServiceProvider serviceProvider,
     LexboxProjectService lexboxProjectService,
-    IEnumerable<IProjectProvider> projectProviders
+    IEnumerable<IProjectProvider> projectProviders,
+    IAnalyticsService analytics
 ): IAsyncDisposable
 {
     private IProjectProvider? FwDataProjectProvider =>
@@ -56,7 +58,7 @@ public class ProjectServicesProvider(
             {
                 var scopedServices = serviceScope.ServiceProvider;
                 var project = crdtProjectsService.GetProject(code)
-                              ?? throw new InvalidOperationException($"Crdt Project {code} not found");
+                              ?? throw new InvalidOperationException($"Crdt Project '{code}' not found");
                 var server = lexboxProjectService.GetServer(project.Data);
                 var currentProjectService = scopedServices.GetRequiredService<CurrentProjectService>();
                 var projectData = await currentProjectService.SetupProjectContext(project);
@@ -71,6 +73,7 @@ public class ProjectServicesProvider(
                     ActivatorUtilities.CreateInstance<MediaFilesServiceJsInvokable>(scopedServices)
                 );
                 _projectScopes.TryAdd(scope, scope);
+                MixpanelAnalytics.RecordProjectOpened(analytics, projectData, server);
                 return scope;
             }
             catch
@@ -95,7 +98,7 @@ public class ProjectServicesProvider(
                 if (FwDataProjectProvider is null)
                     throw new InvalidOperationException("FwData Project provider is not available");
                 var project = FwDataProjectProvider.GetProject(projectName) ??
-                              throw new InvalidOperationException($"FwData Project {projectName} not found");
+                              throw new InvalidOperationException($"FwData Project '{projectName}' not found");
                 var miniLcm = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(
                     scopedServices,
                     await FwDataProjectProvider.OpenProject(project, scopedServices),

@@ -1,8 +1,8 @@
 using SIL.Harmony.Config;
 using System.Diagnostics;
 using LcmCrdt.Changes;
-using LcmCrdt.MediaServer;
 using Meziantou.Extensions.Logging.Xunit;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -16,8 +16,13 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 {
     private readonly bool _seedWs = true;
     private readonly Guid? _projectId;
+    private readonly Action<IServiceCollection>? _configureServices;
+    // fixtures run in parallel and share project codes, so each gets its own folder (media cache) to delete on dispose
+    private readonly string _projectPath = Path.GetFullPath($"fixture-{Guid.NewGuid():N}");
+    private ServiceProvider? _rootServices;
     private AsyncServiceScope _services;
     private LcmCrdtDbContext? _crdtDbContext;
+    private SqliteConnection? _keepAliveConnection;
     public CrdtMiniLcmApi Api => (CrdtMiniLcmApi)_services.ServiceProvider.GetRequiredService<IMiniLcmApi>();
     public DataModel DataModel => _services.ServiceProvider.GetRequiredService<DataModel>();
     public LcmCrdtDbContext DbContext => _crdtDbContext ?? throw new InvalidOperationException("MiniLcmApiFixture not initialized");
@@ -33,15 +38,20 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     {
     }
 
-    public static MiniLcmApiFixture Create(bool seedWs = true, Guid? projectId = null)
+    /// <param name="configureServices">
+    /// Adds or replaces services after the fixture's own registrations. Config that ends up in the EF model or
+    /// linq2db's compiled queries (e.g. HarmonyConfig) can't be changed here: both are cached process-wide.
+    /// </param>
+    public static MiniLcmApiFixture Create(bool seedWs = true, Guid? projectId = null, Action<IServiceCollection>? configureServices = null)
     {
-        return new MiniLcmApiFixture(seedWs, projectId);
+        return new MiniLcmApiFixture(seedWs, projectId, configureServices);
     }
 
-    private MiniLcmApiFixture(bool seedWs = true, Guid? projectId = null)
+    private MiniLcmApiFixture(bool seedWs, Guid? projectId, Action<IServiceCollection>? configureServices)
     {
         _seedWs = seedWs;
         _projectId = projectId;
+        _configureServices = configureServices;
     }
 
     public async Task InitializeAsync()
@@ -52,36 +62,44 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
     public async Task InitializeAsync(string projectName, Guid? projectId = null)
     {
         var db = $"file:{Guid.NewGuid():N}?mode=memory&cache=shared";
+        var inMemory = true;
         if (Debugger.IsAttached)
         {
             db = "test.db";
+            inMemory = false;
             if (File.Exists(db))
             {
                 File.Delete(db);
             }
         }
 
-        var crdtProject = new CrdtProject(projectName, db);
-        var services = new ServiceCollection()
-            .AddTestLcmCrdtClient(crdtProject)
+        var serviceCollection = new ServiceCollection()
+            .AddTestLcmCrdtClient()
+            .Configure<LcmCrdtConfig>(config => config.ProjectPath = _projectPath)
             .AddLogging(builder => builder.AddDebug()
                 .AddProvider(new LateXUnitLoggerProvider(this))
                 .AddFilter("LinqToDB", LogLevel.Trace)
-                .SetMinimumLevel(LogLevel.Error))
-            .BuildServiceProvider();
-        _services = services.CreateAsyncScope();
-        var currentProjectService = _services.ServiceProvider.GetRequiredService<CurrentProjectService>();
-        currentProjectService.SetupProjectContextForNewDb(crdtProject);
+                .SetMinimumLevel(LogLevel.Error));
+        _configureServices?.Invoke(serviceCollection);
+        _rootServices = serviceCollection.BuildServiceProvider();
+        _services = _rootServices.CreateAsyncScope();
+        if (inMemory)
+        {
+            //an in memory db only lives as long as a connection to it is open, and CreateProject opens and
+            //closes its own, so hold one open for the lifetime of the fixture to keep the db alive.
+            _keepAliveConnection = new SqliteConnection($"Data Source={db}");
+            await _keepAliveConnection.OpenAsync();
+        }
+
+        var crdtProject = await _services.ServiceProvider.GetRequiredService<CrdtProjectsService>()
+            .CreateProject(new("Sena 3", projectName, projectId, DbPath: db));
+        //same as opening the project in the app: migrate, regenerate search table if missing, load project data
+        await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(crdtProject);
         _crdtDbContext = await _services.ServiceProvider.GetRequiredService<IDbContextFactory<LcmCrdtDbContext>>().CreateDbContextAsync();
-        await _crdtDbContext.Database.OpenConnectionAsync();
-        //can't use ProjectsService.CreateProject because it opens and closes the db context, this would wipe out the in memory db.
-        var projectData = new ProjectData("Sena 3", projectName, projectId ?? Guid.NewGuid(), null, Guid.NewGuid());
-        await CrdtProjectsService.InitProjectDb(_crdtDbContext, projectData);
-        await currentProjectService.SetupProjectContext(crdtProject);
         // CreateProject no longer seeds morph types on migrate (#2350). This fixture bypasses
         // CreateProjectFromTemplate, so seed them for tests that depend on them (sorting,
         // homograph numbers, morph-token search, MorphTypeTestsBase).
-        await DataModel.AddChanges(projectData.ClientId,
+        await DataModel.AddChanges(crdtProject.Data!.ClientId,
             [.. CanonicalMorphTypes.All.Values.Select(mt => new CreateMorphTypeChange(mt))]);
         if (_seedWs)
         {
@@ -139,10 +157,11 @@ public class MiniLcmApiFixture : IAsyncLifetime, IAsyncDisposable
 
     public async Task DisposeAsync()
     {
-        var projectResourceCachePath = _services.ServiceProvider.GetRequiredService<LcmMediaService>().ProjectResourceCachePath;
-        if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
         await (_crdtDbContext?.DisposeAsync() ?? ValueTask.CompletedTask);
         await _services.DisposeAsync();
+        await (_rootServices?.DisposeAsync() ?? ValueTask.CompletedTask);
+        await (_keepAliveConnection?.DisposeAsync() ?? ValueTask.CompletedTask);
+        if (Directory.Exists(_projectPath)) Directory.Delete(_projectPath, true);
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()

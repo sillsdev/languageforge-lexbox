@@ -5,11 +5,13 @@
 
 export enum FwEventType {
 	EntriesChanged = "EntriesChanged",
+	CommentsChanged = "CommentsChanged",
 	AuthenticationChanged = "AuthenticationChanged",
 	ProjectEvent = "ProjectEvent",
 	Sync = "Sync",
 	AppUpdate = "AppUpdate",
 	AppUpdateProgress = "AppUpdateProgress",
-	UserNotification = "UserNotification"
+	UserNotification = "UserNotification",
+	ProjectRoleChanged = "ProjectRoleChanged"
 }
 /* eslint-enable */

@@ -37,6 +37,15 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
     }
 
     [Fact]
+    public async Task UploadFile_PutIdenticalContent_Succeeds()
+    {
+        var (guid, result) = await Fixture.PostFile(TestRepoZipPath);
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        result = await Fixture.PutFile(TestRepoZipPath, guid);
+        result.ShouldBeSuccessful();
+    }
+
+    [Fact]
     public async Task UploadFile_FailsForNonMembers()
     {
         var (guid, result) = await Fixture.PostFile(TestRepoZipPath, loginAs: "user");
@@ -273,6 +282,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
     [InlineData(".jpeg", "Pictures")]
     [InlineData(".gif", "Pictures")]
     [InlineData(".png", "Pictures")]
+    [InlineData(".html", "Plugins")]
     public async Task UploadFile_WithoutContentType_GuessesFromFilename(string extension, string expectedFolder)
     {
         var otherPath = TestRepoZipPath.Replace(".zip", extension);
@@ -351,7 +361,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
             var (guid, result) = await Fixture.PostFile(dummyPath, deleteContentLengthHeader: true);
             if (result.StatusCode == HttpStatusCode.RequestEntityTooLarge)
             {
-                // GitHub Actions runner forces Content-Length header to be present even if we omit it, so this test becomes meaningless on GHA
+                // ingress-nginx buffers the request body and adds a Content-Length header even if we omit it, so this test becomes meaningless behind nginx
                 // We would skip it, but the ability to skip tests at runtime was only added in xUnit 3 and we're currently on xUnit 2.9.2
             }
             else
@@ -397,12 +407,12 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
             var (guid, result) = await Fixture.PostFile(dummyPath, deleteContentLengthHeader: true);
             if (result.StatusCode == HttpStatusCode.RequestEntityTooLarge)
             {
-                // GitHub Actions runner forces Content-Length header to be present even if we omit it, so this test becomes meaningless on GHA
+                // ingress-nginx buffers the request body and adds a Content-Length header even if we omit it, so this test becomes meaningless behind nginx
                 // We would skip it, but the ability to skip tests at runtime was only added in xUnit 3 and we're currently on xUnit 2.9.2
             }
             else
             {
-                // Running locally, so this test can proceed
+                // No Content-Length header reached the server, so this test can proceed
                 result.StatusCode.Should().Be(HttpStatusCode.Created);
                 guid.Should().NotBeEmpty();
                 if (File.Exists(dummyPath)) File.Delete(dummyPath);

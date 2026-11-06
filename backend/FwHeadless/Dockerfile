@@ -20,6 +20,7 @@ COPY FwLite/MiniLcm/MiniLcm.csproj FwLite/MiniLcm/
 COPY FwLite/FwDataMiniLcmBridge/FwDataMiniLcmBridge.csproj FwLite/FwDataMiniLcmBridge/
 COPY FwLite/LcmCrdt/LcmCrdt.csproj FwLite/LcmCrdt/
 COPY FwLite/FwLiteProjectSync/FwLiteProjectSync.csproj FwLite/FwLiteProjectSync/
+COPY FwLite/MiniLcmWeb/MiniLcmWeb.csproj FwLite/MiniLcmWeb/
 RUN --mount=type=cache,target=/root/.nuget/packages dotnet restore "FwHeadless/FwHeadless.csproj"
 
 COPY . .
@@ -72,7 +73,7 @@ WORKDIR /app
 #
 # Copy the published app in, and in the SAME layer drop the compiled Mercurial extension modules
 # (zstd et al.) built for Python versions other than our python3.12 — the package ships them for
-# 3.8–3.13, but hg only ever loads the set matching its interpreter. Pruning during the copy (not
+# 3.9–3.15, but hg only ever loads the set matching its interpreter. Pruning during the copy (not
 # after) actually reclaims the space instead of hiding it under a whiteout. Keyed to python3.12 so
 # the hg debuginstall smoke-test below fails the build if the wrong set were ever kept.
 RUN --mount=type=bind,from=publish,source=/app/publish,target=/publish \

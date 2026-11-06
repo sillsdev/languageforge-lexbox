@@ -1,6 +1,7 @@
 <script lang="ts">
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
   import {
+    Checkbox,
     SubmitButton,
     FormError,
     Input,
@@ -23,12 +24,15 @@
     errorOnChangingEmail?: string;
     skipTurnstile?: boolean;
     submitButtonText?: string;
+    /** Show the analytics opt-out checkbox (for users creating their own account). */
+    showAnalyticsOptOut?: boolean;
     handleSubmit: (
       password: string,
       name: string,
       email: string,
       locale: string,
       turnstileToken: string,
+      optedOutOfAnalytics: boolean,
     ) => Promise<RegisterResponse>;
     onSubmitted?: (submittedUser: LexAuthUser) => void;
     formTainted?: boolean;
@@ -39,6 +43,7 @@
     errorOnChangingEmail = '',
     skipTurnstile = false,
     submitButtonText = $t('register.button_register'),
+    showAnalyticsOptOut = false,
     handleSubmit,
     onSubmitted,
     formTainted = $bindable(false),
@@ -70,6 +75,8 @@
       .refine((value) => validateAsEmail(value) || usernameRe.test(value), { error: $t('register.invalid_username') }),
     password: passwordFormRules($t),
     locale: z.string().trim().min(2).default(userLocale),
+    // Opt-out framing (matches the account settings page): checked = don't track. Off by default.
+    optedOutOfAnalytics: z.boolean().default(false),
   });
 
   let { form, errors, message, enhance, submitting, tainted } = lexSuperForm(formSchema, async () => {
@@ -79,6 +86,8 @@
       $form.email,
       $form.locale,
       turnstileToken,
+      // Only the opt-out checkbox (when shown) can opt a self-created account out; otherwise stay tracked.
+      showAnalyticsOptOut ? $form.optedOutOfAnalytics : false,
     );
     if (error) {
       if (error.turnstile) {
@@ -143,6 +152,14 @@
   />
   <PasswordStrengthMeter password={$form.password} />
   <DisplayLanguageSelect bind:value={$form.locale} />
+  {#if showAnalyticsOptOut}
+    <Checkbox
+      id="opted-out-of-analytics"
+      label={$t('analytics.opt_out_label')}
+      description={$t('analytics.description')}
+      bind:value={$form.optedOutOfAnalytics}
+    />
+  {/if}
   <FormError error={$message} />
   <SubmitButton loading={$submitting}>{submitButtonText}</SubmitButton>
 </MaybeProtectedForm>

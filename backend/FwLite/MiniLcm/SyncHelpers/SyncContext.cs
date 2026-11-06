@@ -1,0 +1,168 @@
+using System.Collections.Concurrent;
+using MiniLcm.Exceptions;
+using MiniLcm.Models;
+
+namespace MiniLcm.SyncHelpers;
+
+public class SyncContext
+{
+    private readonly bool _deferDeletes;
+    private readonly DeferredDeletes _deferredDeletes = new();
+    private readonly IReadOnlyDictionary<Guid, Sense> _sensesBefore;
+    private readonly IReadOnlyDictionary<Guid, Sense> _sensesAfter;
+    private readonly IReadOnlyDictionary<Guid, ExampleSentence> _examplesBefore;
+    private readonly IReadOnlyDictionary<Guid, ExampleSentence> _examplesAfter;
+
+    private SyncContext(bool deferDeletes,
+        IReadOnlyDictionary<Guid, Sense> sensesBefore,
+        IReadOnlyDictionary<Guid, Sense> sensesAfter,
+        IReadOnlyDictionary<Guid, ExampleSentence> examplesBefore,
+        IReadOnlyDictionary<Guid, ExampleSentence> examplesAfter)
+    {
+        _deferDeletes = deferDeletes;
+        _sensesBefore = sensesBefore;
+        _sensesAfter = sensesAfter;
+        _examplesBefore = examplesBefore;
+        _examplesAfter = examplesAfter;
+    }
+
+    private SyncContext(bool deferDeletes,
+        (IReadOnlyDictionary<Guid, Sense> senses, IReadOnlyDictionary<Guid, ExampleSentence> examples) before,
+        (IReadOnlyDictionary<Guid, Sense> senses, IReadOnlyDictionary<Guid, ExampleSentence> examples) after
+        ) : this(deferDeletes, before.senses, after.senses, before.examples, after.examples)
+    {
+    }
+
+    /// <summary>Always defers deletes so descendants can move between entries; the caller must call <see cref="FlushDeletes"/>.</summary>
+    public static SyncContext For(Entry[] beforeEntries, Entry[] afterEntries)
+    {
+        VerifyNoUnsupportedMoves(beforeEntries, afterEntries);
+        return new SyncContext(deferDeletes: true, All(beforeEntries), All(afterEntries));
+    }
+
+    public static SyncContext For(Entry beforeEntry, Entry afterEntry)
+    {
+        if (beforeEntry.Id != afterEntry.Id) throw new ArgumentException("Entry ids must match", nameof(afterEntry));
+        return For([beforeEntry], [afterEntry]);
+    }
+
+    public static SyncContext For(Sense beforeSense, Sense afterSense, bool deferDeletes = false)
+    {
+        if (beforeSense.Id != afterSense.Id) throw new ArgumentException("Sense ids must match", nameof(afterSense));
+        return new SyncContext(deferDeletes,
+            (new Dictionary<Guid, Sense>() { { beforeSense.Id, beforeSense } }, beforeSense.ExampleSentences.ToDictionary(e => e.Id)),
+            (new Dictionary<Guid, Sense>() { { afterSense.Id, afterSense } }, afterSense.ExampleSentences.ToDictionary(e => e.Id)));
+    }
+
+    /// <summary>Used to differentiate an add/create from what is actually a reparent</summary>
+    public Sense? ExistedBefore(Sense sense) => _sensesBefore.GetValueOrDefault(sense.Id);
+    public ExampleSentence? ExistedBefore(ExampleSentence example) => _examplesBefore.GetValueOrDefault(example.Id);
+
+    /// <summary>Used to differentiate a delete from what is actually a reparent</summary>
+    public bool StillExists(Sense sense) => _sensesAfter.ContainsKey(sense.Id);
+    public bool StillExists(ExampleSentence example) => _examplesAfter.ContainsKey(example.Id);
+
+    public Task<int> HandleDelete(Func<Task<int>> delete) => _deferDeletes
+        ? _deferredDeletes.Defer(delete)
+        : delete.Invoke();
+    public Task<int> FlushDeletes() => _deferredDeletes.DeleteAll();
+
+    public bool HasMovedInDescendants(Entry entry) => entry.Senses.Any(s => ExistedBefore(s) is not null || HasMovedInDescendants(s));
+    public bool HasMovedInDescendants(Sense sense) => sense.ExampleSentences.Any(e => ExistedBefore(e) is not null);
+
+    /// <summary>A copy with moved-in descendants stripped. Genuinely new descendants are kept.</summary>
+    public Entry WithoutMovedInDescendants(Entry entry) => entry with
+    {
+        Senses = [.. entry.Senses
+            .Where(s => ExistedBefore(s) is null)
+            .Select(s => HasMovedInDescendants(s) ? WithoutMovedInDescendants(s) : s)]
+    };
+
+    public Sense WithoutMovedInDescendants(Sense sense)
+    {
+        var copy = sense.Copy();
+        copy.ExampleSentences = [.. sense.ExampleSentences.Where(e => ExistedBefore(e) is null)];
+        return copy;
+    }
+
+    private static (IReadOnlyDictionary<Guid, Sense> senses, IReadOnlyDictionary<Guid, ExampleSentence> examples) All(Entry[] entries)
+    {
+        var senseCount = entries.Sum(e => e.Senses.Count);
+        var exampleCount = entries.SelectMany(e => e.Senses).Sum(s => s.ExampleSentences.Count);
+        //by using the counts to preallocate, we avoid the cost of resizing the dictionary as it grows, it requires counting all the entries first, but that is cheap compared to the cost of resizing the dictionary
+        Dictionary<Guid, Sense> senses = new(senseCount);
+        Dictionary<Guid, ExampleSentence> examples = new(exampleCount);
+        foreach (var entry in entries)
+        {
+            foreach (var sense in entry.Senses)
+            {
+                senses[sense.Id] = sense;
+                foreach (var example in sense.ExampleSentences)
+                    examples[example.Id] = example;
+            }
+        }
+        return (senses, examples);
+    }
+
+    private static void VerifyNoUnsupportedMoves(Entry[] beforeEntries, Entry[] afterEntries)
+    {
+        ThrowIfContainsMoves(nameof(Picture), PictureParents(beforeEntries), PictureParents(afterEntries));
+        ThrowIfContainsMoves(nameof(Translation), TranslationParents(beforeEntries), TranslationParents(afterEntries));
+    }
+
+    /// <summary>
+    /// An id whose parent differs between the states is a move. The parent is the DIRECT parent, so a
+    /// child riding along inside a moved sense or example is not itself a move.
+    /// </summary>
+    private static void ThrowIfContainsMoves(string typeName, IEnumerable<(Guid ChildId, Guid ParentId)> beforeParents, IEnumerable<(Guid ChildId, Guid ParentId)> afterParents)
+    {
+        var afterParentsLookup = afterParents.ToDictionary(p => p.ChildId, p => p.ParentId);
+        foreach (var (id, beforeParent) in beforeParents)
+        {
+            if (afterParentsLookup.TryGetValue(id, out var afterParent) && afterParent != beforeParent)
+                throw new MoveNotSupportedException(typeName, id, beforeParent, afterParent);
+        }
+    }
+
+    // parent maps tolerate duplicate ids (First wins): a duplicated child is corrupt data the sync
+    // otherwise handles, not something detection should turn into a hard failure
+    private static IEnumerable<(Guid ChildId, Guid ParentId)> PictureParents(Entry[] entries)
+    {
+        return entries.SelectMany(e => e.Senses)
+            .SelectMany(s => s.Pictures, (s, p) => (ChildId: p.Id, ParentId: s.Id))
+            .GroupBy(p => p.ChildId)
+            .Select(g => (ChildId: g.Key, ParentId: g.First().ParentId));
+    }
+
+    private static IEnumerable<(Guid ChildId, Guid ParentId)> TranslationParents(Entry[] entries)
+    {
+        return entries.SelectMany(e => e.Senses)
+            .SelectMany(s => s.ExampleSentences)
+            .SelectMany(x => x.Translations, (x, t) => (ChildId: t.Id, ParentId: x.Id))
+            .Where(t => !Translation.IsMissingTranslationId(t.ChildId))// the legacy placeholder id recurs across examples, so it can never identify a move
+            .GroupBy(t => t.ChildId)
+            .Select(g => (ChildId: g.Key, ParentId: g.First().ParentId));
+    }
+}
+
+/// <summary>Queues deletes so a subtree's children can be moved out before their old parent is deleted.</summary>
+public class DeferredDeletes
+{
+    private readonly ConcurrentQueue<Func<Task<int>>> _deletes = new();
+
+    /// <summary>Queues the delete; returns 0 changes now (they're counted when the queue is drained).</summary>
+    public Task<int> Defer(Func<Task<int>> delete)
+    {
+        _deletes.Enqueue(delete);
+        return Task.FromResult(0);
+    }
+
+    public async Task<int> DeleteAll()
+    {
+        var changes = 0;
+        // dequeue as we go so a delete that queues another extends the drain
+        while (_deletes.TryDequeue(out var delete))
+            changes += await delete();
+        return changes;
+    }
+}

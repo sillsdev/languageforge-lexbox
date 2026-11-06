@@ -29,6 +29,7 @@
       <a class="hover:link" href="https://software.sil.org/language-software-terms-of-use/">{$t('footer.terms_of_use')}</a>
       <a class="hover:link" href="mailto:admin@languagedepot.org" target="_blank">{$t('footer.contact')}</a>
       <a class="hover:link" href="https://software.sil.org/language-software-privacy-policy/">{$t('footer.privacy_policy')}</a>
+      <a class="hover:link" href="{resolve('/user')}#analytics">{$t('footer.analytics')}</a>
     </div>
   </div>
 </footer>

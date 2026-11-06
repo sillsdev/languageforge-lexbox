@@ -4,12 +4,14 @@ namespace FwLiteShared.Events;
 
 [JsonPolymorphic]
 [JsonDerivedType(typeof(EntriesChangedEvent), nameof(EntriesChangedEvent))]
+[JsonDerivedType(typeof(CommentsChangedEvent), nameof(CommentsChangedEvent))]
 [JsonDerivedType(typeof(ProjectEvent), nameof(ProjectEvent))]
 [JsonDerivedType(typeof(AuthenticationChangedEvent), nameof(AuthenticationChangedEvent))]
 [JsonDerivedType(typeof(SyncEvent), nameof(SyncEvent))]
 [JsonDerivedType(typeof(AppUpdateEvent), nameof(AppUpdateEvent))]
 [JsonDerivedType(typeof(AppUpdateProgressEvent), nameof(AppUpdateProgressEvent))]
 [JsonDerivedType(typeof(UserNotificationEvent), nameof(UserNotificationEvent))]
+[JsonDerivedType(typeof(ProjectRoleChangedEvent), nameof(ProjectRoleChangedEvent))]
 public interface IFwEvent
 {
     FwEventType Type { get; }
@@ -21,10 +23,12 @@ public interface IFwEvent
 public enum FwEventType
 {
     EntriesChanged,
+    CommentsChanged,
     AuthenticationChanged,
     ProjectEvent,
     Sync,
     AppUpdate,
     AppUpdateProgress,
     UserNotification,
+    ProjectRoleChanged,
 }

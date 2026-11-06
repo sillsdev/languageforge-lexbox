@@ -1,18 +1,21 @@
 import {defineConfig, devices, type ReporterDescription} from '@playwright/test';
 import * as testEnv from '../../../tests/envVars';
 
-const vitePort = '5173';
+// Same override and validation as vite.config.ts, so a worktree on its own port tests its own dev server.
+const parsedDevPort = Number(process.env.FwLite__DevAssetsPort);
+const vitePort = Number.isFinite(parsedDevPort) && parsedDevPort > 0 ? String(parsedDevPort) : '5173';
 const dotnetPort = '5137';
 const autoStartServer = process.env.AUTO_START_SERVER === 'true';
 const serverPort = process.env.SERVER_PORT ?? (autoStartServer ? vitePort : dotnetPort);
 const sharedReporters: ReporterDescription[] = [['list']];
 const localReporters: ReporterDescription[] = [['html', { outputFolder: 'html-test-results', open: 'never' }]];
 const ciReporters: ReporterDescription[] = [['github'], ['junit', {outputFile: 'test-results/results.xml'}], [
-  '@argos-ci/playwright/reporter',
+  // Wraps the Argos reporter: a rejected upload (e.g. screenshot quota exhausted) becomes a warning annotation, not a CI failure.
+  '../argos-reporter.ts',
   {
     //by only using the argos reporter in CI, screenshots will be placed in the screenshots folder when run locally
     // Upload to Argos on CI only.
-    uploadToArgos: !!process.env.CI
+    uploadToArgos: !!process.env.CI,
     // Argos token not required when using GitHub Actions.
   }
 ]];
@@ -23,8 +26,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 1 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : 2,
+  workers: process.env.CI ? 2 : 2,
   outputDir: 'test-results',
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter:[
@@ -57,7 +59,7 @@ export default defineConfig({
     {
       command: 'pnpm run dev',
       cwd: '../../', // resolved relative to this config file → frontend/viewer (pnpm 12 no longer walks up for the manifest)
-      url: 'http://localhost:5173',
+      url: `http://localhost:${vitePort}`,
       reuseExistingServer: true
     }
   ],
@@ -65,6 +67,12 @@ export default defineConfig({
     {
       name: 'chromium',
       use: {...devices['Desktop Chrome'], userAgent: 'Playwright Chrome'},
+    },
+    {
+      // Safari's engine, running on Linux via Playwright's bundled WebKit build.
+      // No userAgent override, so it presents as real Safari (the target we care about).
+      name: 'webkit',
+      use: {...devices['Desktop Safari']},
     },
   ]
 });

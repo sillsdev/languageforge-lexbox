@@ -22,7 +22,8 @@ public static class ProjectTemplate
     public static ProjectSnapshot CreateNewSnapshot(
         JsonSerializerOptions jsonSerializerOptions,
         WritingSystemId vernacularWs,
-        WritingSystemId? analysisWs = null)
+        WritingSystemId? analysisWs = null,
+        Func<WritingSystem, WritingSystem>? configureVernacular = null)
     {
         var assembly = typeof(ProjectTemplate).Assembly;
         using var stream = assembly.GetManifestResourceStream(EmbeddedResourceName)
@@ -33,12 +34,19 @@ public static class ProjectTemplate
             ?? throw new InvalidOperationException("Project template snapshot deserialized to null.");
         // Merge the requested writing systems into the snapshot so they're created with everything else
         // in dependency order, rather than tacked on after the import.
-        return snapshot with { WritingSystems = WithRequestedWritingSystems(snapshot.WritingSystems, vernacularWs, analysisWs) };
+        return snapshot with { WritingSystems = WithRequestedWritingSystems(snapshot.WritingSystems, vernacularWs, analysisWs, configureVernacular) };
     }
 
-    private static WritingSystems WithRequestedWritingSystems(WritingSystems template, WritingSystemId vernacularWs, WritingSystemId? analysisWs)
+    private static WritingSystems WithRequestedWritingSystems(
+        WritingSystems template,
+        WritingSystemId vernacularWs,
+        WritingSystemId? analysisWs,
+        Func<WritingSystem, WritingSystem>? configureVernacular = null)
     {
-        WritingSystem[] vernacular = [.. template.Vernacular, DefaultWritingSystem(vernacularWs, WritingSystemType.Vernacular)];
+        var vernacularWsEntity = DefaultWritingSystem(vernacularWs, WritingSystemType.Vernacular);
+        if (configureVernacular is not null)
+            vernacularWsEntity = configureVernacular(vernacularWsEntity);
+        WritingSystem[] vernacular = [.. template.Vernacular, vernacularWsEntity];
         var analysis = template.Analysis;
         // The template already ships English analysis; only add the requested analysis WS if it's a different one.
         if (analysisWs is { } aws && !analysis.Any(ws => ws.WsId == aws))

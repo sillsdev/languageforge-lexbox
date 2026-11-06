@@ -147,7 +147,7 @@ export const writingSystems: IWritingSystems = {
       'id': 'seh-Zxxx-x-audio',
       'wsId': 'seh-Zxxx-x-audio',
       'name': 'Sena Audio',
-      'abbreviation': 'seh 🔉',
+      'abbreviation': 'seh',
       'font': '???',
       'exemplars': [],
       'type': WritingSystemType.Vernacular,

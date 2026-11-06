@@ -1,4 +1,5 @@
 import {expect, type APIRequestContext, type Page} from '@playwright/test';
+import {createHash} from 'crypto';
 import {defaultPassword, serverBaseUrl} from '../envVars';
 import {RegisterPage} from '../pages/registerPage';
 import {UserDashboardPage} from '../pages/userDashboardPage';
@@ -31,6 +32,40 @@ export async function getCurrentUserId(api: APIRequestContext): Promise<UUID> {
   const user = await response.json() as {sub: UUID};
   expect(user).not.toBeNull();
   return user.sub;
+}
+
+export type GuestUser = {
+  id: UUID
+  name: string
+  username: string
+  password: string
+}
+
+// Creates a user the way the admin dashboard's "Create User" modal does: no email address, so no
+// mailbox is needed, and — unlike registerUser — the caller picks both the display name and the login.
+export async function createGuestUser(api: APIRequestContext, name: string, username: string, password: string = defaultPassword): Promise<GuestUser> {
+  const passwordHash = createHash('sha1').update(password).digest('hex'); // matches $lib/util/hash
+  const response = await executeGql<{data: {createGuestUserByAdmin: {lexAuthUser: {id: UUID}}}}>(api, `
+    mutation {
+        createGuestUserByAdmin(input: {
+            name: "${name}",
+            username: "${username}",
+            locale: "en",
+            passwordHash: "${passwordHash}",
+            passwordStrength: 0
+        }) {
+            lexAuthUser {
+                id
+            }
+            errors {
+                ... on Error {
+                    message
+                }
+            }
+        }
+    }
+  `);
+  return {id: response.data.createGuestUserByAdmin.lexAuthUser.id, name, username, password};
 }
 
 export async function registerUser(page: Page, name: string, email: string, password: string): Promise<UUID> {

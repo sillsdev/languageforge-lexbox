@@ -148,6 +148,19 @@ public class QueryEntryTests(ITestOutputHelper outputHelper) : QueryEntryTestsBa
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple);
     }
 
+    [Fact]
+    public async Task CanFilterEntriesWithOpenCommentThreads()
+    {
+        await SetCurrentUser("user1");
+        await Api.CreateCommentThread(CommentTests.NewThread(subjectId: appleId), CommentTests.NewComment());
+        var closedThread = await Api.CreateCommentThread(CommentTests.NewThread(subjectId: peachId), CommentTests.NewComment());
+        await Api.SetCommentThreadStatus(closedThread.Id, ThreadStatus.Closed);
+
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "OpenCommentThreads!=null" }))
+            .ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Apple);
+    }
+
     public override async Task DisposeAsync()
     {
         await base.DisposeAsync();

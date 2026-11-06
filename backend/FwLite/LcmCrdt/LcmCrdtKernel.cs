@@ -1,10 +1,12 @@
 using System.Linq.Expressions;
 using System.Text.Json;
+using MiniLcm.Media;
 using SIL.Harmony;
 using SIL.Harmony.Config;
 using SIL.Harmony.Linq2db;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
+using SIL.Harmony.Db;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.CustomJsonPatches;
 using LcmCrdt.Changes.Comments;
@@ -46,6 +48,9 @@ public static class LcmCrdtKernel
     {
         services.AddLcmCrdtClientCore();
         services.AddScoped<UpdateEntrySearchTableInterceptor>();
+        // Also expose it as a Harmony projected-entity interceptor so CRDT projection writes (which use
+        // raw SQL and bypass EF change tracking) keep the FTS search table in sync. Same scoped instance.
+        services.AddScoped<IProjectedEntityInterceptor>(sp => sp.GetRequiredService<UpdateEntrySearchTableInterceptor>());
         services.AddScoped<EntrySearchServiceFactory>();
         return services;
     }
@@ -58,9 +63,13 @@ public static class LcmCrdtKernel
 
         services.AddMemoryCache();
         services.AddSingleton<IMiniLcmCultureProvider, LcmCrdtCultureProvider>();
+        services.AddSingleton<IWritingSystemCollatorProvider, WritingSystemCollatorProvider>();
         services.AddSingleton<ProjectImporter>();
         services.AddScoped<SnapshotAtCommitService>();
         services.AddSingleton<SetupCollationInterceptor>();
+        // Expose it as a Harmony projected-entity interceptor so CRDT writing-system changes (raw-SQL
+        // projection, no EF change tracking) invalidate the cached writing-system lists used for collations.
+        services.AddSingleton<IProjectedEntityInterceptor>(sp => sp.GetRequiredService<SetupCollationInterceptor>());
         services.AddDbContextFactory<LcmCrdtDbContext>(ConfigureDbOptions, ServiceLifetime.Scoped);
         services.RemoveAll<LcmCrdtDbContext>();//we don't want to be able to inject these directly as they will leak.
         services.AddOptions<LcmCrdtConfig>().BindConfiguration("LcmCrdt");
@@ -72,10 +81,29 @@ public static class LcmCrdtKernel
         services.AddOptions<HarmonyConfig>().PostConfigure((HarmonyConfig harmonyConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
         {
             harmonyConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, "localResourcesCache");
+            // iOS reassigns the app container path on every update or reinstall, so an absolute LocalPath goes stale
+            // while the cached file moves with the app (#2693). Harmony resolves relative rows against the cache path.
+            harmonyConfig.StoreLocalResourcePathsRelativeToCache = true;
         });
         services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
         services.AddScoped<HarmonyChangeWriter>();
+
         services.AddScoped<CrdtWritingSystemApi>();
+        services.AddScoped<CrdtSemanticDomainsApi>();
+        services.AddScoped<CrdtPublicationApi>();
+        services.AddScoped<CrdtComplexFormComponentApi>();
+        services.AddScoped<CrdtMorphTypeApi>();
+        services.AddScoped<CrdtPartsOfSpeechApi>();
+        services.AddScoped<CrdtComplexFormTypesApi>();
+        services.AddScoped<CrdtEntryApi>();
+        services.AddScoped<CrdtSenseApi>();
+        services.AddScoped<CrdtExampleSentenceApi>();
+        services.AddScoped<CrdtPictureApi>();
+        services.AddScoped<CrdtMediaApi>();
+        services.AddScoped<CrdtCustomViewApi>();
+        services.AddScoped<CrdtCommentApi>();
+        services.AddScoped<CrdtPluginApi>();
+
         services.AddScoped<CommitMetadataInterceptor>();
         services.AddScoped<MiniLcmRepositoryFactory>();
         services.AddMiniLcmValidators();
@@ -145,6 +173,7 @@ public static class LcmCrdtKernel
                     .Entity<Entry>().Property(e => e.PublishIn).IsExpression(EntryPublishInExpression(), isColumn: false)
                     .Entity<Entry>().Association(e => e.QueryMorphType(), e => e.MorphType, m => m!.Kind)
                     .Entity<Entry>().Association(e => EntryQueryHelpers.QueryCommentThreads(e), (e, ct) => e.Id == ct.SubjectId && ct.SubjectType == SubjectType.Entry)
+                    .Entity<Entry>().Association(e => EntryQueryHelpers.QueryOpenCommentThreads(e), (e, ct) => e.Id == ct.SubjectId && ct.SubjectType == SubjectType.Entry && ct.Status == ThreadStatus.Open)
                     //QueryEntryUnreadComments is needed because otherwise we need to chain QueryCommentThreads and QueryThreadsUnreadComments, which doesn't work in Gridify
                     .Entity<Entry>().Association(e => EntryQueryHelpers.QueryEntryUnreadComments(e), (e, context) => context.GetTable<CommentThread>().Where(ct => ct.SubjectType == SubjectType.Entry && ct.SubjectId == e.Id)
                         .SelectMany(ct => EntryQueryHelpers.QueryThreadsUnreadComments(ct)))
@@ -298,6 +327,17 @@ public static class LcmCrdtKernel
                     .HasColumnType("jsonb")
                     .HasConversion(writingSystemArrayConverter);
             })
+            .Add<Plugin>(builder =>
+            {
+                builder.Property(p => p.MediaUri)
+                    .HasConversion(uri => uri.ToString(), value => new MediaUri(value));
+                var tokenArrayConverter = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<string[], string>(
+                    list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                    json => JsonSerializer.Deserialize<string[]>(json, (JsonSerializerOptions?)null) ?? Array.Empty<string>());
+                builder.Property(p => p.Permissions).HasColumnType("jsonb").HasConversion(tokenArrayConverter);
+                builder.Property(p => p.Contexts).HasColumnType("jsonb").HasConversion(tokenArrayConverter);
+                builder.Property(p => p.Requires).HasColumnType("jsonb").HasConversion(tokenArrayConverter);
+            })
             .Add<CommentThread>(builder =>
             {
                 builder.HasIndex(t => new { t.SubjectType, t.SubjectId });
@@ -361,6 +401,7 @@ public static class LcmCrdtKernel
             .Add<CreateExampleSentenceChange>()
             .Add<JsonPatchExampleSentenceChange>()
             .Add<Changes.SetOrderChange<ExampleSentence>>()
+            .Add<MoveExampleSentenceToSenseChange>()
             .Add<DeleteChange<ExampleSentence>>()
             .Add<AddTranslationChange>()
             .Add<RemoveTranslationChange>()
@@ -386,6 +427,9 @@ public static class LcmCrdtKernel
             .Add<CreateCustomViewChange>()
             .Add<EditCustomViewChange>()
             .Add<DeleteChange<CustomView>>()
+            .Add<CreatePluginChange>()
+            .Add<EditPluginChange>()
+            .Add<DeleteChange<Plugin>>()
             .Add<CreateCommentThreadChange>()
             .Add<CreateUserCommentChange>()
             .Add<EditUserCommentChange>()
@@ -399,6 +443,84 @@ public static class LcmCrdtKernel
             // When adding anything other than a Delete or JsonPatch change,
             // you must add an instance of it to UseChangesTests.GetAllChanges()
             ;
+
+        // A change type from a newer client is kept as an OpaqueChange and replayed after the upgrade
+        // (see model versions below); the default Throw would stop every older client from syncing.
+        config.UnknownChangeHandling = UnknownChangeHandling.Fallback;
+
+        // Released model versions must never change: list a new or modified change type in a new version.
+        config.ModelVersionBuilder
+            .Add(0, "Before model versions", v => v
+                .Change<JsonPatchChange<Entry>>()
+                .Change<JsonPatchChange<Sense>>()
+                .Change<JsonPatchChange<WritingSystem>>()
+                .Change<JsonPatchChange<PartOfSpeech>>()
+                .Change<JsonPatchChange<SemanticDomain>>()
+                .Change<JsonPatchChange<ComplexFormType>>()
+                .Change<JsonPatchChange<MorphType>>()
+                .Change<JsonPatchChange<Publication>>()
+                .Change<DeleteChange<Entry>>()
+                .Change<DeleteChange<Sense>>()
+                .Change<DeleteChange<WritingSystem>>()
+                .Change<DeleteChange<PartOfSpeech>>()
+                .Change<DeleteChange<SemanticDomain>>()
+                .Change<DeleteChange<ComplexFormType>>()
+                .Change<DeleteChange<ComplexFormComponent>>()
+                .Change<DeleteChange<Publication>>()
+                .Change<SetPartOfSpeechChange>()
+                .Change<MoveSenseToEntryChange>()
+                .Change<AddSemanticDomainChange>()
+                .Change<RemoveSemanticDomainChange>()
+                .Change<ReplaceSemanticDomainChange>()
+                .Change<CreateEntryChange>()
+                .Change<CreateSenseChange>()
+                .Change<CreateExampleSentenceChange>()
+                .Change<JsonPatchExampleSentenceChange>()
+                .Change<Changes.SetOrderChange<ExampleSentence>>()
+                .Change<MoveExampleSentenceToSenseChange>()
+                .Change<DeleteChange<ExampleSentence>>()
+                .Change<AddTranslationChange>()
+                .Change<RemoveTranslationChange>()
+                .Change<UpdateTranslationChange>()
+                .Change<SetFirstTranslationIdChange>()
+                .Change<CreateSensePictureChange>()
+                .Change<UpdateSensePictureChange>()
+                .Change<ReorderSensePictureChange>()
+                .Change<RemoveSensePictureChange>()
+                .Change<CreatePartOfSpeechChange>()
+                .Change<CreateSemanticDomainChange>()
+                .Change<CreateWritingSystemChange>()
+                .Change<CreatePublicationChange>()
+                .Change<SetMainPublicationChange>()
+                .Change<AddComplexFormTypeChange>()
+                .Change<AddEntryComponentChange>()
+                .Change<RemoveComplexFormTypeChange>()
+                .Change<AddPublicationChange>()
+                .Change<RemovePublicationChange>()
+                .Change<ReplacePublicationChange>()
+                .Change<CreateComplexFormType>()
+                .Change<CreateCustomViewChange>()
+                .Change<EditCustomViewChange>()
+                .Change<DeleteChange<CustomView>>()
+                .Change<CreateCommentThreadChange>()
+                .Change<CreateUserCommentChange>()
+                .Change<EditUserCommentChange>()
+                .Change<SetCommentThreadStatusChange>()
+                .Change<DeleteChange<CommentThread>>()
+                .Change<DeleteChange<UserComment>>()
+                .Change<CreateMorphTypeChange>()
+                .Change<Changes.SetOrderChange<Sense>>()
+                .Change<Changes.SetOrderChange<ComplexFormComponent>>()
+                .Change<Changes.SetOrderChange<WritingSystem>>()
+                //registered by AddRemoteResourceEntity below, or AddCrdtRemoteResources in DI
+                .RemoteResourceChanges<LcmFileMetadata>())
+            .AddMajor(1, "Regenerate snapshots", v => v
+                //legacy translation patches created the first translation with a random id
+                .Change<JsonPatchExampleSentenceChange>(invalidateFrom: 0))
+            .Add(2, "Plugins", v => v
+                .Change<CreatePluginChange>()
+                .Change<EditPluginChange>()
+                .Change<DeleteChange<Plugin>>());
 
         // Attach the legacy ExampleSentence translation modifier via Harmony's deferred JSON hook.
         // Do NOT read config.JsonSerializerOptions directly here: SIL.Harmony now freezes the

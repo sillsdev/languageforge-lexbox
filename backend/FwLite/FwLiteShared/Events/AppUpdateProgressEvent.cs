@@ -2,9 +2,10 @@ using LexCore.Entities;
 
 namespace FwLiteShared.Events;
 
-public class AppUpdateProgressEvent(uint percentage, FwLiteRelease release) : IFwEvent
+public class AppUpdateProgressEvent(long bytesDownloaded, double bytesPerSecond, FwLiteRelease release) : IFwEvent
 {
-    public uint Percentage { get; } = percentage;
+    public long BytesDownloaded { get; } = bytesDownloaded;
+    public double BytesPerSecond { get; } = bytesPerSecond;
     public FwLiteRelease Release { get; } = release;
     public FwEventType Type => FwEventType.AppUpdateProgress;
     public bool IsGlobal => true;

@@ -18,6 +18,7 @@
   import {isApplePlatform} from '$lib/utils/platform';
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
+  import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
 
   $effect(() => {
     instances[id] = active;
@@ -38,6 +39,7 @@
 
   const viewService = useViewService();
   const features = useFeatures();
+  const platform = usePlatformFeaturesService();
   const id = $props.id();
   const isActive = $derived(
     // explicitly active
@@ -50,7 +52,7 @@
 
 {#if isActive && features.write}
   <div class="relative z-1" in:receive={{ key: 'new-entry-button' }} out:send={{ key: 'new-entry-button' }}>
-    <Tooltip.Root>
+    <Tooltip.Root disabled={!platform.features.hasHardwareKeyboard}>
       <Tooltip.Trigger>
         {#snippet child({props})}
           <Button variant="default" size="extended-fab" class="font-semibold" icon="i-mdi-plus-thick" {...props} {onclick}>

@@ -11,4 +11,12 @@ public class JsInvokableLogger(ILogger<JsInvokableLogger> logger)
         logger.Log(level, message);
         return Task.CompletedTask;
     }
+
+    /// <summary>Log an unexpected viewer error so it reaches the log file and error reporting.</summary>
+    [JSInvokable]
+    public Task LogError(string message, string? stack)
+    {
+        logger.LogError(new JsErrorException(message, stack), "Viewer error");
+        return Task.CompletedTask;
+    }
 }

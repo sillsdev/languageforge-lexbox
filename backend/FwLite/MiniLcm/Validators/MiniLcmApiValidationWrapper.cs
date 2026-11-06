@@ -39,6 +39,14 @@ public partial class MiniLcmApiValidationWrapper(
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
         await validators.ValidateAndThrow(update);
+        // The patch alone can't show cross-field rules (e.g. collation rules vs. locale), so validate the patched result
+        var current = await ReadApi.GetWritingSystem(id, type);
+        if (current is not null)
+        {
+            var patched = current.Copy();
+            update.Apply(patched);
+            await validators.ValidateAndThrow(patched);
+        }
         return await _api.UpdateWritingSystem(id, type, update);
     }
 
@@ -278,6 +286,16 @@ public partial class MiniLcmApiValidationWrapper(
         return _api.SubmitMoveComplexFormComponent(complexFormComponent, between);
     }
 
+    public Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    {
+        return _api.SubmitMoveSense(entryId, senseId, position, kind);
+    }
+
+    public Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    {
+        return _api.SubmitMoveExampleSentence(entryId, senseId, exampleSentenceId, position, kind);
+    }
+
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
         return _api.DeleteComplexFormComponent(complexFormComponent);
@@ -335,9 +353,9 @@ public partial class MiniLcmApiValidationWrapper(
         return await _api.UpdateSense(entryId, before, after, api ?? this);
     }
 
-    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position)
+    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.MoveSense(entryId, senseId, position);
+        return _api.MoveSense(entryId, senseId, position, kind);
     }
 
     public Task DeleteSense(Guid entryId, Guid senseId)
@@ -400,9 +418,9 @@ public partial class MiniLcmApiValidationWrapper(
         return await _api.UpdateExampleSentence(entryId, senseId, before, after, api ?? this);
     }
 
-    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position)
+    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.MoveExampleSentence(entryId, senseId, exampleSentenceId, position);
+        return _api.MoveExampleSentence(entryId, senseId, exampleSentenceId, position, kind);
     }
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
@@ -497,6 +515,27 @@ public partial class MiniLcmApiValidationWrapper(
 
     #endregion
 
+    #region Plugin
+
+    public async Task<Plugin> CreatePlugin(Plugin plugin)
+    {
+        await validators.ValidateAndThrow(plugin);
+        return await _api.CreatePlugin(plugin);
+    }
+
+    public async Task<Plugin> UpdatePlugin(Plugin plugin)
+    {
+        await validators.ValidateAndThrow(plugin);
+        return await _api.UpdatePlugin(plugin);
+    }
+
+    public Task DeletePlugin(Guid id)
+    {
+        return _api.DeletePlugin(id);
+    }
+
+    #endregion
+
     #region Comments
 
     public Task<CommentThread> CreateCommentThread(CommentThread thread, UserComment firstComment)
@@ -557,6 +596,11 @@ public partial class MiniLcmApiValidationWrapper(
     {
         await validators.ValidateAndThrow(metadata);
         return await _api.SaveFile(stream, metadata);
+    }
+
+    public Task DeleteFile(MediaUri mediaUri)
+    {
+        return _api.DeleteFile(mediaUri);
     }
 
     #endregion

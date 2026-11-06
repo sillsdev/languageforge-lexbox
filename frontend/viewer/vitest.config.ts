@@ -1,18 +1,25 @@
 import {configDefaults, defineConfig} from 'vitest/config';
 
-import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {playwright} from '@vitest/browser-playwright';
 import {storybookTest} from '@storybook/addon-vitest/vitest-plugin';
 import {svelte} from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
-
-const dirname =
-  typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+import {lingui} from '@lingui/vite-plugin';
 
 const browserTestPattern = '**/*.browser.{test,spec}.?(c|m)[jt]s?(x)';
 const launcherTestPattern = './tests/launcher/**/*.{test,spec}.?(c|m)[jt]s?(x)';
+// Opt-in only: these hit the network, so they're never part of `pnpm test` or CI.
+const manualTestPattern = '**/*.manual.{test,spec}.?(c|m)[jt]s?(x)';
 const e2eTestPatterns = ['./tests/**'];
+
+// The PR workflow (pr.yaml) sets VITEST_CHROMIUM_ONLY=true so the browser-based projects run on
+// Chromium alone; locally and on develop (fw-lite.yaml) Firefox runs too.
+// A function, not a shared array: vitest rejects instance objects reused across projects as duplicates.
+const browserInstances = () =>
+  process.env.VITEST_CHROMIUM_ONLY === 'true'
+    ? [{browser: 'chromium'}]
+    : [{browser: 'chromium'}, {browser: 'firefox'}];
 
 const sharedAlias = [
   {find: '$lib', replacement: '/src/lib'},
@@ -35,9 +42,24 @@ export default defineConfig({
           setupFiles: ['./src/test-setup/local-storage.ts'],
           exclude: [
             browserTestPattern,
+            manualTestPattern,
             ...e2eTestPatterns,
             ...configDefaults.exclude,
           ],
+        },
+        // 'browser' so `import {mount} from 'svelte'` gets the client build (component smoke tests under jsdom).
+        resolve: {alias: sharedAlias, conditions: ['browser']},
+      },
+      {
+        plugins: [
+          svelte(),
+        ],
+        test: {
+          name: 'manual',
+          // Only fetch() against the FieldWorks docs site; no DOM needed.
+          environment: 'node',
+          include: [manualTestPattern],
+          exclude: [...e2eTestPatterns, ...configDefaults.exclude],
         },
         resolve: {alias: sharedAlias},
       },
@@ -51,10 +73,7 @@ export default defineConfig({
             enabled: true,
             headless: true,
             provider: playwright(),
-            instances: [
-              {browser: 'chromium'},
-              {browser: 'firefox'},
-            ],
+            instances: browserInstances(),
           },
           include: [browserTestPattern],
           exclude: [...e2eTestPatterns, ...configDefaults.exclude],
@@ -73,9 +92,11 @@ export default defineConfig({
         plugins: [
           tailwindcss(),
           svelte(),
+          // .storybook/preview.ts loads the locale (`.po?lingui`) like the app does
+          lingui(),
           // seems to cause this project to only include storybook tests
           storybookTest({
-            configDir: path.join(dirname, '.storybook'),
+            configDir: path.join(import.meta.dirname, '.storybook'),
           }),
         ],
         test: {
@@ -84,10 +105,7 @@ export default defineConfig({
             enabled: true,
             headless: true,
             provider: playwright(),
-            instances: [
-              {browser: 'chromium'},
-              {browser: 'firefox'},
-            ],
+            instances: browserInstances(),
           },
           setupFiles: ['./.storybook/vitest.setup.ts'],
         },

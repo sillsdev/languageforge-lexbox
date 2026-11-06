@@ -1,9 +1,9 @@
 ---
 name: release-notes
-description: Generate user-facing FieldWorks Lite release notes in two formats at once — SIL community forum (Discourse markdown) and Google Play "What's new" (plain text, ≤500 chars). Use whenever the user asks for release notes, forum notes, Android/Play Store notes, "what's new", or notes for an upcoming release. Released mode reads the latest GitHub release; pre-release mode ("upcoming release", "I just pushed to main") reconstructs the changes from PRs merged since the last tag.
-when_to_use: User asks for "release notes", "forum notes", "Android notes", "Play Store notes", "what's new for this release", or wants notes for a build just pushed to main before the GitHub release exists.
+description: Generate user-facing FieldWorks Lite release notes in two formats at once — SIL community forum (Discourse markdown) and Google Play "What's new" (plain text, ≤500 chars). Use whenever the user asks for release notes, forum notes, Android/Play Store notes, "what's new", or notes for an upcoming release. Released mode reads the latest GitHub release; pre-release mode ("upcoming release", "I just kicked off a release") reconstructs the changes from PRs merged since the last tag.
+when_to_use: User asks for "release notes", "forum notes", "Android notes", "Play Store notes", "what's new for this release", or wants notes for a release just dispatched (or about to be) before the GitHub release exists.
 argument-hint: "[released | upcoming]"
-allowed-tools: Bash(gh api:*) Bash(gh release:*) Bash(gh pr:*) Bash(git fetch:*) Bash(git log:*) Bash(git show:*) Bash(git tag:*) Bash(git rev-parse:*) Read Glob Grep WebFetch Agent
+allowed-tools: Bash(gh api:*) Bash(gh release:*) Bash(gh pr:*) Bash(gh run list:*) Bash(git fetch:*) Bash(git log:*) Bash(git show:*) Bash(git tag:*) Bash(git rev-parse:*) Read Glob Grep WebFetch Agent
 ---
 
 # FieldWorks Lite release notes
@@ -21,37 +21,40 @@ The hard part is the filter: include everything a user would care about, and not
 ## Two modes
 
 - **Released mode** — the GitHub release exists. Build notes from its FieldWorks Lite section.
-- **Pre-release mode** — the user wants notes before CI finishes and the release exists (e.g. so the Android build can go to Google Play early). Reconstruct the FieldWorks Lite section from PRs merged since the last tag. This is the mode when the user says "upcoming release" or "I just pushed to main".
+- **Pre-release mode** — the user wants notes before CI finishes and the release exists (e.g. so the Android build can go to Google Play early). Reconstruct the FieldWorks Lite section from PRs merged since the last tag. This is the mode when the user says "upcoming release" or "I just kicked off a release".
 
 ## Step 1: Collect the FieldWorks Lite changes
 
 ### Released mode
 
+FW Lite releases are tagged `v<date>-<sha>`; Lexbox releases are tagged `lexbox-v…` and are not what you want.
+
 ```bash
-gh release view --repo sillsdev/languageforge-lexbox --json tagName,publishedAt,body
+gh release list --repo sillsdev/languageforge-lexbox --exclude-drafts --limit 30 --json tagName,publishedAt --jq '[.[] | select(.tagName | startswith("v20"))][0]'
+gh release view <TAG> --repo sillsdev/languageforge-lexbox --json tagName,publishedAt,body
 ```
 
-Sanity-check `publishedAt` against today — you want the genuinely newest release. Extract only the **FieldWorks Lite** section of the body. Ignore the **Lexbox** and **Other Stuff 🤔** sections entirely — server-side or developer changes, never user-facing.
+Sanity-check `publishedAt` against today — you want the genuinely newest release. Extract the **FieldWorks Lite** and **FW Lite Core** sections of the body (Core is the shared sync/CRDT code; its fixes are user-facing too). Ignore the **Platform.Bible extension** and **Other Stuff 🤔** sections entirely — not what FieldWorks Lite users read.
 
 (If `gh` is unavailable, WebFetch `https://github.com/sillsdev/languageforge-lexbox/releases/latest` — that URL redirects to the real newest tag. Don't trust the `/releases` listing page; it can be served stale.)
 
 ### Pre-release mode
 
 1. Get the baseline: the latest release tag (as above).
-2. List PRs merged since that tag. PRs squash-merge to `develop` and `main` mirrors it, so PR numbers appear as `(#NNNN)` in commit subjects:
+2. List PRs merged since that tag. PRs squash-merge to `develop`, and releases are dispatched from `develop` (the Release pipeline workflow), so PR numbers appear as `(#NNNN)` in commit subjects:
 
    ```bash
-   git fetch origin main
-   git log <TAG>..origin/main --oneline
+   git fetch origin develop
+   git log <TAG>..origin/develop --oneline
    ```
 
-   (or `gh api repos/sillsdev/languageforge-lexbox/compare/<TAG>...main` when the local clone is inconvenient).
-3. Categorize each PR the way GitHub release notes would, per `.github/release.yml`: label `💻 FW Lite` → **FieldWorks Lite**; `📦 Lexbox` → Lexbox; everything else (incl. dependabot) → Other Stuff. First category wins, so a PR with both FW Lite and Lexbox labels counts as FieldWorks Lite. Batch the label lookups:
+   (or `gh api repos/sillsdev/languageforge-lexbox/compare/<TAG>...develop` when the local clone is inconvenient). If the release is already running, use its commit (`gh run list --workflow release-pipeline.yaml --limit 1 --json headSha`) instead of `origin/develop`.
+3. Categorize each PR the way GitHub release notes would, per `.github/release-fw-lite.yml`: label `💻 FW Lite` → **FieldWorks Lite**; `🔩 FW Lite Core` → **FW Lite Core**; `📙 Platform.Bible` → Platform.Bible extension; `📦 Lexbox` → Lexbox; everything else (incl. dependabot) → Other Stuff. First category wins, so a PR with both FW Lite and Lexbox labels counts as FieldWorks Lite. Batch the label lookups:
 
    ```bash
    gh pr view <N> --repo sillsdev/languageforge-lexbox --json number,title,labels
    ```
-4. Predict the version tag as `v<YYYY-MM-DD>-<sha8>` from the expected release date and `git rev-parse --short=8 origin/main`. Caveats to state with the prediction: tag dates are UTC, so a build kicked off late in the day (Europe) may tag the next day; and if anything else lands on main before CI runs, the hash changes.
+4. Predict the version tag as `v<YYYY-MM-DD>-<sha8>` from the released commit: the date is that commit's committer date in UTC (`TZ=UTC git show -s --format=%cd --date=format-local:%Y-%m-%d <sha>`), not the dispatch date. Caveat to state with the prediction: if anything else lands on develop before the release is dispatched, the commit (and maybe the date) changes.
 
 From here both modes are identical.
 
@@ -70,7 +73,7 @@ The body usually has a plain-English summary; don't judge from the title alone w
 A merged PR is not the same as a shipped feature. FieldWorks Lite gates unreleased UI behind release-channel feature flags; the registry is `CHANNEL_FLAGS` in `frontend/viewer/src/lib/feature-flags/feature-flags.ts` (production is the empty channel and has no flags; features ship by *deleting* their flag). Read it at both ends of the release:
 
 ```bash
-git show <TAG>:frontend/viewer/src/lib/feature-flags/feature-flags.ts        # released mode; pre-release mode uses origin/main (the tag doesn't exist yet)
+git show <TAG>:frontend/viewer/src/lib/feature-flags/feature-flags.ts        # released mode; pre-release mode uses the commit from Step 1 (the tag doesn't exist yet)
 git show <PREV_TAG>:frontend/viewer/src/lib/feature-flags/feature-flags.ts   # previous release (the baseline tag from Step 1)
 ```
 
@@ -192,3 +195,16 @@ A tightened, platform-filtered subset of the forum notes — same research, not 
 - Wording tighter than the forum version; "Fixed" past tense, consistent within the batch; keep essential parentheticals but trim them hard
 
 **Checklist before delivering:** every item applies to Android · Android-only fixes tagged · under 500 characters (count it) · long tail folded · headline items first · tense/phrasing consistent.
+
+## Step 7: Link the headings
+
+Each note set's heading in your chat reply is a link to where that text gets posted, so the reviewer can go straight from the block to the page:
+
+```markdown
+## [Forum release notes](https://community.software.sil.org/t/10807)
+## [Android release notes](https://play.google.com/console/developers/7374456150929059145/app/4972009849345036990/releases/overview)
+```
+
+The version-tag heading stays plain. Leave the Android heading unlinked (or drop the block) when the release gets no Android note.
+
+Play Console release-detail URLs end in a per-release id (`.../tracks/<trackId>/releases/50/details`), so there's no link that always lands on the newest release; the releases overview lists the latest release on each track and links through.

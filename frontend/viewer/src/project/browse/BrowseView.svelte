@@ -23,12 +23,13 @@
   import {useProjectStorage} from '$lib/storage/project-storage.svelte';
   import ViewErrorBoundary from '$lib/layout/ViewErrorBoundary.svelte';
   import UnreadCommentBadge from '$project/browse/filter/UnreadCommentBadge.svelte';
-  import FlagContent from '$lib/feature-flags/FlagContent.svelte';
   import {QueryParamStateBool} from '$lib/utils/url.svelte';
   import {watch} from 'runed';
+  import {useWritingSystemService} from '$project/data';
 
   const projectContext = useProjectContext();
   const viewService = useViewService();
+  const writingSystemService = useWritingSystemService();
   const dialogsService = useDialogsService();
   const features = useFeatures();
   const entryListViewMode = useProjectStorage().entryListViewMode;
@@ -50,9 +51,14 @@
   }, false);
   let sort = $state<SortConfig>();
   // Writing system to sort/display by, chosen separately from the sort field/direction.
-  // Undefined = the default vernacular (how it works today).
+  // Undefined = the current view's first vernacular.
   let sortWs = $state<string>();
-  const sortWithWs = $derived<SortConfig | undefined>(sort ? {...sort, writingSystem: sortWs} : undefined);
+  // The user's pick is kept, but only applies while the current view shows that writing system.
+  const effectiveSortWs = $derived.by(() => {
+    const viewWritingSystems = writingSystemService.viewVernacularNoAudio(viewService.currentView);
+    return viewWritingSystems.find(ws => ws.wsId === sortWs)?.wsId ?? viewWritingSystems[0]?.wsId;
+  });
+  const sortWithWs = $derived<SortConfig | undefined>(sort ? {...sort, writingSystem: effectiveSortWs} : undefined);
   const entryMode: EntryListViewMode = $derived(entryListViewMode.current === 'preview' ? 'preview' : 'simple');
 
   // Turning the filter on means the comments are what the user came for, so open the
@@ -99,11 +105,9 @@
           <div class="my-2 flex items-center gap-2">
             <SortMenu bind:value={sort}
               autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
-            <SortWritingSystemMenu bind:value={sortWs} />
+            <SortWritingSystemMenu bind:value={() => effectiveSortWs, (v) => sortWs = v} />
             {#if features.comments}
-              <FlagContent flag="comments">
-                <UnreadCommentBadge bind:unreadComments/>
-              </FlagContent>
+              <UnreadCommentBadge bind:unreadComments/>
             {/if}
             <div class="ms-auto">
               <EntryListViewOptions bind:entryMode={() => entryMode, (v) => void entryListViewMode.set(v)} />

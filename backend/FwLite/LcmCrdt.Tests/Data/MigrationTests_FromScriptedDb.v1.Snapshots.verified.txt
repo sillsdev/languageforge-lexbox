@@ -1,6 +1,6 @@
 ﻿[
   {
-    "Id": "c72418fd-3344-493b-b1b5-3bd5846f368d",
+    "Id": "Guid_Scrubbed",
     "TypeName": "ComplexFormType",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -11,9 +11,7 @@
           "en": "Compound"
         },
         "DeletedAt": null
-      },
-      "Id": "c36f55ed-d1ea-4069-90b3-3f35ff696273",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "c36f55ed-d1ea-4069-90b3-3f35ff696273",
@@ -23,7 +21,7 @@
     "IsRoot": true
   },
   {
-    "Id": "f0a3cfe7-7f4b-4b34-9d3e-24c89ed202eb",
+    "Id": "Guid_Scrubbed",
     "TypeName": "ComplexFormType",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -34,9 +32,7 @@
           "en": "Unspecified"
         },
         "DeletedAt": null
-      },
-      "Id": "eeb78fce-6009-4932-aaa6-85faeb180c69",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "eeb78fce-6009-4932-aaa6-85faeb180c69",
@@ -46,7 +42,7 @@
     "IsRoot": true
   },
   {
-    "Id": "55ec97c3-a7d7-416b-b30a-6a242a71cdaf",
+    "Id": "Guid_Scrubbed",
     "TypeName": "Entry",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -78,9 +74,7 @@
         "ComplexForms": [],
         "ComplexFormTypes": [],
         "PublishIn": []
-      },
-      "Id": "b802e01f-fac1-42b8-b605-a5bbb7efcdc1",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "b802e01f-fac1-42b8-b605-a5bbb7efcdc1",
@@ -90,7 +84,7 @@
     "IsRoot": true
   },
   {
-    "Id": "5bc2c0b3-a1c8-4d81-bfef-fbe2153cf1c9",
+    "Id": "Guid_Scrubbed",
     "TypeName": "ExampleSentence",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -112,9 +106,7 @@
         "Reference": null,
         "SenseId": "d510aa82-5557-4dd4-8b1f-1ec89facb979",
         "DeletedAt": null
-      },
-      "Id": "30a0dcc4-06b1-4402-b78e-745712c4cd2d",
-      "DeletedAt": null
+      }
     },
     "References": [
       "d510aa82-5557-4dd4-8b1f-1ec89facb979"
@@ -126,7 +118,7 @@
     "IsRoot": true
   },
   {
-    "Id": "5f0470e1-16e3-4a0a-8565-b0077b6f4ac4",
+    "Id": "Guid_Scrubbed",
     "TypeName": "PartOfSpeech",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -138,9 +130,7 @@
         },
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9",
@@ -150,7 +140,7 @@
     "IsRoot": true
   },
   {
-    "Id": "6ccb66b0-9670-4235-8270-0a1df297c10a",
+    "Id": "Guid_Scrubbed",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -167,9 +157,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d0",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d0",
@@ -179,7 +167,7 @@
     "IsRoot": true
   },
   {
-    "Id": "82b1727d-516f-46f3-8c02-6e26044f8835",
+    "Id": "Guid_Scrubbed",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -196,9 +184,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d1",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d1",
@@ -208,7 +194,7 @@
     "IsRoot": true
   },
   {
-    "Id": "99df0598-795d-4efb-b4e6-2117c0eb82ba",
+    "Id": "Guid_Scrubbed",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -225,9 +211,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d2",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d2",
@@ -237,7 +221,7 @@
     "IsRoot": true
   },
   {
-    "Id": "7be5bed0-d04c-461d-b788-65a40d73d091",
+    "Id": "Guid_Scrubbed",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -254,9 +238,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d3",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d3",
@@ -266,7 +248,7 @@
     "IsRoot": true
   },
   {
-    "Id": "b42bd81f-29d0-483a-94a4-c5acc27d10d4",
+    "Id": "Guid_Scrubbed",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -283,9 +265,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d4",
@@ -295,7 +275,7 @@
     "IsRoot": true
   },
   {
-    "Id": "624480d1-941c-458f-bdd2-704500605784",
+    "Id": "Guid_Scrubbed",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -312,9 +292,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d5",
@@ -324,7 +302,7 @@
     "IsRoot": true
   },
   {
-    "Id": "845dcd67-8d87-42a2-9d70-465e2d53dd98",
+    "Id": "Guid_Scrubbed",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -341,9 +319,7 @@
         "LouwNidaCodes": null,
         "DeletedAt": null,
         "Predefined": true
-      },
-      "Id": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "46e4fe08-ffa0-4c8b-bf88-2c56f38904d6",
@@ -353,7 +329,7 @@
     "IsRoot": true
   },
   {
-    "Id": "2ebe5828-d6f6-4000-82e2-8b127e06c5e7",
+    "Id": "Guid_Scrubbed",
     "TypeName": "Sense",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -381,9 +357,7 @@
         "SemanticDomains": [],
         "ExampleSentences": [],
         "Pictures": []
-      },
-      "Id": "d510aa82-5557-4dd4-8b1f-1ec89facb979",
-      "DeletedAt": null
+      }
     },
     "References": [
       "b802e01f-fac1-42b8-b605-a5bbb7efcdc1"
@@ -395,7 +369,7 @@
     "IsRoot": true
   },
   {
-    "Id": "799bc576-e362-4dda-ad07-75ebcc9ff71a",
+    "Id": "Guid_Scrubbed",
     "TypeName": "WritingSystem",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -438,10 +412,10 @@
           "Y",
           "Z"
         ],
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
         "Order": 0
-      },
-      "Id": "1d6f788d-b5a7-4dd8-bdbc-e10b6ac78ef7",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "1d6f788d-b5a7-4dd8-bdbc-e10b6ac78ef7",
@@ -451,7 +425,7 @@
     "IsRoot": true
   },
   {
-    "Id": "33d349fa-d518-4875-916d-edfa17fa5f22",
+    "Id": "Guid_Scrubbed",
     "TypeName": "WritingSystem",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -494,10 +468,10 @@
           "Y",
           "Z"
         ],
+        "IcuCollationRules": null,
+        "SystemCollationLocale": null,
         "Order": 0
-      },
-      "Id": "e8b2b514-e1ee-4a2b-9b52-6e32291aa407",
-      "DeletedAt": null
+      }
     },
     "References": [],
     "EntityId": "e8b2b514-e1ee-4a2b-9b52-6e32291aa407",

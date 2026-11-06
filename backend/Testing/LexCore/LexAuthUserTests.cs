@@ -1,4 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -11,6 +10,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using FluentAssertions;
@@ -45,6 +45,9 @@ public class LexAuthUserTests
         CanCreateProjects = true,
         UpdatedDate = new DateTimeOffset(2023, 1, 1, 0, 0, 0, TimeSpan.Zero).ToUnixTimeSeconds(),
         CreatedByAdmin = false,
+        // Set so the notracking claim is emitted (null/false-when-default claims are dropped),
+        // otherwise EnsureAllClaimsAreRepresentedByTestUser fails for this property.
+        OptedOutOfAnalytics = true,
         Locale = "en",
         Orgs = [ new AuthUserOrg(OrgRole.Admin, LexData.SeedingData.TestOrgId) ],
         Projects = new[]
@@ -104,10 +107,12 @@ public class LexAuthUserTests
     [Fact]
     public void CanRoundTripClaimsThroughJwt()
     {
-        var originalJwt = new JwtSecurityToken(claims: _user.GetClaims());
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var encodedJwt = tokenHandler.WriteToken(originalJwt);
-        var outputJwt = tokenHandler.ReadJwtToken(encodedJwt);
+        var tokenHandler = new JsonWebTokenHandler();
+        var encodedJwt = tokenHandler.CreateToken(new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(_user.GetClaims())
+        });
+        var outputJwt = tokenHandler.ReadJsonWebToken(encodedJwt);
         var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(principal);
         newUser.Should().BeEquivalentTo(_user);
@@ -130,15 +135,15 @@ public class LexAuthUserTests
             JwtBearerOptions,
             jwtUserOptions
         );
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.ReadJwtToken(jwt);
+        var tokenHandler = new JsonWebTokenHandler();
+        var token = tokenHandler.ReadJsonWebToken(jwt);
         token.ValidTo.Should().Be(expires.DateTime);
         token.ValidFrom.Should().Be(issuedAt.DateTime);
         token.IssuedAt.Should().Be(issuedAt.DateTime);
         //props get converted to claims, but some we want to exclude because they are used elsewhere.
         token.Claims.Should().NotContain(c => c.Type == "props.issued" || c.Type == "props.expires");
 
-        var json = Base64UrlEncoder.Decode(token.RawPayload);
+        var json = Base64UrlEncoder.Decode(token.EncodedPayload);
         LexAuthUser? newUser;
         try
         {
@@ -192,8 +197,8 @@ public class LexAuthUserTests
     {
         var jwt = _lexAuthService.GenerateJwt(_user, TimeSpan.FromMinutes(5));
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var outputJwt = tokenHandler.ReadJwtToken(jwt);
+        var tokenHandler = new JsonWebTokenHandler();
+        var outputJwt = tokenHandler.ReadJsonWebToken(jwt);
         var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(principal);
         newUser.Should().BeEquivalentTo(_user);
@@ -209,8 +214,8 @@ public class LexAuthUserTests
     [InlineData(knownGoodJwt2, 2)]
     public void CanParseFromKnownGoodJwt(string jwt, int version)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var outputJwt = tokenHandler.ReadJwtToken(jwt);
+        var tokenHandler = new JsonWebTokenHandler();
+        var outputJwt = tokenHandler.ReadJsonWebToken(jwt);
         var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(principal);
         newUser.Should().NotBeNull();
@@ -245,6 +250,44 @@ public class LexAuthUserTests
         }
     }
 
+    [Theory]
+    [InlineData(ProjectRole.Manager)]
+    [InlineData(ProjectRole.Editor)]
+    [InlineData(ProjectRole.Observer)]
+    [InlineData(ProjectRole.Commenter)]
+    [InlineData(ProjectRole.EditorLite)]
+    public void ProjectsJson_RoundTripsEachRole(ProjectRole role)
+    {
+        var project = new AuthUserProject(role, Guid.NewGuid());
+        var user = _user with { Projects = [project] };
+
+        var roundTripped = _user with { Projects = [] };
+        roundTripped.ProjectsJson = user.ProjectsJson;
+
+        roundTripped.Projects.Should().ContainSingle().Which.Should().Be(project);
+    }
+
+    [Fact]
+    public void SingleElementArraysAreWrittenAsJsonArrays()
+    {
+        // a single claim of a given type would normally be written as a scalar, not an array
+        var user = _user with
+        {
+            Projects = [new AuthUserProject(ProjectRole.Editor, Guid.NewGuid())],
+            Orgs = [new AuthUserOrg(OrgRole.User, Guid.NewGuid())],
+            FeatureFlags = [FeatureFlag.FwLiteBeta],
+            Scopes = [LexboxAuthScope.LexboxApi]
+        };
+        var jwt = _lexAuthService.GenerateJwt(user, TimeSpan.FromMinutes(5));
+        var payload = JsonDocument.Parse(Base64UrlEncoder.Decode(new JsonWebToken(jwt).EncodedPayload)).RootElement;
+        using var _ = new AssertionScope();
+        // proj and scope are serialized as strings, orgs and feat are the array claims
+        foreach (var claimType in new[] { LexAuthConstants.OrgsClaimType, LexAuthConstants.FeatureFlagsClaimType })
+        {
+            payload.GetProperty(claimType).ValueKind.Should().Be(JsonValueKind.Array, claimType);
+        }
+    }
+
     [Fact]
     public void CheckingJwtLength()
     {
@@ -263,9 +306,9 @@ public class LexAuthUserTests
     {
         var (forgotJwt, _) = _lexAuthService.GenerateEmailJwt(_user with { Audience = LexboxAudience.ForgotPassword });
         //simulate parsing the token into a claims principal
-        var tokenHandler = new JwtSecurityTokenHandler();
+        var tokenHandler = new JsonWebTokenHandler();
         var forgotPrincipal =
-            new ClaimsPrincipal(new ClaimsIdentity(tokenHandler.ReadJwtToken(forgotJwt).Claims, "Testing"));
+            new ClaimsPrincipal(new ClaimsIdentity(tokenHandler.ReadJsonWebToken(forgotJwt).Claims, "Testing"));
 
         //simulate redirect refreshing the token
         var redirectJwt = JwtTicketDataFormat.ConvertAuthTicketToJwt(
@@ -276,9 +319,22 @@ public class LexAuthUserTests
         );
 
         var loggedInPrincipal =
-            new ClaimsPrincipal(new ClaimsIdentity(tokenHandler.ReadJwtToken(redirectJwt).Claims, "Testing"));
+            new ClaimsPrincipal(new ClaimsIdentity(tokenHandler.ReadJsonWebToken(redirectJwt).Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(loggedInPrincipal);
         newUser.Should().BeEquivalentTo(_user with { Audience = LexboxAudience.ForgotPassword });
+    }
+
+    [Theory]
+    [InlineData("lexiconwrite", LexboxAuthScope.LexiconWrite, true)]
+    [InlineData("openid lexiconread profile", LexboxAuthScope.LexiconRead, true)]
+    [InlineData("LexboxApi", LexboxAuthScope.LexboxApi, true)]
+    [InlineData("sendandreceiverefresh", LexboxAuthScope.SendAndReceive, false)]
+    [InlineData("notlexiconwrite", LexboxAuthScope.LexiconWrite, false)]
+    [InlineData("lexiconwrite-extra", LexboxAuthScope.LexiconWrite, false)]
+    [InlineData("", LexboxAuthScope.LexiconRead, false)]
+    public void HasScopeMatchesWholeScopeTokensOnly(string scopeString, LexboxAuthScope scope, bool expected)
+    {
+        LexAuthUser.HasScope(scopeString, scope).Should().Be(expected);
     }
 
     [Fact]

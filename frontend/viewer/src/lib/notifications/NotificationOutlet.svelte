@@ -10,6 +10,7 @@
   import {t} from 'svelte-i18n-lingui';
   import {Toaster} from '$lib/components/ui/sonner';
   import {openReleaseUrl} from '$lib/updates/utils';
+  import {useUpdateService} from '$lib/services/service-provider';
 
   const notificationTypes = {
     [UserNotificationType.Plain]: 'plain',
@@ -37,9 +38,15 @@
         label: $t`Download`
       });
     } else if (event.result == UpdateResult.Success) {
-      AppNotification.display(
-        $t`FieldWorks Lite has been updated successfully. Please restart the app to apply the changes.`,
-        {type: 'info', timeout: 'long'}
+      AppNotification.displayAction(
+        $t`FieldWorks Lite has been updated. Restart to finish installing.`,
+        {
+          label: $t`Restart`,
+          callback: () => {
+            void useUpdateService().restartToApplyUpdate();
+          },
+        },
+        {type: 'info'}
       );
     }
   }, {includeLast: true});

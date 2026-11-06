@@ -24,9 +24,12 @@ import {
   type IWritingSystems,
   type WritingSystemType,
   type ICustomView,
+  type IPlugin,
   ViewBase,
   MorphTypeKind,
 } from '$lib/dotnet-types';
+import {examplePlugins} from '$lib/plugins/examples';
+import {parsePluginManifest} from '$lib/plugins/plugin-manifest';
 import {demoPictureSvgs, entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
 import {WritingSystemService} from '../data/writing-system-service.svelte';
@@ -35,6 +38,7 @@ import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwL
 import {delay} from '$lib/utils/time';
 import {initProjectContext, type ProjectContext} from '$project/project-context.svelte';
 import type {IFwLiteConfig} from '$lib/dotnet-types/generated-types/FwLiteShared/IFwLiteConfig';
+import {fallbackPlatformFeaturesService, refreshPlatformFeatures} from '$lib/services/platform-features-service';
 import type {IReadFileResponseJs} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IReadFileResponseJs';
 import {ReadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ReadFileResult';
 import type {ILcmFileMetadata} from '$lib/dotnet-types/generated-types/MiniLcm/Media/ILcmFileMetadata';
@@ -46,7 +50,9 @@ import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-t
 import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-bus';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import {initProjectStorage} from '$lib/storage';
+import type {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
 import {MorphTypesService} from '$project/data/morph-types.svelte';
+import {useCustomViewService} from '$project/data/custom-view-service.svelte';
 import type {ICommentThread} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ICommentThread';
 import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
 import type {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
@@ -55,6 +61,17 @@ import type {ThreadStatus} from '$lib/dotnet-types/generated-types/MiniLcm/Model
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
 }
+
+// The clauses SearchFilter.svelte emits for "Entries missing...", with the backend's
+// semantics: a nested collection clause matches when any sense/example lacks the thing.
+const missingFilters: Record<string, (entry: IEntry) => boolean> = {
+  'Senses=null': e => !e.senses.length,
+  'Senses.SemanticDomains=null': e => e.senses.some(s => !s.semanticDomains?.length),
+  'Senses.PartOfSpeechId=': e => e.senses.some(s => !s.partOfSpeechId),
+  'Senses.ExampleSentences=null': e => e.senses.some(s => !s.exampleSentences?.length),
+  'Senses.ExampleSentences.Translations=null': e => e.senses.some(s => s.exampleSentences?.some(ex => !ex.translations?.length)),
+  'PublishIn=null': e => !e.publishIn?.length,
+};
 
 /** The demo plays the role of the server; it mirrors the backend's 10 MB upload limit. */
 const DEMO_FILE_SIZE_LIMIT = 10 * 1024 * 1024;
@@ -88,6 +105,9 @@ export const mockUpdateService: IUpdateService = {
   async applyUpdate(_update: IAvailableUpdate): Promise<UpdateResult> {
     await delay(2000);
     return Promise.resolve(UpdateResult.Success);
+  },
+  restartToApplyUpdate(): Promise<void> {
+    return Promise.resolve();
   }
 };
 
@@ -120,13 +140,33 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName})
     initProjectStorage(projectContext.projectCode);
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
+    let hasHardwareKeyboard = true;
+    window.lexbox.ServiceProvider.setService(DotnetService.PlatformFeaturesService, {
+      ...fallbackPlatformFeaturesService,
+      hasHardwareKeyboard: () => Promise.resolve(hasHardwareKeyboard),
+    });
     window.lexbox.ServiceProvider.setService(DotnetService.UpdateService, mockUpdateService);
     window.lexbox.ServiceProvider.setService(DotnetService.JsEventListener, mockJsEventListener);
+    const customViewService = useCustomViewService();
     window.__PLAYWRIGHT_UTILS__ = {
       demoApi: inMemoryLexboxApi,
       async setWrite(write: boolean) {
         inMemoryLexboxApi.setWrite(write);
         await projectContext.refetchFeatures();
+      },
+      setHasHardwareKeyboard(value: boolean) {
+        hasHardwareKeyboard = value;
+        refreshPlatformFeatures();
+      },
+      addCustomView: (customView: ICustomView) => customViewService.add(customView),
+      setProjectRole(role: UserProjectRole) {
+        // The demo has no project data (so it counts as local and manageable) until a test sets a role.
+        projectContext.setup({
+          api: inMemoryLexboxApi,
+          projectName: inMemoryLexboxApi.projectName,
+          projectCode: inMemoryLexboxApi.projectName,
+          projectData: {name: inMemoryLexboxApi.projectName, code: inMemoryLexboxApi.projectName, id: 'demo', clientId: 'demo', role},
+        });
       },
     };
 
@@ -238,6 +278,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       write: this.#write,
       audio: true,
       customViews: true,
+      plugins: true,
     } satisfies IMiniLcmFeatures);
   }
 
@@ -491,6 +532,14 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
           ?.toLocaleLowerCase()
           ?.startsWith(lowerExemplar));
     }
+    const gridifyFilter = options.filter?.gridifyFilter;
+    if (gridifyFilter) {
+      // Only the "Missing ..." clauses are emulated; other clauses are ignored.
+      for (const clause of gridifyFilter.split(',').map(c => c.trim())) {
+        const matches = missingFilters[clause];
+        if (matches) entries = entries.filter(matches);
+      }
+    }
     return entries;
   }
 
@@ -694,6 +743,73 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return Promise.resolve();
   }
 
+  private _plugins: IPlugin[] = [];
+  // Plugin HTML lives in "media files" (mediaUri -> bytes), mirroring how real projects store it.
+  private _files = new Map<string, Uint8Array>();
+  private _seedPlugins?: Promise<void>;
+
+  private storeFile(bytes: Uint8Array): string {
+    const mediaUri = `sil-media://demo/${crypto.randomUUID()}`;
+    this._files.set(mediaUri, bytes);
+    return mediaUri;
+  }
+
+  private seedPlugins(): Promise<void> {
+    return this._seedPlugins ??= (async () => {
+      const seeds: {id: string; key: string}[] = [
+        {id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479', key: 'dictionary-stats'},
+        {id: 'b3d4e5f6-a7b8-4c9d-8e1f-2a3b4c5d6e7f', key: 'lexicon-galaxy'},
+      ];
+      for (const seed of seeds) {
+        const example = examplePlugins.find(p => p.key === seed.key);
+        if (!example) continue;
+        const html = await example.loadHtml();
+        const bytes = new TextEncoder().encode(html);
+        const manifest = parsePluginManifest(html);
+        this._plugins.push({
+          id: seed.id,
+          name: example.name,
+          description: example.description,
+          mediaUri: this.storeFile(bytes),
+          fileSize: bytes.byteLength,
+          permissions: manifest.permissions,
+          contexts: manifest.contexts,
+          requires: manifest.requires,
+        });
+      }
+    })();
+  }
+
+  async getPlugins(): Promise<IPlugin[]> {
+    await this.seedPlugins();
+    return this._plugins.map(plugin => ({...plugin}));
+  }
+
+  async getPlugin(id: string): Promise<IPlugin | null> {
+    await this.seedPlugins();
+    const found = this._plugins.find(plugin => plugin.id === id) ?? null;
+    return found ? {...found} : null;
+  }
+
+  createPlugin(plugin: IPlugin): Promise<IPlugin> {
+    const created = {...plugin, id: plugin.id || crypto.randomUUID()};
+    this._plugins = [...this._plugins, created];
+    return Promise.resolve({...created});
+  }
+
+  updatePlugin(plugin: IPlugin): Promise<IPlugin> {
+    const index = this._plugins.findIndex(existing => existing.id === plugin.id);
+    if (index === -1) throw new Error(`Plugin ${plugin.id} not found`);
+    const updated = {...plugin};
+    this._plugins = this._plugins.map((existing, i) => i === index ? updated : existing);
+    return Promise.resolve({...updated});
+  }
+
+  deletePlugin(id: string): Promise<void> {
+    this._plugins = this._plugins.filter(plugin => plugin.id !== id);
+    return Promise.resolve();
+  }
+
   createComplexFormComponent(_complexFormComponent: IComplexFormComponent): Promise<IComplexFormComponent> {
     throw new Error('Method not implemented.');
   }
@@ -762,7 +878,19 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   // fetches images on demand.
   #downloadedRemoteFiles = new Set<string>();
 
-  getFileStream(mediaUri: string, downloadIfMissing: boolean): Promise<IReadFileResponseJs> {
+  async getFileStream(mediaUri: string, downloadIfMissing: boolean): Promise<IReadFileResponseJs> {
+    // Seeded plugin HTML is stored here, not in the upload maps.
+    await this.seedPlugins();
+    const pluginBytes = this._files.get(mediaUri);
+    if (pluginBytes) {
+      return {
+        result: ReadFileResult.Success,
+        stream: {
+          stream: () => Promise.resolve(new Response(pluginBytes.slice() as BodyInit).body!),
+          arrayBuffer: () => Promise.resolve(pluginBytes.slice().buffer),
+        },
+      };
+    }
     const uploaded = this.#uploadedFiles.get(mediaUri);
     if (uploaded) {
       return Promise.resolve({

@@ -25,6 +25,11 @@ public static class TestingEnvironmentVariables
     public static string ProjectCode = Environment.GetEnvironmentVariable("TEST_PROJECT_CODE") ?? "sena-3";
     public static string DefaultPassword = Environment.GetEnvironmentVariable("TEST_DEFAULT_PASSWORD") ?? "pass";
 
+    /// <summary>
+    /// hg major version (3, 6 or 7) the hg tests must run with; checked by HgClientFixture
+    /// </summary>
+    public static string? ExpectedHgMajorVersion = Environment.GetEnvironmentVariable("TEST_EXPECTED_HG_VERSION");
+
     public static int HgRefreshInterval = 5000;
 
     public static string GetTestHostName(this HgProtocol protocol)

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    Dev-only test harness that mimics the lexbox FwLite update API on localhost.
+    Deliberately NOT added to LexBox.slnx or any *.slnf so it never affects CI or test runs;
+    it is built/run directly by ../test-update.ps1. References LexCore so the JSON it returns
+    (ShouldUpdateResponse / FwLiteRelease) is byte-for-byte what the real controller returns.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>UpdateTestServer</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\LexCore\LexCore.csproj" />
+  </ItemGroup>
+
+</Project>

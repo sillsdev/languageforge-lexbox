@@ -28,7 +28,7 @@ namespace LcmCrdt;
 /// Comment changes are the exception:
 /// - Every change carries the full comment text
 ///
-/// Degradable: leaves <see cref="ActivityChangeInfo.Subject"/> null for types it doesn't resolve.
+/// Degradable: leaves <see cref="ActivityChangeInfo.Entry"/> and <see cref="ActivityChangeInfo.ObjectName"/> null for types it doesn't resolve.
 /// </summary>
 internal static class ActivityChangeInfoResolver
 {
@@ -45,6 +45,7 @@ internal static class ActivityChangeInfoResolver
         var morphTypeIds = new HashSet<Guid>();
         var writingSystemIds = new HashSet<Guid>();
         var customViewIds = new HashSet<Guid>();
+        var pluginIds = new HashSet<Guid>();
         var commentThreadIds = new HashSet<Guid>();
         var userCommentIds = new HashSet<Guid>();
 
@@ -63,6 +64,7 @@ internal static class ActivityChangeInfoResolver
                 case nameof(MorphType): morphTypeIds.Add(change.EntityId); break;
                 case nameof(WritingSystem): writingSystemIds.Add(change.EntityId); break;
                 case nameof(CustomView): customViewIds.Add(change.EntityId); break;
+                case nameof(Plugin): pluginIds.Add(change.EntityId); break;
                 case nameof(CommentThread): commentThreadIds.Add(change.EntityId); break;
                 case nameof(UserComment): userCommentIds.Add(change.EntityId); break;
             }
@@ -113,7 +115,6 @@ internal static class ActivityChangeInfoResolver
         var senses = await LoadWithRecovery(db, senseIds, LoadSenses);
         foreach (var sense in senses.Values) entryIds.Add(sense.EntryId);
 
-        // For looking up sense numbers
         var sensesByEntry = await LoadSensesByEntry(db, [.. senses.Values.Select(s => s.EntryId)]);
 
         var entries = await LoadWithRecovery(db, entryIds, LoadEntries);
@@ -125,6 +126,7 @@ internal static class ActivityChangeInfoResolver
         var writingSystemsById = await LoadNamed<WritingSystem>(db, writingSystemIds,
             w => new WritingSystem { Id = w.Id, WsId = w.WsId, Name = w.Name, Abbreviation = w.Abbreviation, Font = w.Font, Type = w.Type });
         var customViews = await LoadNamed<CustomView>(db, customViewIds, v => new CustomView { Id = v.Id, Name = v.Name });
+        var plugins = await LoadNamed<Plugin>(db, pluginIds, p => new Plugin { Id = p.Id, Name = p.Name, MediaUri = p.MediaUri });
 
         // Used to render headwords, so skip the load entirely when no entry is being resolved.
         var morphLookup = entryIds.Count == 0
@@ -145,85 +147,99 @@ internal static class ActivityChangeInfoResolver
 
         ActivityChangeInfo Build(ChangeEntity<IChange> change)
         {
-            var info = ResolveReorder(change);
-            if (info is null)
-            {
-                var (subject, owningEntryId) = ResolveSubject(change);
-                info = new ActivityChangeInfo(subject, owningEntryId, TargetLabel(change));
-            }
-            return info.OwningEntryId is { } owningId ? info with { OwningEntryHeadword = Headword(owningId) } : info;
+            return ResolveReorder(change) ?? ResolveSubject(change) with { Target = ResolveTarget(change) };
         }
 
         // A reorder reads best as "<container> · Reordered <item> <name>": the subject is the parent whose list changed, the target is the moved item.
         ActivityChangeInfo? ResolveReorder(ChangeEntity<IChange> change) => change.Change switch
         {
             Changes.SetOrderChange<Sense> when senses.TryGetValue(change.EntityId, out var sense) =>
-                new ActivityChangeInfo(Headword(sense.EntryId), sense.EntryId, SenseLabel(sense)),
+                new ActivityChangeInfo(EntryName(sense.EntryId), Target: TextTarget(SenseLabel(sense))),
             Changes.SetOrderChange<ExampleSentence> when examples.TryGetValue(change.EntityId, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense) =>
-                new ActivityChangeInfo(QualifiedSenseLabel(Headword(exSense.EntryId), exSense), exSense.EntryId, ExampleSnippet(ex.Sentence, writingSystemOrder)),
+                new ActivityChangeInfo(EntryName(exSense.EntryId), SenseName(exSense), Target: TextTarget(ExampleSnippet(ex.Sentence, writingSystemOrder))),
             Changes.SetOrderChange<ComplexFormComponent> when components.TryGetValue(change.EntityId, out var comp) =>
-                new ActivityChangeInfo(Headword(comp.ComplexFormEntryId), comp.ComplexFormEntryId,
-                    entries.ContainsKey(comp.ComponentEntryId) ? Headword(comp.ComponentEntryId) : null),
+                new ActivityChangeInfo(EntryName(comp.ComplexFormEntryId), Target: ComponentTarget(comp.ComponentEntryId)),
             _ => null
         };
 
-        (string? Subject, Guid? OwningEntryId) ResolveSubject(ChangeEntity<IChange> change)
+        ActivityChangeInfo ResolveSubject(ChangeEntity<IChange> change)
         {
             var id = change.EntityId;
             switch (change.Change.EntityType?.Name)
             {
                 case nameof(Entry):
-                    return (Headword(id), id);
+                    return new ActivityChangeInfo(EntryName(id));
                 case nameof(Sense) when senses.TryGetValue(id, out var sense):
                     // Adding or removing a sense is a change to its parent entry's structure, so both read as
                     // entry-level ("headword · Added sense senseN" / "· Removed sense senseN"): the subject is the
                     // parent entry's headword and the sense identifier goes to Target.
                     if (change.Change is CreateSenseChange or DeleteChange<Sense>)
-                        return (Headword(sense.EntryId), sense.EntryId);
-                    // Field edits keep the "headword › senseLabel" subject so they read as
-                    // sense-level (the sense itself is what's constant, a field is what changed).
-                    return (QualifiedSenseLabel(Headword(sense.EntryId), sense), sense.EntryId);
+                        return new ActivityChangeInfo(EntryName(sense.EntryId));
+                    // Field edits carry the sense so they read as sense-level
+                    // (the sense itself is what's constant, a field is what changed).
+                    return new ActivityChangeInfo(EntryName(sense.EntryId), SenseName(sense));
                 case nameof(ExampleSentence) when examples.TryGetValue(id, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense):
-                    // Example edits keep the "headword › senseLabel" subject.
+                    // Example edits carry the parent sense.
                     // Unlike senses they don't have a "name" and a 3-level subject would be quite verbose.
                     // Consumers can treat the target as part of the subject if they want
-                    return (QualifiedSenseLabel(Headword(exSense.EntryId), exSense), exSense.EntryId);
+                    return new ActivityChangeInfo(EntryName(exSense.EntryId), SenseName(exSense));
                 case nameof(ComplexFormComponent) when components.TryGetValue(id, out var component):
-                    return (Headword(component.ComplexFormEntryId), component.ComplexFormEntryId);
+                    return new ActivityChangeInfo(EntryName(component.ComplexFormEntryId));
                 case nameof(PartOfSpeech) when partsOfSpeech.TryGetValue(id, out var pos):
-                    return (Label(pos.Name), null);
+                    return ObjectInfo(Label(pos.Name));
                 case nameof(SemanticDomain) when semanticDomains.TryGetValue(id, out var domain):
-                    return (SemanticDomainLabel(domain), null);
+                    return ObjectInfo(SemanticDomainLabel(domain));
                 case nameof(Publication) when publications.TryGetValue(id, out var publication):
-                    return (Label(publication.Name), null);
+                    return ObjectInfo(Label(publication.Name));
                 case nameof(ComplexFormType) when complexFormTypes.TryGetValue(id, out var cft):
-                    return (Label(cft.Name), null);
+                    return ObjectInfo(Label(cft.Name));
                 case nameof(MorphType) when morphTypes.TryGetValue(id, out var morphType):
-                    return (Label(morphType.Name), null);
+                    return ObjectInfo(Label(morphType.Name));
                 case nameof(WritingSystem) when writingSystemsById.TryGetValue(id, out var ws):
-                    return (NullIfEmpty(ws.Name), null);
+                    return ObjectInfo(NullIfEmpty(ws.Name));
                 case nameof(CustomView) when customViews.TryGetValue(id, out var view):
-                    return (NullIfEmpty(view.Name), null);
+                    return ObjectInfo(NullIfEmpty(view.Name));
+                case nameof(Plugin) when plugins.TryGetValue(id, out var plugin):
+                    return ObjectInfo(NullIfEmpty(plugin.Name));
                 case nameof(CommentThread) when commentThreads.TryGetValue(id, out var thread):
                     return CommentSubject(thread);
                 case nameof(UserComment) when userComments.TryGetValue(id, out var comment)
                                             && commentThreads.TryGetValue(comment.CommentThreadId, out var commentThread):
                     return CommentSubject(commentThread);
                 default:
-                    return (null, null);
+                    return new ActivityChangeInfo(null);
             }
         }
 
-        (string? Subject, Guid? OwningEntryId) CommentSubject(CommentThread thread) => thread.SubjectType switch
+        ActivityChangeInfo ObjectInfo(string? name) => new(null, ObjectName: name);
+
+        ActivityChangeInfo CommentSubject(CommentThread thread) => thread.SubjectType switch
         {
             SubjectType.Entry =>
-                (Headword(thread.SubjectId), thread.SubjectId),
+                new ActivityChangeInfo(EntryName(thread.SubjectId)),
             SubjectType.Sense when senses.TryGetValue(thread.SubjectId, out var sense) =>
-                (QualifiedSenseLabel(Headword(sense.EntryId), sense), sense.EntryId),
+                new ActivityChangeInfo(EntryName(sense.EntryId), SenseName(sense)),
             SubjectType.ExampleSentence when examples.TryGetValue(thread.SubjectId, out var ex) && senses.TryGetValue(ex.SenseId, out var exSense) =>
-                (QualifiedSenseLabel(Headword(exSense.EntryId), exSense), exSense.EntryId),
-            _ => (null, null)
+                new ActivityChangeInfo(EntryName(exSense.EntryId), SenseName(exSense)),
+            _ => new ActivityChangeInfo(null)
         };
+
+        ActivityTarget? ResolveTarget(ChangeEntity<IChange> change) => change.Change switch
+        {
+            // Component links resolve the component being linked (the change's subject is the complex form).
+            AddEntryComponentChange a => ComponentTarget(a.ComponentEntryId),
+            // A deleted component link (e.g. "Removed component"): name the component from the recovered link.
+            _ when change.Change.EntityType == typeof(ComplexFormComponent)
+                   && components.TryGetValue(change.EntityId, out var link) => ComponentTarget(link.ComponentEntryId),
+            _ => TextTarget(TargetLabel(change))
+        };
+
+        static ActivityTarget? TextTarget(string? text) => text is null ? null : new ActivityTarget(text);
+
+        ActivityTarget? ComponentTarget(Guid componentEntryId) =>
+            entries.TryGetValue(componentEntryId, out var component) && PlainHeadword(component) is { } headword
+                ? new ActivityTarget(headword, component.HomographNumber)
+                : null;
 
         // The item a change references (the part of speech set, the domain/publication/type removed).
         string? TargetLabel(ChangeEntity<IChange> change) => change.Change switch
@@ -235,12 +251,6 @@ internal static class ActivityChangeInfoResolver
             RemovePublicationChange r when publications.TryGetValue(r.PublicationId, out var publication) => Label(publication.Name),
             AddComplexFormTypeChange a when complexFormTypes.TryGetValue(a.ComplexFormType.Id, out var cft) => Label(cft.Name),
             RemoveComplexFormTypeChange r when complexFormTypes.TryGetValue(r.ComplexFormTypeId, out var cft) => Label(cft.Name),
-            // Component links resolve the component being linked (the change's subject is the complex form).
-            AddEntryComponentChange a when entries.TryGetValue(a.ComponentEntryId, out var component) => DisplayHeadword(component),
-            // A deleted component link (e.g. "Removed component"): name the component from the recovered link.
-            _ when change.Change.EntityType == typeof(ComplexFormComponent)
-                   && components.TryGetValue(change.EntityId, out var link)
-                   && entries.TryGetValue(link.ComponentEntryId, out var component) => DisplayHeadword(component),
             // Sense create/delete pair with the ResolveSubject override above: subject is the parent entry
             // headword, target names the sense ("gwa₁ · Added sense senseN").
             CreateSenseChange or DeleteChange<Sense> when senses.TryGetValue(change.EntityId, out var sense) => SenseLabel(sense),
@@ -259,41 +269,31 @@ internal static class ActivityChangeInfoResolver
             _ => null
         };
 
-        string? Headword(Guid entryId) => entries.TryGetValue(entryId, out var entry) ? DisplayHeadword(entry) : null;
+        ActivityEntryName EntryName(Guid entryId) =>
+            entries.TryGetValue(entryId, out var entry) && PlainHeadword(entry) is { } headword
+                ? new ActivityEntryName(entryId, headword, entry.HomographNumber)
+                : new ActivityEntryName(entryId, null, 0);
 
-        string? DisplayHeadword(Entry entry)
-        {
-            var headword = BestAlternative(
-                EntryQueryHelpers.ComputeHeadwords(entry, morphLookup).Values,
-                writingSystemOrder,
-                v => v);
-            if (headword is null) return null;
-            return entry.HomographNumber > 0 ? headword + Subscript(entry.HomographNumber) : headword;
-        }
+        string? PlainHeadword(Entry entry) => BestAlternative(
+            EntryQueryHelpers.ComputeHeadwords(entry, morphLookup).Values,
+            writingSystemOrder,
+            v => v);
 
-        // "headword › senseLabel". Degrades to just the headword when the sense has nothing to distinguish it
-        // (a lone, gloss-less sense), and to null when there's neither a headword nor a distinguishing label
-        // (Subject is display data, so a translatable fallback has to come from the frontend, not here).
-        string? QualifiedSenseLabel(string? headword, Sense sense)
-        {
-            var senseLabel = SenseLabel(sense);
-            if (headword is null) return string.IsNullOrEmpty(senseLabel) ? null : senseLabel;
-            return string.IsNullOrEmpty(senseLabel) ? headword : $"{headword} › {senseLabel}";
-        }
+        ActivitySenseName SenseName(Sense sense) => new(SenseLabel(sense), SenseNumber(sense));
 
-        // Gloss + sense number if >1 sense (Mirrors FieldWorks)
-        // A gloss-less sense renders as "◌₂", which is a tad quircky.
-        // Rejected alternatives: '(2)' is too different from subscript. '_₂' risks making the subscript hard to read. '-₂' dash/emdash could read as formatting.
-        string SenseLabel(Sense sense)
+        // Current position among the entry's live senses (mirrors FieldWorks). A deleted sense (recovered from its
+        // snapshot) is absent from the live list, so it has no number.
+        int? SenseNumber(Sense sense)
         {
             var siblings = sensesByEntry.GetValueOrDefault(sense.EntryId) ?? [];
             var index = siblings.FindIndex(s => s.Id == sense.Id);
-            var glossText = Label(sense.Gloss);
-            // A deleted sense (recovered from its snapshot) is absent from the live sibling list — it has no
-            // meaningful position, so no number.
-            if (index < 0 || siblings.Count <= 1) return glossText ?? "";
-            return (glossText ?? "◌") + Subscript(index + 1);
+            return index < 0 || siblings.Count <= 1 ? null : index + 1;
         }
+
+        // Gloss, else a definition snippet, like the preview's sense anchor. The number is a separate field, so it
+        // can't be mistaken for a homograph number.
+        string? SenseLabel(Sense sense) =>
+            Label(sense.Gloss) ?? BestAlternative(sense.Definition, writingSystemOrder, d => Truncate(d?.GetPlainText(), TextSnippetBudget));
 
         // The combination of code + name is the standard label for a semantic domain
         string SemanticDomainLabel(SemanticDomain domain) =>
@@ -314,8 +314,8 @@ internal static class ActivityChangeInfoResolver
         return loaded;
     }
 
-    // Objects the resolver labels only by name (possibilities like parts of speech, plus writing systems and
-    // custom views). Recovers deleted ids like the per-type loads, so a removed item can still be named.
+    // Objects the resolver labels only by name (possibilities like parts of speech, plus writing systems,
+    // custom views and plugins). Recovers deleted ids like the per-type loads, so a removed item can still be named.
     private static async Task<Dictionary<Guid, T>> LoadNamed<T>(ICrdtDbContext db, HashSet<Guid> ids, Expression<Func<T, T>> project)
         where T : class, IObjectWithId
     {
@@ -382,7 +382,7 @@ internal static class ActivityChangeInfoResolver
     {
         if (ids.Count == 0) return [];
         var loaded = await db.Set<Sense>().Where(s => ids.Contains(s.Id))
-            .Select(s => new Sense { Id = s.Id, EntryId = s.EntryId, Gloss = s.Gloss, Order = s.Order })
+            .Select(s => new Sense { Id = s.Id, EntryId = s.EntryId, Gloss = s.Gloss, Definition = s.Definition })
             .ToListAsyncLinqToDB();
         return loaded.ToDictionary(s => s.Id);
     }
@@ -391,7 +391,7 @@ internal static class ActivityChangeInfoResolver
     {
         if (entryIds.Count == 0) return [];
         var loaded = await db.Set<Sense>().Where(s => entryIds.Contains(s.EntryId))
-            .Select(s => new Sense { Id = s.Id, EntryId = s.EntryId, Gloss = s.Gloss, Order = s.Order })
+            .Select(s => new Sense { Id = s.Id, EntryId = s.EntryId, Order = s.Order })
             .ToListAsyncLinqToDB();
         return loaded
             .GroupBy(s => s.EntryId)
@@ -481,15 +481,6 @@ internal static class ActivityChangeInfoResolver
     // A plain (non-multi-string) display name, degraded to null when blank so it matches the null-when-empty
     // convention the MultiString labels use (the frontend renders a placeholder rather than an empty subject).
     private static string? NullIfEmpty(string? name) => string.IsNullOrWhiteSpace(name) ? null : name;
-
-    private static string Subscript(int number)
-    {
-        Span<char> buffer = stackalloc char[11]; // widest int32, e.g. "-2147483648"
-        number.TryFormat(buffer, out var charsWritten);
-        for (var i = 0; i < charsWritten; i++)
-            buffer[i] = buffer[i] == '-' ? '₋' : (char)(buffer[i] - '0' + '₀');
-        return buffer[..charsWritten].ToString();
-    }
 
     // Max grapheme clusters shown in an example-sentence snippet before it's truncated.
     // Small on purpose: it acts as a name/summary for the entity.

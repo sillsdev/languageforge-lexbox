@@ -1,0 +1,34 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "_comment": "nx is used graph-only here: `nx show projects --affected` answers which .NET projects and which pnpm packages a diff touches (see .github/scripts/affected.sh). Builds and tests still run through dotnet and pnpm; no nx targets are run and nothing is cached.",
+  "_sharedGlobals_comment": "namedInputs.sharedGlobals: a change to any of these marks every real project affected (the PR workflow then runs the whole PR tier). They reach a project only through a target whose `inputs` include `default`: @nx/dotnet gives every .NET project such targets (and its analyzer already lists the Directory.*/global.json files as evaluation inputs on its own); the viewer and the extension get one via the never-run `ci-affected` target in their project.json. Escalation tiers (.github/ci-tiers/*) deliberately have no such target, so shared files do not escalate.",
+  "defaultBase": "develop",
+  "plugins": [
+    {
+      "plugin": "@nx/dotnet",
+      "options": {}
+    }
+  ],
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "sharedGlobals": [
+      "{workspaceRoot}/global.json",
+      "{workspaceRoot}/LexBox.slnx",
+      "{workspaceRoot}/*.slnf",
+      "{workspaceRoot}/backend/Directory.Build.props",
+      "{workspaceRoot}/backend/Directory.Build.targets",
+      "{workspaceRoot}/backend/Directory.Packages.props",
+      "{workspaceRoot}/backend/Harmony*.props",
+      "{workspaceRoot}/frontend/pnpm-lock.yaml",
+      "{workspaceRoot}/frontend/pnpm-workspace.yaml",
+      "{workspaceRoot}/nx.json",
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/pnpm-lock.yaml",
+      "{workspaceRoot}/pnpm-workspace.yaml",
+      "{workspaceRoot}/.github/scripts/affected.sh",
+      "{workspaceRoot}/.github/scripts/write-test-slnf.mjs",
+      "{workspaceRoot}/backend/FwLite/Taskfile.yml",
+      "{workspaceRoot}/backend/FwLite/scripts/**/*"
+    ]
+  }
+}

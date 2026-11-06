@@ -7,6 +7,8 @@ using FwLiteShared.Analytics;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.Services;
+using LcmCrdt;
+using LexCore.Analytics;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
@@ -59,9 +61,11 @@ public class AnalyticsServiceTests
             deviceId: "dev-1",
             userId: null,
             time: FixedTime,
-            insertId: "insert-1");
+            insertId: "insert-1",
+            product: MixpanelProducts.FwLite);
 
         props["token"].Should().Be("tok");
+        props["product"].Should().Be("fw-lite");
         props["$device_id"].Should().Be("dev-1");
         props["$app_version_string"].Should().Be("1.2.3");
         props["$os"].Should().Be("Windows");
@@ -86,7 +90,8 @@ public class AnalyticsServiceTests
             deviceId: "dev-1",
             userId: "user-9",
             time: FixedTime,
-            insertId: "insert-1");
+            insertId: "insert-1",
+            product: MixpanelProducts.FwLite);
         props["host"].Should().Be("maui");
         props["$user_id"].Should().Be("user-9");
     }
@@ -261,6 +266,46 @@ public class AnalyticsServiceTests
     }
 
     [Fact]
+    public void RecordProjectOpened_LexboxProject_TracksWithProjectId()
+    {
+        var analytics = new Mock<IAnalyticsService>();
+        var projectId = Guid.NewGuid();
+        var projectData = new ProjectData("Test", "test", projectId, "https://lexbox.org", Guid.NewGuid());
+        var server = new LexboxServer(new Uri("https://lexbox.org"), "Lexbox");
+
+        MixpanelAnalytics.RecordProjectOpened(analytics.Object, projectData, server);
+
+        analytics.Verify(a => a.Track(
+            MixpanelAnalytics.ProjectOpenedEvent,
+            It.Is<IReadOnlyDictionary<string, object?>>(p =>
+                p.Count == 1 && Equals(p[MixpanelAnalytics.ProjectIdProperty], projectId.ToString())),
+            null), Times.Once);
+    }
+
+    [Fact]
+    public void RecordProjectOpened_LocalOnlyProject_DoesNotTrack()
+    {
+        var analytics = new Mock<IAnalyticsService>();
+        var projectData = new ProjectData("Test", "test", Guid.NewGuid(), OriginDomain: null, Guid.NewGuid());
+
+        MixpanelAnalytics.RecordProjectOpened(analytics.Object, projectData, server: null);
+
+        analytics.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public void RecordProjectOpened_NonProductionServer_DoesNotTrack()
+    {
+        var analytics = new Mock<IAnalyticsService>();
+        var projectData = new ProjectData("Test", "test", Guid.NewGuid(), "https://staging.languagedepot.org", Guid.NewGuid());
+        var server = new LexboxServer(new Uri("https://staging.languagedepot.org"), "Lexbox Staging");
+
+        MixpanelAnalytics.RecordProjectOpened(analytics.Object, projectData, server);
+
+        analytics.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public void ApplyAuthChange_LexboxLogin_Identifies()
     {
         var analytics = new Mock<IAnalyticsService>();
@@ -428,6 +473,7 @@ public class AnalyticsServiceTests
         handler.LastRequest.RequestUri!.ToString().Should().Be(MixpanelAnalytics.TrackUrl + "?ip=1");
         handler.LastBody.Should().Contain("\"event\":\"app_launched\"");
         handler.LastBody.Should().Contain(MixpanelAnalytics.DebugProjectToken);
+        handler.LastBody.Should().Contain("\"product\":\"fw-lite\"");
         handler.LastBody.Should().Contain("\"host\":\"web\"");
         handler.LastBody.Should().Contain("\"$device_id\":");
         handler.LastBody.Should().Contain($"\"time\":{FixedTime.ToUnixTimeSeconds()}");
@@ -487,6 +533,31 @@ public class AnalyticsServiceTests
 
         var act = async () => await service.TrackAsync("app_launched");
         await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task FlushAsync_WaitsForQueuedTrack()
+    {
+        var handler = new CaptureHandler { Delay = TimeSpan.FromMilliseconds(300) };
+        var service = CreateService(handler, isDevelopment: true);
+
+        service.Track("error");
+        await service.FlushAsync(TimeSpan.FromSeconds(5));
+
+        handler.CompletedCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task FlushAsync_ReturnsAtTimeoutWhenSendHangs()
+    {
+        var handler = new CaptureHandler { Delay = TimeSpan.FromSeconds(4) };
+        var service = CreateService(handler, isDevelopment: true);
+
+        service.Track("error");
+        var act = async () => await service.FlushAsync(TimeSpan.FromMilliseconds(100));
+
+        await act.Should().CompleteWithinAsync(TimeSpan.FromSeconds(2));
+        handler.CompletedCount.Should().Be(0);
     }
 
     [Fact]
@@ -554,8 +625,10 @@ public class AnalyticsServiceTests
         if (productionToken is not null)
             analytics.ProductionToken = productionToken;
 
+        var mixpanelClient = new MixpanelClient(factory.Object, Mock.Of<ILogger<MixpanelClient>>());
+
         return new AnalyticsService(
-            factory.Object,
+            mixpanelClient,
             Options.Create(config),
             Options.Create(analytics),
             env,
@@ -580,6 +653,8 @@ public class AnalyticsServiceTests
         public HttpRequestMessage? LastRequest { get; private set; }
         public string LastBody { get; private set; } = "";
         public bool ThrowOnSend { get; set; }
+        public TimeSpan Delay { get; set; }
+        public int CompletedCount { get; private set; }
 
         protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,
@@ -589,6 +664,9 @@ public class AnalyticsServiceTests
             LastRequest = request;
             if (request.Content is not null)
                 LastBody = await request.Content.ReadAsStringAsync(cancellationToken);
+            if (Delay > TimeSpan.Zero)
+                await Task.Delay(Delay, cancellationToken);
+            CompletedCount++;
             if (ThrowOnSend)
                 throw new HttpRequestException("simulated Mixpanel outage");
             return new HttpResponseMessage(HttpStatusCode.OK)

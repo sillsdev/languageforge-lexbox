@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using FwLiteShared.Auth;
+using FwLiteShared.Events;
 using FwLiteShared.KeepAwake;
 using FwLiteShared.Sync;
 using LcmCrdt;
@@ -45,7 +46,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     CrdtProjectsService crdtProjectsService,
     IEnumerable<IProjectProvider> projectProviders,
     OAuthClientFactory oAuthClientFactory,
-    IKeepAwake keepAwake)
+    IKeepAwake keepAwake,
+    ProjectEventBus projectEventBus)
 {
     private IProjectProvider? FwDataProjectProvider => projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
     [JSInvokable]
@@ -69,7 +71,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             lexboxProjectService.InvalidateProjectsCache(server);
         var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
         var user = await lexboxProjectService.GetLexboxUser(server);
-        await UpdateProjectServerInfo(lexboxProjects.Projects, user);
+        // Can migrate a project's db and replay its whole history, so keep it off the UI thread
+        await Task.Run(async () => await UpdateProjectServerInfo(lexboxProjects.Projects, user));
         var projectModels = lexboxProjects.Projects.Select(p => new ProjectModel(
                 p.Name,
                 p.Code,
@@ -89,7 +92,9 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         {
             var localProject = crdtProjectsService.GetProject(serverProject.Id);
             if (localProject?.Data is null) continue;
-            await crdtProjectsService.UpdateProjectServerInfo(localProject, lexboxUser?.Name, lexboxUser?.Id, ToRole(serverProject.Role));
+            var role = serverProject.Role.ToUserProjectRole();
+            if (await crdtProjectsService.UpdateProjectServerInfo(localProject, lexboxUser?.Name, lexboxUser?.Id, role))
+                projectEventBus.PublishEvent(localProject, new ProjectRoleChangedEvent(role));
         }
     }
 
@@ -114,7 +119,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                 true,
                 false,
                 p.Data?.OriginDomain is not null,
-                p.Data is null ? ProjectRole.Unknown : FromRole(p.Data.Role),
+                p.Data is null ? ProjectRole.Unknown : p.Data.Role.ToProjectRole(),
                 lexboxProjectService.GetServer(p.Data),
                 p.Data?.Id));
         //basically populate projects and indicate if they are lexbox or fwdata
@@ -137,27 +142,12 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         return projects.Values;
     }
 
-    private UserProjectRole ToRole(ProjectRole role) =>
-        role switch
-        {
-            ProjectRole.Observer => UserProjectRole.Observer,
-            ProjectRole.Editor => UserProjectRole.Editor,
-            ProjectRole.Manager => UserProjectRole.Manager,
-            _ => UserProjectRole.Unknown
-        };
-
-    private ProjectRole FromRole(UserProjectRole role) =>
-        role switch
-        {
-            UserProjectRole.Observer => ProjectRole.Observer,
-            UserProjectRole.Editor => ProjectRole.Editor,
-            UserProjectRole.Manager => ProjectRole.Manager,
-            _ => ProjectRole.Unknown
-        };
-
     [JSInvokable]
     public async Task<DownloadProjectByCodeResult> DownloadProjectByCode(string code, LexboxServer server, UserProjectRole? userRole = null)
     {
+        // Note: the local project might be from a different server, but that's currently only relevant
+        // for devs and we still can't download two projects with the same code
+        if (crdtProjectsService.ProjectExists(code)) return DownloadProjectByCodeResult.ProjectAlreadyDownloaded;
         var serverProjects = await ServerProjects(server, false);
         var project = serverProjects.Projects.FirstOrDefault(p => p.Code == code);
         if (project is null)
@@ -166,10 +156,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
             {
                 var (status, projectId) = await lexboxProjectService.GetLexboxProjectId(server, code);
                 if (status != DownloadProjectByCodeResult.Success) return status;
-                // Note: the project might be from a different server, but that's current only relevant for devs
-                // and we still can't download two projects with the same code
-                if (crdtProjectsService.ProjectExists(code)) return DownloadProjectByCodeResult.ProjectAlreadyDownloaded;
-                var role = userRole.HasValue ? FromRole(userRole.Value) : ProjectRole.Editor;
+                var role = userRole?.ToProjectRole() ?? ProjectRole.Editor;
                 project = new ProjectModel(
                     Name: code,
                     Code: code,
@@ -192,8 +179,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     [JSInvokable]
     public async Task DownloadProject(ProjectModel project)
     {
-        var server = project.Server ?? throw new ArgumentNullException($"{nameof(project.Server)} is null for project {project.Code}");
-        var projectId = project.Id ?? throw new ArgumentNullException($"{nameof(project.Id)} is null for project {project.Code}");
+        var server = project.Server ?? throw new ArgumentNullException($"{nameof(project.Server)} is null for project '{project.Code}'");
+        var projectId = project.Id ?? throw new ArgumentNullException($"{nameof(project.Id)} is null for project '{project.Code}'");
         var currentUser = await oAuthClientFactory.GetClient(server).GetCurrentUser();
         await keepAwake.RunAsync(
             new($"Downloading project {project.Name}"),
@@ -207,7 +194,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
                 },
                 AuthenticatedUser: currentUser?.Name,
                 AuthenticatedUserId: currentUser?.Id,
-                Role: ToRole(project.Role)))));
+                Role: project.Role.ToUserProjectRole()))));
     }
 
     [JSInvokable]

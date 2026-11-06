@@ -2,6 +2,7 @@ using System.Collections.Frozen;
 using System.Globalization;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
+using FwDataMiniLcmBridge.Collation;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwDataMiniLcmBridge.Media;
 using Gridify;
@@ -19,6 +20,7 @@ using SIL.LCModel.Core.Text;
 using SIL.LCModel.Core.WritingSystems;
 using SIL.LCModel.DomainServices;
 using SIL.LCModel.Infrastructure;
+using SIL.WritingSystems;
 using CollectionExtensions = SIL.Extensions.CollectionExtensions;
 
 namespace FwDataMiniLcmBridge.Api;
@@ -51,9 +53,9 @@ public class FwDataMiniLcmApi(
 
     private IWritingSystemContainer WritingSystemContainer => Cache.ServiceLocator.WritingSystems;
     internal ILexEntryRepository EntriesRepository => Cache.ServiceLocator.GetInstance<ILexEntryRepository>();
-    internal IRepository<ILexSense> SenseRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexSense>>();
-    private IRepository<ILexExampleSentence> ExampleSentenceRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexExampleSentence>>();
-    private IRepository<ICmPicture> PictureRepository => Cache.ServiceLocator.GetInstance<IRepository<ICmPicture>>();
+    internal ILexSenseRepository SenseRepository => Cache.ServiceLocator.GetInstance<ILexSenseRepository>();
+    private ILexExampleSentenceRepository ExampleSentenceRepository => Cache.ServiceLocator.GetInstance<ILexExampleSentenceRepository>();
+    private ICmPictureRepository PictureRepository => Cache.ServiceLocator.GetInstance<ICmPictureRepository>();
     private ILexEntryFactory LexEntryFactory => Cache.ServiceLocator.GetInstance<ILexEntryFactory>();
     private ILexSenseFactory LexSenseFactory => Cache.ServiceLocator.GetInstance<ILexSenseFactory>();
     private ILexExampleSentenceFactory LexExampleSentenceFactory => Cache.ServiceLocator.GetInstance<ILexExampleSentenceFactory>();
@@ -113,6 +115,7 @@ public class FwDataMiniLcmApi(
 
     private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws, WritingSystemType type, int index = default)
     {
+        var (icuCollationRules, systemCollationLocale) = WritingSystemCollationExtractor.Extract(ws);
         return new WritingSystem
         {
             Id = Guid.Empty,
@@ -125,7 +128,9 @@ public class FwDataMiniLcmApi(
             Name = ws.LanguageName,
             Abbreviation = ws.Abbreviation,
             Font = ws.DefaultFontName,
-            Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? []
+            Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? [],
+            IcuCollationRules = icuCollationRules,
+            SystemCollationLocale = systemCollationLocale,
         };
     }
 
@@ -164,7 +169,7 @@ public class FwDataMiniLcmApi(
         var exitingWs = type == WritingSystemType.Analysis ? Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems : Cache.ServiceLocator.WritingSystems.VernacularWritingSystems;
         if (exitingWs.Any(ws => ws.Id == writingSystem.WsId))
         {
-            throw new DuplicateObjectException($"Writing system {writingSystem.WsId.Code} already exists");
+            throw new DuplicateObjectException($"Writing system '{writingSystem.WsId.Code}' already exists");
         }
         CoreWritingSystemDefinition? ws = null;
         await Cache.DoUsingNewOrCurrentUOW("Create Writing System",
@@ -204,7 +209,7 @@ public class FwDataMiniLcmApi(
     {
         if (!Cache.ServiceLocator.WritingSystemManager.TryGet(id.Code, out var lcmWritingSystem))
         {
-            throw new InvalidOperationException($"Writing system {id.Code} not found");
+            throw new InvalidOperationException($"Writing system '{id.Code}' not found");
         }
         await Cache.DoUsingNewOrCurrentUOW("Update WritingSystem",
             "Revert WritingSystem",
@@ -1015,13 +1020,39 @@ public class FwDataMiniLcmApi(
     private IEnumerable<ILexEntry> ApplySorting(SortOptions order, IEnumerable<ILexEntry> entries, string? query)
     {
         var sortWs = GetWritingSystemHandle(order.WritingSystem, WritingSystemType.Vernacular);
+        var headwordComparer = GetHeadwordComparer(sortWs);
         var stemSecondaryOrder = MorphTypeRepository.GetObject(MoMorphTypeTags.kguidMorphStem).SecondaryOrder;
         if (order.Field == SortField.SearchRelevance)
         {
-            return entries.ApplyRoughBestMatchOrder(order, sortWs, stemSecondaryOrder, query);
+            return entries.ApplyRoughBestMatchOrder(order, sortWs, headwordComparer, stemSecondaryOrder, query);
         }
 
-        return entries.ApplyHeadwordOrder(order, sortWs, stemSecondaryOrder);
+        return entries.ApplyHeadwordOrder(order, sortWs, headwordComparer, stemSecondaryOrder);
+    }
+
+    /// <summary>
+    /// Sorts with the writing system's own collation, like FLEx's RecordSorter, so fwdata and CRDT order match.
+    /// FLEx swaps in a system collation when the rules are empty or invalid; we do the same without modifying the project.
+    /// https://github.com/sillsdev/FieldWorks/blob/32068b620/Src/Common/Filters/RecordSorter.cs#L2213-L2217
+    /// </summary>
+    private IComparer<string?> GetHeadwordComparer(int wsHandle)
+    {
+        var ws = Cache.ServiceLocator.WritingSystemManager.Get(wsHandle);
+        IComparer<string> collator;
+        try
+        {
+            var collation = ws.DefaultCollation;
+            collator = collation is RulesCollationDefinition rules && (!rules.Validate(out _) || string.IsNullOrEmpty(rules.CollationRules))
+                ? new SystemCollationDefinition { LanguageTag = ws.LanguageTag }.Collator
+                : collation.Collator;
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Failed to create collator for writing system {WsId}; using culture sort", ws.Id);
+            collator = StringComparer.CurrentCulture;
+        }
+
+        return Comparer<string?>.Create((x, y) => collator.Compare(x ?? string.Empty, y ?? string.Empty));
     }
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
@@ -1479,6 +1510,7 @@ public class FwDataMiniLcmApi(
         lexEntry.SensesOS.Add(lexSense);
     }
 
+    // inserting/adding also re-parents an example currently owned by a different sense (LCM owning sequences move on insert)
     internal void InsertExampleSentence(ILexSense lexSense, ILexExampleSentence lexExample, BetweenPosition? between = null)
     {
         var previousExampleId = between?.Previous;
@@ -1541,13 +1573,13 @@ public class FwDataMiniLcmApi(
     public Task<Sense?> GetSense(Guid entryId, Guid id)
     {
         SenseRepository.TryGetObject(id, out var lcmSense);
-        if (lcmSense is not null) VerifySenseBelongsToEntry(entryId, lcmSense);
+        if (lcmSense is not null) ValidateOwnership(entryId, lcmSense);
         return Task.FromResult(lcmSense is null ? null : FromLexSense(lcmSense));
     }
 
-    private void VerifySenseBelongsToEntry(Guid entryId, ILexSense sense)
+    private void ValidateOwnership(Guid entryId, ILexSense sense)
     {
-        if (sense.Entry.Guid != entryId) throw new NotFoundException($"Sense {sense.Guid} does not belong to the expected entry, expected Id {entryId}, actual Id {sense.Entry.Guid}", nameof(Sense));
+        if (sense.Entry.Guid != entryId) throw ParentMismatchException.ForType<Sense>(sense.Guid, entryId, sense.Entry.Guid);
     }
 
     public Task<Sense> CreateSense(Guid entryId, Sense sense, BetweenPosition? between = null)
@@ -1565,7 +1597,7 @@ public class FwDataMiniLcmApi(
     public Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
     {
         var lexSense = SenseRepository.GetObject(senseId);
-        VerifySenseBelongsToEntry(entryId, lexSense);
+        ValidateOwnership(entryId, lexSense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert sense",
             Cache.ServiceLocator.ActionHandler,
@@ -1580,22 +1612,26 @@ public class FwDataMiniLcmApi(
     public async Task<Sense> UpdateSense(Guid entryId, Sense before, Sense after, IMiniLcmApi? api = null)
     {
         var lexSense = SenseRepository.GetObject(after.Id);
-        VerifySenseBelongsToEntry(entryId, lexSense);
+        ValidateOwnership(entryId, lexSense);
         await Cache.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert Sense",
             async () =>
             {
-                await SenseSync.Sync(entryId, before, after, api ?? this);
+                await SenseSync.Sync(entryId, before, after, api ?? this,
+                    SyncContext.For(before, after, deferDeletes: false));
             });
         return await GetSense(entryId, after.Id) ?? throw NotFoundException.ForType<Sense>(after.Id);
     }
 
-    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between)
+    // repositioning and re-parenting are the same operation here: inserting into an LCM owning
+    // sequence moves the sense out of whatever entry currently owns it, so a plain reorder needs the ownership guard
+    public Task MoveSense(Guid entryId, Guid senseId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
             throw new InvalidOperationException("Entry not found");
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
+        if (kind == MoveKind.Reorder) ValidateOwnership(entryId, lexSense);
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Sense",
             "Move Sense back",
@@ -1671,7 +1707,7 @@ public class FwDataMiniLcmApi(
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
         var lexSense = SenseRepository.GetObject(senseId);
-        VerifySenseBelongsToEntry(entryId, lexSense);
+        ValidateOwnership(entryId, lexSense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Sense",
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
@@ -1681,8 +1717,17 @@ public class FwDataMiniLcmApi(
 
     public Task<ExampleSentence?> GetExampleSentence(Guid entryId, Guid senseId, Guid id)
     {
-        ExampleSentenceRepository.TryGetObject(id, out var lcmExampleSentence);
-        return Task.FromResult(lcmExampleSentence is null ? null : FromLexExampleSentence(senseId, lcmExampleSentence));
+        if (!ExampleSentenceRepository.TryGetObject(id, out var lcmExampleSentence))
+            return Task.FromResult<ExampleSentence?>(null);
+        ValidateOwnership(entryId, senseId, lcmExampleSentence);
+        return Task.FromResult<ExampleSentence?>(FromLexExampleSentence(senseId, lcmExampleSentence));
+    }
+
+    private void ValidateOwnership(Guid entryId, Guid senseId, ILexExampleSentence exampleSentence)
+    {
+        if (exampleSentence.Owner is not ILexSense sense || sense.Guid != senseId)
+            throw ParentMismatchException.ForType<ExampleSentence>(exampleSentence.Guid, senseId, exampleSentence.Owner.Guid);
+        ValidateOwnership(entryId, sense);
     }
 
     internal void CreateExampleSentence(ILexSense lexSense, ExampleSentence exampleSentence, BetweenPosition? between = null)
@@ -1755,16 +1800,15 @@ public class FwDataMiniLcmApi(
         return await GetExampleSentence(entryId, senseId, after.Id) ?? throw new NullReferenceException("unable to find example sentence with id " + after.Id);
     }
 
-    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition between)
+    // see MoveSense: the insert re-parents
+    public Task MoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
-        if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
-            throw new InvalidOperationException("Entry not found");
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
         if (!ExampleSentenceRepository.TryGetObject(exampleSentenceId, out var lexExample))
             throw new InvalidOperationException("Example sentence not found");
-
-        ValidateOwnership(lexExample, entryId, senseId);
+        ValidateOwnership(entryId, lexSense);
+        if (kind == MoveKind.Reorder) ValidateOwnership(entryId, senseId, lexExample);
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move Example sentence",
             "Move Example sentence back",
@@ -1838,9 +1882,8 @@ public class FwDataMiniLcmApi(
         //todo the owner many not be a sense, but could be something owned by the sense.
         if (lexExampleSentence.Owner is ILexSense sense)
         {
-            if (sense.Guid != senseId) throw new InvalidOperationException("Example sentence does not belong to sense");
-            if (sense.Entry.Guid != entryId)
-                throw new InvalidOperationException("Example sentence does not belong to entry");
+            if (sense.Guid != senseId) throw ParentMismatchException.ForType<ExampleSentence>(lexExampleSentence.Guid, senseId, sense.Guid);
+            if (sense.Entry.Guid != entryId) throw ParentMismatchException.ForType<Sense>(sense.Guid, entryId, sense.Entry.Guid);
         }
         else
         {
@@ -1853,7 +1896,8 @@ public class FwDataMiniLcmApi(
     {
         if (lcmPicture.Owner is ILexSense sense)
         {
-            if (sense.Guid != senseId) throw new InvalidOperationException("Picture does not belong to sense");
+            if (sense.Guid != senseId) throw ParentMismatchException.ForType<Picture>(lcmPicture.Guid, senseId, sense.Guid);
+            if (sense.Entry.Guid != entryId) throw ParentMismatchException.ForType<Sense>(sense.Guid, entryId, sense.Entry.Guid);
         }
         else
         {
@@ -1918,6 +1962,7 @@ public class FwDataMiniLcmApi(
         if (picture.Id == default) picture.Id = Guid.NewGuid();
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
+        ValidateOwnership(entryId, lexSense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create picture",
             "Remove picture",
             Cache.ServiceLocator.ActionHandler,
@@ -2041,8 +2086,10 @@ public class FwDataMiniLcmApi(
     public async Task SubmitCreateComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent>? position = null) => await CreateComplexFormComponent(complexFormComponent, position);
     public async Task SubmitMoveComplexFormComponent(ComplexFormComponent complexFormComponent, BetweenPosition<ComplexFormComponent> between) => await MoveComplexFormComponent(complexFormComponent, between);
     public async Task SubmitCreateSense(Guid entryId, Sense sense, BetweenPosition? position = null) => await CreateSense(entryId, sense, position);
+    public async Task SubmitMoveSense(Guid entryId, Guid senseId, BetweenPosition position, MoveKind kind = MoveKind.Reorder) => await MoveSense(entryId, senseId, position, kind);
     public async Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update) => await UpdateSense(entryId, senseId, update);
     public async Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null) => await CreateExampleSentence(entryId, senseId, exampleSentence, position);
+    public async Task SubmitMoveExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, BetweenPosition position, MoveKind kind = MoveKind.Reorder) => await MoveExampleSentence(entryId, senseId, exampleSentenceId, position, kind);
     public async Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update) => await UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
     public async Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update) => await UpdatePartOfSpeech(id, update);
     public async Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update) => await UpdatePicture(entryId, senseId, pictureId, update);

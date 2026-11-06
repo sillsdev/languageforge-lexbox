@@ -16,11 +16,12 @@
   import {copy, EntryPersistence} from '$lib/entry-editor/entry-persistence.svelte';
   import {createEntryOptions} from '$lib/create-entry-options';
   import {useProjectEventBus} from '$lib/services/event-bus';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
   import {findFirstTabbable} from '$lib/utils/tabbable';
   import {useFeatures} from '$lib/services/feature-service';
   import type {ReadonlyDeep} from 'type-fest';
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
+  import HomographNumber from '$lib/components/dictionary/HomographNumber.svelte';
   import * as Alert from '$lib/components/ui/alert';
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
@@ -28,8 +29,6 @@
   import CommentDialog from '$lib/entry-editor/comments/CommentDialog.svelte';
   import {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
-  import FlagContent from '$lib/feature-flags/FlagContent.svelte';
-  import {hasFlag} from '$lib/feature-flags/feature-flags.svelte';
   import {ResizableHandle, ResizablePane, ResizablePaneGroup} from '$lib/components/ui/resizable';
   import {IsExtraLarge} from '$lib/hooks/is-extra-large.svelte';
 
@@ -39,6 +38,7 @@
   const eventBus = useProjectEventBus();
   const miniLcmApi = useMiniLcmApi();
   const features = useFeatures();
+  const platform = usePlatformFeaturesService();
   const viewService = useViewService();
   const dictionaryPreviewStorage = useProjectStorage().dictionaryPreview;
   let {
@@ -110,7 +110,9 @@
   let latestPersistedSnapshot = $state<ReadonlyDeep<IEntry>>();
   const entryPersistence = new EntryPersistence(() => latestPersistedSnapshot);
   let entry = $derived(entryResource.current ?? undefined);
-  const headword = $derived((entry && writingSystemService.headword(entry)) || $t`Untitled`);
+  const bestHeadword = $derived(entry ? writingSystemService.viewBestHeadword(entry, viewService.currentView) : '');
+  // Plain text for the title tooltip; the heading itself renders the homograph number as a <sub>
+  const headwordTitle = $derived((entry && writingSystemService.viewBestHeadwordWithHomograph(entry, viewService.currentView)) || $t`Untitled`);
   const loadingDebounced = new Debounced(() => entryResource.loading, 50);
   const dictionaryPreview: DictionaryPreviewMode = $derived(
     isDictionaryPreviewMode(dictionaryPreviewStorage.current) ? dictionaryPreviewStorage.current : 'show'
@@ -121,7 +123,7 @@
   const sticky = $derived(dictionaryPreview === 'sticky');
 
   let deleted = $state(false);
-  const showCommentDialog = $derived(showComments && features.comments && hasFlag('comments'));
+  const showCommentDialog = $derived(showComments && features.comments);
 
   const entryUnreadResource = resource(
     () => (features.comments ? dedupedEntryId : undefined),
@@ -140,6 +142,11 @@
     },
   );
 
+  // Keep this entry's unread indicator live when comments arrive via sync
+  eventBus.onCommentsChanged(() => {
+    if (features.comments) void entryUnreadResource.refetch();
+  });
+
   // Entry and comments share the space instead of the comments floating over the entry:
   // side by side once there's room, stacked below xl.
   const commentsDirection = $derived(IsExtraLarge.value ? 'horizontal' : 'vertical');
@@ -150,9 +157,9 @@
   const loadedEntryId = $derived(entry?.id);
   let entryScrollViewportRef: HTMLElement | null = $state(null);
   let editorRef: HTMLElement | null = $state(null);
-  watch([() => [loadedEntryId, entryScrollViewportRef, editorRef]], () => {
+  watch([() => [loadedEntryId, entryScrollViewportRef, editorRef, platform.features.hasHardwareKeyboard]], () => {
     entryScrollViewportRef?.scrollTo({ top: 0, left: 0 });
-    if (!IsMobile.value) findFirstTabbable(editorRef)?.focus();
+    if (platform.features.hasHardwareKeyboard) findFirstTabbable(editorRef)?.focus();
   });
 </script>
 
@@ -179,29 +186,29 @@
         <!-- flex-1 truncates a long unbreakable headword so it can't push the actions off screen. -->
         <h2
           class="ml-4 text-2xl font-semibold mb-2 min-w-0 flex-1 truncate max-md:text-center"
-          title={headword}>{headword}</h2>
+          title={headwordTitle}>
+          {#if bestHeadword}{bestHeadword}<HomographNumber homographNumber={entry.homographNumber} />{:else}{headwordTitle}{/if}
+        </h2>
         <div class="flex shrink-0">
           {#if features.comments}
-            <FlagContent flag="comments">
-              <div class="relative">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  icon={showCommentDialog ? 'i-mdi-comment-text' : 'i-mdi-comment-text-outline'}
-                  aria-pressed={showCommentDialog}
-                  aria-label={entryUnreadCount > 0
-                    ? $t`Comments, ${entryUnreadCount} unread`
-                    : $t`Comments`}
-                  onclick={() => showComments = !showComments}
-                />
-                {#if entryUnreadCount > 0}
-                  <span
-                    class="pointer-events-none absolute top-1.5 right-1.5 size-2 rounded-full bg-primary ring-2 ring-background"
-                    aria-hidden="true"
-                  ></span>
-                {/if}
-              </div>
-            </FlagContent>
+            <div class="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                icon={showCommentDialog ? 'i-mdi-comment-text' : 'i-mdi-comment-text-outline'}
+                aria-pressed={showCommentDialog}
+                aria-label={entryUnreadCount > 0
+                  ? $t`Comments, ${entryUnreadCount} unread`
+                  : $t`Comments`}
+                onclick={() => showComments = !showComments}
+              />
+              {#if entryUnreadCount > 0}
+                <span
+                  class="pointer-events-none absolute top-1.5 right-1.5 size-2 rounded-full bg-primary ring-2 ring-background"
+                  aria-hidden="true"
+                ></span>
+              {/if}
+            </div>
           {/if}
           <ViewPicker bind:dictionaryPreview={() => dictionaryPreview, (v) => void dictionaryPreviewStorage.set(v)} />
           <EntryMenu {entry} />

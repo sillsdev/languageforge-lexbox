@@ -47,6 +47,11 @@ public class ProjectEventBus : IDisposable
         PublishEntriesChanged(project, [], [entryId]);
     }
 
+    public void PublishCommentsChanged(IProjectIdentifier project)
+    {
+        PublishEvent(project, new CommentsChangedEvent());
+    }
+
     private IObservable<T> OnProjectEvent<T>(IProjectIdentifier project) where T : IFwEvent
     {
         return _globalEventBus.OnGlobalEvent
@@ -58,6 +63,11 @@ public class ProjectEventBus : IDisposable
     public IObservable<EntriesChangedEvent> OnEntriesChanged(IProjectIdentifier project)
     {
         return OnProjectEvent<EntriesChangedEvent>(project);
+    }
+
+    public IObservable<CommentsChangedEvent> OnCommentsChanged(IProjectIdentifier project)
+    {
+        return OnProjectEvent<CommentsChangedEvent>(project);
     }
 
     public void Dispose()
