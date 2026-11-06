@@ -549,7 +549,7 @@
       <kbd>?</kbd><span>this menu</span>
     </div>
     <div class="keys desk">
-      <kbd>W A S D</kbd><span>walk — single steps climb on their own &nbsp;·&nbsp; drag the world to look</span>
+      <kbd>W A S D</kbd><span>walk: single steps climb on their own &nbsp;·&nbsp; drag the world to look</span>
       <kbd>Space</kbd><span>jump gaps &amp; ledges (again in water to swim up)</span>
       <kbd>E</kbd><span>touch a word-light, shrine or beacon</span>
       <kbd>B</kbd><span>build mode on/off</span>
@@ -593,7 +593,7 @@
 <script>
 'use strict';
 /* ============================================================================
- * The Speaking Isles — a 3D word-world for FW Lite.
+ * The Speaking Isles: a 3D word-world for FW Lite.
  *
  * Everything here is hand-rolled and self-contained (WebGL1 + WebAudio, no
  * libraries, no network): the plugin sandbox is offline by design.
@@ -765,7 +765,7 @@ var Sound = (function () {
 })();
 /* ---------------------------------------------------------------------------
  * Dictionary data: load entries, writing systems and semantic domains, then
- * shape them into the isles — one region per well-populated top-level domain.
+ * shape them into the isles: one region per well-populated top-level domain.
  * -------------------------------------------------------------------------*/
 var MAX_LOADED_ENTRIES = 3000;
 
@@ -947,7 +947,7 @@ function buildRegions() {
   regions.forEach(function (region, index) {
     region.index = index;
     region.needsExample = region.entries.filter(senseNeedingExample);
-    // Low enough that the first isle wakes within a minute or two — the early "wow".
+    // Low enough that the first isle wakes within a minute or two: the early "wow".
     region.target = region.entries.length ? clamp(Math.ceil(region.entries.length * 0.3), 2, 6) : 0;
   });
   Dict.regions = regions;
@@ -958,7 +958,7 @@ function makeRegion(name, biome, domain, topCode, entries) {
 }
 /* ---------------------------------------------------------------------------
  * The world: a 256×256×64 voxel island, generated deterministically from the
- * project code, carved into radial region sectors — one per dictionary region.
+ * project code, carved into radial region sectors: one per dictionary region.
  * -------------------------------------------------------------------------*/
 var WORLD = 256, HEIGHT = 64, SEA = 13;
 var CHUNK = 16, CHUNKS = WORLD / CHUNK;
@@ -968,11 +968,11 @@ var B = {
   AIR: 0, GRASS: 1, DIRT: 2, STONE: 3, SAND: 4, WOOD: 5, LEAVES: 6, ROCK: 7,
   CRYSTAL: 8, RUIN: 9, MONOLITH: 10, SHROOM_STEM: 11, SHROOM_CAP: 12,
   PLANKS: 13, STONEBRICK: 14, LANTERN: 15, SONGSTONE: 16, BEACON: 17, PATH: 18,
-  // Flowers/blooms — placed only in restored regions (see bloomRegion), so the
+  // Flowers/blooms: placed only in restored regions (see bloomRegion), so the
   // grey Hush stays bare and waking an isle is what brings the colour.
   FLOWER_RED: 19, FLOWER_GOLD: 20, FLOWER_VIOLET: 21, FLOWER_WHITE: 22, BLOOM: 23,
 };
-// [r, g, b, glow] — grass/leaves get re-tinted per region biome at mesh time.
+// [r, g, b, glow]: grass/leaves get re-tinted per region biome at mesh time.
 var BLOCK_STYLE = {};
 BLOCK_STYLE[B.GRASS] = [0.42, 0.62, 0.30, 0];
 BLOCK_STYLE[B.DIRT] = [0.47, 0.35, 0.24, 0];
@@ -1090,7 +1090,7 @@ function generateWorld(seedText, regions) {
 
 /**
  * Marks every column a player can actually get to from spawn using only walk +
- * auto-step(≤1) + swim — no jumping, no building. Water counts as traversable at its
+ * auto-step(≤1) + swim. No jumping, no building. Water counts as traversable at its
  * surface, which is what keeps the whole coast connected. Used to guarantee that word-
  * lights and shrines never spawn somewhere you can't reach. Re-run after the world (or a
  * player edit) changes the heightfield.
@@ -1236,7 +1236,7 @@ function decorateRegion(region, index, regionCount, angleOffset) {
   }
 
   // Word-places: Echo Stones ask for sentences; the Wellspring welcomes new words.
-  // These write to the real dictionary, so they MUST be reachable — require it, and
+  // These write to the real dictionary, so they MUST be reachable: require it, and
   // fall back to any reachable land in the region rather than risk a stranded shrine.
   if (Dict.writeCapable) {
     var wellSpot = regionSpot(index, regionCount, angleOffset, rand, 0.3, 0.55, true) || reachableSpotInRegion(index);
@@ -1845,7 +1845,7 @@ var Renderer = (function () {
       }
     }
 
-    // Creatures — same voxel program/uniforms, culling off so cube winding is irrelevant.
+    // Creatures: same voxel program/uniforms, culling off so cube winding is irrelevant.
     if (creatureCount) {
       gl.disable(gl.CULL_FACE);
       gl.bindBuffer(gl.ARRAY_BUFFER, creatureVbo);
@@ -1904,7 +1904,7 @@ var Renderer = (function () {
 })();
 /* ---------------------------------------------------------------------------
  * Player physics (AABB vs voxels) and input: keyboard + drag-look + touch.
- * No pointer lock — the plugin sandbox doesn't allow it — so the camera is
+ * No pointer lock (the plugin sandbox doesn't allow it), so the camera is
  * grab-and-drag, which also works on touch screens.
  * -------------------------------------------------------------------------*/
 var Player = {
@@ -1979,7 +1979,7 @@ function movePlayer(dt) {
 }
 
 // Auto step-up: walking into a rise of up to one block (STEP_HEIGHT) lifts the player
-// onto it instead of stopping, so single-block terrain — 95% of our land — is walkable
+// onto it instead of stopping, so single-block terrain (95% of our land) is walkable
 // without jumping (like Minecraft's step height / Bedrock auto-jump, Roblox's auto-step).
 // Two-block-plus walls (cliffs, quarry terraces) still block, so they stay real obstacles.
 var STEP_HEIGHT = 1.05;
@@ -2391,7 +2391,7 @@ function checkRestore(region) {
   spawnCreaturesForRegion(region.index);
   Renderer.remeshRegion(region.index);
   Sound.restore();
-  toast('🌿 <b>' + escapeHtml(region.name) + '</b> awakens — the Hush lifts!');
+  toast('🌿 <b>' + escapeHtml(region.name) + '</b> awakens. The Hush lifts!');
   var eye = eyePos();
   var accent = region.biome.accent;
   burst(eye.x + lookDir().x * 4, eye.y + 2, eye.z + lookDir().z * 4, [1, 0.9, 0.5], 40, true);
@@ -2538,8 +2538,8 @@ function findTarget() {
 function promptTextFor(target) {
   var key = document.body.classList.contains('touch') ? '<kbd>✦</kbd>' : '<kbd>E</kbd>';
   if (target.kind === 'orb') return key + 'word-light: <b>' + escapeHtml(fwlite.headword(target.orb.entry)) + '</b>';
-  if (target.kind === 'stone') return key + (target.it.done ? 'a quiet Echo Stone' : 'Echo Stone — <b>a word waits for a sentence</b>');
-  if (target.kind === 'well') return key + 'Wellspring — <b>give the isles a new word</b>';
+  if (target.kind === 'stone') return key + (target.it.done ? 'a quiet Echo Stone' : 'Echo Stone: <b>a word waits for a sentence</b>');
+  if (target.kind === 'well') return key + 'Wellspring: <b>give the isles a new word</b>';
   if (target.kind === 'beacon') {
     if (World.beacon.lit) return key + 'The Great Beacon shines';
     return key + (canLightBeacon() ? '<b>light the Great Beacon</b>' : 'The Great Beacon sleeps');
@@ -2565,7 +2565,7 @@ function openWordCard(orb) {
   Sound.open();
   $('card-hw').textContent = fwlite.headword(entry);
   var gloss = entryGloss(entry);
-  $('card-gloss').textContent = gloss || '— no meaning recorded yet —';
+  $('card-gloss').textContent = gloss || '(no meaning recorded yet)';
   var def = entryDefinition(entry);
   $('card-def').textContent = def && def !== gloss ? def : '';
   var meta = '';
@@ -2704,7 +2704,7 @@ function openWellspring(well) {
   Sound.open();
   contribContext = {mode: 'word', region: region, well: well};
   $('contrib-title').textContent = 'The Wellspring';
-  $('contrib-sub').innerHTML = 'Give the isles a word they do not know yet — it will be created in <b>' +
+  $('contrib-sub').innerHTML = 'Give the isles a word they do not know yet. It will be created in <b>' +
     escapeHtml(Dict.project ? Dict.project.projectName : 'the dictionary') + '</b>' +
     (region.domain ? ', in the domain <b>' + escapeHtml(domainName(region.domain)) + '</b>.' : '.');
   $('contrib-body').innerHTML =
@@ -2781,14 +2781,14 @@ function submitContribution() {
       var index = region.needsExample.indexOf(context.entry);
       if (index >= 0) region.needsExample.splice(index, 1);
       giftMoment(context.stone.x, context.stone.y + 2, context.stone.z);
-      toast('🗣 The sentence joins <b>' + escapeHtml(fwlite.headword(updated)) + '</b> — a true gift to the language.');
+      toast('🗣 The sentence joins <b>' + escapeHtml(fwlite.headword(updated)) + '</b>. A true gift to the language.');
     }).catch(function (err) { contribFailed(err, saveBtn); });
   }
 }
 
 function contribFailed(err, saveBtn) {
   saveBtn.disabled = false;
-  if (err && err.code === 'permission-denied') setContribNote('The change was not approved — nothing was changed.', 'warn');
+  if (err && err.code === 'permission-denied') setContribNote('The change was not approved, so nothing was changed.', 'warn');
   else if (err && err.code === 'conflict') setContribNote('Someone edited this entry just now. Close and try again.', 'warn');
   else setContribNote('The isles could not hear it: ' + (err && err.message || 'unknown error'), 'warn');
 }
@@ -2828,7 +2828,7 @@ function tryBeacon() {
   if (World.beacon.lit) { echoSay(['The Beacon holds every word you gathered. It will not go out.']); return; }
   if (!canLightBeacon()) {
     if (requiredRestores() === 0) echoSay(STORY.beaconNeedsWords);
-    else echoSay(['The Beacon needs ' + requiredRestores() + ' isles awake — ' + restoredCount() + ' so far. Keep gathering the word-lights.']);
+    else echoSay(['The Beacon needs ' + requiredRestores() + ' isles awake, ' + restoredCount() + ' so far. Keep gathering the word-lights.']);
     return;
   }
   lightBeacon();
@@ -2836,12 +2836,12 @@ function tryBeacon() {
   var b = World.beacon;
   burst(b.x + 0.5, b.y + 2, b.z + 0.5, [1, 0.92, 0.6], 80, true);
   Game.lumens += 150;
-  try { fwlite.notify('The Great Beacon of ' + (Dict.project ? Dict.project.projectName : 'the Isles') + ' shines again — ' + Game.learned.size + ' words strong.'); } catch (e) { /* not fatal */ }
+  try { fwlite.notify('The Great Beacon of ' + (Dict.project ? Dict.project.projectName : 'the Isles') + ' shines again, ' + Game.learned.size + ' words strong.'); } catch (e) { /* not fatal */ }
   $('fin-words').textContent = Game.learned.size.toLocaleString();
   $('fin-isles').textContent = restoredCount().toLocaleString();
   $('fin-given').textContent = Game.given.toLocaleString();
   $('finale-text').textContent = 'Every word you learned is a lantern now. The Isles will keep growing as ' +
-    (Dict.project ? Dict.project.projectName : 'your dictionary') + ' grows — come back when new words are born.';
+    (Dict.project ? Dict.project.projectName : 'your dictionary') + ' grows. Come back when new words are born.';
   setTimeout(function () { showOverlay('finale-overlay'); }, 1400);
   markDirty();
 }
@@ -2882,7 +2882,7 @@ function handleClick(isPlace) {
   var hit = raycastVoxel(6.5);
   if (!hit) return;
   if (isPlace) {
-    if (!slotUnlocked(Game.slot)) { toast('That block is still locked — learn more words.'); return; }
+    if (!slotUnlocked(Game.slot)) { toast('That block is still locked. Learn more words.'); return; }
     var px = hit.x + hit.face[0], py = hit.y + hit.face[1], pz = hit.z + hit.face[2];
     if (!inWorld(px, py, pz) || getBlock(px, py, pz) !== B.AIR) return;
     // don't entomb yourself
@@ -2911,12 +2911,12 @@ function handleClick(isPlace) {
 var STORY = {
   intro: [
     'You made it. I was starting to think the tide had swallowed every visitor.',
-    'This is — <b>was</b> — a speaking land. Every hill and harbor was named in the old words. Then the Hush came, the names faded to grey, and the words scattered into little lights.',
+    'This is, or <b>was</b>, a speaking land. Every hill and harbor was named in the old words. Then the Hush came, the names faded to grey, and the words scattered into little lights.',
     'See them glinting out there? Walk to one and touch it. If you can hold its meaning, it will stay with you.',
   ],
   emptyIsles: [
-    'These isles are young — the dictionary has almost no words yet.',
-    'That makes you a founder. Find a <b>Wellspring</b> — a glowing teal basin — and give the isles their first words. Each one becomes a real dictionary entry.',
+    'These isles are young. The dictionary has almost no words yet.',
+    'That makes you a founder. Find a <b>Wellspring</b> (a glowing teal basin) and give the isles their first words. Each one becomes a real dictionary entry.',
   ],
   firstCollect: [
     'You held it! Feel that? The ground remembers the word now.',
@@ -2927,18 +2927,18 @@ var STORY = {
     'The Great Beacon at the center plaza is watching. Wake enough isles, and it will take your words as fuel.',
   ],
   buildHint: [
-    'Three words already! The isles trust you now — press <b>B</b> and you can shape their stone and timber yourself.',
+    'Three words already! The isles trust you now. Press <b>B</b> and you can shape their stone and timber yourself.',
     'Build a home, a bridge, a monument to your favorite word. The isles will remember it.',
   ],
   placesHint: [
     'One more thing, Wordkeeper. Two kinds of stone can carry words back into the real dictionary.',
-    '<b>Echo Stones</b> hold a word that has no example sentence yet — give it one. <b>Wellsprings</b> welcome words the dictionary has never held. Both write to the actual project, and the app shows you exactly what will change and asks you to approve it first.',
+    '<b>Echo Stones</b> hold a word that has no example sentence yet. Give it one. <b>Wellsprings</b> welcome words the dictionary has never held. Both write to the actual project, and the app shows you exactly what will change and asks you to approve it first.',
   ],
   firstGift: [
     'A real word! It left the game and joined the language itself.',
     'This is how the isles truly grow. Every sentence, every word you add outlives us both.',
   ],
-  songstone: ['The isles felt your gift. Take the <b>Songstone</b> — a block that sings — it is yours to build with now.'],
+  songstone: ['The isles felt your gift. Take the <b>Songstone</b> (a block that sings). It is yours to build with now.'],
   beaconReady: ['The Beacon stirs! Enough isles are awake. Go to the central plaza and speak to it.'],
   beaconNeedsWords: [
     'The Beacon feeds on words, and the dictionary is still nearly empty.',
@@ -3003,7 +3003,7 @@ var MOTES_PER_REGION = 5;
 var FIREFLIES_PER_REGION = 6;
 
 // One reused packed buffer for all creature geometry (3 boxes × 36 verts each),
-// so the per-frame rebuild never allocates — important for GC on low-end phones.
+// so the per-frame rebuild never allocates, which matters for GC on low-end phones.
 var CREATURE_MAX_VERTS = MAX_CREATURES * 3 * 36;
 Life.creatureAB = new ArrayBuffer(CREATURE_MAX_VERTS * 16);
 Life.creatureF = new Float32Array(Life.creatureAB);
@@ -3272,9 +3272,9 @@ function updateBanner() {
     var r = Dict.regions[region];
     $('banner-name').textContent = r.name;
     var learned = learnedInRegion(r);
-    if (Restored[region]) $('banner-sub').textContent = r.biome.label + ' — awake';
+    if (Restored[region]) $('banner-sub').textContent = r.biome.label + ' · awake';
     else if (r.target) $('banner-sub').textContent = 'word-lights held: ' + learned + ' of ' + r.target + ' to lift the Hush';
-    else $('banner-sub').textContent = r.biome.label + ' — no words live here yet';
+    else $('banner-sub').textContent = r.biome.label + ' · no words live here yet';
     $('banner-bar').style.width = (r.target ? clamp(learned / r.target, 0, 1) * 100 : 0) + '%';
   }
 }
@@ -3292,8 +3292,8 @@ function updateCompass() {
 }
 
 // One short, high-value line telling the player what to do right now. Deliberately
-// only appears at the two moments a newcomer can be lost — the very first word,
-// and when the Beacon is finally ready — so it never competes with the banner.
+// only appears at the two moments a newcomer can be lost: the very first word,
+// and when the Beacon is finally ready, so it never competes with the banner.
 function updateObjective() {
   var el = $('objective');
   var msg = '';
@@ -3305,7 +3305,7 @@ function updateObjective() {
     } else if (Game.totalWords === 0 && Dict.writeCapable) {
       msg = 'Find a <b>Wellspring</b> and add the isles’ first word';
     } else if (canLightBeacon() && !World.beacon.lit) {
-      msg = 'The <b>Great Beacon</b> is ready — follow the arrow to the plaza';
+      msg = 'The <b>Great Beacon</b> is ready. Follow the arrow to the plaza';
       ready = true;
     }
   }
@@ -3314,7 +3314,7 @@ function updateObjective() {
   else el.classList.add('hidden');
 }
 
-/* First-run control primer — shown once when a new player steps ashore, and
+/* First-run control primer: shown once when a new player steps ashore, and
  * dismissed as soon as they move or look (whichever comes first), else after 11s. */
 function showFirstHint() {
   if (Game.firstHintDone) return;
@@ -3380,7 +3380,7 @@ function renderHotbar() {
     num.className = 'num';
     num.textContent = i + 1;
     el.appendChild(num);
-    el.title = slot.name + (unlocked ? '' : (slot.unlock === 'gift' ? ' — add a new word to unlock' : ' — learn ' + slot.unlock + ' words to unlock'));
+    el.title = slot.name + (unlocked ? '' : (slot.unlock === 'gift' ? ': add a new word to unlock' : ': learn ' + slot.unlock + ' words to unlock'));
     el.addEventListener('click', function () { selectSlot(i); });
     bar.appendChild(el);
   });
@@ -3389,7 +3389,7 @@ function selectSlot(i) {
   Game.slot = i;
   renderHotbar();
   Sound.click();
-  toast(escapeHtml(HOTBAR[i].name) + (slotUnlocked(i) ? '' : ' — locked'));
+  toast(escapeHtml(HOTBAR[i].name) + (slotUnlocked(i) ? '' : ' (locked)'));
   markDirty();
 }
 
@@ -3402,9 +3402,9 @@ function buildStoryPages(hasSave) {
     return ['Welcome back, Wordkeeper. The isles kept your ' + Game.learned.size + ' words warm while you were away.'];
   }
   return [
-    'Long ago these isles were <em>named into being</em> — every hill, harbor and hollow carried a word of ' + escapeHtml(lang) + '.',
+    'Long ago these isles were <em>named into being</em>. Every hill, harbor and hollow carried a word of ' + escapeHtml(lang) + '.',
     'Then came <em>the Hush</em>. The names faded to grey, and the words scattered into small drifting lights.',
-    'You are the new <em>Wordkeeper</em>. Learn the scattered words and the land will wake. Add new words, and this world — and the real dictionary behind it — will grow.',
+    'You are the new <em>Wordkeeper</em>. Learn the scattered words and the land will wake. Add new words, and this world (and the real dictionary behind it) will grow.',
   ];
 }
 function showTitle(hasSave) {
@@ -3417,7 +3417,7 @@ function showTitle(hasSave) {
     dots.appendChild(d);
   });
   $('title-project').textContent = Dict.project
-    ? 'an island grown from ' + Dict.project.projectName + ' — ' + Game.totalWords.toLocaleString() + ' words strong'
+    ? 'an island grown from ' + Dict.project.projectName + ' · ' + Game.totalWords.toLocaleString() + ' words strong'
     : 'an island grown from your dictionary';
   $('title-hint').textContent = document.body.classList.contains('touch')
     ? 'joystick to walk · drag to look · ✦ to touch the lights'
@@ -3576,8 +3576,8 @@ function showError(msg) {
 }
 
 function boot() {
-  // Show touch controls (and touch-worded hints) from the start on phones/tablets —
-  // coarse pointer, no fine pointer — but never on a desktop. A hybrid laptop still
+  // Show touch controls (and touch-worded hints) from the start on phones/tablets
+  // (coarse pointer, no fine pointer), but never on a desktop. A hybrid laptop still
   // reveals them the moment a real touch happens (handled in the input layer).
   if (window.matchMedia &&
       window.matchMedia('(pointer: coarse)').matches &&
