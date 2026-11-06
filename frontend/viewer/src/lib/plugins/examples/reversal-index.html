@@ -52,6 +52,7 @@
   body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
   .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
   .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .wrap.full { max-width: none; }
   .canvas { position: fixed; inset: 0; overflow: hidden; }
   h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
   h2 { font-size: 1.05rem; margin: 0 0 10px; }
@@ -162,8 +163,7 @@
   @media (max-width: 600px) { .index { padding: 12px 14px 16px; } }
   .index .letter-head { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 4px; margin-bottom: 10px; }
   .index + .index { margin-top: 16px; }
-  .words { columns: 2; column-gap: 36px; }
-  @media (max-width: 700px) { .words { columns: 1; } }
+  .words { columns: 18rem; column-gap: 36px; }
   .rev-word { break-inside: avoid; margin: 0 0 10px; line-height: 1.4; }
   .rev-term { font-weight: 700; }
   .rev-refs { padding-left: 16px; }
@@ -183,7 +183,7 @@
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap full">
   <h1>Reversal Index</h1>
   <p class="subtitle" id="subtitle">Meanings in alphabetical order, each pointing back to the words that mean it.</p>
   <div id="loading" class="center-state"><div class="spinner"></div><div id="loading-text">Loading&hellip;</div></div>
