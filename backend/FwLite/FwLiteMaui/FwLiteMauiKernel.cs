@@ -7,6 +7,7 @@ using FwLiteShared.Auth;
 using FwLiteShared.KeepAwake;
 using FwLiteShared.Services;
 using LcmCrdt;
+using LcmCrdt.Project;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -143,14 +144,16 @@ public static class FwLiteMauiKernel
 
         services.AddOptions<FwLiteMauiConfig>().BindConfiguration("FwLiteMaui");
         var fwLiteMauiConfig = configuration.GetSection("FwLiteMaui").Get<FwLiteMauiConfig>() ?? new();
-        var baseDataPath = fwLiteMauiConfig.BaseDataDir;
         //filters come from configuration (defaults in DefaultConfiguration) so a user can raise a category at
         //runtime, e.g. Logging__LogLevel__FwLiteShared.Auth.LoggerAdapter=Information for MSAL sign in details
         logging.AddConfiguration(configuration.GetSection("Logging"));
-        Directory.CreateDirectory(baseDataPath);
-        services.Configure<LcmCrdtConfig>(config =>
+        Directory.CreateDirectory(fwLiteMauiConfig.BaseDataDir);
+        // resolved lazily so the one-time data migration can log; runs before any project path is used
+        services.AddSingleton(sp => ProjectDataLocation.Resolve(fwLiteMauiConfig, sp.GetRequiredService<ILogger<ProjectDataLocation>>()));
+        services.AddOptions<LcmCrdtConfig>().Configure((LcmCrdtConfig config, ProjectDataLocation location) =>
         {
-            config.ProjectPath = baseDataPath;
+            config.ProjectPath = location.Root;
+            config.UseProjectFolders = location.UseProjectFolders;
         });
         services.Configure<AuthConfig>(config =>
         {
@@ -162,10 +165,10 @@ public static class FwLiteMauiKernel
                 if (!await Launcher.Default.OpenAsync(uri)) throw new InvalidOperationException("Could not open the system browser");
             };
         });
-        services.Configure<HarmonyConfig>(config =>
+        services.AddOptions<HarmonyConfig>().Configure((HarmonyConfig config, ProjectDataLocation location) =>
         {
-            config.FailedSyncOutputPath = Path.Combine(baseDataPath, "failedSyncs");
-            config.LocalResourceCachePath = Path.Combine(baseDataPath, "localResourcesCache");
+            config.FailedSyncOutputPath = Path.Combine(location.Root, ProjectDataFolderMigration.FailedSyncsDirName);
+            config.LocalResourceCachePath = Path.Combine(location.Root, ProjectDataFolderMigration.LocalResourcesCacheDirName);
         });
 
         logging.AddFile(fwLiteMauiConfig.AppLogFilePath, options =>
