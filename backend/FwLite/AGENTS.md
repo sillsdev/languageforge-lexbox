@@ -57,6 +57,8 @@ Observed in agent sessions; plan around them.
 | FwLiteWeb | `./fw-lite-web.log` in its working directory (`FwLiteWeb:LogFileName`) |
 | Android | `adb logcat -d -t 200 \| grep DOTNET` (console logging lands under the `DOTNET` tag) |
 
+Isolated Windows launch (scripted QA, no real data): `FwLiteMaui.exe --start-url /` skips the saved last page; env `FwDataBridge__ProjectsFolder` replaces the registry FieldWorks projects folder.
+
 ## Testing on Android (agents)
 
 No emulator running? Start one yourself — don't ask. `emulator -list-avds` (try `$ANDROID_HOME/emulator/`, `$LOCALAPPDATA/Android/Sdk/emulator/`, etc.) → pick an `fwlite_*` image → launch in background with `-no-snapshot-load -no-boot-anim` → wait until `adb -e get-state` is `device` and `sys.boot_completed` is `1` → `task android-emulator-dev`. Physical device fallback: `task android-dev`. Drive UI with `adb -e shell input tap/swipe` + `adb -e exec-out screencap -p > path.png`.
