@@ -118,17 +118,9 @@ public class CrdtEntryApi(
                 .OfType<SemanticDomain>()
                 .ToList();
             sense.Order = senseOrder++;
-            var pictureOrder = 1;
-            foreach (var picture in sense.Pictures)
+            foreach (var change in CrdtSenseApi.NewSenseChanges(entry.Id, sense))
             {
-                picture.Order = pictureOrder++;
-            }
-            yield return new CreateSenseChange(sense, entry.Id);
-            var exampleOrder = 1;
-            foreach (var exampleSentence in sense.ExampleSentences)
-            {
-                exampleSentence.Order = exampleOrder++;
-                yield return new CreateExampleSentenceChange(exampleSentence, sense.Id);
+                yield return change;
             }
         }
     }

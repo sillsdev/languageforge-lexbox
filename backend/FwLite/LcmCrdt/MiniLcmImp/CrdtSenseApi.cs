@@ -62,6 +62,14 @@ public class CrdtSenseApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeWri
             .Where(sd => sense.SemanticDomains.Select(s => s.Id).Contains(sd.Id))
             .ToListAsync();
 
+        foreach (var change in NewSenseChanges(entryId, sense))
+        {
+            yield return change;
+        }
+    }
+
+    internal static IEnumerable<IChange> NewSenseChanges(Guid entryId, Sense sense)
+    {
         var pictureOrder = 1;
         foreach (var picture in sense.Pictures)
         {
