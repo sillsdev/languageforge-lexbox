@@ -17,6 +17,11 @@ public class FwLiteMauiConfig
         _defaultBaseDataDir = BaseDataDir;
     }
 
+    /// <summary>
+    /// App-local state only: logs, the auth cache, the settings file and the WebView profile. On Windows MSIX
+    /// this is the package folder, which is deleted on uninstall, so never put user data here.
+    /// Projects belong in <see cref="ProjectDataDir"/>.
+    /// </summary>
     public string BaseDataDir
     {
         get;
@@ -24,9 +29,14 @@ public class FwLiteMauiConfig
     }
 
     /// <summary>
-    /// Where projects, their media cache and failed syncs live. Defaults to <see cref="BaseDataDir"/>, except on
-    /// Windows MSIX installs: the package folder is deleted on uninstall, so project data goes to ProgramData
-    /// instead (#1391). Overriding <see cref="BaseDataDir"/> moves this along with it.
+    /// Where projects, their media cache and failed syncs should live. Defaults to <see cref="BaseDataDir"/>,
+    /// except on Windows MSIX installs: the package folder is deleted on uninstall, so project data goes to
+    /// ProgramData instead (#1391). Overriding <see cref="BaseDataDir"/> moves this along with it.
+    /// <para>
+    /// This is the intended location, not necessarily the one in use: if migrating existing data here fails, the
+    /// app keeps using <see cref="BaseDataDir"/> (see <see cref="ProjectDataLocation"/>). Read the folder in use
+    /// from <c>LcmCrdtConfig.ProjectPath</c> or <c>HarmonyConfig</c>, never from this property.
+    /// </para>
     /// </summary>
     public string ProjectDataDir
     {

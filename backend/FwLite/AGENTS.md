@@ -57,6 +57,8 @@ Observed in agent sessions; plan around them.
 | FwLiteWeb | `./fw-lite-web.log` in its working directory (`FwLiteWeb:LogFileName`) |
 | Android | `adb logcat -d -t 200 \| grep DOTNET` (console logging lands under the `DOTNET` tag) |
 
+Two MAUI data folders (`FwLiteMauiConfig.cs`): `BaseDataDir` holds app-local state only (logs, auth cache, settings file) and is deleted when an MSIX install is uninstalled. Projects, media and failed syncs live in `ProjectDataDir`, which is `C:\ProgramData\SIL\FieldWorks Lite\<user>\` on MSIX and `BaseDataDir` elsewhere. In code, read the folder in use from `LcmCrdtConfig.ProjectPath`, not `ProjectDataDir`: a failed migration falls back to `BaseDataDir`.
+
 Isolated Windows launch (scripted QA, no real data): `FwLiteMaui.exe --start-url /` skips the saved last page; env `FwDataBridge__ProjectsFolder` replaces the registry FieldWorks projects folder.
 
 ## Testing on Android (agents)

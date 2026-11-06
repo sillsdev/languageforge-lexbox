@@ -144,11 +144,10 @@ public static class FwLiteMauiKernel
 
         services.AddOptions<FwLiteMauiConfig>().BindConfiguration("FwLiteMaui");
         var fwLiteMauiConfig = configuration.GetSection("FwLiteMaui").Get<FwLiteMauiConfig>() ?? new();
-        var baseDataPath = fwLiteMauiConfig.BaseDataDir;
         //filters come from configuration (defaults in DefaultConfiguration) so a user can raise a category at
         //runtime, e.g. Logging__LogLevel__FwLiteShared.Auth.LoggerAdapter=Information for MSAL sign in details
         logging.AddConfiguration(configuration.GetSection("Logging"));
-        Directory.CreateDirectory(baseDataPath);
+        Directory.CreateDirectory(fwLiteMauiConfig.BaseDataDir);
         // resolved lazily so the one-time data migration can log; runs before any project path is used
         services.AddSingleton(sp => ProjectDataLocation.Resolve(fwLiteMauiConfig, sp.GetRequiredService<ILogger<ProjectDataLocation>>()));
         services.AddOptions<LcmCrdtConfig>().Configure((LcmCrdtConfig config, ProjectDataLocation location) =>
