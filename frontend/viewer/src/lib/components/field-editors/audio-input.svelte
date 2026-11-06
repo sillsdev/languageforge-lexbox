@@ -310,6 +310,7 @@
   {#if !audioId}
     {#if !readonly}
       <Button
+        data-audio-add
         variant="secondary"
         icon="i-mdi-microphone-plus"
         size="sm"
