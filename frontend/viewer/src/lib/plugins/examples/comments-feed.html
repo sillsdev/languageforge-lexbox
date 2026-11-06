@@ -145,6 +145,7 @@
   .t-meta:empty { display: none; }
   .status { display: inline-flex; align-items: center; gap: 6px; color: var(--good); font-size: 0.85rem; font-weight: 600; }
   .status .muted { font-weight: 400; }
+  .status.plain { color: var(--text); }
   .conv { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
   .msg { display: flex; gap: 10px; }
   .avatar { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center; font-size: 0.72rem; font-weight: 700; color: #fff; }
@@ -227,7 +228,7 @@
   var ACTIVITY_PAGE = 500;
   var ACTIVITY_CAP = 20000;
   // There is no "all threads" call, so the project feed finds threads through the comment changes in the history.
-  var COMMENT_CHANGES = ['CreateCommentThreadChange', 'CreateUserCommentChange', 'SetCommentThreadStatusChange'];
+  var COMMENT_CHANGES = ['CreateCommentThreadChange', 'CreateUserCommentChange', 'EditUserCommentChange', 'delete:UserComment', 'SetCommentThreadStatusChange'];
   var AVATAR_COLORS = ['#4f46e5', '#0891b2', '#059669', '#d97706', '#db2777', '#7c3aed', '#0284c7', '#65a30d'];
   var DAY = 86400000;
 
@@ -352,7 +353,7 @@
       resolved: thread.status === 'Closed',
       comments: list,
       unread: new Set(unread),
-      sortTime: last ? timeOf(last.created) : timeOf(thread.createdAt),
+      event: latestEvent(last ? { kind: 'comment', by: last.author, at: last.created } : null, hint.event),
       entryId: (hint.entry && hint.entry.id) || (thread.subjectType === 'Entry' ? thread.subjectId : null),
       hintHeadword: hint.entry && hint.entry.headword,
       hintHomograph: hint.entry && hint.entry.homographNumber,
@@ -360,51 +361,72 @@
       resolvedBy: hint.resolve || null,
     };
   }
+  // b wins ties: a resolve saved together with a comment is the newer news.
+  function latestEvent(a, b) {
+    if (!a) return b;
+    if (!b) return a;
+    return timeOf(b.at) >= timeOf(a.at) ? b : a;
+  }
+  function sortTime(t) { return t.event ? timeOf(t.event.at) : 0; }
   function sortThreads(list) {
-    return list.sort(function (a, b) { return b.sortTime - a.sortTime; });
+    return list.sort(function (a, b) { return sortTime(b) - sortTime(a); });
   }
 
   // ---- project feed ----
+  // Reads every comment change, newest first, into per-thread hints: subject, entry/sense labels,
+  // who resolved it, and its latest activity (the event that sets its place in the feed).
   function scanCommentActivity(onProgress) {
-    var found = {};
-    function hint(id) { return found[id] || (found[id] = { id: id }); }
+    var changes = [];
+    var threadCount = {};
     function page(skip) {
       return F.getActivity({ skip: skip, take: ACTIVITY_PAGE, changeTypeKeys: COMMENT_CHANGES, sort: 'NewestFirst' }).then(function (acts) {
         acts = Array.isArray(acts) ? acts : [];
         acts.forEach(function (act) {
           (act.changes || []).forEach(function (ch) {
-            var ent = ch && ch.entity;
-            var change = ent && ent.change;
-            if (!change) return;
-            var type = change.$type, h;
-            if (type === 'CreateCommentThreadChange') {
-              h = hint(ent.entityId);
-              h.subjectType = prop(change, 'subjectType');
-              h.subjectId = prop(change, 'subjectId');
-            } else if (type === 'CreateUserCommentChange') {
-              var tid = prop(change, 'commentThreadId');
-              if (!tid) return;
-              h = hint(tid);
-            } else if (type === 'SetCommentThreadStatusChange') {
-              h = hint(ent.entityId);
-              // Newest first, so the first status change seen is the current one.
-              if (!h.statusSeen) {
-                h.statusSeen = true;
-                if (prop(change, 'status') === 'Closed') h.resolve = { by: act.metadata && act.metadata.authorName, at: act.timestamp };
-              }
-            } else {
-              return;
-            }
-            var info = ch.info || {};
-            if (info.entry && !h.entry) h.entry = info.entry;
-            if (info.sense && !h.sense) h.sense = info.sense;
+            if (!ch || !ch.entity || !ch.entity.change) return;
+            changes.push({ act: act, ent: ch.entity, change: ch.entity.change, info: ch.info || {} });
+            if (ch.entity.change.$type === 'CreateCommentThreadChange') threadCount[ch.entity.entityId] = true;
           });
         });
         skip += acts.length;
-        if (onProgress) onProgress(Object.keys(found).length);
-        if (acts.length < ACTIVITY_PAGE || skip >= ACTIVITY_CAP) return found;
+        if (onProgress) onProgress(Object.keys(threadCount).length);
+        if (acts.length < ACTIVITY_PAGE || skip >= ACTIVITY_CAP) return collect();
         return page(skip);
       });
+    }
+    function collect() {
+      // Edits and deletes name only the comment; its thread comes from the comment's create change.
+      var commentThread = {};
+      changes.forEach(function (c) {
+        if (c.change.$type === 'CreateUserCommentChange') commentThread[c.ent.entityId] = prop(c.change, 'commentThreadId');
+      });
+      var found = {};
+      changes.forEach(function (c) {
+        var type = c.change.$type, by = c.act.metadata && c.act.metadata.authorName, at = c.act.timestamp, tid, event = null;
+        if (type === 'CreateCommentThreadChange') tid = c.ent.entityId;
+        else if (type === 'SetCommentThreadStatusChange') {
+          tid = c.ent.entityId;
+          event = { kind: prop(c.change, 'status') === 'Closed' ? 'resolved' : 'reopened', by: by, at: at };
+        } else {
+          tid = type === 'CreateUserCommentChange' ? prop(c.change, 'commentThreadId') : commentThread[c.ent.entityId];
+          event = { kind: type === 'CreateUserCommentChange' ? 'comment' : type === 'EditUserCommentChange' ? 'edit' : 'delete', by: by, at: at };
+        }
+        if (!tid) return;
+        var h = found[tid] || (found[tid] = { id: tid });
+        if (type === 'CreateCommentThreadChange') {
+          h.subjectType = prop(c.change, 'subjectType');
+          h.subjectId = prop(c.change, 'subjectId');
+        }
+        // Newest first, so the first status change seen is the current one.
+        if (event && (event.kind === 'resolved' || event.kind === 'reopened') && !h.statusSeen) {
+          h.statusSeen = true;
+          if (event.kind === 'resolved') h.resolve = event;
+        }
+        if (event && !h.event) h.event = event;
+        if (c.info.entry && !h.entry) h.entry = c.info.entry;
+        if (c.info.sense && !h.sense) h.sense = c.info.sense;
+      });
+      return found;
     }
     return page(0);
   }
@@ -486,15 +508,18 @@
       });
     }).then(function (lists) {
       if (run !== state.runId) return;
-      state.threads = sortThreads([].concat.apply([], lists));
-      return addResolvers(state.threads.filter(function (t) { return t.resolved; }));
+      state.threads = [].concat.apply([], lists);
+      return addStatusEvents(state.threads);
     }).then(function () {
       if (run !== state.runId) return;
+      sortThreads(state.threads);
       return render();
     });
   }
 
-  function addResolvers(threads) {
+  // Entry mode reads each thread's own history for resolves and reopens; comment edits and deletes
+  // live on the comments, so here they don't move a thread.
+  function addStatusEvents(threads) {
     if (!F.capabilities.history || !threads.length) return Promise.resolve();
     return mapLimit(threads, 6, function (t) {
       return F.getEntityHistory(t.id).then(function (items) {
@@ -504,9 +529,11 @@
           if (!change || change.$type !== 'SetCommentThreadStatusChange') return;
           if (!latest || timeOf(it.timestamp) > timeOf(latest.timestamp)) latest = it;
         });
-        if (latest && prop(latest.change.change, 'status') === 'Closed') {
-          t.resolvedBy = { by: latest.metadata && latest.metadata.authorName, at: latest.timestamp };
-        }
+        if (!latest) return;
+        var closed = prop(latest.change.change, 'status') === 'Closed';
+        var event = { kind: closed ? 'resolved' : 'reopened', by: latest.metadata && latest.metadata.authorName, at: latest.timestamp };
+        if (closed) t.resolvedBy = event;
+        t.event = latestEvent(t.event, event);
       }).catch(function () {});
     });
   }
@@ -602,7 +629,7 @@
 
       var group = null, ul = null;
       page.forEach(function (t) {
-        var g = state.mode === 'project' ? dayGroup(t.sortTime) : '';
+        var g = state.mode === 'project' ? dayGroup(sortTime(t)) : '';
         if (!ul || g !== group) {
           group = g;
           if (g) c.appendChild(el('h2', { class: 'day' }, g));
@@ -667,7 +694,8 @@
     card.appendChild(head);
 
     var meta = el('div', { class: 't-meta' });
-    if (t.resolved) meta.appendChild(resolvedLine(t));
+    if (t.event) meta.appendChild(eventLine(t.event));
+    if (t.resolved && !(t.event && t.event.kind === 'resolved')) meta.appendChild(resolvedLine(t));
     if (t.unread.size) meta.appendChild(el('span', { class: 'chip accent' }, t.unread.size + ' unread'));
     card.appendChild(meta);
 
@@ -689,6 +717,24 @@
     }
     if (!loc.entryId) line.appendChild(document.createTextNode((loc.where ? ' · ' : '') + 'entry deleted'));
     return line;
+  }
+
+  // Says what put the thread at its place in the feed.
+  function eventLine(ev) {
+    var who = ev.by || 'Someone';
+    var text = ev.kind === 'resolved' ? 'Resolved by ' + who
+      : ev.kind === 'reopened' ? 'Reopened by ' + who
+      : ev.kind === 'edit' ? who + ' edited a comment'
+      : ev.kind === 'delete' ? who + ' deleted a comment'
+      : who + ' commented';
+    var s = el('span', { class: 'status event' + (ev.kind === 'resolved' ? '' : ' plain') });
+    if (ev.kind === 'resolved') s.appendChild(el('span', { 'aria-hidden': 'true' }, '✓'));
+    s.appendChild(document.createTextNode(text));
+    if (ev.at) {
+      s.appendChild(el('span', { class: 'muted', 'aria-hidden': 'true' }, '·'));
+      s.appendChild(timeEl(ev.at, 'm-time'));
+    }
+    return s;
   }
 
   function resolvedLine(t) {
