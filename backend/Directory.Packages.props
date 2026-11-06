@@ -36,7 +36,7 @@
     <PackageVersion Include="L10NSharp" Version="10.0.0-beta0014" />
     <PackageVersion Include="L10NSharp.Windows.Forms" Version="10.0.0-beta0014" />
     <PackageVersion Include="MailKit" Version="4.18.2" />
-    <PackageVersion Include="Meziantou.Extensions.Logging.Xunit" Version="2.0.0" />
+    <PackageVersion Include="Meziantou.Extensions.Logging.Xunit" Version="2.0.3" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.14" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.14" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="10.0.13" />
@@ -121,7 +121,7 @@
     <PackageVersion Include="SIL.WritingSystems" Version="18.0.0-beta0032" />
     <!-- Only included so it can be excluded. See FwLiteMaui.csproj. -->
     <PackageVersion Include="Mono.Unix" Version="7.1.0-final.1.21458.1" />
-    <PackageVersion Include="Soenneker.Utils.AutoBogus" Version="4.0.895" />
+    <PackageVersion Include="Soenneker.Utils.AutoBogus" Version="4.0.991" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
     <PackageVersion Include="SQLitePCLRaw.core" Version="3.0.5" />
     <PackageVersion Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
