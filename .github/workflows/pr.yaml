@@ -25,7 +25,7 @@ env:
   NX_DAEMON: 'false'
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
   # Same pin as fw-lite.yaml.
-  MAUI_WORKLOAD_VERSION: 11.0.100-rc.1.26460.1
+  MAUI_WORKLOAD_VERSION: 11.0.100-rc.3.26524.4
 
 jobs:
   detect:

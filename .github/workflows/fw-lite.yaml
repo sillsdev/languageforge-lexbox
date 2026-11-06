@@ -46,7 +46,7 @@ permissions:
 env:
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
   # Pinned so a new workload set (e.g. a new default Apple SDK pack) cannot silently break the MAUI builds.
-  MAUI_WORKLOAD_VERSION: 11.0.100-rc.1.26460.1
+  MAUI_WORKLOAD_VERSION: 11.0.100-rc.3.26524.4
 jobs:
   build-and-test:
     name: Build FW Lite and run tests
