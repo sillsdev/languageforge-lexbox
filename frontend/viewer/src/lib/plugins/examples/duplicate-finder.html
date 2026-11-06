@@ -236,8 +236,9 @@
   var CAP = 5000;               // safety cap on entries scanned
   var MAX_COMPARISONS = 3000000; // guard for the distance-1 near-match scan
   var MAX_KEY_LEN = 45;         // skip deletion-variant indexing of very long headwords
-  // Shorter words differ by one letter all the time (minimal pairs), so they only match on accents/case.
-  var MIN_EDIT_LEN = 4;
+  // A one-letter difference must leave at least 3 letters in common; shorter words differ by one
+  // letter all the time (minimal pairs), so they only match on accents/case.
+  var MIN_SHARED = 3;
   var GROUP_PAGE = 30;
   // Grammatical tags and noun-class numbers ("PST", "3SG", "17") say nothing about meaning.
   var TAG_GLOSS = /^[A-Z0-9.+:_-]+$/;
@@ -454,7 +455,8 @@
           for (var j = i + 1; j < bucket.length; j++) {
             if (dsu.find(bucket[i]) === dsu.find(bucket[j])) continue;
             var a = list[bucket[i]], b = list[bucket[j]];
-            if (Array.from(a.fold).length < MIN_EDIT_LEN || Array.from(b.fold).length < MIN_EDIT_LEN) continue;
+            var la = Array.from(a.fold).length, lb = Array.from(b.fold).length;
+            if (la === lb ? la - 1 < MIN_SHARED : Math.min(la, lb) < MIN_SHARED) continue;
             if (++comparisons > MAX_COMPARISONS) { state.nearCapped = true; break; }
             // A one-letter difference alone is usually a different word; ask for a shared or missing gloss too.
             if (!within1(a.fold, b.fold)) continue;

@@ -128,11 +128,20 @@
   .cchip .cnt { font-size: 0.78rem; color: var(--text-muted); background: var(--surface-alt); border-radius: 999px; padding: 1px 8px; }
   .cchip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
   .cchip[aria-pressed="true"] .cnt { background: rgba(255, 255, 255, 0.22); color: var(--accent-fg); }
+  .cchip .same { font-size: 0.78rem; color: var(--warn); }
+  .cchip.suspect { border-style: dashed; border-color: var(--warn); }
+  .cchip.suspect .contrast { font-weight: 500; }
+  .cchip[aria-pressed="true"] .same { color: var(--accent-fg); }
 
   .pairs-wrap { scroll-margin-top: 12px; }
   .pairs-head { color: var(--text-muted); margin: 0 0 8px; }
   .pairs-head b { color: var(--text); font-family: var(--vern-font); }
-  .pairs { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .pairs { display: flex; flex-direction: column; gap: 12px; }
+  .group h3 { font-size: 0.9rem; margin: 0 0 4px; }
+  .group h3 .n { color: var(--text-muted); font-weight: 400; }
+  .group .panel-hint { margin-bottom: 6px; }
+  .group-list { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .group.same .group-list { border-color: var(--warn); }
   .pair { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: start; gap: 10px; padding: 8px 12px; }
   .pair:nth-child(even) { background: var(--surface-alt); }
   .pair .tilde { color: var(--text-muted); padding-top: 2px; }
@@ -193,7 +202,7 @@
 
     <section class="panel card" id="strict-section">
       <h2>Contrasts by substitution</h2>
-      <p class="panel-hint">Pairs of words that differ in exactly one sound. Affixes are left out. Pick a contrast to see its pairs.</p>
+      <p class="panel-hint">Pairs of words that differ in exactly one sound. Affixes are left out. Each contrast shows how many pairs have different meanings (evidence of a contrast) and how many share a meaning (maybe one word spelled two ways). Pick one to see its pairs.</p>
       <div class="split">
         <div class="contrasts" id="strict-chips"></div>
         <div class="pairs-wrap" id="strict-pairs-wrap" hidden>
@@ -208,7 +217,7 @@
 
     <section class="panel card" id="near-section" hidden>
       <h2>Near-minimal pairs</h2>
-      <p class="panel-hint">Pairs where one word has an extra sound (shown as a contrast with &empty;). Suggestive, not strict minimal pairs.</p>
+      <p class="panel-hint">Pairs where one word has an extra sound (shown as a contrast with &empty;). The shorter word needs at least 2 sounds. Suggestive, not strict minimal pairs.</p>
       <div class="split">
         <div class="contrasts" id="near-chips"></div>
         <div class="pairs-wrap" id="near-pairs-wrap" hidden>
@@ -234,6 +243,16 @@
   var WS_KEY = 'ws';
   var NEAR_KEY = 'includeNear';
   var ZERO = '∅';              // "nothing" in an insert/delete contrast
+  var MIN_NEAR_LEN = 2;             // shorter word of an insertion pair; "a" ~ "ba" says little
+  // Same "shares a meaning" rule as the Duplicate Finder example: grammatical tags and noun-class
+  // numbers ("PST", "3SG", "17") say nothing about meaning.
+  var TAG_GLOSS = /^[A-Z0-9.+:_-]+$/;
+  var GROUPS = [
+    {key: 'diff', title: 'Different meaning: evidence of a contrast'},
+    {key: 'same', title: 'Same meaning: maybe one word spelled two ways',
+      hint: 'These words share a gloss. They may be one word spelled two ways, but shared glosses can also be synonyms or vague glosses like “this”. The Duplicate Finder example plugin lists spellings like these for review.'},
+    {key: 'unknown', title: 'Can’t compare: a word has no gloss'},
+  ];
 
   var state = {
     entries: [],
@@ -307,6 +326,29 @@
     return '';
   }
 
+  function glossKey(s) {
+    return s.normalize('NFC').trim().replace(/\s+/g, ' ').toLowerCase();
+  }
+  function addGlossKeys(entry, keys) {
+    (entry.senses || []).forEach(function (sense) {
+      state.analysisIds.forEach(function (ws) {
+        var g = window.fwlite.asText((sense.gloss || {})[ws]).trim();
+        if (g && !TAG_GLOSS.test(g)) keys[glossKey(g)] = true;
+      });
+    });
+  }
+  function meaningGroup(a, b) {
+    var ka = Object.keys(a.glossKeys), kb = b.glossKeys;
+    if (!ka.length || !Object.keys(kb).length) return 'unknown';
+    return ka.some(function (k) { return kb[k]; }) ? 'same' : 'diff';
+  }
+  function addPair(map, key, label, pair) {
+    var c = map[key] || (map[key] = {key: key, label: label, pairs: [], counts: {diff: 0, same: 0, unknown: 0}});
+    pair.group = meaningGroup(pair.a, pair.b);
+    c.counts[pair.group]++;
+    c.pairs.push(pair);
+  }
+
   // Split a form into graphemes. We prefer the writing system's multi-character exemplars
   // (e.g. "ng", "ch") so a digraph counts as ONE segment when comparing; otherwise "sing"
   // vs "sink" would look like a two-segment difference. With no such exemplars we fall back to
@@ -353,11 +395,12 @@
       var form = headwordForm(entry);
       if (!form || /^[-=]|[-=]$/.test(form)) return;
       var rec = byForm[form];
-      if (!rec) { rec = byForm[form] = {form: form, entryIds: [], glosses: []}; }
+      if (!rec) { rec = byForm[form] = {form: form, entryIds: [], glosses: [], glossKeys: Object.create(null)}; }
       if (entry.id && rec.entryIds.indexOf(entry.id) === -1) {
         rec.entryIds.push(entry.id);
         var g = glossOf(entry);
         if (g && rec.glosses.indexOf(g) === -1) rec.glosses.push(g);
+        addGlossKeys(entry, rec.glossKeys);
       }
     });
     var forms = [];
@@ -434,9 +477,7 @@
           var idx = singleDiffIndex(bucket[i].graphemes, bucket[j].graphemes);
           if (idx < 0) continue;
           var g1 = bucket[i].graphemes[idx], g2 = bucket[j].graphemes[idx];
-          var key = contrastKey(g1, g2);
-          var c = map[key] || (map[key] = {key: key, label: contrastLabel(g1, g2), pairs: []});
-          c.pairs.push({a: bucket[i], b: bucket[j], ai: idx, bi: idx});
+          addPair(map, contrastKey(g1, g2), contrastLabel(g1, g2), {a: bucket[i], b: bucket[j], ai: idx, bi: idx});
           totalPairs++;
         }
       }
@@ -464,17 +505,15 @@
     function processLength(li) {
       if (li >= lengths.length || state.truncated) return Promise.resolve();
       var shortB = buckets[lengths[li]];
-      var longB = buckets[lengths[li] + 1];
+      var longB = lengths[li] >= MIN_NEAR_LEN && buckets[lengths[li] + 1];
       if (longB) {
         for (var i = 0; i < shortB.length; i++) {
           if (bumpComparisons(longB.length)) break;
           for (var j = 0; j < longB.length; j++) {
             var ins = singleInsertion(shortB[i].graphemes, longB[j].graphemes);
             if (!ins) continue;
-            var key = contrastKey(ins.grapheme, ZERO);
-            var c = map[key] || (map[key] = {key: key, label: contrastLabel(ins.grapheme, ZERO), pairs: []});
             // Longer form is 'b'; mark the inserted grapheme there. Shorter 'a' has nothing marked.
-            c.pairs.push({a: shortB[i], b: longB[j], ai: -1, bi: ins.index});
+            addPair(map, contrastKey(ins.grapheme, ZERO), contrastLabel(ins.grapheme, ZERO), {a: shortB[i], b: longB[j], ai: -1, bi: ins.index});
             totalPairs++;
           }
         }
@@ -492,9 +531,16 @@
     });
   }
 
+  var GROUP_ORDER = {diff: 0, same: 1, unknown: 2};
   function sortContrasts(map) {
     return Object.keys(map).map(function (k) { return map[k]; })
+      .map(function (c) {
+        c.pairs.sort(function (x, y) { return GROUP_ORDER[x.group] - GROUP_ORDER[y.group]; });
+        return c;
+      })
       .sort(function (a, b) {
+        if (b.counts.diff !== a.counts.diff) return b.counts.diff - a.counts.diff;
+        if (a.counts.same !== b.counts.same) return a.counts.same - b.counts.same;
         if (b.pairs.length !== a.pairs.length) return b.pairs.length - a.pairs.length;
         return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
       });
@@ -542,6 +588,29 @@
     return word;
   }
 
+  function renderGroup(key, count) {
+    var group = GROUPS.filter(function (g) { return g.key === key; })[0];
+    var section = document.createElement('div');
+    section.className = 'group ' + key;
+    var h = document.createElement('h3');
+    h.textContent = group.title + ' ';
+    var n = document.createElement('span');
+    n.className = 'n';
+    n.textContent = '(' + count.toLocaleString() + ')';
+    h.appendChild(n);
+    section.appendChild(h);
+    if (group.hint) {
+      var hint = document.createElement('p');
+      hint.className = 'panel-hint';
+      hint.textContent = group.hint;
+      section.appendChild(hint);
+    }
+    var list = document.createElement('div');
+    list.className = 'group-list';
+    section.appendChild(list);
+    return list;
+  }
+
   function renderPairs(contrast, headEl, listEl, wrapEl, from) {
     from = from || 0;
     if (!from) listEl.innerHTML = '';
@@ -550,8 +619,13 @@
     var pairs = contrast.pairs;
     var shown = Math.min(pairs.length, from + PAIR_PAGE);
     var frag = document.createDocumentFragment();
+    var groupList = listEl.lastElementChild && listEl.lastElementChild.querySelector('.group-list');
     for (var i = from; i < shown; i++) {
       var p = pairs[i];
+      if (i === 0 || pairs[i - 1].group !== p.group) {
+        groupList = renderGroup(p.group, contrast.counts[p.group]);
+        frag.appendChild(groupList.parentNode);
+      }
       var row = document.createElement('div');
       row.className = 'pair';
       row.appendChild(renderHeadword(p.a, p.ai, 'left'));
@@ -560,7 +634,7 @@
       tilde.textContent = '~';
       row.appendChild(tilde);
       row.appendChild(renderHeadword(p.b, p.bi, 'right'));
-      frag.appendChild(row);
+      groupList.appendChild(row);
     }
     var rest = pairs.length - shown;
     if (rest > 0) {
@@ -599,8 +673,20 @@
       chip.appendChild(label);
       var cnt = document.createElement('span');
       cnt.className = 'cnt';
-      cnt.textContent = contrast.pairs.length.toLocaleString();
+      cnt.textContent = contrast.counts.diff.toLocaleString();
+      cnt.title = contrast.counts.diff + ' with different meanings';
       chip.appendChild(cnt);
+      if (contrast.counts.same) {
+        var same = document.createElement('span');
+        same.className = 'same';
+        same.textContent = contrast.counts.same.toLocaleString() + ' same';
+        same.title = contrast.counts.same + ' sharing a meaning';
+        chip.appendChild(same);
+      }
+      if (contrast.counts.same > contrast.counts.diff) {
+        chip.classList.add('suspect');
+        chip.title = 'Mostly pairs that share a meaning: maybe a spelling inconsistency';
+      }
       chip.addEventListener('click', function () {
         state.selected[sectionName] = contrast.key;
         Array.prototype.forEach.call(chipsEl.querySelectorAll('.cchip'), function (c) { c.setAttribute('aria-pressed', 'false'); });
@@ -665,6 +751,8 @@
     stat(state.forms.length.toLocaleString(), 'unique forms');
     stat(state.strict.contrasts.length.toLocaleString(), 'contrasts');
     stat(state.strict.totalPairs.toLocaleString(), 'minimal pairs');
+    var diff = state.strict.contrasts.reduce(function (n, c) { return n + c.counts.diff; }, 0);
+    stat(diff.toLocaleString(), 'with different meanings');
     if (state.includeNear && state.near) {
       stat(state.near.totalPairs.toLocaleString(), 'near-minimal pairs');
     }

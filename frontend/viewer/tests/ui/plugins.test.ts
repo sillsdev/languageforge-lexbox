@@ -101,11 +101,11 @@ test('a manager tries an example in one click, and non-managers see no examples'
   const shelf = page.getByRole('region', {name: 'Examples'});
   await expect(shelf).toBeVisible();
 
-  await shelf.getByRole('button', {name: 'Try Gap Finder'}).click();
-  await expect(page).toHaveURL(/\/plugins\/examples\/gap-finder$/);
+  await shelf.getByRole('button', {name: 'Try Sentence Sprint'}).click();
+  await expect(page).toHaveURL(/\/plugins\/examples\/sentence-sprint$/);
   await expect(page.getByText('Example, not in this project')).toBeVisible();
   // Previewing needs no consent card: the example runs straight away, nothing added yet.
-  await expect(page.frameLocator('iframe[title="Gap Finder"]').getByRole('heading', {name: 'Gap Finder'})).toBeVisible({timeout: 15000});
+  await expect(page.frameLocator('iframe[title="Sentence Sprint"]').getByRole('heading', {name: 'Sentence Sprint'})).toBeVisible({timeout: 15000});
   await expect(page.getByRole('button', {name: 'Add to project'})).toBeEnabled();
 
   await page.getByTestId('plugin-studio').getByRole('button', {name: 'Close', exact: true}).click();

@@ -61,13 +61,6 @@ export const examplePlugins: ExamplePlugin[] = [
 
   // ---- Enrich & clean up ----
   {
-    key: 'gap-finder',
-    name: 'Gap Finder',
-    description: 'Find entries missing glosses, parts of speech, examples, definitions or domains, and add glosses and parts of speech right from the list.',
-    functions: ['enrich', 'explore'],
-    loadHtml: async () => (await import('./gap-finder.html?raw')).default,
-  },
-  {
     key: 'sentence-sprint',
     name: 'Sentence Sprint',
     description: 'Add example sentences to senses that lack them, one at a time, with streaks that make progress satisfying.',
@@ -176,21 +169,13 @@ export const examplePlugins: ExamplePlugin[] = [
     loadHtml: async () => (await import('./lexicon-galaxy.html?raw')).default,
   },
 
-  // ---- Review & history ----
+  // ---- Review ----
   {
     key: 'change-review',
     name: 'Change Review',
     description: "Work through the project's recent change history one commit at a time, checking each off as reviewed.",
     functions: ['review'],
     loadHtml: async () => (await import('./change-review.html?raw')).default,
-  },
-  {
-    key: 'entry-time-machine',
-    name: 'Entry Time Machine',
-    description: "See one entry's full edit history on a timeline and compare any past version with today's.",
-    functions: ['review'],
-    capabilities: ['entry-menu'],
-    loadHtml: async () => (await import('./entry-time-machine.html?raw')).default,
   },
   {
     key: 'comments-inbox',
