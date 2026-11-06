@@ -83,13 +83,12 @@ public static class MediaFileController
         [FromForm] string? filename,
         [FromForm] IFormFile file,
         [FromForm] FileMetadata? metadata,
-        [FromForm] string? linkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         MediaFileService mediaFileService,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, linkedFilesSubfolderOverride, httpContext, config, lexBoxDb, mediaFileService, newFilesAllowed: false);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, httpContext, config, lexBoxDb, mediaFileService, newFilesAllowed: false);
         return result;
     }
 
@@ -99,13 +98,12 @@ public static class MediaFileController
         [FromForm] string? filename,
         [FromForm] IFormFile file,
         [FromForm] FileMetadata? metadata,
-        [FromForm] string? linkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         MediaFileService mediaFileService,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, linkedFilesSubfolderOverride, httpContext, config, lexBoxDb, mediaFileService, newFilesAllowed: true);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, httpContext, config, lexBoxDb, mediaFileService, newFilesAllowed: true);
         return result;
     }
 
@@ -116,7 +114,6 @@ public static class MediaFileController
             string? filename,
             IFormFile file,
             FileMetadata? metadata,
-            string? linkedFilesSubfolderOverride,
             HttpContext httpContext,
             IOptions<FwHeadlessConfig> config,
             LexBoxDbContext lexBoxDb,
@@ -134,14 +131,12 @@ public static class MediaFileController
                 filename,
                 file,
                 metadata,
-                linkedFilesSubfolderOverride,
                 newFilesAllowed,
                 httpContext,
                 mediaFileService);
         }
         catch (NotFoundException) { return TypedResults.NotFound(); }
         catch (UploadedFilesCannotBeMovedToNewProjects) { return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeMovedToNewProjects); }
-        catch (UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders) { return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders); }
         catch (ProjectFolderNotFoundInFwHeadless) { return TypedResults.BadRequest(FileUploadErrorMessage.ProjectFolderNotFoundInFwHeadless); }
         catch (FileTooLarge)
         {
@@ -234,7 +229,6 @@ public static class MediaFileController
         string? filename,
         IFormFile file,
         FileMetadata? metadata,
-        string? subfolderOverride,
         bool newFilesAllowed,
         HttpContext httpContext,
         MediaFileService mediaFileService)
@@ -256,7 +250,7 @@ public static class MediaFileController
         metadata = await InitMetadata(metadata, file, filename, httpContext.Request);
         if (mediaFile is null)
         {
-            var subfolder = subfolderOverride ?? GuessSubfolderFromMimeType(metadata.MimeType) ?? "";
+            var subfolder = GuessSubfolderFromMimeType(metadata.MimeType) ?? "";
             mediaFile = new MediaFile()
             {
                 Id = fileId.Value,
@@ -271,10 +265,6 @@ public static class MediaFileController
             if (projectId != mediaFile.ProjectId)
             {
                 throw new UploadedFilesCannotBeMovedToNewProjects();
-            }
-            if (subfolderOverride is not null && !MediaFilePath.Normalize(mediaFile.Filename).StartsWith(MediaFilePath.Normalize(Path.Join(LinkedFiles, subfolderOverride))))
-            {
-                throw new UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders();
             }
             if (mediaFile.Metadata is null) mediaFile.Metadata = metadata;
             else mediaFile.Metadata.Merge(metadata);
