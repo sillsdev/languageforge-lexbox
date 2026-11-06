@@ -222,7 +222,7 @@ export class PluginApiAdapter implements PluginApiMethods {
 
   async createEntry(input: unknown): Promise<PluginEntry> {
     this.#requireEditPermission();
-    const prepared = this.prepareCreate(input);
+    const prepared = await this.prepareCreate(input);
     await this.#confirm(prepared.operation, 'The user declined this change');
     return prepared.apply();
   }
@@ -249,10 +249,14 @@ export class PluginApiAdapter implements PluginApiMethods {
       if (p) prepared.push(p);
     }
     if (prepared.length === 0) return [];
+    const {vernacular, morphTokens} = await this.headwordDeps();
     await this.#confirm({
       kind: 'batch',
       count: prepared.length,
-      summary: buildBatchSummary(prepared.map(p => p.operation)),
+      summary: buildBatchSummary(prepared.map(p => ({
+        operation: p.operation,
+        headword: computeHeadword(p.identifiedBy, vernacular, morphTokens),
+      }))),
     }, 'The user declined these changes');
     const results: PluginEntry[] = [];
     for (const p of prepared) results.push(await p.apply());
@@ -392,10 +396,19 @@ export class PluginApiAdapter implements PluginApiMethods {
       });
   }
 
+  /** Fetched only when a summary needs them; the project's own names, never the plugin's. */
+  private async partOfSpeechNames(entries: IEntry[]): Promise<ReadonlyMap<string, string>> {
+    const mentionsPartOfSpeech = entries.some(entry => Array.isArray(entry.senses) &&
+      entry.senses.some(sense => sense?.partOfSpeechId || sense?.partOfSpeech));
+    if (!mentionsPartOfSpeech) return new Map();
+    const partsOfSpeech = await this.api.getPartsOfSpeech();
+    return new Map(partsOfSpeech.map(pos => [pos.id, firstText(pos.name) ?? pos.id]));
+  }
+
   private async prepareOperation(op: unknown): Promise<PreparedWrite | null> {
     if (typeof op !== 'object' || op === null) throw new PluginApiException('invalid-args', 'Each operation must be an object');
     const type = (op as {type?: unknown}).type;
-    if (type === 'createEntry') return this.prepareCreate((op as {entry?: unknown}).entry);
+    if (type === 'createEntry') return await this.prepareCreate((op as {entry?: unknown}).entry);
     if (type === 'updateEntry') {
       const {before, after} = op as {before?: unknown; after?: unknown};
       return await this.prepareUpdate(before, after);
@@ -403,13 +416,15 @@ export class PluginApiAdapter implements PluginApiMethods {
     throw new PluginApiException('invalid-args', `Unknown operation type: ${String(type)}`);
   }
 
-  private prepareCreate(input: unknown): PreparedWrite {
+  private async prepareCreate(input: unknown): Promise<PreparedWrite> {
     if (typeof input !== 'object' || input === null) {
       throw new PluginApiException('invalid-args', 'createEntry requires an entry object');
     }
     const entry = normalizeNewEntry(stripHeadword(input as Partial<IEntry>));
+    const posNames = await this.partOfSpeechNames([entry]);
     return {
-      operation: {kind: 'createEntry', entry, summary: describeEntry(entry)},
+      operation: {kind: 'createEntry', entry, summary: describeEntry(resolvePartsOfSpeech(entry, posNames))},
+      identifiedBy: entry,
       apply: async () => (await this.withHeadwords([
         await this.api.createEntry(entry, {includeComplexFormsAndComponents: false, autoAddMainPublication: true}),
       ]))[0],
@@ -437,10 +452,12 @@ export class PluginApiAdapter implements PluginApiMethods {
       throw new PluginApiException('conflict',
         'The entry changed since it was fetched — fetch it again, reapply your edit, and retry');
     }
-    const summary = diffSummary(current, after);
+    const posNames = await this.partOfSpeechNames([current, after]);
+    const summary = diffSummary(resolvePartsOfSpeech(current, posNames), resolvePartsOfSpeech(after, posNames));
     if (summary.length === 0) return null;
     return {
       operation: {kind: 'updateEntry', before, after, summary},
+      identifiedBy: current,
       apply: async () => (await this.withHeadwords([await this.api.updateEntry(before, after)]))[0],
     };
   }
@@ -448,6 +465,8 @@ export class PluginApiAdapter implements PluginApiMethods {
 
 interface PreparedWrite {
   operation: PluginWriteOperation;
+  /** Names the entry in a batch summary: the stored entry for updates, so a plugin can't relabel it. */
+  identifiedBy: IEntry;
   apply: () => Promise<PluginEntry>;
 }
 
@@ -651,6 +670,23 @@ const SUMMARY_NOISE_KEYS = new Set(['id', 'entryId', 'senseId', 'order']);
 const SUMMARY_DEFAULT_VALUES: Record<string, unknown> = {morphType: MorphTypeKind.Stem, homographNumber: 0};
 
 /**
+ * Saving uses a sense's `partOfSpeechId`; a `partOfSpeech` object alongside it is only a label the
+ * plugin chose. So a summary shows one "Part of speech" named from the project's own list. When the
+ * two disagree, both stay raw so neither is hidden.
+ */
+function resolvePartsOfSpeech(entry: IEntry, names: ReadonlyMap<string, string>): IEntry {
+  if (!Array.isArray(entry.senses)) return entry;
+  const senses = entry.senses.map(sense => {
+    if (typeof sense !== 'object' || sense === null) return sense;
+    const {partOfSpeechId, partOfSpeech, ...rest} = sense;
+    const objectId = partOfSpeech?.id;
+    if (objectId && objectId !== partOfSpeechId) return sense;
+    return {...rest, partOfSpeech: partOfSpeechId ? names.get(partOfSpeechId) ?? partOfSpeechId : undefined};
+  });
+  return {...entry, senses: senses as IEntry['senses']};
+}
+
+/**
  * Copy of a value with empty leaves ('', null, undefined, {}, []) and noise keys removed, so a
  * created entry's summary lists exactly the substance that will be stored. Returns undefined when
  * nothing remains.
@@ -685,19 +721,25 @@ export function describeEntry(entry: IEntry): string[] {
   return capLines(lines);
 }
 
-function leafLines(value: unknown, path: PathSegment[], lines: string[]): void {
-  if (value === undefined) return;
+function leafLines(value: unknown, path: PathSegment[], lines: string[], render: (leaf: unknown) => string = renderValue): void {
+  if (value === undefined || value === null || value === '') return;
   if (Array.isArray(value)) {
-    value.forEach((item, index) => leafLines(item, [...path, index], lines));
+    value.forEach((item, index) => leafLines(item, [...path, index], lines, render));
     return;
   }
-  if (typeof value === 'object' && value !== null) {
+  if (typeof value === 'object') {
+    const text = plainRichText(value, path);
+    if (text !== undefined) {
+      if (text) lines.push(`${formatPath(path)}: ${render(text)}`);
+      return;
+    }
     for (const [key, item] of Object.entries(value)) {
-      leafLines(item, [...path, key], lines);
+      if (SUMMARY_NOISE_KEYS.has(key)) continue;
+      leafLines(item, [...path, key], lines, render);
     }
     return;
   }
-  lines.push(`${formatPath(path)}: ${renderValue(value)}`);
+  lines.push(`${formatPath(path)}: ${render(value)}`);
 }
 
 /** Human-readable field-level diff between two JSON-ish values, for the write-approval dialog. */
@@ -709,6 +751,25 @@ export function diffSummary(before: unknown, after: unknown): string[] {
 
 function diffInto(before: unknown, after: unknown, path: PathSegment[], lines: string[]): void {
   if (deepEqual(before, after)) return;
+  const beforeText = isAbsent(before) ? '' : plainRichText(before, path);
+  const afterText = isAbsent(after) ? '' : plainRichText(after, path);
+  // Equal text with different spans is still a real write, so it falls through to the full diff.
+  if (beforeText !== undefined && afterText !== undefined && beforeText !== afterText) {
+    lines.push(`${formatPath(path)}: ${renderValue(beforeText)} → ${renderValue(afterText)}`);
+    return;
+  }
+  if (isAbsent(before) && Array.isArray(after)) return diffInto([], after, path, lines);
+  if (isAbsent(after) && Array.isArray(before)) return diffInto(before, [], path, lines);
+  if (isAbsent(before) && isExpandable(after)) {
+    lines.push(`${formatPath(path)}: ${gt`added`}`);
+    leafLines(after, path, lines, leaf => `${renderValue(undefined)} → ${renderValue(leaf)}`);
+    return;
+  }
+  if (isAbsent(after) && isExpandable(before)) {
+    lines.push(`${formatPath(path)}: ${gt`removed`}`);
+    leafLines(before, path, lines, leaf => `${renderValue(leaf)} → ${renderValue(undefined)}`);
+    return;
+  }
   const bothObjects =
     typeof before === 'object' && before !== null && !Array.isArray(before) &&
     typeof after === 'object' && after !== null && !Array.isArray(after);
@@ -734,6 +795,15 @@ function diffInto(before: unknown, after: unknown, path: PathSegment[], lines: s
 }
 
 type PathSegment = string | number;
+
+function isAbsent(value: unknown): boolean {
+  return value === undefined || value === null;
+}
+
+/** An added/removed item is listed field by field, except a reference that reads by its name. */
+function isExpandable(value: unknown): value is object {
+  return typeof value === 'object' && value !== null && !Array.isArray(value) && referenceLabel(value) === undefined;
+}
 
 /**
  * The dialog's readers are dictionary editors, not developers, so paths render as the app's own
@@ -806,22 +876,50 @@ function deepEqual(a: unknown, b: unknown): boolean {
 
 function renderValue(value: unknown): string {
   if (value === undefined || value === null || value === '') return gt`(empty)`;
-  if (typeof value === 'string') return `"${shorten(value)}"`;
-  if (typeof value === 'object' && !Array.isArray(value)) {
-    // Referenced items (semantic domains, parts of speech, publications) read by their name.
-    const named = value as {code?: unknown; name?: unknown};
-    if (typeof named.name === 'object' && named.name !== null) {
-      const name = Object.values(named.name as Record<string, unknown>).find(candidate => typeof candidate === 'string' && candidate);
-      if (typeof name === 'string') {
-        return typeof named.code === 'string' && named.code ? `${named.code} ${shorten(name)}` : `"${shorten(name)}"`;
-      }
-    }
+  if (typeof value === 'string') return `"${value}"`;
+  if (typeof value === 'object') {
+    const label = referenceLabel(value);
+    if (label !== undefined) return label;
   }
-  return shorten(JSON.stringify(value));
+  return JSON.stringify(value);
 }
 
-function shorten(value: string): string {
-  return value.length > 80 ? value.slice(0, 77) + '…' : value;
+/** Referenced items (semantic domains, parts of speech, publications) read by their name. */
+function referenceLabel(value: object): string | undefined {
+  if (Array.isArray(value)) return undefined;
+  const named = value as {code?: unknown; name?: unknown};
+  const name = firstText(named.name);
+  if (name === undefined) return undefined;
+  return typeof named.code === 'string' && named.code ? `${named.code} ${name}` : `"${name}"`;
+}
+
+function firstText(multiString: unknown): string | undefined {
+  if (typeof multiString !== 'object' || multiString === null) return undefined;
+  const text = Object.values(multiString as Record<string, unknown>).find(candidate => typeof candidate === 'string' && candidate);
+  return typeof text === 'string' ? text : undefined;
+}
+
+/**
+ * A rich string whose spans hold only text in the field's own writing system reads as that text.
+ * Anything else (formatting, another writing system) stays expanded so it isn't hidden.
+ */
+function plainRichText(value: unknown, path: PathSegment[]): string | undefined {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return undefined;
+  const {spans, ...rest} = value as Record<string, unknown>;
+  if (!Array.isArray(spans) || hasValues(rest)) return undefined;
+  const ws = path[path.length - 1];
+  let text = '';
+  for (const span of spans) {
+    if (typeof span !== 'object' || span === null) return undefined;
+    const {text: spanText, ws: spanWs, ...formatting} = span as Record<string, unknown>;
+    if (typeof spanText !== 'string' || spanWs !== ws || hasValues(formatting)) return undefined;
+    text += spanText;
+  }
+  return text;
+}
+
+function hasValues(record: Record<string, unknown>): boolean {
+  return Object.values(record).some(item => !isAbsent(item));
 }
 
 // Bidi embedding/override/isolate marks and control characters can visually reorder or hide parts
@@ -841,10 +939,12 @@ function capLines(lines: string[]): string[] {
 }
 
 /** Flattens each batched op's summary under a numbered header, for the single confirmation dialog. */
-function buildBatchSummary(operations: PluginWriteOperation[]): string[] {
+function buildBatchSummary(operations: {operation: PluginWriteOperation; headword: string}[]): string[] {
   const lines: string[] = [];
-  operations.forEach((operation, index) => {
-    const label = operation.kind === 'createEntry' ? gt`Add entry` : gt`Change entry`;
+  operations.forEach(({operation, headword}, index) => {
+    const label = operation.kind === 'createEntry'
+      ? (headword ? gt`Add entry “${headword}”` : gt`Add entry`)
+      : (headword ? gt`Change entry “${headword}”` : gt`Change entry`);
     lines.push(`${index + 1}. ${label}:`);
     for (const line of operation.summary) lines.push(`   ${line}`);
   });

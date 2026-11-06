@@ -326,6 +326,11 @@ msgstr "Ongeza sehemu"
 msgid "Add entry"
 msgstr ""
 
+#. Heading for one step in a plugin's batch of changes awaiting approval; {0} is the headword of the entry being added
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Add entry “{0}”"
+msgstr ""
+
 #. Button to add example sentence
 #. Adds sentence/phrase showing how a word is used in context
 #. Each example can have translation and source reference
@@ -397,6 +402,11 @@ msgstr "Ongeza Neno"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Add your first entry to start building your dictionary."
 msgstr "Ongeza ingizo lako la kwanza ili kuanza kujenga kamusi yako."
+
+#. In a plugin's change preview, after a field path like "Sense 2 Example 1": this item is new
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "added"
+msgstr ""
 
 #. Badge or screen-reader marker in the activity change preview: this change created the item, or added the highlighted text or value
 #: src/lib/activity/ActivityChangeHeader.svelte
@@ -731,6 +741,11 @@ msgstr "Maelezo ya picha"
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Change entry"
+msgstr ""
+
+#. Heading for one step in a plugin's batch of changes awaiting approval; {0} is the headword of the entry being changed
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Change entry “{0}”"
 msgstr ""
 
 #: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
@@ -3422,6 +3437,11 @@ msgstr "Ondoa sauti"
 
 #: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "Remove from project"
+msgstr ""
+
+#. In a plugin's change preview, after a field path like "Sense 2": this item will be deleted
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "removed"
 msgstr ""
 
 #. Badge or screen-reader marker in the activity change preview: this change removed the item (e.g. a component link between two entries), or the struck-through text or value

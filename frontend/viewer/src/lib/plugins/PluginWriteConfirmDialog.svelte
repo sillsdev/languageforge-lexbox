@@ -20,6 +20,9 @@
 
   const {pluginName, operation, writeMode = 'live', onResult}: Props = $props();
   const preview = $derived(writeMode === 'preview');
+  // Keeps the content stable while the dialog fades out after `operation` is cleared.
+  let lastOperation: PluginWriteOperation | undefined;
+  const shown = $derived.by(() => (lastOperation = operation ?? lastOperation));
 </script>
 
 <AlertDialog.Root open={!!operation} onOpenChange={(open) => { if (!open) onResult('deny'); }}>
@@ -28,17 +31,17 @@
       <AlertDialog.Title class="flex items-center gap-2">
         <Icon icon={preview ? 'i-mdi-eye-outline' : 'i-mdi-puzzle'} class="text-primary" />
         {#if preview}
-          {#if operation?.kind === 'createEntry'}
+          {#if shown?.kind === 'createEntry'}
             {$t`Preview: the plugin would add an entry`}
-          {:else if operation?.kind === 'batch'}
-            {$t`Preview: the plugin would make ${$plural(operation.count, {one: '# change', other: '# changes'})}`}
+          {:else if shown?.kind === 'batch'}
+            {$t`Preview: the plugin would make ${$plural(shown.count, {one: '# change', other: '# changes'})}`}
           {:else}
             {$t`Preview: the plugin would change an entry`}
           {/if}
-        {:else if operation?.kind === 'createEntry'}
+        {:else if shown?.kind === 'createEntry'}
           {$t`Plugin wants to add an entry`}
-        {:else if operation?.kind === 'batch'}
-          {$t`Plugin wants to make ${$plural(operation.count, {one: '# change', other: '# changes'})}`}
+        {:else if shown?.kind === 'batch'}
+          {$t`Plugin wants to make ${$plural(shown.count, {one: '# change', other: '# changes'})}`}
         {:else}
           {$t`Plugin wants to change an entry`}
         {/if}
@@ -51,9 +54,9 @@
         {/if}
       </AlertDialog.Description>
     </AlertDialog.Header>
-    {#if operation}
+    {#if shown}
       <div class="max-h-[50vh] overflow-y-auto rounded-md border bg-muted/50 p-3 text-sm space-y-1">
-        {#each operation.summary as line, i (i)}
+        {#each shown.summary as line, i (i)}
           <div class="break-words" dir="auto">{line}</div>
         {:else}
           <div class="text-muted-foreground">{$t`No visible changes`}</div>
@@ -70,9 +73,9 @@
           {$t`Always allow for this plugin`}
         </Button>
         <AlertDialog.Action onclick={() => onResult('once')}>
-          {#if operation?.kind === 'createEntry'}
+          {#if shown?.kind === 'createEntry'}
             {$t`Add entry`}
-          {:else if operation?.kind === 'batch'}
+          {:else if shown?.kind === 'batch'}
             {$t`Apply changes`}
           {:else}
             {$t`Apply change`}

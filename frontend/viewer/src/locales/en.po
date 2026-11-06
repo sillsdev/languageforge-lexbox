@@ -321,6 +321,11 @@ msgstr "Add component"
 msgid "Add entry"
 msgstr "Add entry"
 
+#. Heading for one step in a plugin's batch of changes awaiting approval; {0} is the headword of the entry being added
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Add entry “{0}”"
+msgstr "Add entry “{0}”"
+
 #. Button to add example sentence
 #. Adds sentence/phrase showing how a word is used in context
 #. Each example can have translation and source reference
@@ -392,6 +397,11 @@ msgstr "Add Word"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Add your first entry to start building your dictionary."
 msgstr "Add your first entry to start building your dictionary."
+
+#. In a plugin's change preview, after a field path like "Sense 2 Example 1": this item is new
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "added"
+msgstr "added"
 
 #. Badge or screen-reader marker in the activity change preview: this change created the item, or added the highlighted text or value
 #: src/lib/activity/ActivityChangeHeader.svelte
@@ -727,6 +737,11 @@ msgstr "Caption"
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Change entry"
 msgstr "Change entry"
+
+#. Heading for one step in a plugin's batch of changes awaiting approval; {0} is the headword of the entry being changed
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "Change entry “{0}”"
+msgstr "Change entry “{0}”"
 
 #: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "Change it before adding"
@@ -3418,6 +3433,11 @@ msgstr "Remove audio"
 #: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "Remove from project"
 msgstr "Remove from project"
+
+#. In a plugin's change preview, after a field path like "Sense 2": this item will be deleted
+#: src/lib/plugins/plugin-api-adapter.ts
+msgid "removed"
+msgstr "removed"
 
 #. Badge or screen-reader marker in the activity change preview: this change removed the item (e.g. a component link between two entries), or the struck-through text or value
 #: src/lib/activity/ActivityChangeHeader.svelte
