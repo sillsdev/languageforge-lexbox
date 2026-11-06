@@ -103,197 +103,246 @@
     .wrap.narrow .actions .btn { flex: 1; }
   }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
-  .layout { display: grid; grid-template-columns: 1fr; gap: 16px; }
-  @media (min-width: 760px) { .layout { grid-template-columns: 1fr 340px; align-items: start; } }
-  .studio { padding: 24px 20px 26px; min-height: 340px; }
-  .entry-head { text-align: center; margin-bottom: 18px; }
-  .headword { font-size: 1.9rem; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
-  .gloss { font-size: 1rem; color: var(--text-muted); margin-top: 4px; overflow-wrap: anywhere; }
-  .rec-status { margin-top: 10px; }
-  .rec-status.has { background: var(--good-soft); color: var(--good); }
-  .rec-status.none { background: var(--accent-soft); color: var(--accent); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  @media (min-width: 760px) { .layout { grid-template-columns: minmax(0, 1fr) 320px; align-items: start; } }
+  .main { display: flex; flex-direction: column; gap: 12px; min-height: calc(100dvh - 110px); max-width: 640px; width: 100%; margin: 0 auto; }
 
-  .mic-stage { display: flex; flex-direction: column; align-items: center; }
-  .mic-wrap { position: relative; width: 132px; height: 132px; display: flex; align-items: center; justify-content: center; }
-  .level-ring { position: absolute; width: 116px; height: 116px; border-radius: 50%; background: var(--bad); opacity: 0; pointer-events: none; }
-  .mic-btn {
-    position: relative; width: 96px; height: 96px; border-radius: 50%; border: none; background: var(--accent); color: var(--accent-fg);
-    font-size: 2.3rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; box-shadow: var(--shadow);
-  }
-  .mic-btn:hover { filter: brightness(1.08); }
-  .mic-btn:disabled { cursor: default; opacity: 0.7; filter: none; }
-  .mic-btn.recording { background: var(--bad); }
-  .mic-btn .spin { width: 34px; height: 34px; border: 3px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
-  .timer { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 12px; }
-  .timer.rec { color: var(--bad); }
-  .meter { width: 100%; max-width: 300px; height: 48px; margin-top: 10px; }
-  .stage-hint { font-size: 0.875rem; color: var(--text-muted); margin-top: 10px; text-align: center; min-height: 1.1em; }
-  .inline-error { margin-top: 12px; font-size: 0.875rem; color: var(--text); background: var(--bad-soft); border: 1px solid var(--bad); border-radius: var(--radius); padding: 8px 12px; text-align: center; max-width: 340px; }
-  .controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
-  .btn.link { background: transparent; border-color: transparent; color: var(--text-muted); }
-  .btn.link:hover { color: var(--accent); }
-  .btn .spin { width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.5); border-top-color: currentColor; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .toolbar { display: flex; gap: 8px; align-items: center; }
+  .setup-btn { flex: 1 1 auto; min-width: 0; justify-content: space-between; }
+  .setup-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .list-btn { flex: 0 0 auto; }
+  @media (min-width: 760px) { .list-btn { display: none; } }
+  @media (min-width: 760px) { .main { min-height: 0; } .mic-area { margin-top: 8px; } }
+  .setup { display: grid; gap: 12px; }
+  .setup label { display: grid; gap: 4px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+  .setup label.check { display: flex; align-items: center; gap: 10px; font-weight: 500; color: var(--text); min-height: 44px; }
+  .setup label.check input { width: 20px; height: 20px; }
+  .setup select { width: 100%; }
 
-  .rail { padding: 16px 14px; min-width: 0; }
-  .coverage-line { font-weight: 600; margin-bottom: 8px; }
-  .progress { height: 8px; border-radius: 999px; background: var(--surface-alt); overflow: hidden; }
-  .progress-fill { height: 100%; width: 0; background: var(--good); border-radius: 999px; transition: width 0.4s ease; }
-  .session { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; }
-  .ws-pick { margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .search { width: 100%; margin: 14px 0 10px; }
-  .rail-list-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin: 4px 2px 8px; }
-  .rail-list { display: flex; flex-direction: column; gap: 6px; max-height: 420px; overflow-y: auto; }
-  @media (min-width: 760px) { .rail-list { max-height: 52vh; } }
-  .rail-row {
-    display: flex; align-items: center; gap: 10px; text-align: left; width: 100%; min-height: 44px; font: inherit; color: var(--text);
-    background: var(--surface-alt); border: 1px solid transparent; border-radius: var(--radius); padding: 8px 11px; cursor: pointer;
+  .notice, .banner { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; border-radius: var(--radius); padding: 6px 6px 6px 12px; font-size: 0.875rem; background: var(--warn-soft); border: 1px solid var(--warn); }
+  .notice .msg, .banner .msg { flex: 1 1 180px; }
+  .notice .btn, .banner .btn { min-height: 36px; padding: 0 12px; }
+
+  .progress-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 0.9rem; }
+  .pos { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .tally { color: var(--text-muted); text-align: right; }
+  .tally button { font: inherit; color: var(--accent); background: none; border: none; padding: 0 0 0 6px; cursor: pointer; font-weight: 600; text-decoration: underline; }
+  .progress { height: 6px; border-radius: 999px; background: var(--surface-alt); overflow: hidden; }
+  .progress-fill { height: 100%; width: 0; background: var(--good); border-radius: 999px; transition: width 0.3s ease; }
+
+  .last-take { display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 12px; border-radius: var(--radius); background: var(--good-soft); min-height: 48px; }
+  .last-take .what { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.9rem; }
+  .last-take .what b { font-family: var(--vern-font); }
+  .last-take .btn { min-height: 40px; padding: 0 10px; }
+
+  .item { text-align: center; padding: 22px 16px; }
+  .item-kind { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+  .prompt { font-size: 2.2rem; font-weight: 700; line-height: 1.2; margin: 6px 0 4px; overflow-wrap: anywhere; max-height: 40dvh; overflow-y: auto; }
+  .prompt.long { font-size: 1.4rem; font-weight: 600; }
+  .item-sub { color: var(--text-muted); overflow-wrap: anywhere; }
+  .item-sub .vern { color: var(--text); font-weight: 600; }
+  .item .chip { margin-top: 10px; }
+
+  .mic-area { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 0 4px; background: var(--bg); }
+  .next-up { font-size: 0.85rem; color: var(--text-muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mic-row { display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; }
+  .nav-btn { width: 56px; height: 56px; padding: 0; border-radius: 50%; font-size: 1.3rem; flex: 0 0 auto; }
+  .mic-wrap { position: relative; width: 112px; height: 112px; display: flex; align-items: center; justify-content: center; }
+  .ring { position: absolute; inset: 0; border-radius: 50%; background: var(--bad); opacity: 0; pointer-events: none; }
+  .recording .ring { animation: pulse 1.2s ease-out infinite; }
+  @keyframes pulse { from { opacity: 0.45; transform: scale(0.85); } to { opacity: 0; transform: scale(1.15); } }
+  .mic {
+    position: relative; width: 92px; height: 92px; border-radius: 50%; border: none; background: var(--accent); color: var(--accent-fg);
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; box-shadow: var(--shadow);
+    touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   }
-  .rail-list > * { flex-shrink: 0; }
-  .rail-row:hover { border-color: var(--accent); }
-  .rail-row.current { border-color: var(--accent); background: var(--accent-soft); }
-  .rail-dot { flex: 0 0 auto; width: 20px; text-align: center; }
-  .rail-dot.has { color: var(--good); }
-  .rail-dot.none { color: var(--accent); }
-  .rail-body { flex: 1 1 auto; min-width: 0; }
-  .rail-head, .rail-gloss { display: block; }
-  .rail-head { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .rail-gloss { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .rail-empty { padding: 22px 10px; text-align: center; color: var(--text-muted); font-size: 0.875rem; }
-  .big-emoji { font-size: 2.6rem; margin-bottom: 12px; }
-  .center-state strong { color: var(--text); }
-  .hint { font-size: 0.875rem; color: var(--text-muted); }
-  @media (max-width: 600px) { .studio { padding: 18px 14px 20px; min-height: 0; } .headword { font-size: 1.6rem; } }
+  .mic svg { width: 40px; height: 40px; }
+  .mic[aria-disabled="true"] { background: var(--surface-alt); color: var(--text-muted); cursor: default; }
+  .recording .mic { background: var(--bad); }
+  .mic .stop { display: none; width: 30px; height: 30px; border-radius: 6px; background: currentColor; }
+  .recording .mic .stop { display: block; }
+  .recording .mic svg { display: none; }
+  .timer { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--bad); }
+  .timer:not(:empty) { margin-right: 8px; }
+  .hint { font-size: 0.875rem; color: var(--text-muted); text-align: center; min-height: 1.3em; }
+  .inline-error { font-size: 0.875rem; background: var(--bad-soft); border: 1px solid var(--bad); border-radius: var(--radius); padding: 8px 12px; text-align: center; }
+  .keys { font-size: 0.8rem; color: var(--text-muted); }
+  .keys summary { cursor: pointer; text-align: center; }
+  .keys dl { display: grid; grid-template-columns: auto auto; gap: 2px 12px; margin: 6px 0 0; }
+  .keys dt { font-weight: 700; text-align: right; }
+  .keys dd { margin: 0; }
+  @media (hover: none) { .keys { display: none; } }
+
+  .done { text-align: center; padding: 32px 16px; }
+  .done .big { font-size: 2.4rem; margin-bottom: 8px; }
+  .done strong { color: var(--text); }
+  .done .actions { justify-content: center; margin-top: 14px; }
+
+  .rail { padding: 14px 12px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+  @media (min-width: 760px) { .rail { position: sticky; top: 12px; max-height: calc(100dvh - 24px); } }
+  .rail-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .rail-head h2 { margin: 0; }
+  .rail-close { display: none; }
+  .rail-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; min-height: 0; flex: 1 1 auto; }
+  .row {
+    display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; text-align: left; font: inherit; color: var(--text);
+    background: transparent; border: 1px solid transparent; border-radius: var(--radius); padding: 6px 10px; cursor: pointer; flex-shrink: 0;
+  }
+  .row:hover { background: var(--surface-alt); }
+  .row.current { background: var(--accent-soft); border-color: var(--accent); }
+  .row .mark { flex: 0 0 18px; text-align: center; color: var(--text-muted); }
+  .row .mark.sent { color: var(--good); }
+  .row .mark.pending { color: var(--warn); }
+  .row .body { flex: 1 1 auto; min-width: 0; }
+  .row .t, .row .s { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .t { font-weight: 600; font-family: var(--vern-font); }
+  .row .s { font-size: 0.8rem; color: var(--text-muted); }
+  .rail-note { font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 12px 4px; }
+  @media (max-width: 759px) {
+    .rail { display: none; }
+    body.list-open .rail { display: flex; position: fixed; inset: 0; z-index: 10; border-radius: 0; border: none; padding: 12px; }
+    body.list-open .rail-close { display: inline-flex; }
+  }
+  @media (max-width: 600px) {
+    .subtitle { display: none; }
+    h1 { margin-bottom: 10px; }
+    .main { min-height: calc(100dvh - 60px); gap: 8px; }
+    .mic-wrap { width: 100px; height: 100px; }
+    .mic { width: 84px; height: 84px; }
+    .nav-btn { width: 52px; height: 52px; }
+    .prompt { font-size: 1.9rem; }
+    .item { padding: 18px 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .recording .ring { animation: none; opacity: 0.25; } }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Pronunciation Recorder</h1>
-  <p class="subtitle" id="subtitle">Record pronunciations onto entries</p>
+  <p class="subtitle" id="subtitle"></p>
 
-  <!-- Loading -->
-  <div id="loading" class="center-state">
-    <div class="spinner"></div>
-    <div id="scan-text">Loading entries&hellip;</div>
-  </div>
-
-  <div id="empty" class="center-state" hidden>
-    <div class="big-emoji">&#127908;</div>
-    <p><strong>This project has no audio writing system.</strong></p>
-    <p class="hint">Pronunciations are stored in an audio writing system (one marked audio-only).
-    Add one in the app's writing-system settings, then come back to record pronunciations.</p>
-  </div>
-
+  <div id="loading" class="center-state"><div class="spinner"></div><div id="loading-text">Loading entries&hellip;</div></div>
   <div id="error" class="error-box" role="alert" hidden></div>
+  <div id="empty" class="center-state" hidden>
+    <p><strong>This project has no audio writing system.</strong></p>
+    <p>Recordings are stored in a writing system marked as audio. Add one in the project's writing-system settings, then open this plugin again.</p>
+  </div>
 
-  <!-- App -->
   <div id="app" class="layout" hidden>
-    <section class="studio card">
-      <!-- All done -->
-      <div id="all-done" class="center-state" hidden>
-        <div class="big-emoji">&#127881;</div>
-        <p><strong>Every entry has a recording.</strong></p>
-        <p class="hint">Nothing left in this writing system. Use search on the right to re-record any entry.</p>
+    <section class="main">
+      <div class="toolbar">
+        <button type="button" class="btn setup-btn" id="setup-btn" aria-expanded="false" aria-controls="setup"><span id="setup-label"></span><span aria-hidden="true">&#9662;</span></button>
+        <button type="button" class="btn list-btn" id="list-btn">List</button>
       </div>
 
-      <!-- Recording card -->
-      <div id="studio-card" hidden>
-        <div class="entry-head">
-          <div class="headword vern" id="sd-head"></div>
-          <div class="gloss" id="sd-gloss"></div>
-          <div class="rec-status" id="sd-status" hidden></div>
+      <div id="setup" class="card setup" hidden>
+        <label>What to record <select id="what"></select></label>
+        <label id="ws-field">Audio writing system <select id="ws"></select></label>
+        <label>Order
+          <select id="order">
+            <option value="az">A to Z, words before affixes</option>
+            <option value="domain">By semantic domain</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" id="include-done"> Include items that already have a recording</label>
+        <div class="actions"><button type="button" class="btn primary" id="setup-done">Done</button></div>
+      </div>
+
+      <div id="notice" class="notice" hidden>
+        <span class="msg" id="notice-text"></span>
+        <button type="button" class="btn" id="open-in-app">Open in FW Lite</button>
+      </div>
+
+      <div id="banner" class="banner" role="status" hidden>
+        <span class="msg" id="banner-text"></span>
+        <button type="button" class="btn primary" id="banner-save">Save</button>
+        <button type="button" class="btn ghost" id="banner-discard">Discard</button>
+      </div>
+
+      <div id="session">
+        <div class="progress-row">
+          <span class="pos" id="pos"></span>
+          <span class="tally"><span id="tally"></span><button type="button" id="save-now" hidden>Save now</button></span>
         </div>
-        <div class="mic-stage">
+        <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
+
+      <div id="last" class="last-take" hidden>
+        <span class="what" id="last-text"></span>
+        <button type="button" class="btn ghost" id="last-play" aria-label="Play the last take">&#9654;</button>
+        <button type="button" class="btn ghost" id="last-redo">Redo</button>
+        <button type="button" class="btn ghost" id="last-undo">Undo</button>
+      </div>
+
+      <div id="item" class="card item">
+        <div class="item-kind" id="item-kind"></div>
+        <div class="prompt vern" id="prompt" dir="auto"></div>
+        <div class="item-sub" id="item-sub" dir="auto"></div>
+        <span class="chip" id="item-chip" hidden></span>
+      </div>
+
+      <div id="done" class="card done" hidden>
+        <div class="big" aria-hidden="true">&#127881;</div>
+        <p><strong id="done-title"></strong></p>
+        <p id="done-text"></p>
+        <div class="actions" id="done-actions"></div>
+      </div>
+
+      <div class="mic-area" id="mic-area">
+        <div class="next-up" id="next-up"></div>
+        <div class="mic-row" id="mic-row">
+          <button type="button" class="btn nav-btn" id="back" aria-label="Back">&#8592;</button>
           <div class="mic-wrap">
-            <div class="level-ring" id="level-ring"></div>
-            <button class="mic-btn" id="mic-btn" type="button"></button>
+            <div class="ring"></div>
+            <button type="button" class="mic" id="mic" aria-pressed="false">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+              <span class="stop"></span>
+            </button>
           </div>
-          <div class="timer" id="timer" hidden>0:00</div>
-          <canvas id="meter-canvas" class="meter" width="300" height="48" hidden></canvas>
-          <div class="stage-hint" id="stage-hint"></div>
-          <div class="inline-error" id="inline-error" hidden></div>
+          <button type="button" class="btn nav-btn" id="skip" aria-label="Skip">&#8594;</button>
         </div>
-        <div class="controls" id="controls"></div>
+        <div class="hint"><span class="timer" id="timer"></span><span id="hint"></span></div>
+        <div class="inline-error" id="inline-error" role="alert" hidden></div>
+        <details class="keys">
+          <summary>Keyboard shortcuts</summary>
+          <dl>
+            <dt>Space</dt><dd>hold to record, or tap to start and stop</dd>
+            <dt>&#8594; / &#8592;</dt><dd>skip / back</dd>
+            <dt>R</dt><dd>redo the last take</dd>
+            <dt>P</dt><dd>play the last take</dd>
+            <dt>Ctrl+Z</dt><dd>undo the last take</dd>
+            <dt>Esc</dt><dd>cancel a recording</dd>
+          </dl>
+        </details>
       </div>
     </section>
 
-    <aside class="rail card">
-      <div class="coverage-line" id="coverage-line"></div>
-      <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
-      <div class="session" id="session"></div>
-      <div class="ws-pick" id="ws-pick" hidden>
-        <label for="ws-select">Recording:</label>
-        <select id="ws-select"></select>
+    <aside class="rail card" id="rail" aria-label="Items to record">
+      <div class="rail-head">
+        <h2 id="rail-title">To record</h2>
+        <button type="button" class="btn rail-close" id="rail-close">Close</button>
       </div>
-      <input type="search" class="search" id="search" placeholder="Search any entry&hellip;" autocomplete="off">
-      <div class="rail-list-label" id="rail-list-label"></div>
+      <input type="search" id="search" placeholder="Search&hellip;" autocomplete="off" aria-label="Search items">
       <div class="rail-list" id="rail-list"></div>
-      <div class="rail-empty" id="rail-empty" hidden></div>
     </aside>
   </div>
+  <div class="sr-only" aria-live="polite" id="live"></div>
 </div>
-
 <audio id="player" preload="none"></audio>
 
 <script>
 (function () {
   'use strict';
-
   var fw = window.fwlite;
-  var STORAGE_KEY = 'pronunciation-recorder-v1';
-  var PAGE = 1000;
-  var CAP = 5000;
-
-  var canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
-
-  var state = {
-    entries: [],
-    capped: false,
-    audioWsList: [],   // [{wsId, name, abbreviation, font}]
-    selectedWs: null,
-    worklist: [],      // entries with no recording in selectedWs
-    currentEntry: null,
-    sessionCount: 0,
-    recState: 'idle',  // 'idle' | 'recording' | 'preview' | 'saving'
-    inlineError: '',
-  };
-
-  var rec = {
-    stream: null,
-    recorder: null,
-    chunks: [],
-    mime: '',
-    ext: '.webm',
-    blob: null,
-    previewUrl: null,
-    startTime: 0,
-    elapsedMs: 0,
-    timerId: null,
-    audioCtx: null,
-    analyser: null,
-    source: null,
-    timeData: null,
-    rafId: null,
-    accent: '#b8541a',
-    surface: '#ffffff',
-  };
-
-  // single playback controller
-  var audioEl = document.getElementById('player');
-  var play = { url: null, token: 0, kind: null };
+  var PREFS_KEY = 'pronunciation-recorder-prefs';
+  var PENDING_KEY = 'pronunciation-recorder-pending';
+  var BATCH = 10;
+  var HOLD_MS = 400;
+  var MAX_TAKE_MS = 60000;
 
   function el(id) { return document.getElementById(id); }
   function show(id, on) { el(id).hidden = !on; }
-
-  var AFFIX_TYPES = ['Prefix', 'Suffix', 'Infix', 'Circumfix', 'Simulfix', 'Suprafix', 'Clitic', 'Enclitic', 'Proclitic',
-    'BoundRoot', 'BoundStem', 'PrefixingInterfix', 'InfixingInterfix', 'SuffixingInterfix'];
-  // Games and drills: skip affixes, clitics and senses glossed with grammatical tags like "PST" or "3SG.SBJ".
-  function isContentWord(entry, gloss) {
-    if (entry.morphType && AFFIX_TYPES.indexOf(entry.morphType) >= 0) return false;
-    var hw = fwlite.headword(entry);
-    if (!hw || /^[-=]|[-=]$/.test(hw)) return false;
-    return !gloss || !/^[A-Z0-9.+:_-]{2,}$/.test(gloss.trim());
-  }
-  function isWord(entry) { return isContentWord(entry, firstGloss(entry)); }
 
   function applyTheme() {
     var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -303,710 +352,831 @@
     if (ws && ws.font) document.documentElement.style.setProperty('--vern-font', '"' + ws.font.replace(/"/g, '') + '", var(--font)');
   }
 
-  function showError(message) {
-    show('loading', false);
-    show('app', false);
-    var box = el('error');
-    box.hidden = false;
-    box.textContent = message;
+  var PAGE = 1000, CAP = 5000;
+  async function loadAll(onProgress, cap) {
+    cap = cap || CAP;
+    var total = await fwlite.countEntries({});
+    var target = Math.min(total, cap);
+    var entries = [];
+    while (entries.length < target) {
+      var page = await fwlite.getEntries({limit: Math.min(PAGE, target - entries.length), offset: entries.length});
+      if (!page.length) break;
+      entries = entries.concat(page);
+      if (onProgress) onProgress(entries.length, target);
+    }
+    return {entries: entries, total: total, capped: total > cap};
   }
 
-  function refFor(entry, wsId) {
-    var cf = entry.citationForm && entry.citationForm[wsId];
-    if (cf) return cf;
-    var lf = entry.lexemeForm && entry.lexemeForm[wsId];
-    if (lf) return lf;
-    return null;
+  var AFFIX_TYPES = ['Prefix', 'Suffix', 'Infix', 'Circumfix', 'Simulfix', 'Suprafix', 'Clitic', 'Enclitic', 'Proclitic',
+    'BoundRoot', 'BoundStem', 'PrefixingInterfix', 'InfixingInterfix', 'SuffixingInterfix'];
+  function isContentWord(entry, gloss) {
+    if (entry.morphType && AFFIX_TYPES.indexOf(entry.morphType) >= 0) return false;
+    var hw = fwlite.headword(entry);
+    if (!hw || /^[-=]|[-=]$/.test(hw)) return false;
+    return !gloss || !/^[A-Z0-9.+:_-]{2,}$/.test(gloss.trim());
   }
 
+  // ---- Recording adapter ----
+  // Plugins can't open the microphone (opaque-origin sandbox), so recording has to come from the host:
+  // #2920 proposes startRecording()/stopRecording() (the plugin keeps its own UI) and recordAudio() (an
+  // app dialog), both resolving to a media reference the app has already saved. The names are not final;
+  // this is the only place that touches them. The fake is for exercising the flow in the studio preview:
+  // set window.FWLITE_FAKE_RECORDER = true from devtools or a test. Its references point at no file.
+  var recorder = {
+    mode: function () {
+      if (window.FWLITE_FAKE_RECORDER === true) return 'fake';
+      if (typeof fw.startRecording === 'function' && typeof fw.stopRecording === 'function') return 'live';
+      if (typeof fw.recordAudio === 'function') return 'dialog';
+      return 'none';
+    },
+    start: function (label) {
+      this._started = Date.now();
+      if (this.mode() === 'fake') return Promise.resolve();
+      return fw.startRecording({label: label, maxSeconds: MAX_TAKE_MS / 1000});
+    },
+    // Resolves to {mediaUri, blob?}; blob is only set when the take can be played without a fetch.
+    stop: function () {
+      if (this.mode() === 'fake') {
+        fakeCount++;
+        return Promise.resolve({mediaUri: 'fake-recording-' + fakeCount + '.wav', blob: silentWav(Date.now() - this._started)});
+      }
+      return fw.stopRecording().then(function (res) { return {mediaUri: mediaUriOf(res)}; });
+    },
+    cancel: function () {
+      if (this.mode() === 'live' && typeof fw.cancelRecording === 'function') fw.cancelRecording().catch(function () {});
+      else if (this.mode() === 'live') fw.stopRecording().catch(function () {});
+    },
+    // Dialog flavor: one call per take; resolves to null when the user closes the dialog.
+    recordInDialog: function (label) {
+      return fw.recordAudio({label: label}).then(function (res) {
+        var uri = mediaUriOf(res);
+        return uri ? {mediaUri: uri} : null;
+      });
+    },
+  };
+  var fakeCount = 0;
+  function mediaUriOf(res) { return typeof res === 'string' ? res : (res && res.mediaUri) || null; }
+  function silentWav(ms) {
+    var rate = 8000, n = Math.max(800, Math.min(rate * 3, Math.round(rate * ms / 1000)));
+    var buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+    function str(o, s) { for (var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); }
+    str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVE'); str(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true);
+    v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); str(36, 'data'); v.setUint32(40, n * 2, true);
+    return new Blob([buf], {type: 'audio/wav'});
+  }
+
+  // ---- State ----
+  var state = {
+    project: '',
+    entries: [],
+    byId: {},
+    capped: false,
+    vernAudio: [], analysisAudio: [], vernText: [], analysisText: [],
+    prefs: {what: 'headword', ws: {}, order: 'az', includeDone: false},
+    queue: [],        // items for the current selection, in recording order
+    pos: 0,
+    skipped: {},      // item key -> true
+    pending: [],      // takes not yet written: {key, entryId, kind, senseId, exampleId, ws, mediaUri, label}
+    savedKeys: {},    // item key -> true, written this session
+    savedCount: 0,
+    last: null,       // the most recent take: {key, label, mediaUri, blob, sent}
+    blocked: '',      // '' | 'declined' | 'preview' | 'restored' | 'error': stops automatic saving
+    saving: false,
+    rec: 'idle',      // 'idle' | 'starting' | 'recording' | 'stopping' | 'dialog'
+    pressAt: 0,
+    holdMode: false,
+    fake: false,
+  };
+
+  function wsFor(kind) { return kind === 'gloss' ? state.analysisAudio : state.vernAudio; }
+  function currentWs() {
+    var list = wsFor(state.prefs.what);
+    var want = state.prefs.ws[state.prefs.what];
+    for (var i = 0; i < list.length; i++) if (list[i].wsId === want) return list[i];
+    return list[0] || null;
+  }
+
+  function textIds(list) { return list.map(function (w) { return w.wsId; }); }
+  function glossOf(sense) {
+    return fw.firstValue(pick(sense.gloss, state.analysisText), textIds(state.analysisText))
+      || fw.firstValue(pick(sense.definition, state.analysisText), textIds(state.analysisText));
+  }
+  // Keeps only text writing systems, so an audio reference is never shown as text.
+  function pick(ms, wsList) {
+    if (!ms) return null;
+    var out = {};
+    wsList.forEach(function (w) { if (ms[w.wsId]) out[w.wsId] = ms[w.wsId]; });
+    return out;
+  }
   function firstGloss(entry) {
     var senses = entry.senses || [];
-    var i, ws, t;
-    for (i = 0; i < senses.length; i++) {
-      var g = senses[i].gloss;
-      if (g) for (ws in g) { if (g[ws]) { t = fw.asText(g[ws]); if (t) return t; } }
-    }
-    for (i = 0; i < senses.length; i++) {
-      var d = senses[i].definition;
-      if (d) for (ws in d) { if (d[ws]) { t = fw.asText(d[ws]); if (t) return t; } }
+    for (var i = 0; i < senses.length; i++) { var g = glossOf(senses[i]); if (g) return g; }
+    return '';
+  }
+  function posName(sense) {
+    var pos = sense && sense.partOfSpeech;
+    return pos ? fw.firstValue(pos.name, textIds(state.analysisText)) : '';
+  }
+  function domainCode(entry) {
+    var senses = entry.senses || [];
+    for (var i = 0; i < senses.length; i++) {
+      var d = senses[i].semanticDomains || [];
+      if (d.length && d[0].code) return d[0].code;
     }
     return '';
   }
-
-  function safeFilename(name) {
-    var base = name || '';
-    try { base = base.normalize('NFC'); } catch (e) {}
-    try { base = base.replace(/[^\p{L}\p{N}]+/gu, '_'); }
-    catch (e) { base = base.replace(/[^A-Za-z0-9]+/g, '_'); }
-    base = base.replace(/^_+|_+$/g, '').slice(0, 60);
-    return base || 'pronunciation';
+  function audioRef(value) {
+    if (!value) return '';
+    if (typeof value === 'string') return value;
+    return fw.asText(value);
+  }
+  function sortKey(s) { return (s || '').replace(/^[^\p{L}\p{N}]+/u, '').toLowerCase(); }
+  function compareDomain(a, b) {
+    if (!a !== !b) return a ? -1 : 1;
+    var pa = a.split('.'), pb = b.split('.');
+    for (var i = 0; i < Math.max(pa.length, pb.length); i++) {
+      var d = (parseInt(pa[i], 10) || 0) - (parseInt(pb[i], 10) || 0);
+      if (d) return d;
+    }
+    return 0;
   }
 
-  function pickMime() {
-    var candidates = [
-      'audio/webm;codecs=opus', 'audio/webm',
-      'audio/ogg;codecs=opus', 'audio/ogg',
-      'audio/mp4', 'audio/aac',
-    ];
-    if (window.MediaRecorder && MediaRecorder.isTypeSupported) {
-      for (var i = 0; i < candidates.length; i++) {
-        if (MediaRecorder.isTypeSupported(candidates[i])) return candidates[i];
+  // ---- Items ----
+  function itemsFor(entry, kind, ws) {
+    var hw = fw.headword(entry);
+    var gloss = firstGloss(entry);
+    var base = {entryId: entry.id, kind: kind, word: isContentWord(entry, gloss), hw: hw, domain: domainCode(entry)};
+    var out = [];
+    if (kind === 'headword') {
+      if (!hw) return out;
+      var sense0 = (entry.senses || [])[0];
+      var sub = [gloss, posName(sense0)].filter(Boolean).join(' · ');
+      out.push(Object.assign({key: 'h:' + entry.id, prompt: hw, sub: sub, subVern: '',
+        existing: audioRef(entry.lexemeForm && entry.lexemeForm[ws]) || audioRef(entry.citationForm && entry.citationForm[ws])}, base));
+    }
+    (entry.senses || []).forEach(function (sense) {
+      if (kind === 'gloss') {
+        var g = glossOf(sense);
+        if (!g) return;
+        out.push(Object.assign({key: 'g:' + sense.id, senseId: sense.id, prompt: g, sub: '', subVern: hw,
+          existing: audioRef(sense.gloss && sense.gloss[ws])}, base));
+      } else if (kind === 'example') {
+        (sense.exampleSentences || []).forEach(function (ex) {
+          var text = fw.firstValue(pick(ex.sentence, state.vernText), textIds(state.vernText));
+          if (!text) return;
+          out.push(Object.assign({key: 'x:' + ex.id, senseId: sense.id, exampleId: ex.id, prompt: text, sub: glossOf(sense), subVern: hw,
+            existing: audioRef(ex.sentence && ex.sentence[ws])}, base));
+        });
       }
-    }
-    return '';
-  }
-  function extFor(mime) {
-    if (/webm/.test(mime)) return '.webm';
-    if (/ogg/.test(mime)) return '.ogg';
-    if (/mp4|m4a|aac/.test(mime)) return '.m4a';
-    if (/wav/.test(mime)) return '.wav';
-    return '.webm';
-  }
-  function fmtTime(ms) {
-    var s = Math.floor(ms / 1000);
-    return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
+    });
+    return out;
   }
 
-  // ---- persistence ----
-  function loadPrefs() {
-    return fw.storage.get(STORAGE_KEY).then(function (v) {
-      if (v && typeof v === 'object' && v.selectedWs) state.selectedWs = v.selectedWs;
+  function buildQueue(focusEntryId) {
+    var ws = currentWs();
+    var all = [];
+    if (ws) state.entries.forEach(function (e) { all = all.concat(itemsFor(e, state.prefs.what, ws.wsId)); });
+    var pendingKeys = {};
+    state.pending.forEach(function (t) { pendingKeys[t.key] = true; });
+    var q = all.filter(function (it) { return state.prefs.includeDone || !it.existing || pendingKeys[it.key] || state.savedKeys[it.key]; });
+    var byDomain = state.prefs.order === 'domain';
+    q.sort(function (a, b) {
+      if (byDomain) { var d = compareDomain(a.domain, b.domain); if (d) return d; }
+      if (a.word !== b.word) return a.word ? -1 : 1;
+      return sortKey(a.hw).localeCompare(sortKey(b.hw)) || sortKey(a.prompt).localeCompare(sortKey(b.prompt));
+    });
+    state.pos = 0;
+    if (focusEntryId) {
+      // Opened from an entry's menu: that entry first, then the rest of the list.
+      var mine = all.filter(function (it) { return it.entryId === focusEntryId; });
+      q = mine.concat(q.filter(function (it) { return it.entryId !== focusEntryId; }));
+    } else {
+      var firstOpen = q.findIndex(function (it) { return !isDone(it); });
+      if (firstOpen > 0) state.pos = firstOpen;
+    }
+    state.queue = q;
+    state.skipped = {};
+  }
+
+  function current() { return state.queue[state.pos] || null; }
+  function isPending(it) { return state.pending.some(function (t) { return t.key === it.key; }); }
+  function isDone(it) { return !!state.savedKeys[it.key] || isPending(it); }
+
+  // ---- Writing ----
+  function applyTake(entry, take) {
+    if (take.kind === 'headword') {
+      entry.lexemeForm = entry.lexemeForm || {};
+      entry.lexemeForm[take.ws] = take.mediaUri;
+      return;
+    }
+    (entry.senses || []).forEach(function (sense) {
+      if (sense.id !== take.senseId) return;
+      if (take.kind === 'gloss') { sense.gloss = sense.gloss || {}; sense.gloss[take.ws] = take.mediaUri; return; }
+      (sense.exampleSentences || []).forEach(function (ex) {
+        if (ex.id !== take.exampleId) return;
+        ex.sentence = ex.sentence || {};
+        ex.sentence[take.ws] = {spans: [{text: take.mediaUri, ws: take.ws}]};
+      });
     });
   }
-  function savePrefs() {
-    return fw.storage.set(STORAGE_KEY, { selectedWs: state.selectedWs }).catch(function () {});
+
+  function buildOps(takes) {
+    var byEntry = {}, order = [];
+    takes.forEach(function (t) {
+      if (!byEntry[t.entryId]) { byEntry[t.entryId] = []; order.push(t.entryId); }
+      byEntry[t.entryId].push(t);
+    });
+    return order.filter(function (id) { return state.byId[id]; }).map(function (id) {
+      var before = state.byId[id];
+      var after = JSON.parse(JSON.stringify(before));
+      byEntry[id].forEach(function (t) { applyTake(after, t); });
+      return {type: 'updateEntry', before: before, after: after};
+    });
   }
 
-  // ---- data loading ----
-  function loadAllEntries() {
-    var all = [];
-    state.capped = false;
-    function next(offset) {
-      return fw.getEntries({ limit: PAGE, offset: offset }).then(function (batch) {
-        all = all.concat(batch || []);
-        el('scan-text').textContent = 'Loading entries… ' + all.length + ' loaded';
-        if (!batch || batch.length < PAGE) return all;
-        if (all.length >= CAP) { state.capped = true; return all; }
-        return next(offset + PAGE);
+  function storeEntry(entry) {
+    state.byId[entry.id] = entry;
+    for (var i = 0; i < state.entries.length; i++) if (state.entries[i].id === entry.id) { state.entries[i] = entry; return; }
+  }
+
+  function persistPending() {
+    if (state.fake) return;
+    var keep = state.pending.map(function (t) { var c = Object.assign({}, t); delete c.blob; return c; });
+    fw.storage.set(PENDING_KEY, keep).catch(function () {});
+  }
+
+  function save(manual) {
+    if (state.saving || !state.pending.length) return Promise.resolve();
+    if (state.blocked && !manual) return Promise.resolve();
+    var takes = state.pending.slice();
+    state.saving = true;
+    renderStatus();
+    var retried = false;
+    function attempt() {
+      return fw.applyChanges(buildOps(takes)).then(function (results) {
+        (results || []).forEach(storeEntry);
+        takes.forEach(function (t) { state.savedKeys[t.key] = true; if (state.last && state.last.key === t.key) state.last.sent = true; });
+        state.pending = state.pending.filter(function (t) { return takes.indexOf(t) < 0; });
+        state.savedCount += takes.length;
+        state.blocked = '';
+        persistPending();
+        announce(takes.length + (takes.length === 1 ? ' take saved' : ' takes saved'));
+      }, function (err) {
+        var code = err && err.code;
+        if (code === 'conflict' && !retried) {
+          retried = true;
+          return refetch(takes).then(attempt);
+        }
+        state.blocked = code === 'preview' ? 'preview' : code === 'permission-denied' ? 'declined' : 'error';
+        state.blockedMessage = err && err.message;
+        announce(takes.length + ' takes not saved');
       });
     }
-    return next(0);
-  }
-
-  function rebuildWorklist() {
-    var ws = state.selectedWs;
-    var missing = state.entries.filter(function (e) { return !refFor(e, ws); });
-    // Affixes rarely get their own recording, so content words come first.
-    state.worklist = missing.filter(isWord).concat(missing.filter(function (e) { return !isWord(e); }));
-  }
-
-  // ---- playback (existing recording or preview) ----
-  function stopPlayback() {
-    play.token++;
-    audioEl.pause();
-    if (play.url) { URL.revokeObjectURL(play.url); play.url = null; }
-    play.kind = null;
-  }
-  function playPreview() {
-    if (!rec.previewUrl) return;
-    stopPlayback();
-    play.kind = 'preview';
-    audioEl.src = rec.previewUrl;
-    audioEl.play().catch(function () {});
-  }
-  function playExisting(ref) {
-    stopPlayback();
-    var token = play.token;
-    play.kind = 'existing';
-    setMicIcon('loading');
-    return fw.getMedia(ref).then(function (media) {
-      if (token !== play.token) return false;
-      if (!media) { play.kind = null; return false; }
-      play.url = URL.createObjectURL(new Blob([media.data], { type: media.mimeType || '' }));
-      audioEl.src = play.url;
-      return audioEl.play().then(function () { return true; }, function () { return true; });
+    return attempt().then(function () {
+      state.saving = false;
+      render();
+    }, function (err) {
+      state.saving = false;
+      state.blocked = 'error';
+      state.blockedMessage = err && err.message;
+      render();
     });
   }
-  audioEl.addEventListener('ended', function () { play.kind = null; if (state.recState !== 'recording' && state.recState !== 'saving') setMicForState(); });
-  audioEl.addEventListener('pause', function () { if (state.recState === 'preview' || state.recState === 'idle') setMicForState(); });
-  audioEl.addEventListener('playing', function () { if (state.recState === 'preview' || state.recState === 'idle') setMicForState(); });
 
-  // ---- recording ----
-  function readColors() {
-    var cs = getComputedStyle(document.documentElement);
-    rec.accent = (cs.getPropertyValue('--bad') || '#dc2626').trim();
-    rec.surface = (cs.getPropertyValue('--surface') || '#ffffff').trim();
+  function refetch(takes) {
+    var ids = takes.map(function (t) { return t.entryId; }).filter(function (id, i, a) { return a.indexOf(id) === i; });
+    return Promise.all(ids.map(function (id) { return fw.getEntry(id).then(function (e) { if (e) storeEntry(e); }); }));
   }
 
-  function startRecording() {
-    if (!canRecord) return;
+  function discardPending() {
+    var keys = state.pending.map(function (t) { return t.key; });
+    state.pending = [];
+    state.blocked = '';
+    if (state.last && keys.indexOf(state.last.key) >= 0) state.last = null;
+    persistPending();
+    render();
+  }
+
+  // ---- Recording flow ----
+  function labelFor(it) { return it.kind === 'headword' ? it.prompt : it.prompt + (it.subVern ? ' (' + it.subVern + ')' : ''); }
+
+  function pressMic() {
+    var it = current();
+    if (!it || state.rec === 'stopping' || state.rec === 'dialog' || state.rec === 'starting') return;
+    if (state.rec === 'recording') { stopTake(); return; }
+    var mode = recorder.mode();
+    state.fake = mode === 'fake';
+    setError('');
+    if (mode === 'none') { setError("Recording isn't available to plugins yet. Use Open in FW Lite to record this one in the app."); return; }
     stopPlayback();
-    state.inlineError = '';
-    navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
-      rec.stream = stream;
-      rec.mime = pickMime();
-      rec.ext = extFor(rec.mime);
-      rec.chunks = [];
-      try {
-        rec.recorder = rec.mime ? new MediaRecorder(stream, { mimeType: rec.mime }) : new MediaRecorder(stream);
-      } catch (e) {
-        rec.recorder = new MediaRecorder(stream);
-      }
-      if (!rec.mime && rec.recorder.mimeType) { rec.mime = rec.recorder.mimeType; rec.ext = extFor(rec.mime); }
-      rec.recorder.ondataavailable = function (ev) { if (ev.data && ev.data.size) rec.chunks.push(ev.data); };
-      rec.recorder.onstop = onRecorderStop;
-      rec.recorder.start();
-      rec.startTime = Date.now();
+    if (mode === 'dialog') {
+      state.rec = 'dialog';
+      renderMic();
+      recorder.recordInDialog(labelFor(it)).then(function (res) {
+        state.rec = 'idle';
+        if (res) addTake(it, res); else renderMic();
+      }, function (err) { state.rec = 'idle'; setError(recordError(err)); renderMic(); });
+      return;
+    }
+    state.pressAt = Date.now();
+    state.holdMode = false;
+    state.rec = 'starting';
+    renderMic();
+    recorder.start(labelFor(it)).then(function () {
+      if (state.rec !== 'starting') return;
+      state.rec = 'recording';
+      state.recItem = it;
       startTimer();
-      setupMeter(stream);
-      state.recState = 'recording';
-      renderStudio();
-    }).catch(function (err) {
-      var name = err && err.name;
-      if (name === 'NotAllowedError' || name === 'SecurityError' || name === 'PermissionDeniedError') {
-        state.inlineError = 'Microphone access was blocked. Allow the microphone in your browser, then press record again.';
-      } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError' || name === 'OverconstrainedError') {
-        state.inlineError = 'No microphone was found. Connect a microphone and try again.';
-      } else {
-        state.inlineError = "Couldn't start recording" + (err && err.message ? ': ' + err.message : '.');
-      }
-      state.recState = 'idle';
-      renderStudio();
+      renderMic();
+      announce('Recording');
+      if (state.releasedEarly === 'hold') { state.releasedEarly = null; stopTake(); }
+    }, function (err) {
+      state.rec = 'idle';
+      setError(recordError(err));
+      renderMic();
     });
   }
 
-  function stopRecording() {
-    if (rec.recorder && rec.recorder.state !== 'inactive') {
-      rec.elapsedMs = Date.now() - rec.startTime;
-      try { rec.recorder.stop(); } catch (e) {}
-    }
+  function releaseMic() {
+    var held = Date.now() - state.pressAt >= HOLD_MS;
+    if (state.rec === 'recording' && held && !state.holdMode) stopTake();
+    else if (state.rec === 'starting' && held) state.releasedEarly = 'hold';
+  }
+
+  function stopTake() {
+    if (state.rec !== 'recording') return;
+    var it = state.recItem;
+    state.rec = 'stopping';
     stopTimer();
-    teardownMeter();
-    releaseStream();
+    renderMic();
+    recorder.stop().then(function (res) {
+      state.rec = 'idle';
+      if (!res || !res.mediaUri) { setError('That take was empty. Try again.'); renderMic(); return; }
+      addTake(it, res);
+    }, function (err) {
+      state.rec = 'idle';
+      setError(recordError(err));
+      renderMic();
+    });
   }
 
-  function onRecorderStop() {
-    rec.blob = new Blob(rec.chunks, { type: rec.mime || 'audio/webm' });
-    if (rec.previewUrl) { URL.revokeObjectURL(rec.previewUrl); }
-    rec.previewUrl = (rec.blob && rec.blob.size) ? URL.createObjectURL(rec.blob) : null;
-    if (!rec.previewUrl) {
-      state.inlineError = 'The recording was empty. Please try again.';
-      state.recState = 'idle';
-    } else {
-      state.recState = 'preview';
-    }
-    renderStudio();
-  }
-
-  function cancelRecording() {
-    if (rec.recorder && rec.recorder.state !== 'inactive') {
-      rec.recorder.onstop = null;
-      try { rec.recorder.stop(); } catch (e) {}
-    }
+  function cancelTake() {
+    if (state.rec !== 'recording' && state.rec !== 'starting') return;
+    recorder.cancel();
+    state.rec = 'idle';
     stopTimer();
-    teardownMeter();
-    releaseStream();
-    discardTake();
-    state.recState = 'idle';
-    renderStudio();
+    announce('Recording cancelled');
+    renderMic();
   }
 
-  function releaseStream() {
-    if (rec.stream) {
-      rec.stream.getTracks().forEach(function (t) { try { t.stop(); } catch (e) {} });
-      rec.stream = null;
-    }
-  }
-  function discardTake() {
-    rec.blob = null;
-    rec.chunks = [];
-    if (rec.previewUrl) { URL.revokeObjectURL(rec.previewUrl); rec.previewUrl = null; }
+  function recordError(err) {
+    var code = err && (err.code || err.name);
+    if (code === 'NotAllowedError' || code === 'permission-denied') return 'The microphone is blocked. Allow FW Lite to use it, then try again.';
+    if (code === 'NotFoundError') return 'No microphone was found.';
+    return "Couldn't record" + (err && err.message ? ': ' + err.message : '.');
   }
 
+  function addTake(it, res) {
+    var ws = currentWs();
+    state.pending = state.pending.filter(function (t) { return t.key !== it.key; });
+    var take = {key: it.key, entryId: it.entryId, kind: it.kind, senseId: it.senseId, exampleId: it.exampleId, ws: ws.wsId,
+      mediaUri: res.mediaUri, label: it.prompt};
+    state.pending.push(take);
+    state.last = {key: it.key, label: it.prompt, mediaUri: res.mediaUri, blob: res.blob || null, sent: false};
+    delete state.skipped[it.key];
+    persistPending();
+    var next = nextIndex(state.pos);
+    announce('Recorded ' + it.prompt + (next >= 0 ? '. Next: ' + state.queue[next].prompt : ''));
+    goTo(next >= 0 ? next : state.queue.length);
+    if (state.pending.length >= BATCH || next < 0) save(false);
+  }
+
+  function nextIndex(from) {
+    for (var i = from + 1; i < state.queue.length; i++) if (!isDone(state.queue[i]) && !state.skipped[state.queue[i].key]) return i;
+    return -1;
+  }
+
+  function goTo(i) {
+    if (state.rec === 'recording' || state.rec === 'starting') cancelTake();
+    stopPlayback();
+    state.pos = Math.max(0, Math.min(i, state.queue.length));
+    setError('');
+    render();
+    var row = document.querySelector('.row.current');
+    if (row) row.scrollIntoView({block: 'nearest'});
+    focusMic();
+  }
+
+  function skip() {
+    var it = current();
+    if (!it) return;
+    if (!isDone(it)) state.skipped[it.key] = true;
+    var next = nextIndex(state.pos);
+    goTo(next >= 0 ? next : state.queue.length);
+  }
+  function back() { if (state.pos > 0) goTo(state.pos - 1); }
+
+  function lastIndex() {
+    if (!state.last) return -1;
+    return state.queue.findIndex(function (it) { return it.key === state.last.key; });
+  }
+  function undo() {
+    if (!state.last || state.last.sent) return;
+    var key = state.last.key, at = lastIndex();
+    state.pending = state.pending.filter(function (t) { return t.key !== key; });
+    state.last = null;
+    persistPending();
+    announce('Take removed');
+    if (at >= 0) goTo(at); else render();
+  }
+  function redo() {
+    var at = lastIndex();
+    if (at < 0) return;
+    goTo(at);
+    pressMic();
+  }
+
+  // ---- Playback ----
+  var player = el('player');
+  var playUrl = null;
+  function stopPlayback() {
+    player.pause();
+    if (playUrl) { URL.revokeObjectURL(playUrl); playUrl = null; }
+  }
+  function playLast() {
+    var last = state.last;
+    if (!last) return;
+    stopPlayback();
+    var blobP = last.blob ? Promise.resolve(last.blob) : fw.getMedia(last.mediaUri).then(function (m) {
+      return m ? new Blob([m.data], {type: m.mimeType || ''}) : null;
+    });
+    blobP.then(function (blob) {
+      if (!blob) { setError("Couldn't load that take."); return; }
+      playUrl = URL.createObjectURL(blob);
+      player.src = playUrl;
+      player.play().catch(function () {});
+    }, function () { setError("Couldn't load that take."); });
+  }
+
+  // ---- Rendering ----
+  var timerId = null;
   function startTimer() {
-    el('timer').classList.add('rec');
+    var t0 = Date.now();
     el('timer').textContent = '0:00';
-    rec.timerId = setInterval(function () {
-      el('timer').textContent = fmtTime(Date.now() - rec.startTime);
+    timerId = setInterval(function () {
+      var s = Math.floor((Date.now() - t0) / 1000);
+      el('timer').textContent = Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
+      if (Date.now() - t0 >= MAX_TAKE_MS) stopTake();
     }, 200);
   }
-  function stopTimer() {
-    if (rec.timerId) { clearInterval(rec.timerId); rec.timerId = null; }
-    el('timer').classList.remove('rec');
+  function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } el('timer').textContent = ''; }
+
+  function setError(msg) { el('inline-error').textContent = msg; show('inline-error', !!msg); }
+  function announce(msg) { el('live').textContent = msg; }
+  function focusMic() { if (!document.body.classList.contains('list-open') && el('setup').hidden) el('mic').focus({preventScroll: true}); }
+
+  var KIND_LABEL = {headword: 'Headwords', example: 'Example sentences', gloss: 'Glosses'};
+  var KIND_PROMPT = {headword: 'Say the word', example: 'Say the sentence', gloss: 'Say the gloss'};
+
+  function render() {
+    renderSetupLabel();
+    renderStatus();
+    renderItem();
+    renderMic();
+    renderRail();
   }
 
-  // ---- Web Audio level ring + waveform ----
-  function setupMeter(stream) {
-    readColors();
-    try {
-      if (!rec.audioCtx) {
-        var AC = window.AudioContext || window.webkitAudioContext;
-        if (AC) rec.audioCtx = new AC();
-      }
-      if (!rec.audioCtx) return;
-      if (rec.audioCtx.state === 'suspended') rec.audioCtx.resume().catch(function () {});
-      rec.analyser = rec.audioCtx.createAnalyser();
-      rec.analyser.fftSize = 1024;
-      rec.timeData = new Uint8Array(rec.analyser.fftSize);
-      rec.source = rec.audioCtx.createMediaStreamSource(stream);
-      rec.source.connect(rec.analyser);
-      var canvas = el('meter-canvas');
-      canvas.hidden = false;
-      var w = canvas.clientWidth || 300;
-      var dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(48 * dpr);
-      drawMeter();
-    } catch (e) { /* meter is optional; ignore */ }
+  function renderSetupLabel() {
+    var ws = currentWs();
+    el('setup-label').textContent = KIND_LABEL[state.prefs.what] + (ws ? ' · ' + ws.name : '');
   }
 
-  function drawMeter() {
-    if (!rec.analyser) return;
-    rec.rafId = requestAnimationFrame(drawMeter);
-    rec.analyser.getByteTimeDomainData(rec.timeData);
-    var buf = rec.timeData, i, sum = 0;
-    for (i = 0; i < buf.length; i++) { var v = (buf[i] - 128) / 128; sum += v * v; }
-    var rms = Math.sqrt(sum / buf.length);
-    var ring = el('level-ring');
-    ring.style.opacity = String(Math.min(0.55, 0.1 + rms * 3));
-    ring.style.transform = 'scale(' + (1 + Math.min(0.55, rms * 2.6)) + ')';
+  function renderStatus() {
+    var total = state.queue.length;
+    var done = state.queue.filter(isDone).length;
+    var it = current();
+    el('pos').textContent = total ? (it ? (state.pos + 1) + ' of ' + total : 'All ' + total) : '';
+    el('progress-fill').style.width = (total ? Math.round(done / total * 100) : 0) + '%';
+    var parts = [];
+    if (state.savedCount) parts.push(state.savedCount + ' saved');
+    if (state.pending.length) parts.push(state.pending.length + ' waiting');
+    if (state.saving) parts.push('saving…');
+    el('tally').textContent = parts.join(' · ');
+    show('save-now', state.pending.length > 0 && !state.saving && !state.blocked);
+    show('session', total > 0);
 
-    var canvas = el('meter-canvas');
-    var ctx = canvas.getContext('2d');
-    var W = canvas.width, H = canvas.height;
-    ctx.clearRect(0, 0, W, H);
-    ctx.lineWidth = Math.max(1, (window.devicePixelRatio || 1));
-    ctx.strokeStyle = rec.accent;
-    ctx.beginPath();
-    var slice = W / buf.length;
-    for (i = 0; i < buf.length; i++) {
-      var y = (buf[i] / 255) * H;
-      var x = i * slice;
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    var b = state.blocked, n = state.pending.length;
+    var takes = n + (n === 1 ? ' take' : ' takes');
+    show('banner', !!b && n > 0);
+    if (b === 'preview') el('banner-text').textContent = 'Preview: ' + takes + ' not saved. Add the plugin to save for real.';
+    else if (b === 'declined') el('banner-text').textContent = takes + ' not saved. Keep recording; nothing more is saved until you press Save.';
+    else if (b === 'restored') el('banner-text').textContent = takes + ' from last time were not saved yet.';
+    else if (b === 'error') el('banner-text').textContent = takes + ' not saved: ' + (state.blockedMessage || 'something went wrong') + '.';
+    el('banner-save').disabled = state.saving;
+
+    var last = state.last;
+    show('last', !!last);
+    if (last) {
+      var lt = el('last-text');
+      lt.textContent = (last.sent ? '✓ Saved ' : '✓ Recorded ');
+      var bEl = document.createElement('b');
+      bEl.textContent = last.label;
+      lt.appendChild(bEl);
+      el('last-undo').hidden = last.sent;
     }
-    ctx.stroke();
+
+    var mode = recorder.mode();
+    show('notice', mode === 'none' || mode === 'dialog');
+    el('notice-text').textContent = mode === 'none'
+      ? "Plugins can't use the microphone yet. Until they can, record this item in the app."
+      : 'This version of FW Lite records in a dialog, so each take needs an extra tap.';
+    el('open-in-app').hidden = mode !== 'none' || !current();
   }
 
-  function teardownMeter() {
-    if (rec.rafId) { cancelAnimationFrame(rec.rafId); rec.rafId = null; }
-    if (rec.source) { try { rec.source.disconnect(); } catch (e) {} rec.source = null; }
-    rec.analyser = null;
-    var ring = el('level-ring');
-    ring.style.opacity = '0';
-    ring.style.transform = 'scale(1)';
-    el('meter-canvas').hidden = true;
+  function renderItem() {
+    var it = current();
+    show('item', !!it);
+    show('done', !it);
+    show('mic-area', !!it);
+    if (!it) { renderDone(); return; }
+    el('item-kind').textContent = KIND_PROMPT[it.kind];
+    var p = el('prompt');
+    p.textContent = it.prompt;
+    p.classList.toggle('long', it.prompt.length > 28);
+    var sub = el('item-sub');
+    sub.textContent = '';
+    if (it.subVern) {
+      var v = document.createElement('span');
+      v.className = 'vern';
+      v.textContent = it.subVern;
+      sub.appendChild(v);
+      if (it.sub) sub.appendChild(document.createTextNode(' · ' + it.sub));
+    } else {
+      sub.textContent = it.sub || '';
+    }
+    var chip = el('item-chip');
+    var label = isPending(it) ? 'Recorded, waiting to save' : state.savedKeys[it.key] ? 'Saved' : it.existing ? 'Has a recording: a new take replaces it' : state.skipped[it.key] ? 'Skipped' : '';
+    chip.hidden = !label;
+    chip.textContent = label;
+    chip.className = 'chip ' + (isDone(it) ? 'good' : it.existing ? 'warn' : '');
+    var next = nextIndex(state.pos);
+    el('next-up').textContent = next >= 0 ? 'Next: ' + state.queue[next].prompt : '';
+    el('back').disabled = state.pos === 0;
   }
 
-  // ---- saving ----
-  function saveRecording() {
-    if (!rec.blob || !state.currentEntry) return;
-    var entry = state.currentEntry;
-    var before = entry;
-    state.recState = 'saving';
-    state.inlineError = '';
-    renderStudio();
-
-    var filename = safeFilename(fw.headword(entry)) + rec.ext;
-    fw.saveFile(rec.blob, { filename: filename, mimeType: rec.mime || 'audio/webm' }).then(function (res) {
-      if (!res || !res.mediaUri) {
-        var msg = (res && res.errorMessage) ? res.errorMessage : 'The recording could not be saved.';
-        saveFailed(msg);
-        return null;
-      }
-      var after = JSON.parse(JSON.stringify(before));
-      if (!after.lexemeForm) after.lexemeForm = {};
-      after.lexemeForm[state.selectedWs] = res.mediaUri;
-      return fw.updateEntry(before, after).then(function (updated) {
-        onSaved(updated || after);
-      });
-    }).catch(function (err) {
-      if (err && (err.code === 'permission-denied' || err.code === 'preview')) {
-        // user declined the change dialog: a normal outcome
-        state.recState = 'preview';
-        state.inlineError = 'Not saved: the change was declined. You can save again or re-record.';
-        renderStudio();
-        fw.notify('Recording not saved').catch(function () {});
-      } else {
-        saveFailed(err && err.message ? err.message : 'Something went wrong while saving.');
-      }
+  function renderDone() {
+    var total = state.queue.length;
+    var skippedKeys = Object.keys(state.skipped);
+    var actions = el('done-actions');
+    actions.textContent = '';
+    function btn(text, cls, fn) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn ' + cls; b.textContent = text;
+      b.addEventListener('click', fn);
+      actions.appendChild(b);
+    }
+    if (!total) {
+      el('done-title').textContent = state.prefs.includeDone || state.prefs.what === 'example'
+        ? 'Nothing to record here.' : 'Everything here already has a recording.';
+      el('done-text').textContent = state.prefs.what === 'example'
+        ? 'No example sentences have text to read out. Add example sentences first, or record headwords.'
+        : 'Pick something else to record, or include items that already have a recording.';
+      btn('Change what to record', 'primary', openSetup);
+      return;
+    }
+    el('done-title').textContent = skippedKeys.length ? 'You reached the end of the list.' : 'Done. Every item in this list is recorded.';
+    el('done-text').textContent = state.savedCount + state.pending.length + ' recorded this session' +
+      (skippedKeys.length ? ', ' + skippedKeys.length + ' skipped.' : '.');
+    if (skippedKeys.length) btn('Record the ' + skippedKeys.length + ' skipped', 'primary', function () {
+      var first = state.queue.findIndex(function (it) { return state.skipped[it.key]; });
+      state.skipped = {};
+      goTo(first);
     });
+    if (state.pending.length) btn('Save ' + state.pending.length + ' waiting', skippedKeys.length ? '' : 'primary', function () { save(true); });
+    btn('Record something else', '', openSetup);
   }
 
-  function saveFailed(message) {
-    state.recState = 'preview';
-    state.inlineError = 'Save failed: ' + message;
-    renderStudio();
-  }
-
-  function onSaved(updated) {
-    // Replace the entry in our local set so coverage/worklist reflect it.
-    var idx = -1;
-    for (var i = 0; i < state.entries.length; i++) {
-      if (state.entries[i].id === updated.id) { idx = i; break; }
-    }
-    if (idx === -1) state.entries.push(updated); else state.entries[idx] = updated;
-
-    state.sessionCount++;
-    discardTake();
-    rebuildWorklist();
-    fw.notify('Recording saved').catch(function () {});
-    renderRail();
-    renderCoverage();
-    focusNext();
-  }
-
-  // ---- focus / navigation ----
-  function localCopyOf(entry) {
-    for (var i = 0; i < state.entries.length; i++) {
-      if (state.entries[i].id === entry.id) return state.entries[i];
-    }
-    return entry;
-  }
-
-  function focusEntry(entry) {
-    stopPlayback();
-    if (rec.recorder && rec.recorder.state === 'recording') cancelRecording();
-    discardTake();
-    state.currentEntry = localCopyOf(entry);
-    state.recState = 'idle';
-    state.inlineError = '';
-    show('all-done', false);
-    renderStudio();
-    renderRail();
-  }
-
-  function focusNext() {
-    if (state.worklist.length > 0) {
-      focusEntry(state.worklist[0]);
-    } else {
-      state.currentEntry = null;
-      state.recState = 'idle';
-      show('studio-card', false);
-      show('all-done', true);
-      renderRail();
-    }
-  }
-
-  // ---- rendering: studio ----
-  function setMicIcon(kind) {
-    var b = el('mic-btn');
-    b.classList.remove('recording');
-    b.disabled = false;
-    if (kind === 'loading') {
-      b.innerHTML = ''; var s = document.createElement('span'); s.className = 'spin'; b.appendChild(s); b.disabled = true;
-    } else if (kind === 'stop') {
-      b.textContent = '■'; b.classList.add('recording'); b.setAttribute('aria-label', 'Stop recording');
-    } else if (kind === 'playing') {
-      b.textContent = '⏸'; b.setAttribute('aria-label', 'Pause');
-    } else if (kind === 'play') {
-      b.textContent = '▶'; b.setAttribute('aria-label', 'Play');
-    } else if (kind === 'saving') {
-      b.innerHTML = ''; var sp = document.createElement('span'); sp.className = 'spin'; b.appendChild(sp); b.disabled = true;
-    } else {
-      b.textContent = '🎙'; b.setAttribute('aria-label', 'Record');
-    }
-  }
-
-  // sets mic icon based on current recState + playback
-  function setMicForState() {
-    if (state.recState === 'recording') setMicIcon('stop');
-    else if (state.recState === 'saving') setMicIcon('saving');
-    else if (state.recState === 'preview') setMicIcon(audioEl.paused ? 'play' : 'playing');
-    else setMicIcon('mic');
-  }
-
-  function button(label, opts) {
-    opts = opts || {};
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'btn' + (opts.cls ? ' ' + opts.cls : '');
-    b.textContent = label;
-    if (opts.disabled) b.disabled = true;
-    if (opts.onclick) b.addEventListener('click', opts.onclick);
-    return b;
-  }
-
-  function renderStudio() {
-    if (!state.currentEntry) { focusNext(); return; }
-    show('all-done', false);
-    show('studio-card', true);
-
-    var entry = state.currentEntry;
-    el('sd-head').textContent = fw.headword(entry) || '—';
-    var gloss = firstGloss(entry);
-    el('sd-gloss').textContent = gloss || 'No meaning recorded';
-
-    var existing = refFor(entry, state.selectedWs);
-    var statusEl = el('sd-status');
-    if (state.recState === 'recording' || state.recState === 'preview' || state.recState === 'saving') {
-      statusEl.hidden = true;
-    } else {
-      statusEl.hidden = false;
-      statusEl.className = 'rec-status chip ' + (existing ? 'has' : 'none');
-      statusEl.textContent = existing ? 'Has a recording' : 'No recording yet';
-    }
-
-    // timer visibility
-    var timer = el('timer');
-    if (state.recState === 'recording') { timer.hidden = false; }
-    else if (state.recState === 'preview' && rec.elapsedMs) { timer.hidden = false; timer.classList.remove('rec'); timer.textContent = fmtTime(rec.elapsedMs); }
-    else { timer.hidden = true; }
-
-    // stage hint
-    var hint = el('stage-hint');
-    if (state.recState === 'recording') hint.textContent = 'Recording… press the button to stop.';
-    else if (state.recState === 'preview') hint.textContent = 'Listen back, then save or re-record.';
-    else if (state.recState === 'saving') hint.textContent = 'Saving…';
-    else if (!canRecord) hint.textContent = 'Recording is not available in this environment.';
-    else hint.textContent = existing ? 'Press to record a new take (replaces the current one).' : 'Press the microphone to record.';
-
-    // inline error
-    var errBox = el('inline-error');
-    if (state.inlineError) { errBox.hidden = false; errBox.textContent = state.inlineError; }
-    else { errBox.hidden = true; errBox.textContent = ''; }
-
-    setMicForState();
-    if (!canRecord && state.recState === 'idle') el('mic-btn').disabled = true;
-
-    // controls
-    var c = el('controls');
-    c.innerHTML = '';
-    var canEdit = !fw.capabilities || !fw.capabilities.openEntryModes || fw.capabilities.openEntryModes.indexOf('edit') !== -1;
-
-    if (state.recState === 'recording') {
-      c.appendChild(button('Cancel', { cls: 'link', onclick: cancelRecording }));
-    } else if (state.recState === 'preview') {
-      c.appendChild(button('Re-record', { onclick: startRecording, disabled: !canRecord }));
-      c.appendChild(button('Save recording', { cls: 'primary', onclick: saveRecording }));
-      if (state.worklist.length) c.appendChild(button('Skip', { cls: 'link', onclick: skipCurrent }));
-    } else if (state.recState === 'saving') {
-      c.appendChild(button('Saving…', { cls: 'primary', disabled: true }));
-    } else {
-      // idle
-      if (existing) {
-        c.appendChild(button('▶ Play current', { onclick: function () {
-          if (play.kind === 'existing' && !audioEl.paused) { stopPlayback(); setMicForState(); return; }
-          playExisting(existing).then(function (ok) {
-            setMicForState();
-            if (!ok) { state.inlineError = "Couldn't load the recording (offline?)."; renderStudio(); }
-          }).catch(function () { setMicForState(); });
-        } }));
-      }
-      c.appendChild(button('Open in app', { cls: 'link', onclick: function () {
-        fw.openEntry(entry.id, { mode: canEdit ? 'edit' : 'view' }).catch(function () {});
-      } }));
-      if (state.worklist.length) {
-        var others = state.worklist.filter(function (e) { return e.id !== entry.id; });
-        if (others.length) c.appendChild(button('Skip', { cls: 'link', onclick: skipCurrent }));
-      }
-    }
-  }
-
-  function skipCurrent() {
-    stopPlayback();
-    discardTake();
-    var cur = state.currentEntry;
-    var pool = state.worklist.filter(function (e) { return !cur || e.id !== cur.id; });
-    if (pool.length) focusEntry(pool[0]);
-    else focusNext();
-  }
-
-  // ---- rendering: rail ----
-  function renderCoverage() {
-    var total = state.entries.length;
-    var have = total - state.worklist.length;
-    var pct = total ? Math.round((have / total) * 100) : 0;
-    el('coverage-line').textContent = have.toLocaleString() + ' of ' + total.toLocaleString() + ' entr' + (total === 1 ? 'y' : 'ies') + ' recorded';
-    el('progress-fill').style.width = pct + '%';
-    var sess = state.sessionCount ? 'Recorded this session: ' + state.sessionCount : 'Pick an entry and record its pronunciation.';
-    if (state.capped) sess += ' · showing first ' + CAP;
-    el('session').textContent = sess;
-  }
-
-  function makeRailRow(entry) {
-    var row = document.createElement('button');
-    row.type = 'button';
-    row.className = 'rail-row';
-    if (state.currentEntry && entry.id === state.currentEntry.id) row.classList.add('current');
-    var has = !!refFor(entry, state.selectedWs);
-    var dot = document.createElement('span');
-    dot.className = 'rail-dot ' + (has ? 'has' : 'none');
-    dot.textContent = has ? '✓' : '●';
-    var body = document.createElement('span');
-    body.className = 'rail-body';
-    var head = document.createElement('span');
-    head.className = 'rail-head vern';
-    head.textContent = fw.headword(entry) || '—';
-    var gl = document.createElement('span');
-    gl.className = 'rail-gloss';
-    gl.textContent = firstGloss(entry) || 'No meaning recorded';
-    body.appendChild(head); body.appendChild(gl);
-    row.appendChild(dot); row.appendChild(body);
-    row.addEventListener('click', function () { focusEntry(entry); });
-    return row;
+  var MIC_SVG_LABEL = {idle: 'Record', starting: 'Starting', recording: 'Stop recording', stopping: 'Finishing', dialog: 'Recording in FW Lite'};
+  function renderMic() {
+    var it = current();
+    var mode = recorder.mode();
+    var area = el('mic-area');
+    area.classList.toggle('recording', state.rec === 'recording');
+    var mic = el('mic');
+    mic.setAttribute('aria-pressed', String(state.rec === 'recording'));
+    mic.setAttribute('aria-disabled', String(mode === 'none'));
+    mic.setAttribute('aria-label', MIC_SVG_LABEL[state.rec] + (it && state.rec === 'idle' ? ' ' + it.prompt : ''));
+    var hint = '';
+    if (state.rec === 'recording') hint = state.holdMode ? 'Recording… tap to finish' : 'Recording… release or tap to finish';
+    else if (state.rec === 'dialog') hint = 'Recording in FW Lite…';
+    else if (state.rec === 'idle' && mode !== 'none') hint = mode === 'dialog' ? 'Tap to record' : 'Hold to record, or tap to start and stop';
+    el('hint').textContent = hint;
+    el('last-undo').disabled = state.rec !== 'idle';
+    el('last-redo').disabled = state.rec !== 'idle' || lastIndex() < 0;
   }
 
   function renderRail() {
     var q = el('search').value.trim().toLowerCase();
     var list = el('rail-list');
-    list.innerHTML = '';
-    var label = el('rail-list-label');
-    var empty = el('rail-empty');
-
-    var items, isSearch = !!q;
-    if (isSearch) {
-      items = state.entries.filter(function (e) {
-        var h = (fw.headword(e) || '').toLowerCase();
-        var g = firstGloss(e).toLowerCase();
-        return h.indexOf(q) !== -1 || g.indexOf(q) !== -1;
-      });
-      label.textContent = items.length + ' match' + (items.length === 1 ? '' : 'es');
-    } else {
-      items = state.worklist;
-      label.textContent = 'To record (' + items.length + ')';
-    }
-
-    if (items.length === 0) {
-      empty.hidden = false;
-      empty.textContent = isSearch
-        ? 'No entries match your search.'
-        : 'Every entry has a recording. Search to re-record any entry.';
-      return;
-    }
-    empty.hidden = true;
-
+    list.textContent = '';
+    var items = state.queue.map(function (it, i) { return {it: it, i: i}; });
+    if (q) items = items.filter(function (x) {
+      return x.it.prompt.toLowerCase().indexOf(q) >= 0 || (x.it.sub || '').toLowerCase().indexOf(q) >= 0 || (x.it.hw || '').toLowerCase().indexOf(q) >= 0;
+    });
+    el('rail-title').textContent = KIND_LABEL[state.prefs.what] + ' (' + state.queue.length + ')';
+    var cap = 300;
+    var start = 0;
+    if (!q && items.length > cap) start = Math.max(0, Math.min(state.pos - 20, items.length - cap));
     var frag = document.createDocumentFragment();
-    var cap = 400;
-    items.slice(0, cap).forEach(function (e) { frag.appendChild(makeRailRow(e)); });
+    items.slice(start, start + cap).forEach(function (x) {
+      var row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'row' + (x.i === state.pos ? ' current' : '');
+      var mark = document.createElement('span');
+      var pending = isPending(x.it), saved = !!state.savedKeys[x.it.key];
+      mark.className = 'mark' + (saved ? ' sent' : pending ? ' pending' : '');
+      mark.textContent = saved ? '✓' : pending ? '◷' : state.skipped[x.it.key] ? '⤳' : x.it.existing ? '♪' : '·';
+      mark.title = saved ? 'Saved' : pending ? 'Waiting to save' : state.skipped[x.it.key] ? 'Skipped' : x.it.existing ? 'Has a recording' : 'To record';
+      var body = document.createElement('span');
+      body.className = 'body';
+      var t = document.createElement('span'); t.className = 't'; t.textContent = x.it.prompt;
+      var s = document.createElement('span'); s.className = 's'; s.textContent = x.it.subVern ? x.it.subVern + (x.it.sub ? ' · ' + x.it.sub : '') : x.it.sub;
+      body.appendChild(t); body.appendChild(s);
+      row.appendChild(mark); row.appendChild(body);
+      row.addEventListener('click', function () { closeList(); goTo(x.i); });
+      frag.appendChild(row);
+    });
     list.appendChild(frag);
-    if (items.length > cap) {
-      var more = document.createElement('div');
-      more.className = 'rail-empty';
-      more.textContent = 'Showing first ' + cap + '. Refine your search to see more.';
-      list.appendChild(more);
+    if (!items.length) note(q ? 'Nothing matches.' : 'Nothing to record.');
+    else if (items.length > cap) note(q ? 'Showing the first ' + cap + ' matches.' : 'Showing ' + cap + ' around the current item. Search to find others.');
+    function note(text) { var d = document.createElement('div'); d.className = 'rail-note'; d.textContent = text; list.appendChild(d); }
+  }
+
+  // ---- Setup ----
+  function fillSetup() {
+    var what = el('what');
+    what.textContent = '';
+    [['headword', state.vernAudio], ['example', state.vernAudio], ['gloss', state.analysisAudio]].forEach(function (pair) {
+      if (!pair[1].length) return;
+      var o = document.createElement('option');
+      o.value = pair[0]; o.textContent = KIND_LABEL[pair[0]];
+      what.appendChild(o);
+    });
+    what.value = state.prefs.what;
+    var list = wsFor(state.prefs.what);
+    var sel = el('ws');
+    sel.textContent = '';
+    list.forEach(function (w) { var o = document.createElement('option'); o.value = w.wsId; o.textContent = w.name; sel.appendChild(o); });
+    var ws = currentWs();
+    if (ws) sel.value = ws.wsId;
+    show('ws-field', list.length > 1);
+    el('order').value = state.prefs.order;
+    el('include-done').checked = !!state.prefs.includeDone;
+  }
+  function openSetup() {
+    fillSetup();
+    show('setup', true);
+    el('setup-btn').setAttribute('aria-expanded', 'true');
+    el('what').focus();
+  }
+  function closeSetup() {
+    show('setup', false);
+    el('setup-btn').setAttribute('aria-expanded', 'false');
+    focusMic();
+  }
+  function onSetupChange() {
+    state.prefs.what = el('what').value;
+    if (el('ws').value && wsFor(state.prefs.what).some(function (w) { return w.wsId === el('ws').value; })) state.prefs.ws[state.prefs.what] = el('ws').value;
+    state.prefs.order = el('order').value;
+    state.prefs.includeDone = el('include-done').checked;
+    fw.storage.set(PREFS_KEY, state.prefs).catch(function () {});
+    fillSetup();
+    buildQueue();
+    render();
+  }
+
+  function openList() { document.body.classList.add('list-open'); el('search').focus(); }
+  function closeList() { document.body.classList.remove('list-open'); }
+
+  // ---- Input ----
+  function isField(t) { return t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA' || t.tagName === 'SUMMARY'); }
+  function wire() {
+    var mic = el('mic');
+    mic.addEventListener('pointerdown', function (ev) {
+      if (ev.button !== 0) return;
+      ev.preventDefault();
+      try { mic.setPointerCapture(ev.pointerId); } catch (e) {}
+      if (state.rec === 'recording') { state.holdMode = true; stopTake(); return; }
+      pressMic();
+    });
+    mic.addEventListener('pointerup', function (ev) { if (ev.button === 0) { releaseOrToggle(); } });
+    mic.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' && !ev.repeat) { ev.preventDefault(); if (state.rec === 'recording') stopTake(); else pressMic(); }
+    });
+    mic.addEventListener('contextmenu', function (ev) { ev.preventDefault(); });
+
+    document.addEventListener('keydown', function (ev) {
+      if (isField(ev.target) || el('app').hidden || !el('setup').hidden || document.body.classList.contains('list-open')) {
+        if (ev.key === 'Escape') { closeList(); if (!el('setup').hidden) closeSetup(); }
+        return;
+      }
+      if (ev.ctrlKey || ev.metaKey) {
+        if (ev.key === 'z' || ev.key === 'Z') { ev.preventDefault(); undo(); }
+        return;
+      }
+      if (ev.altKey) return;
+      var k = ev.key;
+      if (k === ' ') {
+        ev.preventDefault();
+        if (ev.repeat) return;
+        if (state.rec === 'recording') { state.holdMode = true; stopTake(); } else pressMic();
+      } else if (k === 'ArrowRight' || k === 's' || k === 'S') { ev.preventDefault(); skip(); }
+      else if (k === 'ArrowLeft') { ev.preventDefault(); back(); }
+      else if (k === 'r' || k === 'R') { ev.preventDefault(); redo(); }
+      else if (k === 'p' || k === 'P') { ev.preventDefault(); playLast(); }
+      else if (k === 'Escape') cancelTake();
+      else if (k === '/') { ev.preventDefault(); if (window.innerWidth < 760) openList(); else el('search').focus(); }
+    });
+    document.addEventListener('keyup', function (ev) {
+      if (ev.key === ' ' && !isField(ev.target)) { ev.preventDefault(); releaseOrToggle(); }
+    });
+
+    el('skip').addEventListener('click', skip);
+    el('back').addEventListener('click', back);
+    el('last-play').addEventListener('click', playLast);
+    el('last-redo').addEventListener('click', redo);
+    el('last-undo').addEventListener('click', undo);
+    el('save-now').addEventListener('click', function () { save(true); });
+    el('banner-save').addEventListener('click', function () { save(true); });
+    el('banner-discard').addEventListener('click', discardPending);
+    el('setup-btn').addEventListener('click', function () { if (el('setup').hidden) openSetup(); else closeSetup(); });
+    el('setup-done').addEventListener('click', closeSetup);
+    ['what', 'ws', 'order', 'include-done'].forEach(function (id) { el(id).addEventListener('change', onSetupChange); });
+    el('list-btn').addEventListener('click', openList);
+    el('rail-close').addEventListener('click', function () { closeList(); focusMic(); });
+    var searchTimer = null;
+    el('search').addEventListener('input', function () { clearTimeout(searchTimer); searchTimer = setTimeout(renderRail, 120); });
+    el('open-in-app').addEventListener('click', function () {
+      var it = current();
+      if (!it) return;
+      var modes = fw.capabilities.openEntryModes || [];
+      fw.openEntry(it.entryId, {mode: modes.indexOf('edit') >= 0 ? 'edit' : 'view'}).catch(function () {});
+    });
+    window.addEventListener('pagehide', function () { cancelTake(); stopPlayback(); });
+  }
+
+  // A press shorter than HOLD_MS leaves recording running until the next press (tap mode).
+  function releaseOrToggle() {
+    if (state.rec === 'recording' || state.rec === 'starting') {
+      if (Date.now() - state.pressAt < HOLD_MS) { state.holdMode = true; renderMic(); }
+      else releaseMic();
     }
   }
 
-  // ---- ws selection ----
-  function onSelectWs(wsId) {
-    state.selectedWs = wsId;
-    savePrefs();
-    stopPlayback();
-    discardTake();
-    rebuildWorklist();
-    renderCoverage();
-    state.currentEntry = null;
-    focusNext();
-    renderRail();
-  }
-
-  // ---- cleanup ----
-  function cleanupAll() {
-    stopPlayback();
-    stopTimer();
-    teardownMeter();
-    if (rec.recorder && rec.recorder.state !== 'inactive') { rec.recorder.onstop = null; try { rec.recorder.stop(); } catch (e) {} }
-    releaseStream();
-    if (rec.previewUrl) { URL.revokeObjectURL(rec.previewUrl); rec.previewUrl = null; }
-    if (rec.audioCtx) { try { rec.audioCtx.close(); } catch (e) {} rec.audioCtx = null; }
-  }
-  window.addEventListener('pagehide', cleanupAll);
-  window.addEventListener('beforeunload', cleanupAll);
-
-  // ---- events ----
-  function wireEvents() {
-    el('mic-btn').addEventListener('click', function () {
-      if (state.recState === 'recording') stopRecording();
-      else if (state.recState === 'preview') {
-        if (!audioEl.paused && play.kind === 'preview') { stopPlayback(); setMicForState(); }
-        else { playPreview(); setMicForState(); }
-      } else if (state.recState === 'idle') {
-        startRecording();
-      }
-    });
-    var searchTimer = null;
-    el('search').addEventListener('input', function () {
-      if (searchTimer) clearTimeout(searchTimer);
-      searchTimer = setTimeout(renderRail, 120);
-    });
-  }
-
-  // ---- init ----
-  function init(context) {
+  // ---- Boot ----
+  fw.ready.then(function (ctx) {
     applyTheme();
-    wireEvents();
+    wire();
+    state.project = (ctx && ctx.project && ctx.project.projectName) || '';
+    return Promise.all([fw.getWritingSystems(), fw.storage.get(PREFS_KEY), fw.storage.get(PENDING_KEY)]).then(function (r) {
+      var wsData = r[0] || {};
+      var vern = wsData.vernacular || [], ana = wsData.analysis || [];
+      function audio(list) { return list.filter(function (w) { return w.isAudio; }).map(function (w) { return {wsId: w.wsId, name: w.name || w.wsId}; }); }
+      state.vernAudio = audio(vern);
+      state.analysisAudio = audio(ana);
+      state.vernText = vern.filter(function (w) { return !w.isAudio; });
+      state.analysisText = ana.filter(function (w) { return !w.isAudio; });
+      applyVernFont(state.vernText[0]);
+      if (r[1] && typeof r[1] === 'object') Object.assign(state.prefs, r[1], {ws: Object.assign({}, r[1].ws || {})});
+      if (Array.isArray(r[2]) && r[2].length) { state.pending = r[2]; state.blocked = 'restored'; }
 
-    Promise.all([fw.getWritingSystems(), loadPrefs()]).then(function (results) {
-      var wsData = results[0];
-      var all = (wsData.vernacular || []).concat(wsData.analysis || []);
-      var seen = {};
-      state.audioWsList = [];
-      all.forEach(function (w) {
-        if (!w.isAudio || seen[w.wsId]) return;
-        seen[w.wsId] = true;
-        state.audioWsList.push({ wsId: w.wsId, name: w.name || w.wsId, abbreviation: w.abbreviation || '', font: w.font || '' });
-      });
-
-      applyVernFont((wsData.vernacular || []).filter(function (w) { return !w.isAudio; })[0]);
-
-      if (state.audioWsList.length === 0) {
+      if (!state.vernAudio.length && !state.analysisAudio.length) {
         show('loading', false);
         show('empty', true);
         return;
       }
+      if (!wsFor(state.prefs.what).length) state.prefs.what = state.vernAudio.length ? 'headword' : 'gloss';
 
-      if (!state.selectedWs || !state.audioWsList.some(function (w) { return w.wsId === state.selectedWs; })) {
-        state.selectedWs = state.audioWsList[0].wsId;
-      }
-
-      return loadAllEntries().then(function (entries) {
-        state.entries = entries;
-        rebuildWorklist();
-
+      return loadAll(function (n, total) {
+        el('loading-text').textContent = 'Loading entries… ' + n.toLocaleString() + ' of ' + total.toLocaleString();
+      }).then(function (res) {
+        state.entries = res.entries;
+        state.capped = res.capped;
+        res.entries.forEach(function (e) { state.byId[e.id] = e; });
+        state.pending = state.pending.filter(function (t) { return state.byId[t.entryId]; });
+        el('subtitle').textContent = state.project + ' · ' + res.total.toLocaleString() + ' entries' + (res.capped ? ' (first ' + CAP.toLocaleString() + ' loaded)' : '');
+        buildQueue(fw.context && fw.context.entryId);
         show('loading', false);
-        el('subtitle').textContent = context.project.projectName +
-          ' · ' + state.entries.length.toLocaleString() + ' entr' + (state.entries.length === 1 ? 'y' : 'ies') +
-          (canRecord ? '' : ' · recording unavailable here');
         show('app', true);
-
-        if (state.audioWsList.length > 1) {
-          show('ws-pick', true);
-          var sel = el('ws-select');
-          state.audioWsList.forEach(function (w) {
-            var opt = document.createElement('option');
-            opt.value = w.wsId;
-            opt.textContent = w.name;
-            if (w.wsId === state.selectedWs) opt.selected = true;
-            sel.appendChild(opt);
-          });
-          sel.addEventListener('change', function () { onSelectWs(sel.value); });
-        }
-
-        renderCoverage();
-        renderRail();
-
-        var ctxId = context.entryId || (fw.context && fw.context.entryId);
-        if (ctxId) {
-          return fw.getEntry(ctxId).then(function (entry) {
-            if (entry) focusEntry(entry);
-            else focusNext();
-          }, function () { focusNext(); });
-        }
-        focusNext();
+        render();
+        if (window.matchMedia('(hover: hover)').matches) focusMic();
       });
     }).catch(function (err) {
-      showError('Could not start the recorder: ' + (err && err.message ? err.message : String(err)));
+      show('loading', false);
+      el('error').textContent = "Couldn't load the project: " + (err && err.message ? err.message : String(err));
+      show('error', true);
     });
-  }
-
-  fw.ready.then(function (ctx) {
-    // ctx exposes theme/project; fw.context carries the launch entryId
-    var context = {
-      theme: ctx && ctx.theme,
-      project: (ctx && ctx.project) || fw.project || { projectName: '' },
-      entryId: fw.context && fw.context.entryId,
-    };
-    init(context);
   });
 })();
 </script>

@@ -109,7 +109,7 @@ export const examplePlugins: ExamplePlugin[] = [
   {
     key: 'pronunciation-recorder',
     name: 'Pronunciation Recorder',
-    description: 'Walk entries that lack a recording and capture pronunciation audio straight onto each one.',
+    description: 'Record headwords, example sentences or glosses one after another: hold to record, it moves on by itself, and takes are saved in batches.',
     functions: ['record'],
     capabilities: ['microphone', 'entry-menu'],
     listed: false,

@@ -826,7 +826,10 @@
     var hw = fw.headword(entry) || 'entry';
     var filename = 'photo-' + Date.now() + '.jpg';
 
-    fw.saveFile(blob, {filename: filename, mimeType: 'image/jpeg'}).then(function (res) {
+    var save = typeof fw.saveFile === 'function'
+      ? fw.saveFile(blob, {filename: filename, mimeType: 'image/jpeg'})
+      : Promise.reject(new Error('Plugins can\'t save pictures yet. Add the picture from the entry in FW Lite instead.'));
+    save.then(function (res) {
       if (!res || !res.mediaUri) {
         var msg = (res && res.errorMessage) ? res.errorMessage
           : (res && res.result ? 'The file could not be saved (' + res.result + ').' : 'The file could not be saved.');
