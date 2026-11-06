@@ -129,7 +129,11 @@ projects. For `fwlite` (SDK + adapter):
 `frontend/viewer/tests/ui/plugins.test.ts` runs against the in-browser demo project
 (`task test:ui-standalone -- plugins`), covering consent, the postMessage bridge, write
 approval/trust, preview writes, the examples shelf and the studio flows (new, customized example,
-edit with a new permission, leave guard). It also runs every example in the studio preview. The demo
+edit with a new permission, leave guard). It also runs every example in the studio preview. Every example starts with the same pasted CSS block (tokens matching
+`plugin-prompt.ts`'s skeleton) and the same state markup the test checks: `#loading` (hidden once
+loaded), `#error` (hidden), `#empty` or `#app` visible, an `<h1>` equal to its `index.ts` name, and no
+horizontal scrolling at phone width. Keep the examples and the prompt's skeleton in step: AI-written
+plugins copy their look. The demo
 project seeds two example plugins (see `examples/`), and `__PLAYWRIGHT_UTILS__.setProjectRole`
 turns its user into a non-manager.
 Unit tests live next to their modules (`*.test.ts`).

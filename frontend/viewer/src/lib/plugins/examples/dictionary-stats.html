@@ -6,430 +6,345 @@
 <title>Dictionary Stats</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f5f6f8;
+    color-scheme: light;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --surface-alt: #f0f1f4;
-    --border: #e2e4e9;
-    --text: #1c1e21;
-    --text-muted: #6b7280;
-    --accent: #4f46e5;
-    --accent-soft: #eef0ff;
-    --accent2: #059669;
-    --accent3: #d97706;
-    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
-    --radius: 14px;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
+    --warn: #b45309;
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
   }
   html[data-theme="dark"] {
-    --bg: #16171b;
-    --surface: #1f2126;
-    --surface-alt: #26282e;
-    --border: #33353c;
-    --text: #edeef1;
-    --text-muted: #9aa0ab;
-    --accent: #818cf8;
-    --accent-soft: #2a2b5e;
-    --accent2: #34d399;
-    --accent3: #fbbf24;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
+    --warn: #fbbf24;
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    padding: 20px;
-    min-height: 100vh;
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
   }
-  .wrap { max-width: 1000px; margin: 0 auto; }
-  h1 { font-size: 1.5rem; margin: 0 0 4px; }
-  .subtitle { color: var(--text-muted); margin: 0 0 20px; font-size: 0.92rem; }
-  .cap-note {
-    display: inline-block;
-    margin-top: 6px;
-    font-size: 0.78rem;
-    color: var(--accent3);
-    background: var(--surface-alt);
-    padding: 3px 10px;
-    border-radius: 999px;
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
   }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 18px 20px;
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
   }
-
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 14px;
-    margin-bottom: 20px;
-  }
-  .stat-card { text-align: left; }
-  .stat-card .label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
-  .stat-card .value { font-size: 2rem; font-weight: 700; line-height: 1; }
-  .stat-card .value small { font-size: 1rem; font-weight: 600; color: var(--text-muted); }
-
-  section { margin-bottom: 22px; }
-  section h2 { font-size: 1.05rem; margin: 0 0 12px; }
-
-  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-  .bar-label {
-    width: 140px;
-    flex-shrink: 0;
-    font-size: 0.85rem;
-    text-align: right;
-    color: var(--text-muted);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .bar-track {
-    flex: 1;
-    background: var(--surface-alt);
-    border-radius: 6px;
-    height: 20px;
-    overflow: hidden;
-    position: relative;
-  }
-  .bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    border-radius: 6px;
-    min-width: 3px;
-    transition: width 0.4s ease;
-  }
-  .bar-count {
-    width: 42px;
-    flex-shrink: 0;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--text-muted);
-  }
-
-  .domains-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 10px;
-  }
-  .domain-chip {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--surface-alt);
-    border-radius: 10px;
-    padding: 8px 12px;
-    font-size: 0.85rem;
-  }
-  .domain-chip .code { color: var(--accent); font-weight: 700; margin-right: 6px; }
-  .domain-chip .count {
-    background: var(--accent-soft);
-    color: var(--accent);
-    border-radius: 999px;
-    padding: 1px 9px;
-    font-weight: 700;
-    font-size: 0.78rem;
-  }
-
-  .facts-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 14px;
-  }
-  .fact-card .fact-title { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
-  .fact-card .fact-value { font-size: 1.15rem; font-weight: 600; word-break: break-word; }
-
-  .center-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-muted);
-  }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
   .spinner {
-    width: 34px; height: 34px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    margin: 0 auto 16px;
-    animation: spin 0.8s linear infinite;
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .progress-track {
-    max-width: 280px;
-    margin: 0 auto;
-    background: var(--surface-alt);
-    border-radius: 999px;
-    height: 8px;
-    overflow: hidden;
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
   }
-  .progress-fill {
-    height: 100%;
-    background: var(--accent);
-    transition: width 0.2s ease;
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+
+
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .tile .label { font-size: 0.82rem; color: var(--text-muted); }
+  .tile .value { font-size: 1.9rem; font-weight: 700; line-height: 1.1; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .tile .value small { font-size: 1rem; color: var(--text-muted); font-weight: 600; }
+  .panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+  .panels .card { margin: 0; }
+  .bar-row { display: grid; grid-template-columns: minmax(0, 9rem) 1fr 3.5rem; align-items: center; gap: 10px; padding: 4px 0; }
+  .bar-label { font-size: 0.88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar-track { height: 10px; background: var(--surface-alt); border-radius: 999px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--accent); border-radius: 999px; min-width: 3px; }
+  .bar-count { font-size: 0.85rem; font-weight: 600; text-align: right; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .domain-row { display: flex; align-items: baseline; gap: 8px; padding: 7px 0; border-top: 1px solid var(--border); }
+  .domain-row:first-child { border-top: 0; }
+  .domain-row .code { color: var(--text-muted); font-size: 0.82rem; font-variant-numeric: tabular-nums; min-width: 4.5rem; }
+  .domain-row .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .facts { margin-top: 16px; }
+  .fact { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--border); }
+  .fact:first-of-type { border-top: 0; }
+  .fact .value { font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+  .progress { max-width: 260px; height: 6px; margin: 12px auto 0; background: var(--surface-alt); border-radius: 999px; overflow: hidden; }
+  .progress > div { height: 100%; width: 0; background: var(--accent); transition: width 0.2s; }
+  .note { margin: 0; }
+  @media (max-width: 600px) {
+    .tiles { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+    .tile { padding: 12px; }
+    .tile .value { font-size: 1.5rem; }
+    .panels { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .facts { margin-top: 12px; }
+    .bar-row { grid-template-columns: minmax(0, 7rem) 1fr 3rem; }
   }
-  .error-box {
-    border: 1px solid #f5b5b5;
-    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
-    color: var(--text);
-    padding: 14px 18px;
-    border-radius: var(--radius);
-  }
-  #app { display: none; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Dictionary Stats</h1>
-  <p class="subtitle" id="subtitle">Loading a snapshot of this project&rsquo;s dictionary&hellip;</p>
+  <p class="subtitle" id="subtitle">A snapshot of this project&rsquo;s dictionary.</p>
 
   <div id="loading" class="center-state">
     <div class="spinner"></div>
-    <div id="loading-text">Connecting&hellip;</div>
-    <div class="progress-track" style="margin-top:14px;">
-      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    <div id="loading-text">Loading&hellip;</div>
+    <div class="progress"><div id="progress-fill"></div></div>
+  </div>
+  <div id="error" class="error-box" role="alert" hidden></div>
+  <div id="empty" class="center-state" hidden>This project has no entries yet. Add some words, then reload.</div>
+
+  <main id="app" hidden>
+    <div class="tiles" id="tiles"></div>
+    <div class="panels">
+      <section class="card">
+        <h2>Senses per part of speech</h2>
+        <div id="pos-bars"></div>
+      </section>
+      <section class="card">
+        <h2>Top semantic domains</h2>
+        <div id="domains"></div>
+      </section>
     </div>
-  </div>
-
-  <div id="empty" class="center-state" style="display:none;">
-    This project has no entries yet.
-  </div>
-
-  <div id="error" class="error-box" style="display:none;"></div>
-
-  <div id="app">
-    <div class="cards-grid" id="stat-cards"></div>
-
-    <section id="pos-section">
-      <h2>Entries per part of speech</h2>
-      <div id="pos-bars"></div>
-    </section>
-
-    <section id="domains-section">
-      <h2>Top 10 semantic domains</h2>
-      <div class="domains-grid" id="domains-grid"></div>
-    </section>
-
-    <section id="facts-section">
+    <section class="card facts">
       <h2>Fun facts</h2>
-      <div class="facts-grid" id="facts-grid"></div>
+      <div id="facts"></div>
     </section>
-  </div>
+  </main>
 </div>
 
 <script>
 (function () {
   'use strict';
 
-  var PAGE_SIZE = 500;
-  var ENTRY_CAP = 3000;
-
-  function esc(value) {
-    var div = document.createElement('div');
-    div.textContent = value == null ? '' : String(value);
-    return div.innerHTML;
+  function applyTheme() {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', fwlite.theme || (dark ? 'dark' : 'light'));
+  }
+  function applyVernFont(ws) {
+    if (ws && ws.font) document.documentElement.style.setProperty('--vern-font', '"' + ws.font.replace(/"/g, '') + '", var(--font)');
   }
 
-  function applyTheme(theme) {
-    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
-  }
-
-  function showError(message) {
-    document.getElementById('loading').style.display = 'none';
-    var box = document.getElementById('error');
-    box.style.display = 'block';
-    box.textContent = message;
-  }
-
-  function setProgress(loaded, total) {
-    var pct = total > 0 ? Math.min(100, Math.round((loaded / total) * 100)) : 0;
-    document.getElementById('progress-fill').style.width = pct + '%';
-    document.getElementById('loading-text').textContent = 'Loaded ' + loaded.toLocaleString() + (total ? ' of ' + total.toLocaleString() : '') + ' entries…';
-  }
-
-  /** Fetches entries page by page until countEntries or ENTRY_CAP is reached. */
-  function fetchEntries(total) {
-    var target = Math.min(total, ENTRY_CAP);
+  var PAGE = 1000, CAP = 5000;
+  async function loadAll(onProgress, cap) {
+    cap = cap || CAP;
+    var total = await fwlite.countEntries({});
+    var target = Math.min(total, cap);
     var entries = [];
-    function loadNext() {
-      if (entries.length >= target) return Promise.resolve(entries);
-      var limit = Math.min(PAGE_SIZE, target - entries.length);
-      return window.fwlite.getEntries({limit: limit, offset: entries.length}).then(function (page) {
-        entries = entries.concat(page);
-        setProgress(entries.length, target);
-        if (page.length === 0 || entries.length >= target) return entries;
-        return loadNext();
-      });
+    while (entries.length < target) {
+      var page = await fwlite.getEntries({limit: Math.min(PAGE, target - entries.length), offset: entries.length});
+      if (!page.length) break;
+      entries = entries.concat(page);
+      if (onProgress) onProgress(entries.length, target);
     }
-    return loadNext();
+    return {entries: entries, total: total, capped: total > cap};
   }
 
-  function computeStats(entries, partsOfSpeech, semanticDomains, vernacularWs, analysisWs) {
-    var totalEntries = entries.length;
-    var totalSenses = 0;
-    var entriesWithExamples = 0;
-    var longestWord = {text: '', length: 0};
-    var posCounts = {}; // id -> count, plus '' for unspecified
-    var domainCounts = {}; // id -> count
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text != null) node.textContent = text;
+    return node;
+  }
+  function show(id, visible) { document.getElementById(id).hidden = !visible; }
+  function fmt(n) { return n.toLocaleString(); }
 
+  function computeStats(entries, partsOfSpeech, domains, analysisWs) {
+    var senses = 0, withExamples = 0, longest = '', posCounts = {}, domainCounts = {};
     entries.forEach(function (entry) {
-      var headwordText = window.fwlite.headword(entry) || '';
-      if (headwordText && headwordText.length > longestWord.length) {
-        longestWord = {text: headwordText, length: headwordText.length};
-      }
-
-      var hasExample = false;
-      var senses = entry.senses || [];
-      totalSenses += senses.length;
-      senses.forEach(function (sense) {
-        if (sense.exampleSentences && sense.exampleSentences.length > 0) hasExample = true;
-        var posId = sense.partOfSpeechId || (sense.partOfSpeech && sense.partOfSpeech.id) || '';
+      var hw = fwlite.headword(entry);
+      if (hw.length > longest.length) longest = hw;
+      var list = entry.senses || [];
+      senses += list.length;
+      if (list.some(function (s) { return s.exampleSentences && s.exampleSentences.length; })) withExamples++;
+      list.forEach(function (sense) {
+        var posId = (sense.partOfSpeech && sense.partOfSpeech.id) || sense.partOfSpeechId || '';
         posCounts[posId] = (posCounts[posId] || 0) + 1;
-        (sense.semanticDomains || []).forEach(function (domain) {
-          domainCounts[domain.id] = (domainCounts[domain.id] || 0) + 1;
+        (sense.semanticDomains || []).forEach(function (d) {
+          var key = d.code || d.id;
+          if (!domainCounts[key]) domainCounts[key] = {domain: d, count: 0};
+          domainCounts[key].count++;
         });
       });
-      if (hasExample) entriesWithExamples++;
     });
 
-    var posLookup = {};
-    partsOfSpeech.forEach(function (pos) { posLookup[pos.id] = pos; });
-    var domainLookup = {};
-    semanticDomains.forEach(function (domain) { domainLookup[domain.id] = domain; });
-
+    var posById = {};
+    partsOfSpeech.forEach(function (pos) { posById[pos.id] = pos; });
     var posBars = Object.keys(posCounts).map(function (id) {
-      var pos = posLookup[id];
-      var label = pos ? window.fwlite.firstValue(pos.name, analysisWs) : 'Unspecified';
-      return {label: label || 'Unspecified', count: posCounts[id]};
+      var label = posById[id] ? fwlite.firstValue(posById[id].name, analysisWs) : '';
+      return {label: label || 'None', count: posCounts[id]};
     }).sort(function (a, b) { return b.count - a.count; });
 
-    var topDomains = Object.keys(domainCounts).map(function (id) {
-      var domain = domainLookup[id];
-      return {
-        code: domain ? domain.code : '?',
-        name: domain ? window.fwlite.firstValue(domain.name, analysisWs) : 'Unknown',
-        count: domainCounts[id],
-      };
+    var domainByCode = {};
+    domains.forEach(function (d) { domainByCode[d.code] = d; });
+    var topDomains = Object.keys(domainCounts).map(function (key) {
+      var d = domainCounts[key].domain;
+      var known = domainByCode[d.code] || d;
+      return {code: d.code || '', name: fwlite.firstValue(known.name, analysisWs) || 'Unnamed domain', count: domainCounts[key].count};
     }).sort(function (a, b) { return b.count - a.count; }).slice(0, 10);
 
     return {
-      totalEntries: totalEntries,
-      totalSenses: totalSenses,
-      pctWithExamples: totalEntries ? Math.round((entriesWithExamples / totalEntries) * 100) : 0,
-      avgSensesPerEntry: totalEntries ? (totalSenses / totalEntries) : 0,
-      longestWord: longestWord.text,
+      entries: entries.length,
+      senses: senses,
+      pctExamples: entries.length ? Math.round(withExamples / entries.length * 100) : 0,
+      avgSenses: entries.length ? senses / entries.length : 0,
+      longest: longest,
       posBars: posBars,
       topDomains: topDomains,
+      domainsUsed: Object.keys(domainCounts).length,
     };
   }
 
-  function renderStatCards(stats) {
-    var cards = [
-      {label: 'Total entries', value: stats.totalEntries.toLocaleString()},
-      {label: 'Total senses', value: stats.totalSenses.toLocaleString()},
-      {label: 'Entries with examples', value: stats.pctWithExamples + '<small>%</small>'},
-      {label: 'Avg. senses / entry', value: stats.avgSensesPerEntry.toFixed(1)},
-    ];
-    var html = cards.map(function (card) {
-      return '<div class="card stat-card"><div class="label">' + esc(card.label) + '</div>' +
-        '<div class="value">' + card.value + '</div></div>';
-    }).join('');
-    document.getElementById('stat-cards').innerHTML = html;
-  }
-
-  function renderPosBars(bars) {
-    var container = document.getElementById('pos-bars');
-    if (bars.length === 0) {
-      container.innerHTML = '<p style="color:var(--text-muted)">No part-of-speech data yet.</p>';
-      return;
-    }
-    var max = bars[0].count || 1;
-    container.innerHTML = bars.slice(0, 12).map(function (bar) {
-      var pct = Math.round((bar.count / max) * 100);
-      return '<div class="bar-row">' +
-        '<div class="bar-label" title="' + esc(bar.label) + '">' + esc(bar.label) + '</div>' +
-        '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>' +
-        '<div class="bar-count">' + bar.count.toLocaleString() + '</div>' +
-        '</div>';
-    }).join('');
-  }
-
-  function renderDomains(domains) {
-    var container = document.getElementById('domains-grid');
-    if (domains.length === 0) {
-      container.innerHTML = '<p style="color:var(--text-muted)">No semantic domains tagged yet.</p>';
-      return;
-    }
-    container.innerHTML = domains.map(function (domain) {
-      return '<div class="domain-chip"><span><span class="code">' + esc(domain.code) + '</span>' +
-        esc(domain.name) + '</span><span class="count">' + domain.count + '</span></div>';
-    }).join('');
-  }
-
-  function renderFacts(stats) {
-    var facts = [
-      {title: 'Longest headword', value: stats.longestWord || '—'},
-      {title: 'Average senses per entry', value: stats.avgSensesPerEntry.toFixed(2)},
-      {title: 'Entries with an example sentence', value: stats.pctWithExamples + '%'},
-    ];
-    document.getElementById('facts-grid').innerHTML = facts.map(function (fact) {
-      return '<div class="card fact-card"><div class="fact-title">' + esc(fact.title) + '</div>' +
-        '<div class="fact-value">' + esc(fact.value) + '</div></div>';
-    }).join('');
-  }
-
-  function init(context) {
-    applyTheme(context.theme);
-
-    Promise.all([
-      window.fwlite.countEntries({}),
-      window.fwlite.getWritingSystems(),
-      window.fwlite.getPartsOfSpeech(),
-      window.fwlite.getSemanticDomains(),
-    ]).then(function (results) {
-      var total = results[0];
-      var writingSystems = results[1];
-      var partsOfSpeech = results[2];
-      var semanticDomains = results[3];
-      var vernacularWs = (writingSystems.vernacular || []).map(function (ws) { return ws.wsId; });
-      var analysisWs = (writingSystems.analysis || []).map(function (ws) { return ws.wsId; });
-
-      if (total === 0) {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('empty').style.display = 'block';
-        return;
-      }
-
-      setProgress(0, Math.min(total, ENTRY_CAP));
-      return fetchEntries(total).then(function (entries) {
-        var stats = computeStats(entries, partsOfSpeech, semanticDomains, vernacularWs, analysisWs);
-        renderStatCards(stats);
-        renderPosBars(stats.posBars);
-        renderDomains(stats.topDomains);
-        renderFacts(stats);
-
-        document.getElementById('subtitle').innerHTML = esc('A snapshot of ' + entries.length.toLocaleString() + ' ' +
-          (entries.length === 1 ? 'entry' : 'entries') + ' in ' + context.project.projectName + '.');
-        if (total > ENTRY_CAP) {
-          var note = document.createElement('span');
-          note.className = 'cap-note';
-          note.textContent = 'Based on the first ' + ENTRY_CAP.toLocaleString() + ' entries';
-          document.getElementById('subtitle').appendChild(document.createElement('br'));
-          document.getElementById('subtitle').appendChild(note);
-        }
-
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-      });
-    }).catch(function (err) {
-      showError('Could not load dictionary stats: ' + (err && err.message ? err.message : String(err)));
+  function renderTiles(stats) {
+    var tiles = document.getElementById('tiles');
+    [
+      ['Entries', fmt(stats.entries)],
+      ['Senses', fmt(stats.senses)],
+      ['With an example', stats.pctExamples, '%'],
+      ['Senses per entry', stats.avgSenses.toFixed(1)],
+    ].forEach(function (t) {
+      var tile = el('div', 'card tile');
+      tile.appendChild(el('div', 'label', t[0]));
+      var value = el('div', 'value', t[1]);
+      if (t[2]) value.appendChild(el('small', '', t[2]));
+      tile.appendChild(value);
+      tiles.appendChild(tile);
     });
   }
 
-  window.fwlite.ready.then(init);
+  function renderPos(bars) {
+    var box = document.getElementById('pos-bars');
+    if (!bars.length) { box.appendChild(el('p', 'muted note', 'No senses yet.')); return; }
+    var max = bars[0].count || 1;
+    bars.slice(0, 12).forEach(function (bar) {
+      var row = el('div', 'bar-row');
+      var label = el('div', 'bar-label', bar.label);
+      label.title = bar.label;
+      var track = el('div', 'bar-track');
+      var fill = el('div', 'bar-fill');
+      fill.style.width = Math.round(bar.count / max * 100) + '%';
+      track.appendChild(fill);
+      row.appendChild(label);
+      row.appendChild(track);
+      row.appendChild(el('div', 'bar-count', fmt(bar.count)));
+      box.appendChild(row);
+    });
+  }
+
+  function renderDomains(list) {
+    var box = document.getElementById('domains');
+    if (!list.length) { box.appendChild(el('p', 'muted note', 'No senses have a semantic domain yet.')); return; }
+    list.forEach(function (d) {
+      var row = el('div', 'domain-row');
+      row.appendChild(el('span', 'code', d.code));
+      var name = el('span', 'name', d.name);
+      name.title = d.name;
+      row.appendChild(name);
+      row.appendChild(el('span', 'chip accent', fmt(d.count)));
+      box.appendChild(row);
+    });
+  }
+
+  function renderFacts(stats) {
+    var box = document.getElementById('facts');
+    [
+      ['Longest headword', stats.longest || '-', true],
+      ['Semantic domains in use', fmt(stats.domainsUsed)],
+      ['Parts of speech in use', fmt(stats.posBars.filter(function (b) { return b.label !== 'None'; }).length)],
+    ].forEach(function (f) {
+      var row = el('div', 'fact');
+      row.appendChild(el('span', 'muted', f[0]));
+      row.appendChild(el('span', 'value' + (f[2] ? ' vern' : ''), f[1]));
+      box.appendChild(row);
+    });
+  }
+
+  async function init() {
+    applyTheme();
+    try {
+      var results = await Promise.all([fwlite.getWritingSystems(), fwlite.getPartsOfSpeech(), fwlite.getSemanticDomains()]);
+      applyVernFont((results[0].vernacular || [])[0]);
+      var analysisWs = (results[0].analysis || []).filter(function (ws) { return !ws.isAudio; }).map(function (ws) { return ws.wsId; });
+
+      var loaded = await loadAll(function (n, target) {
+        document.getElementById('loading-text').textContent = 'Loaded ' + fmt(n) + ' of ' + fmt(target) + ' entries…';
+        document.getElementById('progress-fill').style.width = Math.round(n / target * 100) + '%';
+      });
+      show('loading', false);
+      if (!loaded.entries.length) { show('empty', true); return; }
+
+      var stats = computeStats(loaded.entries, results[1], results[2], analysisWs);
+      renderTiles(stats);
+      renderPos(stats.posBars);
+      renderDomains(stats.topDomains);
+      renderFacts(stats);
+      document.getElementById('subtitle').textContent = loaded.capped
+        ? 'Based on the first ' + fmt(loaded.entries.length) + ' of ' + fmt(loaded.total) + ' entries in ' + fwlite.project.projectName + '.'
+        : 'A snapshot of ' + fwlite.project.projectName + '.';
+      show('app', true);
+    } catch (err) {
+      show('loading', false);
+      var box = document.getElementById('error');
+      box.textContent = 'Could not load the stats: ' + (err && err.message ? err.message : String(err));
+      box.hidden = false;
+    }
+  }
+
+  fwlite.ready.then(init);
 })();
 </script>
 </body>

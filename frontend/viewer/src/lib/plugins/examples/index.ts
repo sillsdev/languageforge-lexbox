@@ -162,13 +162,6 @@ export const examplePlugins: ExamplePlugin[] = [
     loadHtml: async () => (await import('./minimal-pairs.html?raw')).default,
   },
   {
-    key: 'domain-coverage',
-    name: 'Domain Coverage',
-    description: "See how much of the semantic-domain framework your project covers, and drill into what's still empty.",
-    functions: ['explore', 'collect'],
-    loadHtml: async () => (await import('./domain-coverage.html?raw')).default,
-  },
-  {
     key: 'dictionary-stats',
     name: 'Dictionary Stats',
     description: 'A dashboard of entry, sense, part-of-speech and semantic-domain statistics for the project.',
@@ -226,6 +219,13 @@ export const examplePlugins: ExamplePlugin[] = [
 
   // ---- Play & learn ----
   {
+    key: 'speaking-isles',
+    name: 'The Speaking Isles',
+    description: 'A 3D island game grown from your dictionary: learn its words to lift the Hush, then add new words and example sentences along the way. Needs a device with WebGL.',
+    functions: ['play', 'collect', 'explore'],
+    loadHtml: async () => (await import('./speaking-isles.html?raw')).default,
+  },
+  {
     key: 'crossword',
     name: 'Crossword',
     description: 'Generate a playable crossword from your words, clued by their meanings.',
@@ -240,28 +240,15 @@ export const examplePlugins: ExamplePlugin[] = [
     functions: ['play'],
     loadHtml: async () => (await import('./flashcards.html?raw')).default,
   },
-  {
-    key: 'listening-quiz',
-    name: 'Listening Quiz',
-    description: 'Play a recording and pick the right meaning (or word) — a multiple-choice listening game.',
-    functions: ['play'],
-    loadHtml: async () => (await import('./listening-quiz.html?raw')).default,
-  },
-  {
-    key: 'word-harvest-bingo',
-    name: 'Word Harvest Bingo',
-    description: 'A projector-friendly bingo board that stamps squares as domains fill up during a word-collection event.',
-    functions: ['play', 'collect'],
-    loadHtml: async () => (await import('./word-harvest-bingo.html?raw')).default,
-  },
 ];
+
+/** The examples the gallery offers. */
+export const listedExamplePlugins = examplePlugins.filter((plugin) => plugin.listed !== false);
 
 /**
  * Examples grouped by their PRIMARY function, in {@link exampleFunctions} order, skipping empty
  * sections. This is the gallery's default browse view (each example appears once).
  */
-/** The examples the gallery offers. */
-export const listedExamplePlugins = examplePlugins.filter((plugin) => plugin.listed !== false);
 
 export function examplePluginsByPrimaryFunction(): {function: ExampleFunction; plugins: ExamplePlugin[]}[] {
   return exampleFunctions

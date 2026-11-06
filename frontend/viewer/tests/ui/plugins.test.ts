@@ -476,9 +476,20 @@ for (const example of examplePlugins) {
     await expect(page.getByTestId('plugin-studio')).toBeVisible();
 
     const frame = page.frameLocator(`iframe[title="${example.name}"]`);
+    // The examples' shared state contract: #loading, #error, #empty/#app and an <h1> named like the example.
+    // toBeHidden alone also passes when an element doesn't exist, so check each one is there first.
+    await expect(frame.locator('#loading')).toBeAttached();
     // Loading clearing proves the plugin finished talking to the project over the bridge.
     await expect(frame.locator('#loading')).toBeHidden({timeout: 20000});
+    await expect(frame.locator('#error')).toBeAttached();
     await expect(frame.locator('#error')).toBeHidden();
-    await expect(frame.getByRole('heading', {name: example.name}).first()).toBeVisible();
+    await expect(frame.locator('h1').first()).toHaveText(example.name);
+    await expect(frame.locator('#app:visible, #empty:visible').first()).toBeVisible();
+
+    for (const width of [page.viewportSize()!.width, 390]) {
+      await page.setViewportSize({width, height: 844});
+      await expect.poll(() => frame.locator('html').evaluate(html => html.scrollWidth - html.clientWidth),
+        {message: `horizontal overflow at a ${width}px viewport`}).toBeLessThanOrEqual(0);
+    }
   });
 }

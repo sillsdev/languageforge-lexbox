@@ -335,6 +335,7 @@ type Entry = {
   headword: string,              // computed, read-only: how the app displays this entry (see below). Use fwlite.headword(entry).
   lexemeForm: MultiString,       // the word as first entered (vernacular)
   citationForm: MultiString,     // dictionary form; overrides lexemeForm for display when present
+  morphType: string,             // 'Root' | 'Stem' | 'Prefix' | 'Suffix' | 'Enclitic' | 'Phrase' | … (affixes and clitics aren't standalone words)
   note: RichMultiString,
   senses: Sense[],
 };
@@ -365,10 +366,12 @@ ${projectSection}
 ${culturalSection}## Design guidance
 
 ${responsiveGuidance}
-- **Theme & palette**: define a small set of CSS custom properties on \`:root\` (\`--bg\`, \`--surface\`, \`--border\`, \`--text\`, \`--text-muted\`, \`--accent\`, \`--radius\`) and drive every color through them. Provide dark values under \`html[data-theme="dark"]\`, then set \`document.documentElement.dataset.theme = fwlite.theme\` after ready (respecting \`prefers-color-scheme\` as a fallback). Never hard-code raw colors on elements.
-- Use the system font stack; the vernacular writing systems may specify a \`font\` name you can add to a font-family list.
-- Always render **loading**, **empty** ("no entries yet") and **error** states for async data.
+- **Theme & palette**: drive every color through the CSS custom properties in the skeleton (\`--bg\`, \`--surface\`, \`--surface-alt\`, \`--border\`, \`--text\`, \`--text-muted\`, \`--accent\`, \`--accent-soft\`, \`--accent-fg\`, \`--good\`, \`--warn\`, \`--bad\` (each with a \`-soft\` background variant), \`--radius\`, \`--font\`, \`--vern-font\`). Keep the skeleton's values: they match FW Lite's own look (its blue accent, neutral greys, 10px corners), so the plugin feels like part of the app. Dark values live under \`html[data-theme="dark"]\`; set \`data-theme\` from \`fwlite.theme\` after ready, falling back to \`prefers-color-scheme\`. Never hard-code raw colors on elements.
+- **Fonts**: use the system font stack (\`--font\`). Show vernacular text with \`font-family: var(--vern-font)\`, and set \`--vern-font\` from the default vernacular writing system's \`font\` when it has one.
+- **Layout**: fill the frame rather than leaving wide empty margins: lists, tables and dashboards up to ~1100px wide; one-card-at-a-time flows ~640px wide and full height, with the main action buttons at the bottom on phones; games and visualizations full-window. Touch targets at least 44px tall.
+- Always render **loading**, **empty** and **error** states for async data. Make the empty state specific and say what the user can do about it ("No entries have a recording yet. Record some, then reload."), not just "nothing here".
 - Escape dictionary data before inserting it into the DOM (\`textContent\`, not \`innerHTML\`) — it can contain any characters.
+- **Games and drills** should skip affixes and clitics (\`entry.morphType\` such as \`Prefix\`/\`Suffix\`, or a headword starting or ending with \`-\`/\`=\`) and glosses that are grammatical tags (e.g. \`PST\`, \`3SG.SBJ\`), so players see real words.
 - Users of this plugin are dictionary editors, not developers — keep the UI friendly and obvious.
 
 ## Capabilities & limits inside the sandbox
@@ -390,19 +393,43 @@ ${responsiveGuidance}
      contexts ("entry" for the entry menu), requires ("comments"/"history" if essential). -->
 ${skeletonPermissionsMeta}<title>My plugin</title>
 <style>
-  :root { --bg: #f5f6f8; --surface: #fff; --border: #e2e4e9; --text: #1c1e21; --text-muted: #6b7280; --accent: #4f46e5; --radius: 12px; }
-  html[data-theme="dark"] { --bg: #16171b; --surface: #1f2126; --border: #33353c; --text: #edeef1; --text-muted: #9aa0ab; --accent: #818cf8; }
-  body { margin: 0; padding: 16px; background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; }
+  :root { color-scheme: light; --bg: #fafafa; --surface: #fff; --surface-alt: #f4f4f5; --border: #e4e4e7; --text: #09090b; --text-muted: #71717a;
+    --accent: #005de1; --accent-soft: #e8f0fd; --accent-fg: #fff; --good: #15803d; --good-soft: #e7f6ec; --warn: #b45309; --warn-soft: #fdf3e2;
+    --bad: #dc2626; --bad-soft: #fdecec; --radius: 10px; --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif; --vern-font: var(--font); }
+  html[data-theme="dark"] { color-scheme: dark; --bg: #09090b; --surface: #18181b; --surface-alt: #27272a; --border: #2e2e33; --text: #fafafa; --text-muted: #a1a1aa;
+    --accent: #3b82f6; --accent-soft: #172a4d; --good: #4ade80; --good-soft: #13301f; --warn: #fbbf24; --warn-soft: #3a2a0c; --bad: #f87171; --bad-soft: #3d1717; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 20px 24px; }
+  @media (max-width: 600px) { .wrap { padding: 12px; } }
   /* your styles — always reference the variables above */
 </style>
 </head>
 <body>
-<main id="app">Loading…</main>
+<div class="wrap">
+  <h1>My plugin</h1>
+  <div id="loading">Loading…</div>
+  <div id="error" role="alert" hidden></div>
+  <div id="empty" hidden>No entries yet. Add some words, then reload.</div>
+  <main id="app" hidden></main>
+</div>
 <script>
 fwlite.ready.then(async () => {
-  document.documentElement.dataset.theme = fwlite.theme;
-  const entries = await fwlite.getEntries({limit: 500});
-  // build your UI…
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.dataset.theme = fwlite.theme || (dark ? 'dark' : 'light');
+  try {
+    const entries = await fwlite.getEntries({limit: 500});
+    document.getElementById('loading').hidden = true;
+    if (!entries.length) { document.getElementById('empty').hidden = false; return; }
+    // build your UI in #app…
+    document.getElementById('app').hidden = false;
+  } catch (err) {
+    document.getElementById('loading').hidden = true;
+    const box = document.getElementById('error');
+    box.textContent = 'Something went wrong: ' + err.message;
+    box.hidden = false;
+  }
 });
 </script>
 </body>
