@@ -205,14 +205,14 @@ export const examplePlugins: ExamplePlugin[] = [
   {
     key: 'dictionary-preview',
     name: 'Dictionary Preview',
-    description: 'Typeset your dictionary as printable, book-style pages, ready to print or save as PDF.',
+    description: 'See your dictionary as book pages, one letter at a time, and print it or save it as a PDF.',
     functions: ['publish'],
     loadHtml: async () => (await import('./dictionary-preview.html?raw')).default,
   },
   {
     key: 'reversal-index',
     name: 'Reversal Index',
-    description: 'Build a reversal index — meanings in an analysis language pointing back to headwords — to browse or print.',
+    description: 'Look words up by meaning: an index in an analysis language that points back to your headwords, one letter at a time or printed whole.',
     functions: ['publish', 'explore'],
     loadHtml: async () => (await import('./reversal-index.html?raw')).default,
   },

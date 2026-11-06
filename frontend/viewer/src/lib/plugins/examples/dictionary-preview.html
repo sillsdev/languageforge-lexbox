@@ -6,603 +6,635 @@
 <title>Dictionary Preview</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f5f6f8;
+    color-scheme: light;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --surface-alt: #f0f1f4;
-    --border: #e2e4e9;
-    --text: #1c1e21;
-    --text-muted: #6b7280;
-    --accent: #4f46e5;
-    --accent-soft: #eef0ff;
-    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
-    --radius: 12px;
-    /* The paper stays light in both themes — a printed page is a printed page. */
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
+    --warn: #b45309;
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
+  }
+  html[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
+    --warn: #fbbf24;
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
+  }
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
+  }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  :root {
+    /* The paper stays light in both themes: a printed page is a printed page. */
     --paper: #fbfaf6;
     --ink: #211d18;
     --ink-muted: #6a6156;
     --rule: #d9d2c4;
-    --serif: Charter, "Bitstream Charter", "Sitka Text", Georgia, "Times New Roman", serif;
   }
-  html[data-theme="dark"] {
-    --bg: #16171b;
-    --surface: #1f2126;
-    --surface-alt: #26282e;
-    --border: #33353c;
-    --text: #edeef1;
-    --text-muted: #9aa0ab;
-    --accent: #818cf8;
-    --accent-soft: #2a2b5e;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  /* Letter pages */
+  :root { --serif: Charter, "Bitstream Charter", "Sitka Text", Georgia, "Times New Roman", serif; --vern-font: var(--serif); }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 12px; }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .field label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+  .field.grow { flex: 1 1 220px; }
+  .field.grow input { width: 100%; }
+  .print-col { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; }
+  .print-hint { font-size: 0.78rem; color: var(--text-muted); }
+  @media (max-width: 600px) {
+    .controls { gap: 10px; }
+    .controls .field:not(.grow) { flex: 1 1 40%; }
+    .controls select { width: 100%; }
+    .controls .field.grow { flex: 1 1 200px; }
+    .print-hint, .print-wide { display: none; }
+    .toggle { flex: 1 1 50%; }
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 20px 16px 48px;
+  .status { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 10px; min-height: 1.2em; }
+  .linkish { font: inherit; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+  .letters { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0; margin-bottom: 12px; background: var(--bg); }
+  .letters button {
+    font: inherit; font-weight: 600; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer;
   }
-  .wrap { max-width: 860px; margin: 0 auto; }
-  h1 { font-size: 1.5rem; margin: 0 0 4px; }
-  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.92rem; }
+  .letters button:hover { background: var(--accent-soft); }
+  .letters button[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); font-weight: 800; }
+  @media (pointer: coarse) { .letters button { min-width: 40px; height: 40px; } }
+  @media (min-width: 768px) { .letters.sticky { position: sticky; top: 0; z-index: 5; } }
+  .letter-head { font-size: 1.5rem; margin: 0 0 8px; scroll-margin-top: var(--letters-h, 0px); }
+  .letter-head:focus { outline: none; }
+  .letter-head .n { font-size: 0.9rem; font-weight: 400; color: var(--text-muted); margin-left: 6px; }
+  .pager { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; margin-top: 16px; }
+  .pager .btn { flex: 1 1 0; }
+  .pager .top { flex: 0 0 auto; }
+  .more { width: 100%; margin-top: 12px; }
 
-  /* Controls chrome — app-like sans palette */
-  .controls {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 14px 16px;
-    margin-bottom: 22px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px;
-    align-items: flex-end;
-  }
-  .field { display: flex; flex-direction: column; gap: 4px; }
-  .field label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
-  .field select, .field input {
-    font: inherit;
-    font-size: 0.9rem;
-    padding: 7px 10px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--text);
-    min-width: 150px;
-  }
-  .field input { min-width: 180px; }
-  .grow { flex: 1; }
-  .count-note { font-size: 0.82rem; color: var(--text-muted); align-self: center; }
-  .cap-note {
-    display: inline-block;
-    font-size: 0.78rem;
-    color: #b45309;
-    background: var(--surface-alt);
-    padding: 3px 10px;
-    border-radius: 999px;
-  }
-  .print-btn {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    padding: 9px 20px;
-    border-radius: 999px;
-    font-size: 0.92rem;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .print-btn:hover { filter: brightness(1.08); }
-
-  /* The typeset page — serif, book-like */
-  .page {
-    background: var(--paper);
-    color: var(--ink);
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-    box-shadow: var(--shadow);
-    padding: 40px 44px 48px;
-    font-family: var(--serif);
-    font-size: 15px;
-    line-height: 1.32;
-  }
-  .guide-band {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    border-bottom: 2px solid var(--ink);
-    padding-bottom: 6px;
-    margin-bottom: 14px;
-    font-variant: small-caps;
-    letter-spacing: 0.02em;
-  }
-  .guide-word { font-weight: 700; font-size: 1.15rem; }
-  .guide-title { font-size: 0.8rem; color: var(--ink-muted); font-variant: normal; letter-spacing: 0; }
-  .sheet { margin-bottom: 26px; }
-  .sheet:last-child { margin-bottom: 0; }
-
-  /* column-fill:auto + a fixed height make each sheet fill its left column top-to-bottom,
-     then the right — so it reads in order. Plain multicol (no fixed height) balances the
-     whole document into two full-height columns, splitting the alphabet down the middle. */
-  .sheet-body {
-    columns: 2;
-    column-gap: 30px;
-    column-rule: 1px solid var(--rule);
-    column-fill: auto;
-    height: 850px;
-    overflow: hidden;
-  }
-  @media (max-width: 620px) { .sheet-body { columns: 1; } }
-
-  .dict-entry {
-    break-inside: avoid;
-    -webkit-column-break-inside: avoid;
-    margin: 0 0 7px;
-    padding-left: 14px;
-    text-indent: -14px; /* hanging indent */
-  }
-  .headword { font-weight: 700; }
-  .homograph { font-size: 0.7em; vertical-align: super; font-weight: 700; margin-left: 1px; }
-  .pos { font-style: italic; color: var(--ink-muted); margin: 0 4px; }
-  .sense-num { font-weight: 700; margin: 0 3px 0 5px; }
-  .gloss { }
-  .definition { color: var(--ink); }
-  .example {
-    font-style: italic;
-    display: inline;
-  }
-  .example-trans { font-style: normal; color: var(--ink-muted); }
-  .no-sense { color: var(--ink-muted); font-style: italic; }
-
-  /* Shared async states */
-  .center-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
-  .spinner {
-    width: 34px; height: 34px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    margin: 0 auto 16px;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .error-box {
-    border: 1px solid #f5b5b5;
-    background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
-    color: var(--text);
-    padding: 14px 18px;
-    border-radius: var(--radius);
-  }
-  #page-wrap { display: none; }
-
-  /* Print: only the typeset page, real paper margins */
+  /* Print: an offscreen, mm-sized copy is paginated by measuring, so guide words match the printed pages. */
+  #print-root { position: absolute; left: -10000px; top: 0; width: 178mm; visibility: hidden; }
+  .psheet { width: 178mm; padding: 0; background: #fff; color: #000; font-family: var(--serif); font-size: 10pt; line-height: 1.3; }
+  .psheet + .psheet { margin-top: 10mm; }
+  .pband { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; border-bottom: 1.5pt solid #000; padding-bottom: 1.5mm; margin-bottom: 3mm; height: 9mm; overflow: hidden; }
+  .pband .gw { font-weight: 700; font-size: 11pt; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 40%; }
+  .pband .gt { font-size: 8pt; color: #555; }
+  .pbody { columns: 2; column-gap: 7mm; column-rule: 0.5pt solid #bbb; column-fill: auto; height: 225mm; overflow: hidden; }
+  .pdiv { break-inside: avoid; break-after: avoid; font-weight: 700; font-size: 13pt; border-bottom: 0.5pt solid #bbb; margin: 2mm 0 1.5mm; }
+  .pdiv:first-child { margin-top: 0; }
   @page { margin: 18mm 16mm; }
   @media print {
-    body { background: #fff; padding: 0; }
-    .wrap { max-width: none; }
-    h1, .subtitle, .controls { display: none !important; }
-    .page {
-      border: none;
-      box-shadow: none;
-      border-radius: 0;
-      padding: 0;
-      background: #fff;
-    }
-    .dict-entry { break-inside: avoid; }
-    .sheet-body { column-gap: 24px; }
-    .sheet { margin-bottom: 0; break-after: page; break-inside: avoid; }
-    .sheet:last-child { break-after: auto; }
+    html, body { background: #fff !important; min-height: 0; }
+    .wrap { display: none !important; }
+    #print-root { position: static; visibility: visible; }
+    .psheet + .psheet { margin-top: 0; }
+    .psheet { break-after: page; }
+    .psheet:last-child { break-after: auto; }
   }
+  .page {
+    background: var(--paper); color: var(--ink); border: 1px solid var(--rule); border-radius: 4px;
+    box-shadow: var(--shadow); padding: 28px 36px 32px; font-family: var(--serif); font-size: 15px; line-height: 1.35;
+  }
+  .page .entries { columns: 2; column-gap: 32px; column-rule: 1px solid var(--rule); }
+  @media (max-width: 700px) { .page .entries { columns: 1; } }
+  @media (max-width: 600px) { .page { padding: 16px 14px 20px; margin: 0 -4px; } }
+  .page .letter-head { font-family: var(--serif); color: var(--ink); border-bottom: 2px solid var(--ink); padding-bottom: 4px; margin-bottom: 12px; }
+  .page .letter-head .n { color: var(--ink-muted); font-family: var(--font); }
+  .page + .page { margin-top: 16px; }
+
+  .dict-entry { break-inside: avoid; margin: 0 0 7px; padding-left: 14px; text-indent: -14px; }
+  .psheet .dict-entry { margin-bottom: 1.2mm; }
+  .headword { font-weight: 700; font-family: var(--vern-font); }
+  .homograph { font-size: 0.7em; vertical-align: super; font-weight: 700; margin-left: 1px; line-height: 0; }
+  .pos { font-style: italic; color: var(--ink-muted); margin: 0 4px; }
+  .sense-num { font-weight: 700; margin: 0 3px 0 5px; }
+  .example { font-style: italic; font-family: var(--vern-font); }
+  .example-trans { color: var(--ink-muted); }
+  .no-sense, .missing { color: var(--ink-muted); font-style: italic; }
+  .psheet .pos, .psheet .example-trans, .psheet .no-sense, .psheet .missing { color: #444; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Dictionary Preview</h1>
-  <p class="subtitle" id="subtitle">Rendering your entries as printable dictionary pages&hellip;</p>
-
-  <div id="loading" class="center-state">
-    <div class="spinner"></div>
-    <div id="loading-text">Loading entries&hellip;</div>
-  </div>
-
-  <div id="empty" class="center-state" style="display:none;">
-    This project has no entries to typeset yet.
-  </div>
-
-  <div id="error" class="error-box" style="display:none;"></div>
-
-  <div id="page-wrap">
+  <p class="subtitle" id="subtitle">Your entries as printable dictionary pages.</p>
+  <div id="loading" class="center-state"><div class="spinner"></div><div id="loading-text">Loading&hellip;</div></div>
+  <div id="error" class="error-box" role="alert" hidden></div>
+  <div id="empty" class="center-state" hidden>No entries yet. Add some in FW Lite, then reload.</div>
+  <main id="app" hidden>
     <div class="controls">
       <div class="field">
-        <label for="headword-ws">Headword language</label>
+        <label for="headword-ws">Headwords in</label>
         <select id="headword-ws"></select>
       </div>
       <div class="field">
-        <label for="gloss-ws">Meaning language</label>
+        <label for="gloss-ws">Meanings in</label>
         <select id="gloss-ws"></select>
       </div>
       <div class="field grow">
-        <label for="search">Filter (headword starts with&hellip;)</label>
-        <input id="search" type="text" placeholder="e.g. a  or  cha" autocomplete="off">
+        <label for="search">Find a word</label>
+        <input id="search" type="search" placeholder="Headword or meaning" autocomplete="off">
       </div>
-      <span class="count-note" id="count-note"></span>
-      <button class="print-btn" id="print-btn">Print / Save PDF</button>
+      <div class="print-col">
+        <button class="btn primary" id="print-btn" type="button" title="Prints every letter">Print<span class="print-wide">&nbsp;or save PDF</span></button>
+        <span class="print-hint" id="print-hint">Prints every letter.</span>
+      </div>
     </div>
-
-    <div id="sheets"></div>
-  </div>
+    <p class="status" id="status" aria-live="polite"></p>
+    <nav class="letters" id="letters" aria-label="Letters"></nav>
+    <div id="view"></div>
+  </main>
 </div>
+<div id="print-root" aria-hidden="true"></div>
 
 <script>
 (function () {
   'use strict';
+  var fwlite = window.fwlite;
+  var LETTER_PAGE = 200, SEARCH_CAP = 300;
+  function applyTheme() {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', fwlite.theme || (dark ? 'dark' : 'light'));
+  }
+  function applyVernFont(ws) {
+    if (ws && ws.font) document.documentElement.style.setProperty('--vern-font', '"' + ws.font.replace(/"/g, '') + '", var(--serif)');
+  }
 
-  var PAGE_SIZE = 1000;   // API max per call
-  var ENTRY_CAP = 5000;
-
-  var state = {
-    entries: [],          // all fetched entries
-    sorted: [],           // eligible + sorted for current headword ws
-    headwordWs: '',
-    glossWs: '',
-    vernacular: [],       // [{wsId, name}]
-    analysis: [],
-    posLookup: {},        // id -> pos object
-    collator: null,
-    projectName: '',
-    capped: false,
-  };
+  var PAGE = 1000, CAP = 5000;
+  async function loadAll(onProgress, cap) {
+    cap = cap || CAP;
+    var total = await fwlite.countEntries({});
+    var target = Math.min(total, cap);
+    var entries = [];
+    while (entries.length < target) {
+      var page = await fwlite.getEntries({limit: Math.min(PAGE, target - entries.length), offset: entries.length});
+      if (!page.length) break;
+      entries = entries.concat(page);
+      if (onProgress) onProgress(entries.length, target);
+    }
+    return {entries: entries, total: total, capped: total > cap};
+  }
 
   function el(id) { return document.getElementById(id); }
+  function make(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function lowerIn(locale, t) { try { return t.toLocaleLowerCase(locale || undefined); } catch (e) { return t.toLowerCase(); } }
+  function upperIn(locale, t) { try { return t.toLocaleUpperCase(locale || undefined); } catch (e) { return t.toUpperCase(); } }
+  // Only the listed writing systems, never a fallback to "any key": that could be an audio file name.
+  function textIn(ms, wsList) {
+    if (!ms) return '';
+    for (var i = 0; i < wsList.length; i++) {
+      var t = fwlite.asText(ms[wsList[i]]);
+      if (t) return t.normalize('NFC');
+    }
+    return '';
+  }
+  function makeCollator(locale) {
+    try { return new Intl.Collator(locale || undefined, {sensitivity: 'base', numeric: true, ignorePunctuation: true}); }
+    catch (e) { return new Intl.Collator(undefined, {sensitivity: 'base', numeric: true, ignorePunctuation: true}); }
+  }
+  // Accent- and case-insensitive form for search.
+  function fold(locale, t) { return lowerIn(locale, t.normalize('NFD').replace(/\p{M}/gu, '')); }
 
-  function applyTheme(theme) {
-    var preferredDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', theme || (preferredDark ? 'dark' : 'light'));
+  // The letter a word files under: the longest alphabet (exemplar) match, so "ng" wins over "n";
+  // otherwise its first letter without accents. Leading "-", "=", "*" and the like are skipped.
+  function makeAlphabet(exemplars, locale, collator) {
+    var order = [];
+    (exemplars || []).forEach(function (e) {
+      var k = lowerIn(locale, String(e).normalize('NFC').trim());
+      if (k && order.indexOf(k) < 0) order.push(k);
+    });
+    var longestFirst = order.slice().sort(function (a, b) { return Array.from(b).length - Array.from(a).length; });
+    function keyOf(text) {
+      var t = lowerIn(locale, String(text || '').normalize('NFC')).replace(/^[^\p{L}\p{N}]+/u, '');
+      for (var i = 0; i < longestFirst.length; i++) if (t.indexOf(longestFirst[i]) === 0) return longestFirst[i];
+      var first = Array.from(t)[0] || '';
+      if (!/\p{L}/u.test(first)) return '#';
+      return Array.from(first.normalize('NFD'))[0];
+    }
+    function label(key) {
+      if (key === '#') return '#';
+      var cs = Array.from(key);
+      return upperIn(locale, cs[0]) + cs.slice(1).join('');
+    }
+    function compare(a, b) {
+      if (a === b) return 0;
+      if (a === '#') return 1;
+      if (b === '#') return -1;
+      var ia = order.indexOf(a), ib = order.indexOf(b);
+      if (ia >= 0 && ib >= 0) return ia - ib;
+      return collator.compare(a, b) || (a < b ? -1 : 1);
+    }
+    return {keyOf: keyOf, label: label, compare: compare};
   }
 
-  function showError(message) {
-    el('loading').style.display = 'none';
-    var box = el('error');
-    box.style.display = 'block';
-    box.textContent = message;
+  // Groups sorted items into [{key, label, items}] in alphabet order.
+  function groupByLetter(items, alphabet, wordOf) {
+    var map = {}, keys = [];
+    items.forEach(function (it) {
+      var k = alphabet.keyOf(wordOf(it));
+      if (!map[k]) { map[k] = []; keys.push(k); }
+      map[k].push(it);
+    });
+    keys.sort(alphabet.compare);
+    return keys.map(function (k) { return {key: k, label: alphabet.label(k), items: map[k]}; });
   }
 
-  function hasText(multiString) {
-    return multiString && Object.keys(multiString).some(function (ws) { return !!multiString[ws]; });
+  function renderLetterBar(bar, sections, currentKey, onPick) {
+    bar.textContent = '';
+    bar.hidden = sections.length < 2;
+    sections.forEach(function (sec) {
+      var b = make('button', null, sec.label);
+      b.type = 'button';
+      b.setAttribute('aria-label', sec.label + ', ' + sec.items.length.toLocaleString());
+      if (sec.key === currentKey) b.setAttribute('aria-current', 'true');
+      b.addEventListener('click', function () { onPick(sec.key); });
+      bar.appendChild(b);
+    });
+    // Sticky only while it stays short; a 4-row bar would eat the screen.
+    bar.classList.toggle('sticky', bar.offsetHeight > 0 && bar.offsetHeight <= 96);
+    document.documentElement.style.setProperty('--letters-h', (bar.classList.contains('sticky') ? bar.offsetHeight : 0) + 'px');
   }
 
-  // Prefer citationForm, fall back to lexemeForm.
-  function headwordField(entry) {
-    return hasText(entry.citationForm) ? entry.citationForm : (entry.lexemeForm || {});
+  // Lays items out on fixed-size print sheets, measuring as it goes so each sheet's guide words are
+  // its real first and last word. items: {divider: label} | {node: () => Element, guide: text}.
+  function paginate(root, items, title) {
+    root.textContent = '';
+    var cur;
+    function newSheet() {
+      var sheet = make('div', 'psheet');
+      var band = make('div', 'pband');
+      var g1 = make('span', 'gw'), g2 = make('span', 'gw');
+      band.appendChild(g1); band.appendChild(make('span', 'gt', title)); band.appendChild(g2);
+      var body = make('div', 'pbody');
+      sheet.appendChild(band); sheet.appendChild(body);
+      root.appendChild(sheet);
+      cur = {body: body, g1: g1, g2: g2, first: '', last: ''};
+    }
+    function finish() { cur.g1.textContent = cur.first; cur.g2.textContent = cur.last; }
+    function overflowed() { return cur.body.scrollWidth > cur.body.clientWidth + 1 || cur.body.scrollHeight > cur.body.clientHeight + 1; }
+    newSheet();
+    items.forEach(function (item) {
+      var node = item.divider ? make('div', 'pdiv', item.divider) : item.node();
+      cur.body.appendChild(node);
+      if (cur.body.childNodes.length > 1 && overflowed()) {
+        cur.body.removeChild(node);
+        var last = cur.body.lastChild;
+        var carry = !item.divider && last && last.className === 'pdiv' && cur.body.childNodes.length > 1 ? last : null;
+        if (carry) cur.body.removeChild(carry);
+        finish();
+        newSheet();
+        if (carry) cur.body.appendChild(carry);
+        cur.body.appendChild(node);
+      }
+      if (!item.divider) { if (!cur.first) cur.first = item.guide; cur.last = item.guide; }
+    });
+    finish();
+    return root.childNodes.length;
   }
 
-  // Value for a chosen ws, falling back to the first non-empty of the preferred list.
-  function pick(multiString, chosenWs, preferredList) {
-    if (!multiString) return '';
-    if (chosenWs && multiString[chosenWs]) return window.fwlite.asText(multiString[chosenWs]);
-    return window.fwlite.firstValue(multiString, preferredList) || '';
+  var state = {
+    entries: [], items: [], sections: [], letter: null, query: '',
+    hwWs: '', glossWs: '', vernacular: [], analysis: [], posById: {},
+    collator: null, alphabet: null, projectName: '', capped: false, total: 0,
+  };
+
+  // Headword in the chosen writing system, with the same affix markers ("-ka", "ka-") the app adds.
+  function headwordIn(entry, ws) {
+    var cf = textIn(entry.citationForm, [ws]);
+    if (cf) return cf;
+    var lf = textIn(entry.lexemeForm, [ws]);
+    if (!lf) return '';
+    var shown = fwlite.headword(entry).normalize('NFC'), base = textIn(entry.lexemeForm, [state.vernacular[0].wsId]);
+    var at = base ? shown.indexOf(base) : -1;
+    return at < 0 ? lf : shown.slice(0, at) + lf + shown.slice(at + base.length);
   }
 
-  function headwordText(entry) {
-    return window.fwlite.headword(entry);
-  }
-
-  function wsIds(list) { return list.map(function (ws) { return ws.wsId; }); }
-
-  function posAbbrev(sense) {
-    var pos = (sense.partOfSpeech) || state.posLookup[sense.partOfSpeechId];
+  function posLabel(sense) {
+    var pos = sense.partOfSpeech || state.posById[sense.partOfSpeechId];
     if (!pos) return '';
-    // Real dictionaries print an abbreviation; the model may not carry one, so fall back to the name.
-    if (pos.abbreviation && hasText(pos.abbreviation)) {
-      return window.fwlite.firstValue(pos.abbreviation, wsIds(state.analysis));
-    }
-    return pick(pos.name, state.glossWs, wsIds(state.analysis));
+    var langs = [state.glossWs].concat(state.analysis.map(function (w) { return w.wsId; }));
+    return textIn(pos.abbreviation, langs) || textIn(pos.name, langs);
   }
 
-  /** Pages through getEntries until countEntries or ENTRY_CAP is reached. */
-  function fetchAll(total) {
-    var target = Math.min(total, ENTRY_CAP);
-    var out = [];
-    function loadNext() {
-      if (out.length >= target) return Promise.resolve(out);
-      var limit = Math.min(PAGE_SIZE, target - out.length);
-      return window.fwlite.getEntries({limit: limit, offset: out.length}).then(function (page) {
-        out = out.concat(page);
-        el('loading-text').textContent = 'Loaded ' + out.length.toLocaleString() + ' of ' + target.toLocaleString() + ' entries…';
-        if (!page.length || out.length >= target) return out;
-        return loadNext();
-      });
-    }
-    return loadNext();
+  function meaningOf(sense) {
+    return textIn(sense.gloss, [state.glossWs]) || textIn(sense.definition, [state.glossWs]);
   }
 
-  function rebuildSort() {
-    var locale = state.headwordWs || undefined;
-    try {
-      state.collator = new Intl.Collator(locale, {sensitivity: 'base', numeric: true});
-    } catch (e) {
-      state.collator = new Intl.Collator(undefined, {sensitivity: 'base', numeric: true});
-    }
-    state.sorted = state.entries
-      .filter(function (entry) { return hasText(headwordField(entry)); })
-      .sort(function (a, b) { return state.collator.compare(headwordText(a), headwordText(b)); });
+  function rebuild() {
+    state.collator = makeCollator(state.hwWs);
+    var ws = state.vernacular.find(function (w) { return w.wsId === state.hwWs; });
+    state.alphabet = makeAlphabet(ws && ws.exemplars, state.hwWs, state.collator);
+    var items = [];
+    state.entries.forEach(function (entry) {
+      var hw = headwordIn(entry, state.hwWs);
+      if (hw) items.push({entry: entry, hw: hw, find: fold(state.hwWs, hw)});
+    });
+    items.sort(function (a, b) { return state.collator.compare(a.hw, b.hw) || (a.entry.homographNumber || 0) - (b.entry.homographNumber || 0); });
+    // Homograph numbers: the project's own when it has them, otherwise counted here.
+    var seen = {};
+    items.forEach(function (it) { var k = lowerIn(state.hwWs, it.hw); seen[k] = (seen[k] || 0) + 1; });
+    var running = {};
+    items.forEach(function (it) {
+      var k = lowerIn(state.hwWs, it.hw);
+      it.homograph = it.entry.homographNumber > 0 ? it.entry.homographNumber : (seen[k] > 1 ? (running[k] = (running[k] || 0) + 1) : 0);
+    });
+    state.items = items;
+    state.sections = groupByLetter(items, state.alphabet, function (it) { return it.hw; });
+    if (!state.sections.some(function (s) { return s.key === state.letter; })) state.letter = state.sections.length ? state.sections[0].key : null;
+    render();
   }
 
-  // Build one entry's DOM. All dictionary data goes in via textContent — never innerHTML.
-  function renderEntry(entry, homographNum) {
-    var div = document.createElement('div');
-    div.className = 'dict-entry';
-
-    var hw = document.createElement('span');
-    hw.className = 'headword';
-    hw.textContent = headwordText(entry) || '—';
-    div.appendChild(hw);
-
-    if (homographNum) {
-      var sup = document.createElement('sup');
-      sup.className = 'homograph';
-      sup.textContent = String(homographNum);
-      div.appendChild(sup);
-    }
-
+  function renderEntry(it) {
+    var entry = it.entry;
+    var div = make('div', 'dict-entry');
+    div.appendChild(make('span', 'headword', it.hw));
+    if (it.homograph) div.appendChild(make('sup', 'homograph', String(it.homograph)));
     var senses = entry.senses || [];
-    if (!senses.length) {
-      var none = document.createElement('span');
-      none.className = 'no-sense';
-      none.textContent = ' (no senses)';
-      div.appendChild(none);
-      return div;
-    }
-
+    if (!senses.length) { div.appendChild(make('span', 'no-sense', ' (no senses)')); return div; }
+    var labels = senses.map(posLabel);
+    var shared = labels.every(function (l) { return l === labels[0]; });
+    if (shared && labels[0]) div.appendChild(make('span', 'pos', labels[0]));
     senses.forEach(function (sense, i) {
-      var abbr = posAbbrev(sense);
-      if (abbr) {
-        var pos = document.createElement('span');
-        pos.className = 'pos';
-        pos.textContent = abbr;
-        div.appendChild(pos);
-      }
-      if (senses.length > 1) {
-        var num = document.createElement('span');
-        num.className = 'sense-num';
-        num.textContent = (i + 1) + '.';
-        div.appendChild(num);
-      } else {
-        div.appendChild(document.createTextNode(' '));
-      }
-
-      var meaning = pick(sense.gloss, state.glossWs, wsIds(state.analysis));
-      if (!meaning && hasText(sense.definition)) {
-        meaning = pick(sense.definition, state.glossWs, wsIds(state.analysis));
-      }
-      var m = document.createElement('span');
-      m.className = 'gloss';
-      m.textContent = meaning || '—';
-      div.appendChild(m);
-
+      if (!shared && labels[i]) div.appendChild(make('span', 'pos', labels[i]));
+      if (senses.length > 1) div.appendChild(make('span', 'sense-num', (i + 1) + '.'));
+      else div.appendChild(document.createTextNode(' '));
+      var meaning = meaningOf(sense);
+      div.appendChild(meaning ? document.createTextNode(meaning) : make('span', 'missing', '(no meaning in this language)'));
       (sense.exampleSentences || []).forEach(function (ex) {
-        var sentence = window.fwlite.firstValue(ex.sentence, wsIds(state.vernacular));
+        var sentence = textIn(ex.sentence, [state.hwWs]);
         if (!sentence) return;
         div.appendChild(document.createTextNode(' '));
-        var exSpan = document.createElement('span');
-        exSpan.className = 'example';
-        exSpan.textContent = sentence;
-        div.appendChild(exSpan);
-        var trans = (ex.translations || [])
-          .map(function (t) { return window.fwlite.firstValue(t.text, wsIds(state.analysis)); })
-          .filter(Boolean)
-          .join('; ');
-        if (trans) {
-          var tSpan = document.createElement('span');
-          tSpan.className = 'example-trans';
-          tSpan.textContent = ' ‘' + trans + '’';
-          div.appendChild(tSpan);
-        }
+        div.appendChild(make('span', 'example', sentence));
+        var trans = (ex.translations || []).map(function (t) { return textIn(t.text, [state.glossWs]); }).filter(Boolean).join('; ');
+        if (trans) div.appendChild(make('span', 'example-trans', ' ‘' + trans + '’'));
       });
-
       if (i < senses.length - 1) div.appendChild(document.createTextNode(' '));
     });
-
     return div;
   }
 
-  function currentFilter() {
-    return el('search').value.trim().toLocaleLowerCase();
-  }
-
-  function updateCountNote(shown) {
-    var note = shown.toLocaleString() + ' of ' + state.sorted.length.toLocaleString() +
-      ' entr' + (state.sorted.length === 1 ? 'y' : 'ies');
-    var cn = el('count-note');
-    cn.innerHTML = '';
-    cn.appendChild(document.createTextNode(note + ' '));
-    if (state.capped) {
-      var cap = document.createElement('span');
-      cap.className = 'cap-note';
-      cap.textContent = 'first ' + ENTRY_CAP.toLocaleString() + ' only';
-      cn.appendChild(cap);
-    }
-  }
-
-  function makeSheet() {
-    var sheet = document.createElement('div');
-    sheet.className = 'page sheet';
-    var band = document.createElement('div');
-    band.className = 'guide-band';
-    var first = document.createElement('span');
-    first.className = 'guide-word';
-    var title = document.createElement('span');
-    title.className = 'guide-title';
-    title.textContent = state.projectName;
-    var last = document.createElement('span');
-    last.className = 'guide-word';
-    band.appendChild(first);
-    band.appendChild(title);
-    band.appendChild(last);
-    var body = document.createElement('div');
-    body.className = 'sheet-body';
-    sheet.appendChild(band);
-    sheet.appendChild(body);
-    return { sheet: sheet, body: body, first: first, last: last, firstEntry: null, lastEntry: null, count: 0 };
-  }
-
-  // Guide words are the first and last headword actually placed on this sheet.
-  function finalizeSheet(s) {
-    if (!s.count) {
-      if (s.sheet.parentNode) s.sheet.parentNode.removeChild(s.sheet);
-      return;
-    }
-    s.first.textContent = headwordText(s.firstEntry) || '—';
-    s.last.textContent = headwordText(s.lastEntry) || '—';
-  }
-
-  function overflowed(body) {
-    return body.scrollWidth > body.clientWidth + 1 || body.scrollHeight > body.clientHeight + 1;
+  function letterPage(sec, items, extra) {
+    var page = make('section', 'page');
+    var head = make('h2', 'letter-head', sec.label);
+    head.tabIndex = -1;
+    head.appendChild(make('span', 'n', items.length.toLocaleString() + (items.length === 1 ? ' entry' : ' entries') + (extra || '')));
+    page.appendChild(head);
+    var list = make('div', 'entries');
+    page.appendChild(list);
+    return {page: page, head: head, list: list};
   }
 
   function render() {
-    var filter = currentFilter();
-    var list = state.sorted;
-    if (filter) {
-      list = list.filter(function (entry) {
-        return headwordText(entry).toLocaleLowerCase().indexOf(filter) === 0;
-      });
-    }
-
-    // Homograph numbering: same headword appearing more than once gets superscripts.
-    var counts = {};
-    list.forEach(function (entry) {
-      var key = headwordText(entry).toLocaleLowerCase();
-      counts[key] = (counts[key] || 0) + 1;
-    });
-    var running = {};
-
-    var sheets = el('sheets');
-    sheets.innerHTML = '';
-
-    if (!list.length) {
-      var msg = document.createElement('div');
-      msg.className = 'center-state';
-      msg.textContent = filter
-        ? 'No headwords start with “' + el('search').value.trim() + '”.'
-        : 'Nothing to show.';
-      sheets.appendChild(msg);
-      updateCountNote(0);
+    var view = el('view');
+    view.textContent = '';
+    var q = state.query ? fold(state.hwWs, state.query.normalize('NFC')) : '';
+    renderLetterBar(el('letters'), state.sections, q ? null : state.letter, pickLetter);
+    if (!state.items.length) {
+      el('status').textContent = '';
+      view.appendChild(make('div', 'center-state', 'No entry has a headword in this writing system. Pick another one above.'));
       return;
     }
+    if (q) return renderSearch(view, q);
+    var idx = state.sections.findIndex(function (s) { return s.key === state.letter; });
+    var sec = state.sections[idx];
+    setStatus(sec.items.length);
+    var p = letterPage(sec, sec.items);
+    view.appendChild(p.page);
+    var more = make('button', 'btn more');
+    more.type = 'button';
+    p.page.appendChild(more);
+    var shown = 0;
+    function showMore() {
+      sec.items.slice(shown, shown + LETTER_PAGE).forEach(function (it) { p.list.appendChild(renderEntry(it)); });
+      shown = Math.min(sec.items.length, shown + LETTER_PAGE);
+      more.hidden = shown >= sec.items.length;
+      more.textContent = 'Show more ' + sec.label + ' (' + (sec.items.length - shown).toLocaleString() + ' left)';
+    }
+    more.addEventListener('click', showMore);
+    showMore();
+    view.appendChild(pager(idx));
+    return p.head;
+  }
 
-    // Measure-and-spill: append each entry to the current sheet; if it overflows the two
-    // fixed-height columns, pull it back off and restart it on a fresh sheet.
-    var cur = makeSheet();
-    sheets.appendChild(cur.sheet);
-    list.forEach(function (entry) {
-      var key = headwordText(entry).toLocaleLowerCase();
-      var num = 0;
-      if (counts[key] > 1) { running[key] = (running[key] || 0) + 1; num = running[key]; }
-      var node = renderEntry(entry, num);
-      cur.body.appendChild(node);
-      if (cur.count && overflowed(cur.body)) {
-        cur.body.removeChild(node);
-        finalizeSheet(cur);
-        cur = makeSheet();
-        sheets.appendChild(cur.sheet);
-        cur.body.appendChild(node);
-      }
-      if (!cur.count) cur.firstEntry = entry;
-      cur.lastEntry = entry;
-      cur.count++;
+  function renderSearch(view, q) {
+    var hits = state.items.filter(function (it) {
+      if (it.find.indexOf(q) >= 0) return true;
+      return (it.entry.senses || []).some(function (s) { return fold(state.glossWs, meaningOf(s)).indexOf(q) >= 0; });
     });
-    finalizeSheet(cur);
+    var status = el('status');
+    status.textContent = hits.length
+      ? (hits.length > SEARCH_CAP ? 'Showing the first ' + SEARCH_CAP + ' of ' + hits.length.toLocaleString() + ' matches. Type more to narrow it down. '
+        : hits.length.toLocaleString() + (hits.length === 1 ? ' match' : ' matches') + ' in all letters. ')
+      : 'No matches in any letter for “' + state.query + '”. ';
+    var clear = make('button', 'linkish', 'Clear search');
+    clear.type = 'button';
+    clear.addEventListener('click', function () { el('search').value = ''; state.query = ''; render(); });
+    status.appendChild(clear);
+    groupByLetter(hits.slice(0, SEARCH_CAP), state.alphabet, function (it) { return it.hw; }).forEach(function (sec) {
+      var p = letterPage(sec, sec.items);
+      sec.items.forEach(function (it) { p.list.appendChild(renderEntry(it)); });
+      view.appendChild(p.page);
+    });
+  }
 
-    updateCountNote(list.length);
+  function setStatus(n) {
+    var parts = [state.items.length.toLocaleString() + ' entries with a headword'];
+    if (state.capped) parts.push('first ' + CAP.toLocaleString() + ' of ' + state.total.toLocaleString() + ' loaded');
+    el('status').textContent = parts.join(' · ');
+  }
+
+  function pager(idx) {
+    var row = make('nav', 'pager');
+    row.setAttribute('aria-label', 'Previous and next letter');
+    var prev = state.sections[idx - 1], next = state.sections[idx + 1];
+    if (prev) row.appendChild(navButton('‹ ' + prev.label, prev.key));
+    var top = make('button', 'btn ghost top', 'All letters ↑');
+    top.type = 'button';
+    top.addEventListener('click', function () {
+      var cur = el('letters').querySelector('[aria-current="true"]');
+      el('letters').scrollIntoView({block: 'start'});
+      if (cur) cur.focus();
+    });
+    if (state.sections.length > 1) row.appendChild(top);
+    if (next) row.appendChild(navButton(next.label + ' ›', next.key));
+    return row;
+  }
+  function navButton(text, key) {
+    var b = make('button', 'btn', text);
+    b.type = 'button';
+    b.addEventListener('click', function () { pickLetter(key); });
+    return b;
+  }
+
+  function pickLetter(key) {
+    state.letter = key;
+    if (state.query) { state.query = ''; el('search').value = ''; }
+    persist();
+    var head = render();
+    if (head) { head.scrollIntoView({block: 'start'}); head.focus({preventScroll: true}); }
+  }
+
+  function persist() {
+    fwlite.storage.set('prefs', {hwWs: state.hwWs, glossWs: state.glossWs, letter: state.letter}).catch(function () {});
+  }
+
+  function buildPrint() {
+    var items = [];
+    state.sections.forEach(function (sec) {
+      items.push({divider: sec.label});
+      sec.items.forEach(function (it) { items.push({guide: it.hw, node: function () { return renderEntry(it); }}); });
+    });
+    return paginate(el('print-root'), items, state.projectName);
   }
 
   function fillWsSelect(select, list, chosen) {
-    select.innerHTML = '';
+    select.textContent = '';
     list.forEach(function (ws) {
-      var opt = document.createElement('option');
+      var opt = make('option', null, ws.name || ws.wsId);
       opt.value = ws.wsId;
-      opt.textContent = ws.name || ws.wsId;
-      if (ws.wsId === chosen) opt.selected = true;
       select.appendChild(opt);
     });
+    select.value = chosen;
     select.disabled = list.length <= 1;
   }
 
-  function wireEvents() {
+  function wire() {
     el('headword-ws').addEventListener('change', function () {
-      state.headwordWs = this.value;
-      rebuildSort();
-      render();
+      state.hwWs = this.value;
+      applyVernFont(state.vernacular.find(function (w) { return w.wsId === state.hwWs; }));
+      persist(); rebuild();
     });
-    el('gloss-ws').addEventListener('change', function () {
-      state.glossWs = this.value;
-      render();
-    });
+    el('gloss-ws').addEventListener('change', function () { state.glossWs = this.value; persist(); render(); });
     var timer = null;
     el('search').addEventListener('input', function () {
       clearTimeout(timer);
-      timer = setTimeout(render, 120);
+      timer = setTimeout(function () { state.query = el('search').value.trim(); render(); }, 150);
     });
     el('print-btn').addEventListener('click', function () {
-      try {
-        window.print();
-      } catch (e) {
-        window.fwlite.notify('Could not open the print dialog — press Ctrl+P (⌘P on Mac) to print or save as PDF.');
-      }
+      buildPrint();
+      try { window.print(); } catch (e) { fwlite.notify('Could not open the print dialog. Press Ctrl+P (Cmd+P on a Mac) instead.'); }
     });
+    window.addEventListener('beforeprint', function () { if (!el('print-root').childNodes.length) buildPrint(); });
+    window.addEventListener('afterprint', function () { el('print-root').textContent = ''; });
   }
 
-  function init(context) {
-    applyTheme(context.theme);
-    state.projectName = context.project.projectName;
-
-    Promise.all([
-      window.fwlite.getWritingSystems(),
-      window.fwlite.getPartsOfSpeech(),
-      window.fwlite.countEntries({}),
-    ]).then(function (results) {
-      var ws = results[0];
-      var partsOfSpeech = results[1];
-      var total = results[2];
-
+  fwlite.ready.then(async function (context) {
+    applyTheme();
+    try {
+      state.projectName = context.project.projectName;
+      var res = await Promise.all([fwlite.getWritingSystems(), fwlite.getPartsOfSpeech(), fwlite.storage.get('prefs').catch(function () { return null; })]);
+      var ws = res[0], prefs = res[2] || {};
       state.vernacular = (ws.vernacular || []).filter(function (w) { return !w.isAudio; });
       state.analysis = (ws.analysis || []).filter(function (w) { return !w.isAudio; });
-      state.headwordWs = state.vernacular.length ? state.vernacular[0].wsId : '';
-      state.glossWs = state.analysis.length ? state.analysis[0].wsId : '';
-      partsOfSpeech.forEach(function (pos) { state.posLookup[pos.id] = pos; });
-
-      if (total === 0) {
-        el('loading').style.display = 'none';
-        el('empty').style.display = 'block';
+      res[1].forEach(function (pos) { state.posById[pos.id] = pos; });
+      var has = function (list, id) { return list.some(function (w) { return w.wsId === id; }); };
+      state.hwWs = has(state.vernacular, prefs.hwWs) ? prefs.hwWs : (state.vernacular[0] || {}).wsId;
+      state.glossWs = has(state.analysis, prefs.glossWs) ? prefs.glossWs : (state.analysis[0] || {}).wsId;
+      state.letter = prefs.letter || null;
+      if (!state.hwWs) {
+        el('loading').hidden = true;
+        el('empty').textContent = 'This project has no vernacular writing system with text. Add one in FieldWorks, then reload.';
+        el('empty').hidden = false;
         return;
       }
-      state.capped = total > ENTRY_CAP;
-
-      return fetchAll(total).then(function (entries) {
-        state.entries = entries;
-        rebuildSort();
-
-        fillWsSelect(el('headword-ws'), state.vernacular, state.headwordWs);
-        fillWsSelect(el('gloss-ws'), state.analysis, state.glossWs);
-        wireEvents();
-
-        // Sheets must be laid out before render() can measure overflow, so reveal first.
-        el('page-wrap').style.display = 'block';
-        render();
-
-        el('subtitle').textContent = 'A printable dictionary for ' + state.projectName +
-          ', laid out in book pages. Adjust the languages, then Print or save as PDF from your browser.';
-        el('loading').style.display = 'none';
+      applyVernFont(state.vernacular.find(function (w) { return w.wsId === state.hwWs; }));
+      var loaded = await loadAll(function (n, of) {
+        el('loading-text').textContent = 'Loaded ' + n.toLocaleString() + ' of ' + of.toLocaleString() + ' entries…';
       });
-    }).catch(function (err) {
-      showError('Could not build the dictionary preview: ' + (err && err.message ? err.message : String(err)));
-    });
-  }
-
-  window.fwlite.ready.then(init);
+      el('loading').hidden = true;
+      if (!loaded.entries.length) { el('empty').hidden = false; return; }
+      state.entries = loaded.entries;
+      state.capped = loaded.capped;
+      state.total = loaded.total;
+      if (/Android/i.test(navigator.userAgent)) el('print-hint').textContent = 'Prints every letter. If nothing happens, print from FW Lite on a computer.';
+      fillWsSelect(el('headword-ws'), state.vernacular, state.hwWs);
+      fillWsSelect(el('gloss-ws'), state.analysis, state.glossWs);
+      wire();
+      el('app').hidden = false;
+      rebuild();
+    } catch (err) {
+      el('loading').hidden = true;
+      el('error').textContent = 'Could not build the dictionary preview: ' + (err && err.message ? err.message : String(err));
+      el('error').hidden = false;
+    }
+  });
 })();
 </script>
 </body>

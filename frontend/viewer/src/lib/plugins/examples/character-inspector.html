@@ -7,78 +7,113 @@
 <title>Character Inspector</title>
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f5f6f8;
+    color-scheme: light;
+    --bg: #fafafa;
     --surface: #ffffff;
-    --surface-alt: #f0f1f4;
-    --border: #e2e4e9;
-    --text: #1c1e21;
-    --text-muted: #6b7280;
-    --accent: #4f46e5;
-    --accent-soft: #eef0ff;
-    --good: #059669;
-    --good-soft: #e3f7ee;
+    --surface-alt: #f4f4f5;
+    --border: #e4e4e7;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --accent: #005de1;
+    --accent-soft: #e8f0fd;
+    --accent-fg: #ffffff;
+    --good: #15803d;
+    --good-soft: #e7f6ec;
     --warn: #b45309;
-    --warn-soft: #fef3e0;
-    --warn-border: #f0c27a;
-    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
-    --radius: 14px;
-    --vern-font: inherit;
-    --mono: ui-monospace, "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
+    --warn-soft: #fdf3e2;
+    --bad: #dc2626;
+    --bad-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(9, 9, 11, 0.06), 0 1px 3px rgba(9, 9, 11, 0.06);
+    --radius: 10px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    --vern-font: var(--font);
   }
   html[data-theme="dark"] {
-    --bg: #16171b;
-    --surface: #1f2126;
-    --surface-alt: #26282e;
-    --border: #33353c;
-    --text: #edeef1;
-    --text-muted: #9aa0ab;
-    --accent: #818cf8;
-    --accent-soft: #2a2b5e;
-    --good: #34d399;
-    --good-soft: #123528;
+    color-scheme: dark;
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #2e2e33;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #3b82f6;
+    --accent-soft: #172a4d;
+    --accent-fg: #ffffff;
+    --good: #4ade80;
+    --good-soft: #13301f;
     --warn: #fbbf24;
-    --warn-soft: #3a2f12;
-    --warn-border: #6b5320;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --warn-soft: #3a2a0c;
+    --bad: #f87171;
+    --bad-soft: #3d1717;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    padding: 20px;
-    min-height: 100vh;
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden], .hidden { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 15px/1.45 var(--font); }
+  .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px 24px 32px; }
+  .wrap.narrow { max-width: 640px; min-height: 100dvh; display: flex; flex-direction: column; }
+  .canvas { position: fixed; inset: 0; overflow: hidden; }
+  h1 { font-size: 1.4rem; line-height: 1.2; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 16px; }
+  .vern { font-family: var(--vern-font); }
+  .muted { color: var(--text-muted); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 44px; padding: 0 16px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 600; cursor: pointer; text-decoration: none;
   }
-  .wrap { max-width: 1000px; margin: 0 auto; }
-  h1 { font-size: 1.5rem; margin: 0 0 4px; }
-  h2 { font-size: 1.05rem; margin: 0 0 12px; }
-  .subtitle { color: var(--text-muted); margin: 0 0 20px; font-size: 0.92rem; }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 18px 20px;
-    margin-bottom: 18px;
+  .btn:hover { background: var(--surface-alt); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.ghost:hover { background: var(--surface-alt); }
+  .btn:disabled { opacity: 0.5; cursor: default; filter: none; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input, select, textarea {
+    font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; max-width: 100%;
   }
-  section { margin-bottom: 6px; }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+    background: var(--surface-alt); color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
+  }
+  .chip.accent { background: var(--accent-soft); color: var(--accent); }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .center-state { text-align: center; padding: 56px 16px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box { background: var(--bad-soft); color: var(--text); border: 1px solid var(--bad); border-radius: var(--radius); padding: 12px 16px; margin: 12px 0; }
+  @media (max-width: 600px) {
+    .wrap { padding: 12px 12px 24px; }
+    h1 { font-size: 1.2rem; }
+    .wrap.narrow .actions { position: sticky; bottom: 0; margin: auto -12px -24px; padding: 12px; background: var(--bg); border-top: 1px solid var(--border); }
+    .wrap.narrow .actions .btn { flex: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+  :root { --warn-border: #f0c27a; --mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+  html[data-theme="dark"] { --warn-border: #6b5320; }
+  .card { margin-bottom: 16px; }
 
   /* --- Controls --- */
   .controls { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
   .ctrl { display: flex; flex-direction: column; gap: 6px; }
   .ctrl.grow { flex: 1; min-width: 180px; }
   label.fld { font-size: 0.82rem; color: var(--text-muted); }
-  select {
-    font-size: 0.95rem; padding: 9px 12px; border-radius: 10px;
-    border: 1px solid var(--border); background: var(--surface-alt);
-    color: var(--text); font-family: inherit; width: 100%;
-  }
-  select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-  .checkline { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer; padding-bottom: 9px; }
-  .checkline input { width: auto; }
+  .ctrl select { width: 100%; }
+  .checkline { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer; min-height: 44px; }
+  .checkline input { width: 18px; height: 18px; accent-color: var(--accent); }
 
   /* --- Totals --- */
   .totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 18px; }
@@ -121,7 +156,8 @@
   .detail { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; }
   .detail-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
   .detail-head h3 { margin: 0; font-size: 0.98rem; }
-  .list { display: flex; flex-direction: column; gap: 8px; max-height: 460px; overflow-y: auto; }
+  .list { display: flex; flex-direction: column; gap: 8px; }
+  .more { margin-top: 10px; width: 100%; }
   .item { background: var(--surface-alt); border-radius: 10px; padding: 11px 13px; }
   .item-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
   .item .hw { font-weight: 700; font-family: var(--vern-font); word-break: break-word; }
@@ -137,24 +173,18 @@
   .ctx .arrow { color: var(--text-muted); margin: 0 6px; font-family: system-ui; }
   .ctx .after { color: var(--text); }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-  .chip {
+  .cchip {
     display: inline-flex; align-items: center; gap: 6px; font-size: 0.76rem;
     background: var(--surface); border: 1px solid var(--warn-border); border-radius: 999px; padding: 2px 9px;
   }
-  .chip .g { font-family: var(--vern-font); font-weight: 700; }
-  .chip .cp { font-family: var(--mono); color: var(--text-muted); }
-  .chip .nm { color: var(--text-muted); }
+  .cchip .g { font-family: var(--vern-font); font-weight: 700; }
+  .cchip .cp { font-family: var(--mono); color: var(--text-muted); }
+  .cchip .nm { color: var(--text-muted); }
   .item-actions { display: flex; gap: 8px; margin-top: 9px; flex-wrap: wrap; align-items: center; }
   .item-status { font-size: 0.8rem; }
   .item-status.declined { color: var(--warn); }
   .item-status.error { color: var(--warn); }
 
-  .btn { border: none; padding: 7px 14px; border-radius: 9px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit; }
-  .btn:disabled { opacity: 0.5; cursor: default; }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
-  .btn-ghost { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-  .btn-ghost:hover:not(:disabled) { background: var(--border); }
 
   /* --- Inventory --- */
   .inv-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
@@ -187,20 +217,18 @@
     background: var(--accent-soft); color: var(--accent);
   }
 
-  /* --- States --- */
-  .center-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
-  .spinner {
-    width: 34px; height: 34px; border: 3px solid var(--border);
-    border-top-color: var(--accent); border-radius: 50%;
-    margin: 0 auto 16px; animation: spin 0.8s linear infinite;
+  @media (max-width: 600px) {
+    .controls { gap: 10px; }
+    .ctrl, .ctrl.grow { flex: 1 1 40%; min-width: 0; }
+    .checkline { flex: 1 1 100%; }
+    .card { padding: 12px; }
+    .totals { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat-card { padding: 10px; }
+    .stat-card .value { font-size: 1.4rem; }
+    .flag-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .flag-card { padding: 10px 12px; }
+    .inv-grid { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; }
   }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .error-box {
-    border: 1px solid #f5b5b5; background: color-mix(in srgb, #f5b5b5 20%, var(--surface));
-    color: var(--text); padding: 14px 18px; border-radius: var(--radius);
-  }
-  #app { display: none; }
-  [hidden] { display: none !important; }
 </style>
 </head>
 <body>
@@ -213,9 +241,10 @@
     <div id="loading-text">Loading project&hellip;</div>
   </div>
 
-  <div id="error" class="error-box" style="display:none;"></div>
+  <div id="error" class="error-box" role="alert" hidden></div>
+  <div id="empty" class="center-state" hidden>No entries yet. Add some in FW Lite, then reload.</div>
 
-  <div id="app">
+  <main id="app" hidden>
     <div class="card">
       <div class="controls">
         <div class="ctrl grow">
@@ -268,14 +297,14 @@
         </section>
       </div>
     </div>
-  </div>
+  </main>
 </div>
 
 <script>
 (function () {
   'use strict';
 
-  var PAGE = 1000, CAP = 5000, STORAGE_KEY = 'char-inspector';
+  var PAGE = 1000, CAP = 5000, DETAIL_PAGE = 50, BATCH = 25, STORAGE_KEY = 'char-inspector';
   var fwlite = window.fwlite;
 
   // Regex for Unicode property escapes (ES2018). Script= escapes built via RegExp so an
@@ -333,8 +362,8 @@
     document.documentElement.setAttribute('data-theme', theme || (dark ? 'dark' : 'light'));
   }
   function showError(msg) {
-    $('loading').style.display = 'none';
-    var b = $('error'); b.style.display = 'block'; b.textContent = msg;
+    $('loading').hidden = true;
+    var b = $('error'); b.hidden = false; b.textContent = msg;
   }
   function applyVernFont() {
     var ws = state.vernacular.find(function (w) { return w.wsId === state.ws; });
@@ -344,6 +373,14 @@
 
   // --- Character classification ------------------------------------------------
   function isLetterish(ch) { return RE_LETTERISH.test(ch); }
+  // Exemplars and data may differ in normalization: "é" is expected if the alphabet has "é", or both "e" and U+0301.
+  function isExpected(ch) {
+    var set = state.expectedSet;
+    if (set.has(ch)) return true;
+    var parts = Array.from(ch.normalize('NFD'));
+    return parts.length > 1 && parts.every(function (c) { return set.has(c); });
+  }
+  function isUnexpected(ch) { return !!state.expectedSet && isLetterish(ch) && !isExpected(ch); }
 
   // Returns display info for an invisible / irregular character, or null for a
   // normal printable one. ASCII whitespace is handled by the whitespace check, not here.
@@ -377,7 +414,7 @@
 
   // --- Whitespace normalization (the only auto-fixable issue) ------------------
   // Collapses runs of ASCII whitespace to a single space and trims ends. Leaves
-  // NBSP / zero-width / other invisibles untouched — those need human judgement.
+  // NBSP / zero-width / other invisibles untouched: those need human judgement.
   function cleanWhitespace(t) {
     return t.replace(/[\t\n\r\f\v ]+/g, ' ').replace(/^ +| +$/g, '');
   }
@@ -440,7 +477,7 @@
 
     if (state.expectedSet) {
       var bad = [];
-      chars.forEach(function (ch) { if (!state.expectedSet.has(ch) && isLetterish(ch)) bad.push(ch); });
+      chars.forEach(function (ch) { if (isUnexpected(ch)) bad.push(ch); });
       if (bad.length) addIssue('exemplar', entryId, headword, {key: fieldKey, label: fieldLabel, text: text, chars: uniqChars(bad)});
     }
 
@@ -473,12 +510,7 @@
     if (state.includeExamples && entry.senses) {
       entry.senses.forEach(function (sense) {
         (sense.exampleSentences || []).forEach(function (ex) {
-          var t = fwlite.asText(ex.sentence);
-          // Only the chosen WS's slice of the rich string is relevant.
-          if (ex.sentence && ex.sentence.spans) {
-            t = ex.sentence.spans.filter(function (s) { return s.ws === state.ws; })
-              .map(function (s) { return s.text; }).join('');
-          }
+          var t = fwlite.asText(ex.sentence && ex.sentence[state.ws]);
           scanText(entry.id, headword, null, 'Example', false, t);
         });
       });
@@ -499,7 +531,9 @@
     if (state.exemplars.length) {
       var set = new Set();
       state.exemplars.forEach(function (ex) {
-        Array.from(ex).forEach(function (c) { set.add(c); set.add(c.toUpperCase()); set.add(c.toLowerCase()); });
+        [ex, ex.normalize('NFC'), ex.normalize('NFD')].forEach(function (form) {
+          Array.from(form).forEach(function (c) { set.add(c); set.add(c.toUpperCase()); set.add(c.toLowerCase()); });
+        });
       });
       state.expectedSet = set;
     } else {
@@ -545,21 +579,10 @@
     });
   }
 
-  function showEmpty() {
-    $('results-loading').hidden = true;
-    $('results-content').hidden = false;
-    $('totals').innerHTML = '';
-    $('cap-wrap').innerHTML = '';
-    $('flag-grid').innerHTML = '';
-    $('all-clean-wrap').innerHTML = '';
-    $('detail').innerHTML = '';
-    $('inv-grid').innerHTML = '';
-    $('inv-summary').textContent = '';
-    $('exemplar-note').innerHTML = '';
-    var msg = document.createElement('div');
-    msg.className = 'center-state';
-    msg.textContent = 'This project has no entries yet, so there are no characters to inspect.';
-    $('totals').appendChild(msg);
+  function showEmpty(message) {
+    $('app').hidden = true;
+    $('empty').hidden = false;
+    if (message) $('empty').textContent = message;
   }
 
   // --- Render ------------------------------------------------------------------
@@ -693,7 +716,7 @@
 
   function charChip(ch, cp, name) {
     var chip = document.createElement('span');
-    chip.className = 'chip';
+    chip.className = 'cchip';
     var g = document.createElement('span'); g.className = 'g';
     var tok = visToken(cp);
     g.textContent = tok || (RE_MARK.test(ch) ? '◌' + ch : ch);
@@ -717,22 +740,44 @@
     head.className = 'detail-head';
     var h = document.createElement('h3');
     var meta = FLAG_META.find(function (m) { return m.key === key; });
-    h.textContent = meta.title + ' — ' + items.length + ' ' + (items.length === 1 ? 'entry' : 'entries');
+    h.textContent = meta.title + ': ' + items.length + ' ' + (items.length === 1 ? 'entry' : 'entries');
     head.appendChild(h);
 
     if (key === 'whitespace') {
       var cleanAll = document.createElement('button');
-      cleanAll.className = 'btn btn-primary';
-      cleanAll.textContent = 'Clean all (' + items.length + ')';
-      cleanAll.addEventListener('click', function () { cleanAll.disabled = true; cleanAllWhitespace(); });
+      cleanAll.className = 'btn primary';
+      cleanAll.textContent = items.length <= BATCH ? 'Clean all ' + items.length : 'Clean next ' + BATCH + ' of ' + items.length.toLocaleString();
+      var batchStatus = document.createElement('span');
+      batchStatus.className = 'item-status';
+      cleanAll.addEventListener('click', function () {
+        cleanAll.disabled = true;
+        cleanBatch(items.slice(0, BATCH)).then(function (result) {
+          if (result === 'done') { renderFlags(); return; }
+          cleanAll.disabled = false;
+          batchStatus.className = 'item-status ' + result;
+          batchStatus.textContent = result === 'declined' ? 'Not cleaned (you declined)' : 'Could not clean. Try again.';
+        });
+      });
       head.appendChild(cleanAll);
+      head.appendChild(batchStatus);
     }
     wrap.appendChild(head);
 
     var list = document.createElement('div');
     list.className = 'list';
-    items.forEach(function (item) { list.appendChild(renderItem(key, item)); });
     wrap.appendChild(list);
+    var more = document.createElement('button');
+    more.className = 'btn more';
+    wrap.appendChild(more);
+    var shown = 0;
+    function showMore() {
+      items.slice(shown, shown + DETAIL_PAGE).forEach(function (item) { list.appendChild(renderItem(key, item)); });
+      shown = Math.min(items.length, shown + DETAIL_PAGE);
+      more.hidden = shown >= items.length;
+      more.textContent = 'Show ' + Math.min(DETAIL_PAGE, items.length - shown) + ' more (' + (items.length - shown).toLocaleString() + ' left)';
+    }
+    more.addEventListener('click', showMore);
+    showMore();
     host.appendChild(wrap);
   }
 
@@ -796,7 +841,7 @@
         row.appendChild(line);
         var sc = document.createElement('div'); sc.className = 'chips';
         Object.keys(counts).forEach(function (s) {
-          var chip = document.createElement('span'); chip.className = 'chip';
+          var chip = document.createElement('span'); chip.className = 'cchip';
           var g = document.createElement('span'); g.className = 'nm'; g.textContent = s + ' ×' + counts[s];
           chip.appendChild(g); sc.appendChild(chip);
         });
@@ -807,14 +852,14 @@
     var actions = document.createElement('div');
     actions.className = 'item-actions';
     var open = document.createElement('button');
-    open.className = 'btn btn-ghost';
+    open.className = 'btn';
     open.textContent = 'Open';
     open.addEventListener('click', function () { fwlite.openEntry(item.entryId).catch(function () {}); });
     actions.appendChild(open);
 
     if (key === 'whitespace') {
       var clean = document.createElement('button');
-      clean.className = 'btn btn-primary';
+      clean.className = 'btn primary';
       clean.textContent = 'Clean whitespace';
       clean.addEventListener('click', function () {
         clean.disabled = true; open.disabled = true;
@@ -839,48 +884,49 @@
     if (existing) existing.remove();
     var s = document.createElement('span');
     s.className = 'item-status ' + kind;
-    s.textContent = kind === 'declined' ? 'Not cleaned (you declined)' : 'Could not clean — try again';
+    s.textContent = kind === 'declined' ? 'Not cleaned (you declined)' : 'Could not clean. Try again.';
     actions.appendChild(s);
   }
 
-  // Re-fetches, applies whitespace clean to the mono fields, and writes.
-  // Resolves 'done' | 'declined' | 'error'. Never throws.
-  function cleanOne(item) {
+  // Re-fetches each entry and cleans whitespace in the flagged fields. Resolves {before, after} or null when nothing changed.
+  function cleanedPair(item) {
     return fwlite.getEntry(item.entryId).then(function (entry) {
-      if (!entry) return 'done'; // gone; treat as resolved
+      if (!entry) return null;
       var after = JSON.parse(JSON.stringify(entry));
       var changed = false;
       item.fields.forEach(function (f) {
         var cur = entry[f.key] && entry[f.key][state.ws];
         if (!cur) return;
         var cl = cleanWhitespace(cur);
-        if (cl !== cur) {
-          if (!after[f.key]) after[f.key] = {};
-          after[f.key][state.ws] = cl;
-          changed = true;
-        }
+        if (cl !== cur) { after[f.key][state.ws] = cl; changed = true; }
       });
-      if (!changed) return 'done';
-      return fwlite.updateEntry(entry, after).then(function () { return 'done'; }, function (err) {
-        return (err && (err.code === 'permission-denied' || err.code === 'preview')) ? 'declined' : 'error';
-      });
+      return changed ? {before: entry, after: after} : null;
+    });
+  }
+
+  function writeResult(err) {
+    return (err && (err.code === 'permission-denied' || err.code === 'preview')) ? 'declined' : 'error';
+  }
+
+  // Resolves 'done' | 'declined' | 'error'. Never throws.
+  function cleanOne(item) {
+    return cleanedPair(item).then(function (pair) {
+      if (!pair) return 'done';
+      return fwlite.updateEntry(pair.before, pair.after).then(function () { return 'done'; }, writeResult);
     }, function () { return 'error'; });
   }
 
-  function cleanAllWhitespace() {
-    var items = Array.from(state.issues.whitespace.values());
-    var i = 0;
-    function next() {
-      if (i >= items.length) { renderFlags(); return; }
-      var item = items[i++];
-      cleanOne(item).then(function (result) {
-        if (result === 'done' || result === 'declined') {
-          if (result === 'done') state.issues.whitespace.delete(item.entryId);
-        }
-        next();
-      });
-    }
-    next();
+  // One confirmation for the whole batch instead of one per entry.
+  function cleanBatch(items) {
+    return Promise.all(items.map(cleanedPair)).then(function (pairs) {
+      var ops = pairs.filter(Boolean).map(function (p) { return {type: 'updateEntry', before: p.before, after: p.after}; });
+      var finish = function () {
+        items.forEach(function (item) { state.issues.whitespace.delete(item.entryId); });
+        return 'done';
+      };
+      if (!ops.length) return finish();
+      return fwlite.applyChanges(ops).then(finish, writeResult);
+    }, function () { return 'error'; });
   }
 
   function renderInventory() {
@@ -909,7 +955,7 @@
     });
 
     var unexpected = 0;
-    recs.forEach(function (r) { if (state.expectedSet && !state.expectedSet.has(r.ch) && isLetterish(r.ch)) unexpected++; });
+    recs.forEach(function (r) { if (isUnexpected(r.ch)) unexpected++; });
     $('inv-summary').textContent = recs.length.toLocaleString() + ' distinct' +
       (state.expectedSet ? ' · ' + unexpected.toLocaleString() + ' not in the alphabet' : '');
   }
@@ -920,7 +966,7 @@
     var cp = rec.cp, ch = rec.ch;
     var tok = visToken(cp);
     var invisible = tok != null;
-    var unexpected = state.expectedSet && !state.expectedSet.has(ch) && isLetterish(ch);
+    var unexpected = isUnexpected(ch);
     if (unexpected) tile.className += ' unexpected';
     else if (invisible) tile.className += ' invisible';
 
@@ -961,18 +1007,11 @@
       state.vernacular = (wsData.vernacular || []).filter(function (w) { return !w.isAudio; })
         .map(function (w) { return {wsId: w.wsId, name: w.name, font: w.font, exemplars: w.exemplars || []}; });
 
-      $('loading').style.display = 'none';
-      $('app').style.display = 'block';
+      $('loading').hidden = true;
+      $('app').hidden = false;
 
       if (state.vernacular.length === 0) {
-        $('results-loading').hidden = true;
-        $('results-content').hidden = false;
-        $('ws-select').disabled = true;
-        var msg = document.createElement('div');
-        msg.className = 'center-state';
-        msg.textContent = 'This project has no text vernacular writing systems to inspect.';
-        $('totals').appendChild(msg);
-        $('subtitle').textContent = 'No writing systems available.';
+        showEmpty('This project has no vernacular writing system with text to inspect. Add one in FieldWorks, then reload.');
         return;
       }
 
