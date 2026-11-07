@@ -447,8 +447,9 @@ jobs:
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: '10.x'
+      # Both Apple workloads: restore evaluates net10.0-ios and net10.0-maccatalyst together.
       - name: Setup Maui
-        run: dotnet workload install maui-ios --version ${{ env.MAUI_WORKLOAD_VERSION }}
+        run: dotnet workload install maui-ios maui-maccatalyst --version ${{ env.MAUI_WORKLOAD_VERSION }}
 
       # Same build as fw-lite.yaml's build-apple.
       - name: Build iOS (simulator)
@@ -481,8 +482,9 @@ jobs:
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: '10.x'
+      # Both Apple workloads: restore evaluates net10.0-ios and net10.0-maccatalyst together.
       - name: Setup Maui
-        run: dotnet workload install maui-maccatalyst --version ${{ env.MAUI_WORKLOAD_VERSION }}
+        run: dotnet workload install maui-ios maui-maccatalyst --version ${{ env.MAUI_WORKLOAD_VERSION }}
 
       # fw-lite.yaml's fork-PR build: unsigned arm64, so no DMG, notarization or Gatekeeper check
       # (those stay on develop in launch-mac). The launch itself is the same script.
