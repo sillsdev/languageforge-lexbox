@@ -20,8 +20,9 @@ A tier's rule is in its `project.json`, in one of two forms:
 The label-only tier `webkit` has an empty rule and fires only by label. The app
 smoke tiers (`ios`, `mac`, `android`) build the app, launch it and wait for its
 "Viewer loaded" log line. They fire by label, or when their own smoke script
-(`.github/scripts/smoke-<tier>.sh`) changes. They always run on develop
-(`fw-lite.yaml` `launch-ios`, `launch-mac`, `launch-android`).
+(`.github/scripts/smoke-<tier>.sh`) changes. On develop, `fw-lite.yaml` always
+runs `launch-ios` and `launch-android`; `launch-mac` runs only when Apple signing
+is available (`build-apple` output `signed`), since it launches the notarized DMG.
 
 Two rules on top of the graph:
 

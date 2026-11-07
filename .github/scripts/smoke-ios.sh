@@ -46,7 +46,7 @@ xcrun simctl io "$UDID" screenshot "$OUT_DIR/ios.png" || true
 found=false
 grep -rqs 'Viewer loaded' "$STDOUT" "$STDERR" "$DATA" && found=true
 xcrun simctl terminate "$UDID" "$BUNDLE_ID" 2>/dev/null || true
-cat "$STDOUT" "$STDERR"
+cat "$STDOUT" "$STDERR" 2>/dev/null || true
 find "$DATA" -name 'app*.log' -print -exec cat {} \; 2>/dev/null || true
 xcrun simctl shutdown "$UDID" || true
 [ "$found" = true ] || { echo "::error::The iOS app never logged 'Viewer loaded'"; exit 1; }
