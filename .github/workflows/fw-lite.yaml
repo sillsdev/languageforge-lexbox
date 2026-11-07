@@ -29,6 +29,8 @@ on:
       - '.github/actions/setup-frontend/**'
       - '.github/actions/setup-playwright/**'
       - '.github/actions/setup-dotnet-build/**'
+      - '.github/actions/smoke-android/**'
+      - '.github/scripts/smoke-*.sh'
       - 'FwLiteCore.slnf'
       - 'FwLiteOnly.slnf'
       - 'global.json'
@@ -439,6 +441,11 @@ jobs:
             runner: macos-15-intel
     runs-on: ${{ matrix.runner }}
     steps:
+      - name: Checkout smoke scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/scripts
+          path: repo
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: fw-lite-apple
@@ -467,24 +474,34 @@ jobs:
           gatekeeper --type execute "/Volumes/FieldWorksLite/FieldWorks Lite.app"
 
       - name: Launch the app and wait for the viewer to load
-        run: |
-          set -euo pipefail
-          echo "Runner CPU: $(uname -m)"
-          OUT="$RUNNER_TEMP/stdout.log"
-          # The app is sandboxed, so its app.log lands in its container.
-          CONTAINER="$HOME/Library/Containers/org.sil.FwLiteMaui"
-          "/Volumes/FieldWorksLite/FieldWorks Lite.app/Contents/MacOS/FwLiteMaui" > "$OUT" 2>&1 &
-          PID=$!
-          for _ in $(seq 120); do
-            grep -rqs 'Viewer loaded' "$OUT" "$CONTAINER" && break
-            kill -0 "$PID" 2>/dev/null || break
-            sleep 1
-          done
-          kill "$PID" 2>/dev/null || true
-          wait "$PID" 2>/dev/null || true
-          cat "$OUT"
-          find "$CONTAINER" -name 'app*.log' -print -exec cat {} \; 2>/dev/null || true
-          grep -rqs 'Viewer loaded' "$OUT" "$CONTAINER" || { echo "The app never logged 'Viewer loaded'" >&2; exit 1; }
+        run: bash repo/.github/scripts/smoke-mac.sh "/Volumes/FieldWorksLite/FieldWorks Lite.app"
+
+  # Boots an iOS simulator and runs the simulator build until it logs "Viewer loaded".
+  launch-ios:
+    name: Launch the iOS simulator build
+    needs: build-apple
+    timeout-minutes: 30
+    runs-on: macos-latest
+    steps:
+      - name: Checkout smoke scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/scripts
+          path: repo
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: fw-lite-apple
+      - name: Unzip the simulator app
+        run: ditto -x -k fw-lite-ios-simulator.zip ios
+      - name: Launch the app and wait for the viewer to load
+        run: bash repo/.github/scripts/smoke-ios.sh ios/FwLiteMaui.app
+      - name: Upload smoke test output
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fw-lite-ios-smoke
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/smoke
 
   publish-linux:
     name: Publish FW Lite app for Linux
@@ -611,6 +628,30 @@ jobs:
           if-no-files-found: error
 #          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android/org.sil.fwlitemaui-signed.apk
           path: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android/*
+
+  # Boots an x86_64 emulator and runs the published APK until it logs "Viewer loaded".
+  launch-android:
+    name: Launch the Android APK on an emulator
+    needs: publish-android
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: fw-lite-android
+          path: ${{ runner.temp }}/android
+      - uses: ./.github/actions/smoke-android
+        with:
+          apk-dir: ${{ runner.temp }}/android
+      - name: Upload smoke test output
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fw-lite-android-smoke
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/smoke
 
   publish-win:
     name: Publish FW Lite app for Windows
