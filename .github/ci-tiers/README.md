@@ -17,8 +17,11 @@ A tier's rule is in its `project.json`, in one of two forms:
   so a change upstream of a listed project (e.g. `MiniLcm`, `LexCore`, the
   analyzers) fires the tier too. Use it when that is what you want.
 
-Label-only tiers (`apple`, `android`, `webkit`) have an empty rule and fire only
-by label.
+The label-only tier `webkit` has an empty rule and fires only by label. The app
+smoke tiers (`ios`, `mac`, `android`) build the app, launch it and wait for its
+"Viewer loaded" log line. They fire by label, or when their own smoke script
+(`.github/scripts/smoke-<tier>.sh`) changes. They always run on develop
+(`fw-lite.yaml` `launch-ios`, `launch-mac`, `launch-android`).
 
 Two rules on top of the graph:
 
