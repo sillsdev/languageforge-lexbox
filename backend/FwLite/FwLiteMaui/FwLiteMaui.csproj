@@ -98,6 +98,12 @@
          failures show up in the simulator. Do not set PublishTrimmed/TrimMode: the iOS SDK owns those. -->
     <MtouchLink>SdkOnly</MtouchLink>
   </PropertyGroup>
+  <ItemGroup Condition="'$(TargetPlatform)' == 'ios' Or '$(TargetPlatform)' == 'maccatalyst'">
+    <!-- SIL.Core's Platform.MonoVersion P/Invokes mono_get_runtime_build_info from "__Internal", and the iOS SDK turns
+         every __Internal P/Invoke into a required native symbol. .NET 11 runs iOS on CoreCLR, which doesn't export it,
+         so the link fails. SIL.Core only calls it when running on Mono, so don't require the symbol. -->
+    <ReferenceNativeSymbol Include="mono_get_runtime_build_info" SymbolType="Function" SymbolMode="Ignore" />
+  </ItemGroup>
   <ItemGroup>
     <!-- App Icon -->
     <!-- background color is required for mac per: https://learn.microsoft.com/en-us/dotnet/maui/user-interface/images/app-icons?view=net-maui-8.0&tabs=windows#recolor-the-background -->
