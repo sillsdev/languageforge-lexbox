@@ -67,7 +67,7 @@ tasks:
   maui-windows:
     desc: Run Maui Windows, requires vite dev server to be running, use task fw-lite-win in root
     dir: ./FwLiteMaui
-    cmd: dotnet run -f net10.0-windows10.0.19041.0
+    cmd: dotnet run -f net11.0-windows10.0.19041.0
 
   test-update:
     desc: Interactive harness to test the Windows auto-update flow end-to-end (see testing/README.md)
@@ -81,12 +81,12 @@ tasks:
   publish-maui-windows-portable:
     dir: ./FwLiteMaui
     cmds:
-      - dotnet publish -f net10.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:BuildAndroid=false
+      - dotnet publish -f net11.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:BuildAndroid=false
 
   publish-maui-windows-msix:
     dir: ./FwLiteMaui
     cmds:
-      - dotnet publish -f net10.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:BuildAndroid=false
+      - dotnet publish -f net11.0-windows10.0.19041.0 --artifacts-path ../artifacts -p:BuildAndroid=false
 
   run-maui-android:
     dir: ./FwLiteMaui
@@ -112,7 +112,7 @@ tasks:
     deps: [ ui:build-viewer ]
     dir: ./FwLiteMaui
     # EXTRA_ARGS goes through a Task var so multi-token values stay separate; CLI_ARGS gets re-quoted into a single shell arg.
-    cmd: dotnet build -f net10.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True -p:FwLiteFlavor={{.FLAVOR}} {{.EXTRA_ARGS}} {{.CLI_ARGS}}
+    cmd: dotnet build -f net11.0-android -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True -p:FwLiteFlavor={{.FLAVOR}} {{.EXTRA_ARGS}} {{.CLI_ARGS}}
 
   build-maui-ios:
     desc: Build FwLiteMaui for the iOS simulator (CONFIG=Debug|Release). Builds the viewer first; without it the app shows a MIME-type error.
@@ -120,7 +120,7 @@ tasks:
     dir: ./FwLiteMaui
     vars:
       CONFIG: '{{.CONFIG | default "Debug"}}'
-    cmd: dotnet build -f net10.0-ios -c {{.CONFIG}} -p:BuildAndroid=false -p:RuntimeIdentifier=iossimulator-arm64 {{.CLI_ARGS}}
+    cmd: dotnet build -f net11.0-ios -c {{.CONFIG}} -p:BuildAndroid=false -p:RuntimeIdentifier=iossimulator-arm64 {{.CLI_ARGS}}
 
   maui-mac:
     desc: Build & run FwLiteMaui on Mac Catalyst (CONFIG=Debug|Release). Builds the viewer first; without it the app shows a MIME-type error.
@@ -128,12 +128,12 @@ tasks:
     dir: ./FwLiteMaui
     vars:
       CONFIG: '{{.CONFIG | default "Debug"}}'
-    cmd: dotnet build -f net10.0-maccatalyst -c {{.CONFIG}} -t:Run -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64 {{.CLI_ARGS}}
+    cmd: dotnet build -f net11.0-maccatalyst -c {{.CONFIG}} -t:Run -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64 {{.CLI_ARGS}}
 
   install-maui-android:
     desc: Retry install + run without rebuilding (for when you miss the permission prompt) - uses existing build artifacts
     dir: ./FwLiteMaui
-    cmd: dotnet build -f net10.0-android -t:Install,Run --no-restore --no-dependencies -p:FwLiteFlavor={{.FLAVOR}} {{.EXTRA_ARGS}}
+    cmd: dotnet build -f net11.0-android -t:Install,Run --no-restore --no-dependencies -p:FwLiteFlavor={{.FLAVOR}} {{.EXTRA_ARGS}}
 
   install-maui-android-dev:
     desc: Retry install + run for the "Dev" flavor without rebuilding
@@ -150,9 +150,9 @@ tasks:
   publish-maui-android-release:
     deps: [ ui:build-viewer ]
     dir: ./FwLiteMaui
-    # Produces a signed AAB/APK at bin/Release/net10.0-android/<appid>-Signed.{aab,apk}.
+    # Produces a signed AAB/APK at bin/Release/net11.0-android/<appid>-Signed.{aab,apk}.
     # No -t:Run — the SDK's Run uses bundletool, which errors out with multiple devices/emulators.
-    cmd: dotnet build -f net10.0-android -c Release -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True -p:FwLiteFlavor={{.FLAVOR}} {{.CLI_ARGS}}
+    cmd: dotnet build -f net11.0-android -c Release -t:InstallAndroidDependencies -p:AcceptAndroidSdkLicenses=True -p:FwLiteFlavor={{.FLAVOR}} {{.CLI_ARGS}}
 
   install-maui-android-release-dev:
     desc: Build a Release "Dev" APK and adb-install it on the connected USB device (uses `adb -d`)
@@ -160,7 +160,7 @@ tasks:
     cmds:
       - task: publish-maui-android-release
         vars: { FLAVOR: 'Dev' }
-      - adb -d install -r bin/Release/net10.0-android/org.sil.FwLiteMaui.dev-Signed.apk
+      - adb -d install -r bin/Release/net11.0-android/org.sil.FwLiteMaui.dev-Signed.apk
 
   build-mini-lcm-sdk:
     desc: Builds the sdk, a zip with the FwLiteWeb server with a project and config to run locally
@@ -206,8 +206,8 @@ tasks:
     cmd: dotnet test ../../FwLiteOnly.slnf
   test-verified:
     desc: Run only tests that generate verified snapshot files
-    # FwLiteCore.slnf, not FwLiteOnly.slnf: the MAUI test project has no net10.0 target and no Verified
-    # tests, and `--framework net10.0` made the whole run exit 1 for it.
+    # FwLiteCore.slnf, not FwLiteOnly.slnf: the MAUI test project has no net11.0 target and no Verified
+    # tests, and `--framework net11.0` made the whole run exit 1 for it.
     cmd: dotnet test ../../FwLiteCore.slnf --filter "Category=Verified" --logger "console;verbosity=minimal"
   reset-verified:
     desc: Reset all verified snapshot files to their state on origin/develop

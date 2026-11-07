@@ -30,7 +30,7 @@ $RepoRoot     = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
 $MauiCsproj   = Join-Path $RepoRoot 'backend\FwLite\FwLiteMaui\FwLiteMaui.csproj'
 $ViewerDir    = Join-Path $RepoRoot 'frontend\viewer'
 $ServerProj   = Join-Path $PSScriptRoot 'UpdateTestServer\UpdateTestServer.csproj'
-$ServerExe    = Join-Path $PSScriptRoot 'UpdateTestServer\bin\Release\net10.0\UpdateTestServer.exe'
+$ServerExe    = Join-Path $PSScriptRoot 'UpdateTestServer\bin\Release\net11.0\UpdateTestServer.exe'
 # Build output under the repo's gitignored artifacts/ (per-worktree on purpose).
 $ArtifactsDir = Join-Path $RepoRoot 'backend\FwLite\artifacts\harness'
 # Cross-worktree state (cert stays in the Windows cert store; this just holds the exported cer + server pid).
@@ -42,7 +42,7 @@ $BuildsJson   = Join-Path $ArtifactsDir 'builds.json'
 $PackageIdentity = 'FwLiteDesktopTest'   # distinct from prod 'FwLiteDesktop' so the real install is untouched
 $CertSubject     = 'CN=FwLiteTestCert'
 $AppId           = 'App'                  # <Application Id="App"> in the manifest
-$Framework       = 'net10.0-windows10.0.19041.0'
+$Framework       = 'net11.0-windows10.0.19041.0'
 $ServerOutLog    = Join-Path $HarnessHome 'server.out.log'
 $ServerErrLog    = Join-Path $HarnessHome 'server.err.log'
 function Get-UpdateUrl { "http://localhost:$Port/api/fwlite-release/should-update" }

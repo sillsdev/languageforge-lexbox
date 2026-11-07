@@ -26,8 +26,8 @@ task fw-lite-web   # from repo root
 # Fast inner loop: FwLiteShared builds in seconds and regenerates the viewer's TS types
 dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj
 # One MAUI head (~40 s Windows, ~80 s Android). BuildAndroid=false skips restoring the Android TFM.
-dotnet build backend/FwLite/FwLiteMaui/FwLiteMaui.csproj -f net10.0-windows10.0.19041.0 -p:BuildAndroid=false -clp:ErrorsOnly
-dotnet build backend/FwLite/FwLiteMaui/FwLiteMaui.csproj -f net10.0-android -clp:ErrorsOnly
+dotnet build backend/FwLite/FwLiteMaui/FwLiteMaui.csproj -f net11.0-windows10.0.19041.0 -p:BuildAndroid=false -clp:ErrorsOnly
+dotnet build backend/FwLite/FwLiteMaui/FwLiteMaui.csproj -f net11.0-android -clp:ErrorsOnly
 ```
 
 Batch edits before a head build. `dotnet build` takes one project: build the csproj, never the folder.
@@ -76,6 +76,8 @@ task fw-lite:has-stale-generated-types
 ```
 
 The configuration for this lives in `FwLiteShared/TypeGen/ReinforcedFwLiteTypingConfig.cs` and `FwLiteShared/Reinforced.Typings.settings.xml`. The `index.ts` barrels under `generated-types/` are hand-maintained: add an export when you add an event or service. A new `[JSInvokable]` method on `MiniLcmJsInvokable` also needs a stub in `frontend/viewer/src/project/demo/in-memory-demo-api.ts`, or svelte-check fails late.
+
+> **.NET 11 preview note:** Reinforced.Typings 1.6.7 has no net11 tool, so `FwLiteShared.csproj` forces its net10 `rtcli` and patches the tool's runtimeconfig to run on the net11 runtime (`_RtPatchToolRuntimeConfig` target). It's self-contained — no env vars needed. Delete `RtForceTargetFramework` + that target once the package ships a net11 tool.
 
 ⚠️ **`[JSInvokable]` methods must not have optional/defaulted parameters (nor a `CancellationToken`).** The generated TS marks them optional (`arg?`), but that's a lie: Blazor JSInterop requires JS to pass every parameter, and can't marshal a `CancellationToken` — so JS callers break at runtime. If a server-side (REST) caller needs cancellation or an extra arg, add a separate **non-`[JSInvokable]`** overload for it (see `AuthService.SignInWebView`).
 

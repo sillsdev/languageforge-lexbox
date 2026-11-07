@@ -1,6 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
     <CompressionEnabled>false</CompressionEnabled>
+    <!-- Preview-SDK workaround: Reinforced.Typings 1.6.7 ships no tool build newer than net10.0, so
+         force it to use the net10.0 rtcli. That older rtcli then has to run on the current (newer,
+         possibly prerelease) runtime to reflect over the FwLiteShared assembly. Env-var roll-forward
+         (DOTNET_ROLL_FORWARD) does not work here because MSBuild's ToolTask does not forward our env to
+         the rtcli process, so instead the _RtPatchToolRuntimeConfig target below rewrites the tool's
+         runtimeconfig to request the exact runtime this SDK builds against. Remove RtForceTargetFramework
+         and that target once the package ships a tool for the current target framework. -->
+    <RtForceTargetFramework>net10.0</RtForceTargetFramework>
+    <!-- Runtime the rtcli tool should run on. Defaults to the runtime bundled with the building SDK
+         (auto-tracks net11 -> net12 -> ... with no edits); override only if you need a specific one. -->
+    <RtToolRuntimeVersion Condition="'$(RtToolRuntimeVersion)' == ''">$(BundledNETCoreAppPackageVersion)</RtToolRuntimeVersion>
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="FwLiteShared.Tests" />
@@ -14,7 +25,7 @@
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" />
-    <PackageReference Include="Reinforced.Typings" />
+    <PackageReference Include="Reinforced.Typings" GeneratePathProperty="true" />
     <PackageReference Include="System.Reactive" />
   </ItemGroup>
   <ItemGroup>
@@ -22,4 +33,37 @@
     <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />
     <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
   </ItemGroup>
+
+  <!-- Preview-SDK workaround (see RtForceTargetFramework above). The forced rtcli tool must run on the
+       runtime this SDK targets to load the FwLiteShared assembly. Rewrite every framework "version" in
+       the tool's runtimeconfig to $(RtToolRuntimeVersion) (the SDK's bundled runtime), regardless of what
+       version the tool shipped with. Version-agnostic and idempotent — writes only when the value changes.
+       Remove this target once RT ships a tool for the current target framework. -->
+  <UsingTask TaskName="PatchRtRuntimeConfig" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <ConfigPath ParameterType="System.String" Required="true" />
+      <RuntimeVersion ParameterType="System.String" Required="true" />
+      <Patched ParameterType="System.Boolean" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        var text = File.ReadAllText(ConfigPath);
+        var patched = Regex.Replace(text, "\"version\"\\s*:\\s*\"[^\"]*\"", "\"version\": \"" + RuntimeVersion + "\"");
+        Patched = patched != text;
+        if (Patched) File.WriteAllText(ConfigPath, patched);
+      ]]></Code>
+    </Task>
+  </UsingTask>
+  <Target Name="_RtPatchToolRuntimeConfig"
+          BeforeTargets="CoreCompile;ReinforcedTypingsGenerate"
+          Condition="Exists('$(PkgReinforced_Typings)\tools\$(RtForceTargetFramework)\rtcli.runtimeconfig.json')">
+    <PatchRtRuntimeConfig ConfigPath="$(PkgReinforced_Typings)\tools\$(RtForceTargetFramework)\rtcli.runtimeconfig.json"
+                          RuntimeVersion="$(RtToolRuntimeVersion)">
+      <Output TaskParameter="Patched" PropertyName="_RtRuntimeConfigWasPatched" />
+    </PatchRtRuntimeConfig>
+    <Message Importance="high" Condition="'$(_RtRuntimeConfigWasPatched)' == 'true'"
+             Text="Patched Reinforced.Typings rtcli runtimeconfig to run on $(RtToolRuntimeVersion) (preview-tooling workaround)." />
+  </Target>
 </Project>
