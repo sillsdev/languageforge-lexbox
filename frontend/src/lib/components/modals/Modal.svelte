@@ -144,7 +144,7 @@
     </div>
     {#if closeOnClickOutside}
       <form method="dialog" class="modal-backdrop">
-        <button>invisible</button>
+        <button aria-label={$t('close')}></button>
       </form>
     {/if}
     <Notify />
