@@ -45,6 +45,14 @@ done
 xcrun simctl io "$UDID" screenshot "$OUT_DIR/ios.png" || true
 found=false
 grep -rqs 'Viewer loaded' "$STDOUT" "$STDERR" "$DATA" && found=true
+if [ "$found" = false ] && kill -0 "$PID" 2>/dev/null; then
+  echo "::group::The app is still running without 'Viewer loaded': native stacks"
+  sample "$PID" 3 2>&1 || true
+  echo "::endgroup::"
+fi
+# A hung .NET app never finishes the graceful shutdown simctl terminate asks for, and terminate then blocks;
+# the simulator app is a host process, so SIGKILL it first.
+kill -9 "$PID" 2>/dev/null || true
 xcrun simctl terminate "$UDID" "$BUNDLE_ID" 2>/dev/null || true
 cat "$STDOUT" "$STDERR" 2>/dev/null || true
 find "$DATA" -name 'app*.log' -print -exec cat {} \; 2>/dev/null || true

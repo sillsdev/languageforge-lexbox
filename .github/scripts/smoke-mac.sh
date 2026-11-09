@@ -19,7 +19,15 @@ for _ in $(seq "$TIMEOUT"); do
   kill -0 "$PID" 2>/dev/null || break
   sleep 1
 done
+if ! grep -rqs 'Viewer loaded' "$OUT" "${LOG_DIRS[@]}" && kill -0 "$PID" 2>/dev/null; then
+  echo "::group::The app is still running without 'Viewer loaded': native stacks"
+  sample "$PID" 3 2>&1 || true
+  echo "::endgroup::"
+fi
+# .NET treats SIGTERM as a graceful shutdown, which never finishes if the app is hung, so fall back to SIGKILL.
 kill "$PID" 2>/dev/null || true
+for _ in $(seq 10); do kill -0 "$PID" 2>/dev/null || break; sleep 1; done
+kill -9 "$PID" 2>/dev/null || true
 wait "$PID" 2>/dev/null || true
 cat "$OUT"
 find "${LOG_DIRS[@]}" -name 'app*.log' -print -exec cat {} \; 2>/dev/null || true
