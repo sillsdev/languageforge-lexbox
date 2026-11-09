@@ -694,6 +694,9 @@ namespace LexData.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<int>("FwDataInitStatus")
+                        .HasColumnType("integer");
+
                     b.Property<bool?>("IsConfidential")
                         .HasColumnType("boolean");
 
