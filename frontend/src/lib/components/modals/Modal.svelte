@@ -143,8 +143,10 @@
       {/if}
     </div>
     {#if closeOnClickOutside}
-      <form method="dialog" class="modal-backdrop">
-        <button aria-label={$t('close')}></button>
+      <!-- Pointer-only affordance: keyboard and screen reader users close with Escape or the modal's own buttons,
+       so keep it out of the accessibility tree and tab order rather than adding a second "Close" button. -->
+      <form method="dialog" class="modal-backdrop" aria-hidden="true">
+        <button tabindex="-1" aria-label={$t('close')}></button>
       </form>
     {/if}
     <Notify />
