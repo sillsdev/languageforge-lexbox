@@ -74,6 +74,10 @@ public static class MergeRoutes
 
         switch (syncHostedService.QueueJob(projectId))
         {
+            case QueueJobResult.ProjectBeingCreated:
+                activity?.SetStatus(ActivityStatusCode.Ok, "Project is still being created");
+                return TypedResults.Problem("Project is still being created, try again once creation has finished",
+                    statusCode: StatusCodes.Status409Conflict);
             case QueueJobResult.SyncAlreadyRunning:
                 activity?.SetStatus(ActivityStatusCode.Ok, "Sync already running");
                 return TypedResults.Problem("A sync is already running for this project, try again once it has finished",
