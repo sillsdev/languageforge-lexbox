@@ -46,7 +46,7 @@ jobs:
       TEST_EXPECTED_HG_VERSION: ${{ inputs.hg-version }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: '10.x'
       - uses: MatteoH2O1999/setup-python@429b7dee8a48c31eb72ce0b420ea938ff51c2f11 # v3.2.1
@@ -75,7 +75,7 @@ jobs:
         run: dotnet test LexBoxOnly.slnf --logger trx --results-directory ./test-results --filter Category=HgIntegration
 
       - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action/composite@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2.25.0
+        uses: EnricoMi/publish-unit-test-result-action/composite@da5b7be67623cd59bbbd1a0ce4f022050a55605f # v2.26.0
         if: ${{ always() && !env.act }}
         with:
           check_name: Hg ${{ inputs.hg-version }} Client Tests ${{ inputs.runs-on }}

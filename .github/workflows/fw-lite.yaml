@@ -140,7 +140,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: '10.x'
 
@@ -248,7 +248,7 @@ jobs:
         working-directory: frontend/viewer
         run: pnpm run test --retry=2 --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-results.xml
       - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2.25.0
+        uses: EnricoMi/publish-unit-test-result-action@da5b7be67623cd59bbbd1a0ce4f022050a55605f # v2.26.0
         if: always()
         with:
           check_name: UI unit Tests
@@ -284,7 +284,7 @@ jobs:
         with:
           name: fw-lite-viewer-js
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: '10.x'
       - name: Setup Maui
@@ -515,7 +515,7 @@ jobs:
         with:
           name: fw-lite-viewer-js
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: '10.x'
 
@@ -575,7 +575,7 @@ jobs:
         with:
           name: fw-lite-viewer-js
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: '10.x'
 
@@ -983,7 +983,7 @@ jobs:
         run: printf '\n\nPlatform.Bible extension built against paranext-core `%s`.\n' "$REVISION" >> "$NOTES_FILE"
 
       - name: Create Release
-        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         with:
           fail_on_unmatched_files: true
           tag_name: ${{ needs.build-and-test.outputs.version }}
@@ -1047,7 +1047,7 @@ jobs:
         with:
           name: fw-lite-viewer-js
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: '10.x'
       - name: Publish FwLiteWeb (linux-x64)

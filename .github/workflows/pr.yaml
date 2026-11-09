@@ -48,7 +48,7 @@ jobs:
           # Full history: the diff is merge-base(base branch, PR head)..PR head, computed locally
           # with git alone, which also works for fork PRs (no token needed).
           fetch-depth: 0
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
         with:
           package_json_file: 'package.json'
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -58,7 +58,7 @@ jobs:
           cache-dependency-path: './pnpm-lock.yaml'
       - name: Install nx (repo root)
         run: pnpm install --frozen-lockfile
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           # @nx/dotnet evaluates every csproj with MSBuild to build the graph.
           dotnet-version: '10.x'
@@ -253,7 +253,7 @@ jobs:
           VITEST_CHROMIUM_ONLY: 'true'
         run: pnpm run test --retry=2 --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-results.xml
       - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2.25.0
+        uses: EnricoMi/publish-unit-test-result-action@da5b7be67623cd59bbbd1a0ce4f022050a55605f # v2.26.0
         if: always()
         with:
           check_name: UI unit Tests (PR tier)
@@ -444,7 +444,7 @@ jobs:
         with:
           name: pr-viewer-js
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: '10.x'
       # Both Apple workloads: restore evaluates net10.0-ios and net10.0-maccatalyst together.
@@ -479,7 +479,7 @@ jobs:
         with:
           name: pr-viewer-js
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: '10.x'
       # Both Apple workloads: restore evaluates net10.0-ios and net10.0-maccatalyst together.
@@ -508,7 +508,7 @@ jobs:
         with:
           name: pr-viewer-js
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: '10.x'
       - name: Setup Maui
@@ -552,7 +552,7 @@ jobs:
         working-directory: frontend/viewer
         run: pnpm run build
 
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: '10.x'
       - name: Publish FwLiteWeb (linux-x64)
