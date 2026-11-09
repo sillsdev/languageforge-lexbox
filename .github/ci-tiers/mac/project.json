@@ -1,0 +1,12 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "name": "tier-mac",
+  "tags": ["ci-tier"],
+  "_comment": "Escalation: unsigned Mac Catalyst build + launch smoke test. Label (ci:mac), or a change to its smoke script. Develop runs the notarized-DMG version (fw-lite.yaml launch-mac).",
+  "targets": {
+    "ci-affected": {
+      "executor": "nx:noop",
+      "inputs": ["{workspaceRoot}/.github/scripts/smoke-mac.sh"]
+    }
+  }
+}
