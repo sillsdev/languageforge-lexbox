@@ -8,7 +8,7 @@
     "pnpm": ">=12"
   },
   "devDependencies": {
-    "@nx/dotnet": "24.0.2",
-    "nx": "24.0.2"
+    "@nx/dotnet": "24.0.4",
+    "nx": "24.0.4"
   }
 }
