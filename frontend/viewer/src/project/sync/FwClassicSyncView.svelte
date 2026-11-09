@@ -6,7 +6,9 @@
   import * as Accordion from '$lib/components/ui/accordion';
   import SyncArrow from './SyncArrow.svelte';
   import flexLogo from '$lib/assets/flex-logo.png';
-  import logoLight from '$lib/assets/logo-light.svg';
+  import fwLiteLogo from '$lib/assets/fwlite-logo-small.svg';
+  import fwLiteLogoReversed from '$lib/assets/fwlite-logo-small-reversed.svg';
+  import {mode} from 'mode-watcher';
   import { FormatRelativeDate } from '$lib/components/ui/format';
   import { SyncStatus } from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
   import LoginButton from '$lib/auth/LoginButton.svelte';
@@ -129,7 +131,7 @@
 
 <div class="grid grid-cols-[1fr_auto_1fr] gap-4">
   <div class="border rounded flex flex-col items-center justify-center text-center p-2">
-    <Icon src={logoLight} class="size-10 mb-1" alt={$t`FieldWorks logo`} />
+    <Icon src={mode.current === 'dark' ? fwLiteLogoReversed : fwLiteLogo} class="size-10 mb-1" alt={$t`FieldWorks logo`} />
     <p><span class="max-xs:hidden">FieldWorks</span> Lite</p>
     <span class="text-sm text-foreground/80">
       <T msg="Last change: #">

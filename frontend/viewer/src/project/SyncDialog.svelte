@@ -48,6 +48,8 @@
     if (e.status === SyncStatus.Success) syncCount++;
   });
 
+  const cloudIcon = $derived(syncStatus === SyncStatus.Offline ? 'i-mdi-cloud-off-outline' : 'i-mdi-cloud-outline');
+
   // The dialog's content unmounts on close, so each view loads its own status when it's first shown
   watch(() => openQueryParam.current, (open) => {
     if (!open) return;
@@ -71,16 +73,29 @@
   contentProps={{ class: 'sm:min-w-140 grid-rows-[auto_1fr] items-center' }}>
   <Tabs.Root bind:value={tab} class="flex md:flex-col flex-col-reverse">
     {#if showClassic || showNearby}
-      <Tabs.List class="w-full md:mb-2 max-md:mt-4 max-md:sticky bottom-0 z-1">
-        <Tabs.Trigger class="flex-auto" value="lite">{$t`Cloud`}</Tabs.Trigger>
+      <Tabs.List class="w-full md:mb-2 max-md:mt-4 max-md:sticky bottom-0 z-1 max-md:h-auto">
+        <Tabs.Trigger class="flex-auto gap-2 max-md:flex-col max-md:gap-0.5 max-md:text-xs" value="lite">
+          <span class="relative md:-my-1">
+            <Icon icon={cloudIcon} class="max-md:size-5" />
+            <span class="absolute -top-0.5 -right-1 size-2 rounded-full"
+              class:bg-green-500={syncStatus === SyncStatus.Success}
+              class:bg-red-500={syncStatus !== SyncStatus.Success}></span>
+          </span>
+          {$t`Cloud`}
+        </Tabs.Trigger>
         {#if showNearby}
-          <Tabs.Trigger class="flex-auto" value="folder">{$t`Nearby`}</Tabs.Trigger>
+          <Tabs.Trigger class="flex-auto gap-2 max-md:flex-col max-md:gap-0.5 max-md:text-xs" value="folder">
+            <Icon icon="i-mdi-lan-pending" class="md:-my-1 max-md:size-5" />
+            {$t`Nearby`}
+          </Tabs.Trigger>
         {/if}
         {#if showClassic}
-          <Tabs.Trigger class="flex-auto gap-1" value="classic">
-            <img src={flexLogo} alt="" class="size-5" />
-            <Icon icon="i-mdi-swap-horizontal" class="-my-1" />
-            <img src={mode.current === 'dark' ? fwLiteLogoReversed : fwLiteLogo} alt="" class="size-5" />
+          <Tabs.Trigger class="flex-auto gap-2 max-md:flex-col max-md:gap-0.5 max-md:text-xs" value="classic">
+            <span class="flex items-center gap-1">
+              <img src={mode.current === 'dark' ? fwLiteLogoReversed : fwLiteLogo} alt="" class="size-5" />
+              <Icon icon="i-mdi-swap-horizontal" class="-my-1" />
+              <img src={flexLogo} alt="" class="size-5" />
+            </span>
             {$t`Lexbox`}
           </Tabs.Trigger>
         {/if}
