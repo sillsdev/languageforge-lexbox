@@ -22,14 +22,22 @@
 
   let editor = $state<Editor.Root>();
 
+  // guards against a second Enter/click while the commit below is awaited, which would add the draft twice
+  let submitting = false;
+
   async function submit(e: Event) {
     e.preventDefault();
     e.stopPropagation();
-    if (!open) return;
-    // flush blur-only change handlers (stomp guards, rich-string WS) before reading the draft
-    await editor?.commit();
-    onsubmit();
-    open = false;
+    if (!open || submitting) return;
+    submitting = true;
+    try {
+      // flush blur-only change handlers (stomp guards, rich-string WS) before reading the draft
+      await editor?.commit();
+      onsubmit();
+      open = false;
+    } finally {
+      submitting = false;
+    }
   }
 
   function handleKeydown(event: KeyboardEvent) {
