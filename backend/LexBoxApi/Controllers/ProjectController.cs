@@ -1,13 +1,17 @@
+using System.Text.RegularExpressions;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Controllers.ActionResults;
 using LexBoxApi.Jobs;
+using LexBoxApi.Models.Project;
 using LexBoxApi.Services;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
+using LexCore.Sync;
 using LexData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Quartz;
 using Path = System.IO.Path;
 
@@ -20,9 +24,157 @@ public class ProjectController(
     IHgService hgService,
     LexBoxDbContext lexBoxDbContext,
     IPermissionService permissionService,
-    ISchedulerFactory scheduler)
+    ISchedulerFactory scheduler,
+    ILogger<ProjectController> logger)
     : ControllerBase
 {
+    /// <summary>
+    /// Admin-only: create a new FLEx project whose repo is populated with a template .fwdata
+    /// (from the SIL.LCModel package) configured for the requested writing systems.
+    ///
+    /// At some future date this API may be opened up to trusted users, but the projectOrigin
+    /// parameter will remain admin-only.
+    ///
+    /// Building and pushing the project takes too long to hold a request open for, so this creates the
+    /// project row and empty repo, queues the rest as a background job, and returns 202 Accepted with the
+    /// new project's ID. Poll <see cref="FwDataProjectCreationStatus"/> to learn when it's ready.
+    /// </summary>
+    /// <param name="code">Project code for the new project.</param>
+    /// <param name="name">Display name for the new project.</param>
+    /// <param name="wsVernacular">Vernacular writing system id(s); at least one is required. Repeat the query param for multiple.</param>
+    /// <param name="wsAnalysis">Analysis writing system id(s); defaults to ["en"] when none are given. Repeat the query param for multiple.</param>
+    /// <param name="wsUi">Optional user interface writing system id; defaults to "en" if not given.</param>
+    /// <param name="projectOrigin">Optional <see cref="ProjectMigrationStatus"/> to record as the project's origin; admin-only.</param>
+    [HttpPost("initFwDataProject")]
+    [AdminRequired]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Guid>> InitFwDataProject(
+        string code,
+        string name,
+        [FromQuery] string[] wsVernacular,
+        [FromQuery] string[]? wsAnalysis = null,
+        string wsUi = "en",
+        string? projectOrigin = null)
+    {
+        // Validate before anything is created, so a bad request never leaves a project to tear down.
+        var wsAnalysisOrDefault = AnalysisWritingSystemsOrDefault(wsAnalysis);
+        var wsError = InitFwDataProjectInput.ValidateWritingSystemList("vernacular", wsVernacular)
+            ?? InitFwDataProjectInput.ValidateWritingSystemList("analysis", wsAnalysisOrDefault)
+            ?? InitFwDataProjectInput.ValidateUiWritingSystem(wsUi);
+        if (wsError is not null)
+            return Problem(wsError, statusCode: StatusCodes.Status400BadRequest);
+        if (code is null || code.Length < 4 || !Regex.IsMatch(code, Project.ProjectCodeRegex))
+            return Problem($"Invalid project code '{code}'", statusCode: StatusCodes.Status400BadRequest);
+        if (string.IsNullOrWhiteSpace(name))
+            return Problem("A project name is required", statusCode: StatusCodes.Status400BadRequest);
+
+        ProjectMigrationStatus? origin = null;
+        if (!string.IsNullOrEmpty(projectOrigin))
+        {
+            // Only admins may say where a project came from. Currently redundant with [AdminRequired],
+            // but this endpoint is expected to open up to non-admins later; this check must stay.
+            permissionService.AssertIsAdmin();
+            if (!TryParseProjectOrigin(projectOrigin, out var parsedOrigin))
+                return Problem($"Invalid project origin '{projectOrigin}'", statusCode: StatusCodes.Status400BadRequest);
+            origin = parsedOrigin;
+        }
+        if (await projectService.ProjectExists(code))
+            return Problem($"A project with code '{code}' already exists", statusCode: StatusCodes.Status409Conflict);
+
+        Guid projectId;
+        try
+        {
+            projectId = await projectService.CreateProject(new CreateProjectInput(
+                Id: null,
+                Name: name,
+                Description: string.Empty,
+                Code: code,
+                Type: ProjectType.FLEx,
+                RetentionPolicy: RetentionPolicy.Verified,
+                IsConfidential: false,
+                ProjectManagerId: null,
+                OrgId: null),
+                projectOrigin: origin,
+                // In the same insert as the row itself, so the project is never visible without it
+                fwDataInitStatus: FwDataInitStatus.InProgress);
+        }
+        catch (DbUpdateException e) when (DbError.CreateErrorFrom(e).Code == DbErrorCode.DuplicateProjectCode)
+        {
+            // ProjectExists above is only a fast path: a concurrent request can take the code after that check,
+            // and the unique index on Project.Code is what actually catches it. Nothing was created by this request.
+            return Problem($"A project with code '{code}' already exists", statusCode: StatusCodes.Status409Conflict);
+        }
+
+        // The project row (marked as being initialised) and its empty repo now exist. Populating the repo
+        // happens in the job, which also marks the project ready or rolls it back.
+        try
+        {
+            await InitFwDataProjectJob.Queue(scheduler, projectId,
+                new InitFwDataProjectInput(wsVernacular, wsAnalysisOrDefault, wsUi));
+        }
+        catch (Exception ex)
+        {
+            // Nothing has been sent to FwHeadless yet, so tearing the project down is unambiguous
+            logger.LogError(ex, "Failed to queue initialising project {ProjectId} ({Code}), rolling it back", projectId, code);
+            await CleanupFailedCreation(projectId, code);
+            throw;
+        }
+        return AcceptedAtAction(nameof(FwDataProjectCreationStatus), new { projectId }, projectId);
+    }
+
+    /// <summary>
+    /// Admin-only: how the creation started by <see cref="InitFwDataProject"/> is going.
+    /// Creating while the job is still running; Created once the project exists and isn't being
+    /// initialised (so also for any project that wasn't created that way). A failed creation is rolled
+    /// back, deleting the project, after which this reports CreationFailed with the reason for an hour,
+    /// as long as LexBox hasn't restarted, and 404 after that.
+    /// </summary>
+    [HttpGet("fwDataProjectCreationStatus/{projectId}")]
+    [AdminRequired]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ProjectCreationStatus>> FwDataProjectCreationStatus(
+        Guid projectId,
+        [FromServices] IMemoryCache memoryCache)
+    {
+        var initStatus = await lexBoxDbContext.Projects
+            .Where(p => p.Id == projectId)
+            .Select(p => (FwDataInitStatus?)p.FwDataInitStatus)
+            .SingleOrDefaultAsync();
+        if (initStatus is not null)
+            return initStatus == FwDataInitStatus.InProgress ? ProjectCreationStatus.Creating : ProjectCreationStatus.Created;
+        var failure = InitFwDataProjectJob.TryGetRecentFailure(memoryCache, projectId);
+        return failure is null ? NotFound() : ProjectCreationStatus.Failed(failure);
+    }
+
+    /// <summary>
+    /// Parses a project origin. Enum.TryParse also accepts raw numbers ("1") and comma-separated lists
+    /// ("Migrated,Migrating"), so the parsed value must round-trip to the name that was passed in.
+    /// </summary>
+    public static bool TryParseProjectOrigin(string projectOrigin, out ProjectMigrationStatus origin) =>
+        Enum.TryParse(projectOrigin, ignoreCase: true, out origin)
+        && Enum.IsDefined(origin)
+        && string.Equals(origin.ToString(), projectOrigin, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>Analysis writing systems to use, defaulting to English when none are supplied.</summary>
+    public static string[] AnalysisWritingSystemsOrDefault(string[]? wsAnalysis) =>
+        wsAnalysis is { Length: > 0 } ? wsAnalysis : ["en"];
+
+    private async Task CleanupFailedCreation(Guid projectId, string code)
+    {
+        try
+        {
+            await projectService.CleanupFailedProjectCreation(projectId, code);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to roll back project {ProjectId} ({Code}); it may need manual cleanup", projectId, code);
+        }
+    }
+
     [HttpPost("refreshProjectLastChanged")]
     public async Task<ActionResult> RefreshProjectLastChanged(string projectCode)
     {

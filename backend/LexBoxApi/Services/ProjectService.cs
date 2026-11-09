@@ -25,7 +25,9 @@ public class ProjectService(
     IEmailService emailService,
     FwHeadlessClient fwHeadless)
 {
-    public async Task<Guid> CreateProject(CreateProjectInput input)
+    public async Task<Guid> CreateProject(CreateProjectInput input,
+        ProjectMigrationStatus? projectOrigin = null,
+        FwDataInitStatus fwDataInitStatus = FwDataInitStatus.None)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         var projectId = input.Id ?? Guid.NewGuid();
@@ -41,7 +43,8 @@ public class ProjectService(
                 Id = projectId,
                 Code = input.Code,
                 Name = input.Name,
-                ProjectOrigin = ProjectMigrationStatus.Migrated,
+                ProjectOrigin = projectOrigin ?? ProjectMigrationStatus.Migrated,
+                FwDataInitStatus = fwDataInitStatus,
                 Description = input.Description,
                 Type = input.Type,
                 LastCommit = null,
@@ -230,6 +233,52 @@ public class ProjectService(
         InvalidateProjectOrgIdsCache(projectId);
         await dbContext.SaveChangesAsync();
         return project;
+    }
+
+    /// <summary>
+    /// Marks a project whose repo FwHeadless has populated from the template as ready, recording the
+    /// commit it pushed.
+    /// </summary>
+    public async Task FinishFwDataInit(Guid projectId)
+    {
+        var project = await dbContext.Projects.FindAsync(projectId);
+        if (project is null) return;
+        project.LastCommit = await hgService.GetLastCommitTimeFromHg(project.Code);
+        project.FwDataInitStatus = FwDataInitStatus.None;
+        await dbContext.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Compensating cleanup for a project whose template population failed after CreateProject:
+    /// deletes FwHeadless's local project state, then removes the repo and the project row and
+    /// invalidates the same caches as a permanent delete.
+    /// Unlike DeleteProjectPermanently this is not gated on retention policy, because it only undoes a
+    /// project that InitFwDataProject just created.
+    /// </summary>
+    public async Task CleanupFailedProjectCreation(Guid projectId, string code)
+    {
+        // do this first, because it throws if a creation or sync is in progress, which stops us from
+        // tearing down an active or already-completed creation (mirrors DeleteProjectPermanently)
+        await fwHeadless.DeleteProject(projectId);
+        try
+        {
+            // Repo before row: if deleting the repo fails, the project row survives for an admin to see and
+            // delete, instead of an orphaned repo with no row pointing at it
+            await hgService.DeleteRepoIfExists(code);
+            var project = await dbContext.Projects.FindAsync(projectId);
+            if (project is not null)
+            {
+                dbContext.Projects.Remove(project);
+                await dbContext.SaveChangesAsync();
+            }
+        }
+        finally
+        {
+            // Don't forget to add more Invalidate calls here if we add new caches
+            InvalidateProjectCodeCache(code);
+            InvalidateProjectConfidentialityCache(projectId);
+            InvalidateProjectOrgIdsCache(projectId);
+        }
     }
 
     public async ValueTask<Guid[]> LookupProjectOrgIds(Guid projectId)
