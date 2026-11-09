@@ -8,7 +8,6 @@ import type {IRichMultiString} from '$lib/dotnet-types/i-multi-string';
 export interface IPicture
 {
 	id: string;
-	order: number;
 	mediaUri: string;
 	caption: IRichMultiString;
 }

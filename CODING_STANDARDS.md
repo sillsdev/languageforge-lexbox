@@ -21,7 +21,7 @@ Rules a linter can't check, distilled from review corrections. Mechanical style 
 
 ## Serialization
 
-- `IChange` JSON options come from `MakeLcmCrdtExternalJsonOptions()`, never a hand-built `JsonSerializerOptions`.
+- `IChange` JSON options come from `MakeLcmCrdtSyncJsonOptions()`, never a hand-built `JsonSerializerOptions`.
 
 ## UI
 

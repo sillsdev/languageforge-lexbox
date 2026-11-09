@@ -19,7 +19,7 @@
   import AdminTabs, { type AdminTabId } from './AdminTabs.svelte';
   import { createGuestUserByAdmin, type LexAuthUser } from '$lib/user';
   import CreateUserModal from '$lib/components/Users/CreateUserModal.svelte';
-  import type { Confidentiality } from '$lib/components/Projects';
+  import type { Confidentiality, ProjectSortColumn, SortDir } from '$lib/components/Projects';
   import { browser } from '$app/environment';
   import UserTable from '$lib/components/Users/UserTable.svelte';
   import UserFilter, { type UserFilters, type UserType } from '$lib/components/Users/UserFilter.svelte';
@@ -48,6 +48,8 @@
     usersICreated: queryParam.boolean<boolean>(false),
     userType: queryParam.string<UserType>(undefined),
     tab: queryParam.string<AdminTabId>('projects'),
+    projectSort: queryParam.string<ProjectSortColumn>('createdAt'),
+    projectSortDir: queryParam.string<SortDir>('desc'),
   });
 
   const userFilterKeys = ['userSearch', 'usersICreated', 'userType'] as const satisfies Readonly<(keyof UserFilters)[]>;

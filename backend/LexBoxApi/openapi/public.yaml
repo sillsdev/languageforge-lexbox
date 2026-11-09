@@ -1979,12 +1979,6 @@ components:
         id:
           type: string
           format: uuid
-        order:
-          pattern: '^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$'
-          anyOf:
-            - type: number
-            - type: string
-          format: double
         mediaUri:
           $ref: '#/components/schemas/MediaUri'
         caption:
