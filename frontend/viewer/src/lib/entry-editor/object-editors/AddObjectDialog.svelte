@@ -41,9 +41,10 @@
   }
 
   function handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'Enter' && !IsMobile.value) {
-      void submit(event);
-    }
+    if (event.key !== 'Enter' || event.shiftKey || event.isComposing || IsMobile.value) return;
+    // Only from text fields: Enter on a button or picker trigger must keep its own action (e.g. Cancel)
+    const target = event.target as HTMLElement;
+    if (target instanceof HTMLInputElement || target.isContentEditable) void submit(event);
   }
 </script>
 

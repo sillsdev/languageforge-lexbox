@@ -2401,11 +2401,20 @@ msgstr ""
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 #: src/lib/views/entity-config.ts
 msgid "Meaning"
 msgstr "Maana"
+
+#. Add Example dialog subtitle when the meaning has no gloss or definition. {0} is its number.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Meaning {0}"
+msgstr ""
+
+#. Add Example dialog subtitle naming the meaning the new example belongs to. {0} is its number, {1} its gloss or definition.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Meaning {0}: {1}"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "senses"
@@ -3735,12 +3744,21 @@ msgstr ""
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 #: src/lib/entry-editor/object-editors/AddSenseFab.svelte
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
-#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 #: src/lib/entry-editor/object-editors/ObjectHeader.svelte
 #: src/lib/plugins/plugin-api-adapter.ts
 #: src/lib/views/entity-config.ts
 msgid "Sense"
 msgstr "Kwa maana"
+
+#. Add Example dialog subtitle when the sense has no gloss or definition. {0} is its number.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sense {0}"
+msgstr ""
+
+#. Add Example dialog subtitle naming the sense the new example belongs to. {0} is its number, {1} its gloss or definition.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sense {0}: {1}"
+msgstr ""
 
 #. Field label in the activity change-preview diff for a custom view: which sense-level fields it shows.
 #: src/lib/entry-editor/diff-view/diff-fields.ts

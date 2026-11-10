@@ -61,12 +61,17 @@
     return editor?.commit();
   }
 
-  // New senses and examples are drafted in a dialog and only join the entry when the user confirms
+  // New senses and examples are drafted in a dialog and only join the entry when the user confirms.
+  // A draft outlives its dialog's close (the next open replaces it): the fields stay mounted through the
+  // fade-out, and a focused field's commit-on-removal still has an object to write to.
   let draftSense = $state<ISense>();
   let draftExample = $state<IExampleSentence>();
+  let senseDialogOpen = $state(false);
+  let exampleDialogOpen = $state(false);
 
   function addSense() {
     draftSense = defaultSense(entry.id);
+    senseDialogOpen = true;
   }
 
   function createSense() {
@@ -79,6 +84,7 @@
 
   function addExample(sense: ISense) {
     draftExample = defaultExampleSentence(sense.id);
+    exampleDialogOpen = true;
   }
 
   function createExample() {
@@ -92,13 +98,14 @@
     onchange?.({entry, sense, example});
   }
 
-  const draftExampleSenseIndex = $derived(draftExample ? entry.senses.findIndex(s => s.id === draftExample?.senseId) : -1);
   const draftExampleDescription = $derived.by(() => {
-    if (draftExampleSenseIndex < 0) return undefined;
-    const sense = entry.senses[draftExampleSenseIndex];
-    const label = `${pt($t`Sense`, $t`Meaning`, viewService.currentView)} ${draftExampleSenseIndex + 1}`;
-    const gloss = writingSystemService.firstDefOrGlossVal(sense);
-    return gloss ? `${label}: ${gloss}` : label;
+    const index = entry.senses.findIndex(s => s.id === draftExample?.senseId);
+    if (index < 0) return undefined;
+    const n = index + 1;
+    const gloss = writingSystemService.viewFirstGlossOrDef(entry.senses[index], viewService.currentView);
+    return gloss
+      ? pt($t`Sense ${n}: ${gloss}`, $t`Meaning ${n}: ${gloss}`, viewService.currentView)
+      : pt($t`Sense ${n}`, $t`Meaning ${n}`, viewService.currentView);
   });
 
   async function deleteSense(sense: ISense) {
@@ -137,7 +144,6 @@
   let editorElem: HTMLDivElement | null = $state(null);
   let highlighted = $state<{ entity: IExampleSentence | ISense }>();
   let highlightTimeout: ReturnType<typeof setTimeout>;
-  const ENTITY_FIELD_CONTAINER_CLASS = 'entity-field-container';
 
   watch(() => highlighted, () => {
     if (highlighted) {
@@ -181,7 +187,7 @@
 <div class="flex min-h-0 gap-4">
   <Editor.Root bind:ref bind:this={editor} class="min-w-0 flex-1">
     <Editor.Grid bind:ref={editorElem}>
-      <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
+      <EntryEditorPrimitive bind:entry {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
 
     {#if showSenses}
       {#each entry.senses as sense, i (sense.id)}
@@ -198,7 +204,7 @@
                 ondelete={() => deleteSense(sense)} id={sense.id} />
           </ObjectHeader>
 
-          <SenseEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:sense={entry.senses[i]} {readonly} onchange={() => onSenseChange(sense)}/>
+          <SenseEditorPrimitive bind:sense={entry.senses[i]} {readonly} onchange={() => onSenseChange(sense)}/>
 
           {#if showExamples && sense.exampleSentences.length}
             <Editor.SubGrid class="border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
@@ -215,7 +221,6 @@
                   </ObjectHeader>
 
                   <ExampleEditorPrimitive
-                    class={ENTITY_FIELD_CONTAINER_CLASS}
                     bind:example={sense.exampleSentences[j]}
                     {readonly}
                     onchange={() => onExampleChange(sense, example)}
@@ -259,29 +264,33 @@
   </Editor.Root>
 </div>
 
-<AddObjectDialog
-  bind:open={() => !!draftSense, (open) => { if (!open) draftSense = undefined; }}
-  title={pt($t`Add Sense`, $t`Add Meaning`, viewService.currentView)}
-  submitLabel={pt($t`Add Sense`, $t`Add Meaning`, viewService.currentView)}
-  onsubmit={createSense}>
-  {#if draftSense}
-    <!-- Pictures are saved straight to the API against an existing sense, so they can only be added once it exists -->
-    <OverrideFields overrides={{senseFields: viewService.currentView.senseFields.filter(f => f.fieldId !== 'pictures')}}>
-      <SenseEditorPrimitive bind:sense={draftSense} />
-    </OverrideFields>
-  {/if}
-</AddObjectDialog>
+{#if !readonly && canAddSense}
+  <AddObjectDialog
+    bind:open={senseDialogOpen}
+    title={pt($t`Add Sense`, $t`Add Meaning`, viewService.currentView)}
+    submitLabel={pt($t`Add Sense`, $t`Add Meaning`, viewService.currentView)}
+    onsubmit={createSense}>
+    {#if draftSense}
+      <!-- Pictures are saved straight to the API against an existing sense, so they can only be added once it exists -->
+      <OverrideFields overrides={{senseFields: viewService.currentView.senseFields.filter(f => f.fieldId !== 'pictures')}}>
+        <SenseEditorPrimitive bind:sense={draftSense} />
+      </OverrideFields>
+    {/if}
+  </AddObjectDialog>
+{/if}
 
-<AddObjectDialog
-  bind:open={() => !!draftExample, (open) => { if (!open) draftExample = undefined; }}
-  title={$t`Add Example`}
-  description={draftExampleDescription}
-  submitLabel={$t`Add Example`}
-  onsubmit={createExample}>
-  {#if draftExample}
-    <ExampleEditorPrimitive bind:example={draftExample} />
-  {/if}
-</AddObjectDialog>
+{#if !readonly && canAddExample}
+  <AddObjectDialog
+    bind:open={exampleDialogOpen}
+    title={$t`Add Example`}
+    description={draftExampleDescription}
+    submitLabel={$t`Add Example`}
+    onsubmit={createExample}>
+    {#if draftExample}
+      <ExampleEditorPrimitive bind:example={draftExample} />
+    {/if}
+  </AddObjectDialog>
+{/if}
 
 <style lang="postcss">
   @reference "#app.css";
