@@ -107,6 +107,14 @@ describe('SyncDialog', () => {
     flushSync();
   }
 
+  it('focuses the back button on opening a method, and that method on going back', async () => {
+    await openDialog(fakeSyncService());
+    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    expect(document.activeElement?.getAttribute('title')).toBe('Back');
+    back();
+    await vi.waitFor(() => expect(document.activeElement?.textContent?.trim()).toMatch(/^FieldWorks Send\/Receive/));
+  }, 60_000);
+
   function visibleLabel(button: HTMLButtonElement) {
     return [...button.querySelectorAll('.grid > span')].find(s => !s.classList.contains('invisible'))?.textContent;
   }
@@ -222,6 +230,10 @@ describe('SyncDialog', () => {
     await vi.waitFor(() => expect(getButton(/Sync with E:/).title).toBe(String.raw`E:\test-project`));
     expect(document.body.textContent).toContain('Sync with another folder...');
     expect(document.body.textContent).not.toContain('Sync with a folder...');
+
+    // The method list shows the new folder too
+    back();
+    await vi.waitFor(() => expect(methodButtons()).toContainEqual(expect.stringContaining(String.raw`Sync with E:`)));
   }, 60_000);
 
   it('hides folder sync outside the beta channel', async () => {

@@ -636,10 +636,14 @@ msgid "Auto"
 msgstr "Tự động"
 
 #. Status indicator
-#: src/project/SyncDialog.svelte
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Auto syncing"
 msgstr "Đang đồng bộ tự động"
+
+#. Status of the "Other FieldWorks Lite users" sync method. # is a relative time like "5 min ago", or "Never"
+#: src/project/sync/SyncMethodList.svelte
+msgid "Auto syncing · Last sync: #"
+msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/SyncDialog.svelte
@@ -1599,7 +1603,7 @@ msgstr "Kiểm tra lỗi khi cập nhật: {0}"
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Error getting sync status"
 msgstr "Lỗi khi lấy trạng thái đồng bộ"
 
@@ -2232,7 +2236,6 @@ msgid "Last change: #"
 msgstr "Thay đổi cuối: #"
 
 #. Label showing the timestamp of the last local sync in the sync panel. # is replaced by a formatted relative date component (e.g., "5 minutes ago").
-#: src/project/SyncDialog.svelte
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Last sync: #"
 msgstr "Lần đồng bộ cuối: #"
@@ -2640,10 +2643,10 @@ msgstr "Tên là trường thông tin bắt buộc"
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwLiteSyncView.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Never"
 msgstr "Không bao giờ"
 
@@ -2829,7 +2832,7 @@ msgstr "Không có máy chủ"
 
 #. Status text in the project sidebar when the project has no server/sync partner configured.
 #: src/project/ProjectSidebar.svelte
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "No server configured"
 msgstr "Chưa cấu hình máy chủ"
 
@@ -2894,7 +2897,7 @@ msgstr ""
 
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Not logged in"
 msgstr "Chưa đăng nhập"
 
@@ -2960,7 +2963,7 @@ msgstr "Ngoại tuyến, không thể tải xuống"
 msgid "Offline, unable to open file"
 msgstr "Chế độ ngoại tuyến, không thể mở tệp"
 
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Offline. Your changes are saved on this device."
 msgstr ""
 
@@ -3668,7 +3671,7 @@ msgid "Runs in a sandbox, separate from the app"
 msgstr ""
 
 #. Under "FieldWorks Send/Receive (on Lexbox)": the sync happens on the Lexbox server, not with a FieldWorks installation on this computer
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Runs on Lexbox, not with FieldWorks on this computer"
 msgstr ""
 
@@ -4126,8 +4129,8 @@ msgstr "Đồng bộ FieldWorks Lite và FieldWorks Classic"
 msgid "Sync now"
 msgstr ""
 
-#: src/project/SyncDialog.svelte
 #: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Sync with {0}"
 msgstr ""
 
@@ -4135,8 +4138,8 @@ msgstr ""
 msgid "Sync with a folder..."
 msgstr ""
 
-#: src/project/SyncDialog.svelte
 #: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Sync with a USB drive or another folder"
 msgstr ""
 

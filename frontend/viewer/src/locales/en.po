@@ -631,10 +631,14 @@ msgid "Auto"
 msgstr "Auto"
 
 #. Status indicator
-#: src/project/SyncDialog.svelte
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Auto syncing"
 msgstr "Auto syncing"
+
+#. Status of the "Other FieldWorks Lite users" sync method. # is a relative time like "5 min ago", or "Never"
+#: src/project/sync/SyncMethodList.svelte
+msgid "Auto syncing · Last sync: #"
+msgstr "Auto syncing · Last sync: #"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/SyncDialog.svelte
@@ -1594,7 +1598,7 @@ msgstr "Error checking for updates: {0}"
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Error getting sync status"
 msgstr "Error getting sync status"
 
@@ -2227,7 +2231,6 @@ msgid "Last change: #"
 msgstr "Last change: #"
 
 #. Label showing the timestamp of the last local sync in the sync panel. # is replaced by a formatted relative date component (e.g., "5 minutes ago").
-#: src/project/SyncDialog.svelte
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Last sync: #"
 msgstr "Last sync: #"
@@ -2635,10 +2638,10 @@ msgstr "Name is required"
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
 msgstr "Needs {0}, which this project doesn't support, so it may not work properly"
 
-#: src/project/SyncDialog.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwLiteSyncView.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Never"
 msgstr "Never"
 
@@ -2824,7 +2827,7 @@ msgstr "No server"
 
 #. Status text in the project sidebar when the project has no server/sync partner configured.
 #: src/project/ProjectSidebar.svelte
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "No server configured"
 msgstr "No server configured"
 
@@ -2889,7 +2892,7 @@ msgstr "Not in this project. Try one on your data, then add it or make it your o
 
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Not logged in"
 msgstr "Not logged in"
 
@@ -2955,7 +2958,7 @@ msgstr "Offline, unable to download"
 msgid "Offline, unable to open file"
 msgstr "Offline, unable to open file"
 
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Offline. Your changes are saved on this device."
 msgstr "Offline. Your changes are saved on this device."
 
@@ -3663,7 +3666,7 @@ msgid "Runs in a sandbox, separate from the app"
 msgstr "Runs in a sandbox, separate from the app"
 
 #. Under "FieldWorks Send/Receive (on Lexbox)": the sync happens on the Lexbox server, not with a FieldWorks installation on this computer
-#: src/project/SyncDialog.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Runs on Lexbox, not with FieldWorks on this computer"
 msgstr "Runs on Lexbox, not with FieldWorks on this computer"
 
@@ -4121,8 +4124,8 @@ msgstr "Sync FieldWorks Lite and FieldWorks Classic"
 msgid "Sync now"
 msgstr "Sync now"
 
-#: src/project/SyncDialog.svelte
 #: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Sync with {0}"
 msgstr "Sync with {0}"
 
@@ -4130,8 +4133,8 @@ msgstr "Sync with {0}"
 msgid "Sync with a folder..."
 msgstr "Sync with a folder..."
 
-#: src/project/SyncDialog.svelte
 #: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Sync with a USB drive or another folder"
 msgstr "Sync with a USB drive or another folder"
 
