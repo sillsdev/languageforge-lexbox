@@ -1763,11 +1763,6 @@ msgstr "FieldWorks logo"
 msgid "File"
 msgstr "File"
 
-#. Error message for duplicate file upload
-#: src/lib/components/audio/AudioDialog.svelte
-msgid "File already exists"
-msgstr "File already exists"
-
 #. Label for audio file name input
 #: src/lib/components/audio/audio-editor.svelte
 msgid "File name:"

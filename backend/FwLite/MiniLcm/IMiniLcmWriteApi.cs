@@ -277,6 +277,9 @@ public interface IMiniLcmWriteApi
 
     /// <summary>
     /// Saves a media file using the provided data stream and metadata.
+    /// If a file with the same name and the same content is already saved, returns
+    /// <see cref="UploadFileResult.AlreadyExists"/> with that file's MediaUri. A different file with
+    /// the same name is saved as a separate file.
     /// </summary>
     /// <param name="stream">The stream containing the media file data to be saved.</param>
     /// <param name="metadata">Metadata associated with the media file, including details like filename and upload information.</param>

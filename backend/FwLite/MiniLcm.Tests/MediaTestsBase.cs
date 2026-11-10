@@ -121,23 +121,51 @@ public abstract class MediaTestsBase : MiniLcmTestBase
     }
 
     [Fact]
-    public async Task FileOperations_FileNameConflict_HandlesGracefully()
+    public async Task FileOperations_SameNameDifferentContent_SavesASeparateFile()
     {
+        const string fileName = "IMG_0001.jpg";
+        var firstBytes = new byte[1024];
+        var secondBytes = new byte[1024];
+        Random.Shared.NextBytes(firstBytes);
+        Random.Shared.NextBytes(secondBytes);
 
-        const string fileName = "test-binary-file.dat";
+        var first = await SaveTestFile(fileName, firstBytes, MediaTypeNames.Image.Jpeg);
+        first.Result.Should().Be(UploadFileResult.SavedLocally);
 
-        var saveResponse = await SaveTestFile(fileName);
-        var firstMediaUri = saveResponse.MediaUri;
-        firstMediaUri.Should().NotBe(MediaUri.NotFound);
-        saveResponse.Result.Should().Be(UploadFileResult.SavedLocally);
+        var second = await SaveTestFile(fileName, secondBytes, MediaTypeNames.Image.Jpeg);
+        second.Result.Should().Be(UploadFileResult.SavedLocally);
+        second.MediaUri.Should().NotBeNull().And.NotBe(MediaUri.NotFound).And.NotBe(first.MediaUri);
 
-        // Act - Save a different file with the same name
-        saveResponse = await SaveTestFile(fileName);
-        saveResponse.Result.Should().Be(UploadFileResult.AlreadyExists);
-        saveResponse.MediaUri.Should().Be(firstMediaUri);
+        (await ReadAllBytes(first.MediaUri!.Value)).Should().Equal(firstBytes);
+        (await ReadAllBytes(second.MediaUri!.Value)).Should().Equal(secondBytes);
     }
 
-    private async Task<UploadFileResponse> SaveTestFile(string fileName, byte[]? originalBytes = null, string mimeType = MediaTypeNames.Application.Octet)
+    [Fact]
+    public async Task FileOperations_SameNameSameContent_ReturnsTheExistingFile()
+    {
+        const string fileName = "test-binary-file.dat";
+        var bytes = new byte[1024];
+        Random.Shared.NextBytes(bytes);
+
+        var first = await SaveTestFile(fileName, bytes);
+        first.Result.Should().Be(UploadFileResult.SavedLocally);
+
+        var second = await SaveTestFile(fileName, bytes);
+        second.Result.Should().Be(UploadFileResult.AlreadyExists);
+        second.MediaUri.Should().Be(first.MediaUri);
+    }
+
+    protected async Task<byte[]> ReadAllBytes(MediaUri mediaUri)
+    {
+        var response = await Api.GetFileStream(mediaUri);
+        response.Result.Should().Be(ReadFileResult.Success);
+        await using var stream = response.Stream!;
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+        return memoryStream.ToArray();
+    }
+
+    protected async Task<UploadFileResponse> SaveTestFile(string fileName, byte[]? originalBytes = null, string mimeType = MediaTypeNames.Application.Octet)
     {
         const string author = "Test Author";
         var uploadDate = DateTimeOffset.UtcNow;
