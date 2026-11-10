@@ -108,6 +108,9 @@ public class MauiPlatformFeaturesService(IMediaPicker mediaPicker, IShare share)
     public Task<bool> FolderExists(string path) => Task.FromResult(Directory.Exists(path));
 
     [JSInvokable]
+    public Task<string?> SuggestedAuthorName() => Task.FromResult(OsUserName.Suggest());
+
+    [JSInvokable]
     public async Task<string?> PickFolder()
     {
 #if WINDOWS

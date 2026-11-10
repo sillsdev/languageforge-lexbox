@@ -20,6 +20,7 @@
   import FolderSyncSection from './sync/FolderSyncSection.svelte';
   import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
   import type {SyncTarget} from './sync/sync-target';
+  import {hasFlag} from '$lib/feature-flags/feature-flags.svelte';
 
   const {
     syncStatus = SyncStatus.Success
@@ -31,7 +32,7 @@
   let server = $derived(projectContext.server);
   const showClassic = $derived(!!server && features.fieldWorksSync);
   const platformFeatures = usePlatformFeaturesService();
-  const showNearby = $derived(platformFeatures.features.supportsFolderSync);
+  const showNearby = $derived(platformFeatures.features.supportsFolderSync && hasFlag('folder-sync'));
   const openQueryParam = new QueryParamStateBool(
     { key: SYNC_DIALOG_QUERY_PARAM, replaceOnDefaultValue: true, allowBack: true },
     false,

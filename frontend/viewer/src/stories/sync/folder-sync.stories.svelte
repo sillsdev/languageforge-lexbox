@@ -6,6 +6,7 @@
   setupServiceProvider();
 </script>
 <script lang="ts">
+  import StoryState from '../StoryState.svelte';
   import FolderSyncSection from '../../project/sync/FolderSyncSection.svelte';
   import OpenFromFolderItem from '../../home/OpenFromFolderItem.svelte';
   import FakeSyncService from './FakeSyncService.svelte';
@@ -32,78 +33,118 @@
 </script>
 
 <Story name="Sync dialog: first folder sync">
-  <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync}}>
-    <FolderSyncSection />
-  </FakeSyncService>
-  <Toaster />
+  <StoryState channel="beta" authorName="Pat">
+    <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync}}>
+      <FolderSyncSection />
+    </FakeSyncService>
+    <Toaster />
+  </StoryState>
+</Story>
+<Story name="Sync dialog: first folder sync, no name yet">
+  <StoryState channel="beta" authorName="">
+    <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync}}>
+      <FolderSyncSection />
+    </FakeSyncService>
+    <Toaster />
+  </StoryState>
 </Story>
 <Story name="Sync dialog: remembered folder">
-  <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, rememberedSyncFolder: String.raw`E:\test-project`}}>
-    <FolderSyncSection />
-  </FakeSyncService>
+  <StoryState channel="beta" authorName="Pat">
+    <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, rememberedSyncFolder: String.raw`E:\test-project`}}>
+      <FolderSyncSection />
+    </FakeSyncService>
+  </StoryState>
 </Story>
 <Story name="Sync dialog: remembered folder, long path">
-  <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, rememberedSyncFolder: String.raw`C:\Users\someone\Documents\Dictionary work\Shared\test-project`}}>
-    <FolderSyncSection />
-  </FakeSyncService>
+  <StoryState channel="beta" authorName="Pat">
+    <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, rememberedSyncFolder: String.raw`C:\Users\someone\Documents\Dictionary work\Shared\test-project`}}>
+      <FolderSyncSection />
+    </FakeSyncService>
+  </StoryState>
 </Story>
 <Story name="Sync dialog: folder already has other files">
-  <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, folderSyncResult: {status: FolderSyncStatus.NotASyncFolder, mediaSent: 0, mediaReceived: 0, mediaFailed: 0}}}>
-    <FolderSyncSection />
-  </FakeSyncService>
-  <Toaster />
+  <StoryState channel="beta" authorName="Pat">
+    <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, folderSyncResult: {status: FolderSyncStatus.NotASyncFolder, mediaSent: 0, mediaReceived: 0, mediaFailed: 0}}}>
+      <FolderSyncSection />
+    </FakeSyncService>
+    <Toaster />
+  </StoryState>
 </Story>
 <Story name="Home: open from folder">
-  <FakeOpenFromFolder result={{outcome: OpenFromFolderOutcome.Downloaded, projectCode: 'test-project', projectName: 'Test Project'}}>
-    <Router>
-      <OpenFromFolderItem refreshProjects={() => Promise.resolve()} />
-    </Router>
-  </FakeOpenFromFolder>
-  <Toaster />
-</Story>
-<Story name="Home: folder without a project">
-  <FakeOpenFromFolder result={{outcome: OpenFromFolderOutcome.NotASyncFolder}}>
-    <Router>
-      <OpenFromFolderItem refreshProjects={() => Promise.resolve()} />
-    </Router>
-  </FakeOpenFromFolder>
-  <Toaster />
-</Story>
-<Story name="Sync dialog: sync failed">
-  <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, folderSyncResult: {status: FolderSyncStatus.Failed, mediaSent: 0, mediaReceived: 0, mediaFailed: 0}}}>
-    <FolderSyncSection />
-  </FakeSyncService>
-  <Toaster />
-</Story>
-<Story name="Sync dialog: no writing system in common">
-  <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, folderSyncResult: {status: FolderSyncStatus.NoWritingSystemInCommon, mediaSent: 0, mediaReceived: 0, mediaFailed: 0, localWritingSystemIds: ['en', 'seh'], folderWritingSystemIds: ['fr']}}}>
-    <FolderSyncSection />
-  </FakeSyncService>
-  <Toaster />
-</Story>
-<Story name="Home: project code in use">
-  <FakeOpenFromFolder result={{outcome: OpenFromFolderOutcome.ProjectCodeInUse, projectCode: 'test-project', projectName: 'Test Project'}}>
-    <Router>
-      <OpenFromFolderItem refreshProjects={() => Promise.resolve()} />
-    </Router>
-  </FakeOpenFromFolder>
-  <Toaster />
-</Story>
-<Story name="Home: no folder picker">
-  <NoFolderPicker>
+  <StoryState channel="beta" authorName="Pat">
     <FakeOpenFromFolder result={{outcome: OpenFromFolderOutcome.Downloaded, projectCode: 'test-project', projectName: 'Test Project'}}>
       <Router>
         <OpenFromFolderItem refreshProjects={() => Promise.resolve()} />
       </Router>
     </FakeOpenFromFolder>
-  </NoFolderPicker>
-  <Toaster />
+    <Toaster />
+  </StoryState>
+</Story>
+<Story name="Home: open from folder, no name yet">
+  <StoryState channel="beta" authorName="">
+    <FakeOpenFromFolder result={{outcome: OpenFromFolderOutcome.Downloaded, projectCode: 'test-project', projectName: 'Test Project'}}>
+      <Router>
+        <OpenFromFolderItem refreshProjects={() => Promise.resolve()} />
+      </Router>
+    </FakeOpenFromFolder>
+    <Toaster />
+  </StoryState>
+</Story>
+<Story name="Home: folder without a project">
+  <StoryState channel="beta" authorName="Pat">
+    <FakeOpenFromFolder result={{outcome: OpenFromFolderOutcome.NotASyncFolder}}>
+      <Router>
+        <OpenFromFolderItem refreshProjects={() => Promise.resolve()} />
+      </Router>
+    </FakeOpenFromFolder>
+    <Toaster />
+  </StoryState>
+</Story>
+<Story name="Sync dialog: sync failed">
+  <StoryState channel="beta" authorName="Pat">
+    <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, folderSyncResult: {status: FolderSyncStatus.Failed, mediaSent: 0, mediaReceived: 0, mediaFailed: 0}}}>
+      <FolderSyncSection />
+    </FakeSyncService>
+    <Toaster />
+  </StoryState>
+</Story>
+<Story name="Sync dialog: no writing system in common">
+  <StoryState channel="beta" authorName="Pat">
+    <FakeSyncService data={{localStatus, latestSyncedCommitDate: lastSync, folderSyncResult: {status: FolderSyncStatus.NoWritingSystemInCommon, mediaSent: 0, mediaReceived: 0, mediaFailed: 0, localWritingSystemIds: ['en', 'seh'], folderWritingSystemIds: ['fr']}}}>
+      <FolderSyncSection />
+    </FakeSyncService>
+    <Toaster />
+  </StoryState>
+</Story>
+<Story name="Home: project code in use">
+  <StoryState channel="beta" authorName="Pat">
+    <FakeOpenFromFolder result={{outcome: OpenFromFolderOutcome.ProjectCodeInUse, projectCode: 'test-project', projectName: 'Test Project'}}>
+      <Router>
+        <OpenFromFolderItem refreshProjects={() => Promise.resolve()} />
+      </Router>
+    </FakeOpenFromFolder>
+    <Toaster />
+  </StoryState>
+</Story>
+<Story name="Home: no folder picker">
+  <StoryState channel="beta" authorName="Pat">
+    <NoFolderPicker>
+      <FakeOpenFromFolder result={{outcome: OpenFromFolderOutcome.Downloaded, projectCode: 'test-project', projectName: 'Test Project'}}>
+        <Router>
+          <OpenFromFolderItem refreshProjects={() => Promise.resolve()} />
+        </Router>
+      </FakeOpenFromFolder>
+    </NoFolderPicker>
+    <Toaster />
+  </StoryState>
 </Story>
 <Story name="Home: project already on this device">
-  <FakeOpenFromFolder result={{outcome: OpenFromFolderOutcome.AlreadyOnDevice, projectCode: 'test-project', projectName: 'Test Project'}}>
-    <Router>
-      <OpenFromFolderItem refreshProjects={() => Promise.resolve()} />
-    </Router>
-  </FakeOpenFromFolder>
-  <Toaster />
+  <StoryState channel="beta" authorName="Pat">
+    <FakeOpenFromFolder result={{outcome: OpenFromFolderOutcome.AlreadyOnDevice, projectCode: 'test-project', projectName: 'Test Project'}}>
+      <Router>
+        <OpenFromFolderItem refreshProjects={() => Promise.resolve()} />
+      </Router>
+    </FakeOpenFromFolder>
+    <Toaster />
+  </StoryState>
 </Story>

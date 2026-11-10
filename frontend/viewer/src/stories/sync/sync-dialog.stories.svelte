@@ -6,6 +6,7 @@
   setupServiceProvider();
 </script>
 <script lang="ts">
+  import StoryState from '../StoryState.svelte';
   import OpenSyncDialog from './OpenSyncDialog.svelte';
   import FakeSyncService from './FakeSyncService.svelte';
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
@@ -56,46 +57,60 @@
 </script>
 
 <Story name="Normal">
-  <FakeSyncService {server} fieldWorksSync data={{localStatus: {local: 1, remote: 12}, latestSyncedCommitDate: oneHourAgo, remoteStatus}}>
-    <OpenSyncDialog />
-  </FakeSyncService>
-  <Toaster />
+  <StoryState channel="beta" authorName="Pat">
+    <FakeSyncService {server} fieldWorksSync data={{localStatus: {local: 1, remote: 12}, latestSyncedCommitDate: oneHourAgo, remoteStatus}}>
+      <OpenSyncDialog />
+    </FakeSyncService>
+    <Toaster />
+  </StoryState>
 </Story>
 <Story name="Remembered sync folder">
-  <FakeSyncService {server} fieldWorksSync data={{localStatus: {local: 1, remote: 12}, latestSyncedCommitDate: oneHourAgo, remoteStatus, rememberedSyncFolder: String.raw`E:\Example project`}}>
-    <OpenSyncDialog />
-  </FakeSyncService>
-  <Toaster />
+  <StoryState channel="beta" authorName="Pat">
+    <FakeSyncService {server} fieldWorksSync data={{localStatus: {local: 1, remote: 12}, latestSyncedCommitDate: oneHourAgo, remoteStatus, rememberedSyncFolder: String.raw`E:\Example project`}}>
+      <OpenSyncDialog />
+    </FakeSyncService>
+    <Toaster />
+  </StoryState>
 </Story>
 <Story name="Up to date">
-  <FakeSyncService {server} fieldWorksSync data={{localStatus: {local: 0, remote: 0}, latestSyncedCommitDate: new Date(now).toISOString(), remoteStatus: {...remoteStatus, pendingCrdtChanges: 0, pendingMercurialChanges: 0}}}>
-    <OpenSyncDialog />
-  </FakeSyncService>
-  <Toaster />
+  <StoryState channel="beta" authorName="Pat">
+    <FakeSyncService {server} fieldWorksSync data={{localStatus: {local: 0, remote: 0}, latestSyncedCommitDate: new Date(now).toISOString(), remoteStatus: {...remoteStatus, pendingCrdtChanges: 0, pendingMercurialChanges: 0}}}>
+      <OpenSyncDialog />
+    </FakeSyncService>
+    <Toaster />
+  </StoryState>
 </Story>
 <Story name="Offline">
-  <FakeSyncService {server} fieldWorksSync data={{localStatus: {local: 7}, latestSyncedCommitDate: oneDayAgo}}>
-    <OpenSyncDialog syncStatus={SyncStatus.Offline} />
-  </FakeSyncService>
-  <Toaster />
+  <StoryState channel="beta" authorName="Pat">
+    <FakeSyncService {server} fieldWorksSync data={{localStatus: {local: 7}, latestSyncedCommitDate: oneDayAgo}}>
+      <OpenSyncDialog syncStatus={SyncStatus.Offline} />
+    </FakeSyncService>
+    <Toaster />
+  </StoryState>
 </Story>
 <Story name="Not logged in">
-  <FakeSyncService {server} fieldWorksSync data={{localStatus: {local: 3}, latestSyncedCommitDate: oneDayAgo}}>
-    <OpenSyncDialog syncStatus={SyncStatus.NotLoggedIn} />
-  </FakeSyncService>
-  <Toaster />
+  <StoryState channel="beta" authorName="Pat">
+    <FakeSyncService {server} fieldWorksSync data={{localStatus: {local: 3}, latestSyncedCommitDate: oneDayAgo}}>
+      <OpenSyncDialog syncStatus={SyncStatus.NotLoggedIn} />
+    </FakeSyncService>
+    <Toaster />
+  </StoryState>
 </Story>
 <Story name="No FieldWorks Classic sync">
-  <FakeSyncService {server} fieldWorksSync={false} data={{localStatus: {local: 1, remote: 12}, latestSyncedCommitDate: oneHourAgo}}>
-    <OpenSyncDialog />
-  </FakeSyncService>
-  <Toaster />
+  <StoryState channel="beta" authorName="Pat">
+    <FakeSyncService {server} fieldWorksSync={false} data={{localStatus: {local: 1, remote: 12}, latestSyncedCommitDate: oneHourAgo}}>
+      <OpenSyncDialog />
+    </FakeSyncService>
+    <Toaster />
+  </StoryState>
 </Story>
 <Story name="Local only (no server)">
-  <FakeSyncService data={{localStatus: {local: 5}}}>
-    <OpenSyncDialog syncStatus={SyncStatus.NoServer} />
-  </FakeSyncService>
-  <Toaster />
+  <StoryState channel="beta" authorName="Pat">
+    <FakeSyncService data={{localStatus: {local: 5}}}>
+      <OpenSyncDialog syncStatus={SyncStatus.NoServer} />
+    </FakeSyncService>
+    <Toaster />
+  </StoryState>
 </Story>
 <!-- docs screenshots (tests/docs-screenshots) open this story -->
 <Story name="Pending" parameters={{fwlite: {resizable: false}}}>

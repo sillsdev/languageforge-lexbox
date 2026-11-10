@@ -42,6 +42,9 @@ export const fallbackPlatformFeaturesService: IPlatformFeaturesService = {
   },
   folderExists(): Promise<boolean> {
     return Promise.reject(new Error('Folder sync is not available'));
+  },
+  suggestedAuthorName(): Promise<string | undefined> {
+    return Promise.resolve(undefined);
   }
 };
 

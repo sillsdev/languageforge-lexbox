@@ -8,6 +8,9 @@
   import FolderPicker from './FolderPicker.svelte';
   import {useProjectContext} from '$project/project-context.svelte';
   import type {SyncTarget} from './sync-target';
+  import NameDialog from '$lib/author/NameDialog.svelte';
+  import SignedAsLine from '$lib/author/SignedAsLine.svelte';
+  import {useLocalAuthorName} from '$lib/author/local-author-name.svelte';
 
   interface Props {
     /** Which sync is running, shared with the rest of the dialog so only one runs at a time */
@@ -22,6 +25,10 @@
   const rememberedFolder = resource(() => undefined, () => service.getRememberedSyncFolder());
   let running = $state<'picked' | 'remembered'>();
   let folderPicker = $state<FolderPicker>();
+  let nameDialog = $state<NameDialog>();
+  const authorName = useLocalAuthorName();
+  // after a Lexbox sync, edits are signed with that account
+  const signsWithLocalName = $derived(!projectContext.projectData?.lastUserId);
 
   async function syncWith(path: string) {
     const summary = await service.syncWithFolder(path);
@@ -32,6 +39,7 @@
   }
 
   async function run(which: 'picked' | 'remembered', getPath: () => Promise<string | undefined>) {
+    if (signsWithLocalName && !authorName.current && !await nameDialog!.ask()) return;
     syncing = 'folder';
     running = which;
     try {
@@ -84,5 +92,9 @@
       </Button>
     {/if}
   </div>
+  {#if signsWithLocalName && authorName.current}
+    <SignedAsLine name={authorName.current} onChange={() => void nameDialog?.ask()} />
+  {/if}
 </div>
 <FolderPicker bind:this={folderPicker} />
+<NameDialog bind:this={nameDialog} />

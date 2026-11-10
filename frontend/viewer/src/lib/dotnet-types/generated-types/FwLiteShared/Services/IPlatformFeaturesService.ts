@@ -17,5 +17,6 @@ export interface IPlatformFeaturesService
 	hasFolderPicker() : Promise<boolean>;
 	pickFolder() : Promise<string | undefined>;
 	folderExists(path: string) : Promise<boolean>;
+	suggestedAuthorName() : Promise<string | undefined>;
 }
 /* eslint-enable */

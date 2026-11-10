@@ -5,33 +5,33 @@ namespace FwLiteShared.LocalSync;
 
 /// <summary>
 /// Keeps the device's anonymous local author in the device preferences, so the id survives restarts and is
-/// shared by every project on the device. The id is created the first time it's needed.
+/// shared by every project on the device. The id is created the first time it's needed. The name is whatever
+/// the user entered (the viewer writes it to <see cref="PreferenceKey.LocalAuthorName"/>), or null until they do.
 /// </summary>
-/// <param name="defaultName">Name used until the user picks one. Hosts that know a better device name pass it in:
-/// <see cref="Environment.MachineName"/> is "localhost" on Android.</param>
-public class PreferencesLocalAuthorProvider(IPreferencesService preferences, string? defaultName = null) : ILocalAuthorProvider
+public class PreferencesLocalAuthorProvider(IPreferencesService preferences) : ILocalAuthorProvider
 {
-    private const string IdKey = "localAuthor.id";
-    private const string NameKey = "localAuthor.name";
     private readonly Lock _lock = new();
-    private LocalAuthor? _localAuthor;
+    private string? _id;
 
-    // Called once per commit, so read the preferences once and keep the result.
     public LocalAuthor GetLocalAuthor()
+    {
+        // not cached: the viewer can change it at any time, and preference reads are in memory
+        var name = preferences.Get(nameof(PreferenceKey.LocalAuthorName));
+        return new LocalAuthor(GetId(), string.IsNullOrWhiteSpace(name) ? null : name.Trim());
+    }
+
+    private string GetId()
     {
         lock (_lock)
         {
-            if (_localAuthor is not null) return _localAuthor;
-            var id = preferences.Get(IdKey);
-            if (string.IsNullOrEmpty(id))
+            if (_id is not null) return _id;
+            _id = preferences.Get(nameof(PreferenceKey.LocalAuthorId));
+            if (string.IsNullOrEmpty(_id))
             {
-                id = LocalAuthor.AnonymousIdPrefix + Guid.NewGuid().ToString("N");
-                preferences.Set(IdKey, id);
+                _id = LocalAuthor.AnonymousIdPrefix + Guid.NewGuid().ToString("N");
+                preferences.Set(nameof(PreferenceKey.LocalAuthorId), _id);
             }
-
-            var name = preferences.Get(NameKey);
-            _localAuthor = new LocalAuthor(id, string.IsNullOrWhiteSpace(name) ? defaultName ?? Environment.MachineName : name);
-            return _localAuthor;
+            return _id;
         }
     }
 }

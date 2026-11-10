@@ -9,6 +9,9 @@
   import type {IOpenFromFolderSummary} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IOpenFromFolderSummary';
   import {folderSyncMessage} from '../project/sync/folder-sync-messages';
   import FolderPicker from '../project/sync/FolderPicker.svelte';
+  import {hasFlag} from '$lib/feature-flags/feature-flags.svelte';
+  import NameDialog from '$lib/author/NameDialog.svelte';
+  import {useLocalAuthorName} from '$lib/author/local-author-name.svelte';
 
   const {refreshProjects}: {refreshProjects: () => Promise<void>} = $props();
 
@@ -16,8 +19,11 @@
   const platformFeatures = usePlatformFeaturesService();
   let loading = $state(false);
   let folderPicker = $state<FolderPicker>();
+  let nameDialog = $state<NameDialog>();
+  const authorName = useLocalAuthorName();
 
   async function openFromFolder() {
+    if (!authorName.current && !await nameDialog!.ask()) return;
     const path = await folderPicker!.pick();
     if (!path) return;
     loading = true;
@@ -73,10 +79,11 @@
   }
 </script>
 
-{#if platformFeatures.features.supportsFolderSync}
+{#if platformFeatures.features.supportsFolderSync && hasFlag('folder-sync')}
   <ListItem icon="i-mdi-folder-open-outline" class="mb-2" onclick={() => void openFromFolder()} {loading}>
     <span>{$t`Get project from folder...`}</span>
     <span class="text-sm text-muted-foreground">{$t`From a USB drive or shared folder`}</span>
   </ListItem>
 {/if}
+<NameDialog bind:this={nameDialog} />
 <FolderPicker bind:this={folderPicker} />

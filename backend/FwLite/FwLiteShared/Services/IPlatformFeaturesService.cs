@@ -47,6 +47,9 @@ public interface IPlatformFeaturesService
 
     [JSInvokable]
     Task<bool> FolderExists(string path);
+
+    [JSInvokable]
+    Task<string?> SuggestedAuthorName();
 }
 
 internal class DummyPlatformFeaturesService : IPlatformFeaturesService
@@ -86,4 +89,7 @@ internal class DummyPlatformFeaturesService : IPlatformFeaturesService
 
     [JSInvokable]
     public Task<bool> FolderExists(string path) => Task.FromResult(Directory.Exists(path));
+
+    [JSInvokable]
+    public Task<string?> SuggestedAuthorName() => Task.FromResult(OsUserName.Suggest());
 }

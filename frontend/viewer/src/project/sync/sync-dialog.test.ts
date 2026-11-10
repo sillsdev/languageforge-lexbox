@@ -43,6 +43,7 @@ describe('SyncDialog', () => {
     // a folder sync test's platform features would otherwise add the Nearby tab to later tests
     window.lexbox?.ServiceProvider?.removeService(DotnetService.PlatformFeaturesService);
     (await import('$lib/services/platform-features-service')).refreshPlatformFeatures();
+    (await import('$lib/feature-flags/feature-flags.svelte')).featureFlags.channel = '';
   });
 
   async function openDialog(syncService: ISyncServiceJsInvokable, fieldWorksSync = true) {
@@ -124,7 +125,14 @@ describe('SyncDialog', () => {
     expect(syncService.getSyncStatus).toHaveBeenCalledOnce();
   }, 60_000);
 
+  // Folder sync is a beta feature, and signs edits in a project without a Lexbox user with the device's name
+  async function enableFolderSync(authorName = 'Test User') {
+    (await import('$lib/feature-flags/feature-flags.svelte')).featureFlags.channel = 'beta';
+    await (await import('$lib/author/local-author-name.svelte')).useLocalAuthorName().set(authorName);
+  }
+
   async function setFolderSyncSupport(pickFolder: () => Promise<string | undefined>) {
+    await enableFolderSync();
     const {fallbackPlatformFeaturesService, refreshPlatformFeatures} = await import('$lib/services/platform-features-service');
     window.lexbox.ServiceProvider.setService(DotnetService.PlatformFeaturesService, {
       ...fallbackPlatformFeaturesService,
@@ -136,6 +144,7 @@ describe('SyncDialog', () => {
   }
 
   it('asks for a typed path where the host has no folder picker', async () => {
+    await enableFolderSync();
     const {fallbackPlatformFeaturesService, refreshPlatformFeatures} = await import('$lib/services/platform-features-service');
     const folderExists = vi.fn((path: string) => Promise.resolve(path === '/media/usb'));
     window.lexbox.ServiceProvider.setService(DotnetService.PlatformFeaturesService, {
@@ -192,6 +201,40 @@ describe('SyncDialog', () => {
     await vi.waitFor(() => expect(getButton(/Sync with E:/).title).toBe(String.raw`E:\test-project`));
     expect(document.body.textContent).toContain('Sync with another folder...');
     expect(document.body.textContent).not.toContain('Sync with a folder...');
+  }, 60_000);
+
+  it('hides folder sync outside the beta channel', async () => {
+    await setFolderSyncSupport(() => Promise.resolve(undefined));
+    (await import('$lib/feature-flags/feature-flags.svelte')).featureFlags.channel = '';
+    await openDialog(fakeSyncService());
+    await showTab('Lexbox');
+    expect([...document.querySelectorAll('[role="tab"]')].map(t => t.textContent)).not.toContainEqual(expect.stringContaining('Nearby'));
+  }, 60_000);
+
+  it('asks for a name before the first folder sync, then signs with it', async () => {
+    await setFolderSyncSupport(() => Promise.resolve(String.raw`E:	est-project`));
+    const authorName = (await import('$lib/author/local-author-name.svelte')).useLocalAuthorName();
+    await authorName.set('');
+    const syncService = fakeSyncService();
+    await openDialog(syncService);
+    await showTab('Nearby');
+
+    await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
+    const input = await vi.waitFor(() => {
+      const input = document.querySelector<HTMLInputElement>('#author-name');
+      expect(input).toBeTruthy();
+      return input!;
+    });
+    getButton(/Continue/).click();
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Enter your name'));
+
+    input.value = 'Ana';
+    input.dispatchEvent(new Event('input', {bubbles: true}));
+    flushSync();
+    getButton(/Continue/).click();
+    await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith(String.raw`E:	est-project`));
+    expect(authorName.current).toBe('Ana');
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Your changes will be signed as Ana.'));
   }, 60_000);
 
   it('does nothing when the folder picker is cancelled', async () => {
