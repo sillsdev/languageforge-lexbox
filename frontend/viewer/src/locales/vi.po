@@ -747,7 +747,7 @@ msgstr "Hủy"
 msgid "Caption"
 msgstr "Chú thích"
 
-#: src/lib/author/SignedAsLine.svelte
+#: src/lib/author/AuthorNameLine.svelte
 msgid "Change"
 msgstr ""
 
@@ -3904,7 +3904,7 @@ msgstr ""
 
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/author/NameDialog.svelte
-msgid "Shown next to your changes in projects you don't sync with Lexbox."
+msgid "Shown next to your changes in all projects you don't sync with Lexbox."
 msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
@@ -4927,8 +4927,8 @@ msgstr "Bạn đã vượt qua mọi cột mốc. Thật là một thành tựu 
 msgid "Your changes to this plugin will be lost."
 msgstr ""
 
-#: src/lib/author/SignedAsLine.svelte
-msgid "Your changes will be signed as {0}."
+#: src/lib/author/AuthorNameLine.svelte
+msgid "Your changes will show the name {0}."
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte

@@ -742,7 +742,7 @@ msgstr "Cancel"
 msgid "Caption"
 msgstr "Caption"
 
-#: src/lib/author/SignedAsLine.svelte
+#: src/lib/author/AuthorNameLine.svelte
 msgid "Change"
 msgstr "Change"
 
@@ -3899,8 +3899,8 @@ msgstr "Show unchanged fields"
 
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/author/NameDialog.svelte
-msgid "Shown next to your changes in projects you don't sync with Lexbox."
-msgstr "Shown next to your changes in projects you don't sync with Lexbox."
+msgid "Shown next to your changes in all projects you don't sync with Lexbox."
+msgstr "Shown next to your changes in all projects you don't sync with Lexbox."
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
@@ -4922,9 +4922,9 @@ msgstr "You've passed every milestone. What an achievement!"
 msgid "Your changes to this plugin will be lost."
 msgstr "Your changes to this plugin will be lost."
 
-#: src/lib/author/SignedAsLine.svelte
-msgid "Your changes will be signed as {0}."
-msgstr "Your changes will be signed as {0}."
+#: src/lib/author/AuthorNameLine.svelte
+msgid "Your changes will show the name {0}."
+msgstr "Your changes will show the name {0}."
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"

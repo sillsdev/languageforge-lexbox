@@ -211,7 +211,7 @@ describe('SyncDialog', () => {
     expect([...document.querySelectorAll('[role="tab"]')].map(t => t.textContent)).not.toContainEqual(expect.stringContaining('Nearby'));
   }, 60_000);
 
-  it('asks for a name before the first folder sync, then signs with it', async () => {
+  it('asks for a name before the first folder sync, then uses it', async () => {
     await setFolderSyncSupport(() => Promise.resolve(String.raw`E:	est-project`));
     const authorName = (await import('$lib/author/local-author-name.svelte')).useLocalAuthorName();
     await authorName.set('');
@@ -234,7 +234,7 @@ describe('SyncDialog', () => {
     getButton(/Continue/).click();
     await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith(String.raw`E:	est-project`));
     expect(authorName.current).toBe('Ana');
-    await vi.waitFor(() => expect(document.body.textContent).toContain('Your changes will be signed as Ana.'));
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Your changes will show the name Ana.'));
   }, 60_000);
 
   it('does nothing when the folder picker is cancelled', async () => {

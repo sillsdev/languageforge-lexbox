@@ -59,7 +59,7 @@
     <form onsubmit={submit} class="contents">
       <Dialog.DialogHeader>
         <Dialog.DialogTitle>{$t`Your name`}</Dialog.DialogTitle>
-        <Dialog.DialogDescription>{$t`Shown next to your changes in projects you don't sync with Lexbox.`}</Dialog.DialogDescription>
+        <Dialog.DialogDescription>{$t`Shown next to your changes in all projects you don't sync with Lexbox.`}</Dialog.DialogDescription>
       </Dialog.DialogHeader>
       <div class="flex flex-col gap-2">
         <Label for="author-name">{$t`Name`}</Label>

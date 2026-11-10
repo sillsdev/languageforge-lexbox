@@ -9,7 +9,7 @@
   import {useProjectContext} from '$project/project-context.svelte';
   import type {SyncTarget} from './sync-target';
   import NameDialog from '$lib/author/NameDialog.svelte';
-  import SignedAsLine from '$lib/author/SignedAsLine.svelte';
+  import AuthorNameLine from '$lib/author/AuthorNameLine.svelte';
   import {useLocalAuthorName} from '$lib/author/local-author-name.svelte';
 
   interface Props {
@@ -93,7 +93,7 @@
     {/if}
   </div>
   {#if signsWithLocalName && authorName.current}
-    <SignedAsLine name={authorName.current} onChange={() => void nameDialog?.ask()} />
+    <AuthorNameLine name={authorName.current} onChange={() => void nameDialog?.ask()} />
   {/if}
 </div>
 <FolderPicker bind:this={folderPicker} />
