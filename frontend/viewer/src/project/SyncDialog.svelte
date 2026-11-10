@@ -88,17 +88,17 @@
   }
 </script>
 
-<ResponsiveDialog bind:open={() => openQueryParam.current, (open) => open ? openQueryParam.current = true : close()} disableBackHandler title={$t`Sync Changes`} hideTitleOnMobile
+<ResponsiveDialog bind:open={() => openQueryParam.current, (open) => open ? openQueryParam.current = true : close()} disableBackHandler title={$t`Sync Changes`} hideTitleOnMobile hideTitle={!!shown && hasChoice}
   contentProps={{ class: 'sm:min-w-140 grid-rows-[auto_1fr] items-center' }}>
   <div>
     {#if !shown}
       <SyncMethodList {syncStatus} {showClassic} {showFolder} {syncCount} titles={methodTitles} focus={lastMethod}
         onChoose={m => method = lastMethod = m} />
     {:else if hasChoice}
-      <div class="flex items-center gap-2 mb-4 pb-2 border-b max-md:pe-10">
+      <div class="flex items-center gap-1 mb-4 -ms-2 -mt-2 pe-10">
         <Button variant="ghost" size="icon" icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}}
           title={$t`Back`} autofocus onclick={() => method = undefined} />
-        <h3 class="font-medium">{methodTitles[shown]}</h3>
+        <h3 class="text-lg leading-tight font-semibold">{methodTitles[shown]}</h3>
       </div>
     {/if}
     <!-- Views stay mounted after they're first shown, so going back and forth doesn't reload their status -->
