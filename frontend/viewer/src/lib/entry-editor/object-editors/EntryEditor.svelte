@@ -108,29 +108,34 @@
       : pt($t`Sense ${n}`, $t`Meaning ${n}`, viewService.currentView);
   });
 
-  // Require the key field only when the view shows it, so the user can always fix what we flag;
-  // without it, any filled-in field will do
-  function shown(fields: {fieldId: string, show: boolean}[], fieldId: string): boolean {
-    return fields.some(f => f.fieldId === fieldId && f.show);
+  // Require only what the dialog shows, so the user can always fix what we flag: the key field if shown,
+  // else any shown field. With nothing to fill (e.g. a pictures-only view: pictures need a saved sense)
+  // a blank one is added.
+  function shown(fields: {fieldId: string, show: boolean}[], ...fieldIds: string[]): boolean {
+    return fields.some(f => f.show && fieldIds.includes(f.fieldId));
   }
 
   function validateSense(): string[] {
     if (!draftSense) return [];
     const fields = viewService.currentView.senseFields;
-    if (shown(fields, 'gloss') || shown(fields, 'definition')) {
-      if (!writingSystemService.firstGloss(draftSense) && !writingSystemService.firstDef(draftSense)) return [$t`Gloss or Definition is required`];
-    } else if (!draftSense.partOfSpeechId && !draftSense.semanticDomains.length) {
-      return [$t`Fill in at least one field`];
+    if (shown(fields, 'gloss', 'definition')) {
+      return writingSystemService.firstGloss(draftSense) || writingSystemService.firstDef(draftSense) ? [] : [$t`Gloss or Definition is required`];
+    }
+    if (shown(fields, 'partOfSpeechId', 'semanticDomains')) {
+      return draftSense.partOfSpeechId || draftSense.semanticDomains.length ? [] : [$t`Fill in at least one field`];
     }
     return [];
   }
 
   function validateExample(): string[] {
     if (!draftExample) return [];
-    if (shown(viewService.currentView.exampleFields, 'sentence')) {
-      if (!writingSystemService.first(draftExample.sentence, writingSystemService.vernacular)) return [$t`Sentence is required`];
-    } else if (!draftExample.translations.some(t => writingSystemService.first(t.text)) && !asString(draftExample.reference)) {
-      return [$t`Fill in at least one field`];
+    const fields = viewService.currentView.exampleFields;
+    if (shown(fields, 'sentence')) {
+      return writingSystemService.first(draftExample.sentence, writingSystemService.vernacular) ? [] : [$t`Sentence is required`];
+    }
+    if (shown(fields, 'translations', 'reference')) {
+      const filled = draftExample.translations.some(t => writingSystemService.first(t.text)) || asString(draftExample.reference);
+      return filled ? [] : [$t`Fill in at least one field`];
     }
     return [];
   }

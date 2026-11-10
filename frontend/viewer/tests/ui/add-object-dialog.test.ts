@@ -39,18 +39,23 @@ test.describe('Add sense/example dialog', () => {
     await expectNoSenseAdded();
   });
 
-  test('a view without gloss or definition still needs some field filled in', async ({page}) => {
-    await page.evaluate((base) => window.__PLAYWRIGHT_UTILS__.addCustomView({
+  async function useViewWithSenseFields(name: string, senseField: string): Promise<void> {
+    const {page} = projectPage;
+    await page.evaluate(({name, senseField, base}) => window.__PLAYWRIGHT_UTILS__.addCustomView({
       id: crypto.randomUUID(),
-      name: 'Grammar only',
+      name,
       base,
       entryFields: [{fieldId: 'lexemeForm'}],
-      senseFields: [{fieldId: 'partOfSpeechId'}],
+      senseFields: [{fieldId: senseField}],
       exampleFields: [{fieldId: 'sentence'}],
-    }), ViewBase.FwLite);
+    }), {name, senseField, base: ViewBase.FwLite});
     await page.getByRole('button').filter({has: page.locator('.i-mdi-layers')}).first().click();
-    await page.getByRole('radio', {name: 'Grammar only (Lite)'}).click();
+    await page.getByRole('radio', {name: `${name} (Lite)`}).click();
     await page.keyboard.press('Escape');
+  }
+
+  test('a view without gloss or definition still needs some field filled in', async ({page}) => {
+    await useViewWithSenseFields('Grammar only', 'partOfSpeechId');
 
     await projectPage.entryView.addSenseButton.click();
     const dialog = page.getByRole('dialog');
@@ -61,6 +66,18 @@ test.describe('Add sense/example dialog', () => {
     await expect(dialog).toBeHidden();
 
     await expectNoSenseAdded();
+  });
+
+  test('a pictures-only view can add a blank sense to put a picture on', async ({page}) => {
+    await useViewWithSenseFields('Pictures only', 'pictures');
+
+    await projectPage.entryView.addSenseButton.click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByRole('button', {name: /add (sense|meaning)/i}).click();
+    await expect(dialog).toBeHidden();
+
+    await projectPage.entryView.waitForEntrySaved();
+    expect(await projectPage.api.getEntrySenseCount(entryId)).toBe(initialSenseCount + 1);
   });
 
   const cancelPaths: Record<string, (dialog: Locator) => Promise<void>> = {
