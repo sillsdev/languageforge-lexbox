@@ -6,21 +6,26 @@
   import * as Editor from '$lib/components/editor';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
+  import {watch} from 'runed';
 
   type Props = {
     open: boolean;
     title: string;
     description?: string;
     submitLabel: string;
+    /** Messages for what is missing; the draft is only added when there are none */
+    validate: () => string[];
     onsubmit: () => void;
     children: Snippet;
   };
 
-  let {open = $bindable(), title, description, submitLabel, onsubmit, children}: Props = $props();
+  let {open = $bindable(), title, description, submitLabel, validate, onsubmit, children}: Props = $props();
 
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'add-object-dialog'});
 
   let editor = $state<Editor.Root>();
+  let errors = $state<string[]>([]);
+  watch(() => open, () => { if (open) errors = []; });
 
   // guards against a second Enter/click while the commit below is awaited, which would add the draft twice
   let submitting = false;
@@ -33,6 +38,8 @@
     try {
       // flush blur-only change handlers (stomp guards, rich-string WS) before reading the draft
       await editor?.commit();
+      errors = validate();
+      if (errors.length) return;
       onsubmit();
       open = false;
     } finally {
@@ -61,6 +68,13 @@
         {@render children()}
       </Editor.Grid>
     </Editor.Root>
+    {#if errors.length}
+      <div class="text-end space-y-2">
+        {#each errors as error (error)}
+          <p class="text-destructive">{error}</p>
+        {/each}
+      </div>
+    {/if}
     <Dialog.DialogFooter>
       <Button onclick={() => open = false} variant="secondary">{$t`Cancel`}</Button>
       <Button onclick={(e) => submit(e)}>{submitLabel}</Button>

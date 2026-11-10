@@ -104,6 +104,28 @@ test.describe('Entry edit persistence', () => {
     await expect(page.locator('[data-field-id="sentence"]').filter({hasText: sentence})).toBeVisible();
   });
 
+  test('adding an empty sense or example is blocked with a message', async ({page}) => {
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
+
+    const {entryId, headword, senseCount: initialSenseCount} = await projectPage.api.getEntryAtIndex(15);
+    await projectPage.selectEntryByFilter(headword);
+
+    await projectPage.entryView.addSenseButton.click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByRole('button', {name: /add (sense|meaning)/i}).click();
+    await expect(dialog.getByText('Gloss or Definition is required')).toBeVisible();
+    await dialog.getByRole('button', {name: 'Cancel'}).click();
+    await expect(dialog).toBeHidden();
+
+    await page.getByRole('button', {name: 'Add Example'}).first().click();
+    await dialog.getByRole('button', {name: 'Add Example'}).click();
+    await expect(dialog.getByText('Sentence is required')).toBeVisible();
+
+    await projectPage.entryView.waitForEntrySaved();
+    expect(await projectPage.api.getEntrySenseCount(entryId)).toBe(initialSenseCount);
+  });
+
   const cancelPaths: Record<string, (dialog: Locator) => Promise<void>> = {
     'clicking Cancel': (dialog) => dialog.getByRole('button', {name: 'Cancel'}).click(),
     // the gloss input still has focus, so it commits while the dialog closes

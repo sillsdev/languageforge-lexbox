@@ -108,6 +108,24 @@
       : pt($t`Sense ${n}`, $t`Meaning ${n}`, viewService.currentView);
   });
 
+  // Only require fields the view shows, so the user can always fix what we flag
+  function shown(fields: {fieldId: string, show: boolean}[], fieldId: string): boolean {
+    return fields.some(f => f.fieldId === fieldId && f.show);
+  }
+
+  function validateSense(): string[] {
+    const fields = viewService.currentView.senseFields;
+    if (!draftSense || !(shown(fields, 'gloss') || shown(fields, 'definition'))) return [];
+    if (writingSystemService.firstGloss(draftSense) || writingSystemService.firstDef(draftSense)) return [];
+    return [$t`Gloss or Definition is required`];
+  }
+
+  function validateExample(): string[] {
+    if (!draftExample || !shown(viewService.currentView.exampleFields, 'sentence')) return [];
+    if (writingSystemService.first(draftExample.sentence, writingSystemService.vernacular)) return [];
+    return [$t`Sentence is required`];
+  }
+
   async function deleteSense(sense: ISense) {
     if (!await dialogService.promptDelete(pt($t`Sense`, $t`Meaning`, viewService.currentView), writingSystemService.firstGloss(sense))) return;
     entry.senses = entry.senses.filter(s => s.id !== sense.id);
@@ -269,6 +287,7 @@
     bind:open={senseDialogOpen}
     title={pt($t`Add Sense`, $t`Add Meaning`, viewService.currentView)}
     submitLabel={pt($t`Add Sense`, $t`Add Meaning`, viewService.currentView)}
+    validate={validateSense}
     onsubmit={createSense}>
     {#if draftSense}
       <!-- Pictures are saved straight to the API against an existing sense, so they can only be added once it exists -->
@@ -285,6 +304,7 @@
     title={$t`Add Example`}
     description={draftExampleDescription}
     submitLabel={$t`Add Example`}
+    validate={validateExample}
     onsubmit={createExample}>
     {#if draftExample}
       <ExampleEditorPrimitive bind:example={draftExample} />

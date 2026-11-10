@@ -1937,6 +1937,10 @@ msgstr "Get support"
 msgid "Gloss"
 msgstr "Gloss"
 
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Gloss or Definition is required"
+msgstr "Gloss or Definition is required"
+
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Go back"
 msgstr "Go back"
@@ -3773,6 +3777,10 @@ msgstr "senses"
 #: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Sentence"
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sentence is required"
+msgstr "Sentence is required"
 
 #. Activity-log line. {0} = field label; used when the new value is an audio recording (an audio marker chip follows instead of a text value). Compare "Set {0} to", which shows a text value chip.
 #: src/lib/activity/ChangeSummary.svelte
