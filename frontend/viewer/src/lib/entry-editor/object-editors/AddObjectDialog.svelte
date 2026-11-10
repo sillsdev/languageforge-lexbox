@@ -4,9 +4,9 @@
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import * as Editor from '$lib/components/editor';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {watch} from 'runed';
+  import {isSubmitEnter} from '$lib/utils/submit-on-enter';
 
   type Props = {
     open: boolean;
@@ -48,10 +48,7 @@
   }
 
   function handleKeydown(event: KeyboardEvent) {
-    if (event.key !== 'Enter' || event.shiftKey || event.isComposing || IsMobile.value) return;
-    // Only from text fields: Enter on a button or picker trigger must keep its own action (e.g. Cancel)
-    const target = event.target as HTMLElement;
-    if (target instanceof HTMLInputElement || target.isContentEditable) void submit(event);
+    if (isSubmitEnter(event)) void submit(event);
   }
 </script>
 
