@@ -72,6 +72,14 @@
     <Toaster />
   </StoryState>
 </Story>
+<Story name="Dev channel (nearby devices)">
+  <StoryState channel="dev" authorName="Pat">
+    <FakeSyncService {server} fieldWorksSync data={{localStatus: {local: 1, remote: 12}, latestSyncedCommitDate: oneHourAgo, remoteStatus}}>
+      <OpenSyncDialog />
+    </FakeSyncService>
+    <Toaster />
+  </StoryState>
+</Story>
 <Story name="Up to date">
   <StoryState channel="beta" authorName="Pat">
     <FakeSyncService {server} fieldWorksSync data={{localStatus: {local: 0, remote: 0}, latestSyncedCommitDate: new Date(now).toISOString(), remoteStatus: {...remoteStatus, pendingCrdtChanges: 0, pendingMercurialChanges: 0}}}>

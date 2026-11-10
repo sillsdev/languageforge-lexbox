@@ -636,11 +636,13 @@ msgid "Auto"
 msgstr "자동"
 
 #. Status indicator
+#: src/project/SyncDialog.svelte
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Auto syncing"
 msgstr "자동 동기화"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/project/SyncDialog.svelte
 msgid "Back"
 msgstr "뒤로"
 
@@ -1597,6 +1599,7 @@ msgstr "업데이트 확인 중 오류가 발생했습니다: {0}"
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
+#: src/project/SyncDialog.svelte
 msgid "Error getting sync status"
 msgstr "동기화 상태 가져오기 오류"
 
@@ -1780,11 +1783,6 @@ msgstr "필드"
 msgid "Fields"
 msgstr "필드"
 
-#. Product name
-#: src/project/SyncDialog.svelte
-msgid "FieldWorks Lite"
-msgstr "FieldWorks Lite"
-
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite는 서비스 개선을 위해 사용 현황 데이터를 수집합니다."
@@ -1813,6 +1811,11 @@ msgstr "FieldWorks Lite 버전"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "FieldWorks 로고"
+
+#. Sync method in the Sync Changes dialog. Send/Receive is the name of the sync feature in FieldWorks Classic
+#: src/project/SyncDialog.svelte
+msgid "FieldWorks Send/Receive (on Lexbox)"
+msgstr ""
 
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/plugin-api-adapter.ts
@@ -2229,6 +2232,7 @@ msgid "Last change: #"
 msgstr "마지막 변경 사항: #"
 
 #. Label showing the timestamp of the last local sync in the sync panel. # is replaced by a formatted relative date component (e.g., "5 minutes ago").
+#: src/project/SyncDialog.svelte
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Last sync: #"
 msgstr "마지막 동기화: #"
@@ -2263,11 +2267,6 @@ msgstr "길이:"
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Let this version use the internet?"
 msgstr ""
-
-#. Product name
-#: src/project/SyncDialog.svelte
-msgid "Lexbox"
-msgstr "렉스박스"
 
 #. Alt text for the Lexbox logo image shown in the home screen app bar. "Lexbox" is a product name — do not translate.
 #: src/home/HomeView.svelte
@@ -2637,14 +2636,11 @@ msgstr "이름"
 msgid "Name is required"
 msgstr "이름은 필수 입력 사항입니다."
 
-#: src/project/SyncDialog.svelte
-msgid "Nearby"
-msgstr ""
-
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
 msgstr ""
 
+#: src/project/SyncDialog.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwLiteSyncView.svelte
@@ -2833,6 +2829,7 @@ msgstr "서버 없음"
 
 #. Status text in the project sidebar when the project has no server/sync partner configured.
 #: src/project/ProjectSidebar.svelte
+#: src/project/SyncDialog.svelte
 msgid "No server configured"
 msgstr "구성된 서버 없음"
 
@@ -2897,6 +2894,7 @@ msgstr ""
 
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
+#: src/project/SyncDialog.svelte
 msgid "Not logged in"
 msgstr "로그인하지 않음"
 
@@ -2961,6 +2959,10 @@ msgstr "오프라인 상태, 다운로드할 수 없음"
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
 msgstr "오프라인 상태라 파일을 열 수 없습니다"
+
+#: src/project/SyncDialog.svelte
+msgid "Offline. Your changes are saved on this device."
+msgstr ""
 
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
@@ -3052,6 +3054,11 @@ msgstr "분석 기능 사용 거부"
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
 msgstr "오렌지"
+
+#. Sync method in the Sync Changes dialog: syncing through Lexbox with other people who use FieldWorks Lite
+#: src/project/SyncDialog.svelte
+msgid "Other FieldWorks Lite users"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
@@ -3660,6 +3667,11 @@ msgstr ""
 msgid "Runs in a sandbox, separate from the app"
 msgstr ""
 
+#. Under "FieldWorks Send/Receive (on Lexbox)": the sync happens on the Lexbox server, not with a FieldWorks installation on this computer
+#: src/project/SyncDialog.svelte
+msgid "Runs on Lexbox, not with FieldWorks on this computer"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
@@ -4095,6 +4107,7 @@ msgid "Sync"
 msgstr "동기화"
 
 #. Dialog title
+#: src/project/ProjectSidebar.svelte
 #: src/project/SyncDialog.svelte
 msgid "Sync Changes"
 msgstr "동기화 변경 사항"
@@ -4113,6 +4126,7 @@ msgstr "FieldWorks Lite와 FieldWorks Classic 동기화"
 msgid "Sync now"
 msgstr ""
 
+#: src/project/SyncDialog.svelte
 #: src/project/sync/FolderSyncSection.svelte
 msgid "Sync with {0}"
 msgstr ""
@@ -4121,6 +4135,7 @@ msgstr ""
 msgid "Sync with a folder..."
 msgstr ""
 
+#: src/project/SyncDialog.svelte
 #: src/project/sync/FolderSyncSection.svelte
 msgid "Sync with a USB drive or another folder"
 msgstr ""
@@ -4162,11 +4177,6 @@ msgstr ""
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
 msgstr "동기화: #"
-
-#. Menu item to start sync
-#: src/project/ProjectSidebar.svelte
-msgid "Synchronize"
-msgstr "동기화"
 
 #. Progress message during sync
 #: src/project/sync/FwClassicSyncView.svelte
@@ -4706,6 +4716,11 @@ msgstr "업로드 대기 중인 파일"
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
 msgstr "이곳에서는 사진 업로드가 지원되지 않습니다."
+
+#. Sync method in the Sync Changes dialog: syncing through a USB drive or a shared folder
+#: src/project/SyncDialog.svelte
+msgid "USB Drive / Folder"
+msgstr ""
 
 #: src/project/sync/FolderPicker.svelte
 msgid "Use this folder"

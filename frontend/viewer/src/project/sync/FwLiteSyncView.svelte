@@ -143,11 +143,11 @@
             onclick={onSyncClick}
             icon="i-mdi-sync"
             iconProps={{ class: 'size-5' }}>
-            {#if syncing === 'lite'}
-              {$t`Syncing...`}
-            {:else}
-              {$t`Auto syncing`}
-            {/if}
+            <!-- Both labels take space so the button doesn't resize -->
+            <span class="grid">
+              <span class="col-start-1 row-start-1" class:invisible={syncing === 'lite'}>{$t`Auto syncing`}</span>
+              <span class="col-start-1 row-start-1" class:invisible={syncing !== 'lite'}>{$t`Syncing...`}</span>
+            </span>
           </Button>
         {:else if syncStatus === SyncStatus.Offline}
           <span>{$t`Offline`}</span>

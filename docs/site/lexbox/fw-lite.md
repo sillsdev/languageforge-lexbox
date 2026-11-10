@@ -56,7 +56,7 @@ FieldWorks Lite users don't need to do anything. If some of the team still uses 
 make this part of the team's rhythm:
 
 1. FieldWorks users **Send/Receive** as usual.
-2. An Editor or Manager presses **Sync** on the **Lexbox** tab in FieldWorks Lite (or
+2. An Editor or Manager presses **Sync** under **FieldWorks Send/Receive (on Lexbox)** in FieldWorks Lite (**Sync Changes**) (or
    **Sync FieldWorks Lite** on the project page). Once started, it runs on Lexbox, so you
    can close the app or the page.
 3. FieldWorks users **Send/Receive** again to pick up the FieldWorks Lite work.
