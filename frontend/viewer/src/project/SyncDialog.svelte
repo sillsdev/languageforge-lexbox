@@ -21,6 +21,8 @@
   import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
   import type {SyncMethod, SyncTarget} from './sync/sync-target';
   import {featureFlags, hasFlag} from '$lib/feature-flags/feature-flags.svelte';
+  import {useBackHandler} from '$lib/utils/back-handler.svelte';
+  import {flushSync} from 'svelte';
 
   const {
     syncStatus = SyncStatus.Success
@@ -44,6 +46,8 @@
   // With only one method there's nothing to choose
   const hasChoice = $derived(showClassic || showFolder || featureFlags.isDev);
   const shown = $derived<SyncMethod | undefined>(hasChoice ? method : 'lite');
+  // System and browser back go from a method's view to the list before they close the dialog
+  useBackHandler({addToStack: () => openQueryParam.current && !!method, onBack: () => method = undefined, key: 'sync-method'});
   let syncing = $state<SyncTarget>();
   // Any sync (from this dialog or in the background) changes every view's status, so they reload when this changes
   let syncCount = $state(0);
@@ -69,6 +73,13 @@
     openQueryParam.current = true;
   }
 
+  function close() {
+    // The method view's history entry sits above the dialog's, so it has to be popped first
+    method = undefined;
+    flushSync();
+    openQueryParam.current = false;
+  }
+
   async function onLoginStatusChange(status: 'logged-in' | 'logged-out') {
     if (status !== 'logged-in') return;
     const result = await service.triggerCrdtSync();
@@ -77,7 +88,7 @@
   }
 </script>
 
-<ResponsiveDialog bind:open={openQueryParam.current} disableBackHandler title={$t`Sync Changes`} hideTitleOnMobile
+<ResponsiveDialog bind:open={() => openQueryParam.current, (open) => open ? openQueryParam.current = true : close()} disableBackHandler title={$t`Sync Changes`} hideTitleOnMobile
   contentProps={{ class: 'sm:min-w-140 grid-rows-[auto_1fr] items-center' }}>
   <div>
     {#if !shown}
@@ -112,7 +123,7 @@
           {syncCount}
           canSync={features?.write}
           {onLoginStatusChange}
-          onSyncedAndUpToDate={() => openQueryParam.current = false} />
+          onSyncedAndUpToDate={close} />
       </IfOnce>
     {/if}
     {#if showFolder}

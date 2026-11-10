@@ -107,6 +107,59 @@ describe('SyncDialog', () => {
     flushSync();
   }
 
+  async function systemBack() {
+    history.back();
+    await new Promise(resolve => window.addEventListener('popstate', resolve, {once: true}));
+    await new Promise(resolve => setTimeout(resolve));
+    flushSync();
+  }
+
+  function dialogOpen() {
+    return new URL(location.href).searchParams.get('syncDialogOpen') === 'true';
+  }
+
+  it('goes back to the method list on system back, then closes', async () => {
+    await openDialog(fakeSyncService());
+    await vi.waitFor(() => expect(dialogOpen()).toBe(true));
+    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    await systemBack();
+    expect(dialogOpen()).toBe(true);
+    await vi.waitFor(() => expect(methodButtons()).toHaveLength(2));
+
+    await systemBack();
+    await vi.waitFor(() => expect(dialogOpen()).toBe(false));
+  }, 60_000);
+
+  it('leaves no history entry behind after the back arrow', async () => {
+    await openDialog(fakeSyncService());
+    await vi.waitFor(() => expect(dialogOpen()).toBe(true));
+    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    await new Promise(resolve => setTimeout(resolve, 50));
+    back();
+    await vi.waitFor(() => expect(methodButtons()).toHaveLength(2));
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    // the next system back closes the dialog instead of reopening the method
+    await systemBack();
+    await vi.waitFor(() => expect(dialogOpen()).toBe(false));
+  }, 60_000);
+
+  it('closing from a method view leaves no history entries behind', async () => {
+    await openDialog(fakeSyncService());
+    await vi.waitFor(() => expect(dialogOpen()).toBe(true));
+    const startLength = history.length;
+    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    await vi.waitFor(() => expect(history.length).toBe(startLength + 1));
+
+    document.querySelector<HTMLButtonElement>('[data-dialog-close]')!.click();
+    await vi.waitFor(() => expect(dialogOpen()).toBe(false));
+    await new Promise(resolve => setTimeout(resolve, 100));
+    // back on the entry from before the dialog opened
+    expect(history.state).toEqual({});
+  }, 60_000);
+
   it('focuses the back button on opening a method, and that method on going back', async () => {
     await openDialog(fakeSyncService());
     await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
