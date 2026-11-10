@@ -18,7 +18,7 @@
   import {initImageService} from '../field-editors/image-service.svelte';
   import {useViewService, hasVisibleFields} from '$lib/views/view-service.svelte';
   import {cn, defaultExampleSentence, defaultSense} from '$lib/utils';
-  import {useWritingSystemService} from '$project/data';
+  import {asString, useWritingSystemService} from '$project/data';
   import EntityListItemActions from '../EntityListItemActions.svelte';
   import AddSenseFab from './AddSenseFab.svelte';
   import ExampleEditorPrimitive from './ExampleEditorPrimitive.svelte';
@@ -108,22 +108,31 @@
       : pt($t`Sense ${n}`, $t`Meaning ${n}`, viewService.currentView);
   });
 
-  // Only require fields the view shows, so the user can always fix what we flag
+  // Require the key field only when the view shows it, so the user can always fix what we flag;
+  // without it, any filled-in field will do
   function shown(fields: {fieldId: string, show: boolean}[], fieldId: string): boolean {
     return fields.some(f => f.fieldId === fieldId && f.show);
   }
 
   function validateSense(): string[] {
+    if (!draftSense) return [];
     const fields = viewService.currentView.senseFields;
-    if (!draftSense || !(shown(fields, 'gloss') || shown(fields, 'definition'))) return [];
-    if (writingSystemService.firstGloss(draftSense) || writingSystemService.firstDef(draftSense)) return [];
-    return [$t`Gloss or Definition is required`];
+    if (shown(fields, 'gloss') || shown(fields, 'definition')) {
+      if (!writingSystemService.firstGloss(draftSense) && !writingSystemService.firstDef(draftSense)) return [$t`Gloss or Definition is required`];
+    } else if (!draftSense.partOfSpeechId && !draftSense.semanticDomains.length) {
+      return [$t`Fill in at least one field`];
+    }
+    return [];
   }
 
   function validateExample(): string[] {
-    if (!draftExample || !shown(viewService.currentView.exampleFields, 'sentence')) return [];
-    if (writingSystemService.first(draftExample.sentence, writingSystemService.vernacular)) return [];
-    return [$t`Sentence is required`];
+    if (!draftExample) return [];
+    if (shown(viewService.currentView.exampleFields, 'sentence')) {
+      if (!writingSystemService.first(draftExample.sentence, writingSystemService.vernacular)) return [$t`Sentence is required`];
+    } else if (!draftExample.translations.some(t => writingSystemService.first(t.text)) && !asString(draftExample.reference)) {
+      return [$t`Fill in at least one field`];
+    }
+    return [];
   }
 
   async function deleteSense(sense: ISense) {

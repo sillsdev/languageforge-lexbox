@@ -1805,6 +1805,11 @@ msgstr "File too big"
 msgid "Filename"
 msgstr "Filename"
 
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Fill in at least one field"
+msgstr "Fill in at least one field"
+
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Display as"
 msgstr "Fill in Display as"

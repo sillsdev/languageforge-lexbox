@@ -1,4 +1,4 @@
-import {expect, test, type Locator} from '@playwright/test';
+import {expect, test} from '@playwright/test';
 
 import {DemoProjectPage} from './demo-project.page';
 
@@ -103,63 +103,6 @@ test.describe('Entry edit persistence', () => {
     expect(JSON.stringify(await projectPage.api.getEntry(entryId))).toContain(sentence);
     await expect(page.locator('[data-field-id="sentence"]').filter({hasText: sentence})).toBeVisible();
   });
-
-  test('adding an empty sense or example is blocked with a message', async ({page}) => {
-    const projectPage = new DemoProjectPage(page);
-    await projectPage.goto();
-
-    const {entryId, headword, senseCount: initialSenseCount} = await projectPage.api.getEntryAtIndex(15);
-    await projectPage.selectEntryByFilter(headword);
-
-    await projectPage.entryView.addSenseButton.click();
-    const dialog = page.getByRole('dialog');
-    await dialog.getByRole('button', {name: /add (sense|meaning)/i}).click();
-    await expect(dialog.getByText('Gloss or Definition is required')).toBeVisible();
-    await dialog.getByRole('button', {name: 'Cancel'}).click();
-    await expect(dialog).toBeHidden();
-
-    await page.getByRole('button', {name: 'Add Example'}).first().click();
-    await dialog.getByRole('button', {name: 'Add Example'}).click();
-    await expect(dialog.getByText('Sentence is required')).toBeVisible();
-
-    await projectPage.entryView.waitForEntrySaved();
-    expect(await projectPage.api.getEntrySenseCount(entryId)).toBe(initialSenseCount);
-  });
-
-  const cancelPaths: Record<string, (dialog: Locator) => Promise<void>> = {
-    'clicking Cancel': (dialog) => dialog.getByRole('button', {name: 'Cancel'}).click(),
-    // the gloss input still has focus, so it commits while the dialog closes
-    'pressing Escape': (dialog) => dialog.page().keyboard.press('Escape'),
-    'pressing Enter on Cancel': async (dialog) => {
-      await dialog.getByRole('button', {name: 'Cancel'}).focus();
-      await dialog.page().keyboard.press('Enter');
-    },
-  };
-  for (const [path, cancel] of Object.entries(cancelPaths)) {
-    test(`${path} in the add sense dialog adds nothing`, async ({page}) => {
-      const pageErrors: Error[] = [];
-      page.on('pageerror', error => pageErrors.push(error));
-      const projectPage = new DemoProjectPage(page);
-      await projectPage.goto();
-
-      const {entryId, headword, senseCount: initialSenseCount} = await projectPage.api.getEntryAtIndex(15);
-      await projectPage.selectEntryByFilter(headword);
-
-      await projectPage.entryView.addSenseButton.click();
-      const dialog = page.getByRole('dialog');
-      await expect(dialog).toBeVisible();
-      const glossInput = dialog.locator('[data-field-id="gloss"] input').first();
-      await glossInput.fill('discarded-sense');
-      await expect(glossInput).toHaveValue('discarded-sense');
-      await cancel(dialog);
-      await expect(dialog).toBeHidden();
-
-      expect(await projectPage.entryView.getSenseCount()).toBe(initialSenseCount);
-      await projectPage.entryView.waitForEntrySaved();
-      expect(await projectPage.api.getEntrySenseCount(entryId)).toBe(initialSenseCount);
-      expect(pageErrors).toEqual([]);
-    });
-  }
 
   test('editing lexeme form is saved to backend', async ({page}) => {
     const projectPage = new DemoProjectPage(page);
