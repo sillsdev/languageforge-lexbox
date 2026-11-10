@@ -72,7 +72,17 @@ public static class MergeRoutes
             return TypedResults.Problem($"Project is blocked from syncing. Reason: {blockInfo.Reason}", statusCode: StatusCodes.Status423Locked);
         }
 
-        syncHostedService.QueueJob(projectId);
+        switch (syncHostedService.QueueJob(projectId))
+        {
+            case QueueJobResult.SyncAlreadyRunning:
+                activity?.SetStatus(ActivityStatusCode.Ok, "Sync already running");
+                return TypedResults.Problem("A sync is already running for this project, try again once it has finished",
+                    statusCode: StatusCodes.Status429TooManyRequests);
+            case QueueJobResult.QueueFull:
+                activity?.SetStatus(ActivityStatusCode.Error, "Sync queue is full");
+                return TypedResults.Problem("Unable to queue sync job", statusCode: StatusCodes.Status503ServiceUnavailable);
+            // Queued and AlreadyQueued both mean a sync that hasn't started yet will pick up the caller's changes
+        }
         activity?.SetStatus(ActivityStatusCode.Ok, "Sync job queued");
         return TypedResults.Ok();
     }
