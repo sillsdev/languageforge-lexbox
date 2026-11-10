@@ -15,7 +15,7 @@
   import {usePartsOfSpeech, useWritingSystemService} from '$project/data';
   import ActivityChangeHeader from './ActivityChangeHeader.svelte';
   import {senseInEntry, senseLabel} from '$lib/entry-editor/sense-ref';
-  import {bestHeadword, changeBadge, changeKind, isReorder, parentCrumb} from './change-header';
+  import {changeBadge, changeKind, isReorder, parentCrumb} from './change-header';
   import {pt} from '$lib/views/view-text';
   import {existing, type SinceThen} from './since-then';
   import {cn} from '$lib/utils';
@@ -89,7 +89,7 @@
   const actions = $derived.by(() => {
     const currentView = viewService.currentView;
     function headword(e: IEntry): string {
-      return bestHeadword(writingSystemService, currentView, e, $t`Untitled`);
+      return writingSystemService.viewBestHeadwordWithHomograph(e, currentView) || $t`Untitled`;
     }
     if (kind !== 'complexFormComponent') return actionsEntry ? [{entryId: actionsEntry.id, headword: headword(actionsEntry)}] : [];
     // In the sentence's order
@@ -106,7 +106,7 @@
     if (!found) return undefined;
     if (found === 'deleted') return {deleted: true, label: $t`(deleted sense)`};
     const pos = found.sense.partOfSpeechId ? partsOfSpeech.current.find(p => p.id === found.sense.partOfSpeechId)?.label : undefined;
-    const label = senseLabel(writingSystemService, found);
+    const label = senseLabel(writingSystemService, viewService.currentView, found);
     return label || pos ? {label, pos} : undefined;
   });
 

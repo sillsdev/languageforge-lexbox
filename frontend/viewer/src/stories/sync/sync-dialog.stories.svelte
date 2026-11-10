@@ -97,3 +97,10 @@
   </FakeSyncService>
   <Toaster />
 </Story>
+<!-- docs screenshots (tests/docs-screenshots) open this story -->
+<Story name="Pending" parameters={{fwlite: {resizable: false}}}>
+  <FakeSyncService {server} fieldWorksSync data={{localStatus: {local: 3, remote: 12}, latestSyncedCommitDate: oneHourAgo, remoteStatus: {...remoteStatus, pendingCrdtChanges: 5, lastCrdtCommitDate: oneHourAgo}}}>
+    <OpenSyncDialog />
+  </FakeSyncService>
+  <Toaster />
+</Story>

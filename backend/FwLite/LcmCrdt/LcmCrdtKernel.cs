@@ -124,7 +124,7 @@ public static class LcmCrdtKernel
         services.AddSingleton(provider => new RefitSettings
         {
             ContentSerializer = new SystemTextJsonContentSerializer(
-                provider.GetRequiredService<IOptions<HarmonyConfig>>().Value.MakeLcmCrdtExternalJsonOptions())
+                provider.GetRequiredService<IOptions<HarmonyConfig>>().Value.MakeLcmCrdtSyncJsonOptions())
         });
         services.AddSingleton<CrdtHttpSyncService>();
         services.AddSingleton<IRefitHttpServiceFactory, RefitHttpServiceFactory>();

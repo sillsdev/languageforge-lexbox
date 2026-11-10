@@ -5,13 +5,13 @@ namespace LcmCrdt.Tests;
 
 public static class TestJsonOptions
 {
-    public static JsonSerializerOptions External()
+    public static JsonSerializerOptions Sync()
     {
         var config = new HarmonyConfig();
         LcmCrdtKernel.ConfigureCrdt(config);
-        // Full external options (resolver + Harmony's IChange converter), matching what the sync client,
-        // web host, and debugger use — a resolver alone can't deserialize IChange.
-        return config.MakeLcmCrdtExternalJsonOptions();
+        // Full sync options (resolver + Harmony's IChange converter), matching what the sync client
+        // and debugger use — a resolver alone can't deserialize IChange.
+        return config.MakeLcmCrdtSyncJsonOptions();
     }
 
     public static JsonSerializerOptions Harmony()

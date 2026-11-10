@@ -409,39 +409,105 @@ jobs:
           label: FW Lite MAUI Windows
           on-no-files: ignore
 
-  apple:
-    name: iOS simulator and Mac Catalyst builds (tier apple)
+  # The app smoke tiers (ios, mac, android) launch the app, which needs the built viewer. Built once
+  # here on Linux rather than on each (pricier) macOS runner.
+  smoke-viewer:
+    name: Build viewer for the app smoke tests
     needs: detect
-    if: contains(fromJSON(needs.detect.outputs.tiers), 'apple')
+    if: contains(fromJSON(needs.detect.outputs.tiers), 'ios') || contains(fromJSON(needs.detect.outputs.tiers), 'mac') || contains(fromJSON(needs.detect.outputs.tiers), 'android')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup-frontend
+      - name: Build viewer
+        working-directory: frontend/viewer
+        run: pnpm run build
+      - name: Upload viewer
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pr-viewer-js
+          if-no-files-found: error
+          path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
+
+  ios:
+    name: iOS simulator build and smoke test (tier ios)
+    needs: [detect, smoke-viewer]
+    if: contains(fromJSON(needs.detect.outputs.tiers), 'ios')
     runs-on: macos-latest
     timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: pr-viewer-js
+          path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: '10.x'
+      # Both Apple workloads: restore evaluates net10.0-ios and net10.0-maccatalyst together.
       - name: Setup Maui
         run: dotnet workload install maui-ios maui-maccatalyst --version ${{ env.MAUI_WORKLOAD_VERSION }}
 
-      # Same builds as fw-lite.yaml's build-apple, unsigned, no DMG or notarization.
+      # Same build as fw-lite.yaml's build-apple.
       - name: Build iOS (simulator)
         working-directory: backend/FwLite/FwLiteMaui
         run: dotnet build -f net10.0-ios -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=iossimulator-arm64
 
+      - name: Launch the app and wait for the viewer to load
+        run: bash .github/scripts/smoke-ios.sh backend/FwLite/FwLiteMaui/bin/Release/net10.0-ios/iossimulator-arm64/FwLiteMaui.app
+      - name: Upload smoke test output
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pr-ios-smoke
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/smoke
+
+  mac:
+    name: Mac Catalyst build and smoke test (tier mac)
+    needs: [detect, smoke-viewer]
+    if: contains(fromJSON(needs.detect.outputs.tiers), 'mac')
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: pr-viewer-js
+          path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.x'
+      # Both Apple workloads: restore evaluates net10.0-ios and net10.0-maccatalyst together.
+      - name: Setup Maui
+        run: dotnet workload install maui-ios maui-maccatalyst --version ${{ env.MAUI_WORKLOAD_VERSION }}
+
+      # fw-lite.yaml's fork-PR build: unsigned arm64, so no DMG, notarization or Gatekeeper check
+      # (those stay on develop in launch-mac). The launch itself is the same script.
       - name: Build Mac Catalyst (unsigned)
         working-directory: backend/FwLite/FwLiteMaui
         run: dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64
 
+      - name: Launch the app and wait for the viewer to load
+        run: bash .github/scripts/smoke-mac.sh "backend/FwLite/FwLiteMaui/bin/Release/net10.0-maccatalyst/maccatalyst-arm64/FieldWorks Lite.app"
+
   android:
-    name: Android build (tier android)
-    needs: detect
+    name: Android build and smoke test (tier android)
+    needs: [detect, smoke-viewer]
     if: contains(fromJSON(needs.detect.outputs.tiers), 'android')
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: pr-viewer-js
+          path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: '10.x'
@@ -451,6 +517,17 @@ jobs:
       - name: Publish Android (unsigned)
         working-directory: backend/FwLite/FwLiteMaui
         run: dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts -p:AndroidKeyStore=false
+
+      - uses: ./.github/actions/smoke-android
+        with:
+          apk-dir: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android
+      - name: Upload smoke test output
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pr-android-smoke
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/smoke
 
   e2e:
     name: E2E tests on a kind cluster (tier e2e)
@@ -563,7 +640,7 @@ jobs:
     # The one check to mark required at cut-over. A skipped job (not affected, tier off) counts as passed.
     name: PR CI result
     if: always()
-    needs: [detect, dotnet, slow-tests, viewer-checks, viewer-ui-tests, extension-lint, maui-windows, apple, android, e2e]
+    needs: [detect, dotnet, slow-tests, viewer-checks, viewer-ui-tests, extension-lint, maui-windows, smoke-viewer, ios, mac, android, e2e]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
