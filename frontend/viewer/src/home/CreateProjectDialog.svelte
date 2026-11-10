@@ -8,7 +8,6 @@
   import {useProjectsService} from '$lib/services/service-provider';
   import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
   import NameDialog from '$lib/author/NameDialog.svelte';
-  import AuthorNameLine from '$lib/author/AuthorNameLine.svelte';
   import {useLocalAuthorName} from '$lib/author/local-author-name.svelte';
 
   let {refreshProjects}: {refreshProjects: () => Promise<void>} = $props();
@@ -115,12 +114,16 @@
           {$t`Your name`}
           <Input bind:value={authorName} maxlength={60} autocomplete="name" autocapitalize="words" />
         </Label>
-        <p class="col-start-2 text-sm text-muted-foreground">{$t`Shown next to your changes in all projects you don't sync with Lexbox.`}</p>
       {:else}
-        <div class="col-span-2 mt-2">
-          <AuthorNameLine name={localAuthorName.current} onChange={() => void nameDialog?.ask()} />
+        <div class="grid grid-cols-subgrid col-span-2 gap-4 items-center min-h-10">
+          <span class="text-sm leading-none font-medium">{$t`Your name`}</span>
+          <div class="flex flex-wrap items-baseline gap-x-2 px-3">
+            <span class="font-medium wrap-break-word">{localAuthorName.current}</span>
+            <Button variant="link" class="h-auto p-0" onclick={() => void nameDialog?.ask()}>{$t`Change`}</Button>
+          </div>
         </div>
       {/if}
+      <p class="col-start-2 text-sm text-muted-foreground">{$t`Shown next to your changes in all projects you don't sync with Lexbox.`}</p>
       <div class="col-span-2 text-end space-y-2">
         {#each fieldErrors as fieldError (fieldError)}
           <p class="text-destructive">{fieldError}</p>
