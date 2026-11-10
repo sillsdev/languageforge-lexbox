@@ -4927,8 +4927,9 @@ msgstr "Vous avez franchi tous les jalons. Quelle réussite !"
 msgid "Your changes to this plugin will be lost."
 msgstr ""
 
+#. # is the user's own name
 #: src/lib/author/AuthorNameLine.svelte
-msgid "Your changes will show the name {0}."
+msgid "Your changes will show the name #."
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
