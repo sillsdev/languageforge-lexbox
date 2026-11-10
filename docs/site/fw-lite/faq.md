@@ -49,8 +49,8 @@ yet, and it is less tested than the other versions. To try it, download
 
 Anything that has reached Lexbox is safe. You can install FieldWorks Lite on a new device,
 log in and download the project again. Changes that are still only on a broken device
-can't be recovered, so open the app while you are online now and then, and check that
-**Other FieldWorks Lite users** in **Sync Changes** says **Up to date**.
+can't be recovered, so open the app while you are online now and then: open **Sync Changes**,
+tap **Other FieldWorks Lite users** and check that it says **Up to date**.
 
 ## Something is missing or wrong in my project
 
@@ -62,8 +62,8 @@ that look wrong.
 
 In the project list, right-click the project (on a phone or tablet, press and hold it) and
 choose **Delete**. This removes only the copy on this device. The project stays on Lexbox
-and you can download it again. Changes that haven't synced yet are lost, so first check
-that **Other FieldWorks Lite users** in **Sync Changes** says **Up to date**.
+and you can download it again. Changes that haven't synced yet are lost, so first open
+**Sync Changes**, tap **Other FieldWorks Lite users** and check that it says **Up to date**.
 
 ## I forgot my password
 

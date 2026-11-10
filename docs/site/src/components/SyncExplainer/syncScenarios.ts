@@ -185,7 +185,7 @@ export const SCENARIOS: Scenario[] = [
         t1: 'liteCopy',
         check: ['liteCopy'],
         badge: 'done',
-        text: 'You never have to remember what you changed offline. To be sure it all went out, check that Other FieldWorks Lite users in Sync Changes says Up to date.',
+        text: 'You never have to remember what you changed offline. To be sure it all went out, open Sync Changes, tap Other FieldWorks Lite users and check that it says Up to date.',
       },
     ],
   },
