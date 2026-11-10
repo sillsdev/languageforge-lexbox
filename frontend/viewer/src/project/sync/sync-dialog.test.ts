@@ -125,7 +125,7 @@ describe('SyncDialog', () => {
     expect(syncService.getSyncStatus).toHaveBeenCalledOnce();
   }, 60_000);
 
-  // Folder sync is a beta feature, and signs edits in a project without a Lexbox user with the device's name
+  // Folder sync is a beta feature, and asks for a name before the first sync in a project without a Lexbox user
   async function enableFolderSync(authorName = 'Test User') {
     (await import('$lib/feature-flags/feature-flags.svelte')).featureFlags.channel = 'beta';
     await (await import('$lib/author/local-author-name.svelte')).useLocalAuthorName().set(authorName);
@@ -212,7 +212,7 @@ describe('SyncDialog', () => {
   }, 60_000);
 
   it('asks for a name before the first folder sync, then uses it', async () => {
-    await setFolderSyncSupport(() => Promise.resolve(String.raw`E:	est-project`));
+    await setFolderSyncSupport(() => Promise.resolve(String.raw`E:\test-project`));
     const authorName = (await import('$lib/author/local-author-name.svelte')).useLocalAuthorName();
     await authorName.set('');
     const syncService = fakeSyncService();
@@ -232,7 +232,7 @@ describe('SyncDialog', () => {
     input.dispatchEvent(new Event('input', {bubbles: true}));
     flushSync();
     getButton(/Continue/).click();
-    await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith(String.raw`E:	est-project`));
+    await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith(String.raw`E:\test-project`));
     expect(authorName.current).toBe('Ana');
     await vi.waitFor(() => expect(document.body.textContent).toContain('Your changes will show the name Ana.'));
   }, 60_000);
