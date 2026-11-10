@@ -4,6 +4,7 @@
   import * as Dialog from '$lib/components/ui/dialog';
   import Input from '$lib/components/ui/input/input.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
+  import InputShell from '$lib/components/ui/input/input-shell.svelte';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
   import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
@@ -115,12 +116,12 @@
           <Input bind:value={authorName} maxlength={60} autocomplete="name" autocapitalize="words" />
         </Label>
       {:else}
-        <div class="grid grid-cols-subgrid col-span-2 gap-4 items-center min-h-10">
+        <div class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
           <span class="text-sm leading-none font-medium">{$t`Your name`}</span>
-          <div class="flex flex-wrap items-baseline gap-x-2 px-3">
-            <span class="font-medium wrap-break-word">{localAuthorName.current}</span>
-            <Button variant="link" class="h-auto p-0" onclick={() => void nameDialog?.ask()}>{$t`Change`}</Button>
-          </div>
+          <InputShell class="ps-3 pe-1">
+            <span class="truncate">{localAuthorName.current}</span>
+            <Button variant="ghost" size="xs" icon="i-mdi-pencil" onclick={() => void nameDialog?.ask()}>{$t`Change`}</Button>
+          </InputShell>
         </div>
       {/if}
       <p class="col-start-2 text-sm text-muted-foreground">{$t`Shown next to your changes in all projects you don't sync with Lexbox.`}</p>
