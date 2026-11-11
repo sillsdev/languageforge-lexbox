@@ -747,6 +747,7 @@ msgstr "Hủy"
 msgid "Caption"
 msgstr "Chú thích"
 
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/author/AuthorNameLine.svelte
 msgid "Change"
 msgstr ""
@@ -4286,10 +4287,6 @@ msgstr "Tệp này chỉ có thể truy cập từ xa."
 msgid "This folder already has a folder called {0}, but it doesn't hold a FieldWorks Lite project. Choose another folder."
 msgstr ""
 
-#: src/project/sync/folder-sync-messages.ts
-msgid "This folder already has a folder named after this project, but it doesn't hold a FieldWorks Lite project. Choose another folder."
-msgstr ""
-
 #: src/project/sync/FolderPicker.svelte
 msgid "This folder doesn't exist. Check the path. Example: /media/yourname/USB"
 msgstr ""
@@ -4936,6 +4933,7 @@ msgstr ""
 msgid "Your dictionary starts here"
 msgstr "Từ điển của bạn bắt đầu từ đây"
 
+#: src/home/CreateProjectDialog.svelte
 #: src/home/CreateProjectDialog.svelte
 #: src/home/HomeView.svelte
 #: src/lib/author/NameDialog.svelte

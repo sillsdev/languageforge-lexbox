@@ -742,6 +742,7 @@ msgstr "Cancel"
 msgid "Caption"
 msgstr "Caption"
 
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/author/AuthorNameLine.svelte
 msgid "Change"
 msgstr "Change"
@@ -4281,10 +4282,6 @@ msgstr "This file is only available remotely."
 msgid "This folder already has a folder called {0}, but it doesn't hold a FieldWorks Lite project. Choose another folder."
 msgstr "This folder already has a folder called {0}, but it doesn't hold a FieldWorks Lite project. Choose another folder."
 
-#: src/project/sync/folder-sync-messages.ts
-msgid "This folder already has a folder named after this project, but it doesn't hold a FieldWorks Lite project. Choose another folder."
-msgstr "This folder already has a folder named after this project, but it doesn't hold a FieldWorks Lite project. Choose another folder."
-
 #: src/project/sync/FolderPicker.svelte
 msgid "This folder doesn't exist. Check the path. Example: /media/yourname/USB"
 msgstr "This folder doesn't exist. Check the path. Example: /media/yourname/USB"
@@ -4931,6 +4928,7 @@ msgstr "Your changes will show the name #."
 msgid "Your dictionary starts here"
 msgstr "Your dictionary starts here"
 
+#: src/home/CreateProjectDialog.svelte
 #: src/home/CreateProjectDialog.svelte
 #: src/home/HomeView.svelte
 #: src/lib/author/NameDialog.svelte

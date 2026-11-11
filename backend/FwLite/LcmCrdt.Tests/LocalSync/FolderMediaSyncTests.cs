@@ -2,7 +2,6 @@ using System.Text;
 using FwLiteShared.LocalSync;
 using LcmCrdt.MediaServer;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Abstractions;
 using MiniLcm.Media;
 using SIL.Harmony.Core;
 using static LcmCrdt.Tests.LocalSync.LocalSyncTestHelpers;

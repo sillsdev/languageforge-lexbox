@@ -58,7 +58,7 @@ public record FolderSyncSummary(
 }
 
 /// <summary>
-/// What the viewer needs to report "Open from folder", flattened from <see cref="OpenFromFolderResult"/>.
+/// What the viewer needs to report "Get project from folder", flattened from <see cref="OpenFromFolderResult"/>.
 /// </summary>
 /// <param name="ProjectCode">The local project to open, when there is one.</param>
 public record OpenFromFolderSummary(OpenFromFolderOutcome Outcome, string? ProjectCode, string? ProjectName)

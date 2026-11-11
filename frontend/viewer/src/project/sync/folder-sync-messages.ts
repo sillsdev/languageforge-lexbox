@@ -8,19 +8,19 @@ export interface FolderSyncMessage {
   description?: string;
 }
 
-/** Keeps the drive and the last folder of a long path, e.g. `C:\…\sena-3`. */
+/** Keeps the drive and the last folder of a long path, e.g. `C:\...\sena-3`. */
 export function shortFolderPath(path: string, maxLength = 40): string {
   if (path.length <= maxLength) return path;
   const separator = path.includes('\\') ? '\\' : '/';
   const parts = path.split(separator);
-  return [parts[0], '…', parts.at(-1)].join(separator);
+  return [parts[0], '...', parts.at(-1)].join(separator);
 }
 
 /**
  * Describes a folder sync for a toast. Every refusal is expected (wrong folder, newer app), so none is an error.
  * @param projectCode the open project's, which names the folder a sync uses inside the picked one
  */
-export function folderSyncMessage(summary: IFolderSyncSummary, projectCode?: string): FolderSyncMessage {
+export function folderSyncMessage(summary: IFolderSyncSummary, projectCode: string): FolderSyncMessage {
   switch (summary.status) {
     case FolderSyncStatus.Synced:
       return {
@@ -32,9 +32,7 @@ export function folderSyncMessage(summary: IFolderSyncSummary, projectCode?: str
       };
     case FolderSyncStatus.NotASyncFolder:
       return {
-        message: projectCode
-          ? gt`This folder already has a folder called ${projectCode}, but it doesn't hold a FieldWorks Lite project. Choose another folder.`
-          : gt`This folder already has a folder named after this project, but it doesn't hold a FieldWorks Lite project. Choose another folder.`,
+        message: gt`This folder already has a folder called ${projectCode}, but it doesn't hold a FieldWorks Lite project. Choose another folder.`,
         type: 'warning',
       };
     case FolderSyncStatus.NewerAppNeeded:

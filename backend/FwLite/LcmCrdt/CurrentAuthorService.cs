@@ -17,7 +17,7 @@ public interface ILocalAuthorProvider
 }
 
 /// <summary>
-/// Default for hosts with no device identity (e.g. FwHeadless): commits keep today's attribution.
+/// Default for hosts with no device identity (e.g. FwHeadless): commits are attributed to the last Lexbox user only.
 /// </summary>
 public class NoLocalAuthorProvider : ILocalAuthorProvider
 {

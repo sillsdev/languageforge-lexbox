@@ -14,7 +14,6 @@
   import {onErrorEvent} from '$lib/errors/global-errors';
   import {resource} from 'runed';
   import type {SyncTarget} from './sync-target';
-
   import * as Popover from '$lib/components/ui/popover';
 
   interface Props {
@@ -181,4 +180,3 @@
     <p>{$t`Local`}</p>
   </div>
 </div>
-

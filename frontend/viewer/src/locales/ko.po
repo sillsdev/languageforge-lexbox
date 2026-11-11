@@ -747,6 +747,7 @@ msgstr "취소"
 msgid "Caption"
 msgstr "설명"
 
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/author/AuthorNameLine.svelte
 msgid "Change"
 msgstr ""
@@ -4286,10 +4287,6 @@ msgstr "이 파일은 원격으로만 이용할 수 있습니다."
 msgid "This folder already has a folder called {0}, but it doesn't hold a FieldWorks Lite project. Choose another folder."
 msgstr ""
 
-#: src/project/sync/folder-sync-messages.ts
-msgid "This folder already has a folder named after this project, but it doesn't hold a FieldWorks Lite project. Choose another folder."
-msgstr ""
-
 #: src/project/sync/FolderPicker.svelte
 msgid "This folder doesn't exist. Check the path. Example: /media/yourname/USB"
 msgstr ""
@@ -4936,6 +4933,7 @@ msgstr ""
 msgid "Your dictionary starts here"
 msgstr "여러분의 사전은 여기서 시작됩니다"
 
+#: src/home/CreateProjectDialog.svelte
 #: src/home/CreateProjectDialog.svelte
 #: src/home/HomeView.svelte
 #: src/lib/author/NameDialog.svelte

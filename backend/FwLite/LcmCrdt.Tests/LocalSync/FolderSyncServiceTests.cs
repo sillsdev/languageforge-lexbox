@@ -1,7 +1,6 @@
 using FwLiteShared.LocalSync;
 using LcmCrdt.Data;
 using LcmCrdt.LocalSync;
-using Microsoft.Extensions.Logging.Abstractions;
 using SIL.Harmony.Core;
 using static LcmCrdt.Tests.LocalSync.LocalSyncTestHelpers;
 
