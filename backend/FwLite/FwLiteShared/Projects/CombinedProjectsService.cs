@@ -201,11 +201,10 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
 
     /// <summary>Downloads the project in a sync folder, unless this device already has it.</summary>
     [JSInvokable]
-    public async Task<OpenFromFolderSummary> OpenFromFolder(string path)
+    public async Task<OpenFromFolderResult> OpenFromFolder(string path)
     {
-        var result = await keepAwake.RunAsync(new("Opening a project from a folder"),
+        return await keepAwake.RunAsync(new("Opening a project from a folder"),
             async () => await Task.Run(async () => await folderProjectOpener.OpenFromFolder(path)));
-        return OpenFromFolderSummary.From(result);
     }
 
     [JSInvokable]

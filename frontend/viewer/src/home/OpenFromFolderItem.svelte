@@ -6,7 +6,7 @@
   import {useProjectsService} from '$lib/services/service-provider';
   import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
   import {OpenFromFolderOutcome} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/OpenFromFolderOutcome';
-  import type {IOpenFromFolderSummary} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IOpenFromFolderSummary';
+  import type {IOpenFromFolderResult} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IOpenFromFolderResult';
   import {folderSyncMessage} from '../project/sync/folder-sync-messages';
   import FolderPicker from '../project/sync/FolderPicker.svelte';
   import {hasFlag} from '$lib/feature-flags/feature-flags.svelte';
@@ -50,7 +50,7 @@
     }
   }
 
-  function report(result: IOpenFromFolderSummary, path: string) {
+  function report(result: IOpenFromFolderResult, path: string) {
     switch (result.outcome) {
       case OpenFromFolderOutcome.Downloaded:
         AppNotification.display($t`Opened ${result.projectName ?? result.projectCode ?? ''} from the folder. You can remove the drive.`, {type: 'success', timeout: 'long'});

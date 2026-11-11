@@ -45,7 +45,7 @@ import type {ILcmFileMetadata} from '$lib/dotnet-types/generated-types/MiniLcm/M
 import type {IUploadFileResponse} from '$lib/dotnet-types/generated-types/MiniLcm/Media/IUploadFileResponse';
 import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
 import {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
-import type {IOpenFromFolderSummary} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IOpenFromFolderSummary';
+import type {IOpenFromFolderResult} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IOpenFromFolderResult';
 import type {IFolderSyncSummary} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IFolderSyncSummary';
 import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IUpdateService';
 import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
@@ -205,7 +205,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       deleteProject: function (_code: string): Promise<void> {
         return Promise.resolve();
       },
-      openFromFolder: function (_path: string): Promise<IOpenFromFolderSummary> {
+      openFromFolder: function (_path: string): Promise<IOpenFromFolderResult> {
         return Promise.reject(new Error('Opening from a folder is not available in the demo'));
       },
       syncProjectWithFolder: function (_projectCode: string, _path: string): Promise<IFolderSyncSummary> {

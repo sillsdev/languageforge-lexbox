@@ -5,7 +5,7 @@
 
 import type {OpenFromFolderOutcome} from './OpenFromFolderOutcome';
 
-export interface IOpenFromFolderSummary
+export interface IOpenFromFolderResult
 {
 	outcome: OpenFromFolderOutcome;
 	projectCode?: string;

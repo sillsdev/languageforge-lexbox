@@ -56,13 +56,3 @@ public record FolderSyncSummary(
         return new(status, folderProjectName, result.MediaSent, result.MediaReceived, result.MediaFailed);
     }
 }
-
-/// <summary>
-/// What the viewer needs to report "Get project from folder", flattened from <see cref="OpenFromFolderResult"/>.
-/// </summary>
-/// <param name="ProjectCode">The local project to open, when there is one.</param>
-public record OpenFromFolderSummary(OpenFromFolderOutcome Outcome, string? ProjectCode, string? ProjectName)
-{
-    public static OpenFromFolderSummary From(OpenFromFolderResult result) =>
-        new(result.Outcome, result.ProjectCode, result.ProjectName);
-}

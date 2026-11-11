@@ -1,11 +1,11 @@
 <script lang="ts">
   import type {Snippet} from 'svelte';
   import {DotnetService, type ICombinedProjectsService} from '$lib/dotnet-types';
-  import type {IOpenFromFolderSummary} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IOpenFromFolderSummary';
+  import type {IOpenFromFolderResult} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IOpenFromFolderResult';
   import {delay} from '$lib/utils/time';
   import {FolderSyncStatus} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/FolderSyncStatus';
 
-  const {result, children}: {result: IOpenFromFolderSummary; children: Snippet} = $props();
+  const {result, children}: {result: IOpenFromFolderResult; children: Snippet} = $props();
 
   // OpenFromFolderItem only calls these
   window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {

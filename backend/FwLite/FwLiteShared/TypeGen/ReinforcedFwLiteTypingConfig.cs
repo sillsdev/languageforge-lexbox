@@ -207,7 +207,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(HarmonyResource<LcmFileMetadata>),
             typeof(CameraResult),
             typeof(FolderSyncSummary),
-            typeof(OpenFromFolderSummary),
+            typeof(OpenFromFolderResult),
         ], exportBuilder => exportBuilder.WithPublicProperties());
         builder.ExportAsInterface<ProjectData>().WithPublicProperties(propertyBuilder =>
         {
