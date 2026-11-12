@@ -242,6 +242,14 @@ msgid "A new version of FieldWorks Lite is available."
 msgstr "A new version of FieldWorks Lite is available."
 
 #: src/lib/plugins/PluginsView.svelte
+msgid "A plugin can"
+msgstr "A plugin can"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "A plugin can't"
+msgstr "A plugin can't"
+
+#: src/lib/plugins/PluginsView.svelte
 msgid "A project manager can add plugins for the team."
 msgstr "A project manager can add plugins for the team."
 
@@ -293,6 +301,10 @@ msgstr "Activity"
 #: src/lib/activity/ActivityView.svelte
 msgid "Activity view failed"
 msgstr "Activity view failed"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Add and change entries, but only if it says so up front, and each change is shown to you for approval first"
+msgstr "Add and change entries, but only if it says so up front, and each change is shown to you for approval first"
 
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
@@ -723,6 +735,10 @@ msgstr "Cancel"
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Caption"
 msgstr "Caption"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Change anything without asking, unless you chose “Always allow” for it"
+msgstr "Change anything without asking, unless you chose “Always allow” for it"
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Change entry"
@@ -2907,6 +2923,10 @@ msgstr "Only project managers can add or change plugins."
 msgid "Open"
 msgstr "Open"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Open an entry in FieldWorks Lite and show you short messages"
+msgstr "Open an entry in FieldWorks Lite and show you short messages"
+
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
@@ -3089,6 +3109,10 @@ msgstr "Platform"
 msgid "Play & learn"
 msgstr "Play & learn"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Play the project's audio and show its pictures"
+msgstr "Play the project's audio and show its pictures"
+
 #: src/lib/activity/ChangeSummary.svelte
 msgid "plugin"
 msgstr "plugin"
@@ -3262,6 +3286,14 @@ msgid "Publish Word in"
 msgstr "Publish Word in"
 
 #: src/lib/plugins/PluginsView.svelte
+msgid "Read comments and change history, in projects that have them"
+msgstr "Read comments and change history, in projects that have them"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Read this project's dictionary: entries, senses, example sentences, writing systems, parts of speech and semantic domains"
+msgstr "Read this project's dictionary: entries, senses, example sentences, writing systems, parts of speech and semantic domains"
+
+#: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
 msgid "Read-only"
@@ -3400,6 +3432,10 @@ msgstr "Reload"
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Reload plugin"
 msgstr "Reload plugin"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Remember its own settings on this device"
+msgstr "Remember its own settings on this device"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
@@ -3643,6 +3679,10 @@ msgstr "Search index regenerated successfully"
 #: src/lib/plugins/PluginsView.svelte
 msgid "See all {0} examples"
 msgstr "See all {0} examples"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "See your account, your other projects or the rest of the app"
+msgstr "See your account, your other projects or the rest of the app"
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -4530,6 +4570,10 @@ msgstr "Uploaded pending files"
 msgid "Uploading pictures is not supported here"
 msgstr "Uploading pictures is not supported here"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Use the internet, unless it is marked “Internet”"
+msgstr "Use the internet, unless it is marked “Internet”"
+
 #: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Use this version"
 msgstr "Use this version"
@@ -4612,6 +4656,10 @@ msgstr "We also collect error reports with technical details about what went wro
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
 msgstr "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "What can a plugin do?"
+msgstr "What can a plugin do?"
 
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "What it asks for"

@@ -132,7 +132,8 @@ failures (offline, not-found, retry) with plain, translated messages.
 ## Feature flags
 
 Frontend-only release channels live in `src/lib/feature-flags/`. Users type a
-channel in Troubleshoot (empty = production). Gate preview UI with
+channel in Troubleshoot (empty = production), or a flag name to turn on that
+flag alone. Gate preview UI with
 `hasFlag('flag-name')` or `<FlagContent flag="flag-name">`. Flag names are typed
 from `CHANNEL_FLAGS`. Map flags onto preview channels only; when a feature
 ships, delete the flag — production has none. The `dev` channel is special:

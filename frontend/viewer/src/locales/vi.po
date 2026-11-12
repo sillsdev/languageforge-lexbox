@@ -247,6 +247,14 @@ msgid "A new version of FieldWorks Lite is available."
 msgstr "Đã có phiên bản mới của FieldWorks Lite."
 
 #: src/lib/plugins/PluginsView.svelte
+msgid "A plugin can"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "A plugin can't"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
 msgid "A project manager can add plugins for the team."
 msgstr ""
 
@@ -297,6 +305,10 @@ msgstr "Hoạt động"
 #. Error boundary title shown if the whole Activity view crashes while rendering.
 #: src/lib/activity/ActivityView.svelte
 msgid "Activity view failed"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Add and change entries, but only if it says so up front, and each change is shown to you for approval first"
 msgstr ""
 
 #. Button to add audio file to entry
@@ -728,6 +740,10 @@ msgstr "Hủy"
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Caption"
 msgstr "Chú thích"
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Change anything without asking, unless you chose “Always allow” for it"
+msgstr ""
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Change entry"
@@ -2912,6 +2928,10 @@ msgstr ""
 msgid "Open"
 msgstr "Mở"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Open an entry in FieldWorks Lite and show you short messages"
+msgstr ""
+
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
@@ -3094,6 +3114,10 @@ msgstr "Nền tảng"
 msgid "Play & learn"
 msgstr ""
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Play the project's audio and show its pictures"
+msgstr ""
+
 #: src/lib/activity/ChangeSummary.svelte
 msgid "plugin"
 msgstr ""
@@ -3267,6 +3291,14 @@ msgid "Publish Word in"
 msgstr "Xuất bản Từ trong"
 
 #: src/lib/plugins/PluginsView.svelte
+msgid "Read comments and change history, in projects that have them"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Read this project's dictionary: entries, senses, example sentences, writing systems, parts of speech and semantic domains"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
 msgid "Read-only"
@@ -3404,6 +3436,10 @@ msgstr ""
 
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Reload plugin"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "Remember its own settings on this device"
 msgstr ""
 
 #: src/lib/media-manager/media-file-utils.ts
@@ -3647,6 +3683,10 @@ msgstr "Chỉ mục tìm kiếm đã được tạo lại thành công"
 
 #: src/lib/plugins/PluginsView.svelte
 msgid "See all {0} examples"
+msgstr ""
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "See your account, your other projects or the rest of the app"
 msgstr ""
 
 #. Dialog title with field name
@@ -4535,6 +4575,10 @@ msgstr "Các tệp đang chờ xử lý đã được tải lên"
 msgid "Uploading pictures is not supported here"
 msgstr "Tính năng tải ảnh lên không được hỗ trợ tại đây"
 
+#: src/lib/plugins/PluginsView.svelte
+msgid "Use the internet, unless it is marked “Internet”"
+msgstr ""
+
 #: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Use this version"
 msgstr ""
@@ -4617,6 +4661,10 @@ msgstr "Chúng tôi cũng thu thập các báo cáo lỗi kèm theo thông tin k
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
 msgstr "Chúng tôi thu thập dữ liệu sử dụng để tìm hiểu cách thức FieldWorks Lite được sử dụng và những điểm cần cải thiện. Khi bạn đăng nhập vào Lexbox, ứng dụng này sẽ được liên kết với tài khoản của bạn, và dữ liệu thu thập tuyệt đối không bao gồm nội dung từ điển của bạn."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "What can a plugin do?"
+msgstr ""
 
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "What it asks for"

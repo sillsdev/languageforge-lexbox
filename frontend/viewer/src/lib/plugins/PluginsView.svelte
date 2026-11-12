@@ -4,6 +4,7 @@
   import {Badge} from '$lib/components/ui/badge';
   import {Button, buttonVariants} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
+  import * as Collapsible from '$lib/components/ui/collapsible';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import {t} from 'svelte-i18n-lingui';
   import {navigate, useRouter} from 'svelte-routing';
@@ -94,6 +95,22 @@
     await pluginService.delete(plugin);
   }
 
+  // What the plugin API (plugin-api-adapter.ts) and the sandbox allow, in plain words.
+  // Keep in step with both when either changes.
+  const pluginCan = $derived([
+    $t`Read this project's dictionary: entries, senses, example sentences, writing systems, parts of speech and semantic domains`,
+    $t`Play the project's audio and show its pictures`,
+    $t`Add and change entries, but only if it says so up front, and each change is shown to you for approval first`,
+    $t`Open an entry in FieldWorks Lite and show you short messages`,
+    $t`Read comments and change history, in projects that have them`,
+    $t`Remember its own settings on this device`,
+  ]);
+  const pluginCannot = $derived([
+    $t`Use the internet, unless it is marked “Internet”`,
+    $t`Change anything without asking, unless you chose “Always allow” for it`,
+    $t`See your account, your other projects or the rest of the app`,
+  ]);
+
   // ---- Examples shelf: managers only, since trying an example is the first step to adding it ----
 
   let shelfFilter = $state<ExampleFunction | 'all'>('all');
@@ -149,6 +166,38 @@
         {$t`Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust.`}
       </AlertDescription>
     </Alert>
+
+    <Collapsible.Root data-testid="plugin-abilities">
+      <Collapsible.Trigger
+        class="flex cursor-pointer items-center gap-1 text-sm text-muted-foreground [&[data-state=open]>.i-mdi-chevron-down]:rotate-180">
+        <i class="i-mdi-chevron-down size-4 transition-transform"></i>
+        {$t`What can a plugin do?`}
+      </Collapsible.Trigger>
+      <Collapsible.Content class="grid gap-4 pt-3 text-sm sm:grid-cols-2">
+        <div class="space-y-1.5">
+          <h3 class="font-medium">{$t`A plugin can`}</h3>
+          <ul class="space-y-1.5">
+            {#each pluginCan as line (line)}
+              <li class="flex gap-2">
+                <Icon icon="i-mdi-check" class="mt-0.5 shrink-0 text-green-600" />
+                <span>{line}</span>
+              </li>
+            {/each}
+          </ul>
+        </div>
+        <div class="space-y-1.5">
+          <h3 class="font-medium">{$t`A plugin can't`}</h3>
+          <ul class="space-y-1.5">
+            {#each pluginCannot as line (line)}
+              <li class="flex gap-2">
+                <Icon icon="i-mdi-close" class="mt-0.5 shrink-0 text-muted-foreground" />
+                <span>{line}</span>
+              </li>
+            {/each}
+          </ul>
+        </div>
+      </Collapsible.Content>
+    </Collapsible.Root>
 
     <section aria-labelledby="plugins-in-project" class="space-y-2">
       <h2 id="plugins-in-project" class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">

@@ -1,6 +1,7 @@
 import {afterEach, describe, expect, it} from 'vitest';
 
 import {
+  CHANNEL_FLAGS,
   channelHasFlag,
   DEV_CHANNEL,
   flagsForChannel,
@@ -57,6 +58,35 @@ describe('channelHasFlag', () => {
   it('is true for every flag on the dev channel', () => {
     expect(channelHasFlag('flag-three', DEV_CHANNEL, TEST_FLAGS)).toBe(true);
     expect(channelHasFlag('undeclared', 'DEV')).toBe(true);
+  });
+});
+
+describe('a flag name as the channel', () => {
+  it('turns on that flag alone', () => {
+    expect(channelHasFlag('flag-three', 'flag-three', TEST_FLAGS)).toBe(true);
+    expect(channelHasFlag('flag-three', '  Flag-Three ', TEST_FLAGS)).toBe(true);
+    expect(channelHasFlag('flag-one', 'flag-three', TEST_FLAGS)).toBe(false);
+  });
+
+  it('lets a channel name win over a flag of the same name', () => {
+    const flags = {beta: ['alpha'], alpha: ['flag-one']} as const;
+    expect(channelHasFlag('alpha', 'alpha', flags)).toBe(false);
+    expect(channelHasFlag('flag-one', 'alpha', flags)).toBe(true);
+  });
+
+  it('is not shadowed by a property every object inherits', () => {
+    expect(channelHasFlag('constructor', 'constructor', TEST_FLAGS)).toBe(true);
+    expect(channelHasFlag('flag-one', 'constructor', TEST_FLAGS)).toBe(false);
+  });
+});
+
+describe('CHANNEL_FLAGS', () => {
+  it('names flags so each can be typed as the channel', () => {
+    const reserved = [...Object.keys(CHANNEL_FLAGS), DEV_CHANNEL];
+    for (const flag of Object.values(CHANNEL_FLAGS).flat()) {
+      expect(flag).toBe(normalizeChannel(flag));
+      expect(reserved).not.toContain(flag);
+    }
   });
 });
 

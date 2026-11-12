@@ -2,6 +2,8 @@
  * Channel to flags. The production channel is empty and must not appear here.
  * The `dev` channel is special-cased (all flags + DevContent) and must not appear here.
  * When a feature ships, remove the flag instead of adding it to production.
+ * A flag name typed as the channel turns on that flag alone, so flag names are
+ * lowercase and never match a channel name.
  *
  * Usage: `if (hasFlag('flag-name')) { ... }` or `<FlagContent flag="flag-name">`.
  */
@@ -37,9 +39,12 @@ export function channelHasFlag(
   channel: string,
   channelFlags: Readonly<Record<string, readonly string[]>> = CHANNEL_FLAGS,
 ): boolean {
-  if (isDevChannel(channel)) return true;
-  if (channel === '') return false;//production channel has no flags
-  return flagsForChannel(channel, channelFlags).includes(flag);
+  const normalized = normalizeChannel(channel);
+  if (normalized === DEV_CHANNEL) return true;
+  if (!normalized) return false;//production channel has no flags
+  // A channel name wins; any other value names the one flag to turn on.
+  if (Object.hasOwn(channelFlags, normalized)) return channelFlags[normalized].includes(flag);
+  return normalized === flag;
 }
 
 export function readStoredChannel(
