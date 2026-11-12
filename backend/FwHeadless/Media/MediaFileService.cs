@@ -160,8 +160,8 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
             if (!lcmResource.Remote)
             {
                 var metadata = lcmResource.Metadata;
-                // Without a filename we can't reserve a path, so map the file to a not found when mapping to FLEx
-                if (string.IsNullOrEmpty(metadata?.Filename)) continue;
+                // Without a safe filename we can't reserve a path, so map the file to a not found when mapping to FLEx
+                if (!MediaFilename.IsValid(metadata?.Filename)) continue;
 
                 var subfolder = MediaFileController.GuessSubfolderFromMimeType(metadata.MimeType) ?? "";
                 var pendingRow = new MediaFile

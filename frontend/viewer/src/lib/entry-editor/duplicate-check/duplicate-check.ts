@@ -42,11 +42,6 @@ export interface DuplicateCheckQueries {
   analysis: string[];
 }
 
-/** Hosts submit on Enter; interacting with duplicate UI must never also create the entry. */
-export function trapEnter(event: KeyboardEvent): void {
-  if (event.key === 'Enter') event.stopPropagation();
-}
-
 const MAX_SIMILAR_LENGTH_DELTA = 3;
 
 /**

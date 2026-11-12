@@ -13,11 +13,21 @@
   type Props = ComponentProps<typeof Drawer.Root> & {
     open?: boolean;
     title: string;
+    /** For content that already says what it is: the title stays for screen readers, but takes no space in the drawer */
+    hideTitleOnMobile?: boolean;
     trigger?: TriggerSnippet;
     contentProps?: ContentProps;
   };
 
-  let {open = $bindable(false), children, title, trigger, contentProps, ...rest}: WithChildren<Props> = $props();
+  let {
+    open = $bindable(false),
+    children,
+    title,
+    hideTitleOnMobile = false,
+    trigger,
+    contentProps,
+    ...rest
+  }: WithChildren<Props> = $props();
 </script>
 
 {#if !IsMobile.value}
@@ -38,7 +48,7 @@
         <Icon icon="i-mdi-close" />
       </Drawer.Close>
       <div class="mx-auto w-full p-4 overflow-auto overscroll-contain">
-        <Drawer.Header>
+        <Drawer.Header class={cn(hideTitleOnMobile && 'sr-only')}>
           <Drawer.Title>{title}</Drawer.Title>
         </Drawer.Header>
         {@render children?.()}

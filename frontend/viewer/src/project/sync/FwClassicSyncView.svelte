@@ -106,7 +106,7 @@
   }
 </script>
 
-<p class="mb-6 text-lg text-center">
+<p class="mb-4 max-md:px-10 text-sm text-muted-foreground text-center">
   <Popover.Root>
     <Popover.InfoTrigger>
       {$t`Sync FieldWorks Lite and FieldWorks Classic`}
@@ -189,7 +189,7 @@
       <SyncArrow dir="left" class={cn(hgToCrdtCount && 'text-primary')} tailLength={120} size={1.25} />
       <Button
         loading={syncing === 'classic'}
-        disabled={syncing === 'lite' || !canSync || !remoteStatus}
+        disabled={(!!syncing && syncing !== 'classic') || !canSync || !remoteStatus}
         onclick={onSyncClick}
         class="my-1"
         icon="i-mdi-sync"

@@ -4,12 +4,19 @@
   import * as Dialog from '$lib/components/ui/dialog';
   import Input from '$lib/components/ui/input/input.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
+  import InputShell from '$lib/components/ui/input/input-shell.svelte';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
+  import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
+  import NameDialog from '$lib/author/NameDialog.svelte';
+  import {useLocalAuthorName} from '$lib/author/local-author-name.svelte';
 
   let {refreshProjects}: {refreshProjects: () => Promise<void>} = $props();
 
   const projectsService = useProjectsService();
+  const platformFeatures = usePlatformFeaturesService();
+  const localAuthorName = useLocalAuthorName();
+  let nameDialog = $state<NameDialog>();
 
   let open = $state(false);
   let loading = $state(false);
@@ -20,6 +27,8 @@
   let name = $state('');
   let vernacularWs = $state('');
   let analysisWs = $state('');
+  let askForAuthorName = $state(false);
+  let authorName = $state('');
 
   function slugify(value: string): string {
     return value.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+/, '');
@@ -29,9 +38,10 @@
 
   let nameError = $derived(name.trim() ? undefined : $t`Name is required`);
   let vernacularWsError = $derived(vernacularWs.trim() ? undefined : $t`Vernacular writing system is required`);
-  let valid = $derived(!nameError && !vernacularWsError);
+  let authorNameError = $derived(!askForAuthorName || authorName.trim() ? undefined : $t`Enter your name`);
+  let valid = $derived(!nameError && !vernacularWsError && !authorNameError);
   // Surfaced only after a submit attempt, then they clear live as each field is fixed.
-  let fieldErrors = $derived(submitted ? [nameError, vernacularWsError].filter(e => e !== undefined) : []);
+  let fieldErrors = $derived(submitted ? [nameError, vernacularWsError, authorNameError].filter(e => e !== undefined) : []);
 
   export function openDialog() {
     error = undefined;
@@ -40,6 +50,9 @@
     vernacularWs = '';
     analysisWs = '';
     loading = false;
+    askForAuthorName = !localAuthorName.current;
+    authorName = '';
+    if (askForAuthorName) void platformFeatures.service.suggestedAuthorName().then(suggested => { if (!authorName && suggested) authorName = suggested; });
     open = true;
   }
 
@@ -51,6 +64,7 @@
     loading = true;
     error = undefined;
     try {
+      if (askForAuthorName) await localAuthorName.set(authorName.trim());
       await projectsService.createProject(name.trim(), code.trim(), vernacularWs.trim(), analysisWs.trim() || undefined);
       await refreshProjects();
       open = false;
@@ -96,6 +110,21 @@
         {$t`Analysis writing system code`}
         <Input bind:value={analysisWs} placeholder="en" />
       </Label>
+      {#if askForAuthorName}
+        <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
+          {$t`Your name`}
+          <Input bind:value={authorName} maxlength={60} autocomplete="name" autocapitalize="words" />
+        </Label>
+      {:else}
+        <div class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
+          <span class="text-sm leading-none font-medium">{$t`Your name`}</span>
+          <InputShell class="ps-3 pe-1">
+            <span class="truncate">{localAuthorName.current}</span>
+            <Button variant="ghost" size="xs" icon="i-mdi-pencil" onclick={() => void nameDialog?.ask()}>{$t`Change`}</Button>
+          </InputShell>
+        </div>
+      {/if}
+      <p class="col-start-2 text-sm text-muted-foreground">{$t`Shown next to your changes in all projects you don't sync with Lexbox.`}</p>
       <div class="col-span-2 text-end space-y-2">
         {#each fieldErrors as fieldError (fieldError)}
           <p class="text-destructive">{fieldError}</p>
@@ -111,3 +140,4 @@
     </Dialog.DialogFooter>
   </Dialog.DialogContent>
 </Dialog.Root>
+<NameDialog bind:this={nameDialog} />
