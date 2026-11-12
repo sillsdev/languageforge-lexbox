@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-06 05:27\n"
+"PO-Revision-Date: 2026-11-12 12:22\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -131,6 +131,14 @@ msgstr "{0} hace"
 msgid "{0} authors"
 msgstr "{0} autores"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "{0} can't be added: this device already has a different project with the same code, {1}."
+msgstr "{0} no puede ser añadido: este dispositivo ya tiene un proyecto diferente con el mismo código, {1}."
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "{0} is already on this device, so it was opened without syncing."
+msgstr "{0} ya está en este dispositivo, así que se abrió sin sincronizar."
+
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "{0} KB"
@@ -246,6 +254,14 @@ msgstr "3. Pruébalo aquí"
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Una nueva versión de FieldWorks Lite está disponible."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to open it."
+msgstr "Una nueva versión de FieldWorks Lite escribió esta carpeta. Actualice FieldWorks Lite para abrirla."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it."
+msgstr "Una nueva versión de FieldWorks Lite escribió esta carpeta. Actualice FieldWorks Lite para sincronizar con ella."
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "A project manager can add plugins for the team."
 msgstr "Un gestor de proyecto puede añadir plugins para el equipo."
@@ -330,6 +346,8 @@ msgstr "Añadir entrada"
 #. Adds sentence/phrase showing how a word is used in context
 #. Each example can have translation and source reference
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Example"
 msgstr "Añadir ejemplo"
 
@@ -339,6 +357,8 @@ msgstr "Añadir ejemplo"
 #. Small button to add another sense/meaning to a word
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Meaning"
 msgstr "Añadir significado"
 
@@ -367,6 +387,8 @@ msgstr "Añadir foto"
 #. Small button to add another sense/meaning for a word
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Sense"
 msgstr "Añadir acepción"
 
@@ -709,6 +731,7 @@ msgstr "Puede usar internet"
 #. Keep translation brief (3-4 chars in some languages) to fit button layout
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
@@ -718,9 +741,11 @@ msgstr "Puede usar internet"
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/entry-editor/object-editors/AddObjectDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
+#: src/project/sync/FolderPicker.svelte
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -728,6 +753,11 @@ msgstr "Cancelar"
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Caption"
 msgstr "Leyenda"
+
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/AuthorNameLine.svelte
+msgid "Change"
+msgstr "Cambiar"
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Change entry"
@@ -755,6 +785,10 @@ msgstr "Cambiado {0} a"
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
 msgstr "Los cambios también pueden ser el resultado de que los campos sean agregados a nuevas versiones de FieldWorks Lite."
 
+#: src/lib/author/NameDialog.svelte
+msgid "Changes you already made keep the old name."
+msgstr "Los cambios que ya hiciste conservan el nombre antiguo."
+
 #. Explanation of commits vs changes
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
@@ -778,6 +812,10 @@ msgstr "Comprobando palabras similares…"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
 msgstr "Buscando actualizaciones..."
+
+#: src/project/sync/FolderPicker.svelte
+msgid "Choose a folder"
+msgstr "Elija una carpeta"
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -959,6 +997,10 @@ msgstr "Contiene"
 msgid "Contexts"
 msgstr "Contextos"
 
+#: src/lib/author/NameDialog.svelte
+msgid "Continue"
+msgstr "Continuar"
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
 msgstr "Conversación"
@@ -986,6 +1028,10 @@ msgstr "No se pudo comprobar si hay entradas similares"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar words"
 msgstr "No se pudo comprobar palabras similares"
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Couldn't finish syncing with the folder. Nothing on this device was lost. Check that the drive is still plugged in, then try again."
+msgstr "No se pudo finalizar la sincronización con la carpeta. Nada en este dispositivo se ha perdido. Compruebe que la unidad todavía está conectada, y vuelva a intentarlo."
 
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Couldn't get the FieldWorks Classic status from Lexbox."
@@ -1463,6 +1509,11 @@ msgstr "Termina con"
 msgid "Enrich & clean up"
 msgstr "Enriquecer y limpiar"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Enter your name"
+msgstr "Introduce tu nombre"
+
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Refers to dictionary entries (headwords with their senses/definitions).
 #: src/lib/activity/ChangeSummary.svelte
 msgid "entries"
@@ -1803,6 +1854,11 @@ msgstr "Archivo demasiado grande"
 msgid "Filename"
 msgstr "Nombre de archivo"
 
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Fill in at least one field"
+msgstr "Rellena al menos un campo"
+
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Display as"
 msgstr "Rellenar Mostrar como"
@@ -1892,6 +1948,10 @@ msgstr "Encuentra la palabra..."
 msgid "Finish"
 msgstr "Finalizar"
 
+#: src/project/sync/FolderPicker.svelte
+msgid "Folder path"
+msgstr "Ruta de carpeta"
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
 msgstr "Contacto de seguimiento descargado. Adjúntalo en el mismo chat de IA, luego pega su respuesta a continuación."
@@ -1910,6 +1970,10 @@ msgstr "Font"
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "Para cualquier otra consulta, no dude en enviarnos un correo electrónico."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "From a USB drive or shared folder"
+msgstr "Desde una unidad USB o carpeta compartida"
+
 #. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
@@ -1919,6 +1983,10 @@ msgstr "De filtro activo"
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Fullscreen"
 msgstr "Pantalla completa"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Get project from folder..."
+msgstr "Obtener proyecto de carpeta..."
 
 #. Button in feedback menu
 #: src/lib/about/FeedbackDialog.svelte
@@ -1934,6 +2002,10 @@ msgstr "Obtener soporte"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Glosa"
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Gloss or Definition is required"
+msgstr "Se requiere brillo o definición"
 
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Go back"
@@ -2399,6 +2471,16 @@ msgstr "significado"
 msgid "Meaning"
 msgstr "Significado"
 
+#. Add Example dialog subtitle when the meaning has no gloss or definition. {0} is its number.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Meaning {0}"
+msgstr "{0}"
+
+#. Add Example dialog subtitle naming the meaning the new example belongs to. {0} is its number, {1} its gloss or definition.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Meaning {0}: {1}"
+msgstr "Comunicando {0}: {1}"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "senses"
 #. Lowercase plural noun interpolated into activity-log lines (e.g. "Reordered meanings"). Paired with singular "meaning".
@@ -2539,6 +2621,7 @@ msgstr "Mi vista personalizada..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
@@ -2553,6 +2636,10 @@ msgstr "Nombre"
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr "Se requiere nombre"
+
+#: src/project/SyncDialog.svelte
+msgid "Nearby"
+msgstr "Cercano"
 
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
@@ -2942,6 +3029,10 @@ msgstr "Abrir en una ventana nueva"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "Abrir archivo Log"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Opened {0} from the folder. You can remove the drive."
+msgstr "Abierto {0} de la carpeta. Puedes remover la unidad."
 
 #. Status message shown after the user clicks "Open in FieldWorks" while the handoff is in progress. "FieldWorks" is a product name — do not translate.
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -3591,6 +3682,7 @@ msgstr "Misma forma del lexema"
 msgid "Same word"
 msgstr "Misma palabra"
 
+#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
 msgstr "Guardar"
@@ -3733,6 +3825,16 @@ msgstr "sentido"
 msgid "Sense"
 msgstr "Acepción"
 
+#. Add Example dialog subtitle when the sense has no gloss or definition. {0} is its number.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sense {0}"
+msgstr "Sentir {0}"
+
+#. Add Example dialog subtitle naming the sense the new example belongs to. {0} is its number, {1} its gloss or definition.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sense {0}: {1}"
+msgstr "Sense {0}: {1}"
+
 #. Field label in the activity change-preview diff for a custom view: which sense-level fields it shows.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Sense fields"
@@ -3751,6 +3853,10 @@ msgstr "sentidos"
 #: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Sentencia"
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sentence is required"
+msgstr "Se requiere sentencia"
 
 #. Activity-log line. {0} = field label; used when the new value is an audio recording (an audio marker chip follows instead of a text value). Compare "Set {0} to", which shows a text value chip.
 #: src/lib/activity/ChangeSummary.svelte
@@ -3837,6 +3943,11 @@ msgstr "Mostrar u ocultar leyendas"
 msgid "Show unchanged fields"
 msgstr "Mostrar campos sin cambios"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Shown next to your changes in all projects you don't sync with Lexbox."
+msgstr "Mostrar al lado de los cambios en todos los proyectos que no sincroniza con Lexbox."
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "Inicia sesión para añadir comentarios."
@@ -3910,6 +4021,10 @@ msgstr "Pequeñas aplicaciones personalizadas que funcionan con el diccionario d
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
 msgstr "Algunas personas pueden trabajar en este proyecto en FieldWorks Classic. Los cambios sólo se mueven entre FieldWorks Lite y FieldWorks Classic cuando alguien con permiso los sincroniza."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Some pictures or audio files couldn't be copied. They will be copied the next time you sync."
+msgstr "Algunas imágenes o archivos de audio no pudieron ser copiados. Serán copiados la próxima vez que sincronices."
 
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
@@ -3994,6 +4109,26 @@ msgstr "Sincronización completa. {0} se aplicaron a FieldWorks Classic. {1} se 
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Sync FieldWorks Lite y FieldWorks Clásico"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Sync now"
+msgstr "Sincronizar ahora"
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with {0}"
+msgstr "Sincronizar con {0}"
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with a folder..."
+msgstr "Sincronizar con una carpeta..."
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with a USB drive or another folder"
+msgstr "Sincronizar con una unidad USB u otra carpeta"
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with another folder..."
+msgstr "Sincronizar con otra carpeta..."
+
 #. Introductory text for sync status panel
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
@@ -4019,6 +4154,10 @@ msgstr "Sincronizado más antiguo"
 msgid "Synced with {0}"
 msgstr "Sincronizado con {0}"
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "Synced with the folder. You can remove the drive."
+msgstr "Sincronizado con la carpeta. Puede quitar la unidad."
+
 #. Label showing sync timestamp in activity
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
@@ -4034,7 +4173,12 @@ msgstr "Sincronice"
 msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr "Sincronizando FieldWorks Lite y FieldWorks Classic..."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Syncing with the folder..."
+msgstr "Sincronizando con la carpeta..."
+
 #. Progress indicator
+#: src/project/sync/FolderSyncSection.svelte
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Syncing..."
 msgstr "Sincronizando..."
@@ -4083,6 +4227,10 @@ msgstr "La vista *FieldWorks Classic*, por otra parte, está diseñada para usua
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "La vista *FieldWorks Lite* está diseñada para las no-listas y difiere de la vista *FieldWorks Classic* de las siguientes maneras:"
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "The copy of {0} in this folder didn't come from the same original as the copy on this device, so the two can't be combined. Choose another folder."
+msgstr "La copia de {0} en esta carpeta no proviene del mismo original que la copia en este dispositivo, así que los dos no se pueden combinar. Elija otra carpeta."
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to change the dictionary"
 msgstr "La nueva versión pide cambiar el diccionario"
@@ -4104,6 +4252,10 @@ msgstr "El número de commits de FieldWorks Lite no necesariamente coincidirá c
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr "El complemento “{0}” está pidiendo hacer este cambio en tu diccionario:"
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "The project in this folder uses different writing systems ({0}) from the copy on this device ({1}), so the two can't be synced. Choose another folder, or compare the writing systems in each copy."
+msgstr "El proyecto en esta carpeta utiliza diferentes sistemas de escritura ({0}) de la copia en este dispositivo ({1}), así que los dos no pueden ser sincronizados. Elija otra carpeta o compare los sistemas de escritura en cada copia."
 
 #: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
@@ -4170,6 +4322,26 @@ msgstr "Este ejemplo no existe."
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
 msgstr "Este archivo sólo está disponible de forma remota."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder already has a folder called {0}, but it doesn't hold a FieldWorks Lite project. Choose another folder."
+msgstr "Esta carpeta ya tiene una carpeta llamada {0}, pero no contiene un proyecto FieldWorks Lite. Elija otra carpeta."
+
+#: src/project/sync/FolderPicker.svelte
+msgid "This folder doesn't exist. Check the path. Example: /media/yourname/USB"
+msgstr "Esta carpeta no existe. Comprueba la ruta. Ejemplo: /media/yourname/USB"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder doesn't hold a FieldWorks Lite project. Choose the project's own folder, not the drive or folder it's in."
+msgstr "Esta carpeta no contiene un proyecto de FieldWorks Lite. Elige la propia carpeta del proyecto, no la unidad o carpeta en la que se encuentra."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder holds a different project, {0}, not the one that is open. To open that project, go to the home screen and choose Get project from folder."
+msgstr "Esta carpeta contiene un proyecto diferente, {0}, no el que está abierto. Para abrir ese proyecto, ve a la pantalla de inicio y elige Obtener proyecto de la carpeta."
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder is empty. To put a project in it, open that project on a device that has it and choose Sync with a folder."
+msgstr "Esta carpeta está vacía. Para poner un proyecto en ella, abra ese proyecto en un dispositivo que lo tenga y elija Sincronizar con una carpeta."
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
@@ -4535,6 +4707,10 @@ msgstr "Archivos pendientes cargados"
 msgid "Uploading pictures is not supported here"
 msgstr "La carga de imágenes no está soportada aquí"
 
+#: src/project/sync/FolderPicker.svelte
+msgid "Use this folder"
+msgstr "Usar esta carpeta"
+
 #: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Use this version"
 msgstr "Usar esta versión"
@@ -4788,9 +4964,21 @@ msgstr "Has superado cada hito. ¡Qué logro!"
 msgid "Your changes to this plugin will be lost."
 msgstr "Se perderán los cambios en este plugin."
 
+#. # is the user's own name
+#: src/lib/author/AuthorNameLine.svelte
+msgid "Your changes will show the name #."
+msgstr "Los cambios mostrarán el nombre #."
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "Tu diccionario comienza aquí"
+
+#: src/home/CreateProjectDialog.svelte
+#: src/home/CreateProjectDialog.svelte
+#: src/home/HomeView.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Your name"
+msgstr "Tu nombre"
 
 #: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Your plugin will run here"
