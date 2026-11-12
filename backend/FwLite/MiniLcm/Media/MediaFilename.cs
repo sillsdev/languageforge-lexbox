@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 
 namespace MiniLcm.Media;
@@ -13,12 +14,12 @@ public static class MediaFilename
     private static readonly SearchValues<char> InvalidChars =
         SearchValues.Create("\"*/:<>?\\|" + string.Concat(Enumerable.Range(0, 32).Select(i => (char)i)));
 
-    private static readonly HashSet<string> ReservedNames = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly FrozenSet<string> ReservedNames = new[]
     {
         "CON", "PRN", "AUX", "NUL",
         "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
         "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
-    };
+    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     public static bool IsValid([NotNullWhen(true)] string? filename)
     {
