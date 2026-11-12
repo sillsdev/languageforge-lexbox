@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-06 05:28\n"
+"PO-Revision-Date: 2026-11-12 12:22\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -131,6 +131,14 @@ msgstr "{0} iliyopita"
 msgid "{0} authors"
 msgstr "{0} waandishi"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "{0} can't be added: this device already has a different project with the same code, {1}."
+msgstr "{0} haiwezi kuongezwa: kifaa hiki tayari kina mradi tofauti wenye msimbo uleule, {1}."
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "{0} is already on this device, so it was opened without syncing."
+msgstr "{0} Ipo tayari kwenye kifaa hiki, kwa hivyo ilifunguliwa bila kusawazisha."
+
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "{0} KB"
@@ -246,6 +254,14 @@ msgstr "3. Jaribu hapa"
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Toleo jipya la FieldWorks Lite linapatikana."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to open it."
+msgstr "Toleo jipya zaidi la FieldWorks Lite liliunda folda hii. Sasisha FieldWorks Lite ili uifungue."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it."
+msgstr "Toleo jipya zaidi la FieldWorks Lite liliunda folda hii. Sasisha FieldWorks Lite ili iendane nayo."
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "A project manager can add plugins for the team."
 msgstr "Msimamizi wa mradi anaweza kuongeza programu-jalizi kwa timu."
@@ -330,6 +346,8 @@ msgstr "Ongeza ingizo"
 #. Adds sentence/phrase showing how a word is used in context
 #. Each example can have translation and source reference
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Example"
 msgstr "Ongeza Mfano"
 
@@ -339,6 +357,8 @@ msgstr "Ongeza Mfano"
 #. Small button to add another sense/meaning to a word
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Meaning"
 msgstr "Ongeza Maana"
 
@@ -367,6 +387,8 @@ msgstr "Ongeza picha"
 #. Small button to add another sense/meaning for a word
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Sense"
 msgstr "Ongeza Maana"
 
@@ -709,6 +731,7 @@ msgstr "Anaweza kutumia intaneti"
 #. Keep translation brief (3-4 chars in some languages) to fit button layout
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
@@ -718,9 +741,11 @@ msgstr "Anaweza kutumia intaneti"
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/entry-editor/object-editors/AddObjectDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
+#: src/project/sync/FolderPicker.svelte
 msgid "Cancel"
 msgstr "Ghairi"
 
@@ -728,6 +753,11 @@ msgstr "Ghairi"
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Caption"
 msgstr "Maelezo ya picha"
+
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/AuthorNameLine.svelte
+msgid "Change"
+msgstr "Mabadiliko"
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Change entry"
@@ -755,6 +785,10 @@ msgstr "Ime badilishwa {0} kuwa"
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
 msgstr "Mabadiliko yanaweza pia kuwa matokeo ya sehemu kuongezwa kwa matoleo mapya ya FieldWorks Lite."
 
+#: src/lib/author/NameDialog.svelte
+msgid "Changes you already made keep the old name."
+msgstr "Mabadiliko ambayo tayari umefanya yanabaki na jina la zamani."
+
 #. Explanation of commits vs changes
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
@@ -778,6 +812,10 @@ msgstr "Kukagua maneno yanayofanana…"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
 msgstr "Inakagua masasisho..."
+
+#: src/project/sync/FolderPicker.svelte
+msgid "Choose a folder"
+msgstr "Chagua folda"
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -959,6 +997,10 @@ msgstr "Ina"
 msgid "Contexts"
 msgstr "Muktadha"
 
+#: src/lib/author/NameDialog.svelte
+msgid "Continue"
+msgstr "Endelea"
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
 msgstr "Mazungumzo"
@@ -986,6 +1028,10 @@ msgstr "Haikuweza kukagua maingizo yanayofanana"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar words"
 msgstr "Haikuweza kukagua maneno yanayofanana"
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Couldn't finish syncing with the folder. Nothing on this device was lost. Check that the drive is still plugged in, then try again."
+msgstr "Haikuweza kumaliza kusawazisha na folda. Hakuna chochote kwenye kifaa hiki kilichopotea. Angalia kuwa diski bado imechomekwa, kisha jaribu tena."
 
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Couldn't get the FieldWorks Classic status from Lexbox."
@@ -1463,6 +1509,11 @@ msgstr "Inaishia na"
 msgid "Enrich & clean up"
 msgstr "Tajirisha na kusafisha"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Enter your name"
+msgstr "Ingiza jina lako"
+
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Refers to dictionary entries (headwords with their senses/definitions).
 #: src/lib/activity/ChangeSummary.svelte
 msgid "entries"
@@ -1803,6 +1854,11 @@ msgstr "Faili kubwa sana"
 msgid "Filename"
 msgstr "Jina la faili"
 
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Fill in at least one field"
+msgstr "Jaza angalau uwanja mmoja"
+
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Display as"
 msgstr "Jaza Onyesha kama"
@@ -1892,6 +1948,10 @@ msgstr "Tafuta neno..."
 msgid "Finish"
 msgstr "Maliza"
 
+#: src/project/sync/FolderPicker.svelte
+msgid "Folder path"
+msgstr "Njia ya folda"
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
 msgstr "Ombi la ufuatiliaji limepakuliwa. Kiambatanishe kwenye mazungumzo yale yale ya AI, kisha bandika jibu lake hapa chini."
@@ -1910,6 +1970,10 @@ msgstr "Fonti"
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "Kwa kuuliza kingine chochote, tafadhali tuambii imeli."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "From a USB drive or shared folder"
+msgstr "Kutoka kwenye diski ya USB au folda iliyoshirikiwa"
+
 #. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
@@ -1919,6 +1983,10 @@ msgstr "Kutoka kwa kichuja kilichoanzishwa"
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Fullscreen"
 msgstr "Skrini nzima"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Get project from folder..."
+msgstr "Pata mradi kutoka kwenye folda..."
 
 #. Button in feedback menu
 #: src/lib/about/FeedbackDialog.svelte
@@ -1934,6 +2002,10 @@ msgstr "Pata msaada"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Glosi"
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Gloss or Definition is required"
+msgstr "Ufasaha au Ufafanuzi unahitajika"
 
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Go back"
@@ -2399,6 +2471,16 @@ msgstr "maana"
 msgid "Meaning"
 msgstr "Maana"
 
+#. Add Example dialog subtitle when the meaning has no gloss or definition. {0} is its number.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Meaning {0}"
+msgstr "Maana {0}"
+
+#. Add Example dialog subtitle naming the meaning the new example belongs to. {0} is its number, {1} its gloss or definition.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Meaning {0}: {1}"
+msgstr "Maana ya {0}: {1}"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "senses"
 #. Lowercase plural noun interpolated into activity-log lines (e.g. "Reordered meanings"). Paired with singular "meaning".
@@ -2539,6 +2621,7 @@ msgstr "Mtazamo wangu maalum..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
@@ -2553,6 +2636,10 @@ msgstr "Jina"
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr "Jina linahitajika"
+
+#: src/project/SyncDialog.svelte
+msgid "Nearby"
+msgstr "Karibu"
 
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
@@ -2942,6 +3029,10 @@ msgstr "Fungua kwenye Dirisha Jipya"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "Fungua faili la logi"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Opened {0} from the folder. You can remove the drive."
+msgstr "Imefunguliwa {0} kutoka kwenye folda. Unaweza kuondoa diski."
 
 #. Status message shown after the user clicks "Open in FieldWorks" while the handoff is in progress. "FieldWorks" is a product name — do not translate.
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -3591,6 +3682,7 @@ msgstr "Fomu ile ile ya leksemu"
 msgid "Same word"
 msgstr "Neno lile lile"
 
+#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
 msgstr "Hifadhi"
@@ -3733,6 +3825,16 @@ msgstr "hisia"
 msgid "Sense"
 msgstr "Kwa maana"
 
+#. Add Example dialog subtitle when the sense has no gloss or definition. {0} is its number.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sense {0}"
+msgstr "Hisia {0}"
+
+#. Add Example dialog subtitle naming the sense the new example belongs to. {0} is its number, {1} its gloss or definition.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sense {0}: {1}"
+msgstr "Hisia {0}: {1}"
+
 #. Field label in the activity change-preview diff for a custom view: which sense-level fields it shows.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Sense fields"
@@ -3751,6 +3853,10 @@ msgstr "hisia"
 #: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Sentensi"
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sentence is required"
+msgstr "Hukumu inahitajika"
 
 #. Activity-log line. {0} = field label; used when the new value is an audio recording (an audio marker chip follows instead of a text value). Compare "Set {0} to", which shows a text value chip.
 #: src/lib/activity/ChangeSummary.svelte
@@ -3837,6 +3943,11 @@ msgstr "Onyesha au ficha maelezo ya picha"
 msgid "Show unchanged fields"
 msgstr "Onyesha sehemu zisizobadilika"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Shown next to your changes in all projects you don't sync with Lexbox."
+msgstr "Inaonyeshwa kando ya mabadiliko yako katika miradi yote usiyosawazisha na Lexbox."
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "Ingia ili kuongeza maoni."
@@ -3910,6 +4021,10 @@ msgstr "Programu ndogo maalum zinazofanya kazi na kamusi ya mradi huu — iliyos
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
 msgstr "Baadhi ya watu wanaweza kufanya kazi kwenye mradi huu katika FieldWorks Classic. Mabadiliko huhamishwa tu kati ya FieldWorks Lite na FieldWorks Classic pale mtu mwenye ruhusa anapoyasawazisha."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Some pictures or audio files couldn't be copied. They will be copied the next time you sync."
+msgstr "Baadhi ya picha au faili za sauti hazikuweza kunakiliwa. Zitanakiliwa wakati utaoshea tena."
 
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
@@ -3994,6 +4109,26 @@ msgstr "Kuoanisha kumekamilika. {0} ilitumiwa kwa FieldWorks Classic. {1} ilitum
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Kuoanisha FieldWorks Lite na FieldWorks Classic"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Sync now"
+msgstr "Sawazisha sasa"
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with {0}"
+msgstr "Sawazisha na {0}"
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with a folder..."
+msgstr "Sawazisha na folda..."
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with a USB drive or another folder"
+msgstr "Sawazisha na diski ya USB au folda nyingine"
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with another folder..."
+msgstr "Sawazisha na folda nyingine..."
+
 #. Introductory text for sync status panel
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
@@ -4019,6 +4154,10 @@ msgstr "Iliyosawazishwa ya zamani zaidi"
 msgid "Synced with {0}"
 msgstr "Kuoanishwa na {0}"
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "Synced with the folder. You can remove the drive."
+msgstr "Imesawazishwa na folda. Unaweza kuondoa diski."
+
 #. Label showing sync timestamp in activity
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
@@ -4034,7 +4173,12 @@ msgstr "Kuoanisha"
 msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr "Inaoanisha FieldWorks Lite na FieldWorks Classic..."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Syncing with the folder..."
+msgstr "Inasawazisha na folda..."
+
 #. Progress indicator
+#: src/project/sync/FolderSyncSection.svelte
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Syncing..."
 msgstr "Inaoanisha..."
@@ -4083,6 +4227,10 @@ msgstr "Muonekano wa *FieldWorks Classic*, kwa upande mwingine, umeuundwa kwa wa
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "Muonekano wa *FieldWorks Lite* umeuundwa kwa watu ambao si wafahamu wa lugha na hutofautiana na muonekano wa *FieldWorks Classic* kwa njia zifuatazo:"
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "The copy of {0} in this folder didn't come from the same original as the copy on this device, so the two can't be combined. Choose another folder."
+msgstr "Nakala ya {0} katika folda hii haitokani na asili ile ile kama nakala iliyopo kwenye kifaa hiki, kwa hivyo haiwezi kuunganishwa. Chagua folda nyingine."
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to change the dictionary"
 msgstr "Toleo jipya linaomba kubadilisha kamusi."
@@ -4104,6 +4252,10 @@ msgstr "Idadi ya kumbukas za FieldWorks Lite haitabindanishi lazima na idadi ya 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr "Plugini \"{0}\" inaomba kufanya mabadiliko haya kwenye kamusi yako:"
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "The project in this folder uses different writing systems ({0}) from the copy on this device ({1}), so the two can't be synced. Choose another folder, or compare the writing systems in each copy."
+msgstr "Mradi katika folda hii unatumia mifumo tofauti ya uandishi ({0}) kuliko nakala iliyopo kwenye kifaa hiki ({1}), kwa hivyo haiwezi kusawazishwa. Chagua folda nyingine, au linganisha mifumo ya uandishi katika kila nakala."
 
 #: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
@@ -4170,6 +4322,26 @@ msgstr "Mfano huu haupo."
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
 msgstr "Faili hii inapatikana tu kwa mbali."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder already has a folder called {0}, but it doesn't hold a FieldWorks Lite project. Choose another folder."
+msgstr "Folda hii tayari ina folda inayoitwa {0}, lakini haijui mradi wa FieldWorks Lite. Chagua folda nyingine."
+
+#: src/project/sync/FolderPicker.svelte
+msgid "This folder doesn't exist. Check the path. Example: /media/yourname/USB"
+msgstr "Folda hii haipo. Angalia njia. Mfano: /media/jina_lako/USB"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder doesn't hold a FieldWorks Lite project. Choose the project's own folder, not the drive or folder it's in."
+msgstr "Folda hii haina mradi wa FieldWorks Lite. Chagua folda ya mradi wenyewe, sio diski au folda iliyomo ndani yake."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder holds a different project, {0}, not the one that is open. To open that project, go to the home screen and choose Get project from folder."
+msgstr "Folda hii ina mradi tofauti, {0}, si ule ulio wazi. Ili kufungua mradi huo, nenda kwenye skrini ya nyumbani na uchague Pata mradi kutoka kwenye folda."
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder is empty. To put a project in it, open that project on a device that has it and choose Sync with a folder."
+msgstr "Folda hii ni tupu. Ili kuiweka mradi ndani yake, fungua mradi huo kwenye kifaa kinachouna na uchague Sinc na folda."
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
@@ -4535,6 +4707,10 @@ msgstr "Faili zilizopakiwa zinasubiri"
 msgid "Uploading pictures is not supported here"
 msgstr "Kupakia picha hakutumiki hapa"
 
+#: src/project/sync/FolderPicker.svelte
+msgid "Use this folder"
+msgstr "Tumia folda hii"
+
 #: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Use this version"
 msgstr "Tumia toleo hili"
@@ -4788,9 +4964,21 @@ msgstr "Umefikia kila hatua muhimu. Ni mafanikio makubwa!"
 msgid "Your changes to this plugin will be lost."
 msgstr "Mabadiliko yako kwenye programu-jalizi hii yatapotea."
 
+#. # is the user's own name
+#: src/lib/author/AuthorNameLine.svelte
+msgid "Your changes will show the name #."
+msgstr "Mabadiliko yako yataonyesha jina #."
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "Kamusi yako inaanza hapa"
+
+#: src/home/CreateProjectDialog.svelte
+#: src/home/CreateProjectDialog.svelte
+#: src/home/HomeView.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Your name"
+msgstr "Jina lako"
 
 #: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Your plugin will run here"
