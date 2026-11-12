@@ -4,7 +4,6 @@ using LexCore.Entities;
 using LexCore.Sync;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
-using SIL.WritingSystems;
 
 namespace FwHeadless.Routes;
 
@@ -35,13 +34,6 @@ public static class ProjectRoutes
             ?? InitFwDataProjectInput.ValidateUiWritingSystem(input.WsUi);
         if (wsError is not null)
             return TypedResults.Problem(wsError, statusCode: StatusCodes.Status400BadRequest);
-        var invalidWs = input.WsVernacular.Concat(input.WsAnalysis).FirstOrDefault(ws => !IetfLanguageTag.IsValid(ws));
-        if (invalidWs is not null)
-            return TypedResults.Problem($"Invalid writing system code: {invalidWs}",
-                statusCode: StatusCodes.Status400BadRequest);
-        if (!IetfLanguageTag.IsValid(input.WsUi))
-            return TypedResults.Problem($"Invalid UI writing system code: {input.WsUi}",
-                statusCode: StatusCodes.Status400BadRequest);
 
         var projectCode = await projectLookupService.GetProjectCode(projectId);
         if (projectCode is null)

@@ -1,3 +1,5 @@
+using SIL.WritingSystems;
+
 namespace LexCore.Entities;
 
 /// <summary>
@@ -17,8 +19,8 @@ public record InitFwDataProjectInput(
     public const int MaxWritingSystemTagLength = 128;
 
     /// <summary>
-    /// Shape checks shared by LexBoxApi (before it creates anything) and FwHeadless. Returns an error
-    /// message, or null if the list is acceptable. FwHeadless additionally checks that each tag is valid BCP 47.
+    /// Checks shared by LexBoxApi (before it creates anything) and FwHeadless. Returns an error
+    /// message, or null if the list is acceptable.
     /// </summary>
     public static string? ValidateWritingSystemList(string kind, IReadOnlyList<string>? tags)
     {
@@ -33,12 +35,14 @@ public record InitFwDataProjectInput(
         // BCP 47 tags are case-insensitive, so "en" and "EN" are the same writing system
         if (tags.GroupBy(t => t, StringComparer.OrdinalIgnoreCase).FirstOrDefault(g => g.Count() > 1) is { } duplicate)
             return $"Duplicate {kind} writing system: {duplicate.Key}";
+        if (tags.FirstOrDefault(t => !IetfLanguageTag.IsValid(t)) is { } invalid)
+            return $"Invalid {kind} writing system code: {invalid}";
         return null;
     }
 
     /// <summary>
-    /// Shape checks for the UI writing system, shared like <see cref="ValidateWritingSystemList"/>. Returns an
-    /// error message, or null if the tag is acceptable. FwHeadless additionally checks that it is valid BCP 47.
+    /// Checks for the UI writing system, shared like <see cref="ValidateWritingSystemList"/>. Returns an
+    /// error message, or null if the tag is acceptable.
     /// </summary>
     public static string? ValidateUiWritingSystem(string? tag)
     {
@@ -46,6 +50,8 @@ public record InitFwDataProjectInput(
             return "A UI writing system is required";
         if (tag.Length > MaxWritingSystemTagLength)
             return $"The UI writing system code is longer than {MaxWritingSystemTagLength} characters: {tag[..32]}…";
+        if (!IetfLanguageTag.IsValid(tag))
+            return $"Invalid UI writing system code: {tag}";
         return null;
     }
 }
