@@ -8,7 +8,7 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-06 05:28\n"
+"PO-Revision-Date: 2026-11-12 12:22\n"
 "Last-Translator: \n"
 "Language-Team: Indonesian\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -131,6 +131,14 @@ msgstr "{0} yang lalu"
 msgid "{0} authors"
 msgstr "{0} penulis"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "{0} can't be added: this device already has a different project with the same code, {1}."
+msgstr "{0} Tidak dapat ditambahkan: perangkat ini sudah terdaftar dalam proyek lain dengan kode yang sama, {1}."
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "{0} is already on this device, so it was opened without syncing."
+msgstr "{0} sudah ada di perangkat ini, jadi aplikasi tersebut dibuka tanpa melalui proses sinkronisasi."
+
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "{0} KB"
@@ -246,6 +254,14 @@ msgstr "3. Coba di sini"
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Versi baru FieldWorks Lite telah tersedia."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to open it."
+msgstr "Folder ini dibuat oleh versi FieldWorks Lite yang lebih baru. Perbarui FieldWorks Lite untuk membukanya."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it."
+msgstr "Folder ini dibuat oleh versi FieldWorks Lite yang lebih baru. Perbarui FieldWorks Lite agar dapat disinkronkan dengan folder ini."
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "A project manager can add plugins for the team."
 msgstr "Seorang manajer proyek dapat menambahkan plugin untuk tim."
@@ -330,6 +346,8 @@ msgstr "Tambahkan entri"
 #. Adds sentence/phrase showing how a word is used in context
 #. Each example can have translation and source reference
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Example"
 msgstr "Tambahkan Contoh"
 
@@ -339,6 +357,8 @@ msgstr "Tambahkan Contoh"
 #. Small button to add another sense/meaning to a word
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Meaning"
 msgstr "Tambahkan Makna"
 
@@ -367,6 +387,8 @@ msgstr "Tambahkan Gambar"
 #. Small button to add another sense/meaning for a word
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Sense"
 msgstr "Tambahkan Pengertian"
 
@@ -709,6 +731,7 @@ msgstr "Dapat menggunakan internet"
 #. Keep translation brief (3-4 chars in some languages) to fit button layout
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
@@ -718,9 +741,11 @@ msgstr "Dapat menggunakan internet"
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/entry-editor/object-editors/AddObjectDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
+#: src/project/sync/FolderPicker.svelte
 msgid "Cancel"
 msgstr "Batal"
 
@@ -728,6 +753,11 @@ msgstr "Batal"
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Caption"
 msgstr "Keterangan"
+
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/AuthorNameLine.svelte
+msgid "Change"
+msgstr "Perubahan"
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Change entry"
@@ -755,6 +785,10 @@ msgstr "Mengubah {0} menjadi"
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
 msgstr "Perubahan juga dapat terjadi karena adanya penambahan field pada versi baru FieldWorks Lite."
 
+#: src/lib/author/NameDialog.svelte
+msgid "Changes you already made keep the old name."
+msgstr "Perubahan yang sudah Anda lakukan tetap menggunakan nama lama."
+
 #. Explanation of commits vs changes
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
@@ -778,6 +812,10 @@ msgstr "Mencari kata-kata serupa…"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
 msgstr "Memeriksa pembaruan..."
+
+#: src/project/sync/FolderPicker.svelte
+msgid "Choose a folder"
+msgstr "Pilih sebuah folder"
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -959,6 +997,10 @@ msgstr "Berisi"
 msgid "Contexts"
 msgstr "Konteks"
 
+#: src/lib/author/NameDialog.svelte
+msgid "Continue"
+msgstr "Lanjutkan"
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
 msgstr "Percakapan"
@@ -986,6 +1028,10 @@ msgstr "Tidak dapat memeriksa entri yang serupa"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar words"
 msgstr "Tidak dapat memeriksa kata-kata yang serupa"
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Couldn't finish syncing with the folder. Nothing on this device was lost. Check that the drive is still plugged in, then try again."
+msgstr "Tidak dapat menyelesaikan proses sinkronisasi dengan folder tersebut. Tidak ada data yang hilang dari perangkat ini. Pastikan drive masih terpasang, lalu coba lagi."
 
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Couldn't get the FieldWorks Classic status from Lexbox."
@@ -1463,6 +1509,11 @@ msgstr "Diakhiri dengan"
 msgid "Enrich & clean up"
 msgstr "Memperkaya & membersihkan"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Enter your name"
+msgstr "Masukkan nama Anda"
+
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Refers to dictionary entries (headwords with their senses/definitions).
 #: src/lib/activity/ChangeSummary.svelte
 msgid "entries"
@@ -1803,6 +1854,11 @@ msgstr "File terlalu besar"
 msgid "Filename"
 msgstr "Nama berkas"
 
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Fill in at least one field"
+msgstr "Isi setidaknya satu kolom"
+
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Display as"
 msgstr "Isi kolom \"Tampilkan sebagai\""
@@ -1892,6 +1948,10 @@ msgstr "Temukan kata..."
 msgid "Finish"
 msgstr "Selesai"
 
+#: src/project/sync/FolderPicker.svelte
+msgid "Folder path"
+msgstr "Jalur folder"
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
 msgstr "Prompt tindak lanjut telah diunduh. Lampirkan prompt tersebut di obrolan AI yang sama, lalu tempelkan jawabannya di bawah ini."
@@ -1910,6 +1970,10 @@ msgstr "Jenis huruf"
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "Untuk pertanyaan lainnya, silakan kirimkan email kepada kami."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "From a USB drive or shared folder"
+msgstr "Dari flashdisk atau folder bersama"
+
 #. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
@@ -1919,6 +1983,10 @@ msgstr "Dari filter aktif"
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Fullscreen"
 msgstr "Layar Penuh"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Get project from folder..."
+msgstr "Ambil proyek dari folder..."
 
 #. Button in feedback menu
 #: src/lib/about/FeedbackDialog.svelte
@@ -1934,6 +2002,10 @@ msgstr "Dapatkan dukungan"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Arti Singkat"
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Gloss or Definition is required"
+msgstr "Diperlukan penjelasan atau definisi"
 
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Go back"
@@ -2399,6 +2471,16 @@ msgstr "arti"
 msgid "Meaning"
 msgstr "Arti"
 
+#. Add Example dialog subtitle when the meaning has no gloss or definition. {0} is its number.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Meaning {0}"
+msgstr "Arti {0}"
+
+#. Add Example dialog subtitle naming the meaning the new example belongs to. {0} is its number, {1} its gloss or definition.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Meaning {0}: {1}"
+msgstr "Arti dari \" {0}\": {1}"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "senses"
 #. Lowercase plural noun interpolated into activity-log lines (e.g. "Reordered meanings"). Paired with singular "meaning".
@@ -2539,6 +2621,7 @@ msgstr "Tampilan khusus saya..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
@@ -2553,6 +2636,10 @@ msgstr "Nama"
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr "Nama harus diisi"
+
+#: src/project/SyncDialog.svelte
+msgid "Nearby"
+msgstr "Di sekitar sini"
 
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
@@ -2942,6 +3029,10 @@ msgstr "Buka di jendela baru"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "Buka file Log"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Opened {0} from the folder. You can remove the drive."
+msgstr "Buka {0} dari folder tersebut. Anda dapat melepas drive tersebut."
 
 #. Status message shown after the user clicks "Open in FieldWorks" while the handoff is in progress. "FieldWorks" is a product name — do not translate.
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -3591,6 +3682,7 @@ msgstr "Bentuk leksem yang sama"
 msgid "Same word"
 msgstr "Kata yang sama"
 
+#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
 msgstr "Simpan"
@@ -3733,6 +3825,16 @@ msgstr "makna"
 msgid "Sense"
 msgstr "Pengertian"
 
+#. Add Example dialog subtitle when the sense has no gloss or definition. {0} is its number.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sense {0}"
+msgstr "Arti {0}"
+
+#. Add Example dialog subtitle naming the sense the new example belongs to. {0} is its number, {1} its gloss or definition.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sense {0}: {1}"
+msgstr "Arti {0}: {1}"
+
 #. Field label in the activity change-preview diff for a custom view: which sense-level fields it shows.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Sense fields"
@@ -3751,6 +3853,10 @@ msgstr "indera"
 #: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Kalimat"
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sentence is required"
+msgstr "Diperlukan kalimat"
 
 #. Activity-log line. {0} = field label; used when the new value is an audio recording (an audio marker chip follows instead of a text value). Compare "Set {0} to", which shows a text value chip.
 #: src/lib/activity/ChangeSummary.svelte
@@ -3837,6 +3943,11 @@ msgstr "Tampilkan atau sembunyikan keterangan"
 msgid "Show unchanged fields"
 msgstr "Tampilkan kolom yang tidak berubah"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Shown next to your changes in all projects you don't sync with Lexbox."
+msgstr "Ditampilkan di samping perubahan Anda di semua proyek yang tidak Anda sinkronkan dengan Lexbox."
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "Masuk untuk menambahkan komentar."
@@ -3910,6 +4021,10 @@ msgstr "Aplikasi kecil yang dibuat khusus dan dapat digunakan bersama kamus proy
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
 msgstr "Beberapa orang mungkin mengerjakan proyek ini di FieldWorks Classic. Perubahan hanya akan ditransfer antara FieldWorks Lite dan FieldWorks Classic jika seseorang yang memiliki izin melakukan sinkronisasi."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Some pictures or audio files couldn't be copied. They will be copied the next time you sync."
+msgstr "Beberapa gambar atau berkas audio tidak dapat disalin. Berkas-berkas tersebut akan disalin saat Anda melakukan sinkronisasi berikutnya."
 
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
@@ -3994,6 +4109,26 @@ msgstr "Sinkronisasi selesai. {0} diterapkan pada FieldWorks Classic. {1} ditera
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Menyinkronkan FieldWorks Lite dan FieldWorks Classic"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Sync now"
+msgstr "Sinkronkan sekarang"
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with {0}"
+msgstr "Sinkronkan dengan {0}"
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with a folder..."
+msgstr "Sinkronkan dengan sebuah folder..."
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with a USB drive or another folder"
+msgstr "Sinkronkan dengan drive USB atau folder lain"
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with another folder..."
+msgstr "Sinkronkan dengan folder lain..."
+
 #. Introductory text for sync status panel
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
@@ -4019,6 +4154,10 @@ msgstr "Yang paling lama dan sudah disinkronkan"
 msgid "Synced with {0}"
 msgstr "Disinkronkan dengan {0}"
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "Synced with the folder. You can remove the drive."
+msgstr "Sudah disinkronkan dengan folder tersebut. Anda dapat melepaskan drive tersebut."
+
 #. Label showing sync timestamp in activity
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
@@ -4034,7 +4173,12 @@ msgstr "Sinkronisasi"
 msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr "Menyinkronkan FieldWorks Lite dan FieldWorks Classic..."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Syncing with the folder..."
+msgstr "Sedang menyinkronkan dengan folder..."
+
 #. Progress indicator
+#: src/project/sync/FolderSyncSection.svelte
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Syncing..."
 msgstr "Menyinkronkan..."
@@ -4083,6 +4227,10 @@ msgstr "Sebaliknya, tampilan *FieldWorks Classic* dirancang untuk pengguna yang 
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "Tampilan *FieldWorks Lite* dirancang untuk non ahli bahasa dan berbeda dari tampilan *FieldWorks Classic* dengan beberapa cara berikut ini:"
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "The copy of {0} in this folder didn't come from the same original as the copy on this device, so the two can't be combined. Choose another folder."
+msgstr "Salinan berkas ` {0} ` di folder ini tidak berasal dari sumber yang sama dengan salinan yang ada di perangkat ini, sehingga keduanya tidak dapat digabungkan. Pilih folder lain."
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to change the dictionary"
 msgstr "Versi baru ini meminta untuk mengganti kamus"
@@ -4104,6 +4252,10 @@ msgstr "Jumlah komit FieldWorks Lite tidak akan selalu sama dengan jumlah peruba
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr "Plugin “{0}” meminta Anda untuk melakukan perubahan berikut pada kamus Anda:"
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "The project in this folder uses different writing systems ({0}) from the copy on this device ({1}), so the two can't be synced. Choose another folder, or compare the writing systems in each copy."
+msgstr "Proyek dalam folder ini menggunakan sistem penulisan yang berbeda ({0}) dibandingkan dengan salinan di perangkat ini ({1}), sehingga keduanya tidak dapat disinkronkan. Pilih folder lain, atau bandingkan sistem penulisan pada masing-masing salinan."
 
 #: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
@@ -4170,6 +4322,26 @@ msgstr "Contoh ini tidak ada."
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
 msgstr "Berkas ini hanya tersedia secara jarak jauh."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder already has a folder called {0}, but it doesn't hold a FieldWorks Lite project. Choose another folder."
+msgstr "Folder ini sudah memiliki folder bernama {0}, tetapi folder tersebut tidak berisi proyek FieldWorks Lite. Silakan pilih folder lain."
+
+#: src/project/sync/FolderPicker.svelte
+msgid "This folder doesn't exist. Check the path. Example: /media/yourname/USB"
+msgstr "Folder ini tidak ada. Periksa jalurnya. Contoh: /media/yourname/USB"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder doesn't hold a FieldWorks Lite project. Choose the project's own folder, not the drive or folder it's in."
+msgstr "Folder ini tidak berisi proyek FieldWorks Lite. Pilih folder proyek itu sendiri, bukan drive atau folder tempat proyek tersebut berada."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder holds a different project, {0}, not the one that is open. To open that project, go to the home screen and choose Get project from folder."
+msgstr "Folder ini berisi proyek yang berbeda, {0}, bukan proyek yang sedang terbuka. Untuk membuka proyek tersebut, buka layar beranda dan pilih \"Ambil proyek dari folder\"."
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder is empty. To put a project in it, open that project on a device that has it and choose Sync with a folder."
+msgstr "Folder ini kosong. Untuk memasukkan sebuah proyek ke dalamnya, buka proyek tersebut di perangkat yang menyimpannya, lalu pilih \"Sinkronkan dengan folder\"."
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
@@ -4535,6 +4707,10 @@ msgstr "File yang sedang diunggah"
 msgid "Uploading pictures is not supported here"
 msgstr "Pengunggahan gambar tidak didukung di sini"
 
+#: src/project/sync/FolderPicker.svelte
+msgid "Use this folder"
+msgstr "Gunakan folder ini"
+
 #: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Use this version"
 msgstr "Gunakan versi ini"
@@ -4788,9 +4964,21 @@ msgstr "Anda telah melewati setiap tahap penting. Sungguh sebuah prestasi yang l
 msgid "Your changes to this plugin will be lost."
 msgstr "Perubahan yang Anda lakukan pada plugin ini akan hilang."
 
+#. # is the user's own name
+#: src/lib/author/AuthorNameLine.svelte
+msgid "Your changes will show the name #."
+msgstr "Perubahan yang Anda lakukan akan menampilkan nama #."
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "Kamus Anda dimulai di sini"
+
+#: src/home/CreateProjectDialog.svelte
+#: src/home/CreateProjectDialog.svelte
+#: src/home/HomeView.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Your name"
+msgstr "Nama Anda"
 
 #: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Your plugin will run here"
