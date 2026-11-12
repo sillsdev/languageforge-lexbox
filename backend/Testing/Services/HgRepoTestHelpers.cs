@@ -5,7 +5,6 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LexBoxApi.Auth;
 using Testing.ApiTests;
 using Testing.Fixtures;
 
@@ -41,13 +40,6 @@ public static class HgRepoTestHelpers
 {
     public const string AllZeroHash = "0000000000000000000000000000000000000000";
     public static readonly TimeSpan DefaultPollTimeout = TimeSpan.FromSeconds(30);
-
-    /// <summary>
-    /// Doesn't retry 5xx responses (unlike <see cref="ApiTestBase.HttpClient"/>), so error responses can be observed exactly as returned.
-    /// Doesn't use cookies either, auth is added to each request.
-    /// </summary>
-    private static readonly HttpClient ClientWithoutRetry =
-        ApiTestBase.NewHttpClient(TestingEnvironmentVariables.ServerBaseUrl, useCookies: false, retry: false).Client;
 
     public static async Task<HgTip> GetTip(this ApiTestBase apiTester, string projectCode)
     {
@@ -196,26 +188,26 @@ public static class HgRepoTestHelpers
     private static async Task<RawResponse> SendWithoutRetry(ApiTestBase apiTester, HttpRequestMessage request)
     {
         apiTester.CurrJwt.Should().NotBeNullOrEmpty("we should be logged in already");
-        request.Headers.Add("Cookie", $"{AuthKernel.AuthCookieName}={apiTester.CurrJwt}");
-        using var response = await ClientWithoutRetry.SendAsync(request);
+        using var response = await apiTester.HttpClientWithoutRetry.SendAsync(request);
         return new RawResponse(response.StatusCode, await response.Content.ReadAsStringAsync());
     }
 
     /// <summary>
     /// Uploads a reset zip with a minimal TUS client (create + single PATCH) without retries, returning the response
     /// of the PATCH, which is where the server processes the zip.
-    /// The frontend (TusUpload.svelte) relies on a failed upload returning a 500 with an app-error-code.
+    /// No retries on purpose: the PATCH body can't be replayed, and the frontend (TusUpload.svelte) relies on a
+    /// failed upload returning a 500 with an app-error-code, which <see cref="ApiTestBase.HttpClient"/> would hide.
     /// </summary>
     public static async Task<RawResponse> UploadResetZipWithoutRetry(this ApiTestBase apiTester, string projectCode, FileInfo zip)
     {
+        apiTester.CurrJwt.Should().NotBeNullOrEmpty("we should be logged in already");
         var bytes = await File.ReadAllBytesAsync(zip.FullName);
 
         using var create = new HttpRequestMessage(HttpMethod.Post, $"api/project/upload-zip/{projectCode}");
         create.Headers.Add("Tus-Resumable", "1.0.0");
         create.Headers.Add("Upload-Length", bytes.Length.ToString(CultureInfo.InvariantCulture));
         create.Headers.Add("Upload-Metadata", $"filetype {Convert.ToBase64String(Encoding.UTF8.GetBytes("application/zip"))}");
-        create.Headers.Add("Cookie", $"{AuthKernel.AuthCookieName}={apiTester.CurrJwt}");
-        using var createResponse = await ClientWithoutRetry.SendAsync(create);
+        using var createResponse = await apiTester.HttpClientWithoutRetry.SendAsync(create);
         createResponse.StatusCode.Should().Be(HttpStatusCode.Created, await createResponse.Content.ReadAsStringAsync());
         var location = createResponse.Headers.Location;
         location.Should().NotBeNull();
