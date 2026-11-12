@@ -1,5 +1,6 @@
 import type {ISense} from '$lib/dotnet-types';
 import type {WritingSystemService} from '$project/data';
+import type {View} from '$lib/views/view-data';
 import type {ReadonlyDeep} from 'type-fest';
 
 /**
@@ -18,11 +19,12 @@ export function senseInEntry<S extends {id: string}>(
   return {sense: senses[index], number: senses.length > 1 ? index + 1 : undefined};
 }
 
-/** "2 house": the number, then the gloss or else the definition. Undefined when there's neither. */
+/** "2 house": the number, then the gloss or else the definition, preferring the view's. Undefined when there's neither. */
 export function senseLabel(
   writingSystemService: WritingSystemService,
+  view: View,
   {sense, number}: {sense: ReadonlyDeep<ISense>; number?: number},
 ): string | undefined {
-  const text = writingSystemService.firstGloss(sense as ISense) || writingSystemService.firstDef(sense as ISense);
+  const text = writingSystemService.viewFirstGlossOrDef(sense, view);
   return [number, text].filter(Boolean).join(' ') || undefined;
 }

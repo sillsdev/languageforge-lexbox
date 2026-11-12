@@ -53,9 +53,9 @@ public class FwDataMiniLcmApi(
 
     private IWritingSystemContainer WritingSystemContainer => Cache.ServiceLocator.WritingSystems;
     internal ILexEntryRepository EntriesRepository => Cache.ServiceLocator.GetInstance<ILexEntryRepository>();
-    internal IRepository<ILexSense> SenseRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexSense>>();
-    private IRepository<ILexExampleSentence> ExampleSentenceRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexExampleSentence>>();
-    private IRepository<ICmPicture> PictureRepository => Cache.ServiceLocator.GetInstance<IRepository<ICmPicture>>();
+    internal ILexSenseRepository SenseRepository => Cache.ServiceLocator.GetInstance<ILexSenseRepository>();
+    private ILexExampleSentenceRepository ExampleSentenceRepository => Cache.ServiceLocator.GetInstance<ILexExampleSentenceRepository>();
+    private ICmPictureRepository PictureRepository => Cache.ServiceLocator.GetInstance<ICmPictureRepository>();
     private ILexEntryFactory LexEntryFactory => Cache.ServiceLocator.GetInstance<ILexEntryFactory>();
     private ILexSenseFactory LexSenseFactory => Cache.ServiceLocator.GetInstance<ILexSenseFactory>();
     private ILexExampleSentenceFactory LexExampleSentenceFactory => Cache.ServiceLocator.GetInstance<ILexExampleSentenceFactory>();
@@ -1553,14 +1553,9 @@ public class FwDataMiniLcmApi(
             CreateExampleSentence(lexSense, exampleSentence);
         }
 
-        if (sense.Pictures.Any())
+        foreach (var picture in sense.Pictures)
         {
-            List<Picture> pictures = [.. sense.Pictures];
-            pictures.Sort(Picture.ComparePictures);
-            foreach (var picture in pictures)
-            {
-                CreatePicture(lexSense, picture);
-            }
+            CreatePicture(lexSense, picture);
         }
     }
 

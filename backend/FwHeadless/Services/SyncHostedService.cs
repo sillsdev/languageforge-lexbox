@@ -16,15 +16,40 @@ using Microsoft.Extensions.Options;
 
 namespace FwHeadless.Services;
 
+public enum QueueJobResult
+{
+    Queued,
+    AlreadyQueued,
+    // The running sync may already have read the repo before the caller's changes arrived; the caller should retry once it finishes
+    SyncAlreadyRunning,
+    QueueFull,
+}
+
 public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedService> logger, IMemoryCache memoryCache) : BackgroundService
 {
     private readonly Channel<Guid> _projectsToSync = Channel.CreateUnbounded<Guid>();
-    private readonly ConcurrentDictionary<Guid, TaskCompletionSource<SyncJobResult>> _projectsQueuedOrRunning = new();
+
+    // Projects with a sync queued or running. A single atomic GetOrAdd decides whether a request queues a new sync,
+    // so no lock is needed (this requires that SyncHostedService be a singleton).
+    private readonly ConcurrentDictionary<Guid, SyncJob> _syncJobs = new();
+
+    /// <summary>
+    /// The TaskCompletionSource carries the outcome to anyone long-polling AwaitSyncFinished.
+    /// <see cref="Started"/> distinguishes a queued sync (which will pick up any changes made before it starts)
+    /// from a running one (which might not).
+    /// </summary>
+    private record SyncJob(TaskCompletionSource<SyncJobResult> Result, bool Started = false)
+    {
+        // RunContinuationsAsynchronously so a long-polling awaiter's continuation can't run inline on
+        // the thread that finished the sync.
+        public static SyncJob New() => new(new TaskCompletionSource<SyncJobResult>(TaskCreationOptions.RunContinuationsAsynchronously));
+    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await foreach (var projectId in _projectsToSync.Reader.ReadAllAsync(stoppingToken))
         {
+            MarkSyncStarted(projectId);
             using var activity = FwHeadlessActivitySource.Value.StartActivity("SyncHostedService.ExecuteAsync");
             await using var scope = services.CreateAsyncScope();
             var syncWorker = ActivatorUtilities.CreateInstance<SyncWorker>(scope.ServiceProvider, projectId);
@@ -48,44 +73,55 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
 
             // Give clients a bit more time to poll the status
             CacheRecentSyncResult(projectId, result);
-            _projectsQueuedOrRunning.TryRemove(projectId, out var tcs);
-            tcs?.TrySetResult(result);
+            if (_syncJobs.TryRemove(projectId, out var job))
+                job.Result.TrySetResult(result);
         }
+    }
+
+    // QueueJob never modifies an existing entry, and only ExecuteAsync removes one, so nothing can race this update
+    internal void MarkSyncStarted(Guid projectId)
+    {
+        if (_syncJobs.TryGetValue(projectId, out var job))
+            _syncJobs.TryUpdate(projectId, job with { Started = true }, job);
     }
 
     public virtual bool IsJobQueuedOrRunning(Guid projectId)
     {
-        return _projectsQueuedOrRunning.ContainsKey(projectId);
+        return _syncJobs.ContainsKey(projectId);
     }
 
     public async Task<SyncJobResult?> AwaitSyncFinished(Guid projectId, CancellationToken cancellationToken)
     {
-        if (_projectsQueuedOrRunning.TryGetValue(projectId, out var tcs))
-            return await tcs.Task.WaitAsync(cancellationToken);
+        if (_syncJobs.TryGetValue(projectId, out var job))
+            return await job.Result.Task.WaitAsync(cancellationToken);
         return TryGetRecentSyncResult(projectId);
     }
 
-    public bool QueueJob(Guid projectId)
+    public QueueJobResult QueueJob(Guid projectId)
     {
+        var newJob = SyncJob.New();
+        var job = _syncJobs.GetOrAdd(projectId, newJob);
         //will only queue job if it's not already queued
-        var addedToQueue = _projectsQueuedOrRunning.TryAdd(projectId, new());
-        if (addedToQueue)
+        if (!ReferenceEquals(job, newJob))
         {
-            if (!_projectsToSync.Writer.TryWrite(projectId))
+            if (job.Started)
             {
-                logger.LogError("Failed to queue sync job for project {ProjectId}, the channel is full", projectId);
-                _projectsQueuedOrRunning.TryRemove(projectId, out _);
-                return false;
+                logger.LogInformation("Project {ProjectId} is already syncing, not queueing another sync job", projectId);
+                return QueueJobResult.SyncAlreadyRunning;
             }
-
-            logger.LogInformation("Queued sync job for project {ProjectId}", projectId);
-        }
-        else
-        {
             logger.LogInformation("Project {ProjectId} is already queued", projectId);
+            return QueueJobResult.AlreadyQueued;
         }
 
-        return addedToQueue;
+        if (!_projectsToSync.Writer.TryWrite(projectId))
+        {
+            logger.LogError("Failed to queue sync job for project {ProjectId}, the channel is full", projectId);
+            _syncJobs.TryRemove(KeyValuePair.Create(projectId, newJob));
+            return QueueJobResult.QueueFull;
+        }
+
+        logger.LogInformation("Queued sync job for project {ProjectId}", projectId);
+        return QueueJobResult.Queued;
     }
 
     private void CacheRecentSyncResult(Guid projectId, SyncJobResult result)
@@ -185,10 +221,10 @@ public class SyncWorker(
             activity?.SetStatus(ActivityStatusCode.Error, e.Message);
             return new SyncJobResult(SyncJobStatusEnum.ProjectIncompatible, e.Message);
         }
+        await using var deferCloseFwData = fwDataFactory.DeferCloseAsync(fwDataProject);
         //always do this as existing projects need to run this even if they didn't S&R due to no pending changes
         await mediaFileService.SyncMediaFiles(fwdataApi.Cache);
 
-        await using var deferCloseFwData = fwDataFactory.DeferCloseAsync(fwDataProject);
         var crdtProject = await SetupCrdtProject(crdtFile,
             projectLookupService,
             projectId,

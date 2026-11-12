@@ -49,6 +49,9 @@ RUN chown -R www-data:www-data /usr/local/apache2/logs
 COPY hgweb.hgrc /var/hg/
 COPY hgweb.wsgi /usr/local/www/wsgi-scripts/
 COPY --chmod=755 command-runner.sh /usr/local/www/commands/
+COPY diffguard.py /usr/local/www/hgext/
+# a load failure would only be a warning at runtime and silently drop the guard, so fail the build instead
+RUN hg --config extensions.diffguard=/usr/local/www/hgext/diffguard.py debugextensions | grep -q '^diffguard'
 COPY --chmod=755 entrypoint.sh /usr/local/bin/hgweb-entrypoint
 COPY json-lex /usr/lib/python3/dist-packages/mercurial/templates/json-lex
 

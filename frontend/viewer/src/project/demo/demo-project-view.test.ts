@@ -31,5 +31,5 @@ describe('demo project view', () => {
     app = mount(appComponent, {target});
     flushSync();
     expect(target.querySelector('.app')?.childElementCount).toBeGreaterThan(0);
-  }, 60_000); // first import transforms the whole app
+  }, 120_000); // first import transforms the whole app (already ~60s on a busy dev machine)
 });

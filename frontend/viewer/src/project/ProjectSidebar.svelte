@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  export type View = 'dashboard' | 'browse' | 'tasks' | 'activity' | 'media-manager';
+  export type View = 'dashboard' | 'browse' | 'tasks' | 'activity' | 'plugins' | 'media-manager';
 </script>
 
 <script lang="ts">
@@ -30,6 +30,7 @@
   import * as Collapsible from '$lib/components/ui/collapsible';
   import {cn} from '$lib/utils';
   import {PersistedState} from 'runed';
+  import {confirmLeave} from '$lib/utils/leave-guard';
 
   const config = useFwLiteConfig();
   const projectContext = useProjectContext();
@@ -39,7 +40,8 @@
   let syncStatus = $state<SyncStatus>();
   projectEventBus.onSync(e => syncStatus = e.status);
 
-  function handleProjectSelect(selectedProject: IProjectModel) {
+  async function handleProjectSelect(selectedProject: IProjectModel) {
+    if (!await confirmLeave()) return;
     if (selectedProject.fwdata) {
       navigate('/fwdata/' + selectedProject.code);
     } else if (selectedProject.crdt) {
@@ -51,9 +53,9 @@
   const primaryAction = usePrimaryAction();
 
   const {base, activeRoute} = useRouter();
-  function goto(view: string) {
-    let newLocation = `${$base.uri}/${view}`;
-    navigate(newLocation);
+  async function goto(view: string) {
+    if (!await confirmLeave()) return;
+    navigate(`${$base.uri}/${view}`);
   }
 
   let troubleshootDialog = $state<TroubleshootDialog>();
@@ -67,7 +69,7 @@
 
 {#snippet ViewButton(view: View, icon: IconClass, label: string, stat?: string)}
   <Sidebar.MenuItem>
-    <Sidebar.MenuButton onclick={() => {goto(view); sidebar?.closeMobile()}} isActive={$activeRoute?.uri.endsWith(view)}>
+    <Sidebar.MenuButton onclick={() => {void goto(view); sidebar?.closeOverlay()}} isActive={$activeRoute?.uri.endsWith(view)}>
       <Icon {icon} />
       <span>{label}</span>
       {#if stat}
@@ -101,6 +103,9 @@
 
           {#if features.history}
             {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}
+          {/if}
+          {#if features.plugins}
+            {@render ViewButton('plugins', 'i-mdi-puzzle', $t`Plugins`)}
           {/if}
           {#if projectContext.mediaFilesService}
             {@render ViewButton('media-manager', 'i-mdi-image', $t`Media Manager`)}
@@ -182,7 +187,7 @@
     <Sidebar.Group class="paratext:hidden">
       <Sidebar.Menu>
         <Sidebar.MenuItem>
-          <Sidebar.MenuButton onclick={() => navigate('/')}>
+          <Sidebar.MenuButton onclick={async () => { if (await confirmLeave()) navigate('/'); }}>
             <Icon icon="i-mdi-close" />
             <span>{$t`Close Dictionary`}</span>
           </Sidebar.MenuButton>

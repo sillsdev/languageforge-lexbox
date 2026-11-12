@@ -10,19 +10,27 @@ public class HarmonyChangeWriter(
     DataModel dataModel,
     CommitMetadataInterceptor commitMetadataInterceptor,
     IOptions<LcmCrdtConfig> config,
-    CurrentProjectService projectService
+    CurrentProjectService projectService,
+    CurrentAuthorService currentAuthorService
 )
 {
-    private Guid ClientId { get; } = projectService.ProjectData.ClientId;
+    // read on use, not at construction, so services that inject this writer can be built before the project context is set
+    private Guid ClientId => projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
-    private CommitMetadata NewMetadata()
+
+    /// <summary>
+    /// The metadata (author, client version) every commit written for the current user should carry,
+    /// including commits written through Harmony APIs other than this writer, like <c>ResourceService</c>.
+    /// </summary>
+    public CommitMetadata NewMetadata()
     {
+        //todo, if a user logs out and in with another account, this will be out of date until the next sync
+        var author = currentAuthorService.GetCurrentAuthor();
         var metadata = new CommitMetadata
         {
             ClientVersion = AppVersion.Version,
-            //todo, if a user logs out and in with another account, this will be out of date until the next sync
-            AuthorName = ProjectData.LastUserName,
-            AuthorId = ProjectData.LastUserId
+            AuthorName = author.Name,
+            AuthorId = author.Id
         };
         commitMetadataInterceptor.Apply(metadata);
         if (config.Value.RequireCommitAuthor && string.IsNullOrEmpty(metadata.AuthorName) && string.IsNullOrEmpty(metadata.AuthorId))

@@ -453,14 +453,16 @@ public partial class MiniLcmApiValidationWrapper(
         return _api.CreatePicture(entryId, senseId, picture, position);
     }
 
-    public Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
+    public async Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
     {
-        return _api.UpdatePicture(entryId, senseId, pictureId, update);
+        await validators.ValidateAndThrow(update);
+        return await _api.UpdatePicture(entryId, senseId, pictureId, update);
     }
 
-    public Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
+    public async Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
     {
-        return _api.SubmitUpdatePicture(entryId, senseId, pictureId, update);
+        await validators.ValidateAndThrow(update);
+        await _api.SubmitUpdatePicture(entryId, senseId, pictureId, update);
     }
 
     public Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Picture before, Picture after, IMiniLcmApi? api = null)
@@ -511,6 +513,27 @@ public partial class MiniLcmApiValidationWrapper(
     public Task DeleteCustomView(Guid id)
     {
         return _api.DeleteCustomView(id);
+    }
+
+    #endregion
+
+    #region Plugin
+
+    public async Task<Plugin> CreatePlugin(Plugin plugin)
+    {
+        await validators.ValidateAndThrow(plugin);
+        return await _api.CreatePlugin(plugin);
+    }
+
+    public async Task<Plugin> UpdatePlugin(Plugin plugin)
+    {
+        await validators.ValidateAndThrow(plugin);
+        return await _api.UpdatePlugin(plugin);
+    }
+
+    public Task DeletePlugin(Guid id)
+    {
+        return _api.DeletePlugin(id);
     }
 
     #endregion
@@ -575,6 +598,11 @@ public partial class MiniLcmApiValidationWrapper(
     {
         await validators.ValidateAndThrow(metadata);
         return await _api.SaveFile(stream, metadata);
+    }
+
+    public Task DeleteFile(MediaUri mediaUri)
+    {
+        return _api.DeleteFile(mediaUri);
     }
 
     #endregion

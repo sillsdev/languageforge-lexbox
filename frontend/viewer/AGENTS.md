@@ -52,6 +52,7 @@ The generated files are located in `src/lib/dotnet-types/generated-types/`.
 | E2E | `tests/e2e/` | ❌ Needs a Lexbox kind cluster + published FwLiteWeb binary |
 | Launcher | `tests/launcher/` | ❌ Needs a published FwLiteWeb binary |
 | Manual | `**/*.manual.test.ts` | ⚠️ Opt-in — `pnpm test:manual`. Hits the network, so it is excluded from `pnpm test` and CI |
+| Docs screenshots | `tests/docs-screenshots/` | ✅ Not tests: `task docs:screenshots` regenerates the PNGs the docs site embeds (`docs/site/static/img/fw-lite/`) from the demo project and Storybook; see its README |
 
 **Don't run E2E or Launcher tests unless you've explicitly set up that infrastructure** — they fail loudly without it and the setup isn't part of normal dev.
 
@@ -67,7 +68,7 @@ UI tests run under `chromium` and `webkit` (Safari's engine, on Linux); unfilter
 WebKit snapshots use `-webkit`-suffixed Argos baselines; chromium keeps the bare names.
 
 - **Selectors**: locate by role, `data-testid`, or `data-field-id`. Selectors on serialized styles (`[style*="grid-area:"]`) broke 38 WebKit tests.
-- **Demo knobs** (`window.__PLAYWRIGHT_UTILS__`, set in `src/project/demo/in-memory-demo-api.ts`): `demoApi`, `setWrite(bool)`, `setHasHardwareKeyboard(bool)`. TODO: no knob yet for the comments feature, unread counts, or the user's role; add one to the demo instead of patching components.
+- **Demo knobs** (`window.__PLAYWRIGHT_UTILS__`, set in `src/project/demo/in-memory-demo-api.ts`): `demoApi`, `setWrite(bool)`, `setHasHardwareKeyboard(bool)`, `setProjectRole(role)`. TODO: no knob yet for the comments feature or unread counts; add one to the demo instead of patching components.
 
 ### Known noise (pre-existing)
 

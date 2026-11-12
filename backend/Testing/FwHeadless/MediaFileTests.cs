@@ -282,6 +282,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
     [InlineData(".jpeg", "Pictures")]
     [InlineData(".gif", "Pictures")]
     [InlineData(".png", "Pictures")]
+    [InlineData(".html", "Plugins")]
     public async Task UploadFile_WithoutContentType_GuessesFromFilename(string extension, string expectedFolder)
     {
         var otherPath = TestRepoZipPath.Replace(".zip", extension);

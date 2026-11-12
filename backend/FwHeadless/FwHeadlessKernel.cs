@@ -17,7 +17,10 @@ public static class FwHeadlessKernel
     public static IServiceCollection AddFwHeadless(this IServiceCollection services)
     {
         services
-            .AddLogging(builder => builder.AddConsole().AddDebug().AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning));
+            .AddLogging(builder => builder.AddConsole().AddDebug()
+                .AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning)
+                // LinqToDB logs every SQL command (with parameter values) at Information: 3 records per query
+                .AddFilter("LinqToDB", LogLevel.Warning));
         services.AddOptions<FwHeadlessConfig>()
             .BindConfiguration("FwHeadlessConfig")
             .ValidateDataAnnotations()

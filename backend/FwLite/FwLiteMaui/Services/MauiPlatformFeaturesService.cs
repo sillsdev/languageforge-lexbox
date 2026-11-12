@@ -42,7 +42,9 @@ public class MauiPlatformFeaturesService(IMediaPicker mediaPicker, IShare share)
     [JSInvokable]
     public Task<bool> SupportsShareFile()
     {
-        return Task.FromResult(DeviceInfo.Platform == DevicePlatform.iOS || DeviceInfo.Platform == DevicePlatform.MacCatalyst);
+        return Task.FromResult(DeviceInfo.Platform == DevicePlatform.iOS
+                               || DeviceInfo.Platform == DevicePlatform.MacCatalyst
+                               || DeviceInfo.Platform == DevicePlatform.Android);
     }
 
     [JSInvokable]
@@ -85,6 +87,48 @@ public class MauiPlatformFeaturesService(IMediaPicker mediaPicker, IShare share)
         return Task.FromResult(GameController.GCKeyboard.CoalescedKeyboard is not null);
 #else
         return Task.FromResult(true);
+#endif
+    }
+
+    //Android needs storage access framework support first (deferred), and Apple hosts aren't desktop targets yet.
+    [JSInvokable]
+    public Task<bool> SupportsFolderSync()
+    {
+#if WINDOWS
+        return Task.FromResult(true);
+#else
+        return Task.FromResult(false);
+#endif
+    }
+
+    [JSInvokable]
+    public Task<bool> HasFolderPicker() => SupportsFolderSync();
+
+    [JSInvokable]
+    public Task<bool> FolderExists(string path) => Task.FromResult(Directory.Exists(path));
+
+    [JSInvokable]
+    public Task<string?> SuggestedAuthorName() => Task.FromResult(OsUserName.Suggest());
+
+    [JSInvokable]
+    public async Task<string?> PickFolder()
+    {
+#if WINDOWS
+        return await MainThread.InvokeOnMainThreadAsync(async () =>
+        {
+            var window = Application.Current?.Windows.FirstOrDefault()?.Handler?.PlatformView as Microsoft.UI.Xaml.Window
+                         ?? throw new InvalidOperationException("Could not find window");
+            var picker = new Windows.Storage.Pickers.FolderPicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.ComputerFolder,
+            };
+            //WinUI pickers need an owner window, or they throw
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(window));
+            var folder = await picker.PickSingleFolderAsync();
+            return folder?.Path;
+        });
+#else
+        throw new NotSupportedException("Folder picking is only available on Windows");
 #endif
     }
 }

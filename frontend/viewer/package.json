@@ -13,6 +13,8 @@
     "test:ui": "playwright test -c ./tests/ui/playwright.config.ts",
     "pretest:e2e": "playwright install chromium",
     "test:e2e": "playwright test -c ./tests/e2e/playwright.config.ts",
+    "prescreenshots:docs": "playwright install chromium",
+    "screenshots:docs": "playwright test -c ./tests/docs-screenshots/playwright.config.ts",
     "test": "vitest run --project unit --project browser --project storybook",
     "test:watch": "vitest --project=!manual",
     "test:storybook": "vitest --project=storybook",

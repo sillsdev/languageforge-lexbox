@@ -75,3 +75,11 @@ table.app-map td > p:last-child {
   border-radius: 7px;
   border-color: var(--ifm-color-emphasis-500);
 }
+
+.screenshot {
+  display: block;
+  width: 100%;
+  margin-bottom: var(--ifm-leading);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+}

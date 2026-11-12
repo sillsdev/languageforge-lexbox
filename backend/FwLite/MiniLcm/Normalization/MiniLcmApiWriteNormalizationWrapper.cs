@@ -603,6 +603,26 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
 
     #endregion
 
+    #region Plugin
+
+    // Plugin metadata (name, description, manifest tokens) is not user-entered linguistic text, so no normalization is applied.
+    public async Task<Plugin> CreatePlugin(Plugin plugin)
+    {
+        return await _api.CreatePlugin(plugin);
+    }
+
+    public async Task<Plugin> UpdatePlugin(Plugin plugin)
+    {
+        return await _api.UpdatePlugin(plugin);
+    }
+
+    public Task DeletePlugin(Guid id)
+    {
+        return _api.DeletePlugin(id);
+    }
+
+    #endregion
+
     #region Comments
 
     public Task<CommentThread> CreateCommentThread(CommentThread thread, UserComment firstComment)
@@ -671,6 +691,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     {
         // File metadata is not user-entered text, so don't normalize
         return _api.SaveFile(stream, metadata);
+    }
+
+    public Task DeleteFile(MediaUri mediaUri)
+    {
+        return _api.DeleteFile(mediaUri);
     }
 
     #endregion

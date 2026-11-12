@@ -15,7 +15,8 @@
   import {useAppLauncherService} from '$lib/services/app-launcher-service';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import OpenInFieldWorksButton from '$lib/components/OpenInFieldWorksButton.svelte';
-  import {homographSubscript} from '$lib/components/dictionary/HomographNumber.svelte';
+  import {navigate, useRouter} from 'svelte-routing';
+  import {usePluginService} from '$project/data/plugin-service.svelte';
 
   const multiWindowService = useMultiWindowService();
   const dialogsService = useDialogsService();
@@ -30,9 +31,8 @@
     children?: Snippet
   }>();
 
-  const bestHeadword = $derived(entry ? writingSystemService.viewBestHeadword(entry, viewService.currentView) : '');
   // Display only (the delete prompt): the subscript tells homographs apart
-  const headword = $derived(entry && bestHeadword ? bestHeadword + homographSubscript(entry.homographNumber) : $t`Untitled`);
+  const headword = $derived((entry && writingSystemService.viewBestHeadwordWithHomograph(entry, viewService.currentView)) || $t`Untitled`);
 
   let open = $state(false);
 
@@ -45,6 +45,18 @@
   const features = useFeatures();
   let showHistoryView = $state(false);
   const appLauncher = useAppLauncherService();
+
+  const {base} = useRouter();
+  const pluginService = usePluginService();
+  // Only plugins that declare `fwlite-plugin-contexts: entry` belong in an entry's menu.
+  const plugins = $derived(features.plugins ? pluginService.pluginsForContext('entry') : []);
+  // Prime the lazy plugin resource so the submenu isn't empty the first time the menu opens.
+  $effect(() => {
+    if (features.plugins) void pluginService.current;
+  });
+  function openInPlugin(pluginId: string) {
+    navigate(`${$base.uri}/plugins/${pluginId}?entryId=${entry.id}`);
+  }
 </script>
 {#if features.history}
   <HistoryView bind:open={showHistoryView} id={entry.id}/>
@@ -75,5 +87,10 @@
         {/snippet}
       </ResponsiveMenu.Item>
     {/if}
+    {#each plugins as plugin (plugin.id)}
+      <ResponsiveMenu.Item icon="i-mdi-puzzle" onSelect={() => openInPlugin(plugin.id)}>
+        {$t`Open in ${plugin.name}`}
+      </ResponsiveMenu.Item>
+    {/each}
   </ResponsiveMenu.Content>
 </ResponsiveMenu.Root>

@@ -1,7 +1,4 @@
-import type {IActivityChangeInfo, IChangeEntity, IEntry} from '$lib/dotnet-types';
-import type {WritingSystemService} from '$project/data';
-import type {View} from '$lib/views/view-data';
-import {homographSubscript} from '$lib/components/dictionary/homograph-subscript';
+import type {IActivityChangeInfo, IChangeEntity} from '$lib/dotnet-types';
 import type {IActivitySenseName} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivitySenseName';
 import {isObjectType} from '$lib/entry-editor/diff-view/diff-fields';
 
@@ -70,9 +67,4 @@ export function parentCrumb(kind: ChangeKind, info: IActivityChangeInfo | undefi
     default:
       return [];
   }
-}
-
-/** The entry's best headword in the view, with its homograph number as a subscript. */
-export function bestHeadword(writingSystemService: WritingSystemService, view: View, entry: IEntry, untitled: string): string {
-  return (writingSystemService.viewBestHeadword(entry, view) || untitled) + homographSubscript(entry.homographNumber);
 }

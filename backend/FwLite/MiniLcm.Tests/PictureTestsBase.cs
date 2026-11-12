@@ -172,6 +172,73 @@ public abstract class PictureTestsBase : MiniLcmTestBase
         (await GetPictureIds()).Should().Equal([_pictureId, created.Id, last.Id]);
     }
 
+    // Order and Id both descend, so sorting by either would reverse the list
+    protected Picture[] PicturesContradictingListOrder()
+    {
+        var ids = new[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() }.OrderDescending().ToArray();
+        return [.. ids.Select((id, i) => new Picture { Id = id, Order = 30 - 10 * i, MediaUri = _mediaUri })];
+    }
+
+    private static Sense NewSense(Picture[] pictures) =>
+        new() { Id = Guid.NewGuid(), Gloss = { { "en", "pictures" } }, Pictures = [.. pictures] };
+
+    private static Entry NewEntry(Picture[] pictures) =>
+        new() { Id = Guid.NewGuid(), LexemeForm = { { "en", "pictures" } }, Senses = [NewSense(pictures)] };
+
+    protected async Task<Sense> CreateSenseWith(Picture[] pictures)
+    {
+        var sense = NewSense(pictures);
+        await Api.CreateSense(_entryId, sense);
+        return (await Api.GetSense(_entryId, sense.Id))!;
+    }
+
+    protected async Task<Sense> CreateEntryWith(Picture[] pictures)
+    {
+        var entry = NewEntry(pictures);
+        await Api.CreateEntry(entry);
+        return (await Api.GetSense(entry.Id, entry.Senses[0].Id))!;
+    }
+
+    protected async Task<Sense> BulkCreateEntryWith(Picture[] pictures)
+    {
+        var entry = NewEntry(pictures);
+        await Api.BulkCreateEntries(new[] { entry }.ToAsyncEnumerable());
+        return (await Api.GetSense(entry.Id, entry.Senses[0].Id))!;
+    }
+
+    private async Task VerifyUsesListOrder(Sense sense, Picture[] pictures)
+    {
+        Guid[] pictureIds = [.. pictures.Select(p => p.Id)];
+        sense.Pictures.Select(p => p.Id).Should().Equal(pictureIds);
+        // Inserting between the first two only lands in the middle if create stored orders matching the list
+        var middle = await Api.CreatePicture(sense.EntryId, sense.Id,
+            new Picture { Id = Guid.NewGuid(), MediaUri = _mediaUri },
+            new BetweenPosition(pictureIds[0], pictureIds[1]));
+        (await Api.GetSense(sense.EntryId, sense.Id))!.Pictures.Select(p => p.Id)
+            .Should().Equal([pictureIds[0], middle.Id, ..pictureIds[1..]]);
+    }
+
+    [Fact]
+    public async Task CreateSense_UsesPictureListOrderNotOrderProperty()
+    {
+        var pictures = PicturesContradictingListOrder();
+        await VerifyUsesListOrder(await CreateSenseWith(pictures), pictures);
+    }
+
+    [Fact]
+    public async Task CreateEntry_UsesPictureListOrderNotOrderProperty()
+    {
+        var pictures = PicturesContradictingListOrder();
+        await VerifyUsesListOrder(await CreateEntryWith(pictures), pictures);
+    }
+
+    [Fact]
+    public async Task BulkCreateEntries_UsesPictureListOrderNotOrderProperty()
+    {
+        var pictures = PicturesContradictingListOrder();
+        await VerifyUsesListOrder(await BulkCreateEntryWith(pictures), pictures);
+    }
+
     [Fact]
     public async Task UpdatePicture_Patch_UpdatesCaption()
     {

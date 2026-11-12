@@ -212,7 +212,7 @@ public class DeleteProjectTests(IntegrationFixture fixture) : ApiTestBase, IClas
         // Act
         // wait a bit to ensure the sync is actually in progress
         await Task.Delay(3000);
-        await FwHeadlessTestHelpers.TriggerSync(HttpClient, projectId);
+        await FwHeadlessTestHelpers.EnsureSyncRunningOrQueued(HttpClient, projectId);
         response = await HttpClient.DeleteAsync($"api/project/{projectId}");
 
         // Assert
@@ -344,7 +344,7 @@ public class DeleteProjectTests(IntegrationFixture fixture) : ApiTestBase, IClas
         // Act
         // wait a bit to ensure the sync is actually in progress
         await Task.Delay(3000);
-        await FwHeadlessTestHelpers.TriggerSync(HttpClient, projectId);
+        await FwHeadlessTestHelpers.EnsureSyncRunningOrQueued(HttpClient, projectId);
         response = await ExecuteGql($$"""
             mutation {
                 softDeleteProject(input: { projectId: "{{projectId}}" }) {

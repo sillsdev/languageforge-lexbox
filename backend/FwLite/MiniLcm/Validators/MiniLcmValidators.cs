@@ -18,9 +18,11 @@ public record MiniLcmValidators(
     IValidator<PartOfSpeech> PartOfSpeechValidator,
     IValidator<SemanticDomain> SemanticDomainValidator,
     IValidator<Publication> PublicationValidator,
+    IValidator<Plugin> PluginValidator,
     IValidator<UpdateObjectInput<MorphType>> MorphTypeUpdateValidator,
     IValidator<UpdateObjectInput<WritingSystem>> WritingSystemUpdateValidator,
     IValidator<UpdateObjectInput<Publication>> PublicationUpdateValidator,
+    IValidator<UpdateObjectInput<Picture>> PictureUpdateValidator,
     IValidator<LcmFileMetadata> FileMetadataValidator)
 {
     public async Task ValidateAndThrow(ComplexFormType value)
@@ -73,6 +75,11 @@ public record MiniLcmValidators(
         await PublicationValidator.ValidateAndThrowAsync(value);
     }
 
+    public async Task ValidateAndThrow(Plugin value)
+    {
+        await PluginValidator.ValidateAndThrowAsync(value);
+    }
+
     public async Task ValidateAndThrow(UpdateObjectInput<MorphType> update)
     {
         await MorphTypeUpdateValidator.ValidateAndThrowAsync(update);
@@ -86,6 +93,11 @@ public record MiniLcmValidators(
     public async Task ValidateAndThrow(UpdateObjectInput<Publication> update)
     {
         await PublicationUpdateValidator.ValidateAndThrowAsync(update);
+    }
+
+    public async Task ValidateAndThrow(UpdateObjectInput<Picture> update)
+    {
+        await PictureUpdateValidator.ValidateAndThrowAsync(update);
     }
 
     public async Task ValidateAndThrow(LcmFileMetadata value)
@@ -110,9 +122,11 @@ public static class MiniLcmValidatorsExtensions
         services.AddTransient<IValidator<PartOfSpeech>, PartOfSpeechValidator>();
         services.AddTransient<IValidator<SemanticDomain>, SemanticDomainValidator>();
         services.AddTransient<IValidator<Publication>, PublicationValidator>();
+        services.AddTransient<IValidator<Plugin>, PluginValidator>();
         services.AddTransient<IValidator<UpdateObjectInput<MorphType>>, MorphTypeUpdateValidator>();
         services.AddTransient<IValidator<UpdateObjectInput<WritingSystem>>, WritingSystemUpdateValidator>();
         services.AddTransient<IValidator<UpdateObjectInput<Publication>>, PublicationUpdateValidator>();
+        services.AddTransient<IValidator<UpdateObjectInput<Picture>>, PictureUpdateValidator>();
         services.AddTransient<IValidator<LcmFileMetadata>, LcmFileMetadataValidator>();
         services.AddTransient<MiniLcmApiQueryNormalizationWrapperFactory>();
         services.AddTransient<MiniLcmApiWriteNormalizationWrapperFactory>();
