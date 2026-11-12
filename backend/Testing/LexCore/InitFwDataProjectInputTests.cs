@@ -8,6 +8,17 @@ public class InitFwDataProjectInputTests
     private static string? Validate(params string[] tags) =>
         InitFwDataProjectInput.ValidateWritingSystemList("vernacular", tags);
 
+    // A valid BCP 47 tag of the given length. Private-use subtags are at most 8 characters each, and
+    // libpalaso also rejects a repeated one, so each is different.
+    private static string ValidTagOfLength(int length)
+    {
+        var tag = "qaa-x";
+        var i = 0;
+        while (tag.Length + 9 <= length) tag += $"-p{i++:D7}";
+        if (tag.Length < length) tag += "-" + $"q{i:D7}"[..(length - tag.Length - 1)];
+        return tag;
+    }
+
     [Fact]
     public void Accepts_a_typical_list()
     {
@@ -52,7 +63,8 @@ public class InitFwDataProjectInputTests
     [Fact]
     public void Accepts_a_tag_of_the_maximum_length()
     {
-        var tag = "qaa-x-" + new string('a', InitFwDataProjectInput.MaxWritingSystemTagLength - "qaa-x-".Length);
+        var tag = ValidTagOfLength(InitFwDataProjectInput.MaxWritingSystemTagLength);
+        tag.Length.Should().Be(InitFwDataProjectInput.MaxWritingSystemTagLength);
         Validate(tag).Should().BeNull();
     }
 
@@ -63,6 +75,14 @@ public class InitFwDataProjectInputTests
         var error = Validate("fr", tag);
         error.Should().Contain($"longer than {InitFwDataProjectInput.MaxWritingSystemTagLength} characters");
         error.Should().Contain(tag[..32]).And.NotContain(tag[..33]);
+    }
+
+    [Theory]
+    [InlineData("not_a_tag")]
+    [InlineData("qaa-x-thissubtagistoolong")]
+    public void Rejects_a_tag_that_is_not_valid_BCP_47(string tag)
+    {
+        Validate("fr", tag).Should().Be($"Invalid vernacular writing system code: {tag}");
     }
 
     [Theory]
@@ -91,7 +111,7 @@ public class InitFwDataProjectInputTests
     [Fact]
     public void Accepts_a_UI_writing_system_of_the_maximum_length()
     {
-        var tag = "qaa-x-" + new string('a', InitFwDataProjectInput.MaxWritingSystemTagLength - "qaa-x-".Length);
+        var tag = ValidTagOfLength(InitFwDataProjectInput.MaxWritingSystemTagLength);
         InitFwDataProjectInput.ValidateUiWritingSystem(tag).Should().BeNull();
     }
 
@@ -102,5 +122,11 @@ public class InitFwDataProjectInputTests
         var error = InitFwDataProjectInput.ValidateUiWritingSystem(tag);
         error.Should().Contain($"longer than {InitFwDataProjectInput.MaxWritingSystemTagLength} characters");
         error.Should().Contain(tag[..32]).And.NotContain(tag[..33]);
+    }
+
+    [Fact]
+    public void Rejects_a_UI_writing_system_that_is_not_valid_BCP_47()
+    {
+        InitFwDataProjectInput.ValidateUiWritingSystem("not_a_tag").Should().Be("Invalid UI writing system code: not_a_tag");
     }
 }

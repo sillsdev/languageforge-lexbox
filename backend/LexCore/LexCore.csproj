@@ -10,6 +10,8 @@
          LexCore is a plain library (no ASP.NET framework reference), so these come as packages. -->
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <!-- IetfLanguageTag, to validate writing system tags in InitFwDataProjectInput -->
+    <PackageReference Include="SIL.WritingSystems" />
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\Harmony.Core.References.props" />
 </Project>

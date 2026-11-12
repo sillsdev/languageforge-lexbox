@@ -52,6 +52,16 @@ public class InitFwDataProjectValidationTests
     }
 
     [Fact]
+    public async Task Rejects_an_invalid_vernacular_writing_system_before_creating_anything()
+    {
+        var result = await NewController().InitFwDataProject("myproj", name: "My project", wsVernacular: ["not_a_tag"]);
+        var problem = result.Result.Should().BeOfType<ObjectResult>()
+            .Which.Value.Should().BeOfType<ProblemDetails>().Which;
+        problem.Status.Should().Be(StatusCodes.Status400BadRequest);
+        problem.Detail.Should().Be("Invalid vernacular writing system code: not_a_tag");
+    }
+
+    [Fact]
     public async Task Rejects_too_many_analysis_writing_systems_before_creating_anything()
     {
         var analysis = Enumerable.Range(0, InitFwDataProjectInput.MaxWritingSystemsPerList + 1).Select(i => $"qaa-x-ws{i}").ToArray();

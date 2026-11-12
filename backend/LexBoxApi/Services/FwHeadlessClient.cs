@@ -235,7 +235,10 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             response.ReasonPhrase,
             projectId,
             responseBody);
-        return (response.StatusCode, responseBody);
+        // Never null on failure: AttemptInit reads a null Error as success, and a failure body can be empty
+        return (response.StatusCode, string.IsNullOrWhiteSpace(responseBody)
+            ? $"FwHeadless returned HTTP {(int)response.StatusCode}"
+            : responseBody);
     }
 
     /// <summary>
