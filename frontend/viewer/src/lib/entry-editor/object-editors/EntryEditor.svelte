@@ -18,7 +18,7 @@
   import {initImageService} from '../field-editors/image-service.svelte';
   import {useViewService, hasVisibleFields} from '$lib/views/view-service.svelte';
   import {cn, defaultExampleSentence, defaultSense} from '$lib/utils';
-  import {useWritingSystemService} from '$project/data';
+  import {asString, useWritingSystemService} from '$project/data';
   import EntityListItemActions from '../EntityListItemActions.svelte';
   import AddSenseFab from './AddSenseFab.svelte';
   import ExampleEditorPrimitive from './ExampleEditorPrimitive.svelte';
@@ -31,11 +31,11 @@
   import {watch} from 'runed';
   import FabContainer from '$lib/components/fab/fab-container.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
-  import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
-  import {findFirstTabbable} from '$lib/utils/tabbable';
   import DevContent from '$lib/layout/DevContent.svelte';
   import ObjectHeader from './ObjectHeader.svelte';
   import AddSenseButton from './AddSenseButton.svelte';
+  import AddObjectDialog from './AddObjectDialog.svelte';
+  import OverrideFields from '$lib/views/OverrideFields.svelte';
 
   let {
     entry = $bindable(),
@@ -61,31 +61,86 @@
     return editor?.commit();
   }
 
-  //used to not try to delete an object which has not been created yet
-  let newSenses: ISense[] = [];
-  let newExamples: IExampleSentence[] = [];
+  // New senses and examples are drafted in a dialog and only join the entry when the user confirms.
+  // A draft outlives its dialog's close (the next open replaces it): the fields stay mounted through the
+  // fade-out, and a focused field's commit-on-removal still has an object to write to.
+  let draftSense = $state<ISense>();
+  let draftExample = $state<IExampleSentence>();
+  let senseDialogOpen = $state(false);
+  let exampleDialogOpen = $state(false);
 
   function addSense() {
-    const sense = defaultSense(entry.id);
-    highlighted = { entity: sense, autofocus: true };
+    draftSense = defaultSense(entry.id);
+    senseDialogOpen = true;
+  }
+
+  function createSense() {
+    if (!draftSense) return;
+    const sense = $state.snapshot(draftSense);
     entry.senses = [...entry.senses, sense];
-    newSenses = [...newSenses, sense];
+    highlighted = { entity: sense };
+    onchange?.({entry, sense});
   }
 
   function addExample(sense: ISense) {
-    const sentence = defaultExampleSentence(sense.id);
-    highlighted = { entity: sentence, autofocus: true };
-    sense.exampleSentences = [...sense.exampleSentences, sentence];
+    draftExample = defaultExampleSentence(sense.id);
+    exampleDialogOpen = true;
+  }
+
+  function createExample() {
+    if (!draftExample) return;
+    const example = $state.snapshot(draftExample);
+    const sense = entry.senses.find(s => s.id === example.senseId);
+    if (!sense) throw new Error(`Sense ${example.senseId} not found`);
+    sense.exampleSentences = [...sense.exampleSentences, example];
     entry = entry; // examples counts are not updated without this
-    newExamples = [...newExamples, sentence];
+    highlighted = { entity: example };
+    onchange?.({entry, sense, example});
+  }
+
+  const draftExampleDescription = $derived.by(() => {
+    const index = entry.senses.findIndex(s => s.id === draftExample?.senseId);
+    if (index < 0) return undefined;
+    const n = index + 1;
+    const gloss = writingSystemService.viewFirstGlossOrDef(entry.senses[index], viewService.currentView);
+    return gloss
+      ? pt($t`Sense ${n}: ${gloss}`, $t`Meaning ${n}: ${gloss}`, viewService.currentView)
+      : pt($t`Sense ${n}`, $t`Meaning ${n}`, viewService.currentView);
+  });
+
+  // Require only what the dialog shows, so the user can always fix what we flag: the key field if shown,
+  // else any shown field. With nothing to fill (e.g. a pictures-only view: pictures need a saved sense)
+  // a blank one is added.
+  function shown(fields: {fieldId: string, show: boolean}[], ...fieldIds: string[]): boolean {
+    return fields.some(f => f.show && fieldIds.includes(f.fieldId));
+  }
+
+  function validateSense(): string[] {
+    if (!draftSense) return [];
+    const fields = viewService.currentView.senseFields;
+    if (shown(fields, 'gloss', 'definition')) {
+      return writingSystemService.firstGloss(draftSense) || writingSystemService.firstDef(draftSense) ? [] : [$t`Gloss or Definition is required`];
+    }
+    if (shown(fields, 'partOfSpeechId', 'semanticDomains')) {
+      return draftSense.partOfSpeechId || draftSense.semanticDomains.length ? [] : [$t`Fill in at least one field`];
+    }
+    return [];
+  }
+
+  function validateExample(): string[] {
+    if (!draftExample) return [];
+    const fields = viewService.currentView.exampleFields;
+    if (shown(fields, 'sentence')) {
+      return writingSystemService.first(draftExample.sentence, writingSystemService.vernacular) ? [] : [$t`Sentence is required`];
+    }
+    if (shown(fields, 'translations', 'reference')) {
+      const filled = draftExample.translations.some(t => writingSystemService.first(t.text)) || asString(draftExample.reference);
+      return filled ? [] : [$t`Fill in at least one field`];
+    }
+    return [];
   }
 
   async function deleteSense(sense: ISense) {
-    if (newSenses.some(s => s.id === sense.id)) {
-      newSenses = newSenses.filter(s => s.id !== sense.id);
-      entry.senses = entry.senses.filter(s => s.id !== sense.id);
-      return;
-    }
     if (!await dialogService.promptDelete(pt($t`Sense`, $t`Meaning`, viewService.currentView), writingSystemService.firstGloss(sense))) return;
     entry.senses = entry.senses.filter(s => s.id !== sense.id);
     ondelete?.({entry, sense});
@@ -98,12 +153,6 @@
   }
 
   async function deleteExample(sense: ISense, example: IExampleSentence) {
-    if (newExamples.some(e => e.id === example.id)) {
-      newExamples = newExamples.filter(e => e.id !== example.id);
-      sense.exampleSentences = sense.exampleSentences.filter(e => e.id !== example.id);
-      entry = entry; // examples are not updated without this
-      return;
-    }
     if (!await dialogService.promptDelete($t`Example sentence`, '#' + (sense.exampleSentences.indexOf(example) + 1))) return;
     sense.exampleSentences = sense.exampleSentences.filter(e => e.id !== example.id);
     ondelete?.({entry, sense, example});
@@ -118,19 +167,15 @@
   }
 
   function onSenseChange(sense: ISense) {
-    newSenses = newSenses.filter(s => s.id !== sense.id);
     onchange?.({entry, sense});
   }
   function onExampleChange(sense: ISense, example: IExampleSentence) {
-    newExamples = newExamples.filter(e => e.id !== example.id);
     onchange?.({entry, sense, example});
   }
 
   let editorElem: HTMLDivElement | null = $state(null);
-  const platform = usePlatformFeaturesService();
-  let highlighted = $state<{ entity: IExampleSentence | ISense; autofocus?: boolean}>();
+  let highlighted = $state<{ entity: IExampleSentence | ISense }>();
   let highlightTimeout: ReturnType<typeof setTimeout>;
-  const ENTITY_FIELD_CONTAINER_CLASS = 'entity-field-container';
 
   watch(() => highlighted, () => {
     if (highlighted) {
@@ -140,9 +185,6 @@
       setTimeout(() => {
         const newEntityElem = editorElem?.querySelector('.highlight');
         if (newEntityElem) {
-          if (highlighted?.autofocus && platform.features.hasHardwareKeyboard)
-            findFirstTabbable(newEntityElem?.querySelector(`.${ENTITY_FIELD_CONTAINER_CLASS}`))?.focus();
-
           const _isBottomInViewport = isBottomInView(newEntityElem);
           const _isTopInViewport = isTopInView(newEntityElem);
           if (!_isBottomInViewport && !_isTopInViewport)
@@ -177,7 +219,7 @@
 <div class="flex min-h-0 gap-4">
   <Editor.Root bind:ref bind:this={editor} class="min-w-0 flex-1">
     <Editor.Grid bind:ref={editorElem}>
-      <EntryEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:entry {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
+      <EntryEditorPrimitive bind:entry {readonly} {autofocus} {modalMode} onchange={(entry) => onchange?.({entry})} />
 
     {#if showSenses}
       {#each entry.senses as sense, i (sense.id)}
@@ -194,7 +236,7 @@
                 ondelete={() => deleteSense(sense)} id={sense.id} />
           </ObjectHeader>
 
-          <SenseEditorPrimitive class={ENTITY_FIELD_CONTAINER_CLASS} bind:sense={entry.senses[i]} {readonly} onchange={() => onSenseChange(sense)}/>
+          <SenseEditorPrimitive bind:sense={entry.senses[i]} {readonly} onchange={() => onSenseChange(sense)}/>
 
           {#if showExamples && sense.exampleSentences.length}
             <Editor.SubGrid class="border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
@@ -211,7 +253,6 @@
                   </ObjectHeader>
 
                   <ExampleEditorPrimitive
-                    class={ENTITY_FIELD_CONTAINER_CLASS}
                     bind:example={sense.exampleSentences[j]}
                     {readonly}
                     onchange={() => onExampleChange(sense, example)}
@@ -254,6 +295,36 @@
     </Editor.Grid>
   </Editor.Root>
 </div>
+
+{#if !readonly && canAddSense}
+  <AddObjectDialog
+    bind:open={senseDialogOpen}
+    title={pt($t`Add Sense`, $t`Add Meaning`, viewService.currentView)}
+    submitLabel={pt($t`Add Sense`, $t`Add Meaning`, viewService.currentView)}
+    validate={validateSense}
+    onsubmit={createSense}>
+    {#if draftSense}
+      <!-- Pictures are saved straight to the API against an existing sense, so they can only be added once it exists -->
+      <OverrideFields overrides={{senseFields: viewService.currentView.senseFields.filter(f => f.fieldId !== 'pictures')}}>
+        <SenseEditorPrimitive bind:sense={draftSense} />
+      </OverrideFields>
+    {/if}
+  </AddObjectDialog>
+{/if}
+
+{#if !readonly && canAddExample}
+  <AddObjectDialog
+    bind:open={exampleDialogOpen}
+    title={$t`Add Example`}
+    description={draftExampleDescription}
+    submitLabel={$t`Add Example`}
+    validate={validateExample}
+    onsubmit={createExample}>
+    {#if draftExample}
+      <ExampleEditorPrimitive bind:example={draftExample} />
+    {/if}
+  </AddObjectDialog>
+{/if}
 
 <style lang="postcss">
   @reference "#app.css";

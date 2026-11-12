@@ -17,7 +17,10 @@
   import IfOnce from '$lib/components/if-once/if-once.svelte';
   import FwLiteSyncView from './sync/FwLiteSyncView.svelte';
   import FwClassicSyncView from './sync/FwClassicSyncView.svelte';
+  import FolderSyncSection from './sync/FolderSyncSection.svelte';
+  import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
   import type {SyncTarget} from './sync/sync-target';
+  import {hasFlag} from '$lib/feature-flags/feature-flags.svelte';
 
   const {
     syncStatus = SyncStatus.Success
@@ -28,6 +31,8 @@
   const features = useFeatures();
   let server = $derived(projectContext.server);
   const showClassic = $derived(!!server && features.fieldWorksSync);
+  const platformFeatures = usePlatformFeaturesService();
+  const showNearby = $derived(platformFeatures.features.supportsFolderSync && hasFlag('folder-sync'));
   const openQueryParam = new QueryParamStateBool(
     { key: SYNC_DIALOG_QUERY_PARAM, replaceOnDefaultValue: true, allowBack: true },
     false,
@@ -60,13 +65,18 @@
   }
 </script>
 
-<ResponsiveDialog bind:open={openQueryParam.current} disableBackHandler title={$t`Sync Changes`}
+<ResponsiveDialog bind:open={openQueryParam.current} disableBackHandler title={$t`Sync Changes`} hideTitleOnMobile
   contentProps={{ class: 'sm:min-w-140 grid-rows-[auto_1fr] items-center' }}>
   <Tabs.Root bind:value={tab} class="flex md:flex-col flex-col-reverse">
-    {#if showClassic}
+    {#if showClassic || showNearby}
       <Tabs.List class="w-full md:mb-2 max-md:mt-4 max-md:sticky bottom-0 z-1">
         <Tabs.Trigger class="flex-1" value="lite">{$t`FieldWorks Lite`}</Tabs.Trigger>
-        <Tabs.Trigger class="flex-1 gap-2" value="classic"><Icon icon={cloudIcon} class="-my-1" /> {$t`Lexbox`}</Tabs.Trigger>
+        {#if showClassic}
+          <Tabs.Trigger class="flex-1 gap-2" value="classic"><Icon icon={cloudIcon} class="-my-1" /> {$t`Lexbox`}</Tabs.Trigger>
+        {/if}
+        {#if showNearby}
+          <Tabs.Trigger class="flex-1 gap-2" value="folder"><Icon icon="i-mdi-swap-horizontal" class="-my-1" /> {$t`Nearby`}</Tabs.Trigger>
+        {/if}
       </Tabs.List>
     {/if}
     <Tabs.Content value="lite">
@@ -93,6 +103,13 @@
             canSync={features?.write}
             {onLoginStatusChange}
             onSyncedAndUpToDate={() => openQueryParam.current = false} />
+        </IfOnce>
+      </Tabs.Content>
+    {/if}
+    {#if showNearby}
+      <Tabs.Content value="folder">
+        <IfOnce show={tab === 'folder'}>
+          <FolderSyncSection bind:syncing onSynced={() => syncCount++} />
         </IfOnce>
       </Tabs.Content>
     {/if}

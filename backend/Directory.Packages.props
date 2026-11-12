@@ -112,9 +112,9 @@
     <PackageVersion Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0084" />
     <PackageVersion Include="SIL.Chorus.Mercurial" Version="7.2.4.103" />
     <PackageVersion Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.4.0-beta0001" />
-    <PackageVersion Include="SIL.Harmony" Version="0.2.1-rc.445" />
-    <PackageVersion Include="SIL.Harmony.Core" Version="0.2.1-rc.445" />
-    <PackageVersion Include="SIL.Harmony.Linq2db" Version="0.2.1-rc.445" />
+    <PackageVersion Include="SIL.Harmony" Version="0.2.1-rc.481" />
+    <PackageVersion Include="SIL.Harmony.Core" Version="0.2.1-rc.481" />
+    <PackageVersion Include="SIL.Harmony.Linq2db" Version="0.2.1-rc.481" />
     <PackageVersion Include="SIL.Core" Version="18.0.0" />
     <PackageVersion Include="SIL.LCModel" Version="11.0.0-beta0184" />
     <PackageVersion Include="SIL.LCModel.FixData" Version="11.0.0-beta0184" />
@@ -126,7 +126,6 @@
     <PackageVersion Include="SQLitePCLRaw.core" Version="3.0.5" />
     <PackageVersion Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
     <PackageVersion Include="SQLitePCLRaw.provider.e_sqlite3" Version="3.0.5" />
-    <PackageVersion Include="Squidex.Assets.TusClient" Version="8.0.6" />
     <PackageVersion Include="structuremap.patched" Version="4.7.3" />
     <PackageVersion Include="System.CommandLine" Version="2.0.14" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />

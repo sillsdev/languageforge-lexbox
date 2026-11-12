@@ -86,7 +86,7 @@
     });
   }
 </script>
-<p class="mb-6 text-lg text-center">
+<p class="mb-4 max-md:px-10 text-sm text-muted-foreground text-center">
   {#if explainFieldWorksSync}
     <Popover.Root>
       <Popover.InfoTrigger>
@@ -139,7 +139,7 @@
             variant="outline"
             class="border-primary text-primary hover:text-primary"
             loading={syncing === 'lite'}
-            disabled={syncing === 'classic'}
+            disabled={!!syncing && syncing !== 'lite'}
             onclick={onSyncClick}
             icon="i-mdi-sync"
             iconProps={{ class: 'size-5' }}>

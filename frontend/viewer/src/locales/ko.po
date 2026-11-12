@@ -131,6 +131,14 @@ msgstr "{0} 전"
 msgid "{0} authors"
 msgstr "{0} 저자"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "{0} can't be added: this device already has a different project with the same code, {1}."
+msgstr ""
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "{0} is already on this device, so it was opened without syncing."
+msgstr ""
+
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "{0} KB"
@@ -246,6 +254,14 @@ msgstr ""
 msgid "A new version of FieldWorks Lite is available."
 msgstr "새 버전의 FieldWorks Lite를 사용할 수 있습니다."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to open it."
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it."
+msgstr ""
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "A project manager can add plugins for the team."
 msgstr ""
@@ -330,6 +346,8 @@ msgstr ""
 #. Adds sentence/phrase showing how a word is used in context
 #. Each example can have translation and source reference
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Example"
 msgstr "예제 추가"
 
@@ -339,6 +357,8 @@ msgstr "예제 추가"
 #. Small button to add another sense/meaning to a word
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Meaning"
 msgstr "의미 추가"
 
@@ -367,6 +387,8 @@ msgstr "사진 추가"
 #. Small button to add another sense/meaning for a word
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Sense"
 msgstr "센스 추가"
 
@@ -709,6 +731,7 @@ msgstr ""
 #. Keep translation brief (3-4 chars in some languages) to fit button layout
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
@@ -718,9 +741,11 @@ msgstr ""
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/entry-editor/object-editors/AddObjectDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
+#: src/project/sync/FolderPicker.svelte
 msgid "Cancel"
 msgstr "취소"
 
@@ -728,6 +753,11 @@ msgstr "취소"
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Caption"
 msgstr "설명"
+
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/AuthorNameLine.svelte
+msgid "Change"
+msgstr ""
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Change entry"
@@ -755,6 +785,10 @@ msgstr ""
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
 msgstr "FieldWorks Lite의 새 버전에 필드가 추가되어 변경 사항이 발생할 수도 있습니다."
 
+#: src/lib/author/NameDialog.svelte
+msgid "Changes you already made keep the old name."
+msgstr ""
+
 #. Explanation of commits vs changes
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
@@ -778,6 +812,10 @@ msgstr "유사한 단어 확인하기…"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
 msgstr "업데이트 확인 중..."
+
+#: src/project/sync/FolderPicker.svelte
+msgid "Choose a folder"
+msgstr ""
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -959,6 +997,10 @@ msgstr "포함 사항"
 msgid "Contexts"
 msgstr ""
 
+#: src/lib/author/NameDialog.svelte
+msgid "Continue"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
 msgstr "대화"
@@ -986,6 +1028,10 @@ msgstr "유사한 항목을 확인할 수 없습니다."
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar words"
 msgstr "유사한 단어를 확인할 수 없습니다."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Couldn't finish syncing with the folder. Nothing on this device was lost. Check that the drive is still plugged in, then try again."
+msgstr ""
 
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Couldn't get the FieldWorks Classic status from Lexbox."
@@ -1463,6 +1509,11 @@ msgstr "로 끝납니다."
 msgid "Enrich & clean up"
 msgstr ""
 
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Enter your name"
+msgstr ""
+
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Refers to dictionary entries (headwords with their senses/definitions).
 #: src/lib/activity/ChangeSummary.svelte
 msgid "entries"
@@ -1798,6 +1849,11 @@ msgstr "파일이 너무 큼"
 msgid "Filename"
 msgstr "파일 이름"
 
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Fill in at least one field"
+msgstr ""
+
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Display as"
 msgstr "‘표시 방식’에 다음을 입력하세요"
@@ -1887,6 +1943,10 @@ msgstr "단어 찾기..."
 msgid "Finish"
 msgstr "완료"
 
+#: src/project/sync/FolderPicker.svelte
+msgid "Folder path"
+msgstr ""
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
 msgstr ""
@@ -1905,6 +1965,10 @@ msgstr ""
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "기타 문의 사항이 있으시면 언제든지 이메일을 보내주세요."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "From a USB drive or shared folder"
+msgstr ""
+
 #. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
@@ -1913,6 +1977,10 @@ msgstr "활성 필터에서"
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Fullscreen"
+msgstr ""
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Get project from folder..."
 msgstr ""
 
 #. Button in feedback menu
@@ -1929,6 +1997,10 @@ msgstr "지원 받기"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "광택"
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Gloss or Definition is required"
+msgstr ""
 
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Go back"
@@ -2394,6 +2466,16 @@ msgstr ""
 msgid "Meaning"
 msgstr "의미"
 
+#. Add Example dialog subtitle when the meaning has no gloss or definition. {0} is its number.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Meaning {0}"
+msgstr ""
+
+#. Add Example dialog subtitle naming the meaning the new example belongs to. {0} is its number, {1} its gloss or definition.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Meaning {0}: {1}"
+msgstr ""
+
 #. Relevant view: Lite
 #. Classic view equivalent: "senses"
 #. Lowercase plural noun interpolated into activity-log lines (e.g. "Reordered meanings"). Paired with singular "meaning".
@@ -2534,6 +2616,7 @@ msgstr "내 사용자 지정 보기..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
@@ -2548,6 +2631,10 @@ msgstr "이름"
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr "이름은 필수 입력 사항입니다."
+
+#: src/project/SyncDialog.svelte
+msgid "Nearby"
+msgstr ""
 
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
@@ -2937,6 +3024,10 @@ msgstr "새 창에서 열기"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "로그 파일 열기"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Opened {0} from the folder. You can remove the drive."
+msgstr ""
 
 #. Status message shown after the user clicks "Open in FieldWorks" while the handoff is in progress. "FieldWorks" is a product name — do not translate.
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -3586,6 +3677,7 @@ msgstr "동일한 어휘형"
 msgid "Same word"
 msgstr "같은 단어"
 
+#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
 msgstr "저장"
@@ -3728,6 +3820,16 @@ msgstr ""
 msgid "Sense"
 msgstr "Sense"
 
+#. Add Example dialog subtitle when the sense has no gloss or definition. {0} is its number.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sense {0}"
+msgstr ""
+
+#. Add Example dialog subtitle naming the sense the new example belongs to. {0} is its number, {1} its gloss or definition.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sense {0}: {1}"
+msgstr ""
+
 #. Field label in the activity change-preview diff for a custom view: which sense-level fields it shows.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Sense fields"
@@ -3746,6 +3848,10 @@ msgstr ""
 #: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "문장"
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sentence is required"
+msgstr ""
 
 #. Activity-log line. {0} = field label; used when the new value is an audio recording (an audio marker chip follows instead of a text value). Compare "Set {0} to", which shows a text value chip.
 #: src/lib/activity/ChangeSummary.svelte
@@ -3832,6 +3938,11 @@ msgstr "설명 표시 또는 숨기기"
 msgid "Show unchanged fields"
 msgstr ""
 
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Shown next to your changes in all projects you don't sync with Lexbox."
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "댓글을 달려면 로그인하세요."
@@ -3904,6 +4015,10 @@ msgstr ""
 #. Info popover on the sync dialog, for users whose role can't sync with FieldWorks Classic
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Some pictures or audio files couldn't be copied. They will be copied the next time you sync."
 msgstr ""
 
 #: src/lib/layout/ViewErrorBoundary.svelte
@@ -3989,6 +4104,26 @@ msgstr "동기화 완료. {0} 는 FieldWorks Classic에 적용되었습니다. {
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "FieldWorks Lite와 FieldWorks Classic 동기화"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Sync now"
+msgstr ""
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with {0}"
+msgstr ""
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with a folder..."
+msgstr ""
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with a USB drive or another folder"
+msgstr ""
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with another folder..."
+msgstr ""
+
 #. Introductory text for sync status panel
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
@@ -4014,6 +4149,10 @@ msgstr "동기화된 가장 오래된 항목"
 msgid "Synced with {0}"
 msgstr "{0}으로 동기화"
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "Synced with the folder. You can remove the drive."
+msgstr ""
+
 #. Label showing sync timestamp in activity
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
@@ -4029,7 +4168,12 @@ msgstr "동기화"
 msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr "FieldWorks Lite와 FieldWorks Classic 동기화..."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Syncing with the folder..."
+msgstr ""
+
 #. Progress indicator
+#: src/project/sync/FolderSyncSection.svelte
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Syncing..."
 msgstr "동기화..."
@@ -4078,6 +4222,10 @@ msgstr "반면 *FieldWorks Classic* 뷰는 *[FieldWorks Language Explorer](https
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "*FieldWorks Lite* 뷰는 언어 전문가가 아닌 사용자를 위해 설계되었으며 다음과 같은 점에서 *FieldWorks Classic* 뷰와 다릅니다:"
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "The copy of {0} in this folder didn't come from the same original as the copy on this device, so the two can't be combined. Choose another folder."
+msgstr ""
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to change the dictionary"
 msgstr ""
@@ -4098,6 +4246,10 @@ msgstr "FieldWorks Lite 커밋 수가 동기화 결과 메시지에 표시되는
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "The project in this folder uses different writing systems ({0}) from the copy on this device ({1}), so the two can't be synced. Choose another folder, or compare the writing systems in each copy."
 msgstr ""
 
 #: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
@@ -4165,6 +4317,26 @@ msgstr ""
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
 msgstr "이 파일은 원격으로만 이용할 수 있습니다."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder already has a folder called {0}, but it doesn't hold a FieldWorks Lite project. Choose another folder."
+msgstr ""
+
+#: src/project/sync/FolderPicker.svelte
+msgid "This folder doesn't exist. Check the path. Example: /media/yourname/USB"
+msgstr ""
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder doesn't hold a FieldWorks Lite project. Choose the project's own folder, not the drive or folder it's in."
+msgstr ""
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder holds a different project, {0}, not the one that is open. To open that project, go to the home screen and choose Get project from folder."
+msgstr ""
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder is empty. To put a project in it, open that project on a device that has it and choose Sync with a folder."
+msgstr ""
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
@@ -4530,6 +4702,10 @@ msgstr "업로드 대기 중인 파일"
 msgid "Uploading pictures is not supported here"
 msgstr "이곳에서는 사진 업로드가 지원되지 않습니다."
 
+#: src/project/sync/FolderPicker.svelte
+msgid "Use this folder"
+msgstr ""
+
 #: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Use this version"
 msgstr ""
@@ -4783,9 +4959,21 @@ msgstr "모든 이정표를 하나하나 달성하셨군요. 정말 대단한 �
 msgid "Your changes to this plugin will be lost."
 msgstr ""
 
+#. # is the user's own name
+#: src/lib/author/AuthorNameLine.svelte
+msgid "Your changes will show the name #."
+msgstr ""
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "여러분의 사전은 여기서 시작됩니다"
+
+#: src/home/CreateProjectDialog.svelte
+#: src/home/CreateProjectDialog.svelte
+#: src/home/HomeView.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Your name"
+msgstr ""
 
 #: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Your plugin will run here"

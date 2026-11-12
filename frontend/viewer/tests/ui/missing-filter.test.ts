@@ -93,8 +93,7 @@ test.describe('Missing filter', () => {
     await expect(entryRow(headword)).toHaveCount(1);
 
     await entryRow(headword).click();
-    await projectPage.entryView.addSense();
-    await projectPage.entryView.editGloss('new gloss');
+    await projectPage.entryView.addSense('new gloss');
     await expect.poll(() => projectPage.api.getEntrySenseCount(entryId)).toBe(1);
 
     await expect(entryRow(headword)).toHaveCount(0);

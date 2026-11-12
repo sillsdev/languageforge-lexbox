@@ -579,4 +579,13 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         if (!hash.EndsWith('"')) hash = hash + "\"";
         return hash;
     }
+
+    [Theory]
+    [InlineData("../escape.zip")]
+    [InlineData("dir/file.zip")]
+    public async Task UploadFile_WithPathInFilename_IsRejected(string filename)
+    {
+        var (_, result) = await Fixture.PostFile(TestRepoZipPath, overrideFilename: filename);
+        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
 }
