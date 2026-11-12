@@ -155,6 +155,24 @@ public abstract class MediaTestsBase : MiniLcmTestBase
         second.MediaUri.Should().Be(first.MediaUri);
     }
 
+    [Fact]
+    public async Task FileOperations_SameContentAsARenamedFile_ReturnsTheRenamedFile()
+    {
+        const string fileName = "IMG_0002.jpg";
+        var firstBytes = new byte[1024];
+        var secondBytes = new byte[1024];
+        Random.Shared.NextBytes(firstBytes);
+        Random.Shared.NextBytes(secondBytes);
+
+        await SaveTestFile(fileName, firstBytes, MediaTypeNames.Image.Jpeg);
+        var second = await SaveTestFile(fileName, secondBytes, MediaTypeNames.Image.Jpeg);
+        second.Result.Should().Be(UploadFileResult.SavedLocally);
+
+        var secondAgain = await SaveTestFile(fileName, secondBytes, MediaTypeNames.Image.Jpeg);
+        secondAgain.Result.Should().Be(UploadFileResult.AlreadyExists);
+        secondAgain.MediaUri.Should().Be(second.MediaUri);
+    }
+
     protected async Task<byte[]> ReadAllBytes(MediaUri mediaUri)
     {
         var response = await Api.GetFileStream(mediaUri);
