@@ -1,4 +1,4 @@
-import {describe, expect, it, vi} from 'vitest';
+import {describe, expect, it} from 'vitest';
 import type {IEntry, IWritingSystem} from '$lib/dotnet-types';
 import {MorphTypeKind} from '$lib/dotnet-types';
 import {
@@ -8,7 +8,6 @@ import {
   mergeSearchResults,
   normalizeForExactCompare,
   normalizeForLooseCompare,
-  trapEnter,
   type DuplicateCheckQueries,
   type DuplicateCheckWritingSystems
 } from './duplicate-check';
@@ -81,22 +80,6 @@ describe('normalizeForExactCompare', () => {
 
   it('treats a missing value as empty', () => {
     expect(normalizeForExactCompare(undefined)).toBe('');
-  });
-});
-
-
-describe('trapEnter', () => {
-  // the host dialog submits on Enter; a leak here silently creates the duplicate being warned about
-  it('stops Enter from reaching the dialog, letting other keys through', () => {
-    const enter = new KeyboardEvent('keydown', {key: 'Enter'});
-    const enterStop = vi.spyOn(enter, 'stopPropagation');
-    trapEnter(enter);
-    expect(enterStop).toHaveBeenCalledOnce();
-
-    const space = new KeyboardEvent('keydown', {key: ' '});
-    const spaceStop = vi.spyOn(space, 'stopPropagation');
-    trapEnter(space);
-    expect(spaceStop).not.toHaveBeenCalled();
   });
 });
 

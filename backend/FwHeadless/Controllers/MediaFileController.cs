@@ -143,6 +143,7 @@ public static class MediaFileController
         catch (UploadedFilesCannotBeMovedToNewProjects) { return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeMovedToNewProjects); }
         catch (UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders) { return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders); }
         catch (ProjectFolderNotFoundInFwHeadless) { return TypedResults.BadRequest(FileUploadErrorMessage.ProjectFolderNotFoundInFwHeadless); }
+        catch (InvalidFilename) { return TypedResults.BadRequest(FileUploadErrorMessage.InvalidFilename); }
         catch (FileTooLarge)
         {
             var detail = $"Max upload size is {config.Value.MaxUploadFileSizeBytes.ToString(NumberFormatInfo.InvariantInfo)} bytes, try reducing image quality or downsampling audio";
@@ -253,6 +254,7 @@ public static class MediaFileController
 
         // If no filename specified in form, get it from uploaded file
         if (string.IsNullOrEmpty(filename)) filename = file.FileName;
+        if (!MiniLcm.Media.MediaFilename.IsValid(filename)) throw new InvalidFilename();
         metadata = await InitMetadata(metadata, file, filename, httpContext.Request);
         if (mediaFile is null)
         {

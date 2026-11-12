@@ -1,9 +1,10 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {flushSync, mount, unmount} from 'svelte';
 import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
-import {SyncJobStatusEnum} from '$lib/dotnet-types';
+import {DotnetService, SyncJobStatusEnum} from '$lib/dotnet-types';
 import type {IProjectSyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/IProjectSyncStatus';
 import {ProjectSyncStatusEnum} from '$lib/dotnet-types/generated-types/LexCore/Sync/ProjectSyncStatusEnum';
+import {FolderSyncStatus} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/FolderSyncStatus';
 
 vi.stubGlobal('matchMedia', (query: string) => ({
   matches: false, media: query, onchange: null,
@@ -21,6 +22,8 @@ function fakeSyncService() {
     getLatestSyncedCommitDate: vi.fn(() => Promise.resolve(undefined)),
     executeSync: vi.fn(() => Promise.resolve({isSynced: true, missingFromLocal: [], missingFromRemote: []})),
     getCurrentServer: vi.fn(() => Promise.resolve({id: 'test-server', displayName: 'Lexbox', authority: 'https://test-server.com'})),
+    syncWithFolder: vi.fn(() => Promise.resolve({status: FolderSyncStatus.Synced, mediaSent: 0, mediaReceived: 0, mediaFailed: 0})),
+    getRememberedSyncFolder: vi.fn(() => Promise.resolve<string | undefined>(undefined)),
   } satisfies ISyncServiceJsInvokable;
 }
 
@@ -37,6 +40,10 @@ describe('SyncDialog', () => {
     // bits-ui restores the body style 24ms after the dialog unmounts; let it run before jsdom is torn down
     await new Promise(resolve => setTimeout(resolve, 50));
     document.body.innerHTML = '';
+    // a folder sync test's platform features would otherwise add the Nearby tab to later tests
+    window.lexbox?.ServiceProvider?.removeService(DotnetService.PlatformFeaturesService);
+    (await import('$lib/services/platform-features-service')).refreshPlatformFeatures();
+    (await import('$lib/feature-flags/feature-flags.svelte')).featureFlags.channel = '';
   });
 
   async function openDialog(syncService: ISyncServiceJsInvokable, fieldWorksSync = true) {
@@ -75,7 +82,7 @@ describe('SyncDialog', () => {
   }, 60_000); // first import transforms the dialog's dependencies
 
   // The tabs show once the project's features have loaded
-  async function showTab(name: 'FieldWorks Lite' | 'Lexbox') {
+  async function showTab(name: 'FieldWorks Lite' | 'Lexbox' | 'Nearby') {
     const tab = await vi.waitFor(() => {
       const tab = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find(t => t.textContent?.includes(name));
       expect(tab).toBeTruthy();
@@ -116,6 +123,129 @@ describe('SyncDialog', () => {
     await showTab('Lexbox');
     expect(document.body.textContent).toContain('New data');
     expect(syncService.getSyncStatus).toHaveBeenCalledOnce();
+  }, 60_000);
+
+  // Folder sync is a beta feature, and asks for a name before the first sync in a project without a Lexbox user
+  async function enableFolderSync(authorName = 'Test User') {
+    (await import('$lib/feature-flags/feature-flags.svelte')).featureFlags.channel = 'beta';
+    await (await import('$lib/author/local-author-name.svelte')).useLocalAuthorName().set(authorName);
+  }
+
+  async function setFolderSyncSupport(pickFolder: () => Promise<string | undefined>) {
+    await enableFolderSync();
+    const {fallbackPlatformFeaturesService, refreshPlatformFeatures} = await import('$lib/services/platform-features-service');
+    window.lexbox.ServiceProvider.setService(DotnetService.PlatformFeaturesService, {
+      ...fallbackPlatformFeaturesService,
+      supportsFolderSync: () => Promise.resolve(true),
+      hasFolderPicker: () => Promise.resolve(true),
+      pickFolder,
+    });
+    refreshPlatformFeatures();
+  }
+
+  it('asks for a typed path where the host has no folder picker', async () => {
+    await enableFolderSync();
+    const {fallbackPlatformFeaturesService, refreshPlatformFeatures} = await import('$lib/services/platform-features-service');
+    const folderExists = vi.fn((path: string) => Promise.resolve(path === '/media/usb'));
+    window.lexbox.ServiceProvider.setService(DotnetService.PlatformFeaturesService, {
+      ...fallbackPlatformFeaturesService,
+      supportsFolderSync: () => Promise.resolve(true),
+      folderExists,
+    });
+    refreshPlatformFeatures();
+    const syncService = fakeSyncService();
+    await openDialog(syncService);
+    await showTab('Nearby');
+
+    await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
+    const input = await vi.waitFor(() => {
+      const input = document.querySelector<HTMLInputElement>('#folder-picker-path');
+      expect(input).toBeTruthy();
+      return input!;
+    });
+    function typePath(path: string) {
+      input.value = path;
+      input.dispatchEvent(new Event('input', {bubbles: true}));
+      flushSync();
+      getButton(/Use this folder/).click();
+    }
+
+    typePath('/media/typo');
+    await vi.waitFor(() => expect(document.body.textContent).toContain(`This folder doesn't exist.`));
+    expect(syncService.syncWithFolder).not.toHaveBeenCalled();
+
+    typePath('/media/usb');
+    await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith('/media/usb'));
+  }, 60_000);
+
+  it('offers folder sync only where the host supports it', async () => {
+    const {refreshPlatformFeatures} = await import('$lib/services/platform-features-service');
+    window.lexbox.ServiceProvider.removeService(DotnetService.PlatformFeaturesService);
+    refreshPlatformFeatures();
+    await openDialog(fakeSyncService());
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Pending'));
+    expect([...document.querySelectorAll('[role="tab"]')].map(t => t.textContent)).not.toContainEqual(expect.stringContaining('Nearby'));
+  }, 60_000);
+
+  it('syncs with the picked folder, then offers to sync with it again', async () => {
+    await setFolderSyncSupport(() => Promise.resolve(String.raw`E:\test-project`));
+    const syncService = fakeSyncService();
+    syncService.getRememberedSyncFolder
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValue(String.raw`E:\test-project`);
+    await openDialog(syncService);
+    await showTab('Nearby');
+
+    await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
+    await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith(String.raw`E:\test-project`));
+    await vi.waitFor(() => expect(getButton(/Sync with E:/).title).toBe(String.raw`E:\test-project`));
+    expect(document.body.textContent).toContain('Sync with another folder...');
+    expect(document.body.textContent).not.toContain('Sync with a folder...');
+  }, 60_000);
+
+  it('hides folder sync outside the beta channel', async () => {
+    await setFolderSyncSupport(() => Promise.resolve(undefined));
+    (await import('$lib/feature-flags/feature-flags.svelte')).featureFlags.channel = '';
+    await openDialog(fakeSyncService());
+    await showTab('Lexbox');
+    expect([...document.querySelectorAll('[role="tab"]')].map(t => t.textContent)).not.toContainEqual(expect.stringContaining('Nearby'));
+  }, 60_000);
+
+  it('asks for a name before the first folder sync, then uses it', async () => {
+    await setFolderSyncSupport(() => Promise.resolve(String.raw`E:\test-project`));
+    const authorName = (await import('$lib/author/local-author-name.svelte')).useLocalAuthorName();
+    await authorName.set('');
+    const syncService = fakeSyncService();
+    await openDialog(syncService);
+    await showTab('Nearby');
+
+    await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
+    const input = await vi.waitFor(() => {
+      const input = document.querySelector<HTMLInputElement>('#author-name');
+      expect(input).toBeTruthy();
+      return input!;
+    });
+    getButton(/Continue/).click();
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Enter your name'));
+
+    input.value = 'Ana';
+    input.dispatchEvent(new Event('input', {bubbles: true}));
+    flushSync();
+    getButton(/Continue/).click();
+    await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith(String.raw`E:\test-project`));
+    expect(authorName.current).toBe('Ana');
+    await vi.waitFor(() => expect(document.body.textContent).toContain('Your changes will show the name Ana.'));
+  }, 60_000);
+
+  it('does nothing when the folder picker is cancelled', async () => {
+    await setFolderSyncSupport(() => Promise.resolve(undefined));
+    const syncService = fakeSyncService();
+    await openDialog(syncService);
+    await showTab('Nearby');
+
+    await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
+    await vi.waitFor(() => expect(getButton(/Sync with a folder\.\.\./).disabled).toBe(false));
+    expect(syncService.syncWithFolder).not.toHaveBeenCalled();
   }, 60_000);
 
   it('shows only the FW Lite sync without FieldWorks sync', async () => {
