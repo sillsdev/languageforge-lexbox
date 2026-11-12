@@ -25,7 +25,7 @@ env:
   NX_DAEMON: 'false'
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
   # Same pin as fw-lite.yaml.
-  MAUI_WORKLOAD_VERSION: 11.0.100-rc.3.26524.4
+  MAUI_WORKLOAD_VERSION: 11.0.100.1
 
 jobs:
   detect:
@@ -449,8 +449,8 @@ jobs:
           global-json-file: global.json
       # .NET 11's iOS/Mac Catalyst packs (27.x) need the iOS 27 SDK; macos-latest only has Xcode 26.
       # xcode-27 (public preview image) defaults to 27.1, so select the version the packs were built against.
-      - name: Select Xcode 27.0
-        run: sudo xcode-select -s /Applications/Xcode_27.0.app
+      - name: Select Xcode 27.2
+        run: sudo xcode-select -s /Applications/Xcode_27.2.app
       # Both Apple workloads: restore evaluates net11.0-ios and net11.0-maccatalyst together.
       - name: Setup Maui
         run: dotnet workload install maui-ios maui-maccatalyst --version ${{ env.MAUI_WORKLOAD_VERSION }}
@@ -488,8 +488,8 @@ jobs:
           global-json-file: global.json
       # .NET 11's iOS/Mac Catalyst packs (27.x) need the iOS 27 SDK; macos-latest only has Xcode 26.
       # xcode-27 (public preview image) defaults to 27.1, so select the version the packs were built against.
-      - name: Select Xcode 27.0
-        run: sudo xcode-select -s /Applications/Xcode_27.0.app
+      - name: Select Xcode 27.2
+        run: sudo xcode-select -s /Applications/Xcode_27.2.app
       # Both Apple workloads: restore evaluates net11.0-ios and net11.0-maccatalyst together.
       - name: Setup Maui
         run: dotnet workload install maui-ios maui-maccatalyst --version ${{ env.MAUI_WORKLOAD_VERSION }}
