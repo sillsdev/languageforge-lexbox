@@ -8,7 +8,7 @@ msgstr ""
 "Language: vi\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-06 05:28\n"
+"PO-Revision-Date: 2026-11-12 12:22\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -131,6 +131,14 @@ msgstr "{0} trước"
 msgid "{0} authors"
 msgstr "{0} tác giả"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "{0} can't be added: this device already has a different project with the same code, {1}."
+msgstr "{0} Không thể thêm: Thiết bị này đã có một dự án khác với cùng mã nguồn, {1}."
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "{0} is already on this device, so it was opened without syncing."
+msgstr "{0} đã có sẵn trên thiết bị này, nên ứng dụng đã được mở mà không cần đồng bộ hóa."
+
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "{0} KB"
@@ -246,6 +254,14 @@ msgstr "3. Hãy thử ngay tại đây"
 msgid "A new version of FieldWorks Lite is available."
 msgstr "Đã có phiên bản mới của FieldWorks Lite."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to open it."
+msgstr "Thư mục này được tạo bởi một phiên bản mới hơn của FieldWorks Lite. Hãy cập nhật FieldWorks Lite để mở thư mục này."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it."
+msgstr "Thư mục này được tạo bởi một phiên bản mới hơn của FieldWorks Lite. Hãy cập nhật FieldWorks Lite để đồng bộ hóa với thư mục này."
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "A project manager can add plugins for the team."
 msgstr "Người quản lý dự án có thể cài đặt các tiện ích mở rộng cho nhóm."
@@ -330,6 +346,8 @@ msgstr "Thêm mục"
 #. Adds sentence/phrase showing how a word is used in context
 #. Each example can have translation and source reference
 #: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Example"
 msgstr "Thêm ví dụ"
 
@@ -339,6 +357,8 @@ msgstr "Thêm ví dụ"
 #. Small button to add another sense/meaning to a word
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Meaning"
 msgstr "Thêm Ý nghĩa"
 
@@ -367,6 +387,8 @@ msgstr "Thêm hình ảnh"
 #. Small button to add another sense/meaning for a word
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
 #: src/lib/entry-editor/object-editors/AddSenseButton.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
 msgid "Add Sense"
 msgstr "Thêm Ý nghĩa (sense)"
 
@@ -709,6 +731,7 @@ msgstr "Có thể sử dụng internet"
 #. Keep translation brief (3-4 chars in some languages) to fit button layout
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/admin-dialogs/GetProjectByCodeDialog.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/audio/AudioDialog.svelte
 #: src/lib/components/field-editors/select.svelte
@@ -718,9 +741,11 @@ msgstr "Có thể sử dụng internet"
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentReplyInput.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
+#: src/lib/entry-editor/object-editors/AddObjectDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
+#: src/project/sync/FolderPicker.svelte
 msgid "Cancel"
 msgstr "Hủy"
 
@@ -728,6 +753,11 @@ msgstr "Hủy"
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Caption"
 msgstr "Chú thích"
+
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/AuthorNameLine.svelte
+msgid "Change"
+msgstr "Thay đổi"
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Change entry"
@@ -755,6 +785,10 @@ msgstr "Đã thay đổi {0} thành"
 msgid "Changes can also be the result of fields being added to new versions of FieldWorks Lite."
 msgstr "Các thay đổi cũng có thể do các trường mới được thêm vào phiên bản mới của FieldWorks Lite."
 
+#: src/lib/author/NameDialog.svelte
+msgid "Changes you already made keep the old name."
+msgstr "Những thay đổi mà bạn đã thực hiện vẫn giữ nguyên tên cũ."
+
 #. Explanation of commits vs changes
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
@@ -778,6 +812,10 @@ msgstr "Kiểm tra các từ tương tự…"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Checking for updates..."
 msgstr "Đang kiểm tra cập nhật..."
+
+#: src/project/sync/FolderPicker.svelte
+msgid "Choose a folder"
+msgstr "Chọn một thư mục"
 
 #. Button label
 #: src/lib/components/ThemePicker.svelte
@@ -959,6 +997,10 @@ msgstr "Chứa"
 msgid "Contexts"
 msgstr "Bối cảnh"
 
+#: src/lib/author/NameDialog.svelte
+msgid "Continue"
+msgstr "Tiếp tục"
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
 msgstr "Cuộc trò chuyện"
@@ -986,6 +1028,10 @@ msgstr "Không thể kiểm tra xem có mục tương tự nào không"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "Could not check for similar words"
 msgstr "Không thể kiểm tra các từ tương tự"
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Couldn't finish syncing with the folder. Nothing on this device was lost. Check that the drive is still plugged in, then try again."
+msgstr "Không thể hoàn tất quá trình đồng bộ hóa với thư mục. Không có dữ liệu nào trên thiết bị này bị mất. Hãy kiểm tra xem ổ đĩa có còn được cắm vào không, sau đó thử lại."
 
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Couldn't get the FieldWorks Classic status from Lexbox."
@@ -1463,6 +1509,11 @@ msgstr "Kết thúc bằng"
 msgid "Enrich & clean up"
 msgstr "Bổ sung và làm sạch"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Enter your name"
+msgstr "Hãy nhập tên của bạn"
+
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Refers to dictionary entries (headwords with their senses/definitions).
 #: src/lib/activity/ChangeSummary.svelte
 msgid "entries"
@@ -1803,6 +1854,11 @@ msgstr "Tệp quá lớn"
 msgid "Filename"
 msgstr "Tên tệp"
 
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Fill in at least one field"
+msgstr "Hãy điền ít nhất một trường"
+
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Display as"
 msgstr "Điền vào mục “Hiển thị dưới dạng”"
@@ -1892,6 +1948,10 @@ msgstr "Tìm từ..."
 msgid "Finish"
 msgstr "Hoàn tất"
 
+#: src/project/sync/FolderPicker.svelte
+msgid "Folder path"
+msgstr "Đường dẫn đến thư mục"
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
 msgstr "Đã tải xuống lời nhắc tiếp theo. Hãy đính kèm nó vào cùng cuộc trò chuyện AI đó, sau đó dán câu trả lời của nó vào bên dưới."
@@ -1910,6 +1970,10 @@ msgstr "Phông chữ"
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "Với các yêu cầu khác, vui lòng gửi email cho chúng tôi."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "From a USB drive or shared folder"
+msgstr "Từ ổ USB hoặc thư mục chia sẻ"
+
 #. Source of entry creation option
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "From active filter"
@@ -1919,6 +1983,10 @@ msgstr "Từ bộ lọc đang hoạt động"
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Fullscreen"
 msgstr "Toàn màn hình"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Get project from folder..."
+msgstr "Lấy dự án từ thư mục..."
 
 #. Button in feedback menu
 #: src/lib/about/FeedbackDialog.svelte
@@ -1934,6 +2002,10 @@ msgstr "Nhận hỗ trợ"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Gloss"
 msgstr "Ghi chú"
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Gloss or Definition is required"
+msgstr "Cần có định nghĩa hoặc giải thích"
 
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Go back"
@@ -2399,6 +2471,16 @@ msgstr "ý nghĩa"
 msgid "Meaning"
 msgstr "Ý nghĩa"
 
+#. Add Example dialog subtitle when the meaning has no gloss or definition. {0} is its number.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Meaning {0}"
+msgstr "Ý nghĩa {0}"
+
+#. Add Example dialog subtitle naming the meaning the new example belongs to. {0} is its number, {1} its gloss or definition.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Meaning {0}: {1}"
+msgstr "Ý nghĩa của cụm từ “ {0}”: {1}"
+
 #. Relevant view: Lite
 #. Classic view equivalent: "senses"
 #. Lowercase plural noun interpolated into activity-log lines (e.g. "Reordered meanings"). Paired with singular "meaning".
@@ -2539,6 +2621,7 @@ msgstr "Chế độ xem tùy chỉnh của tôi..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
@@ -2553,6 +2636,10 @@ msgstr "Tên"
 #: src/lib/views/custom/validation.ts
 msgid "Name is required"
 msgstr "Tên là trường thông tin bắt buộc"
+
+#: src/project/SyncDialog.svelte
+msgid "Nearby"
+msgstr "Gần đây"
 
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
@@ -2942,6 +3029,10 @@ msgstr "Mở trong cửa sổ mới"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Log file"
 msgstr "Mở tệp nhật ký"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "Opened {0} from the folder. You can remove the drive."
+msgstr "Đã mở tệp {0} từ thư mục. Bạn có thể tháo ổ đĩa ra."
 
 #. Status message shown after the user clicks "Open in FieldWorks" while the handoff is in progress. "FieldWorks" is a product name — do not translate.
 #: src/lib/components/OpenInFieldWorksButton.svelte
@@ -3591,6 +3682,7 @@ msgstr "Cùng hình thức lexeme"
 msgid "Same word"
 msgstr "Cùng một từ"
 
+#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Save"
 msgstr "Lưu"
@@ -3733,6 +3825,16 @@ msgstr "ý nghĩa"
 msgid "Sense"
 msgstr "Ý nghĩa (sense)"
 
+#. Add Example dialog subtitle when the sense has no gloss or definition. {0} is its number.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sense {0}"
+msgstr "Ý nghĩa {0}"
+
+#. Add Example dialog subtitle naming the sense the new example belongs to. {0} is its number, {1} its gloss or definition.
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sense {0}: {1}"
+msgstr "Ý nghĩa {0}: {1}"
+
 #. Field label in the activity change-preview diff for a custom view: which sense-level fields it shows.
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Sense fields"
@@ -3751,6 +3853,10 @@ msgstr "các giác quan"
 #: src/lib/views/entity-config.ts
 msgid "Sentence"
 msgstr "Câu"
+
+#: src/lib/entry-editor/object-editors/EntryEditor.svelte
+msgid "Sentence is required"
+msgstr "Phải có câu"
 
 #. Activity-log line. {0} = field label; used when the new value is an audio recording (an audio marker chip follows instead of a text value). Compare "Set {0} to", which shows a text value chip.
 #: src/lib/activity/ChangeSummary.svelte
@@ -3837,6 +3943,11 @@ msgstr "Hiển thị hoặc ẩn chú thích"
 msgid "Show unchanged fields"
 msgstr "Hiển thị các trường không thay đổi"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Shown next to your changes in all projects you don't sync with Lexbox."
+msgstr "Được hiển thị bên cạnh các thay đổi của bạn trong tất cả các dự án mà bạn không đồng bộ hóa với Lexbox."
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "Vui lòng đăng nhập để thêm bình luận."
@@ -3910,6 +4021,10 @@ msgstr "Các ứng dụng nhỏ tùy chỉnh hoạt động với từ điển c
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
 msgstr "Một số người có thể làm việc trên dự án này trong FieldWorks Classic. Các thay đổi chỉ được đồng bộ hóa giữa FieldWorks Lite và FieldWorks Classic khi có người được cấp quyền thực hiện việc đồng bộ hóa."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "Some pictures or audio files couldn't be copied. They will be copied the next time you sync."
+msgstr "Một số hình ảnh hoặc tệp âm thanh không thể sao chép được. Chúng sẽ được sao chép trong lần đồng bộ hóa tiếp theo."
 
 #: src/lib/layout/ViewErrorBoundary.svelte
 msgid "Something went wrong"
@@ -3994,6 +4109,26 @@ msgstr "Đồng bộ hoàn tất. {0} được áp dụng cho FieldWorks Classic
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Đồng bộ FieldWorks Lite và FieldWorks Classic"
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Sync now"
+msgstr "Đồng bộ hóa ngay"
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with {0}"
+msgstr "Đồng bộ hóa với {0}"
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with a folder..."
+msgstr "Đồng bộ hóa với một thư mục..."
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with a USB drive or another folder"
+msgstr "Đồng bộ hóa với ổ USB hoặc một thư mục khác"
+
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Sync with another folder..."
+msgstr "Đồng bộ hóa với một thư mục khác..."
+
 #. Introductory text for sync status panel
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Sync your changes with other FieldWorks Lite users"
@@ -4019,6 +4154,10 @@ msgstr "Đã đồng bộ hóa bản cũ nhất"
 msgid "Synced with {0}"
 msgstr "Đã đồng bộ với {0}"
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "Synced with the folder. You can remove the drive."
+msgstr "Đã đồng bộ hóa với thư mục. Bạn có thể tháo ổ đĩa ra."
+
 #. Label showing sync timestamp in activity
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
@@ -4034,7 +4173,12 @@ msgstr "Đồng bộ hóa"
 msgid "Synchronizing FieldWorks Lite and FieldWorks Classic..."
 msgstr "Đang đồng bộ FieldWorks Lite và FieldWorks Classic..."
 
+#: src/home/OpenFromFolderItem.svelte
+msgid "Syncing with the folder..."
+msgstr "Đang đồng bộ hóa với thư mục..."
+
 #. Progress indicator
+#: src/project/sync/FolderSyncSection.svelte
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Syncing..."
 msgstr "Đang đồng bộ..."
@@ -4083,6 +4227,10 @@ msgstr "Ngược lại, chế độ xem *FieldWorks Classic* được thiết k�
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "Chế độ xem *FieldWorks Lite* được thiết kế cho người không chuyên ngôn ngữ và khác với chế độ xem *FieldWorks Classic* theo các cách sau:"
 
+#: src/project/sync/folder-sync-messages.ts
+msgid "The copy of {0} in this folder didn't come from the same original as the copy on this device, so the two can't be combined. Choose another folder."
+msgstr "Bản sao của tệp ` {0} ` trong thư mục này không được sao chép từ cùng một tệp gốc với bản sao trên thiết bị này, do đó không thể hợp nhất hai bản sao này. Vui lòng chọn một thư mục khác."
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to change the dictionary"
 msgstr "Phiên bản mới yêu cầu thay đổi từ điển"
@@ -4104,6 +4252,10 @@ msgstr "Số commit của FieldWorks Lite không nhất thiết khớp với s�
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr "Plugin “{0}” đang yêu cầu thực hiện thay đổi này đối với từ điển của bạn:"
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "The project in this folder uses different writing systems ({0}) from the copy on this device ({1}), so the two can't be synced. Choose another folder, or compare the writing systems in each copy."
+msgstr "Dự án trong thư mục này sử dụng các hệ thống chữ viết khác nhau ({0}) so với bản sao trên thiết bị này ({1}), do đó hai bản sao này không thể đồng bộ hóa được. Vui lòng chọn một thư mục khác hoặc so sánh các hệ thống chữ viết trong từng bản sao."
 
 #: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
@@ -4170,6 +4322,26 @@ msgstr "Ví dụ này không tồn tại."
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "This file is only available remotely."
 msgstr "Tệp này chỉ có thể truy cập từ xa."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder already has a folder called {0}, but it doesn't hold a FieldWorks Lite project. Choose another folder."
+msgstr "Thư mục này đã có một thư mục tên là “ {0}”, nhưng thư mục đó không chứa dự án FieldWorks Lite. Vui lòng chọn một thư mục khác."
+
+#: src/project/sync/FolderPicker.svelte
+msgid "This folder doesn't exist. Check the path. Example: /media/yourname/USB"
+msgstr "Thư mục này không tồn tại. Hãy kiểm tra đường dẫn. Ví dụ: /media/yourname/USB"
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder doesn't hold a FieldWorks Lite project. Choose the project's own folder, not the drive or folder it's in."
+msgstr "Thư mục này không chứa dự án FieldWorks Lite. Hãy chọn thư mục chứa chính dự án đó, chứ không phải ổ đĩa hay thư mục mà dự án đó nằm trong đó."
+
+#: src/project/sync/folder-sync-messages.ts
+msgid "This folder holds a different project, {0}, not the one that is open. To open that project, go to the home screen and choose Get project from folder."
+msgstr "Thư mục này chứa một dự án khác, {0}, chứ không phải dự án hiện đang mở. Để mở dự án đó, hãy quay lại màn hình chính và chọn “Lấy dự án từ thư mục”."
+
+#: src/home/OpenFromFolderItem.svelte
+msgid "This folder is empty. To put a project in it, open that project on a device that has it and choose Sync with a folder."
+msgstr "Thư mục này trống. Để thêm một dự án vào đây, hãy mở dự án đó trên thiết bị đang lưu trữ dự án và chọn “Đồng bộ hóa với thư mục”."
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
@@ -4535,6 +4707,10 @@ msgstr "Các tệp đang chờ xử lý đã được tải lên"
 msgid "Uploading pictures is not supported here"
 msgstr "Tính năng tải ảnh lên không được hỗ trợ tại đây"
 
+#: src/project/sync/FolderPicker.svelte
+msgid "Use this folder"
+msgstr "Hãy sử dụng thư mục này"
+
 #: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Use this version"
 msgstr "Hãy sử dụng phiên bản này"
@@ -4788,9 +4964,21 @@ msgstr "Bạn đã vượt qua mọi cột mốc. Thật là một thành tựu 
 msgid "Your changes to this plugin will be lost."
 msgstr "Các thay đổi của bạn đối với plugin này sẽ bị mất."
 
+#. # is the user's own name
+#: src/lib/author/AuthorNameLine.svelte
+msgid "Your changes will show the name #."
+msgstr "Những thay đổi của bạn sẽ hiển thị tên #."
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "Your dictionary starts here"
 msgstr "Từ điển của bạn bắt đầu từ đây"
+
+#: src/home/CreateProjectDialog.svelte
+#: src/home/CreateProjectDialog.svelte
+#: src/home/HomeView.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Your name"
+msgstr "Tên của bạn"
 
 #: src/lib/plugins/studio/StudioPreview.svelte
 msgid "Your plugin will run here"
