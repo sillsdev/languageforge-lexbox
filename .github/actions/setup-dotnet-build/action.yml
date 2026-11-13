@@ -1,5 +1,5 @@
 name: Set up a .NET build
-description: Install the .NET 10 SDK, restore the NuGet package cache (keyed on the central package props), optionally install Task.
+description: Install the .NET 11 SDK, restore the NuGet package cache (keyed on the central package props), optionally install Task.
 inputs:
   install-task:
     description: 'Also install Task (arduino/setup-task)'
@@ -11,7 +11,7 @@ runs:
   steps:
     - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
       with:
-        dotnet-version: '10.x'
+        global-json-file: global.json
     - name: Cache NuGet packages
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:

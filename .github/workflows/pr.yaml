@@ -25,7 +25,7 @@ env:
   NX_DAEMON: 'false'
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
   # Same pin as fw-lite.yaml.
-  MAUI_WORKLOAD_VERSION: 10.0.401
+  MAUI_WORKLOAD_VERSION: 11.0.100.1
 
 jobs:
   detect:
@@ -61,7 +61,7 @@ jobs:
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           # @nx/dotnet evaluates every csproj with MSBuild to build the graph.
-          dotnet-version: '10.x'
+          global-json-file: global.json
 
       - name: Compute affected projects and tiers
         id: affected
@@ -435,7 +435,7 @@ jobs:
     name: iOS simulator build and smoke test (tier ios)
     needs: [detect, smoke-viewer]
     if: contains(fromJSON(needs.detect.outputs.tiers), 'ios')
-    runs-on: macos-latest
+    runs-on: xcode-27
     timeout-minutes: 45
     steps:
       - name: Checkout
@@ -446,18 +446,22 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
-      # Both Apple workloads: restore evaluates net10.0-ios and net10.0-maccatalyst together.
+          global-json-file: global.json
+      # .NET 11's iOS/Mac Catalyst packs (27.x) need the iOS 27 SDK; macos-latest only has Xcode 26.
+      # xcode-27 (public preview image) defaults to 27.1, so select the version the packs were built against.
+      - name: Select Xcode 27.2
+        run: sudo xcode-select -s /Applications/Xcode_27.2.app
+      # Both Apple workloads: restore evaluates net11.0-ios and net11.0-maccatalyst together.
       - name: Setup Maui
         run: dotnet workload install maui-ios maui-maccatalyst --version ${{ env.MAUI_WORKLOAD_VERSION }}
 
       # Same build as fw-lite.yaml's build-apple.
       - name: Build iOS (simulator)
         working-directory: backend/FwLite/FwLiteMaui
-        run: dotnet build -f net10.0-ios -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=iossimulator-arm64
+        run: dotnet build -f net11.0-ios -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=iossimulator-arm64
 
       - name: Launch the app and wait for the viewer to load
-        run: bash .github/scripts/smoke-ios.sh backend/FwLite/FwLiteMaui/bin/Release/net10.0-ios/iossimulator-arm64/FwLiteMaui.app
+        run: bash .github/scripts/smoke-ios.sh backend/FwLite/FwLiteMaui/bin/Release/net11.0-ios/iossimulator-arm64/FwLiteMaui.app
       - name: Upload smoke test output
         if: failure() || cancelled()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -470,7 +474,7 @@ jobs:
     name: Mac Catalyst build and smoke test (tier mac)
     needs: [detect, smoke-viewer]
     if: contains(fromJSON(needs.detect.outputs.tiers), 'mac')
-    runs-on: macos-latest
+    runs-on: xcode-27
     timeout-minutes: 45
     steps:
       - name: Checkout
@@ -481,8 +485,12 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
-      # Both Apple workloads: restore evaluates net10.0-ios and net10.0-maccatalyst together.
+          global-json-file: global.json
+      # .NET 11's iOS/Mac Catalyst packs (27.x) need the iOS 27 SDK; macos-latest only has Xcode 26.
+      # xcode-27 (public preview image) defaults to 27.1, so select the version the packs were built against.
+      - name: Select Xcode 27.2
+        run: sudo xcode-select -s /Applications/Xcode_27.2.app
+      # Both Apple workloads: restore evaluates net11.0-ios and net11.0-maccatalyst together.
       - name: Setup Maui
         run: dotnet workload install maui-ios maui-maccatalyst --version ${{ env.MAUI_WORKLOAD_VERSION }}
 
@@ -490,10 +498,10 @@ jobs:
       # (those stay on develop in launch-mac). The launch itself is the same script.
       - name: Build Mac Catalyst (unsigned)
         working-directory: backend/FwLite/FwLiteMaui
-        run: dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64
+        run: dotnet build -f net11.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64
 
       - name: Launch the app and wait for the viewer to load
-        run: bash .github/scripts/smoke-mac.sh "backend/FwLite/FwLiteMaui/bin/Release/net10.0-maccatalyst/maccatalyst-arm64/FieldWorks Lite.app"
+        run: bash .github/scripts/smoke-mac.sh "backend/FwLite/FwLiteMaui/bin/Release/net11.0-maccatalyst/maccatalyst-arm64/FieldWorks Lite.app"
 
   android:
     name: Android build and smoke test (tier android)
@@ -510,17 +518,17 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
       - name: Setup Maui
         run: dotnet workload install maui-android --version ${{ env.MAUI_WORKLOAD_VERSION }}
 
       - name: Publish Android (unsigned)
         working-directory: backend/FwLite/FwLiteMaui
-        run: dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts -p:AndroidKeyStore=false
+        run: dotnet publish -f net11.0-android -p:BuildApple=false --artifacts-path ../artifacts -p:AndroidKeyStore=false
 
       - uses: ./.github/actions/smoke-android
         with:
-          apk-dir: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android
+          apk-dir: backend/FwLite/artifacts/publish/FwLiteMaui/release_net11.0-android
       - name: Upload smoke test output
         if: failure() || cancelled()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -554,7 +562,7 @@ jobs:
 
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
       - name: Publish FwLiteWeb (linux-x64)
         working-directory: backend/FwLite/FwLiteWeb
         run: dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true

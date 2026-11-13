@@ -72,11 +72,11 @@ public static class LexiconProxy
         read.MapGet("/entries/count",
                 (Guid projectId, [FromQuery] string? search, [FromQuery] string? gridifyFilter, HttpContext context) => Forward(context))
             .Produces<int>().WithDoc(MiniLcmRouteDocs.CountEntries, Experimental);
-        read.MapGet("/entry/{id:guid}", ForwardItem).Produces<Entry>().Produces(StatusCodes.Status404NotFound).WithDoc(MiniLcmRouteDocs.GetEntry, Experimental);
+        read.MapGet("/entry/{id:guid}", ForwardItem).Produces<Entry>().WithDoc(MiniLcmRouteDocs.GetEntry, Experimental);
         read.MapGet("/entry/{id:guid}/index",
                 (Guid projectId, Guid id, [FromQuery] string? search, [AsParameters] MiniLcmQueryOptions options, HttpContext context) => Forward(context))
             .Produces<int>().WithDoc(MiniLcmRouteDocs.GetEntryIndex, Experimental);
-        read.MapGet("/sense/{id:guid}", ForwardItem).Produces<Sense>().Produces(StatusCodes.Status404NotFound).WithDoc(MiniLcmRouteDocs.GetSense, Experimental);
+        read.MapGet("/sense/{id:guid}", ForwardItem).Produces<Sense>().WithDoc(MiniLcmRouteDocs.GetSense, Experimental);
         read.MapGet("/parts-of-speech", ForwardProject).Produces<PartOfSpeech[]>().WithDoc(MiniLcmRouteDocs.GetPartsOfSpeech, Experimental);
         read.MapGet("/semantic-domains", ForwardProject).Produces<SemanticDomain[]>().WithDoc(MiniLcmRouteDocs.GetSemanticDomains, Experimental);
         read.MapGet("/publications", ForwardProject).Produces<Publication[]>().WithDoc(MiniLcmRouteDocs.GetPublications, Experimental);

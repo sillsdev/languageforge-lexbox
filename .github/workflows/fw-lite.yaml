@@ -48,7 +48,7 @@ permissions:
 env:
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
   # Pinned so a new workload set (e.g. a new default Apple SDK pack) cannot silently break the MAUI builds.
-  MAUI_WORKLOAD_VERSION: 10.0.401
+  MAUI_WORKLOAD_VERSION: 11.0.100.1
 jobs:
   build-and-test:
     name: Build FW Lite and run tests
@@ -142,7 +142,7 @@ jobs:
           submodules: true
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
 
       - name: Dotnet build (Release)
         run: dotnet build backend/FwLite/FwLiteProjectSync.Tests/FwLiteProjectSync.Tests.csproj -c Release
@@ -271,7 +271,7 @@ jobs:
     name: Build FW Lite for iOS simulator; notarize Mac Catalyst
     needs: [build-and-test, frontend]
     timeout-minutes: 60
-    runs-on: macos-latest
+    runs-on: xcode-27
     outputs:
       signed: ${{ steps.signing.outputs.signed }}
     env:
@@ -286,7 +286,11 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
+      # .NET 11's iOS/Mac Catalyst packs (27.x) need the iOS 27 SDK; macos-latest only has Xcode 26.
+      # xcode-27 (public preview image) defaults to 27.1, so select the version the packs were built against.
+      - name: Select Xcode 27.2
+        run: sudo xcode-select -s /Applications/Xcode_27.2.app
       - name: Setup Maui
         run: dotnet workload install maui-ios maui-maccatalyst --version ${{ env.MAUI_WORKLOAD_VERSION }}
 
@@ -297,7 +301,7 @@ jobs:
       - name: Build iOS (simulator)
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet build -f net10.0-ios -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=iossimulator-arm64 \
+          dotnet build -f net11.0-ios -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=iossimulator-arm64 \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
             -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
@@ -307,7 +311,7 @@ jobs:
         if: env.HAS_APPLE_SIGNING != 'true'
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64 \
+          dotnet build -f net11.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64 \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
             -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
@@ -351,7 +355,7 @@ jobs:
         if: env.HAS_APPLE_SIGNING == 'true'
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false \
+          dotnet build -f net11.0-maccatalyst -c Release -p:BuildAndroid=false \
             -p:EnableCodeSigning=true -p:UseHardenedRuntime=true \
             -p:CodesignKey="$CODESIGN_IDENTITY" \
             -p:CodesignEntitlements=Platforms/MacCatalyst/Entitlements.DeveloperId.plist \
@@ -369,7 +373,7 @@ jobs:
         run: |
           set -euo pipefail
           # The SDK merges and signs the universal bundle here; the maccatalyst-*/ bundles are incomplete intermediates.
-          APP="bin/Release/net10.0-maccatalyst/FieldWorks Lite.app"
+          APP="bin/Release/net11.0-maccatalyst/FieldWorks Lite.app"
           codesign --verify --deep --strict --verbose=2 "$APP"
           for f in index.html _content/FwLiteShared/viewer/main.js; do
             [ -f "$APP/Contents/Resources/wwwroot/$f" ] || { echo "Missing wwwroot/$f in $APP" >&2; exit 1; }
@@ -409,9 +413,9 @@ jobs:
         working-directory: backend/FwLite/FwLiteMaui
         run: |
           mkdir -p ../artifacts/apple
-          ditto -c -k --keepParent "bin/Release/net10.0-ios/iossimulator-arm64/FwLiteMaui.app" ../artifacts/apple/fw-lite-ios-simulator.zip
+          ditto -c -k --keepParent "bin/Release/net11.0-ios/iossimulator-arm64/FwLiteMaui.app" ../artifacts/apple/fw-lite-ios-simulator.zip
           if [ "$HAS_APPLE_SIGNING" != 'true' ]; then
-            ditto -c -k --keepParent "bin/Release/net10.0-maccatalyst/maccatalyst-arm64/FieldWorks Lite.app" ../artifacts/apple/fw-lite-maccatalyst.zip
+            ditto -c -k --keepParent "bin/Release/net11.0-maccatalyst/maccatalyst-arm64/FieldWorks Lite.app" ../artifacts/apple/fw-lite-maccatalyst.zip
           fi
 
       - name: Remove temporary signing keychain
@@ -517,7 +521,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
 
       - name: Publish Linux
         working-directory: backend/FwLite/FwLiteWeb
@@ -577,7 +581,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
 
       - name: Setup Maui
         run: dotnet workload install maui-android --version ${{ env.MAUI_WORKLOAD_VERSION }}
@@ -598,7 +602,7 @@ jobs:
           KEYSTORE_PASS: ${{ secrets.FW_LITE_KEYSTORE_PASS }}
           KEYSTORE_ALIAS: ${{ vars.FW_LITE_KEYSTORE_UPLOAD_KEY_ALIAS }}
         run: |
-          dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts \
+          dotnet publish -f net11.0-android -p:BuildApple=false --artifacts-path ../artifacts \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
             -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
@@ -615,7 +619,7 @@ jobs:
         working-directory: backend/FwLite/FwLiteMaui
         run: |
           echo "::warning::Signing key unavailable (likely a fork PR); building an unsigned Android APK."
-          dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts \
+          dotnet publish -f net11.0-android -p:BuildApple=false --artifacts-path ../artifacts \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
             -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
@@ -626,8 +630,8 @@ jobs:
         with:
           name: fw-lite-android
           if-no-files-found: error
-#          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android/org.sil.fwlitemaui-signed.apk
-          path: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android/*
+#          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net11.0-android/org.sil.fwlitemaui-signed.apk
+          path: backend/FwLite/artifacts/publish/FwLiteMaui/release_net11.0-android/*
 
   # Boots an x86_64 emulator and runs the published APK until it logs "Viewer loaded".
   launch-android:
@@ -690,7 +694,7 @@ jobs:
       - name: Publish Windows MAUI portable app
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet publish -f net10.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          dotnet publish -f net11.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/sign/portable
           cp -r ../artifacts/publish/FwLiteMaui/* ../artifacts/sign/portable/
 
@@ -700,7 +704,7 @@ jobs:
           # AppxPackageDir is the MSIX-targets equivalent of --artifacts-path: without it
           # MAUI 10 writes AppPackages to $(MSBuildProjectDirectory)/AppPackages, ignoring
           # --artifacts-path. Redirect it under artifacts/ so everything lives in one tree.
-          dotnet publish -f net10.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:AppxPackageDir=../artifacts/AppPackages/ -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          dotnet publish -f net11.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:AppxPackageDir=../artifacts/AppPackages/ -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/msix
           cp ../artifacts/AppPackages/*/*.msix ../artifacts/msix/
 
@@ -1049,7 +1053,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
       - name: Publish FwLiteWeb (linux-x64)
         working-directory: backend/FwLite/FwLiteWeb
         run: dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true
