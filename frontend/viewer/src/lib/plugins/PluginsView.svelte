@@ -97,18 +97,18 @@
 
   // What the plugin API (plugin-api-adapter.ts) and the sandbox allow, in plain words.
   // Keep in step with both when either changes.
-  const pluginCan = $derived([
-    $t`Read this project's dictionary: entries, senses, example sentences, writing systems, parts of speech and semantic domains`,
-    $t`Play the project's audio and show its pictures`,
-    $t`Add and change entries, but only if it says so up front, and each change is shown to you for approval first`,
-    $t`Open an entry in FieldWorks Lite and show you short messages`,
-    $t`Read comments and change history, in projects that have them`,
-    $t`Remember its own settings on this device`,
+  type Ability = {lead: string; detail?: string};
+  const pluginCan: Ability[] = $derived([
+    {lead: $t`Read this project's dictionary`, detail: $t`Entries, audio, pictures, comments, change history and more`},
+    {lead: $t`Add and change entries`, detail: $t`Only if editing was turned on for it, and only with your approval`},
+    {lead: $t`Open entries and show you short messages`, detail: $t`An entry opens over the plugin, for you to view or edit`},
+    {lead: $t`Export files to this device`},
+    {lead: $t`Remember its own settings on this device`},
   ]);
-  const pluginCannot = $derived([
-    $t`Use the internet, unless it is marked “Internet”`,
-    $t`Change anything without asking, unless you chose “Always allow” for it`,
-    $t`See your account, your other projects or the rest of the app`,
+  const pluginCannot: Ability[] = $derived([
+    {lead: $t`Use the internet`, detail: $t`Unless internet access was turned on for it`},
+    {lead: $t`Change anything without asking`, detail: $t`Unless you choose to always allow its changes`},
+    {lead: $t`See your account, other projects or the rest of the app`},
   ]);
 
   // ---- Examples shelf: managers only, since trying an example is the first step to adding it ----
@@ -140,6 +140,26 @@
     'entry-menu': {icon: 'i-mdi-menu', label: $t`Entry menu`, variant: 'secondary'},
   });
 </script>
+
+{#snippet abilityList(heading: string, abilities: Ability[], icon: IconClass, iconClass: string)}
+  <div class="space-y-2">
+    <h3 class="font-semibold">{heading}</h3>
+    <ul class="space-y-2.5">
+      {#each abilities as ability (ability.lead)}
+        <li class="flex gap-2">
+          <!-- size-4 + mt-0.5 centers the icon on the first 20px line -->
+          <Icon {icon} class="mt-0.5 size-4 {iconClass}" />
+          <div>
+            <p class="font-medium">{ability.lead}</p>
+            {#if ability.detail}
+              <p class="text-muted-foreground">{ability.detail}</p>
+            {/if}
+          </div>
+        </li>
+      {/each}
+    </ul>
+  </div>
+{/snippet}
 
 <div class="h-full overflow-y-auto">
   <div class="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
@@ -173,29 +193,9 @@
         <i class="i-mdi-chevron-down size-4 transition-transform"></i>
         {$t`What can a plugin do?`}
       </Collapsible.Trigger>
-      <Collapsible.Content class="grid gap-4 pt-3 text-sm sm:grid-cols-2">
-        <div class="space-y-1.5">
-          <h3 class="font-medium">{$t`A plugin can`}</h3>
-          <ul class="space-y-1.5">
-            {#each pluginCan as line (line)}
-              <li class="flex gap-2">
-                <Icon icon="i-mdi-check" class="mt-0.5 shrink-0 text-green-600" />
-                <span>{line}</span>
-              </li>
-            {/each}
-          </ul>
-        </div>
-        <div class="space-y-1.5">
-          <h3 class="font-medium">{$t`A plugin can't`}</h3>
-          <ul class="space-y-1.5">
-            {#each pluginCannot as line (line)}
-              <li class="flex gap-2">
-                <Icon icon="i-mdi-close" class="mt-0.5 shrink-0 text-muted-foreground" />
-                <span>{line}</span>
-              </li>
-            {/each}
-          </ul>
-        </div>
+      <Collapsible.Content class="grid gap-x-8 gap-y-5 pt-3 text-sm sm:grid-cols-2">
+        {@render abilityList($t`A plugin can`, pluginCan, 'i-mdi-check', 'text-green-600 dark:text-green-500')}
+        {@render abilityList($t`A plugin can't`, pluginCannot, 'i-mdi-close', 'text-muted-foreground')}
       </Collapsible.Content>
     </Collapsible.Root>
 

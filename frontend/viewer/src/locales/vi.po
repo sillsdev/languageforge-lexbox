@@ -262,10 +262,12 @@ msgstr ""
 msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it."
 msgstr ""
 
+#. Heading of a list on the Plugins page. Each item under it completes the sentence, e.g. "A plugin can" + "Add and change entries".
 #: src/lib/plugins/PluginsView.svelte
 msgid "A plugin can"
 msgstr ""
 
+#. Heading of a list on the Plugins page. Each item under it completes the sentence, e.g. "A plugin can't" + "Use the internet".
 #: src/lib/plugins/PluginsView.svelte
 msgid "A plugin can't"
 msgstr ""
@@ -323,8 +325,9 @@ msgstr "Hoạt động"
 msgid "Activity view failed"
 msgstr ""
 
+#. List item under the heading "A plugin can"; it completes that sentence.
 #: src/lib/plugins/PluginsView.svelte
-msgid "Add and change entries, but only if it says so up front, and each change is shown to you for approval first"
+msgid "Add and change entries"
 msgstr ""
 
 #. Button to add audio file to entry
@@ -517,6 +520,11 @@ msgstr ""
 #: src/project/browse/BrowseView.svelte
 msgid "an entry"
 msgstr "một mục"
+
+#. Small note under the list item "Open entries and show you short messages": FieldWorks Lite shows the entry in a dialog on top of the running plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "An entry opens over the plugin, for you to view or edit"
+msgstr ""
 
 #. Section heading in custom view writing system picker.
 #. Labels the analysis language writing systems (e.g., English definitions/glosses).
@@ -771,8 +779,9 @@ msgstr "Chú thích"
 msgid "Change"
 msgstr ""
 
+#. List item under the heading "A plugin can't"; it completes that sentence.
 #: src/lib/plugins/PluginsView.svelte
-msgid "Change anything without asking, unless you chose “Always allow” for it"
+msgid "Change anything without asking"
 msgstr ""
 
 #: src/lib/plugins/plugin-api-adapter.ts
@@ -1554,6 +1563,11 @@ msgstr "Các mục có ví dụ"
 msgid "Entries with senses"
 msgstr "Các mục từ có nghĩa"
 
+#. Small note under the list item "Read this project's dictionary": examples of what a plugin can read.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Entries, audio, pictures, comments, change history and more"
+msgstr ""
+
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
@@ -1696,6 +1710,11 @@ msgstr ""
 
 #: src/lib/plugins/PluginsView.svelte
 msgid "Export"
+msgstr ""
+
+#. List item under the heading "A plugin can"; it completes that sentence. The plugin makes a file (e.g. a spreadsheet of entries) that the user downloads.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Export files to this device"
 msgstr ""
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -3006,6 +3025,11 @@ msgstr ""
 msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
 msgstr ""
 
+#. Small note under the list item "Add and change entries" (heading "A plugin can"). "it" is the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Only if editing was turned on for it, and only with your approval"
+msgstr ""
+
 #: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "Only project managers can add or change plugins."
 msgstr ""
@@ -3015,14 +3039,15 @@ msgstr ""
 msgid "Open"
 msgstr "Mở"
 
-#: src/lib/plugins/PluginsView.svelte
-msgid "Open an entry in FieldWorks Lite and show you short messages"
-msgstr ""
-
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Mở Thư mục Dữ liệu"
+
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Open entries and show you short messages"
+msgstr ""
 
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in {0}"
@@ -3205,10 +3230,6 @@ msgstr "Nền tảng"
 msgid "Play & learn"
 msgstr ""
 
-#: src/lib/plugins/PluginsView.svelte
-msgid "Play the project's audio and show its pictures"
-msgstr ""
-
 #: src/lib/activity/ChangeSummary.svelte
 msgid "plugin"
 msgstr ""
@@ -3381,12 +3402,9 @@ msgstr ""
 msgid "Publish Word in"
 msgstr "Xuất bản Từ trong"
 
+#. List item under the heading "A plugin can"; it completes that sentence.
 #: src/lib/plugins/PluginsView.svelte
-msgid "Read comments and change history, in projects that have them"
-msgstr ""
-
-#: src/lib/plugins/PluginsView.svelte
-msgid "Read this project's dictionary: entries, senses, example sentences, writing systems, parts of speech and semantic domains"
+msgid "Read this project's dictionary"
 msgstr ""
 
 #: src/lib/plugins/PluginsView.svelte
@@ -3511,10 +3529,10 @@ msgstr "Đang tạo lại các bản chụp nhanh Harmony. Quá trình này có 
 msgid "Regenerating search index. This may take a while — do not close the app."
 msgstr "Đang tạo lại chỉ mục tìm kiếm. Quá trình này có thể mất một lúc — xin đừng đóng ứng dụng."
 
-#. Field label in Troubleshoot. Empty means the production channel (no preview flags).
+#. Field label in Troubleshoot. Takes the names of release channels or feature flags, separated by commas or spaces. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Release channel"
-msgstr "Kênh phát hành"
+msgid "Release channel or feature flags"
+msgstr ""
 
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
@@ -3529,6 +3547,7 @@ msgstr ""
 msgid "Reload plugin"
 msgstr ""
 
+#. List item under the heading "A plugin can"; it completes that sentence.
 #: src/lib/plugins/PluginsView.svelte
 msgid "Remember its own settings on this device"
 msgstr ""
@@ -3777,8 +3796,9 @@ msgstr "Chỉ mục tìm kiếm đã được tạo lại thành công"
 msgid "See all {0} examples"
 msgstr ""
 
+#. List item under the heading "A plugin can't"; it completes that sentence.
 #: src/lib/plugins/PluginsView.svelte
-msgid "See your account, your other projects or the rest of the app"
+msgid "See your account, other projects or the rest of the app"
 msgstr ""
 
 #. Dialog title with field name
@@ -4645,6 +4665,16 @@ msgstr "Máy chủ không xác định"
 msgid "Unknown update result"
 msgstr "Kết quả cập nhật không xác định"
 
+#. Small note under the list item "Use the internet" (heading "A plugin can't"). "it" is the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Unless internet access was turned on for it"
+msgstr ""
+
+#. Small note under the list item "Change anything without asking" (heading "A plugin can't"). "it" is the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Unless you choose to always allow its changes"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Unread"
@@ -4747,8 +4777,9 @@ msgstr "Các tệp đang chờ xử lý đã được tải lên"
 msgid "Uploading pictures is not supported here"
 msgstr "Tính năng tải ảnh lên không được hỗ trợ tại đây"
 
+#. List item under the heading "A plugin can't"; it completes that sentence.
 #: src/lib/plugins/PluginsView.svelte
-msgid "Use the internet, unless it is marked “Internet”"
+msgid "Use the internet"
 msgstr ""
 
 #: src/project/sync/FolderPicker.svelte
