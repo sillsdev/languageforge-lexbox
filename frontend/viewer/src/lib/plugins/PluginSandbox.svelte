@@ -1,5 +1,6 @@
 <script lang="ts">
   import type {Snippet} from 'svelte';
+  import {on} from 'svelte/events';
   import {Icon} from '$lib/components/ui/icon';
   import {plural, t} from 'svelte-i18n-lingui';
   import {navigate, useRouter} from 'svelte-routing';
@@ -11,7 +12,7 @@
   import EditEntryDialog from '$lib/entry-editor/EditEntryDialog.svelte';
   import {PluginApiAdapter} from './plugin-api-adapter';
   import {PluginHost} from './plugin-host';
-  import {PLUGIN_IFRAME_SANDBOX} from './plugin-srcdoc';
+  import {installPluginFramePolicy, PLUGIN_IFRAME_SANDBOX} from './plugin-srcdoc';
   import type {PluginManifest} from './plugin-manifest';
   import {createMemoryStorageBackend, PluginStorage} from './plugin-local-data';
   import type {OpenEntryMode, PluginWriteMode, PluginWriteOperation} from './plugin-api-types';
@@ -159,13 +160,15 @@
     return () => attached.detach();
   });
 
+  installPluginFramePolicy();
+
   /**
-   * No sandbox flag or CSP directive stops a script from navigating ITS OWN frame, and a
-   * navigation's URL can carry data out. A plugin document never legitimately navigates (it's a
-   * single self-contained file), so a second `load` on the iframe means the plugin left its
-   * document: stop it and tell the user. Best-effort detection, not prevention: a response that
-   * never commits (204, a download) fires no `load`, and WebRTC is outside CSP altogether. That is
-   * why the consent card words the network guarantee as "not allowed" rather than "can't".
+   * A plugin document never legitimately navigates (it's a single self-contained file), so a
+   * plugin that tries is stopped and the user told. The page's frame-src blocks a navigation to
+   * another origin and reports it as a violation (the plugin's is the only iframe on the page).
+   * The blob:/data: documents that policy has to allow show up as a second `load`, which is best
+   * effort: it misses a navigation that starts before the first `load`. WebRTC is outside CSP
+   * altogether, which is why the consent card says "not allowed" to use the internet, not "can't".
    */
   let iframeLoadCount = 0;
   let stopped = $state<'navigation' | 'declined'>();
@@ -173,6 +176,9 @@
     iframeLoadCount++;
     if (iframeLoadCount > 1) stopped = 'navigation';
   }
+  $effect(() => on(document, 'securitypolicyviolation', (event) => {
+    if (event.effectiveDirective === 'frame-src') stopped = 'navigation';
+  }));
   $effect(() => {
     reloadToken; docUrl; // eslint-disable-line @typescript-eslint/no-unused-expressions
     iframeLoadCount = 0;

@@ -65,10 +65,13 @@ flowchart LR
   HTML stays GC-able; the on-disk cache file remains the source of truth. The iframe uses
   `sandbox="allow-scripts allow-forms allow-modals allow-downloads"` — critically **without**
   `allow-same-origin`, so the plugin gets an opaque origin: no cookies, no app localStorage, no
-  `window.parent` DOM access. One caveat the code and copy are honest about: nothing can stop a
-  script from navigating its own frame (a potential exfiltration channel). PluginSandbox stops the
-  plugin when it sees a second document load, but that is best effort: a navigation the server
-  answers with 204 or a download never loads a document, and WebRTC (STUN/DNS) is outside CSP.
+  `window.parent` DOM access. Neither the sandbox nor the plugin's own CSP can stop a script
+  navigating its own frame to another origin with data in the URL; only the embedding page's
+  `frame-src` governs that. So `installPluginFramePolicy` puts `frame-src blob: data:` on the app
+  page, from script so every host gets it, and PluginSandbox stops a plugin that tries. That policy
+  covers every iframe on the app page for good, and the plugin document inherits it, so `internet`
+  plugins can't navigate away or embed other sites either. One hole the code and copy are honest
+  about is still open: WebRTC (STUN/DNS) is outside CSP.
 - **`plugin-sdk.js`** is injected verbatim into every plugin and exposes the `fwlite` global.
   It is plain dependency-free JS by design.
 - **`plugin-host.ts`** answers exactly one iframe (verified by window identity), forwards requests
@@ -109,9 +112,9 @@ projects. For `fwlite` (SDK + adapter):
 1. Opaque-origin sandbox — no app/API/cookie access, only postMessage. This also means no
    microphone or camera: Chromium refuses `getUserMedia` there (host-side API: #2920).
 2. Offline by default — CSP blocks network fetches and form submissions unless the plugin declares
-   `internet` (surfaced as a badge in the UI and on the consent screen). This is a strong barrier,
-   not an absolute one: self-navigation can't be blocked and is only detected in the common case,
-   and WebRTC is outside CSP. The consent card says "not allowed", not "can't".
+   `internet` (surfaced as a badge in the UI and on the consent screen), and `frame-src` on the
+   app page stops any plugin navigating its frame to another origin. This is a strong barrier, not
+   an absolute one: WebRTC is outside CSP. The consent card says "not allowed", not "can't".
 3. Consent per content hash (name + description + HTML) before first run on each device.
 4. Reads are open (same data the user can already see). Writes need the declared `edit` permission
    and are user-approved per operation — or auto-approved with ambient notifications once the user
@@ -126,10 +129,18 @@ projects. For `fwlite` (SDK + adapter):
 
 ## Testing
 
-`frontend/viewer/tests/ui/plugins.test.ts` runs against the in-browser demo project
-(`task test:ui-standalone -- plugins`), covering consent, the postMessage bridge, write
-approval/trust, preview writes, the examples shelf and the studio flows (new, customized example,
-edit with a new permission, leave guard). It also runs every example in the studio preview. The demo
-project seeds two example plugins (see `examples/`), and `__PLAYWRIGHT_UTILS__.setProjectRole`
-turns its user into a non-manager.
+`frontend/viewer/tests/ui/plugins/` runs against the in-browser demo project
+(`task test:ui-standalone -- plugins/`), one file per aspect, with shared helpers in
+`plugin-helpers.ts`:
+
+- `sandbox.test.ts`: what a plugin must not be able to do (send data out, leave its frame, spoof
+  app messages) and that the `internet` permission lifts the network block.
+- `export.test.ts`: files a plugin hands the user (blob: and data: downloads).
+- `plugins.test.ts`: everything not split out yet: consent, the postMessage bridge, write
+  approval/trust, preview writes, the examples shelf and the studio flows (new, customized example,
+  edit with a new permission, leave guard). It also runs every example in the studio preview.
+
+New tests go in the file for their aspect, or a new one (`studio`, `writes`, ...); move tests out of
+`plugins.test.ts` when you touch them. The demo project seeds two example plugins (see
+`examples/`), and `__PLAYWRIGHT_UTILS__.setProjectRole` turns its user into a non-manager.
 Unit tests live next to their modules (`*.test.ts`).
