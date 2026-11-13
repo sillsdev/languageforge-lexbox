@@ -2,7 +2,6 @@ using System.Text;
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.Media;
 using FwDataMiniLcmBridge.Tests.Fixtures;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm.Media;
 using MiniLcm.Models;
@@ -17,12 +16,10 @@ public class MediaFileTests : IAsyncLifetime
     private readonly FwDataMiniLcmApi _api;
     private readonly WritingSystemId _audioWs = "en-Zxxx-x-audio";
     private IMediaAdapter _mediaAdapter;
-    private readonly IMemoryCache _memoryCache;
 
     public MediaFileTests(ProjectLoaderFixture fixture)
     {
         _mediaAdapter = fixture.Services.GetRequiredService<IMediaAdapter>();
-        _memoryCache = fixture.Services.GetRequiredService<IMemoryCache>();
         _api = fixture.NewProjectApi("media-file-test", "en", "en");
     }
 
@@ -118,7 +115,7 @@ public class MediaFileTests : IAsyncLifetime
     {
         var outsidePath = Path.Combine(_api.Cache.ProjectId.ProjectFolder, "outside-linked-files.jpg");
         await File.WriteAllTextAsync(outsidePath, "test");
-        await AssertPictureReadableAfterPathsRebuild(outsidePath);
+        await AssertPictureReadable(outsidePath);
     }
 
     [Fact]
@@ -157,19 +154,16 @@ public class MediaFileTests : IAsyncLifetime
         var root = _api.Cache.LangProject.LinkedFilesRootDir;
         Directory.CreateDirectory(Path.Combine(root, "Pictures"));
         await File.WriteAllTextAsync(Path.Combine(root, "Pictures", "spelling.jpg"), "test");
-        await AssertPictureReadableAfterPathsRebuild(Path.Combine(root, link));
+        await AssertPictureReadable(Path.Combine(root, link));
     }
 
-    private async Task AssertPictureReadableAfterPathsRebuild(string linkPath)
+    private async Task AssertPictureReadable(string linkPath)
     {
         var entryId = await AddPictureDirectly(linkPath);
 
         var entry = await _api.GetEntry(entryId);
         var mediaUri = entry!.Senses[0].Pictures[0].MediaUri;
 
-        (await ReadFile(mediaUri)).Should().Be("test");
-        // the expired path cache is rebuilt from LinkedFiles alone
-        _memoryCache.Remove(LocalMediaAdapter.PathsCacheKey(_api.Cache));
         (await ReadFile(mediaUri)).Should().Be("test");
     }
 
