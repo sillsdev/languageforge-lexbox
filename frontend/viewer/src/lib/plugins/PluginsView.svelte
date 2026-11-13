@@ -101,7 +101,7 @@
   const pluginCan: Ability[] = $derived([
     {lead: $t`Read this project's dictionary`, detail: $t`Entries, audio, pictures, comments, change history and more`},
     {lead: $t`Add and change entries`, detail: $t`Only if editing was turned on for it, and only with your approval`},
-    {lead: $t`Open entries and show you short messages`, detail: $t`An entry opens over the plugin, for you to view or edit`},
+    {lead: $t`Open entries and show you short messages`, detail: $t`You view or edit the entry in FieldWorks Lite as usual`},
     {lead: $t`Export files to this device`},
     {lead: $t`Remember its own settings on this device`},
   ]);

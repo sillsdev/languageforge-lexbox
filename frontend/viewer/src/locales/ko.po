@@ -521,11 +521,6 @@ msgstr ""
 msgid "an entry"
 msgstr "항목"
 
-#. Small note under the list item "Open entries and show you short messages": FieldWorks Lite shows the entry in a dialog on top of the running plugin.
-#: src/lib/plugins/PluginsView.svelte
-msgid "An entry opens over the plugin, for you to view or edit"
-msgstr ""
-
 #. Section heading in custom view writing system picker.
 #. Labels the analysis language writing systems (e.g., English definitions/glosses).
 #: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
@@ -5018,6 +5013,11 @@ msgstr "{1}에서 {0} 프로젝트를 다운로드할 수 있는 권한이 없�
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "이미 {0} 프로젝트를 다운로드하셨습니다."
+
+#. Small note under the list item "Open entries and show you short messages": the entry opens in the normal FieldWorks Lite entry view or editor, so the user does the editing, not the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "You view or edit the entry in FieldWorks Lite as usual"
+msgstr ""
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "You're offline"
