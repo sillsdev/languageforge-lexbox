@@ -11,6 +11,8 @@
   import NameDialog from '$lib/author/NameDialog.svelte';
   import AuthorNameLine from '$lib/author/AuthorNameLine.svelte';
   import {useLocalAuthorName} from '$lib/author/local-author-name.svelte';
+  import * as ButtonGroup from '$lib/components/ui/button-group';
+  import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
 
   interface Props {
     /** Which sync is running, shared with the rest of the dialog so only one runs at a time */
@@ -27,6 +29,12 @@
   let folderPicker = $state<FolderPicker>();
   let nameDialog = $state<NameDialog>();
   const authorName = useLocalAuthorName();
+  const platformFeatures = usePlatformFeaturesService();
+
+  async function openFolder(path: string) {
+    if (await platformFeatures.service.folderExists(path)) await platformFeatures.service.openFolder(path);
+    else AppNotification.display($t`Can't find the folder. Is the drive plugged in?`, {type: 'warning'});
+  }
   // after a Lexbox sync, edits are signed with that account
   const signsWithLocalName = $derived(!projectContext.projectData?.lastUserId);
 
@@ -53,27 +61,30 @@
 </script>
 
 <div class="flex flex-col items-center gap-3">
-  <p class="mb-1 max-md:px-10 text-sm text-muted-foreground text-center">
-    {$t`Sync with a USB drive or another folder`}
-  </p>
   <div class="flex flex-col items-center gap-1">
     {#if rememberedFolder.current}
       {@const path = rememberedFolder.current}
-      <Button
-        variant="outline"
-        class="border-primary text-primary hover:text-primary"
-        icon="i-mdi-sync"
-        iconProps={{ class: 'size-5' }}
-        title={path}
-        loading={running === 'remembered'}
-        disabled={!!syncing && running !== 'remembered'}
-        onclick={() => void run('remembered', () => Promise.resolve(path))}>
-        {#if running === 'remembered'}
-          {$t`Syncing...`}
-        {:else}
-          {$t`Sync with ${shortFolderPath(path)}`}
-        {/if}
-      </Button>
+      <ButtonGroup.Root>
+        <Button
+          variant="outline"
+          class="border-primary text-primary hover:text-primary"
+          icon="i-mdi-sync"
+          iconProps={{ class: 'size-5' }}
+          title={path}
+          loading={running === 'remembered'}
+          disabled={!!syncing && running !== 'remembered'}
+          onclick={() => void run('remembered', () => Promise.resolve(path))}>
+          {running === 'remembered' ? $t`Syncing...` : $t`Sync with ${shortFolderPath(path)}`}
+        </Button>
+        <Button
+          variant="outline"
+          class="border-primary text-primary hover:text-primary"
+          icon="i-mdi-folder-open-outline"
+          iconProps={{ class: 'size-5' }}
+          title={$t`Open folder`}
+          aria-label={$t`Open folder`}
+          onclick={() => void openFolder(path)} />
+      </ButtonGroup.Root>
       <Button
         variant="link"
         loading={running === 'picked'}

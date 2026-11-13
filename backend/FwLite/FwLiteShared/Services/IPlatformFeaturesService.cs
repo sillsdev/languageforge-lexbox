@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.JSInterop;
 
 namespace FwLiteShared.Services;
@@ -48,6 +49,10 @@ public interface IPlatformFeaturesService
     [JSInvokable]
     Task<bool> FolderExists(string path);
 
+    //In the OS file manager
+    [JSInvokable]
+    Task OpenFolder(string path);
+
     [JSInvokable]
     Task<string?> SuggestedAuthorName();
 }
@@ -89,6 +94,13 @@ internal class DummyPlatformFeaturesService : IPlatformFeaturesService
 
     [JSInvokable]
     public Task<bool> FolderExists(string path) => Task.FromResult(Directory.Exists(path));
+
+    [JSInvokable]
+    public Task OpenFolder(string path)
+    {
+        Process.Start(new ProcessStartInfo(path) {UseShellExecute = true});
+        return Task.CompletedTask;
+    }
 
     [JSInvokable]
     public Task<string?> SuggestedAuthorName() => Task.FromResult(OsUserName.Suggest());

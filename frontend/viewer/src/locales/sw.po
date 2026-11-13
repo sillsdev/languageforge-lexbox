@@ -731,6 +731,10 @@ msgstr ""
 msgid "Can use the internet"
 msgstr ""
 
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Can't find the folder. Is the drive plugged in?"
+msgstr ""
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -3009,6 +3013,11 @@ msgstr "Fungua"
 msgid "Open Data Directory"
 msgstr "Fungua Faharasa ya Data"
 
+#: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Open folder"
+msgstr ""
+
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in {0}"
 msgstr ""
@@ -4138,7 +4147,6 @@ msgstr ""
 msgid "Sync with a folder..."
 msgstr ""
 
-#: src/project/sync/FolderSyncSection.svelte
 #: src/project/sync/SyncMethodList.svelte
 msgid "Sync with a USB drive or another folder"
 msgstr ""

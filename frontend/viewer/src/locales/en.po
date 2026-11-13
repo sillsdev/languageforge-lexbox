@@ -726,6 +726,10 @@ msgstr "Can change your dictionary — it will ask you first"
 msgid "Can use the internet"
 msgstr "Can use the internet"
 
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Can't find the folder. Is the drive plugged in?"
+msgstr "Can't find the folder. Is the drive plugged in?"
+
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -3004,6 +3008,11 @@ msgstr "Open"
 msgid "Open Data Directory"
 msgstr "Open Data Directory"
 
+#: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/FolderSyncSection.svelte
+msgid "Open folder"
+msgstr "Open folder"
+
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in {0}"
 msgstr "Open in {0}"
@@ -4133,7 +4142,6 @@ msgstr "Sync with {0}"
 msgid "Sync with a folder..."
 msgstr "Sync with a folder..."
 
-#: src/project/sync/FolderSyncSection.svelte
 #: src/project/sync/SyncMethodList.svelte
 msgid "Sync with a USB drive or another folder"
 msgstr "Sync with a USB drive or another folder"
