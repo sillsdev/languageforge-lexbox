@@ -1,0 +1,71 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The hg client the Testing project drives send/receive through, in its own process so each hg version
+       can run with the LibChorus and LfMergeBridge that FLEx Bridge shipped with it.
+       Testing can't load those itself: LCModel there needs a newer SIL.Core than old LibChorus does. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <!-- To switch Mercurial versions (3, 6 or 7), set the MercurialVersion env var (or pass -p:) for both dotnet build and dotnet test -->
+    <MercurialVersion Condition=" '$(MercurialVersion)' == '' ">7</MercurialVersion>
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
+  </PropertyGroup>
+  <!-- Old LibChorus gets the SIL.Core etc. it shipped with, not the backend's pinned versions -->
+  <PropertyGroup Condition=" '$(MercurialVersion)' != '7' ">
+    <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
+    <NoWarn>$(NoWarn);NU1605;NU1902;NU1903</NoWarn>
+  </PropertyGroup>
+  <Choose>
+    <!-- Next FLEx Bridge release -->
+    <When Condition=" '$(MercurialVersion)' == '7' ">
+      <ItemGroup>
+        <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" />
+        <PackageReference Include="SIL.Chorus.LibChorus" />
+        <PackageReference Include="SIL.Chorus.Mercurial" />
+      </ItemGroup>
+    </When>
+    <!-- FLEx Bridge 4.3 (Chorus 6.0.0-beta0063) -->
+    <When Condition=" '$(MercurialVersion)' == '6' ">
+      <ItemGroup>
+        <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" VersionOverride="4.3.0-beta0048" />
+        <PackageReference Include="SIL.Chorus.LibChorus" VersionOverride="6.0.0-beta0063" />
+        <PackageReference Include="SIL.Chorus.Mercurial" VersionOverride="6.5.1.43" />
+      </ItemGroup>
+    </When>
+    <!-- FLEx Bridge 4.1 (Chorus 5.2) -->
+    <When Condition=" '$(MercurialVersion)' == '3' ">
+      <ItemGroup>
+        <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" VersionOverride="4.1.0" />
+        <PackageReference Include="SIL.Chorus.LibChorus" VersionOverride="5.2.0-beta0005" />
+        <PackageReference Include="SIL.Chorus.Mercurial" VersionOverride="3.0.3.11" />
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Target Name="ValidateMercurialVersion" BeforeTargets="CollectPackageReferences;Build">
+    <Error Condition=" '$(MercurialVersion)' != '3' And '$(MercurialVersion)' != '6' And '$(MercurialVersion)' != '7' "
+           Text="MercurialVersion must be 3, 6 or 7, got '$(MercurialVersion)'" />
+  </Target>
+  <!-- Stage Mercurial straight into the output, where Chorus looks for it -->
+  <Target Name="StageMercurialInOutput" BeforeTargets="CopyFiles">
+    <PropertyGroup>
+      <Mercurial4ChorusDestDir>$(TargetDir)</Mercurial4ChorusDestDir>
+    </PropertyGroup>
+  </Target>
+  <!-- FixFwData's dependencies clash with old LibChorus's, so it gets its own folder -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\FixFwData\FixFwData.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+  <Target Name="CopyFixFwData" AfterTargets="Build">
+    <MSBuild Projects="..\..\FixFwData\FixFwData.csproj" Targets="GetTargetPath">
+      <Output TaskParameter="TargetOutputs" ItemName="_FixFwDataTargetPath" />
+    </MSBuild>
+    <PropertyGroup>
+      <_FixFwDataDir>@(_FixFwDataTargetPath->'%(RootDir)%(Directory)')</_FixFwDataDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <_FixFwDataFiles Include="$(_FixFwDataDir)**" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_FixFwDataFiles)" DestinationFolder="$(TargetDir)FixFwData\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <!-- Older LfMergeBridge looks for FixFwData.exe on Linux too -->
+    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="ln -f FixFwData FixFwData.exe" WorkingDirectory="$(TargetDir)FixFwData" />
+  </Target>
+</Project>

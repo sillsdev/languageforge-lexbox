@@ -1,12 +1,10 @@
 using Chorus.VcsDrivers.Mercurial;
 using LexBoxApi.Auth;
 using FluentAssertions;
-using SIL.Progress;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
 using Testing.ApiTests;
 using Testing.Fixtures;
-using Testing.Logging;
 using Testing.Services;
 using Xunit.Abstractions;
 using static Testing.Services.Constants;
@@ -31,13 +29,13 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClass
         _adminApiTester = _srFixture.AdminApiTester;
     }
 
+    private static void ShouldThrowInClient<T>(Func<string> act) where T : Exception =>
+        act.Should().Throw<SendReceiveClientException>().Which.ExceptionType.Should().Be(typeof(T).Name);
+
     [Fact]
-    public async Task VerifyHgWorking()
+    public void VerifyHgWorking()
     {
-        var version = await SendReceiveService.GetHgVersion();
-        _output.WriteLine("Hg version: " + version);
-        HgRunner.Run("hg version", Environment.CurrentDirectory, 5, new XunitStringBuilderProgress(_output) { ShowVerbose = true });
-        HgRepository.GetEnvironmentReadinessMessage("en").Should().BeNull();
+        _output.WriteLine("Hg version: " + SendReceiveService.GetHgVersion());
     }
 
     [Theory]
@@ -210,13 +208,12 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClass
         var sendReceiveParams = new SendReceiveParams(HgProtocol.Hgweb, projectConfig);
 
         //add a bunch of small files, must be in separate commits otherwise hg runs out of memory. But we want the push to be large
-        var progress = new NullProgress();
         for (var i = 1; i <= fileCount; i++)
         {
             var fileName = $"test-file{i}.bin";
             WriteFile(Path.Combine(sendReceiveParams.Dir, fileName), totalSizeMb / fileCount);
-            HgRunner.Run($"hg add {fileName}", sendReceiveParams.Dir, 5, progress);
-            HgRunner.Run($"""hg commit -m "large file commit {i}" """, sendReceiveParams.Dir, 5, progress).ExitCode.Should().Be(0);
+            _sendReceiveService.RunHg($"add {fileName}", sendReceiveParams.Dir);
+            _sendReceiveService.RunHg($"""commit -m "large file commit {i}" """, sendReceiveParams.Dir);
         }
 
         var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
@@ -244,7 +241,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClass
         var sendReceiveParams = GetParams(HgProtocol.Hgweb);
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, InvalidPass);
 
-        act.Should().Throw<RepositoryAuthorizationException>();
+        ShouldThrowInClient<RepositoryAuthorizationException>(act);
     }
 
     [Fact]
@@ -253,7 +250,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClass
         var sendReceiveParams = GetParams(HgProtocol.Resumable);
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, InvalidPass);
 
-        act.Should().Throw<UnauthorizedAccessException>();
+        ShouldThrowInClient<UnauthorizedAccessException>(act);
     }
 
     [Fact(Skip = "Low value test for it's runtime")]
@@ -263,7 +260,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClass
         _sendReceiveService.CloneProject(sendReceiveParams, ManagerAuth);
 
         var act = () => _sendReceiveService.SendReceiveProject(sendReceiveParams, InvalidPass);
-        act.Should().Throw<RepositoryAuthorizationException>();
+        ShouldThrowInClient<RepositoryAuthorizationException>(act);
     }
 
     [Fact(Skip = "Low value test for it's runtime")]
@@ -273,7 +270,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClass
         _sendReceiveService.CloneProject(sendReceiveParams, ManagerAuth);
 
         var act = () => _sendReceiveService.SendReceiveProject(sendReceiveParams, InvalidPass);
-        act.Should().Throw<UnauthorizedAccessException>();
+        ShouldThrowInClient<UnauthorizedAccessException>(act);
     }
 
     [Fact]
@@ -281,7 +278,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClass
     {
         var sendReceiveParams = GetParams(HgProtocol.Hgweb);
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, InvalidUser);
-        act.Should().Throw<RepositoryAuthorizationException>();
+        ShouldThrowInClient<RepositoryAuthorizationException>(act);
     }
 
     [Fact]
@@ -289,7 +286,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClass
     {
         var sendReceiveParams = GetParams(HgProtocol.Resumable);
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, InvalidUser);
-        act.Should().Throw<UnauthorizedAccessException>();
+        ShouldThrowInClient<UnauthorizedAccessException>(act);
     }
 
     [Fact]
@@ -298,7 +295,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClass
         var sendReceiveParams = GetParams(HgProtocol.Hgweb, "non-existent-project");
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, AdminAuth);
 
-        act.Should().Throw<ProjectLabelErrorException>();
+        ShouldThrowInClient<ProjectLabelErrorException>(act);
         Directory.GetFiles(sendReceiveParams.Dir).Should().BeEmpty();
     }
 
@@ -308,7 +305,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClass
         var sendReceiveParams = GetParams(HgProtocol.Hgweb, "non-existent-project");
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, ManagerAuth);
 
-        act.Should().Throw<RepositoryAuthorizationException>();
+        ShouldThrowInClient<RepositoryAuthorizationException>(act);
         Directory.GetFiles(sendReceiveParams.Dir).Should().BeEmpty();
     }
 
@@ -318,7 +315,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClass
         var sendReceiveParams = GetParams(HgProtocol.Hgweb);
 
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, UnauthorizedUser);
-        act.Should().Throw<RepositoryAuthorizationException>();
+        ShouldThrowInClient<RepositoryAuthorizationException>(act);
     }
 
     [Fact]
@@ -327,6 +324,6 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClass
         var sendReceiveParams = GetParams(HgProtocol.Resumable);
 
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, UnauthorizedUser);
-        act.Should().Throw<UnauthorizedAccessException>();
+        ShouldThrowInClient<UnauthorizedAccessException>(act);
     }
 }

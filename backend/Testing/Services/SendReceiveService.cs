@@ -1,81 +1,67 @@
 using System.Diagnostics;
-using Chorus;
-using Nini.Ini;
+using System.Reflection;
+using System.Text.Json;
 using FluentAssertions;
-using SIL.Progress;
-using Testing.Logging;
+using SendReceiveClient;
 using Xunit.Abstractions;
 
 namespace Testing.Services;
 
 public record SendReceiveAuth(string Username, string Password);
 
+/// <summary>
+/// An exception SendReceiveClient caught. Its type lives in the client's LibChorus, so only the name crosses over.
+/// </summary>
+public class SendReceiveClientException(string exceptionType, string? details) : Exception($"{exceptionType}: {details}")
+{
+    public string ExceptionType { get; } = exceptionType;
+}
+
 public record SendReceiveParams(string ProjectCode, string BaseUrl, string Dir) : ProjectPath(ProjectCode, Dir)
 {
     public SendReceiveParams(HgProtocol protocol, ProjectPath project) : this(project.Code, protocol.GetTestHostName(), project.Dir) { }
 }
 
-public class SendReceiveService
+public class SendReceiveService(ITestOutputHelper output)
 {
-    private readonly ITestOutputHelper _output;
     private const string fdoDataModelVersion = "7000072";
 
-    public SendReceiveService(ITestOutputHelper output)
+    private static readonly string ClientPath = typeof(SendReceiveService).Assembly
+        .GetCustomAttributes<AssemblyMetadataAttribute>()
+        .Single(a => a.Key == "SendReceiveClientPath").Value!;
+
+    /// <summary>
+    /// hg version, LibChorus and LfMergeBridge versions of the client. Throws if Chorus says hg isn't ready to use.
+    /// </summary>
+    public static string GetHgVersion() => RunClient("version", new ClientRequest(), null);
+
+    public string RunHg(string args, string dir) => RunClient("hg", new ClientRequest(HgArgs: args, Dir: dir), output);
+
+    private static string RunClient(string command, ClientRequest request, ITestOutputHelper? output)
     {
-        _output = output;
-        FixupCaCerts();
-    }
-
-    private static bool _cacertsFixed = false;
-
-    private static void FixupCaCerts()
-    {
-        if (_cacertsFixed) return;
-        var caCertsPem = new []
+        using var client = new Process();
+        client.StartInfo = new ProcessStartInfo("dotnet", [ClientPath, command])
         {
-            "/etc/ssl/certs/ca-certificates.crt",
-            Path.GetFullPath(Path.Join(MercurialLocation.PathToMercurialFolder, "cacert.pem")),
-        } .FirstOrDefault(File.Exists);
-        if (string.IsNullOrEmpty(caCertsPem)) throw new FileNotFoundException("unable to find cacert.pem");
-        //this cacerts.rc file is what is used when doing a clone, all future actions on a repo use the hgrc file defined in the .hg folder
-        var cacertsRcPath = Path.Join(MercurialLocation.PathToMercurialFolder, "default.d", "cacerts.rc");
-        //the default.d folder doesn't exist in linux builds, so we modify the mercurial.ini file instead
-        if (!File.Exists(cacertsRcPath))
-        {
-            cacertsRcPath = Path.Join(MercurialLocation.PathToMercurialFolder, "mercurial.ini");
-        }
-
-        var caCertsRc = new IniDocument(cacertsRcPath, IniFileType.MercurialStyle);
-        caCertsRc.Sections.GetOrCreate("web").Set("cacerts", caCertsPem);
-        caCertsRc.Save();
-        _cacertsFixed = true;
-    }
-
-    private StringBuilderProgress NewProgress()
-    {
-        return new XunitStringBuilderProgress(_output)
-        {
-            ProgressIndicator = new NullProgressIndicator(), ShowVerbose = true
+            RedirectStandardInput = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
         };
-    }
-
-    public static async Task<string> GetHgVersion()
-    {
-        using Process hg = new();
-        hg.StartInfo.FileName = MercurialLocation.PathToHgExecutable;
-        if (!File.Exists(hg.StartInfo.FileName) && !File.Exists(hg.StartInfo.FileName + ".exe"))
+        client.ErrorDataReceived += (_, e) =>
         {
-            throw new FileNotFoundException("unable to find HG executable", hg.StartInfo.FileName);
-        }
+            if (e.Data is not null) output?.WriteLine(e.Data);
+        };
+        client.Start();
+        client.BeginErrorReadLine();
+        client.StandardInput.Write(JsonSerializer.Serialize(request));
+        client.StandardInput.Close();
+        var stdout = client.StandardOutput.ReadToEnd();
+        client.WaitForExit();
 
-        hg.StartInfo.Arguments = "version";
-        hg.StartInfo.RedirectStandardOutput = true;
-
-        hg.Start();
-        var output = await hg.StandardOutput.ReadToEndAsync();
-        await hg.WaitForExitAsync();
-
-        return output;
+        var response = JsonSerializer.Deserialize<ClientResponse>(stdout)
+                       ?? throw new InvalidOperationException($"SendReceiveClient wrote no response: {stdout}");
+        if (response.ExceptionType is not null)
+            throw new SendReceiveClientException(response.ExceptionType, response.Exception);
+        return response.Output;
     }
 
     public string RunCloneSendReceive(SendReceiveParams sendReceiveParams, SendReceiveAuth auth)
@@ -107,22 +93,10 @@ public class SendReceiveService
     {
         var (projectCode, baseUrl, destDir) = sendReceiveParams;
         var (username, password) = auth;
-        var progress = NewProgress();
         var repoUrl = new UriBuilder($"{TestingEnvironmentVariables.HttpScheme}{baseUrl}/{projectCode}");
-        progress.WriteMessage($"Cloning {repoUrl} with user '{username}' ...");
-        if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password))
+        output.WriteLine($"Cloning {repoUrl} with user '{username}' ...");
+        if (!string.IsNullOrEmpty(username) || !string.IsNullOrEmpty(password))
         {
-            // No username or password supplied, so we explicitly do *not* save user settings
-        }
-        else
-        {
-            var chorusSettings = new Chorus.Model.ServerSettingsModel
-            {
-                Username = username,
-                RememberPassword = false, // Necessary for tests to work on Linux
-                Password = password
-            };
-            chorusSettings.SaveUserSettings();
             repoUrl.UserName = username;
             repoUrl.Password = password;
         }
@@ -135,9 +109,7 @@ public class SendReceiveService
             { "languageDepotRepoUri", repoUrl.ToString() },
             { "deleteRepoIfNoSuchBranch", "false" },
         };
-        string cloneResult;
-        LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Clone", progress, flexBridgeOptions, out cloneResult);
-        cloneResult += $"{Environment.NewLine}Progress out: {progress.Text}";
+        var cloneResult = RunClient("lfmergebridge", new ClientRequest("Language_Forge_Clone", flexBridgeOptions, username, password), output);
 
         if (validateOutput)
         {
@@ -151,22 +123,10 @@ public class SendReceiveService
     {
         var (projectCode, baseUrl, destDir) = sendReceiveParams;
         var (username, password) = auth;
-        var progress = NewProgress();
         var repoUrl = new UriBuilder($"{TestingEnvironmentVariables.HttpScheme}{baseUrl}/{projectCode}");
-        progress.WriteMessage($"S/R for {repoUrl} with user '{username}' ...");
-        if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password))
+        output.WriteLine($"S/R for {repoUrl} with user '{username}' ...");
+        if (!string.IsNullOrEmpty(username) || !string.IsNullOrEmpty(password))
         {
-            // No username or password supplied, so we explicitly do *not* save user settings
-        }
-        else
-        {
-            var chorusSettings = new Chorus.Model.ServerSettingsModel
-            {
-                Username = username,
-                RememberPassword = false, // Necessary for tests to work on Linux
-                Password = password
-            };
-            chorusSettings.SaveUserSettings();
             repoUrl.UserName = username;
             repoUrl.Password = password;
         }
@@ -183,14 +143,7 @@ public class SendReceiveService
             { "commitMessage", commitMessage }
         };
 
-        string cloneResult;
-
-        LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Send_Receive",
-            progress,
-            flexBridgeOptions,
-            out cloneResult);
-
-        cloneResult += "Progress out: " + progress.Text;
+        var cloneResult = RunClient("lfmergebridge", new ClientRequest("Language_Forge_Send_Receive", flexBridgeOptions, username, password), output);
 
         if (validateOutput)
         {
