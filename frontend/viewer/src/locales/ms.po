@@ -640,7 +640,13 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Segerakkan automatik"
 
+#. Status of the "Other FieldWorks Lite users" sync method. # is a relative time like "5 min ago", or "Never"
+#: src/project/sync/SyncMethodList.svelte
+msgid "Auto syncing · Last sync: #"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/project/SyncDialog.svelte
 msgid "Back"
 msgstr "Balik"
 
@@ -1597,6 +1603,7 @@ msgstr "Ralat menyemak kemas kini: {0}"
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Error getting sync status"
 msgstr "Ralat mendapatkan status penyegerakan"
 
@@ -1780,11 +1787,6 @@ msgstr "Bidang"
 msgid "Fields"
 msgstr "Medan"
 
-#. Product name
-#: src/project/SyncDialog.svelte
-msgid "FieldWorks Lite"
-msgstr "FieldWorks Lite"
-
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite mengumpul data penggunaan untuk membantu kami memperbaikinya."
@@ -1813,6 +1815,11 @@ msgstr "Versi FieldWorks Lite"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
+
+#. Sync method in the Sync Changes dialog. Send/Receive is the name of the sync feature in FieldWorks Classic
+#: src/project/SyncDialog.svelte
+msgid "FieldWorks Send/Receive (on Lexbox)"
+msgstr ""
 
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/plugin-api-adapter.ts
@@ -2264,11 +2271,6 @@ msgstr "Panjang:"
 msgid "Let this version use the internet?"
 msgstr ""
 
-#. Product name
-#: src/project/SyncDialog.svelte
-msgid "Lexbox"
-msgstr "Lexbox"
-
 #. Alt text for the Lexbox logo image shown in the home screen app bar. "Lexbox" is a product name — do not translate.
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -2637,10 +2639,6 @@ msgstr "Nama"
 msgid "Name is required"
 msgstr "Nama diperlukan"
 
-#: src/project/SyncDialog.svelte
-msgid "Nearby"
-msgstr ""
-
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
 msgstr ""
@@ -2648,6 +2646,7 @@ msgstr ""
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwLiteSyncView.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Never"
 msgstr "Tidak Pernah"
 
@@ -2833,6 +2832,7 @@ msgstr "Tiada pelayan"
 
 #. Status text in the project sidebar when the project has no server/sync partner configured.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "No server configured"
 msgstr "Tiada pelayan dikonfigurasikan"
 
@@ -2897,6 +2897,7 @@ msgstr ""
 
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Not logged in"
 msgstr "Tidak log masuk"
 
@@ -2961,6 +2962,10 @@ msgstr "Luar talian, tidak dapat memuat turun"
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
 msgstr "Luar talian, tidak dapat membuka fail"
+
+#: src/project/sync/SyncMethodList.svelte
+msgid "Offline. Your changes are saved on this device."
+msgstr ""
 
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
@@ -3052,6 +3057,11 @@ msgstr "Tolak analitik"
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
 msgstr "jingga"
+
+#. Sync method in the Sync Changes dialog: syncing through Lexbox with other people who use FieldWorks Lite
+#: src/project/SyncDialog.svelte
+msgid "Other FieldWorks Lite users"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
@@ -3660,6 +3670,11 @@ msgstr ""
 msgid "Runs in a sandbox, separate from the app"
 msgstr ""
 
+#. Under "FieldWorks Send/Receive (on Lexbox)": the sync happens on the Lexbox server, not with a FieldWorks installation on this computer
+#: src/project/sync/SyncMethodList.svelte
+msgid "Runs on Lexbox, not with FieldWorks on this computer"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
@@ -4095,6 +4110,7 @@ msgid "Sync"
 msgstr "Segerak"
 
 #. Dialog title
+#: src/project/ProjectSidebar.svelte
 #: src/project/SyncDialog.svelte
 msgid "Sync Changes"
 msgstr "Segerakkan Perubahan"
@@ -4114,6 +4130,7 @@ msgid "Sync now"
 msgstr ""
 
 #: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Sync with {0}"
 msgstr ""
 
@@ -4122,6 +4139,7 @@ msgid "Sync with a folder..."
 msgstr ""
 
 #: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Sync with a USB drive or another folder"
 msgstr ""
 
@@ -4162,11 +4180,6 @@ msgstr ""
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
 msgstr "Diseleraskan: #"
-
-#. Menu item to start sync
-#: src/project/ProjectSidebar.svelte
-msgid "Synchronize"
-msgstr "Segerakkan"
 
 #. Progress message during sync
 #: src/project/sync/FwClassicSyncView.svelte
@@ -4706,6 +4719,11 @@ msgstr "Fail belum selesai telah dimuat naik"
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
 msgstr "Memuat naik gambar tidak disokong di sini."
+
+#. Sync method in the Sync Changes dialog: syncing through a USB drive or a shared folder
+#: src/project/SyncDialog.svelte
+msgid "USB Drive / Folder"
+msgstr ""
 
 #: src/project/sync/FolderPicker.svelte
 msgid "Use this folder"

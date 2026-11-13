@@ -40,7 +40,7 @@ describe('SyncDialog', () => {
     // bits-ui restores the body style 24ms after the dialog unmounts; let it run before jsdom is torn down
     await new Promise(resolve => setTimeout(resolve, 50));
     document.body.innerHTML = '';
-    // a folder sync test's platform features would otherwise add the Nearby tab to later tests
+    // a folder sync test's platform features would otherwise add the folder method to later tests
     window.lexbox?.ServiceProvider?.removeService(DotnetService.PlatformFeaturesService);
     (await import('$lib/services/platform-features-service')).refreshPlatformFeatures();
     (await import('$lib/feature-flags/feature-flags.svelte')).featureFlags.channel = '';
@@ -68,36 +68,116 @@ describe('SyncDialog', () => {
   it('FW Lite sync finishes without waiting on the FieldWorks Classic status', async () => {
     const syncService = fakeSyncService();
     await openDialog(syncService);
+    await chooseMethod('Other FieldWorks Lite users');
     await vi.waitFor(() => expect(document.body.textContent).toContain('Pending'));
 
-    getButton(/Auto syncing/).click();
+    const button = getButton(/Auto syncing/);
+    button.click();
     flushSync();
-    expect(getButton(/Syncing/)).toBeTruthy();
+    // Both labels stay in the button so it keeps its size; only the current one is visible
+    expect(visibleLabel(button)).toBe('Syncing...');
 
-    await vi.waitFor(() => expect(document.body.textContent).toContain('Auto syncing'));
+    await vi.waitFor(() => expect(visibleLabel(button)).toBe('Auto syncing'));
     expect(syncService.executeSync).toHaveBeenCalledOnce();
-    // Only loaded once the Lexbox tab is shown
+    // Only loaded once FieldWorks Send/Receive is chosen
     expect(syncService.getSyncStatus).not.toHaveBeenCalled();
     expect([...document.querySelectorAll('button')].some(b => b.textContent?.includes('Sync your changes'))).toBe(false);
   }, 60_000); // first import transforms the dialog's dependencies
 
-  // The tabs show once the project's features have loaded
-  async function showTab(name: 'FieldWorks Lite' | 'Lexbox' | 'Nearby') {
-    const tab = await vi.waitFor(() => {
-      const tab = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')].find(t => t.textContent?.includes(name));
-      expect(tab).toBeTruthy();
-      return tab!;
-    });
-    tab.dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
-    tab.click();
-    flushSync();
-    expect(tab.getAttribute('aria-selected')).toBe('true');
+  type SyncMethod = 'Other FieldWorks Lite users' | 'FieldWorks Send/Receive (on Lexbox)' | 'USB Drive / Folder';
+
+  function methodButtons(): string[] {
+    return [...document.querySelectorAll('button')].map(b => b.textContent?.trim() ?? '').filter(text => /^(Other FieldWorks Lite users|FieldWorks Send\/Receive|USB Drive)/.test(text));
   }
 
-  it('loads the FieldWorks Classic status when its tab is first shown', async () => {
+  // The methods show once the project's features have loaded
+  async function chooseMethod(name: SyncMethod) {
+    const button = await vi.waitFor(() => {
+      const button = [...document.querySelectorAll('button')].find(b => b.textContent?.trim().startsWith(name));
+      expect(button).toBeTruthy();
+      return button!;
+    });
+    button.click();
+    flushSync();
+    expect(document.querySelector('h3')?.textContent).toBe(name);
+  }
+
+  function back() {
+    document.querySelector<HTMLButtonElement>('button[title="Back"]')!.click();
+    flushSync();
+  }
+
+  async function systemBack() {
+    history.back();
+    await new Promise(resolve => window.addEventListener('popstate', resolve, {once: true}));
+    await new Promise(resolve => setTimeout(resolve));
+    flushSync();
+  }
+
+  function dialogOpen() {
+    return new URL(location.href).searchParams.get('syncDialogOpen') === 'true';
+  }
+
+  it('goes back to the method list on system back, then closes', async () => {
+    await openDialog(fakeSyncService());
+    await vi.waitFor(() => expect(dialogOpen()).toBe(true));
+    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    await systemBack();
+    expect(dialogOpen()).toBe(true);
+    await vi.waitFor(() => expect(methodButtons()).toHaveLength(2));
+
+    await systemBack();
+    await vi.waitFor(() => expect(dialogOpen()).toBe(false));
+  }, 60_000);
+
+  it('leaves no history entry behind after the back arrow', async () => {
+    await openDialog(fakeSyncService());
+    await vi.waitFor(() => expect(dialogOpen()).toBe(true));
+    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    await new Promise(resolve => setTimeout(resolve, 50));
+    back();
+    await vi.waitFor(() => expect(methodButtons()).toHaveLength(2));
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    // the next system back closes the dialog instead of reopening the method
+    await systemBack();
+    await vi.waitFor(() => expect(dialogOpen()).toBe(false));
+  }, 60_000);
+
+  it('closing from a method view leaves no history entries behind', async () => {
+    await openDialog(fakeSyncService());
+    await vi.waitFor(() => expect(dialogOpen()).toBe(true));
+    const startLength = history.length;
+    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    await vi.waitFor(() => expect(history.length).toBe(startLength + 1));
+
+    document.querySelector<HTMLButtonElement>('[data-dialog-close]')!.click();
+    await vi.waitFor(() => expect(dialogOpen()).toBe(false));
+    await new Promise(resolve => setTimeout(resolve, 100));
+    // back on the entry from before the dialog opened
+    expect(history.state).toEqual({});
+  }, 60_000);
+
+  it('focuses the back button on opening a method, and that method on going back', async () => {
+    await openDialog(fakeSyncService());
+    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    expect(document.activeElement?.getAttribute('title')).toBe('Back');
+    back();
+    await vi.waitFor(() => expect(document.activeElement?.textContent?.trim()).toMatch(/^FieldWorks Send\/Receive/));
+  }, 60_000);
+
+  function visibleLabel(button: HTMLButtonElement) {
+    return [...button.querySelectorAll('.grid > span')].find(s => !s.classList.contains('invisible'))?.textContent;
+  }
+
+  it('loads the FieldWorks Classic status only once that method is chosen', async () => {
     const syncService = fakeSyncService();
     await openDialog(syncService);
-    await showTab('Lexbox');
+    await vi.waitFor(() => expect(methodButtons()).toHaveLength(2));
+    expect(syncService.getSyncStatus).not.toHaveBeenCalled();
+    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
     await vi.waitFor(() => expect(syncService.getSyncStatus).toHaveBeenCalledOnce());
   }, 60_000);
 
@@ -105,11 +185,11 @@ describe('SyncDialog', () => {
     const syncService = fakeSyncService();
     syncService.getSyncStatus.mockImplementation(() => Promise.reject(new Error('Lexbox unreachable')));
     await openDialog(syncService);
-    await showTab('Lexbox');
+    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
     await vi.waitFor(() => expect(document.body.textContent).toContain(`Couldn't get the FieldWorks Classic status from Lexbox.`));
   }, 60_000);
 
-  it('keeps the FieldWorks Classic status when switching tabs', async () => {
+  it('keeps the FieldWorks Classic status when going back and forth', async () => {
     const syncService = fakeSyncService();
     syncService.getSyncStatus.mockImplementation(() => Promise.resolve({
       status: ProjectSyncStatusEnum.ReadyToSync,
@@ -117,10 +197,12 @@ describe('SyncDialog', () => {
       pendingMercurialChanges: 5,
     }));
     await openDialog(syncService);
-    await showTab('Lexbox');
+    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
     await vi.waitFor(() => expect(document.body.textContent).toContain('New data'));
-    await showTab('FieldWorks Lite');
-    await showTab('Lexbox');
+    back();
+    await chooseMethod('Other FieldWorks Lite users');
+    back();
+    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
     expect(document.body.textContent).toContain('New data');
     expect(syncService.getSyncStatus).toHaveBeenCalledOnce();
   }, 60_000);
@@ -155,7 +237,7 @@ describe('SyncDialog', () => {
     refreshPlatformFeatures();
     const syncService = fakeSyncService();
     await openDialog(syncService);
-    await showTab('Nearby');
+    await chooseMethod('USB Drive / Folder');
 
     await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
     const input = await vi.waitFor(() => {
@@ -183,8 +265,8 @@ describe('SyncDialog', () => {
     window.lexbox.ServiceProvider.removeService(DotnetService.PlatformFeaturesService);
     refreshPlatformFeatures();
     await openDialog(fakeSyncService());
-    await vi.waitFor(() => expect(document.body.textContent).toContain('Pending'));
-    expect([...document.querySelectorAll('[role="tab"]')].map(t => t.textContent)).not.toContainEqual(expect.stringContaining('Nearby'));
+    await vi.waitFor(() => expect(methodButtons()).toHaveLength(2));
+    expect(methodButtons()).not.toContainEqual(expect.stringContaining('USB Drive'));
   }, 60_000);
 
   it('syncs with the picked folder, then offers to sync with it again', async () => {
@@ -194,21 +276,25 @@ describe('SyncDialog', () => {
       .mockResolvedValueOnce(undefined)
       .mockResolvedValue(String.raw`E:\test-project`);
     await openDialog(syncService);
-    await showTab('Nearby');
+    await chooseMethod('USB Drive / Folder');
 
     await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
     await vi.waitFor(() => expect(syncService.syncWithFolder).toHaveBeenCalledWith(String.raw`E:\test-project`));
     await vi.waitFor(() => expect(getButton(/Sync with E:/).title).toBe(String.raw`E:\test-project`));
     expect(document.body.textContent).toContain('Sync with another folder...');
     expect(document.body.textContent).not.toContain('Sync with a folder...');
+
+    // The method list shows the new folder too
+    back();
+    await vi.waitFor(() => expect(methodButtons()).toContainEqual(expect.stringContaining(String.raw`Sync with E:`)));
   }, 60_000);
 
   it('hides folder sync outside the beta channel', async () => {
     await setFolderSyncSupport(() => Promise.resolve(undefined));
     (await import('$lib/feature-flags/feature-flags.svelte')).featureFlags.channel = '';
     await openDialog(fakeSyncService());
-    await showTab('Lexbox');
-    expect([...document.querySelectorAll('[role="tab"]')].map(t => t.textContent)).not.toContainEqual(expect.stringContaining('Nearby'));
+    await vi.waitFor(() => expect(methodButtons()).toHaveLength(2));
+    expect(methodButtons()).not.toContainEqual(expect.stringContaining('USB Drive'));
   }, 60_000);
 
   it('asks for a name before the first folder sync, then uses it', async () => {
@@ -217,7 +303,7 @@ describe('SyncDialog', () => {
     await authorName.set('');
     const syncService = fakeSyncService();
     await openDialog(syncService);
-    await showTab('Nearby');
+    await chooseMethod('USB Drive / Folder');
 
     await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
     const input = await vi.waitFor(() => {
@@ -241,7 +327,7 @@ describe('SyncDialog', () => {
     await setFolderSyncSupport(() => Promise.resolve(undefined));
     const syncService = fakeSyncService();
     await openDialog(syncService);
-    await showTab('Nearby');
+    await chooseMethod('USB Drive / Folder');
 
     await vi.waitFor(() => getButton(/Sync with a folder\.\.\./).click());
     await vi.waitFor(() => expect(getButton(/Sync with a folder\.\.\./).disabled).toBe(false));
@@ -256,7 +342,7 @@ describe('SyncDialog', () => {
     await new Promise(resolve => setTimeout(resolve));
     flushSync();
     expect(document.body.textContent).toContain('Pending');
-    expect(document.querySelectorAll('[role="tab"]')).toHaveLength(0);
+    expect(methodButtons()).toHaveLength(0);
     expect(syncService.getSyncStatus).not.toHaveBeenCalled();
 
     getButton(/Sync your changes with other FieldWorks Lite users/).click();
