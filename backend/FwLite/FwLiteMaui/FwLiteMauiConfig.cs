@@ -5,6 +5,8 @@ namespace FwLiteMaui;
 
 public class FwLiteMauiConfig
 {
+    private readonly string _defaultBaseDataDir;
+
     public FwLiteMauiConfig()
     {
         var defaultDataPath = FwLiteMauiKernel.IsPortableApp ? Directory.GetCurrentDirectory() : FileSystem.AppDataDirectory;
@@ -12,12 +14,57 @@ public class FwLiteMauiConfig
         if (defaultDataPath.StartsWith("C:\\Windows\\System32", StringComparison.OrdinalIgnoreCase))
             defaultDataPath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName) ?? ".";
         BaseDataDir = defaultDataPath;
+        _defaultBaseDataDir = BaseDataDir;
     }
 
+    /// <summary>
+    /// App-local state only: logs, the auth cache, the settings file and the WebView profile. On Windows MSIX
+    /// this is the package folder, which is deleted on uninstall, so never put user data here.
+    /// Projects belong in <see cref="ProjectDataDir"/>.
+    /// </summary>
     public string BaseDataDir
     {
         get;
         set => field = Path.GetFullPath(value);
+    }
+
+    /// <summary>
+    /// Where projects, their media cache and failed syncs should live. Defaults to <see cref="BaseDataDir"/>,
+    /// except on Windows MSIX installs: the package folder is deleted on uninstall, so project data goes to
+    /// ProgramData instead (#1391). Overriding <see cref="BaseDataDir"/> moves this along with it.
+    /// <para>
+    /// This is the intended location, not necessarily the one in use: if migrating existing data here fails, the
+    /// app keeps using <see cref="BaseDataDir"/> (see <see cref="ProjectDataLocation"/>). Read the folder in use
+    /// from <c>LcmCrdtConfig.ProjectPath</c> or <c>HarmonyConfig</c>, never from this property.
+    /// </para>
+    /// </summary>
+    public string ProjectDataDir
+    {
+        get => field ?? DefaultProjectDataDir();
+        set => field = Path.GetFullPath(value);
+    }
+
+    private string DefaultProjectDataDir()
+    {
+#if WINDOWS
+        if (!FwLiteMauiKernel.IsPortableApp && BaseDataDir == _defaultBaseDataDir)
+            return WindowsProjectDataDir();
+#endif
+        return BaseDataDir;
+    }
+
+    /// <summary>
+    /// C:\ProgramData\SIL\FieldWorks Lite\{user}, next to FieldWorks' own C:\ProgramData\SIL\FieldWorks.
+    /// MSIX only redirects AppData writes, so this folder survives uninstall. One folder per Windows user: a
+    /// project file is only writable by the user that created it, and the project db holds per-user state.
+    /// </summary>
+    public static string WindowsProjectDataDir()
+    {
+        var userFolder = string.Concat(Environment.UserName.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+            "SIL",
+            "FieldWorks Lite",
+            userFolder);
     }
 
     public int MaxLogFileSize { get; set; } = 50 * 1024 * 1024;
