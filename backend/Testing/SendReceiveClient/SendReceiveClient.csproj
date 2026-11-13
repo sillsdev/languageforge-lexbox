@@ -50,7 +50,7 @@
       <Mercurial4ChorusDestDir>$(TargetDir)</Mercurial4ChorusDestDir>
     </PropertyGroup>
   </Target>
-  <!-- FixFwData's dependencies clash with old LibChorus's, so it gets its own folder -->
+  <!-- FixFwData's dependencies clash with old LibChorus's, so it gets its own folder (not "FixFwData": on Linux that is its apphost's name) -->
   <ItemGroup>
     <ProjectReference Include="..\..\FixFwData\FixFwData.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
@@ -64,8 +64,8 @@
     <ItemGroup>
       <_FixFwDataFiles Include="$(_FixFwDataDir)**" />
     </ItemGroup>
-    <Copy SourceFiles="@(_FixFwDataFiles)" DestinationFolder="$(TargetDir)FixFwData\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_FixFwDataFiles)" DestinationFolder="$(TargetDir)FixFwDataTool\%(RecursiveDir)" SkipUnchangedFiles="true" />
     <!-- Older LfMergeBridge looks for FixFwData.exe on Linux too -->
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="ln -f FixFwData FixFwData.exe" WorkingDirectory="$(TargetDir)FixFwData" />
+    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="ln -f FixFwData FixFwData.exe" WorkingDirectory="$(TargetDir)FixFwDataTool" />
   </Target>
 </Project>

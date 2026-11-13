@@ -12,7 +12,7 @@ using SendReceiveClient;
 var stdout = Console.Out;
 Console.SetOut(Console.Error);
 // LfMergeBridge runs FixFwData from the current directory
-Directory.SetCurrentDirectory(Path.Join(AppContext.BaseDirectory, "FixFwData"));
+Directory.SetCurrentDirectory(Path.Join(AppContext.BaseDirectory, "FixFwDataTool"));
 
 ClientResponse response;
 try
