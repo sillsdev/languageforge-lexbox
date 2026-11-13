@@ -2065,8 +2065,9 @@ public class FwDataMiniLcmApi(
             // A file with the same name is only the same file if the bytes match; otherwise (two phones'
             // IMG_0001.jpg) save this one under a free name.
             tempPath = await LocalMediaFiles.CopyToTempFile(stream);
-            if (LocalMediaFiles.ContentEquals(tempPath, fullPath))
-                return new UploadFileResponse(mediaAdapter.MediaUriFromPath(fullPath, Cache), savedToLexbox: false, newResource: false);
+            var copy = LocalMediaFiles.ExistingCopies(tempPath, fullPath).FirstOrDefault();
+            if (copy is not null)
+                return new UploadFileResponse(mediaAdapter.MediaUriFromPath(copy, Cache), savedToLexbox: false, newResource: false);
             var savedPath = LocalMediaFiles.MoveToFreePath(tempPath, fullPath);
             return new UploadFileResponse(mediaAdapter.MediaUriFromPath(savedPath, Cache), savedToLexbox: false, newResource: true);
         }
