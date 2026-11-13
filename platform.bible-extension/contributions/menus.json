@@ -19,35 +19,48 @@
         "columns": {},
         "groups": {
           "lexicon.editor": {
-            "column": "platformScriptureEditor.edit",
+            "column": "platformScriptureEditor.tools",
             "order": 11
+          },
+          "lexicon.editorSubmenuActions": {
+            "menuItem": "lexicon.editorSubmenu",
+            "order": 1
           }
         },
         "items": [
           {
-            "label": "%lexicon_menu_browseLexicon%",
+            "id": "lexicon.editorSubmenu",
+            "label": "%lexicon_menu_lexicon%",
+            "localizeNotes": "Scripture Editor top menu > Tools > Lexicon ▸ (opens the flyout of lexicon actions)",
+            "iconNameBefore": "square-dashed-text",
             "group": "lexicon.editor",
+            "order": 1,
+            "hiddenInterfaceModes": ["simple"]
+          },
+          {
+            "label": "%lexicon_menu_browseLexicon%",
+            "group": "lexicon.editorSubmenuActions",
             "order": 1,
             "command": "lexicon.browseLexicon",
             "hiddenInterfaceModes": ["simple"]
           },
           {
             "label": "%lexicon_menu_addEntry%",
-            "group": "lexicon.editor",
+            "group": "lexicon.editorSubmenuActions",
             "order": 2,
             "command": "lexicon.addEntry",
             "hiddenInterfaceModes": ["simple"]
           },
           {
             "label": "%lexicon_menu_findEntry%",
-            "group": "lexicon.editor",
+            "group": "lexicon.editorSubmenuActions",
             "order": 3,
             "command": "lexicon.findEntry",
             "hiddenInterfaceModes": ["simple"]
           },
           {
             "label": "%lexicon_menu_findRelatedEntries%",
-            "group": "lexicon.editor",
+            "group": "lexicon.editorSubmenuActions",
             "order": 4,
             "command": "lexicon.findRelatedEntries",
             "hiddenInterfaceModes": ["simple"]
