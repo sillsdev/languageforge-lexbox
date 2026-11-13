@@ -35,6 +35,16 @@ test('plugins are hidden outside the beta channel', async ({page}) => {
   await expect(page.getByRole('button', {name: 'Plugins'})).toHaveCount(0);
 });
 
+test('the plugins page explains what a plugin can and cannot do', async ({page}) => {
+  await gotoPlugins(page);
+  const abilities = page.getByTestId('plugin-abilities');
+  await expect(abilities.getByText("Read this project's dictionary")).toBeHidden();
+
+  await abilities.getByRole('button', {name: 'What can a plugin do?'}).click();
+  await expect(abilities.getByText("Read this project's dictionary")).toBeVisible();
+  await expect(abilities.getByText('Use the internet', {exact: true})).toBeVisible();
+});
+
 test('runs a project plugin after consent', async ({page}) => {
   await gotoPlugins(page);
 
