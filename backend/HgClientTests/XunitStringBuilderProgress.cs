@@ -1,7 +1,7 @@
 using SIL.Progress;
 using Xunit.Abstractions;
 
-namespace Testing.Logging
+namespace HgClientTests
 {
     public class XunitStringBuilderProgress : StringBuilderProgress
     {

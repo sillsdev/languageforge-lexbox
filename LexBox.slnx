@@ -32,6 +32,7 @@
     <File Path="schema.graphql" />
   </Folder>
   <Project Path="backend/FixFwData/FixFwData.csproj" />
+  <Project Path="backend/HgClientTests/HgClientTests.csproj" />
   <Project Path="backend/LexBoxApi/LexBoxApi.csproj" />
   <Project Path="backend/LexCore/LexCore.csproj" />
   <Project Path="backend/LexData/LexData.csproj" />

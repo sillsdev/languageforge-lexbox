@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Json;
-using LexBoxApi.Auth;
 using LexCore.Auth;
 using Testing.ApiTests;
 using Testing.Fixtures;
@@ -70,7 +69,7 @@ public class JwtHelper
             var cookieContainer = new CookieContainer();
             cookieContainer.SetCookies(response.RequestMessage!.RequestUri!, cookies.Single());
             var authCookie = cookieContainer.GetAllCookies()
-                .FirstOrDefault(c => c.Name == AuthKernel.AuthCookieName);
+                .FirstOrDefault(c => c.Name == LexAuthConstants.AuthCookieName);
             jwt = authCookie?.Value;
         }
         return jwt is not null;

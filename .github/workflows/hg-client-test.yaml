@@ -41,7 +41,7 @@ jobs:
       name: ${{ inputs.environment }}
     runs-on: ${{ inputs.runs-on }}
     env:
-      # Read by MSBuild as a property, so dotnet build and the rebuild inside dotnet test pick the same hg.
+      # Read by MSBuild as a property: picks the hg and the LibChorus/LfMergeBridge paired with it.
       MercurialVersion: ${{ inputs.hg-version }}
       TEST_EXPECTED_HG_VERSION: ${{ inputs.hg-version }}
     steps:
@@ -61,8 +61,7 @@ jobs:
         run: |
           sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
       - name: Build for tests
-        # dotnet test rebuilds; this first build stages Mercurial so that rebuild copies it to the output.
-        run: dotnet build LexBoxOnly.slnf
+        run: dotnet build backend/HgClientTests/HgClientTests.csproj
 
       - name: Tests (.NET)
         env:
@@ -72,7 +71,7 @@ jobs:
           TEST_RESUMABLE_HG_HOSTNAME: ${{ vars.TEST_RESUMABLE_HG_HOSTNAME }}
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-        run: dotnet test LexBoxOnly.slnf --logger trx --results-directory ./test-results --filter Category=HgIntegration
+        run: dotnet test backend/HgClientTests/HgClientTests.csproj --no-build --logger trx --results-directory ./test-results --filter Category=HgIntegration
 
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action/composite@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2.25.0

@@ -1,6 +1,6 @@
 using Testing.Services;
 
-namespace Testing.Fixtures;
+namespace HgClientTests;
 
 /// <summary>
 /// Fails every test in the class when the hg client isn't the version CI asked for, so a lane can't pass on the wrong hg.

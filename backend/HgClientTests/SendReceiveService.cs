@@ -1,14 +1,13 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Chorus;
 using Nini.Ini;
 using FluentAssertions;
 using SIL.Progress;
-using Testing.Logging;
+using Testing.Services;
 using Xunit.Abstractions;
 
-namespace Testing.Services;
-
-public record SendReceiveAuth(string Username, string Password);
+namespace HgClientTests;
 
 public record SendReceiveParams(string ProjectCode, string BaseUrl, string Dir) : ProjectPath(ProjectCode, Dir)
 {
@@ -19,6 +18,8 @@ public class SendReceiveService
 {
     private readonly ITestOutputHelper _output;
     private const string fdoDataModelVersion = "7000072";
+    private static readonly string FixFwDataDir = Path.Join(AppContext.BaseDirectory, "FixFwDataTool");
+    private static readonly Lock LfMergeBridgeLock = new();
 
     public SendReceiveService(ITestOutputHelper output)
     {
@@ -135,13 +136,12 @@ public class SendReceiveService
             { "languageDepotRepoUri", repoUrl.ToString() },
             { "deleteRepoIfNoSuchBranch", "false" },
         };
-        string cloneResult;
-        LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Clone", progress, flexBridgeOptions, out cloneResult);
+        var cloneResult = RunLfMergeBridge("Language_Forge_Clone", progress, flexBridgeOptions);
         cloneResult += $"{Environment.NewLine}Progress out: {progress.Text}";
 
         if (validateOutput)
         {
-            Utils.ValidateSendReceiveOutput(cloneResult);
+            ValidateSendReceiveOutput(cloneResult);
         }
 
         return cloneResult;
@@ -183,20 +183,51 @@ public class SendReceiveService
             { "commitMessage", commitMessage }
         };
 
-        string cloneResult;
-
-        LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Send_Receive",
-            progress,
-            flexBridgeOptions,
-            out cloneResult);
-
+        var cloneResult = RunLfMergeBridge("Language_Forge_Send_Receive", progress, flexBridgeOptions);
         cloneResult += "Progress out: " + progress.Text;
 
         if (validateOutput)
         {
-            Utils.ValidateSendReceiveOutput(cloneResult);
+            ValidateSendReceiveOutput(cloneResult);
         }
 
         return cloneResult;
+    }
+
+    /// <summary>
+    /// LfMergeBridge runs FixFwData.exe from the current directory. FixFwData lives in its own folder because its
+    /// dependencies clash with old LibChorus's.
+    /// </summary>
+    private static string RunLfMergeBridge(string action, IProgress progress, Dictionary<string, string> options)
+    {
+        lock (LfMergeBridgeLock)
+        {
+            var previousDir = Directory.GetCurrentDirectory();
+            Directory.SetCurrentDirectory(FixFwDataDir);
+            try
+            {
+                LfMergeBridge.LfMergeBridge.Execute(action, progress, options, out var result);
+                return result;
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(previousDir);
+            }
+        }
+    }
+
+    public static void ValidateSendReceiveOutput(string srOutput)
+    {
+        srOutput.Should().NotContain("abort");
+        srOutput.Should().NotContain("failure");
+        srOutput.Should().NotContain("error");
+    }
+
+    public static SendReceiveParams GetParams(HgProtocol protocol,
+        string? projectCode = null,
+        [CallerMemberName] string projectName = "")
+    {
+        projectCode ??= TestingEnvironmentVariables.ProjectCode;
+        return new SendReceiveParams(projectCode, protocol.GetTestHostName(), Utils.GetNewProjectDir(projectCode, projectName));
     }
 }
