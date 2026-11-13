@@ -60,7 +60,7 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
         with:
           dotnet-version: '10.x'
       - name: Build for tests
@@ -77,7 +77,7 @@ jobs:
         run: dotnet test LexBoxOnly.slnf --logger trx --results-directory ./test-results --filter Category=Integration
 
       - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action/composite@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2.25.0
+        uses: EnricoMi/publish-unit-test-result-action/composite@da5b7be67623cd59bbbd1a0ce4f022050a55605f # v2.26.0
         if: ${{ always() && !env.act }}
         with:
           check_name: Integration Tests ${{ inputs.runs-on }}

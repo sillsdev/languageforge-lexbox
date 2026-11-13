@@ -73,7 +73,7 @@ jobs:
           cp lexbox/deployment/${{ inputs.k8s-environment }}/resources.yaml fleet/${{ inputs.k8s-environment }}/
       #        this kustomization file is in the fleet repo and only modifies the image versions being used.
       - name: Update image version in fleet kustomization.yaml
-        uses: mikefarah/yq@504fc38780cc46be8444ea1b72fb55919fc0bfb0 # v4.54.1
+        uses: mikefarah/yq@a4330671f17776618660a419ab2531e4f4dc48b6 # v4.54.2
         env:
           IMAGE: ${{ inputs.image }}
           VERSION: ${{ inputs.version }}
@@ -81,21 +81,21 @@ jobs:
         with:
           cmd: yq eval -i '(.images.[] | select(.name == strenv(IMAGE)).newTag) = strenv(VERSION)' "fleet/$K8S_ENVIRONMENT/kustomization.yaml"
       - name: Get API version
-        uses: mikefarah/yq@504fc38780cc46be8444ea1b72fb55919fc0bfb0 # v4.54.1
+        uses: mikefarah/yq@a4330671f17776618660a419ab2531e4f4dc48b6 # v4.54.2
         id: get-api-version
         env:
           K8S_ENVIRONMENT: ${{ inputs.k8s-environment }}
         with:
           cmd: yq '.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-api").newTag' "fleet/$K8S_ENVIRONMENT/kustomization.yaml"
       - name: Get FwHeadless version
-        uses: mikefarah/yq@504fc38780cc46be8444ea1b72fb55919fc0bfb0 # v4.54.1
+        uses: mikefarah/yq@a4330671f17776618660a419ab2531e4f4dc48b6 # v4.54.2
         id: get-fw-headless-version
         env:
           K8S_ENVIRONMENT: ${{ inputs.k8s-environment }}
         with:
           cmd: yq '.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-fw-headless").newTag' "fleet/$K8S_ENVIRONMENT/kustomization.yaml"
       - name: Get UI version
-        uses: mikefarah/yq@504fc38780cc46be8444ea1b72fb55919fc0bfb0 # v4.54.1
+        uses: mikefarah/yq@a4330671f17776618660a419ab2531e4f4dc48b6 # v4.54.2
         id: get-ui-version
         env:
           K8S_ENVIRONMENT: ${{ inputs.k8s-environment }}
