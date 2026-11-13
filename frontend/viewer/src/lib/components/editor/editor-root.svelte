@@ -21,6 +21,43 @@
   }
 </script>
 
-<div class={cn('@container/editor', className)} {...restProps} bind:this={ref}>
+<div class={cn('@container/editor editor-root', className)} {...restProps} bind:this={ref}>
   {@render children?.()}
 </div>
+
+<style lang="postcss">
+  @reference "#app.css";
+
+  /*
+    Fields read as plain values separated by a divider; the input box (and focus ring) only appears while a
+    field is focused, open or invalid. Excluding those states lets each input's own focus styles apply untouched.
+  */
+  .editor-root
+    :global(
+      :is(input[data-slot='input'], [role='textbox'][contenteditable], button[role='combobox'], [data-audio-add]):not(
+        :focus,
+        :focus-visible,
+        [aria-expanded='true'],
+        [aria-invalid='true']
+      )
+    ) {
+    @apply rounded-none border-transparent border-b-border bg-transparent shadow-none;
+  }
+
+  .editor-root
+    :global(
+      :is(
+          input[data-slot='input']:not([readonly]),
+          [role='textbox'][contenteditable='true'],
+          button[role='combobox']:not(:disabled),
+          [data-audio-add]
+        ):not(:focus, :focus-visible, [aria-expanded='true']):hover
+    ) {
+    @apply bg-muted/50;
+  }
+
+  /* the add-audio button has no border of its own */
+  .editor-root :global([data-audio-add]) {
+    @apply border-b;
+  }
+</style>
