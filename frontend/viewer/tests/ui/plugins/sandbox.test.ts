@@ -42,7 +42,7 @@ test('an offline plugin cannot send data out', async ({page, sink}) => {
     '<script>',
     '  const violations = new Set();',
     '  document.addEventListener("securitypolicyviolation", (e) => {',
-    '    violations.add(e.effectiveDirective);',
+    '    violations.add(e.blockedURI);',
     '    document.getElementById("violations").textContent = [...violations].sort().join(" ");',
     '  });',
     '  const attempts = [',
@@ -62,11 +62,10 @@ test('an offline plugin cannot send data out', async ({page, sink}) => {
 
   const frame = page.frameLocator('iframe[title="Exfil test"]');
   await expect(frame.locator('#status')).toHaveText('done', {timeout: 15000});
-  for (const directive of ['connect-src', 'img-src']) {
-    await expect(frame.locator('#violations')).toContainText(directive);
+  // A request the CSP lets through reports no violation, so this fails instead of racing the sink.
+  for (const path of ['/fetch', '/beacon', '/image', '/ws']) {
+    await expect(frame.locator('#violations')).toContainText(path);
   }
-  // Give any request that slipped past the CSP time to land before asserting none did.
-  await page.waitForTimeout(1000);
   expect(sink.requests).toEqual([]);
 });
 
