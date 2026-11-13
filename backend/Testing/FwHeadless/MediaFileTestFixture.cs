@@ -109,6 +109,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             request.Content = formData;
             if (deleteContentLengthHeader) request.Content.Headers.ContentLength = null;
             var result = await HttpClient.SendAsync(request);
+            if (!result.IsSuccessStatusCode) return (Guid.Empty, result);
             var obj = await result.Content.ReadFromJsonAsync<PostFileResult>();
             return (obj?.guid ?? Guid.Empty, result);
         }

@@ -7,3 +7,5 @@ public class UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders : Except
 public class ProjectFolderNotFoundInFwHeadless : Exception;
 
 public class FileTooLarge : Exception;
+
+public class InvalidFilename : Exception;
