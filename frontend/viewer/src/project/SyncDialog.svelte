@@ -63,8 +63,8 @@
   });
 
   // The dialog's content unmounts on close, so each view loads its own status when it's first shown
-  watch(() => openQueryParam.current, (open) => {
-    if (!open) return;
+  watch(() => openQueryParam.current, (open, wasOpen) => {
+    if (!open || wasOpen) return;
     method = lastMethod = undefined;
     void service.getCurrentServer().then(s => server = s);
   });
