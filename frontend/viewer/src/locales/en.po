@@ -257,6 +257,16 @@ msgstr "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks 
 msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it."
 msgstr "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it."
 
+#. Heading of a list on the Plugins page. Each item under it completes the sentence, e.g. "A plugin can" + "Add and change entries".
+#: src/lib/plugins/PluginsView.svelte
+msgid "A plugin can"
+msgstr "A plugin can"
+
+#. Heading of a list on the Plugins page. Each item under it completes the sentence, e.g. "A plugin can't" + "Use the internet".
+#: src/lib/plugins/PluginsView.svelte
+msgid "A plugin can't"
+msgstr "A plugin can't"
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "A project manager can add plugins for the team."
 msgstr "A project manager can add plugins for the team."
@@ -309,6 +319,11 @@ msgstr "Activity"
 #: src/lib/activity/ActivityView.svelte
 msgid "Activity view failed"
 msgstr "Activity view failed"
+
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Add and change entries"
+msgstr "Add and change entries"
 
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
@@ -753,6 +768,11 @@ msgstr "Caption"
 #: src/lib/author/AuthorNameLine.svelte
 msgid "Change"
 msgstr "Change"
+
+#. List item under the heading "A plugin can't"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Change anything without asking"
+msgstr "Change anything without asking"
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Change entry"
@@ -1533,6 +1553,11 @@ msgstr "Entries with examples"
 msgid "Entries with senses"
 msgstr "Entries with senses"
 
+#. Small note under the list item "Read this project's dictionary": examples of what a plugin can read.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Entries, audio, pictures, comments, change history and more"
+msgstr "Entries, audio, pictures, comments, change history and more"
+
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
@@ -1676,6 +1701,11 @@ msgstr "Explore & analyze"
 #: src/lib/plugins/PluginsView.svelte
 msgid "Export"
 msgstr "Export"
+
+#. List item under the heading "A plugin can"; it completes that sentence. The plugin makes a file (e.g. a spreadsheet of entries) that the user downloads.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Export files to this device"
+msgstr "Export files to this device"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to change verbose logging"
@@ -2985,6 +3015,11 @@ msgstr "Online, a plugin can send this project's data to any website."
 msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
 msgstr "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
 
+#. Small note under the list item "Add and change entries" (heading "A plugin can"). "it" is the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Only if editing was turned on for it, and only with your approval"
+msgstr "Only if editing was turned on for it, and only with your approval"
+
 #: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "Only project managers can add or change plugins."
 msgstr "Only project managers can add or change plugins."
@@ -2998,6 +3033,11 @@ msgstr "Open"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Open Data Directory"
+
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Open entries and show you short messages"
+msgstr "Open entries and show you short messages"
 
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in {0}"
@@ -3352,6 +3392,11 @@ msgstr "Publish in"
 msgid "Publish Word in"
 msgstr "Publish Word in"
 
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Read this project's dictionary"
+msgstr "Read this project's dictionary"
+
 #: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
@@ -3474,10 +3519,10 @@ msgstr "Regenerating Harmony snapshots. This may take a long time — do not clo
 msgid "Regenerating search index. This may take a while — do not close the app."
 msgstr "Regenerating search index. This may take a while — do not close the app."
 
-#. Field label in Troubleshoot. Empty means the production channel (no preview flags).
+#. Field label in Troubleshoot. Takes the names of release channels or feature flags, separated by commas or spaces. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Release channel"
-msgstr "Release channel"
+msgid "Release channel or feature flags"
+msgstr "Release channel or feature flags"
 
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
@@ -3491,6 +3536,11 @@ msgstr "Reload"
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Reload plugin"
 msgstr "Reload plugin"
+
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Remember its own settings on this device"
+msgstr "Remember its own settings on this device"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
@@ -3735,6 +3785,11 @@ msgstr "Search index regenerated successfully"
 #: src/lib/plugins/PluginsView.svelte
 msgid "See all {0} examples"
 msgstr "See all {0} examples"
+
+#. List item under the heading "A plugin can't"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "See your account, other projects or the rest of the app"
+msgstr "See your account, other projects or the rest of the app"
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -4600,6 +4655,16 @@ msgstr "Unknown server"
 msgid "Unknown update result"
 msgstr "Unknown update result"
 
+#. Small note under the list item "Use the internet" (heading "A plugin can't"). "it" is the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Unless internet access was turned on for it"
+msgstr "Unless internet access was turned on for it"
+
+#. Small note under the list item "Change anything without asking" (heading "A plugin can't"). "it" is the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Unless you choose to always allow its changes"
+msgstr "Unless you choose to always allow its changes"
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Unread"
@@ -4702,6 +4767,11 @@ msgstr "Uploaded pending files"
 msgid "Uploading pictures is not supported here"
 msgstr "Uploading pictures is not supported here"
 
+#. List item under the heading "A plugin can't"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Use the internet"
+msgstr "Use the internet"
+
 #: src/project/sync/FolderPicker.svelte
 msgid "Use this folder"
 msgstr "Use this folder"
@@ -4788,6 +4858,10 @@ msgstr "We also collect error reports with technical details about what went wro
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
 msgstr "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "What can a plugin do?"
+msgstr "What can a plugin do?"
 
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "What it asks for"
@@ -4934,6 +5008,11 @@ msgstr "You don't have permission to download project {0} from {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "You have already downloaded the {0} project"
+
+#. Small note under the list item "Open entries and show you short messages": the entry opens in the normal FieldWorks Lite entry view or editor, so the user does the editing, not the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "You view or edit the entry in FieldWorks Lite as usual"
+msgstr "You view or edit the entry in FieldWorks Lite as usual"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "You're offline"
