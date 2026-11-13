@@ -210,6 +210,9 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         listResult.ShouldBeSuccessful();
         var files = fileListing?.Files ?? [];
         files.Should().Contain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
+        var (metadata, mResult) = await Fixture.GetFileMetadata(fileId);
+        mResult.ShouldBeSuccessful();
+        metadata!.Filename.Should().Be(TestRepoZipFilename);
         var secondPath = TestRepoZipPath + ".bak";
         await File.WriteAllTextAsync(secondPath, "test");
         result = await Fixture.PutFile(secondPath, fileId);
