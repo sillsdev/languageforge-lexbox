@@ -3,28 +3,11 @@
     <IsPackable>false</IsPackable>
     <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
     <!-- Run the build first: Mercurial is staged into this folder during build, after the Content glob below was evaluated -->
-    <DefaultItemExcludes>$(DefaultItemExcludes);SendReceiveClient/**</DefaultItemExcludes>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="SIL.Chorus.LibChorus" />
     <PackageReference Include="SIL.Chorus.Mercurial" />
   </ItemGroup>
-  <!-- Send/receive tests run the hg client (MercurialVersion 3, 6 or 7) in its own process, see SendReceiveClient.csproj -->
-  <ItemGroup>
-    <ProjectReference Include="SendReceiveClient\SendReceiveClient.csproj" ReferenceOutputAssembly="false" />
-    <Compile Include="SendReceiveClient\ClientProtocol.cs" />
-  </ItemGroup>
-  <Target Name="AddSendReceiveClientPath" BeforeTargets="GetAssemblyAttributes">
-    <MSBuild Projects="SendReceiveClient\SendReceiveClient.csproj" Targets="GetTargetPath">
-      <Output TaskParameter="TargetOutputs" PropertyName="_SendReceiveClientPath" />
-    </MSBuild>
-    <ItemGroup>
-      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
-        <_Parameter1>SendReceiveClientPath</_Parameter1>
-        <_Parameter2>$(_SendReceiveClientPath)</_Parameter2>
-      </AssemblyAttribute>
-    </ItemGroup>
-  </Target>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />

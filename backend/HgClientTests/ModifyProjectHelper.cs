@@ -1,11 +1,14 @@
-namespace Testing.Services;
+namespace HgClientTests;
 
 public class ModifyProjectHelper
 {
     public static void ModifyProject(string projectFilePath)
     {
         using var fileStream = File.Open(projectFilePath, FileMode.Open, FileAccess.ReadWrite);
-        var position = FindPosition(fileStream, "DateModified val=\""u8);
+        // An entry, not the first object in the file (a semantic domain): LfMergeBridge 4.1 and 4.3 leave the
+        // large semantic domain list untracked, so changing it would give S/R nothing to commit
+        FindPosition(fileStream, "<rt class=\"LexEntry\""u8);
+        FindPosition(fileStream, "DateModified val=\""u8);
         var timestampLength = "2023-08-16 09:28:29.436"u8.Length;
         Span<byte> span = stackalloc byte[timestampLength];
         if (fileStream.Read(span) != timestampLength)

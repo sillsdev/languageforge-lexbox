@@ -21,6 +21,7 @@ dotnet test Testing/Testing.csproj --filter "FullyQualifiedName~MyTestClass"
 | `FwLite/` | FwLite apps (MAUI, Web) and MiniLcm API |
 | `FwHeadless/` | Headless service for hg sync, FwData processing |
 | `Testing/` | Integration and API tests |
+| `HgClientTests/` | hg client send/receive tests against a LexBox server, built per hg version with the Chorus FLEx Bridge shipped with it (`task test:hg-integration HG=3`). References LexCore only, so old Chorus can load |
 | `Ycs/` | Yjs CRDT implementation in C# |
 
 ## Harmony (SIL.Harmony)
