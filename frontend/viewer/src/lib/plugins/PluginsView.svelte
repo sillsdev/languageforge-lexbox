@@ -180,24 +180,29 @@
       {/if}
     </div>
 
-    <Alert>
+    <!-- No role="alert": a live region would read the whole list aloud when it expands. -->
+    <Alert role={null}>
       <Icon icon="i-mdi-shield-alert-outline" class="text-amber-500" />
-      <AlertDescription>
-        {$t`Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust.`}
-      </AlertDescription>
+      <Collapsible.Root class="col-start-2" data-testid="plugin-abilities">
+        <AlertDescription>
+          <span>
+            {$t`Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust.`}
+            <!-- nowrap: the link moves to the next line whole instead of breaking -->
+            <Collapsible.Trigger
+              class="inline-flex cursor-pointer items-center gap-1 whitespace-nowrap font-medium text-primary hover:underline [&[data-state=open]>.i-mdi-chevron-down]:rotate-180">
+              {$t`What can a plugin do?`}
+              <i class="i-mdi-chevron-down size-4 transition-transform"></i>
+            </Collapsible.Trigger>
+          </span>
+        </AlertDescription>
+        <Collapsible.Content class="overflow-hidden">
+          <div class="mt-3 grid gap-x-6 gap-y-4 border-t pt-3 md:grid-cols-2">
+            {@render abilityList($t`A plugin can`, pluginCan, 'i-mdi-check', 'text-green-600 dark:text-green-500')}
+            {@render abilityList($t`A plugin can't`, pluginCannot, 'i-mdi-close', 'text-muted-foreground')}
+          </div>
+        </Collapsible.Content>
+      </Collapsible.Root>
     </Alert>
-
-    <Collapsible.Root data-testid="plugin-abilities">
-      <Collapsible.Trigger
-        class="flex cursor-pointer items-center gap-1 text-sm text-muted-foreground [&[data-state=open]>.i-mdi-chevron-down]:rotate-180">
-        <i class="i-mdi-chevron-down size-4 transition-transform"></i>
-        {$t`What can a plugin do?`}
-      </Collapsible.Trigger>
-      <Collapsible.Content class="grid gap-x-8 gap-y-5 pt-3 text-sm sm:grid-cols-2">
-        {@render abilityList($t`A plugin can`, pluginCan, 'i-mdi-check', 'text-green-600 dark:text-green-500')}
-        {@render abilityList($t`A plugin can't`, pluginCannot, 'i-mdi-close', 'text-muted-foreground')}
-      </Collapsible.Content>
-    </Collapsible.Root>
 
     <section aria-labelledby="plugins-in-project" class="space-y-2">
       <h2 id="plugins-in-project" class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
