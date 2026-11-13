@@ -63,7 +63,7 @@
     <DropdownMenu.Root>
       <DropdownMenu.Trigger>
         {#snippet child({props})}
-          <Button {...props} variant="secondary" size="xs" class="px-1.5"
+          <Button {...props} variant="secondary" size="xs" class="w-7"
                   icon="i-mdi-chevron-down" aria-label={headword ? $t`More options for ${headword}` : $t`More options`} />
         {/snippet}
       </DropdownMenu.Trigger>
