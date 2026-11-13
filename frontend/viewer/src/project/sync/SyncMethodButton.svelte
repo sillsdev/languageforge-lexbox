@@ -26,7 +26,7 @@
     featured && 'rounded-lg border shadow-sm py-4')}>
   <span class="flex size-8 shrink-0 items-center justify-center">{@render icon()}</span>
   <span class="flex min-w-0 grow flex-col">
-    <span class={featured ? 'text-base font-semibold' : 'font-medium'}>{title}</span>
+    <span class="font-medium">{title}</span>
     {#if description}
       <span class="text-sm text-muted-foreground">{@render description()}</span>
     {/if}
