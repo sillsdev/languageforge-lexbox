@@ -8,7 +8,7 @@ msgstr ""
 "Language: vi\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-12 12:22\n"
+"PO-Revision-Date: 2026-11-14 13:40\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -262,6 +262,16 @@ msgstr "Thư mục này được tạo bởi một phiên bản mới hơn của
 msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it."
 msgstr "Thư mục này được tạo bởi một phiên bản mới hơn của FieldWorks Lite. Hãy cập nhật FieldWorks Lite để đồng bộ hóa với thư mục này."
 
+#. Heading of a list on the Plugins page. Each item under it completes the sentence, e.g. "A plugin can" + "Add and change entries".
+#: src/lib/plugins/PluginsView.svelte
+msgid "A plugin can"
+msgstr "Một plugin có thể"
+
+#. Heading of a list on the Plugins page. Each item under it completes the sentence, e.g. "A plugin can't" + "Use the internet".
+#: src/lib/plugins/PluginsView.svelte
+msgid "A plugin can't"
+msgstr "Một plugin không thể"
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "A project manager can add plugins for the team."
 msgstr "Người quản lý dự án có thể cài đặt các tiện ích mở rộng cho nhóm."
@@ -314,6 +324,11 @@ msgstr "Hoạt động"
 #: src/lib/activity/ActivityView.svelte
 msgid "Activity view failed"
 msgstr "Không thể hiển thị danh sách hoạt động"
+
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Add and change entries"
+msgstr "Thêm và chỉnh sửa các mục"
 
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
@@ -758,6 +773,11 @@ msgstr "Chú thích"
 #: src/lib/author/AuthorNameLine.svelte
 msgid "Change"
 msgstr "Thay đổi"
+
+#. List item under the heading "A plugin can't"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Change anything without asking"
+msgstr "Thay đổi bất cứ điều gì mà không cần hỏi ý kiến"
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Change entry"
@@ -1538,6 +1558,11 @@ msgstr "Các mục có ví dụ"
 msgid "Entries with senses"
 msgstr "Các mục từ có nghĩa"
 
+#. Small note under the list item "Read this project's dictionary": examples of what a plugin can read.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Entries, audio, pictures, comments, change history and more"
+msgstr "Các mục, tệp âm thanh, hình ảnh, bình luận, lịch sử thay đổi và nhiều nội dung khác"
+
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
@@ -1681,6 +1706,11 @@ msgstr "Khám phá và phân tích"
 #: src/lib/plugins/PluginsView.svelte
 msgid "Export"
 msgstr "Xuất khẩu"
+
+#. List item under the heading "A plugin can"; it completes that sentence. The plugin makes a file (e.g. a spreadsheet of entries) that the user downloads.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Export files to this device"
+msgstr "Xuất tệp sang thiết bị này"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to change verbose logging"
@@ -2990,6 +3020,11 @@ msgstr "Trên mạng, một plugin có thể gửi dữ liệu của dự án n�
 msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
 msgstr "Chỉ nên cho phép điều này nếu plugin cần kết nối mạng, ví dụ như để tra cứu từ vựng hoặc tải xuống hình ảnh."
 
+#. Small note under the list item "Add and change entries" (heading "A plugin can"). "it" is the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Only if editing was turned on for it, and only with your approval"
+msgstr "Chỉ khi tính năng chỉnh sửa đã được bật cho nội dung đó, và chỉ khi có sự đồng ý của bạn"
+
 #: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "Only project managers can add or change plugins."
 msgstr "Chỉ các quản lý dự án mới có thể thêm hoặc thay đổi các tiện ích mở rộng."
@@ -3003,6 +3038,11 @@ msgstr "Mở"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Mở Thư mục Dữ liệu"
+
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Open entries and show you short messages"
+msgstr "Mở các mục nhập và hiển thị các tin nhắn ngắn"
 
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in {0}"
@@ -3357,6 +3397,11 @@ msgstr "Đăng trên"
 msgid "Publish Word in"
 msgstr "Xuất bản Từ trong"
 
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Read this project's dictionary"
+msgstr "Đọc từ điển của dự án này"
+
 #: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
@@ -3479,10 +3524,10 @@ msgstr "Đang tạo lại các bản chụp nhanh Harmony. Quá trình này có 
 msgid "Regenerating search index. This may take a while — do not close the app."
 msgstr "Đang tạo lại chỉ mục tìm kiếm. Quá trình này có thể mất một lúc — xin đừng đóng ứng dụng."
 
-#. Field label in Troubleshoot. Empty means the production channel (no preview flags).
+#. Field label in Troubleshoot. Takes the names of release channels or feature flags, separated by commas or spaces. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Release channel"
-msgstr "Kênh phát hành"
+msgid "Release channel or feature flags"
+msgstr "Kênh phát hành hoặc cờ tính năng"
 
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
@@ -3496,6 +3541,11 @@ msgstr "Tải lại"
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Reload plugin"
 msgstr "Tải lại plugin"
+
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Remember its own settings on this device"
+msgstr "Ghi nhớ các cài đặt riêng trên thiết bị này"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
@@ -3740,6 +3790,11 @@ msgstr "Chỉ mục tìm kiếm đã được tạo lại thành công"
 #: src/lib/plugins/PluginsView.svelte
 msgid "See all {0} examples"
 msgstr "Xem tất cả các ví dụ về {0}"
+
+#. List item under the heading "A plugin can't"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "See your account, other projects or the rest of the app"
+msgstr "Xem tài khoản của bạn, các dự án khác hoặc các phần còn lại của ứng dụng"
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -4605,6 +4660,16 @@ msgstr "Máy chủ không xác định"
 msgid "Unknown update result"
 msgstr "Kết quả cập nhật không xác định"
 
+#. Small note under the list item "Use the internet" (heading "A plugin can't"). "it" is the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Unless internet access was turned on for it"
+msgstr "Trừ khi kết nối internet đã được kích hoạt cho thiết bị đó"
+
+#. Small note under the list item "Change anything without asking" (heading "A plugin can't"). "it" is the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Unless you choose to always allow its changes"
+msgstr "Trừ khi bạn chọn luôn cho phép các thay đổi đó"
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Unread"
@@ -4707,6 +4772,11 @@ msgstr "Các tệp đang chờ xử lý đã được tải lên"
 msgid "Uploading pictures is not supported here"
 msgstr "Tính năng tải ảnh lên không được hỗ trợ tại đây"
 
+#. List item under the heading "A plugin can't"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Use the internet"
+msgstr "Sử dụng internet"
+
 #: src/project/sync/FolderPicker.svelte
 msgid "Use this folder"
 msgstr "Hãy sử dụng thư mục này"
@@ -4793,6 +4863,10 @@ msgstr "Chúng tôi cũng thu thập các báo cáo lỗi kèm theo thông tin k
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
 msgstr "Chúng tôi thu thập dữ liệu sử dụng để tìm hiểu cách thức FieldWorks Lite được sử dụng và những điểm cần cải thiện. Khi bạn đăng nhập vào Lexbox, ứng dụng này sẽ được liên kết với tài khoản của bạn, và dữ liệu thu thập tuyệt đối không bao gồm nội dung từ điển của bạn."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "What can a plugin do?"
+msgstr "Một plugin có thể làm được những gì?"
 
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "What it asks for"
@@ -4939,6 +5013,11 @@ msgstr "Bạn không có quyền tải dự án {0} từ {1}"
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Bạn đã tải xuống dự án {0}"
+
+#. Small note under the list item "Open entries and show you short messages": the entry opens in the normal FieldWorks Lite entry view or editor, so the user does the editing, not the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "You view or edit the entry in FieldWorks Lite as usual"
+msgstr "Bạn có thể xem hoặc chỉnh sửa mục nhập trong FieldWorks Lite như bình thường"
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "You're offline"
