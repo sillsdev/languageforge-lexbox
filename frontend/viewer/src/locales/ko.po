@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-12 12:22\n"
+"PO-Revision-Date: 2026-11-14 13:39\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -262,6 +262,16 @@ msgstr "이 폴더는 최신 버전의 FieldWorks Lite에서 생성되었습니�
 msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it."
 msgstr "이 폴더는 최신 버전의 FieldWorks Lite에서 생성되었습니다. FieldWorks Lite를 업데이트하여 이 폴더와 동기화하십시오."
 
+#. Heading of a list on the Plugins page. Each item under it completes the sentence, e.g. "A plugin can" + "Add and change entries".
+#: src/lib/plugins/PluginsView.svelte
+msgid "A plugin can"
+msgstr "플러그인은"
+
+#. Heading of a list on the Plugins page. Each item under it completes the sentence, e.g. "A plugin can't" + "Use the internet".
+#: src/lib/plugins/PluginsView.svelte
+msgid "A plugin can't"
+msgstr "플러그인은 ~할 수 없습니다"
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "A project manager can add plugins for the team."
 msgstr "프로젝트 관리자는 팀을 위해 플러그인을 추가할 수 있습니다."
@@ -314,6 +324,11 @@ msgstr "활동"
 #: src/lib/activity/ActivityView.svelte
 msgid "Activity view failed"
 msgstr "활동 보기 실패"
+
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Add and change entries"
+msgstr "항목 추가 및 수정"
 
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
@@ -758,6 +773,11 @@ msgstr "설명"
 #: src/lib/author/AuthorNameLine.svelte
 msgid "Change"
 msgstr "변경"
+
+#. List item under the heading "A plugin can't"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Change anything without asking"
+msgstr "물어보지도 않고 무언가를 변경하다"
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Change entry"
@@ -1538,6 +1558,11 @@ msgstr "예시가 포함된 항목"
 msgid "Entries with senses"
 msgstr "의미가 포함된 항목"
 
+#. Small note under the list item "Read this project's dictionary": examples of what a plugin can read.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Entries, audio, pictures, comments, change history and more"
+msgstr "게시물, 오디오, 사진, 댓글, 변경 내역 등"
+
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
@@ -1681,6 +1706,11 @@ msgstr "탐색 및 분석"
 #: src/lib/plugins/PluginsView.svelte
 msgid "Export"
 msgstr "내보내기"
+
+#. List item under the heading "A plugin can"; it completes that sentence. The plugin makes a file (e.g. a spreadsheet of entries) that the user downloads.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Export files to this device"
+msgstr "이 기기로 파일 내보내기"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to change verbose logging"
@@ -2990,6 +3020,11 @@ msgstr "온라인에서 플러그인을 사용하면 이 프로젝트의 데이�
 msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
 msgstr "플러그인이 온라인 접속이 필요한 경우(예: 단어 검색이나 사진 다운로드 등)에만 허용하십시오."
 
+#. Small note under the list item "Add and change entries" (heading "A plugin can"). "it" is the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Only if editing was turned on for it, and only with your approval"
+msgstr "해당 항목에 대해 편집 기능이 활성화되어 있고, 귀하의 승인을 받은 경우에만 가능합니다."
+
 #: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "Only project managers can add or change plugins."
 msgstr "프로젝트 관리자만 플러그인을 추가하거나 변경할 수 있습니다."
@@ -3003,6 +3038,11 @@ msgstr "열기"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "오픈 데이터 디렉터리"
+
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Open entries and show you short messages"
+msgstr "항목을 열고 짧은 메시지를 표시합니다"
 
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in {0}"
@@ -3357,6 +3397,11 @@ msgstr "게시처:"
 msgid "Publish Word in"
 msgstr "단어를 다음 위치에 게시"
 
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Read this project's dictionary"
+msgstr "이 프로젝트의 용어집을 읽어보세요"
+
 #: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
@@ -3479,10 +3524,10 @@ msgstr "Harmony 스냅샷을 다시 생성 중입니다. 이 작업에는 시간
 msgid "Regenerating search index. This may take a while — do not close the app."
 msgstr "검색 인덱스를 다시 생성 중입니다. 시간이 다소 걸릴 수 있으니 앱을 종료하지 마세요."
 
-#. Field label in Troubleshoot. Empty means the production channel (no preview flags).
+#. Field label in Troubleshoot. Takes the names of release channels or feature flags, separated by commas or spaces. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Release channel"
-msgstr "릴리스 채널"
+msgid "Release channel or feature flags"
+msgstr "릴리스 채널 또는 기능 플래그"
 
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
@@ -3496,6 +3541,11 @@ msgstr "다시 불러오기"
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Reload plugin"
 msgstr "플러그인 다시 불러오기"
+
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Remember its own settings on this device"
+msgstr "이 기기에서 자신의 설정을 기억합니다"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
@@ -3740,6 +3790,11 @@ msgstr "검색 인덱스가 성공적으로 재생성되었습니다."
 #: src/lib/plugins/PluginsView.svelte
 msgid "See all {0} examples"
 msgstr "{0} 의 모든 예제 보기"
+
+#. List item under the heading "A plugin can't"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "See your account, other projects or the rest of the app"
+msgstr "내 계정, 다른 프로젝트 또는 앱의 나머지 부분을 확인하세요"
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -4605,6 +4660,16 @@ msgstr "알 수 없는 서버"
 msgid "Unknown update result"
 msgstr "알 수 없는 업데이트 결과"
 
+#. Small note under the list item "Use the internet" (heading "A plugin can't"). "it" is the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Unless internet access was turned on for it"
+msgstr "해당 기기의 인터넷 접속이 활성화되지 않은 경우를 제외하고는"
+
+#. Small note under the list item "Change anything without asking" (heading "A plugin can't"). "it" is the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Unless you choose to always allow its changes"
+msgstr "해당 변경 사항을 항상 허용하도록 선택하지 않는 한"
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Unread"
@@ -4707,6 +4772,11 @@ msgstr "업로드 대기 중인 파일"
 msgid "Uploading pictures is not supported here"
 msgstr "이곳에서는 사진 업로드가 지원되지 않습니다."
 
+#. List item under the heading "A plugin can't"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Use the internet"
+msgstr "인터넷을 이용하세요"
+
 #: src/project/sync/FolderPicker.svelte
 msgid "Use this folder"
 msgstr "이 폴더를 사용하세요"
@@ -4793,6 +4863,10 @@ msgstr "또한, 어떤 문제가 발생했는지에 대한 기술적 세부 정�
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
 msgstr "당사는 FieldWorks Lite가 어떻게 사용되고 있는지 파악하고 개선이 필요한 부분을 확인하기 위해 사용 현황 데이터를 수집합니다. Lexbox에 로그인되어 있을 경우 해당 데이터는 귀하의 계정과 연동되며, 귀하의 사전 내용은 절대 포함되지 않습니다."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "What can a plugin do?"
+msgstr "플러그인은 어떤 기능을 할 수 있나요?"
 
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "What it asks for"
@@ -4939,6 +5013,11 @@ msgstr "{1}에서 {0} 프로젝트를 다운로드할 수 있는 권한이 없�
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "이미 {0} 프로젝트를 다운로드하셨습니다."
+
+#. Small note under the list item "Open entries and show you short messages": the entry opens in the normal FieldWorks Lite entry view or editor, so the user does the editing, not the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "You view or edit the entry in FieldWorks Lite as usual"
+msgstr "FieldWorks Lite에서 평소와 같이 항목을 확인하거나 편집할 수 있습니다."
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "You're offline"
