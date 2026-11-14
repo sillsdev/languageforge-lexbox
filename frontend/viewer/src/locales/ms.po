@@ -8,7 +8,7 @@ msgstr ""
 "Language: ms\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-12 12:22\n"
+"PO-Revision-Date: 2026-11-14 13:40\n"
 "Last-Translator: \n"
 "Language-Team: Malay\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -262,6 +262,16 @@ msgstr "Versi baharu FieldWorks Lite mencipta folder ini. Kemas kini FieldWorks 
 msgid "A newer version of FieldWorks Lite wrote this folder. Update FieldWorks Lite to sync with it."
 msgstr "Versi baharu FieldWorks Lite telah mencipta folder ini. Kemas kini FieldWorks Lite untuk menyegerakkan dengannya."
 
+#. Heading of a list on the Plugins page. Each item under it completes the sentence, e.g. "A plugin can" + "Add and change entries".
+#: src/lib/plugins/PluginsView.svelte
+msgid "A plugin can"
+msgstr "Plugin boleh"
+
+#. Heading of a list on the Plugins page. Each item under it completes the sentence, e.g. "A plugin can't" + "Use the internet".
+#: src/lib/plugins/PluginsView.svelte
+msgid "A plugin can't"
+msgstr "Plugin tidak boleh"
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "A project manager can add plugins for the team."
 msgstr "Pengurus projek boleh menambah pemalam untuk pasukan."
@@ -314,6 +324,11 @@ msgstr "Aktiviti"
 #: src/lib/activity/ActivityView.svelte
 msgid "Activity view failed"
 msgstr "Paparan aktiviti gagal"
+
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Add and change entries"
+msgstr "Tambah dan ubah entri"
 
 #. Button to add audio file to entry
 #. Appears in dialog/toolbar to attach audio file to a word or example sentence
@@ -758,6 +773,11 @@ msgstr "Kapsyen"
 #: src/lib/author/AuthorNameLine.svelte
 msgid "Change"
 msgstr "Perubahan"
+
+#. List item under the heading "A plugin can't"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Change anything without asking"
+msgstr "Ubah apa-apa tanpa bertanya"
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Change entry"
@@ -1538,6 +1558,11 @@ msgstr "Entri dengan contoh"
 msgid "Entries with senses"
 msgstr "Entri dengan makna"
 
+#. Small note under the list item "Read this project's dictionary": examples of what a plugin can read.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Entries, audio, pictures, comments, change history and more"
+msgstr "Kemasukan, audio, gambar, komen, sejarah perubahan dan banyak lagi"
+
 #. EntryView label for the current dictionary object when FieldWorks Classic is shown
 #: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
@@ -1681,6 +1706,11 @@ msgstr "Terokai dan analisis"
 #: src/lib/plugins/PluginsView.svelte
 msgid "Export"
 msgstr "Eksport"
+
+#. List item under the heading "A plugin can"; it completes that sentence. The plugin makes a file (e.g. a spreadsheet of entries) that the user downloads.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Export files to this device"
+msgstr "Eksport fail ke peranti ini"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Failed to change verbose logging"
@@ -2990,6 +3020,11 @@ msgstr "Secara dalam talian, pemalam boleh menghantar data projek ini ke mana-ma
 msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
 msgstr "Hanya benarkan jika pemalam perlu disambungkan dalam talian, contohnya untuk mencari perkataan atau memuat turun gambar."
 
+#. Small note under the list item "Add and change entries" (heading "A plugin can"). "it" is the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Only if editing was turned on for it, and only with your approval"
+msgstr "Hanya jika penyuntingan diaktifkan untuknya, dan hanya dengan kelulusan anda."
+
 #: src/lib/plugins/studio/PluginStudioView.svelte
 msgid "Only project managers can add or change plugins."
 msgstr "Hanya pengurus projek boleh menambah atau mengubah suai pemalam."
@@ -3003,6 +3038,11 @@ msgstr "Buka"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open Data Directory"
 msgstr "Buka Direktori Data"
+
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Open entries and show you short messages"
+msgstr "Buka entri dan tunjukkan mesej ringkas kepada anda"
 
 #: src/project/browse/EntryMenu.svelte
 msgid "Open in {0}"
@@ -3357,6 +3397,11 @@ msgstr "Terbitkan dalam"
 msgid "Publish Word in"
 msgstr "Terbitkan Perkataan dalam"
 
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Read this project's dictionary"
+msgstr "Baca kamus projek ini"
+
 #: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
@@ -3479,10 +3524,10 @@ msgstr "Menjana semula snapshot Harmony. Ini mungkin mengambil masa yang lama �
 msgid "Regenerating search index. This may take a while — do not close the app."
 msgstr "Menjana semula indeks carian. Ini mungkin mengambil sedikit masa — jangan tutup aplikasi."
 
-#. Field label in Troubleshoot. Empty means the production channel (no preview flags).
+#. Field label in Troubleshoot. Takes the names of release channels or feature flags, separated by commas or spaces. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Release channel"
-msgstr "Saluran pelepasan"
+msgid "Release channel or feature flags"
+msgstr "Saluran pelepasan atau penanda ciri"
 
 #. Link label to open release notes
 #: src/lib/updates/UpdateDialog.svelte
@@ -3496,6 +3541,11 @@ msgstr "Muat semula"
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Reload plugin"
 msgstr "Muat semula pemalam"
+
+#. List item under the heading "A plugin can"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Remember its own settings on this device"
+msgstr "Ingat tetapan sendiri pada peranti ini"
 
 #: src/lib/media-manager/media-file-utils.ts
 msgid "Remote only"
@@ -3740,6 +3790,11 @@ msgstr "Indeks carian telah dijana semula dengan jayanya"
 #: src/lib/plugins/PluginsView.svelte
 msgid "See all {0} examples"
 msgstr "Lihat semua contoh {0}"
+
+#. List item under the heading "A plugin can't"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "See your account, other projects or the rest of the app"
+msgstr "Lihat akaun anda, projek lain atau baki aplikasi"
 
 #. Dialog title with field name
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
@@ -4605,6 +4660,16 @@ msgstr "Pelayan tidak diketahui"
 msgid "Unknown update result"
 msgstr "Hasil kemas kini tidak diketahui"
 
+#. Small note under the list item "Use the internet" (heading "A plugin can't"). "it" is the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Unless internet access was turned on for it"
+msgstr "Melainkan jika akses internet diaktifkan untuknya"
+
+#. Small note under the list item "Change anything without asking" (heading "A plugin can't"). "it" is the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Unless you choose to always allow its changes"
+msgstr "Melainkan anda memilih untuk sentiasa membenarkan perubahannya"
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Unread"
@@ -4707,6 +4772,11 @@ msgstr "Fail belum selesai telah dimuat naik"
 msgid "Uploading pictures is not supported here"
 msgstr "Memuat naik gambar tidak disokong di sini."
 
+#. List item under the heading "A plugin can't"; it completes that sentence.
+#: src/lib/plugins/PluginsView.svelte
+msgid "Use the internet"
+msgstr "Gunakan internet"
+
 #: src/project/sync/FolderPicker.svelte
 msgid "Use this folder"
 msgstr "Gunakan folder ini"
@@ -4793,6 +4863,10 @@ msgstr "Kami juga mengumpul laporan ralat dengan butiran teknikal tentang apa ya
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We collect usage data to understand how FieldWorks Lite is used and where to improve it. When you're signed in to Lexbox it's linked to your account, and it never includes your dictionary content."
 msgstr "Kami mengumpul data penggunaan untuk memahami bagaimana FieldWorks Lite digunakan dan di mana ia boleh diperbaiki. Apabila anda log masuk ke Lexbox, ia dikaitkan dengan akaun anda, dan ia tidak pernah merangkumi kandungan kamus anda."
+
+#: src/lib/plugins/PluginsView.svelte
+msgid "What can a plugin do?"
+msgstr "Apa yang boleh dilakukan oleh pemalam?"
 
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "What it asks for"
@@ -4939,6 +5013,11 @@ msgstr "Anda tidak mempunyai kebenaran untuk memuat turun projek {0} daripada {1
 #: src/home/Server.svelte
 msgid "You have already downloaded the {0} project"
 msgstr "Anda telah pun memuat turun projek {0}"
+
+#. Small note under the list item "Open entries and show you short messages": the entry opens in the normal FieldWorks Lite entry view or editor, so the user does the editing, not the plugin.
+#: src/lib/plugins/PluginsView.svelte
+msgid "You view or edit the entry in FieldWorks Lite as usual"
+msgstr "Anda melihat atau menyunting entri dalam FieldWorks Lite seperti biasa."
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "You're offline"
