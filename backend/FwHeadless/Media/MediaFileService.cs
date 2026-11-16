@@ -93,7 +93,8 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         var nfc = relativePath.Normalize(NormalizationForm.FormC);
         //normalize the stored column too: legacy rows may have been written under a different OS's separators
         return dbContext.Files
-            .Where(f => f.ProjectId == projectId && (f.Filename.Replace("\\", "/") == nfd || f.Filename.Replace("\\", "/") == nfc))
+            .Where(f => f.ProjectId == projectId && (f.Filename.Replace("\\", "/") == relativePath
+                || f.Filename.Replace("\\", "/") == nfd || f.Filename.Replace("\\", "/") == nfc))
             .AsEnumerable()
             .OrderBy(f => MediaFilePath.Normalize(f.Filename) == relativePath ? 0 : 1)
             .FirstOrDefault();
