@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace MiniLcm.Media;
 
 /// <summary>
@@ -53,7 +55,7 @@ public static class LocalMediaFiles
     /// </summary>
     public static IEnumerable<string> ExistingCopies(string sourcePath, string targetPath)
     {
-        return Candidates(targetPath).TakeWhile(File.Exists).Where(candidate => ContentEquals(sourcePath, candidate));
+        return Candidates(targetPath).TakeWhile(IsTaken).Where(candidate => ContentEquals(sourcePath, candidate));
     }
 
     /// <summary>
@@ -69,7 +71,7 @@ public static class LocalMediaFiles
 
     private static bool TryMove(string sourcePath, string targetPath)
     {
-        if (File.Exists(targetPath)) return false;
+        if (IsTaken(targetPath)) return false;
         try
         {
             File.Move(sourcePath, targetPath, overwrite: false);
@@ -87,7 +89,18 @@ public static class LocalMediaFiles
     /// </summary>
     public static string EnsureUnique(string filePath)
     {
-        return Candidates(filePath).First(candidate => !File.Exists(candidate));
+        return Candidates(filePath).First(candidate => !IsTaken(candidate));
+    }
+
+    // NTFS and ext4 treat NFC and NFD names as different files, but media ids treat them as one
+    // (LocalMediaAdapter.NewGuidV5), so either spelling takes the name.
+    private static bool IsTaken(string filePath)
+    {
+        var directory = Path.GetDirectoryName(filePath) ?? "";
+        var name = Path.GetFileName(filePath);
+        return File.Exists(filePath)
+               || File.Exists(Path.Join(directory, name.Normalize(NormalizationForm.FormC)))
+               || File.Exists(Path.Join(directory, name.Normalize(NormalizationForm.FormD)));
     }
 
     public static void DeleteIfExists(string path)

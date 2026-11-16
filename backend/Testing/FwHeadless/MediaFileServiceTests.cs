@@ -423,4 +423,14 @@ public class MediaFileServiceTests : IDisposable
 
         _service.FindMediaFile(_projectId, nfdPath)!.Id.Should().Be(nfcRow.Id);
     }
+
+    [Fact]
+    public async Task FindMediaFile_PrefersTheExactSpellingOverItsNfcTwin()
+    {
+        await AddDbFile("süülda.wav");
+        var nfdRow = await AddDbFile("süülda.wav");
+        var nfdPath = Path.Join(_cache.ProjectId.ProjectFolder, LinkedFileRelativePath("süülda.wav"));
+
+        _service.FindMediaFile(_projectId, nfdPath)!.Id.Should().Be(nfdRow.Id);
+    }
 }

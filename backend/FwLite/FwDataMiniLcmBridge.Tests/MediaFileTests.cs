@@ -245,6 +245,16 @@ public class MediaFileTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task SaveFile_DoesNotReuseTheIdOfAnNfcFileWithTheSameName()
+    {
+        await StoreFileContentsAsync("süülda.wav", "older upload");
+
+        var upload = await _api.SaveFile(new MemoryStream("new upload"u8.ToArray()), new LcmFileMetadata("süülda.wav", "audio/wav"));
+
+        (await ReadFile(upload.MediaUri!.Value)).Should().Be("new upload");
+    }
+
+    [Fact]
     public async Task CanOpenAFile()
     {
         var fileName = "CanOpenAFile.txt";
