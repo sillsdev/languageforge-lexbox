@@ -45,10 +45,11 @@ public class ChorusMergeTests : ApiTestBase, IAsyncLifetime
 
         var cloneA = CloneAndUpdateToTip("a");
         var cloneB = CloneAndUpdateToTip("b");
-        ReplaceInFile(cloneA, PartsOfSpeechFile, ">Adverb</AUni>", ">Adverb_A</AUni>");
-        ReplaceInFile(cloneB, PartsOfSpeechFile, ">Verb</AUni>", ">Verb_B</AUni>");
-        Hg(cloneA, "commit -u test -m \"rename Adverb\"");
-        Hg(cloneB, "commit -u test -m \"rename Verb\"");
+        // Both sides add an item at the same spot: a text merge conflicts there, Chorus's XML merge keeps both
+        AppendPartOfSpeech(cloneA, "Added_A");
+        AppendPartOfSpeech(cloneB, "Added_B");
+        Hg(cloneA, "commit -u test -m \"add Added_A\"");
+        Hg(cloneB, "commit -u test -m \"add Added_B\"");
         Hg(cloneA, $"push {RepoUrl}");
         Hg(cloneB, $"push -f {RepoUrl}");
 
@@ -61,9 +62,10 @@ public class ChorusMergeTests : ApiTestBase, IAsyncLifetime
         result!.SyncResult!.FwdataChanges.Should().BeGreaterThan(0, "otherwise there is no closing S/R and no merge");
 
         Hg(cloneA, $"pull {RepoUrl}");
-        HeadsOnBranch(cloneA).Should().HaveCount(1);
+        HeadsOnBranch(cloneA).Should().ContainSingle();
+        Hg(cloneA, $"log -r {FwBranch} --template \"{{p2rev}}\"").Should().NotBe("-1", "the branch head should be a merge commit");
         var mergedPartsOfSpeech = Hg(cloneA, $"cat -r {FwBranch} {PartsOfSpeechFile}");
-        mergedPartsOfSpeech.Should().Contain(">Adverb_A</AUni>").And.Contain(">Verb_B</AUni>");
+        mergedPartsOfSpeech.Should().Contain(">Added_A</AUni>").And.Contain(">Added_B</AUni>").And.NotContain("<<<<<<<");
     }
 
     private string RepoUrl
@@ -88,12 +90,19 @@ public class ChorusMergeTests : ApiTestBase, IAsyncLifetime
         return dir;
     }
 
-    private static void ReplaceInFile(string repoDir, string relativePath, string oldValue, string newValue)
+    private static void AppendPartOfSpeech(string repoDir, string name)
     {
-        var path = Path.Combine(repoDir, relativePath);
+        var path = Path.Combine(repoDir, PartsOfSpeechFile);
         var content = File.ReadAllText(path);
-        content.Should().Contain(oldValue);
-        File.WriteAllText(path, content.Replace(oldValue, newValue));
+        const string listEnd = "</Possibilities>";
+        content.Should().Contain(listEnd);
+        var item = $"""
+            <ownseq class="PartOfSpeech" guid="{Guid.NewGuid()}">
+              <Name><AUni ws="en">{name}</AUni></Name>
+            </ownseq>
+
+            """;
+        File.WriteAllText(path, content.Replace(listEnd, item + listEnd));
     }
 
     private static string[] HeadsOnBranch(string repoDir)
