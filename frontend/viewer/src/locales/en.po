@@ -651,8 +651,8 @@ msgid "Auto syncing"
 msgstr "Auto syncing"
 
 #: src/project/sync/SyncMethodList.svelte
-msgid "Auto syncing · Last sync: #"
-msgstr "Auto syncing · Last sync: #"
+msgid "Auto syncing. Last sync: #"
+msgstr "Auto syncing. Last sync: #"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/SyncDialog.svelte

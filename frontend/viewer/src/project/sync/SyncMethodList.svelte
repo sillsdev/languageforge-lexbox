@@ -47,7 +47,7 @@
           class:bg-red-500={syncStatus !== SyncStatus.Success}></span>
         {#if syncStatus === SyncStatus.Success}
           <span>
-            <T msg="Auto syncing · Last sync: #">
+            <T msg="Auto syncing. Last sync: #">
               {#if !lastSyncDate}
                 <span>{$t`Never`}</span>
               {:else}

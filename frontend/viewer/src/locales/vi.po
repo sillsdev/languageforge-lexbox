@@ -656,7 +656,7 @@ msgid "Auto syncing"
 msgstr "Đang đồng bộ tự động"
 
 #: src/project/sync/SyncMethodList.svelte
-msgid "Auto syncing · Last sync: #"
+msgid "Auto syncing. Last sync: #"
 msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
