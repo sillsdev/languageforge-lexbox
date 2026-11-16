@@ -878,8 +878,8 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   // Files uploaded during the demo session (e.g. via the "+ Picture" button), keyed by the
   // mediaUri handed back from saveFile. Lets the demo round-trip an upload without a backend.
   #uploadedFiles = new Map<string, Blob>();
-  // Maps an already-uploaded filename to its mediaUri, mirroring how the real server dedups by
-  // filename (LcmMediaService keys by the file name within the project's resource cache).
+  // Maps an already-uploaded filename to its mediaUri. Like the real backend, a re-upload is only
+  // treated as the same file when both the name and the content match.
   #uploadedFilenames = new Map<string, string>();
   // Pre-seeded demo pictures that have been "downloaded" from the (simulated) remote media service,
   // so a later local-only request returns them instead of NotFound — mirroring how a synced project
@@ -927,24 +927,32 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     });
   }
 
-  saveFile(streamReference: Blob | ArrayBuffer | Uint8Array, metadata: ILcmFileMetadata): Promise<IUploadFileResponse> {
+  async saveFile(streamReference: Blob | ArrayBuffer | Uint8Array, metadata: ILcmFileMetadata): Promise<IUploadFileResponse> {
     const blob = streamReference instanceof Blob
       ? streamReference
       : new Blob([streamReference as BlobPart], {type: metadata.mimeType});
     // The demo stands in for the server, so it enforces the same 10 MB limit the real
     // backend does — exercising the client's TooBig handling without a backend.
     if (blob.size > DEMO_FILE_SIZE_LIMIT) {
-      return Promise.resolve({result: UploadFileResult.TooBig});
+      return {result: UploadFileResult.TooBig};
     }
-    // Same filename as an earlier upload: report AlreadyExists and hand back the existing
-    // mediaUri (as the real server does) so the caller can point a new Picture at that file.
+    // Same filename and content as an earlier upload: report AlreadyExists and hand back the
+    // existing mediaUri (as the real backend does) so the caller can point a new Picture at it.
     const existing = this.#uploadedFilenames.get(metadata.filename);
-    if (existing) {
-      return Promise.resolve({result: UploadFileResult.AlreadyExists, mediaUri: existing});
+    const existingBlob = existing ? this.#uploadedFiles.get(existing) : undefined;
+    if (existing && existingBlob && await blobsEqual(existingBlob, blob)) {
+      return {result: UploadFileResult.AlreadyExists, mediaUri: existing};
     }
     const mediaUri = `demo-upload/${randomId()}`;
     this.#uploadedFiles.set(mediaUri, blob);
     this.#uploadedFilenames.set(metadata.filename, mediaUri);
-    return Promise.resolve({result: UploadFileResult.SavedLocally, mediaUri});
+    return {result: UploadFileResult.SavedLocally, mediaUri};
   }
+}
+
+async function blobsEqual(a: Blob, b: Blob): Promise<boolean> {
+  if (a.size !== b.size) return false;
+  const bytesA = new Uint8Array(await a.arrayBuffer());
+  const bytesB = new Uint8Array(await b.arrayBuffer());
+  return bytesA.every((byte, i) => byte === bytesB[i]);
 }

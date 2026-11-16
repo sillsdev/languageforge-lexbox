@@ -1,0 +1,12 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "name": "tier-web-linux",
+  "tags": ["ci-tier"],
+  "_comment": "FwLiteWeb linux-x64 publish + launch smoke test under headless Chrome. Unlike the other smoke tiers, pr.yaml's detect job also turns it on whenever the viewer or FwLiteWeb is affected; this rule adds its smoke script. (Label: ci:web-linux.) Always runs on develop (fw-lite.yaml publish-linux).",
+  "targets": {
+    "ci-affected": {
+      "executor": "nx:noop",
+      "inputs": ["{workspaceRoot}/.github/scripts/smoke-linux.sh"]
+    }
+  }
+}

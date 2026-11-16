@@ -164,7 +164,7 @@
         </p>
       </div>
       <div class="w-full flex flex-col gap-1.5">
-        <Label for="release-channel">{$t`Release channel`}</Label>
+        <Label for="release-channel">{$t`Release channel or feature flags`}</Label>
         <Input
           id="release-channel"
           bind:value={featureFlags.channel}

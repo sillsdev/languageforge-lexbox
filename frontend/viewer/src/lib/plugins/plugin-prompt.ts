@@ -170,7 +170,7 @@ You are writing a **plugin** for FW Lite, a dictionary-editing app used by langu
 
 1. **Output exactly one complete HTML file** (\`<!DOCTYPE html>\` through \`</html>\`). The user will copy-paste it as-is.
 2. **Fully self-contained**: all CSS and JavaScript inline. No external scripts, stylesheets, fonts, or images (embed small images as data: URIs if needed). No build step, no modules, no frameworks.
-3. **Sandboxed environment**: the plugin runs in an opaque-origin iframe. \`localStorage\`, \`sessionStorage\`, and cookies are **unavailable** — persist data with \`fwlite.storage\` instead. \`alert\`/\`confirm\` work; popups don't. **No microphone or camera**: \`getUserMedia\` fails in the sandbox, so don't build recording or photo-capture features.
+3. **Sandboxed environment**: the plugin runs in an opaque-origin iframe. \`localStorage\`, \`sessionStorage\`, and cookies are **unavailable** — persist data with \`fwlite.storage\` instead. \`alert\`/\`confirm\` work; popups don't. The plugin must stay on its own page: links or redirects to other sites and \`<iframe>\`s of other sites are blocked, and a plugin that navigates away is stopped. **No microphone or camera**: \`getUserMedia\` fails in the sandbox, so don't build recording or photo-capture features.
 ${networkRequirement}
 5. A global **\`fwlite\`** API object is injected before your code runs. Data becomes available once \`fwlite.ready\` resolves — structure your code as \`fwlite.ready.then(init)\`.
 ${writesRequirement}
