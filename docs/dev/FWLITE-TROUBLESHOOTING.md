@@ -5,8 +5,9 @@ Applies to the desktop and mobile app (`backend/FwLite/FwLiteMaui`). FW Lite Web
 
 ## Where the files are
 
-Everything lives in the app data directory. The quickest way to find it: open the app, open **Troubleshoot**
-(home page menu, or a project's sidebar) and use **Open Data Directory** / **Open Log file** / **Share Log file**.
+Logs and the settings file live in the app data directory. Open the app, open **Troubleshoot** (home page menu,
+or a project's sidebar) and use **Open Log file** / **Share Log file**. **Open Data Directory** opens the project
+folder, which on an installed Windows app is not the app data directory (see the end of this page).
 
 | Platform | Data directory |
 |----------|----------------|
@@ -82,5 +83,5 @@ in the default (or env-var) directory before it is read, so a `BaseDataDir` insi
 
 On an installed Windows app (MSIX, not the portable zip) projects are not in the data directory: they are in
 `C:\ProgramData\SIL\FieldWorks Lite\<Windows user name>\projects\`, so they survive uninstalling the app. The
-**Data Directory** field in the Troubleshoot dialog shows that project folder; logs and the settings file stay in
-the app's own data directory.
+**Data Directory** field in the Troubleshoot dialog shows `C:\ProgramData\SIL\FieldWorks Lite\<Windows user name>`
+(or the app data directory if moving the projects failed); logs and the settings file stay in the app data directory.

@@ -10,7 +10,8 @@ namespace LcmCrdt.Tests.Project;
 
 public class ProjectDataFolderMigrationTests : IAsyncLifetime
 {
-    private readonly string _testRoot = Path.GetFullPath(Path.Join("project-data-migration-tests", Guid.NewGuid().ToString("N")));
+    // not under the bin folder: SQLite on Windows can't open paths over ~260 chars, and a deep checkout plus staging gets there
+    private readonly string _testRoot = Path.Join(Path.GetTempPath(), "project-data-migration-tests", Guid.NewGuid().ToString("N"));
     private string LegacyRoot => Path.Join(_testRoot, "LocalState");
     private string TargetRoot => Path.Join(_testRoot, "ProgramData", "user");
     private readonly List<ServiceProvider> _providers = [];
@@ -53,6 +54,7 @@ public class ProjectDataFolderMigrationTests : IAsyncLifetime
             {
                 config.ProjectPath = projectPath;
                 config.UseProjectFolders = useProjectFolders;
+                config.EnableProjectDataFileCache = true;
             })
             .BuildServiceProvider();
         _providers.Add(provider);
@@ -101,6 +103,9 @@ public class ProjectDataFolderMigrationTests : IAsyncLifetime
         var project = service.GetProject("example");
         project.Should().NotBeNull();
         project.DbPath.Should().Be(LcmCrdtConfig.ProjectFolderDbPath(TargetRoot, "example"));
+        // the home page lists projects from this cache without opening them
+        project.Data.Should().NotBeNull();
+        project.Data.Name.Should().Be("Example");
         var api = await Open(project);
         (await api.GetEntries().Select(e => e.Id).ToArrayAsync()).Should().BeEquivalentTo(expectedEntries);
         await using var file = await api.GetFileStream(upload.MediaUri!.Value, downloadIfMissing: false);

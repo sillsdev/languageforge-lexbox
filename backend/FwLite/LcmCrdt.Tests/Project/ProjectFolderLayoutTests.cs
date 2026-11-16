@@ -5,7 +5,8 @@ namespace LcmCrdt.Tests.Project;
 
 public class ProjectFolderLayoutTests : IAsyncLifetime
 {
-    private readonly string _projectPath = Path.GetFullPath(Path.Join("project-folder-layout-tests", Guid.NewGuid().ToString("N")));
+    // the space matters: the Windows MSIX root is "C:\ProgramData\SIL\FieldWorks Lite"
+    private readonly string _projectPath = Path.GetFullPath(Path.Join("project folder layout tests", Guid.NewGuid().ToString("N")));
     private ServiceProvider? _services;
 
     public Task InitializeAsync()
@@ -101,6 +102,12 @@ public class ProjectFolderLayoutTests : IAsyncLifetime
     {
         var service = NewProjectsService(useProjectFolders: true);
         var project = await service.CreateProject(new("To Delete", "to-delete"));
+        // leaves pooled connections that delete must clear
+        await using (var scope = _services!.CreateAsyncScope())
+        {
+            var api = await scope.ServiceProvider.OpenCrdtProject(project);
+            await api.GetWritingSystems();
+        }
 
         await service.DeleteProject("to-delete");
 

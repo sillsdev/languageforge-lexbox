@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 
@@ -53,7 +54,7 @@ public static class ProjectDataFolderMigration
         }
         catch (Exception e)
         {
-            // the target can't even be prepared, so no other instance can migrate into it either
+            // e.g. no write access to the parent folder, which blocks every other instance's migration too
             logger.LogError(e, "Failed to prepare data migration to {TargetRoot}, keeping data in {LegacyRoot}", targetRoot, legacyRoot);
             return new(Migrated: false);
         }
@@ -98,7 +99,7 @@ public static class ProjectDataFolderMigration
                 Directory.CreateDirectory(staging);
                 projects = CopyAndVerify(legacyRoot, staging, targetRoot, logger);
                 WriteMarker(staging, new Marker(legacyRoot, DateTimeOffset.UtcNow, projects));
-                Directory.Move(staging, targetRoot);
+                MoveIntoPlace(staging, targetRoot);
             }
             finally
             {
@@ -110,6 +111,23 @@ public static class ProjectDataFolderMigration
         }
 
         return new(Migrated: true);
+    }
+
+    private static void MoveIntoPlace(string staging, string targetRoot)
+    {
+        // an antivirus or indexer still reading a just-written file blocks the rename for a moment
+        for (var attempt = 1; ; attempt++)
+        {
+            try
+            {
+                Directory.Move(staging, targetRoot);
+                return;
+            }
+            catch (Exception e) when (attempt < 20 && e is IOException or UnauthorizedAccessException)
+            {
+                Thread.Sleep(500);
+            }
+        }
     }
 
     private static MigrationResult UseLegacy(string parent, string targetName, ILogger logger)
@@ -156,14 +174,23 @@ public static class ProjectDataFolderMigration
         // no timeout: giving up while another instance migrates would put the two instances on different roots
         var lockPath = Path.Combine(parent, targetName + ".migration.lock");
         var logged = false;
+        DateTime? deniedSince = null;
         while (true)
         {
             try
             {
                 return new FileStream(lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose);
             }
-            catch (IOException)
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
             {
+                // access is also denied while the previous holder's lock file is pending deletion (e.g. an antivirus
+                // handle is still open); only a lasting denial means we can't lock at all
+                if (e is UnauthorizedAccessException)
+                {
+                    deniedSince ??= DateTime.UtcNow;
+                    if (DateTime.UtcNow - deniedSince > TimeSpan.FromSeconds(30)) throw;
+                }
+                else deniedSince = null;
                 if (!logged) logger.LogInformation("Waiting for another FieldWorks Lite instance to finish migrating data");
                 logged = true;
                 Thread.Sleep(500);
@@ -192,23 +219,27 @@ public static class ProjectDataFolderMigration
         if (!Directory.Exists(legacyRoot)) return [];
         var legacyCache = Path.Combine(legacyRoot, LocalResourcesCacheDirName);
         var stagingCache = Path.Combine(staging, LocalResourcesCacheDirName);
-        // media first: verifying the databases checks that every media file they reference was copied
-        if (Directory.Exists(legacyCache)) CopyDirectory(legacyCache, stagingCache);
+        var legacyDbs = Directory.GetFiles(legacyRoot, "*.sqlite");
+        // a failed migration is retried on every start, so fail the cheap checks before the (large) media copy
+        EnsureFreeSpace(staging, legacyDbs, legacyCache);
 
         var oldCachePrefix = AsDirectoryPrefix(legacyCache);
         var newCachePrefix = AsDirectoryPrefix(Path.Combine(targetRoot, LocalResourcesCacheDirName));
-        var codes = new List<string>();
-        foreach (var legacyDb in Directory.EnumerateFiles(legacyRoot, "*.sqlite"))
+        var stagedDbs = new List<string>();
+        foreach (var legacyDb in legacyDbs)
         {
-            var code = Path.GetFileNameWithoutExtension(legacyDb);
-            var stagedDb = LcmCrdtConfig.ProjectFolderDbPath(staging, code);
+            var stagedDb = LcmCrdtConfig.ProjectFolderDbPath(staging, Path.GetFileNameWithoutExtension(legacyDb));
             Directory.CreateDirectory(Path.GetDirectoryName(stagedDb)!);
             CopyDatabase(legacyDb, stagedDb);
             RewriteLocalResourcePaths(stagedDb, oldCachePrefix, newCachePrefix);
             VerifyDatabase(legacyDb, stagedDb);
-            VerifyLocalResources(stagedDb, oldCachePrefix, newCachePrefix, AsDirectoryPrefix(stagingCache), AsDirectoryPrefix(legacyRoot), logger);
-            codes.Add(code);
+            stagedDbs.Add(stagedDb);
         }
+
+        if (Directory.Exists(legacyCache)) CopyDirectory(legacyCache, stagingCache);
+        foreach (var stagedDb in stagedDbs)
+            VerifyLocalResources(stagedDb, oldCachePrefix, newCachePrefix, AsDirectoryPrefix(stagingCache), AsDirectoryPrefix(legacyRoot), logger);
+        CopyProjectDataCache(legacyRoot, staging, targetRoot, legacyDbs, logger);
 
         var legacyFailedSyncs = Path.Combine(legacyRoot, FailedSyncsDirName);
         if (Directory.Exists(legacyFailedSyncs))
@@ -217,14 +248,57 @@ public static class ProjectDataFolderMigration
             {
                 CopyDirectory(legacyFailedSyncs, Path.Combine(staging, FailedSyncsDirName));
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 // diagnostics only, not worth failing the migration over
                 logger.LogWarning(e, "Failed to copy {FailedSyncs}", legacyFailedSyncs);
             }
         }
 
-        return [.. codes];
+        return [.. legacyDbs.Select(db => Path.GetFileNameWithoutExtension(db))];
+    }
+
+    private static void EnsureFreeSpace(string staging, string[] legacyDbs, string legacyCache)
+    {
+        var needed = legacyDbs.Sum(db => FileLength(db) + FileLength(db + "-wal"));
+        if (Directory.Exists(legacyCache))
+            needed += new DirectoryInfo(legacyCache).EnumerateFiles("*", SearchOption.AllDirectories).Sum(f => f.Length);
+        var available = new DriveInfo(Path.GetPathRoot(staging)!).AvailableFreeSpace;
+        // headroom so a migration doesn't leave the disk full
+        const long headroom = 200L * 1024 * 1024;
+        if (available < needed + headroom)
+            throw new IOException($"Not enough free space to migrate: {needed} bytes needed plus {headroom} spare, {available} available");
+    }
+
+    private static long FileLength(string path) => File.Exists(path) ? new FileInfo(path).Length : 0;
+
+    /// <summary>
+    /// The project list reads names, ids and servers from this cache without opening each project. Its keys are
+    /// db paths, so they are re-keyed; without it every project shows as local-only until it is opened.
+    /// </summary>
+    private static void CopyProjectDataCache(string legacyRoot, string staging, string targetRoot, string[] legacyDbs, ILogger logger)
+    {
+        var legacyCacheFile = Path.Combine(legacyRoot, LcmCrdtConfig.DefaultProjectCacheFileName);
+        if (!File.Exists(legacyCacheFile)) return;
+        try
+        {
+            var newDbPaths = legacyDbs.ToDictionary(db => db,
+                db => LcmCrdtConfig.ProjectFolderDbPath(targetRoot, Path.GetFileNameWithoutExtension(db)),
+                StringComparer.OrdinalIgnoreCase);
+            var legacyEntries = JsonNode.Parse(File.ReadAllText(legacyCacheFile))?.AsObject() ?? new JsonObject();
+            var entries = new JsonObject();
+            foreach (var (dbPath, entry) in legacyEntries)
+            {
+                if (entry is not null && newDbPaths.TryGetValue(dbPath, out var newDbPath))
+                    entries[newDbPath] = entry.DeepClone();
+            }
+            File.WriteAllText(Path.Combine(staging, LcmCrdtConfig.DefaultProjectCacheFileName), entries.ToJsonString());
+        }
+        catch (Exception e)
+        {
+            // only a cache: a project's entry is rebuilt when it is opened
+            logger.LogWarning(e, "Failed to migrate the project data cache {CacheFile}", legacyCacheFile);
+        }
     }
 
     private static string AsDirectoryPrefix(string dir) => Path.TrimEndingDirectorySeparator(dir) + Path.DirectorySeparatorChar;
@@ -253,8 +327,9 @@ public static class ProjectDataFolderMigration
     }
 
     /// <summary>
-    /// Harmony stores absolute media paths (<c>LocalResource.LocalPath</c>), so rows pointing into the legacy
-    /// media cache are re-pointed at the new one. Rows elsewhere (or relative ones) are left alone.
+    /// Rows written before <c>StoreLocalResourcePathsRelativeToCache</c> hold absolute media paths
+    /// (<c>LocalResource.LocalPath</c>); those pointing into the legacy media cache are re-pointed at the new one.
+    /// Relative rows already resolve against the new cache, and rows elsewhere are left alone.
     /// </summary>
     private static void RewriteLocalResourcePaths(string dbPath, string oldPrefix, string newPrefix)
     {

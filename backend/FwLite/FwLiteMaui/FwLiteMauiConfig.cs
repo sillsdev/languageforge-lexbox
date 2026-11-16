@@ -55,8 +55,8 @@ public class FwLiteMauiConfig
 
     /// <summary>
     /// C:\ProgramData\SIL\FieldWorks Lite\{user}, next to FieldWorks' own C:\ProgramData\SIL\FieldWorks.
-    /// MSIX only redirects AppData writes, so this folder survives uninstall. One folder per Windows user: a
-    /// project file is only writable by the user that created it, and the project db holds per-user state.
+    /// MSIX only redirects AppData writes, so this folder survives uninstall. One folder per Windows user because
+    /// the project db holds per-user state (login, role). Other accounts can read it (ProgramData's default ACL).
     /// </summary>
     public static string WindowsProjectDataDir()
     {

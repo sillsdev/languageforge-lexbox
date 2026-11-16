@@ -148,7 +148,7 @@ public static class FwLiteMauiKernel
         //runtime, e.g. Logging__LogLevel__FwLiteShared.Auth.LoggerAdapter=Information for MSAL sign in details
         logging.AddConfiguration(configuration.GetSection("Logging"));
         Directory.CreateDirectory(fwLiteMauiConfig.BaseDataDir);
-        // resolved lazily so the one-time data migration can log; runs before any project path is used
+        // runs the one-time data migration when IOptions<LcmCrdtConfig> is first constructed, during MauiApp.Build()
         services.AddSingleton(sp => ProjectDataLocation.Resolve(fwLiteMauiConfig, sp.GetRequiredService<ILogger<ProjectDataLocation>>()));
         services.AddOptions<LcmCrdtConfig>().Configure((LcmCrdtConfig config, ProjectDataLocation location) =>
         {
@@ -168,7 +168,6 @@ public static class FwLiteMauiKernel
         services.AddOptions<HarmonyConfig>().Configure((HarmonyConfig config, ProjectDataLocation location) =>
         {
             config.FailedSyncOutputPath = Path.Combine(location.Root, ProjectDataFolderMigration.FailedSyncsDirName);
-            config.LocalResourceCachePath = Path.Combine(location.Root, ProjectDataFolderMigration.LocalResourcesCacheDirName);
         });
 
         logging.AddFile(fwLiteMauiConfig.AppLogFilePath, options =>
