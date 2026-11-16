@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Tabbed Notebook</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#fff;--ground:#f4f1ec;--ink:#1c2233;--ink-2:#5c6375;--rule:#e4e0d8;--ox:#8c1d18;--blue:#1f4fd1;--tab:#e9e3d9}
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;font-family:'Noto Sans',sans-serif;color:var(--ink);background:var(--ground);display:grid;grid-template-columns:216px 360px 40px 1fr}
+aside{padding:22px 16px;display:flex;flex-direction:column;gap:16px}
+.proj{font-weight:700;font-size:19px}
+.new{background:var(--ox);color:#fff;border:0;border-radius:6px;font:600 15px 'Noto Sans';padding:11px 14px;text-align:left}
+nav a{display:flex;justify-content:space-between;padding:9px 10px;font-size:15px;color:var(--ink);text-decoration:none;border-radius:4px}
+nav a.on{background:var(--paper);font-weight:700}
+.list{background:var(--paper);margin:12px 0;border-radius:8px 0 0 8px;overflow:hidden;border:1px solid var(--rule);border-right:0}
+.search{padding:14px 16px}
+.search div{border:1px solid var(--rule);border-radius:6px;padding:9px 12px;font-size:15px;color:var(--ink-2)}
+.letter{padding:6px 16px 2px;font-size:13px;font-weight:700;color:var(--ox);border-bottom:2px solid var(--ink)}
+.e{padding:9px 16px;border-bottom:1px solid var(--rule);font-size:15px;line-height:1.45}
+.e b{font-size:17px}.e i{color:var(--ink-2)}.e sup{font-size:10px;font-weight:700;color:var(--ox)}
+.e.sel{background:#fbf3f2;box-shadow:inset 4px 0 0 var(--ox)}
+.tabs{display:flex;flex-direction:column;margin:12px 0;background:var(--ink);border-radius:0 0 0 0;padding:6px 0}
+.tabs span{flex:1;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#c9cdd8}
+.tabs span.on{background:var(--ox);color:#fff;margin:0 -4px;border-radius:4px}
+main{background:var(--paper);margin:12px 12px 12px 0;border-radius:0 8px 8px 0;overflow:hidden;border:1px solid var(--rule);border-left:0}
+.ehead{padding:22px 36px 16px;border-bottom:1px solid var(--rule)}
+.ehead h1{font-size:36px;font-weight:700}.ehead h1 i{font-size:17px;font-weight:400;color:var(--ink-2);margin-left:10px}
+.ehead p{font-size:15px;line-height:1.6;margin-top:6px;color:var(--ink-2)}.ehead p b{color:var(--ink)}
+.body{padding:8px 36px}
+.field{display:grid;grid-template-columns:150px 1fr;gap:20px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.field h3{font-size:14px;font-weight:700;padding-top:6px}
+.vals{display:flex;flex-direction:column;gap:6px}
+.val{display:grid;grid-template-columns:44px 1fr;align-items:center;border-left:2px solid var(--ox);padding-left:10px}
+.val span{font-size:11px;font-weight:700;color:var(--ink-2)}
+.val div{font-size:17px;padding:4px 0}
+.val.draft div{text-decoration:underline dashed var(--ink-2);text-underline-offset:5px}
+.sense{display:flex;align-items:center;gap:14px;margin:18px 0 0;padding:10px 0;border-top:2px solid var(--ink)}
+.sense b{font-size:24px;color:var(--ox);min-width:28px}
+.sense span{font-size:16px;font-weight:700}
+.sense em{margin-left:auto;font-size:14px;color:var(--ink-2);font-style:normal}
+</style></head><body>
+<aside><div class="proj">Sena 3</div><button class="new">+ New word</button>
+<nav><a href="#">Dashboard</a><a href="#" class="on">Browse <span>1,464</span></a><a href="#">Tasks <span>3</span></a><a href="#">Activity</a></nav></aside>
+<section class="list">
+<div class="search"><div>Find a word…</div></div>
+<div class="letter">N</div>
+<div class="e"><b>nyaka<sup>1</sup></b> <i>n.</i> year</div>
+<div class="e"><b>nyaka<sup>2</sup></b> <i>v.</i> to grow up</div>
+<div class="e"><b>nyama</b> <i>n.</i> meat, animal</div>
+<div class="e"><b>nyoka</b> <i>n.</i> snake</div>
+<div class="e sel"><b>nyumba</b> <i>n.</i> house; household</div>
+<div class="e"><b>nyumbo</b> <i>n.</i> song of praise</div>
+<div class="e"><b>nzeru</b> <i>n.</i> wisdom</div>
+<div class="e"><b>nzimbe</b> <i>n.</i> sugar cane</div>
+<div class="letter">O</div>
+<div class="e"><b>ombo</b> <i>n.</i> boat, canoe</div>
+<div class="e"><b>ona</b> <i>v.</i> to see</div>
+<div class="e"><b>onga</b> <i>v.</i> to count</div>
+</section>
+<div class="tabs"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>I</span><span>K</span><span>M</span><span class="on">N</span><span>O</span><span>P</span><span>S</span><span>T</span><span>U</span><span>V</span><span>Z</span></div>
+<main>
+<header class="ehead"><h1>nyumba<i>noun</i></h1><p><b>nyumba</b> <i>n.</i> <b>1</b> house; a building for dwelling. <b>2</b> household, family.</p></header>
+<div class="body">
+<div class="field"><h3>Word</h3><div class="vals"><div class="val"><span>SEN</span><div>nyumba</div></div><div class="val"><span>SEH</span><div>ɲumba</div></div></div></div>
+<div class="sense"><b>1</b><span>Meaning</span><em>noun</em></div>
+<div class="field"><h3>Gloss</h3><div class="vals"><div class="val"><span>ENG</span><div>house</div></div><div class="val draft"><span>POR</span><div>casa</div></div><div class="val"><span>FRA</span><div>maison</div></div></div></div>
+<div class="field"><h3>Definition</h3><div class="vals"><div class="val"><span>ENG</span><div>a building for dwelling</div></div><div class="val"><span>POR</span><div>um edifício para morar</div></div></div></div>
+<div class="sense"><b>2</b><span>Meaning</span><em>noun</em></div>
+</div>
+</main>
+</body></html>

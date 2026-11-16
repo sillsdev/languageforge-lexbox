@@ -1,0 +1,48 @@
+{
+  "title": "FW Lite design language: round 2",
+  "question": "Three hybrids of The Exercise Book and The Thumb Index. Each gives the list/detail split a strong divider and groups the editor so your eye can follow it.",
+  "options": [
+    {
+      "id": "v2-bound",
+      "kind": "grounded",
+      "label": "Bound Notebook",
+      "kicker": "EXERCISE BOOK, LED",
+      "lineage": "an exercise book lying open: list on the left page, entry on the right, the cover showing at the spine",
+      "thesis": "List and entry are two pages bound by a spine in the cover colour; the editor keeps the red margin but drops full-page ruling.",
+      "palette": ["#1f5c4c", "#ffffff", "#1b2a4a", "#c8343b", "#dbe4ef", "#1f4fd1"],
+      "materials": ["cover-colour spine between list and entry", "red margin rule", "ruled line only under each value", "tinted sense bands"],
+      "viewport": "Green cover frames both pages; a dark spine separates them. Field groups (Word, Gloss, Definition) carry bold names; each meaning opens with a tinted band and a large red numeral in the margin.",
+      "risk": "The green cover around everything is a strong commitment; the margin rule must not read as an error colour.",
+      "html": ".impeccable/mocks/decision/v2-bound.html"
+    },
+    {
+      "id": "v2-tabbed",
+      "kind": "grounded",
+      "label": "Tabbed Notebook",
+      "kicker": "EVEN BLEND",
+      "lineage": "a thumb-indexed notebook: the letter tabs run down the page edge",
+      "thesis": "The thumb-index strip IS the divider: a dark column of letter tabs between list and entry, the current letter lit in oxblood.",
+      "palette": ["#f4f1ec", "#ffffff", "#1c2233", "#8c1d18", "#e4e0d8", "#1f4fd1"],
+      "materials": ["dark thumb-index divider", "dictionary notation in the list", "field name column + values with an oxblood left rule", "heavy rule before each meaning"],
+      "viewport": "List grouped under letter headings in dictionary notation; the tab strip divides it from the entry; the editor is a two-column form: field name on the left, its writing-system values stacked on the right.",
+      "risk": "The tab strip needs the project's own alphabet (from collation) to be honest; it takes 40px of width on desktop.",
+      "html": ".impeccable/mocks/decision/v2-tabbed.html"
+    },
+    {
+      "id": "v2-ledger",
+      "kind": "grounded",
+      "label": "Printed Page",
+      "kicker": "THUMB INDEX, LED",
+      "lineage": "a printed dictionary page, with the editor set as a typeset table",
+      "thesis": "A double rule divides list from entry like a page's column rule; the editor is a table whose field groups alternate a faint band so each row is easy to follow.",
+      "palette": ["#23262e", "#ffffff", "#f6f4f0", "#161a22", "#8c1d18", "#1f4fd1"],
+      "materials": ["double column rule", "letter index inside the list", "alternating field-group bands", "table-set editor"],
+      "viewport": "Charcoal shell; the list on a warm tint with an A–Z index inside its edge; a double rule; the entry as a table: field name, writing system, value, banded per field.",
+      "risk": "The table reads denser than today's form; on phones the field-name column has to collapse above its values.",
+      "html": ".impeccable/mocks/decision/v2-ledger.html"
+    }
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "canon": true,
+  "steer": true
+}

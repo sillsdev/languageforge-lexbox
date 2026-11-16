@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Canon</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--side:#f9fafb;--ink:#111827;--ink-2:#6b7280;--line:#e5e7eb;--acc:#2563eb}
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;font-family:'Noto Sans',sans-serif;color:var(--ink);background:var(--bg);display:grid;grid-template-columns:232px 380px 1fr}
+aside{background:var(--side);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:14px}
+.proj{font-weight:600;font-size:16px}
+.new{background:var(--acc);color:#fff;border:0;border-radius:8px;font:600 14px 'Noto Sans';padding:10px}
+nav a{display:flex;justify-content:space-between;padding:7px 10px;font-size:14px;color:var(--ink);text-decoration:none;border-radius:6px}
+nav a.on{background:#eef2ff;color:var(--acc);font-weight:600}
+.list{border-right:1px solid var(--line);padding:14px;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.search{border:1px solid var(--line);border-radius:8px;padding:8px 12px;color:var(--ink-2);font-size:14px;margin-bottom:6px}
+.r{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:8px}
+.r b{font-size:16px;font-weight:600;display:block}.r small{font-size:13px;color:var(--ink-2)}
+.r span{font-size:12px;font-weight:500;color:var(--acc);background:#eff6ff;border-radius:6px;padding:2px 8px}
+.r.sel{background:#eff6ff}
+main{padding:24px 36px}
+h1{font-size:28px;font-weight:700;margin-bottom:16px}
+.prev{background:var(--side);border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.6;margin-bottom:20px}
+.sec{font-size:13px;font-weight:600;color:var(--ink-2);margin:16px 0 8px}
+.f{display:grid;grid-template-columns:48px 1fr;gap:10px;align-items:center;margin-bottom:8px}
+.f span{font-size:12px;color:var(--ink-2)}
+.f div{border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:14px}
+</style></head><body>
+<aside><div class="proj">Sena 3</div><button class="new">+ New word</button>
+<nav><a href="#">Dashboard</a><a href="#" class="on">Browse <span>1,464</span></a><a href="#">Tasks</a><a href="#">Activity</a></nav></aside>
+<section class="list"><div class="search">Filter 1,464 words</div>
+<div class="r sel"><div><b>nyumba</b><small>house</small></div><span>Noun</span></div>
+<div class="r"><div><b>nyumbo</b><small>song of praise</small></div><span>Noun</span></div>
+<div class="r"><div><b>nyaka</b><small>year</small></div><span>Noun</span></div>
+<div class="r"><div><b>nyama</b><small>meat, animal</small></div><span>Noun</span></div>
+<div class="r"><div><b>nyoka</b><small>snake</small></div><span>Noun</span></div>
+<div class="r"><div><b>nzeru</b><small>wisdom</small></div><span>Noun</span></div>
+<div class="r"><div><b>nzimbe</b><small>sugar cane</small></div><span>Noun</span></div>
+<div class="r"><div><b>ombo</b><small>boat, canoe</small></div><span>Noun</span></div>
+<div class="r"><div><b>ona</b><small>to see</small></div><span>Verb</span></div></section>
+<main><h1>nyumba</h1>
+<div class="prev"><b>nyumba</b> Noun house; a building for dwelling. My house is big.</div>
+<div class="sec">Word</div><div class="f"><span>Sen</span><div>nyumba</div></div><div class="f"><span>Seh</span><div>ɲumba</div></div>
+<div class="sec">Meaning 1 · Gloss</div><div class="f"><span>Eng</span><div>house</div></div><div class="f"><span>Por</span><div>casa</div></div><div class="f"><span>Fra</span><div>maison</div></div>
+<div class="sec">Definition</div><div class="f"><span>Eng</span><div>a building for dwelling</div></div><div class="f"><span>Por</span><div>um edifício para morar</div></div>
+</main></body></html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Warm App</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ground:#f5f1ec;--card:#fff;--ink:#1f2a24;--ink-2:#6b736e;--line:#e8e1d8;--act:#0f7b5f}
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;font-family:Nunito,sans-serif;color:var(--ink);background:var(--ground);display:grid;grid-template-columns:230px 390px 1fr;gap:16px;padding:16px}
+aside{display:flex;flex-direction:column;gap:14px;padding:8px}
+.proj{font-weight:800;font-size:20px}
+.new{background:var(--act);color:#fff;border:0;border-radius:16px;font:700 16px Nunito;padding:14px}
+nav a{display:flex;justify-content:space-between;padding:12px 14px;font-size:16px;color:var(--ink);text-decoration:none;border-radius:14px}
+nav a.on{background:var(--card);font-weight:700}
+.list{display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.search{background:var(--card);border-radius:16px;padding:14px 16px;color:var(--ink-2);font-size:16px}
+.c{background:var(--card);border-radius:18px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
+.c b{font-size:19px;font-weight:800;display:block}.c small{font-size:14px;color:var(--ink-2)}
+.c span{font-size:13px;color:var(--ink-2);background:var(--ground);border-radius:999px;padding:3px 10px}
+.c.sel{outline:2px solid var(--ink)}
+main{background:var(--card);border-radius:24px;padding:28px 36px;overflow:hidden}
+h1{font-size:36px;font-weight:800}
+.sub{color:var(--ink-2);margin:4px 0 20px;font-size:16px}
+.box{background:var(--ground);border-radius:18px;padding:18px 20px;margin-bottom:16px}
+.box h3{font-size:15px;font-weight:700;margin-bottom:10px}
+.f{display:grid;grid-template-columns:70px 1fr;gap:10px;align-items:center;margin-bottom:8px}
+.f span{font-size:13px;color:var(--ink-2);font-weight:700}
+.f div{background:var(--card);border-radius:12px;padding:10px 14px;font-size:16px}
+.add{color:var(--act);font-weight:700;font-size:15px}
+</style></head><body>
+<aside><div class="proj">Sena 3</div><button class="new">+ Add a new word</button>
+<nav><a href="#">Home</a><a href="#" class="on">All words <span>1,464</span></a><a href="#">To do <span>3</span></a><a href="#">What changed</a></nav></aside>
+<section class="list">
+<div class="search">Search your words…</div>
+<div class="c sel"><div><b>nyumba</b><small>house</small></div><span>noun</span></div>
+<div class="c"><div><b>nyumbo</b><small>song of praise</small></div><span>noun</span></div>
+<div class="c"><div><b>nyaka</b><small>year</small></div><span>noun</span></div>
+<div class="c"><div><b>nyama</b><small>meat, animal</small></div><span>noun</span></div>
+<div class="c"><div><b>nyoka</b><small>snake</small></div><span>noun</span></div>
+<div class="c"><div><b>nzeru</b><small>wisdom</small></div><span>noun</span></div>
+<div class="c"><div><b>nzimbe</b><small>sugar cane</small></div><span>noun</span></div>
+<div class="c"><div><b>ombo</b><small>boat, canoe</small></div><span>noun</span></div>
+</section>
+<main>
+<h1>nyumba</h1><p class="sub">noun · 2 meanings</p>
+<div class="box"><h3>How it's written</h3>
+<div class="f"><span>Sena</span><div>nyumba</div></div><div class="f"><span>IPA</span><div>ɲumba</div></div></div>
+<div class="box"><h3>Meaning 1</h3>
+<div class="f"><span>English</span><div>house</div></div><div class="f"><span>Portuguese</span><div>casa</div></div><div class="f"><span>French</span><div>maison</div></div></div>
+<div class="box"><h3>Meaning 2</h3>
+<div class="f"><span>English</span><div>household, family</div></div></div>
+<p class="add">+ Add another meaning</p>
+</main>
+</body></html>
