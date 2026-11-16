@@ -2045,9 +2045,6 @@ public class FwDataMiniLcmApi(
     {
         if (stream.SafeLength() > MediaFile.MaxFileSize) return new UploadFileResponse(UploadFileResult.TooBig);
         var fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, TypeToLinkedFolder(metadata.MimeType), Path.GetFileName(metadata.Filename));
-
-        if (File.Exists(fullPath))
-            return new UploadFileResponse(mediaAdapter.MediaUriFromPath(fullPath, Cache), savedToLexbox: false, newResource: false);
         var directory = Path.GetDirectoryName(fullPath);
         if (directory is not null)
         {
@@ -2062,16 +2059,25 @@ public class FwDataMiniLcmApi(
             }
         }
 
+        string? tempPath = null;
         try
         {
-            await using var fileStream = File.Create(fullPath);
-            await stream.CopyToAsync(fileStream);
-            return new UploadFileResponse(mediaAdapter.MediaUriFromPath(fullPath, Cache), savedToLexbox: false, newResource: true);
+            // A file with the same name is only the same file if the bytes match; otherwise (two phones'
+            // IMG_0001.jpg) save this one under a free name.
+            tempPath = await LocalMediaFiles.CopyToTempFile(stream);
+            if (LocalMediaFiles.ContentEquals(tempPath, fullPath))
+                return new UploadFileResponse(mediaAdapter.MediaUriFromPath(fullPath, Cache), savedToLexbox: false, newResource: false);
+            var savedPath = LocalMediaFiles.MoveToFreePath(tempPath, fullPath);
+            return new UploadFileResponse(mediaAdapter.MediaUriFromPath(savedPath, Cache), savedToLexbox: false, newResource: true);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to save file {Filename} to {Path}", metadata.Filename, fullPath);
             return new UploadFileResponse($"Failed to save file: {ex.Message}");
+        }
+        finally
+        {
+            if (tempPath is not null) LocalMediaFiles.DeleteIfExists(tempPath);
         }
     }
 
