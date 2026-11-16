@@ -5,6 +5,7 @@ using FwDataMiniLcmBridge.Tests.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm.Media;
 using MiniLcm.Models;
+using SIL.LCModel;
 using SIL.LCModel.Infrastructure;
 
 namespace FwDataMiniLcmBridge.Tests;
@@ -91,6 +92,67 @@ public class MediaFileTests : IAsyncLifetime
         entry.Should().NotBeNull();
         entry.CitationForm[_audioWs].Should().Be(new MediaUri(fileGuid, "localhost").ToString());
         GetFwAudioValue(entryId).Should().Be(fileName);
+    }
+
+    private async Task<Guid> AddPictureDirectly(string path)
+    {
+        var entry = await _api.CreateEntry(new Entry { LexemeForm = { ["en"] = "test" }, Senses = [new Sense()] });
+        var lexSense = _api.EntriesRepository.GetObject(entry.Id).SensesOS[0];
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add picture",
+            "Remove picture",
+            _api.Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var picture = _api.Cache.ServiceLocator.GetInstance<ICmPictureFactory>().Create();
+                lexSense.PicturesOS.Add(picture);
+                picture.UpdatePicture(path, null, CmFolderTags.LocalPictures, 0);
+            });
+        return entry.Id;
+    }
+
+    [Fact]
+    public async Task CanOpenAPictureOutsideLinkedFiles()
+    {
+        var outsidePath = Path.Combine(_api.Cache.ProjectId.ProjectFolder, "outside-linked-files.jpg");
+        await File.WriteAllTextAsync(outsidePath, "outside contents");
+        var entryId = await AddPictureDirectly(outsidePath);
+
+        var entry = await _api.GetEntry(entryId);
+
+        (await ReadFile(entry!.Senses[0].Pictures[0].MediaUri)).Should().Be("outside contents");
+    }
+
+    [Fact]
+    public async Task GetEntry_MissingPictureOutsideLinkedFilesWorks()
+    {
+        var entryId = await AddPictureDirectly(Path.Combine(Path.GetTempPath(), "lexbox-out-of-tree-media", "missing.jpg"));
+
+        var entry = await _api.GetEntry(entryId);
+
+        entry!.Senses[0].Pictures[0].MediaUri.Should().Be(MediaUri.NotFound);
+    }
+
+    [Fact]
+    public async Task CanOpenAnInTreePictureLinkedWithDotSegments()
+    {
+        var picturesDir = Path.Combine(_api.Cache.LangProject.LinkedFilesRootDir, "Pictures");
+        Directory.CreateDirectory(picturesDir);
+        await File.WriteAllTextAsync(Path.Combine(picturesDir, "picture.jpg"), "picture contents");
+        // The LinkedFiles scan never produces this spelling, so its FileId only resolves if reading the entry maps it.
+        var entryId = await AddPictureDirectly(Path.Combine(picturesDir, "..", "Pictures", "picture.jpg"));
+
+        var entry = await _api.GetEntry(entryId);
+
+        (await ReadFile(entry!.Senses[0].Pictures[0].MediaUri)).Should().Be("picture contents");
+    }
+
+    private async Task<string> ReadFile(MediaUri mediaUri)
+    {
+        var file = await _api.GetFileStream(mediaUri);
+        await using var stream = file.Stream;
+        stream.Should().NotBeNull();
+        using var streamReader = new StreamReader(stream);
+        return await streamReader.ReadToEndAsync();
     }
 
     [Fact]
