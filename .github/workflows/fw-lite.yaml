@@ -527,30 +527,14 @@ jobs:
 
       # Headless Chrome loads the page so the server logs 'Viewer loaded', the line the MAUI checks wait for.
       - name: Launch FwLiteWeb and wait for the viewer to load
-        working-directory: backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64
-        run: |
-          chmod +x ./FwLiteWeb
-          log="$RUNNER_TEMP/fwliteweb.log"
-          # File logging off, or fw-lite-web.log lands in this folder and ships in the artifact.
-          ./FwLiteWeb --urls http://127.0.0.1:5137 --FwLiteWeb:OpenBrowser=false --FwLiteWeb:EnableFileLogging=false --FwLite:UpdateCheckCondition=Never > "$log" 2>&1 &
-          server=$!
-          # Wait for the server to answer, giving up early if it died.
-          for _ in $(seq 60); do
-            curl -fsS -o /dev/null http://127.0.0.1:5137/ && break
-            kill -0 $server 2>/dev/null || break
-            sleep 1
-          done
-          google-chrome --headless=new --disable-gpu --no-sandbox --user-data-dir="$RUNNER_TEMP/chrome" http://127.0.0.1:5137/ > /dev/null 2>&1 &
-          chrome=$!
-          # Wait for the page to finish loading in Chrome, again giving up early if the server died.
-          for _ in $(seq 120); do
-            grep -q 'Viewer loaded' "$log" && break
-            kill -0 $server 2>/dev/null || break
-            sleep 1
-          done
-          kill $chrome $server 2>/dev/null || true
-          cat "$log"
-          grep -q 'Viewer loaded' "$log" || { echo "::error::FwLiteWeb never logged 'Viewer loaded'"; exit 1; }
+        run: bash .github/scripts/smoke-linux.sh backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64/FwLiteWeb
+      - name: Upload smoke test output
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fw-lite-web-linux-smoke
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/smoke
 
       - name: Upload FWLite Linux artifacts
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

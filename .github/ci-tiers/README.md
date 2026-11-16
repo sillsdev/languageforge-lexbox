@@ -24,6 +24,12 @@ smoke tiers (`ios`, `mac`, `android`) build the app, launch it and wait for its
 runs `launch-ios` and `launch-android`; `launch-mac` runs only when Apple signing
 is available (`build-apple` output `signed`), since it launches the notarized DMG.
 
+`web-linux` is the cheap smoke tier: it publishes FwLiteWeb for linux-x64, loads it
+in headless Chrome and waits for the same log line (`smoke-linux.sh`). Besides its
+label and its script, `pr.yaml`'s `detect` job turns it on whenever the viewer or
+`FwLiteWeb` is affected, a shared-file change included. That part of the rule lives
+in `detect`, not in the tier's `project.json`.
+
 Two rules on top of the graph:
 
 - A shared file (`nx.json`'s `sharedGlobals`) never reaches a tier, so it runs
