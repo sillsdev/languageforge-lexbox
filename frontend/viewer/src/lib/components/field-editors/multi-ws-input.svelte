@@ -51,6 +51,7 @@
         <AudioInput
           bind:audioId={value[ws.wsId]}
           onchange={() => onchange?.(ws.wsId, value[ws.wsId], value)}
+          wsId={ws.wsId}
           wsLabel={ws.abbreviation}
           {readonly}
         />
