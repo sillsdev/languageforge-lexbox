@@ -57,6 +57,8 @@ Observed in agent sessions; plan around them.
 | FwLiteWeb | `./fw-lite-web.log` in its working directory (`FwLiteWeb:LogFileName`) |
 | Android | `adb logcat -d -t 200 \| grep DOTNET` (console logging lands under the `DOTNET` tag) |
 
+To read a log file, open `tools/log-browser.html` in a browser and drop the file(s) on it: filter by level and category, per-day summary, text search.
+
 Isolated Windows launch (scripted QA, no real data): `FwLiteMaui.exe --start-url /` skips the saved last page; env `FwDataBridge__ProjectsFolder` replaces the registry FieldWorks projects folder.
 
 ## Testing on Android (agents)

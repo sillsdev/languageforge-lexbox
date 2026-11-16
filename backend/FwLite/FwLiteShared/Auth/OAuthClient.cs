@@ -33,6 +33,7 @@ public class OAuthClient
     // prevents using same refresh token twice, logging in and out simulteneously etc.
     private readonly SemaphoreSlim _authSemaphore = new(1, 1);
     private AuthenticationResult? _authResult;
+    public static string MsalVersion { get; } = typeof(IPublicClientApplication).Assembly.GetName().Version?.ToString() ?? "Unknown";
 
     public OAuthClient(LoggerAdapter loggerAdapter,
         IHttpMessageHandlerFactory httpMessageHandlerFactory,
@@ -41,6 +42,7 @@ public class OAuthClient
         LexboxServer lexboxServer,
         ILogger<OAuthClient> logger,
         GlobalEventBus globalEventBus,
+        IOptions<FwLiteConfig> fwLiteConfig,
         IHostEnvironment? hostEnvironment = null,
         IRedirectUrlProvider? redirectUrlProvider = null
             )
@@ -58,6 +60,8 @@ public class OAuthClient
         //https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache
         var builder = PublicClientApplicationBuilder.Create(options.Value.ClientId)
             .WithExperimentalFeatures()
+            .WithClientName(LoggerAdapter.MsalClientName)
+            .WithClientVersion(fwLiteConfig.Value.AppVersion)
             .WithLogging(loggerAdapter, hostEnvironment?.IsDevelopment() ?? false)
             .WithHttpClientFactory(new HttpClientFactoryAdapter(httpMessageHandlerFactory))
             .WithParentActivityOrWindow(() => options.Value.GetParentActivityOrWindow?.Invoke())
