@@ -95,6 +95,9 @@ jobs:
           let testProjects = everything ? coreTests : r.projects.filter((p) => coreTests.includes(p));
           // e.g. only a leaf library changed, or a ci:slow-tests label on a PR with no .NET change
           if (testProjects.length === 0) testProjects = coreTests;
+          // The FwLiteWeb launch smoke test is cheap (Linux, no emulator), so unlike the app smoke
+          // tiers it also runs whenever what it launches is affected.
+          if (everything || r.viewer || r.projects.includes('FwLiteWeb')) tiers.add('web-linux');
           const out = {
             projects: JSON.stringify(r.projects),
             viewer: String(r.viewer || everything),
@@ -409,12 +412,12 @@ jobs:
           label: FW Lite MAUI Windows
           on-no-files: ignore
 
-  # The app smoke tiers (ios, mac, android) launch the app, which needs the built viewer. Built once
-  # here on Linux rather than on each (pricier) macOS runner.
+  # The smoke tiers (ios, mac, android, web-linux) launch the app, which needs the built viewer.
+  # Built once here on Linux rather than on each (pricier) macOS runner.
   smoke-viewer:
     name: Build viewer for the app smoke tests
     needs: detect
-    if: contains(fromJSON(needs.detect.outputs.tiers), 'ios') || contains(fromJSON(needs.detect.outputs.tiers), 'mac') || contains(fromJSON(needs.detect.outputs.tiers), 'android')
+    if: contains(fromJSON(needs.detect.outputs.tiers), 'ios') || contains(fromJSON(needs.detect.outputs.tiers), 'mac') || contains(fromJSON(needs.detect.outputs.tiers), 'android') || contains(fromJSON(needs.detect.outputs.tiers), 'web-linux')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -430,6 +433,38 @@ jobs:
           name: pr-viewer-js
           if-no-files-found: error
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
+
+  web-linux:
+    name: FwLiteWeb Linux publish and smoke test (tier web-linux)
+    needs: [detect, smoke-viewer]
+    if: contains(fromJSON(needs.detect.outputs.tiers), 'web-linux')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: pr-viewer-js
+          path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.x'
+
+      # Same publish as fw-lite.yaml's publish-linux, linux-x64 only.
+      - name: Publish FwLiteWeb (linux-x64)
+        working-directory: backend/FwLite/FwLiteWeb
+        run: dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true
+
+      - name: Launch FwLiteWeb and wait for the viewer to load
+        run: bash .github/scripts/smoke-linux.sh backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64/FwLiteWeb
+      - name: Upload smoke test output
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pr-web-linux-smoke
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/smoke
 
   ios:
     name: iOS simulator build and smoke test (tier ios)
@@ -640,7 +675,7 @@ jobs:
     # The one check to mark required at cut-over. A skipped job (not affected, tier off) counts as passed.
     name: PR CI result
     if: always()
-    needs: [detect, dotnet, slow-tests, viewer-checks, viewer-ui-tests, extension-lint, maui-windows, smoke-viewer, ios, mac, android, e2e]
+    needs: [detect, dotnet, slow-tests, viewer-checks, viewer-ui-tests, extension-lint, maui-windows, smoke-viewer, web-linux, ios, mac, android, e2e]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
