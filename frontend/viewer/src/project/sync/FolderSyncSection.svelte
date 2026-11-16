@@ -27,6 +27,7 @@
   let folderPicker = $state<FolderPicker>();
   let nameDialog = $state<NameDialog>();
   const authorName = useLocalAuthorName();
+
   // after a Lexbox sync, edits are signed with that account
   const signsWithLocalName = $derived(!projectContext.projectData?.lastUserId);
 
@@ -53,9 +54,6 @@
 </script>
 
 <div class="flex flex-col items-center gap-3">
-  <p class="mb-1 max-md:px-10 text-sm text-muted-foreground text-center">
-    {$t`Sync with a USB drive or another folder`}
-  </p>
   <div class="flex flex-col items-center gap-1">
     {#if rememberedFolder.current}
       {@const path = rememberedFolder.current}
@@ -68,11 +66,7 @@
         loading={running === 'remembered'}
         disabled={!!syncing && running !== 'remembered'}
         onclick={() => void run('remembered', () => Promise.resolve(path))}>
-        {#if running === 'remembered'}
-          {$t`Syncing...`}
-        {:else}
-          {$t`Sync with ${shortFolderPath(path)}`}
-        {/if}
+        {running === 'remembered' ? $t`Syncing...` : $t`Sync with ${shortFolderPath(path)}`}
       </Button>
       <Button
         variant="link"

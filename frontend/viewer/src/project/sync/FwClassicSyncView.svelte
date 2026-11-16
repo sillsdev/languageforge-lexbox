@@ -31,7 +31,7 @@
   }: {
     syncStatus: SyncStatus;
     server?: ILexboxServer;
-    /** Which sync is running, shared with the other tab so only one runs at a time */
+    /** Which sync is running, shared across the dialog so only one runs at a time */
     syncing?: SyncTarget;
     /** Bumped by the dialog after each sync; the status reloads when it changes */
     syncCount?: number;
@@ -41,7 +41,7 @@
   } = $props();
 
   const service = useSyncStatusService();
-  // A Lexbox request that can take many seconds, so it only loads once this tab is shown.
+  // A Lexbox request that can take many seconds, so it only loads once this view is shown.
   // Errors (e.g. Lexbox unreachable) are expected, so they're shown inline instead of thrown.
   const remote = resource(() => syncCount, async (_, _prev, {signal}) => {
     const status = await service.getStatus();

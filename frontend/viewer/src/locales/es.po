@@ -655,7 +655,12 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Sincronización automática"
 
+#: src/project/sync/SyncMethodList.svelte
+msgid "Auto syncing. Last sync: #"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/project/SyncDialog.svelte
 msgid "Back"
 msgstr "Atrás"
 
@@ -1622,6 +1627,7 @@ msgstr "Error comprobando actualizaciones: {0}"
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Error getting sync status"
 msgstr "Error al obtener el estado de sincronización"
 
@@ -1810,11 +1816,6 @@ msgstr "Campo"
 msgid "Fields"
 msgstr "Campos"
 
-#. Product name
-#: src/project/SyncDialog.svelte
-msgid "FieldWorks Lite"
-msgstr "FieldWorks Lite"
-
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite recopila datos de uso para ayudarnos a mejorarlos."
@@ -1843,6 +1844,10 @@ msgstr "Versión de FieldWorks Lite"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "Logo de FieldWorks"
+
+#: src/project/SyncDialog.svelte
+msgid "FieldWorks Send/Receive (on Lexbox)"
+msgstr ""
 
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/plugin-api-adapter.ts
@@ -2289,11 +2294,6 @@ msgstr "Longitud:"
 msgid "Let this version use the internet?"
 msgstr ""
 
-#. Product name
-#: src/project/SyncDialog.svelte
-msgid "Lexbox"
-msgstr "Lexbox"
-
 #. Alt text for the Lexbox logo image shown in the home screen app bar. "Lexbox" is a product name — do not translate.
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -2662,10 +2662,6 @@ msgstr "Nombre"
 msgid "Name is required"
 msgstr "Se requiere nombre"
 
-#: src/project/SyncDialog.svelte
-msgid "Nearby"
-msgstr ""
-
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
 msgstr ""
@@ -2673,6 +2669,7 @@ msgstr ""
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwLiteSyncView.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Never"
 msgstr "Nunca"
 
@@ -2858,6 +2855,7 @@ msgstr "Sin servidor"
 
 #. Status text in the project sidebar when the project has no server/sync partner configured.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "No server configured"
 msgstr "Ningún servidor configurado"
 
@@ -2922,6 +2920,7 @@ msgstr ""
 
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Not logged in"
 msgstr "No conectado"
 
@@ -2986,6 +2985,10 @@ msgstr "Desconectado, no se puede descargar"
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
 msgstr "Desconectado, no se puede abrir el archivo"
+
+#: src/project/sync/SyncMethodList.svelte
+msgid "Offline. Your changes are saved on this device."
+msgstr ""
 
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
@@ -3087,6 +3090,10 @@ msgstr "Desactivar los análisis"
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
 msgstr "naranja"
+
+#: src/project/SyncDialog.svelte
+msgid "Other FieldWorks Lite users"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
@@ -3705,6 +3712,10 @@ msgstr ""
 msgid "Runs in a sandbox, separate from the app"
 msgstr ""
 
+#: src/project/sync/SyncMethodList.svelte
+msgid "Runs on Lexbox, not with FieldWorks on this computer"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
@@ -4145,6 +4156,7 @@ msgid "Sync"
 msgstr "Sincronizar"
 
 #. Dialog title
+#: src/project/ProjectSidebar.svelte
 #: src/project/SyncDialog.svelte
 msgid "Sync Changes"
 msgstr "Sincronizar Cambios"
@@ -4164,6 +4176,7 @@ msgid "Sync now"
 msgstr ""
 
 #: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Sync with {0}"
 msgstr ""
 
@@ -4171,7 +4184,7 @@ msgstr ""
 msgid "Sync with a folder..."
 msgstr ""
 
-#: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Sync with a USB drive or another folder"
 msgstr ""
 
@@ -4212,11 +4225,6 @@ msgstr ""
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
 msgstr "Sincronizado: #"
-
-#. Menu item to start sync
-#: src/project/ProjectSidebar.svelte
-msgid "Synchronize"
-msgstr "Sincronice"
 
 #. Progress message during sync
 #: src/project/sync/FwClassicSyncView.svelte
@@ -4766,6 +4774,10 @@ msgstr "Archivos pendientes cargados"
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
 msgstr "La carga de imágenes no está soportada aquí"
+
+#: src/project/SyncDialog.svelte
+msgid "USB Drive / Folder"
+msgstr ""
 
 #. List item under the heading "A plugin can't"; it completes that sentence.
 #: src/lib/plugins/PluginsView.svelte

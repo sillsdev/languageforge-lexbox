@@ -2,9 +2,10 @@
   import {t} from 'svelte-i18n-lingui';
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
-  import Input from '$lib/components/ui/input/input.svelte';
+  import Input, {inputVariants} from '$lib/components/ui/input/input.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
-  import InputShell from '$lib/components/ui/input/input-shell.svelte';
+  import {Icon} from '$lib/components/ui/icon';
+  import {cn} from '$lib/utils';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
   import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
@@ -93,36 +94,35 @@
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`New Project`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
-    <div class="gap-2 grid grid-cols-[auto_1fr]">
-      <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
+    <div class="gap-x-4 gap-y-2 grid grid-cols-[auto_1fr] items-center">
+      <Label class="contents">
         {$t`Name`}
         <Input bind:value={name} autocapitalize="on" autofocus />
       </Label>
-      <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
+      <Label class="contents">
         {$t`Code`}
-        <Input readonly value={code} />
+        <Input readonly value={code} class="bg-muted dark:bg-muted" />
       </Label>
-      <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
+      <Label class="contents">
         {$t`Vernacular writing system code`}
         <Input bind:value={vernacularWs} placeholder={$t`e.g. th, sw`} />
       </Label>
-      <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
+      <Label class="contents">
         {$t`Analysis writing system code`}
         <Input bind:value={analysisWs} placeholder="en" />
       </Label>
       {#if askForAuthorName}
-        <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
+        <Label class="contents">
           {$t`Your name`}
           <Input bind:value={authorName} maxlength={60} autocomplete="name" autocapitalize="words" />
         </Label>
       {:else}
-        <div class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
-          <span class="text-sm leading-none font-medium">{$t`Your name`}</span>
-          <InputShell class="ps-3 pe-1">
-            <span class="truncate">{localAuthorName.current}</span>
-            <Button variant="ghost" size="xs" icon="i-mdi-pencil" onclick={() => void nameDialog?.ask()}>{$t`Change`}</Button>
-          </InputShell>
-        </div>
+        <span class="text-sm leading-none font-medium">{$t`Your name`}</span>
+        <button type="button" class={cn(inputVariants({variant: 'shell'}), 'px-3 bg-muted dark:bg-muted hover:bg-input dark:hover:bg-muted/50 cursor-pointer focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]')}
+          onclick={() => void nameDialog?.ask()}>
+          <span class="truncate">{localAuthorName.current}</span>
+          <span class="flex items-center gap-1.5 shrink-0 font-medium"><Icon icon="i-mdi-pencil" class="size-4" />{$t`Change`}</span>
+        </button>
       {/if}
       <p class="col-start-2 text-sm text-muted-foreground">{$t`Shown next to your changes in all projects you don't sync with Lexbox.`}</p>
       <div class="col-span-2 text-end space-y-2">

@@ -21,12 +21,14 @@
     server?: ILexboxServer;
     serverId?: string;
     projectCode?: string;
-    /** Which sync is running, shared with the other tab so only one runs at a time */
+    /** Which sync is running, shared across the dialog so only one runs at a time */
     syncing?: SyncTarget;
     /** Bumped by the dialog after each sync; the status reloads when it changes */
     syncCount?: number;
     /** The user can't sync with FieldWorks Classic, so tell them how its changes still reach them */
     explainFieldWorksSync?: boolean;
+    /** Off where the dialog already names this view, unless the heading carries the FieldWorks Classic explanation */
+    showHeading?: boolean;
     onLoginStatusChange?: (status: 'logged-in' | 'logged-out') => void;
   }
 
@@ -38,6 +40,7 @@
     syncing = $bindable(),
     syncCount = 0,
     explainFieldWorksSync = false,
+    showHeading = true,
     onLoginStatusChange = () => {},
   }: Props = $props();
 
@@ -86,6 +89,7 @@
     });
   }
 </script>
+{#if explainFieldWorksSync || showHeading}
 <p class="mb-4 max-md:px-10 text-sm text-muted-foreground text-center">
   {#if explainFieldWorksSync}
     <Popover.Root>
@@ -100,6 +104,7 @@
     {heading}
   {/if}
 </p>
+{/if}
 <div class="text-center my-2">
   <span class="text-foreground/80">
     <T msg="Last sync: #">
@@ -143,11 +148,11 @@
             onclick={onSyncClick}
             icon="i-mdi-sync"
             iconProps={{ class: 'size-5' }}>
-            {#if syncing === 'lite'}
-              {$t`Syncing...`}
-            {:else}
-              {$t`Auto syncing`}
-            {/if}
+            <!-- Both labels take space so the button doesn't resize -->
+            <span class="grid">
+              <span class="col-start-1 row-start-1" class:invisible={syncing === 'lite'}>{$t`Auto syncing`}</span>
+              <span class="col-start-1 row-start-1" class:invisible={syncing !== 'lite'}>{$t`Syncing...`}</span>
+            </span>
           </Button>
         {:else if syncStatus === SyncStatus.Offline}
           <span>{$t`Offline`}</span>
