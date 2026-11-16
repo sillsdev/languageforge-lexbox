@@ -540,7 +540,8 @@ jobs:
             kill -0 $server 2>/dev/null || break
             sleep 1
           done
-          google-chrome --headless=new --disable-gpu --no-sandbox --user-data-dir="$RUNNER_TEMP/chrome" http://127.0.0.1:5137/ > /dev/null 2>&1 &
+          chrome_log="$RUNNER_TEMP/chrome.log"
+          google-chrome --headless=new --disable-gpu --no-sandbox --enable-logging=stderr --user-data-dir="$RUNNER_TEMP/chrome" http://127.0.0.1:5137/ > "$chrome_log" 2>&1 &
           chrome=$!
           # Wait for the page to finish loading in Chrome, again giving up early if the server died.
           for _ in $(seq 120); do
@@ -548,9 +549,17 @@ jobs:
             kill -0 $server 2>/dev/null || break
             sleep 1
           done
+          if kill -0 $chrome 2>/dev/null; then chrome_state="still running"; else chrome_state="already exited"; fi
           kill $chrome $server 2>/dev/null || true
           cat "$log"
-          grep -q 'Viewer loaded' "$log" || { echo "::error::FwLiteWeb never logged 'Viewer loaded'"; exit 1; }
+          if ! grep -q 'Viewer loaded' "$log"; then
+            # Chrome is the half of this check the server log can't explain.
+            echo "::group::Chrome output (Chrome had $chrome_state)"
+            cat "$chrome_log"
+            echo "::endgroup::"
+            echo "::error::FwLiteWeb never logged 'Viewer loaded'"
+            exit 1
+          fi
 
       - name: Upload FWLite Linux artifacts
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
