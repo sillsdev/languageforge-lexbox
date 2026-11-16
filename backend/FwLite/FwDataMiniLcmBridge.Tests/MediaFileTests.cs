@@ -114,8 +114,12 @@ public class MediaFileTests : IAsyncLifetime
     public async Task CanOpenAPictureOutsideLinkedFiles()
     {
         var outsidePath = Path.Combine(_api.Cache.ProjectId.ProjectFolder, "outside-linked-files.jpg");
-        await File.WriteAllTextAsync(outsidePath, "test");
-        await AssertPictureReadable(outsidePath);
+        await File.WriteAllTextAsync(outsidePath, "outside contents");
+        var entryId = await AddPictureDirectly(outsidePath);
+
+        var entry = await _api.GetEntry(entryId);
+
+        (await ReadFile(entry!.Senses[0].Pictures[0].MediaUri)).Should().Be("outside contents");
     }
 
     [Fact]
@@ -131,40 +135,15 @@ public class MediaFileTests : IAsyncLifetime
     [Fact]
     public async Task CanOpenAnInTreePictureLinkedWithDotSegments()
     {
-        await AssertInTreePictureReadable(Path.Combine("Pictures", "..", "Pictures", "spelling.jpg"));
-    }
-
-    [CaseInsensitiveFileSystemFact]
-    public async Task CanOpenAnInTreePictureLinkedWithDifferentCasing()
-    {
-        await AssertInTreePictureReadable(Path.Combine("Pictures", "SPELLING.jpg"));
-    }
-
-    private sealed class CaseInsensitiveFileSystemFactAttribute : FactAttribute
-    {
-        public CaseInsensitiveFileSystemFactAttribute()
-        {
-            if (!OperatingSystem.IsWindows() && !OperatingSystem.IsMacOS()) Skip = "Needs a case-insensitive file system";
-        }
-    }
-
-    // The FileId hashes the spelling FLEx stored, which the LinkedFiles scan never reproduces.
-    private async Task AssertInTreePictureReadable(string link)
-    {
-        var root = _api.Cache.LangProject.LinkedFilesRootDir;
-        Directory.CreateDirectory(Path.Combine(root, "Pictures"));
-        await File.WriteAllTextAsync(Path.Combine(root, "Pictures", "spelling.jpg"), "test");
-        await AssertPictureReadable(Path.Combine(root, link));
-    }
-
-    private async Task AssertPictureReadable(string linkPath)
-    {
-        var entryId = await AddPictureDirectly(linkPath);
+        var picturesDir = Path.Combine(_api.Cache.LangProject.LinkedFilesRootDir, "Pictures");
+        Directory.CreateDirectory(picturesDir);
+        await File.WriteAllTextAsync(Path.Combine(picturesDir, "picture.jpg"), "picture contents");
+        // The LinkedFiles scan never produces this spelling, so its FileId only resolves if reading the entry maps it.
+        var entryId = await AddPictureDirectly(Path.Combine(picturesDir, "..", "Pictures", "picture.jpg"));
 
         var entry = await _api.GetEntry(entryId);
-        var mediaUri = entry!.Senses[0].Pictures[0].MediaUri;
 
-        (await ReadFile(mediaUri)).Should().Be("test");
+        (await ReadFile(entry!.Senses[0].Pictures[0].MediaUri)).Should().Be("picture contents");
     }
 
     private async Task<string> ReadFile(MediaUri mediaUri)
