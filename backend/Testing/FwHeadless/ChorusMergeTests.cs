@@ -96,9 +96,19 @@ public class ChorusMergeTests : ApiTestBase, IAsyncLifetime
         var content = File.ReadAllText(path);
         const string listEnd = "</Possibilities>";
         content.Should().Contain(listEnd);
+        // FLExBridge's commit validation rejects an item missing any basic property
         var item = $"""
             <ownseq class="PartOfSpeech" guid="{Guid.NewGuid()}">
+              <BackColor val="-1073741824" />
+              <DateCreated val="2026-01-01 00:00:00.000" />
+              <DateModified val="2026-01-01 00:00:00.000" />
+              <ForeColor val="6303632" />
+              <Hidden val="False" />
+              <IsProtected val="False" />
               <Name><AUni ws="en">{name}</AUni></Name>
+              <SortSpec val="0" />
+              <UnderColor val="-1073741824" />
+              <UnderStyle val="1" />
             </ownseq>
 
             """;
