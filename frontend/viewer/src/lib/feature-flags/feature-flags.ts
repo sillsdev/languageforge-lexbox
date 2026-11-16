@@ -9,7 +9,7 @@
  * Usage: `if (hasFlag('flag-name')) { ... }` or `<FlagContent flag="flag-name">`.
  */
 export const CHANNEL_FLAGS = {
-  beta: ['plugins', 'folder-sync'],
+  beta: ['plugins', 'folder-sync', 'nearby-sync'],
 } as const satisfies Record<string, readonly string[]>;
 
 export type FeatureFlag = (typeof CHANNEL_FLAGS)[keyof typeof CHANNEL_FLAGS][number];

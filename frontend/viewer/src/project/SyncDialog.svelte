@@ -35,6 +35,7 @@
   const showClassic = $derived(!!server && !!features.fieldWorksSync);
   const platformFeatures = usePlatformFeaturesService();
   const showFolder = $derived(platformFeatures.features.supportsFolderSync && hasFlag('folder-sync'));
+  const showNearby = $derived(hasFlag('nearby-sync'));
   const openQueryParam = new QueryParamStateBool(
     { key: SYNC_DIALOG_QUERY_PARAM, replaceOnDefaultValue: true, allowBack: true },
     false,
@@ -44,7 +45,7 @@
   // focused when going back to the list
   let lastMethod = $state<SyncMethod>();
   // With only one method there's nothing to choose
-  const hasChoice = $derived(showClassic || showFolder || featureFlags.isDev);
+  const hasChoice = $derived(showClassic || showFolder || showNearby || featureFlags.isDev);
   const shown = $derived<SyncMethod | undefined>(hasChoice ? method : 'lite');
   // System and browser back go from a method's view to the list before they close the dialog
   useBackHandler({addToStack: () => openQueryParam.current && !!method, onBack: () => method = undefined, key: 'sync-method'});
@@ -92,7 +93,7 @@
   contentProps={{ class: 'sm:min-w-140 grid-rows-[auto_1fr] items-center' }}>
   <div>
     {#if !shown}
-      <SyncMethodList {syncStatus} {showClassic} {showFolder} {syncCount} titles={methodTitles} focus={lastMethod}
+      <SyncMethodList {syncStatus} {showClassic} {showFolder} {showNearby} {syncCount} titles={methodTitles} focus={lastMethod}
         onChoose={m => method = lastMethod = m} />
     {:else if hasChoice}
       <div class="flex items-center gap-1 mb-4 -ms-2 -mt-2 pe-10">
@@ -131,8 +132,10 @@
         <FolderSyncSection bind:syncing onSynced={() => syncCount++} />
       </IfOnce>
     {/if}
-    {#if shown === 'nearby'}
-      <p class="py-6 text-center text-sm text-muted-foreground">Coming soon</p>
+    {#if showNearby}
+      <IfOnce show={shown === 'nearby'}>
+        <p class="py-6 text-center text-sm text-muted-foreground">Coming soon</p>
+      </IfOnce>
     {/if}
   </div>
 </ResponsiveDialog>

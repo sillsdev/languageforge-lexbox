@@ -6,7 +6,6 @@
   import {onErrorEvent} from '$lib/errors/global-errors';
   import {Icon} from '$lib/components/ui/icon';
   import {FormatRelativeDate} from '$lib/components/ui/format';
-  import DevContent from '$lib/layout/DevContent.svelte';
   import flexLogo from '$lib/assets/flex-logo.png';
   import SyncMethodButton from './SyncMethodButton.svelte';
   import NearbyDevicesIcon from './NearbyDevicesIcon.svelte';
@@ -17,6 +16,7 @@
     syncStatus: SyncStatus;
     showClassic: boolean;
     showFolder: boolean;
+    showNearby: boolean;
     /** Bumped by the dialog after each sync; the status reloads when it changes */
     syncCount: number;
     titles: Record<SyncMethod, string>;
@@ -25,7 +25,7 @@
     onChoose: (method: SyncMethod) => void;
   }
 
-  const {syncStatus, showClassic, showFolder, syncCount, titles, focus, onChoose}: Props = $props();
+  const {syncStatus, showClassic, showFolder, showNearby, syncCount, titles, focus, onChoose}: Props = $props();
 
   const service = useSyncStatusService();
   const lastSync = resource(() => syncCount, () => service.getLatestSyncedCommitDate());
@@ -91,11 +91,11 @@
         {/snippet}
       </SyncMethodButton>
     {/if}
-    <DevContent>
+    {#if showNearby}
       <SyncMethodButton title={titles.nearby} focus={focus === 'nearby'} onclick={() => onChoose('nearby')}>
         {#snippet icon()}<NearbyDevicesIcon class="size-7" />{/snippet}
         {#snippet description()}Phones and computers on the same Wi-Fi{/snippet}
       </SyncMethodButton>
-    </DevContent>
+    {/if}
   </div>
 </div>
