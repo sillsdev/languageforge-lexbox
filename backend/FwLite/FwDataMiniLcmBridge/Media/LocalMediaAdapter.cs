@@ -32,8 +32,7 @@ public class LocalMediaAdapter(ILogger<LocalMediaAdapter> logger) : IMediaAdapte
             var fileId = PathToUri(file).FileId;
             if (paths.TryGetValue(fileId, out var existing))
             {
-                // duplicates are possible, because UUIDNext.NewNameBased normalises unicode before hashing
-                // keep the NFD path: FW only ever refers to audio via NFD names
+                // NFC/NFD twins on disk share a FileId (see NewGuidV5); keep the NFD one, the spelling FW refers to
                 var kept = PreferNfd(existing, file);
                 var skipped = ReferenceEquals(kept, existing) ? file : existing;
                 paths[fileId] = kept;
@@ -75,7 +74,9 @@ public class LocalMediaAdapter(ILogger<LocalMediaAdapter> logger) : IMediaAdapte
         return Paths(cache).GetValueOrDefault(mediaUri.FileId);
     }
 
-    // produces the same Guid for the same input name
+    // NewNameBased normalizes before hashing, so NFC and NFD spellings of a path share a FileId. That's safe: LCM stores
+    // every media reference as NFD (CmFile.InternalPath, MultiAccessor.set_String and the XML loader all normalize),
+    // so a project can't reference both spellings.
     internal static Guid NewGuidV5(string name)
     {
         return Uuid.NewNameBased(LocalMediaNamespace, name);
