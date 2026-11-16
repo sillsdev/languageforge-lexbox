@@ -745,10 +745,6 @@ msgstr ""
 msgid "Can use the internet"
 msgstr ""
 
-#: src/project/sync/FolderSyncSection.svelte
-msgid "Can't find the folder. Is the drive plugged in?"
-msgstr ""
-
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
 #. Synonyms across UI: "Don't delete" (Delete dialog), "Close" (About dialog)
@@ -3044,11 +3040,6 @@ msgstr "Direktori Data Terbuka"
 #. List item under the heading "A plugin can"; it completes that sentence.
 #: src/lib/plugins/PluginsView.svelte
 msgid "Open entries and show you short messages"
-msgstr ""
-
-#: src/project/sync/FolderSyncSection.svelte
-#: src/project/sync/FolderSyncSection.svelte
-msgid "Open folder"
 msgstr ""
 
 #: src/project/browse/EntryMenu.svelte

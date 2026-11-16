@@ -108,17 +108,6 @@ public class MauiPlatformFeaturesService(IMediaPicker mediaPicker, IShare share)
     public Task<bool> FolderExists(string path) => Task.FromResult(Directory.Exists(path));
 
     [JSInvokable]
-    public Task OpenFolder(string path)
-    {
-#if WINDOWS
-        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) {UseShellExecute = true});
-        return Task.CompletedTask;
-#else
-        throw new NotSupportedException("Folder sync is only available on Windows");
-#endif
-    }
-
-    [JSInvokable]
     public Task<string?> SuggestedAuthorName() => Task.FromResult(OsUserName.Suggest());
 
     [JSInvokable]
