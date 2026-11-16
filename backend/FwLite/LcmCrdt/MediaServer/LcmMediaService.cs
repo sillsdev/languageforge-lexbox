@@ -227,10 +227,11 @@ public class LcmMediaService(
         string localPath;
         try
         {
-            if (LocalMediaFiles.ContentEquals(tempPath, targetPath))
+            var copies = LocalMediaFiles.ExistingCopies(tempPath, targetPath).ToArray();
+            if (copies.Length > 0)
             {
                 // no row means the file was left behind (failed save, or a stale LocalPath, see #2693): don't reuse it
-                var existing = (await resourceService.AllResources()).FirstOrDefault(r => r.LocalPath == targetPath);
+                var existing = (await resourceService.AllResources()).FirstOrDefault(r => copies.Contains(r.LocalPath));
                 if (existing is not null) return (existing, newResource: false);
             }
             localPath = LocalMediaFiles.MoveToFreePath(tempPath, targetPath);

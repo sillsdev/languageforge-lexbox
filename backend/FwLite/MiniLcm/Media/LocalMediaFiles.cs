@@ -48,6 +48,15 @@ public static class LocalMediaFiles
     }
 
     /// <summary>
+    /// The files among <paramref name="targetPath"/> and its taken "name-1.ext", "name-2.ext"…
+    /// whose content equals <paramref name="sourcePath"/>, i.e. earlier saves of the same file.
+    /// </summary>
+    public static IEnumerable<string> ExistingCopies(string sourcePath, string targetPath)
+    {
+        return Candidates(targetPath).TakeWhile(File.Exists).Where(candidate => ContentEquals(sourcePath, candidate));
+    }
+
+    /// <summary>
     /// Moves <paramref name="sourcePath"/> to <paramref name="targetPath"/>, or to the first free
     /// "name-1.ext", "name-2.ext"… beside it. Never overwrites, even if another save claims the
     /// same name concurrently.
@@ -55,19 +64,21 @@ public static class LocalMediaFiles
     /// <returns>The path the file was moved to.</returns>
     public static string MoveToFreePath(string sourcePath, string targetPath)
     {
-        for (var counter = 0; ; counter++)
+        return Candidates(targetPath).First(candidate => TryMove(sourcePath, candidate));
+    }
+
+    private static bool TryMove(string sourcePath, string targetPath)
+    {
+        if (File.Exists(targetPath)) return false;
+        try
         {
-            var candidate = counter == 0 ? targetPath : NumberedPath(targetPath, counter);
-            if (File.Exists(candidate)) continue;
-            try
-            {
-                File.Move(sourcePath, candidate, overwrite: false);
-                return candidate;
-            }
-            catch (IOException) when (File.Exists(candidate))
-            {
-                // lost a race for this name, try the next one
-            }
+            File.Move(sourcePath, targetPath, overwrite: false);
+            return true;
+        }
+        catch (IOException) when (File.Exists(targetPath))
+        {
+            // lost a race for this name
+            return false;
         }
     }
 
@@ -76,12 +87,7 @@ public static class LocalMediaFiles
     /// </summary>
     public static string EnsureUnique(string filePath)
     {
-        if (!File.Exists(filePath)) return filePath;
-        for (var counter = 1; ; counter++)
-        {
-            var candidate = NumberedPath(filePath, counter);
-            if (!File.Exists(candidate)) return candidate;
-        }
+        return Candidates(filePath).First(candidate => !File.Exists(candidate));
     }
 
     public static void DeleteIfExists(string path)
@@ -89,10 +95,21 @@ public static class LocalMediaFiles
         if (File.Exists(path)) File.Delete(path);
     }
 
-    private static string NumberedPath(string filePath, int counter)
+    private static IEnumerable<string> Candidates(string filePath)
     {
         var directory = Path.GetDirectoryName(filePath);
         ArgumentException.ThrowIfNullOrEmpty(directory);
-        return Path.Combine(directory, $"{Path.GetFileNameWithoutExtension(filePath)}-{counter}{Path.GetExtension(filePath)}");
+        var name = Path.GetFileNameWithoutExtension(filePath);
+        var extension = Path.GetExtension(filePath);
+        return Enumerate();
+
+        IEnumerable<string> Enumerate()
+        {
+            yield return filePath;
+            for (var counter = 1; ; counter++)
+            {
+                yield return Path.Combine(directory, $"{name}-{counter}{extension}");
+            }
+        }
     }
 }
