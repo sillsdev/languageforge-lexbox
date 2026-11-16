@@ -210,6 +210,41 @@ public class MediaFileTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task SaveFile_PictureWithNfcFilenameIsFoundAfterLcmStoresItAsNfd()
+    {
+        var nfcFileName = "süülda.jpg";
+        nfcFileName.IsNormalized(NormalizationForm.FormD).Should().BeFalse();
+        var upload = await _api.SaveFile(new MemoryStream("picture"u8.ToArray()), new LcmFileMetadata(nfcFileName, "image/jpeg"));
+        var mediaUri = upload.MediaUri!.Value;
+        var created = await _api.CreateEntry(new Entry
+        {
+            LexemeForm = { ["en"] = "test" },
+            Senses = [new Sense { Pictures = [new Picture { MediaUri = mediaUri }] }]
+        });
+
+        var entry = await _api.GetEntry(created.Id);
+
+        entry!.Senses[0].Pictures[0].MediaUri.Should().Be(mediaUri);
+    }
+
+    [Fact]
+    public async Task SaveFile_AudioWithNfcFilenameIsFoundAfterLcmStoresItAsNfd()
+    {
+        var nfcFileName = "süülda.wav";
+        nfcFileName.IsNormalized(NormalizationForm.FormD).Should().BeFalse();
+        var upload = await _api.SaveFile(new MemoryStream("audio"u8.ToArray()), new LcmFileMetadata(nfcFileName, "audio/wav"));
+        var mediaUri = upload.MediaUri!.Value;
+        var created = await _api.CreateEntry(new Entry { LexemeForm = { ["en"] = "test" } });
+        var after = created.Copy();
+        after.CitationForm[_audioWs] = mediaUri.ToString();
+        await _api.UpdateEntry(created, after);
+
+        var entry = await _api.GetEntry(created.Id);
+
+        entry!.CitationForm[_audioWs].Should().Be(mediaUri.ToString());
+    }
+
+    [Fact]
     public async Task CanOpenAFile()
     {
         var fileName = "CanOpenAFile.txt";

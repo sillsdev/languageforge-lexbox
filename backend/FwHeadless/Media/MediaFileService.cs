@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using System.Security.Cryptography;
+using System.Text;
 using FwHeadless.Controllers;
 using FwHeadless.Services;
 using LcmCrdt.MediaServer;
@@ -87,8 +88,12 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         var fwDataFolder = config.Value.GetFwDataFolder(config.Value.GetProjectFolder(projectId));
         if (!path.StartsWith(fwDataFolder)) return null;
         var relativePath = MediaFilePath.Normalize(Path.GetRelativePath(fwDataFolder, path));
+        // LCM hands us NFD paths, but uploads saved before MediaFilePath.ForUpload normalized were stored as NFC
+        var nfd = relativePath.Normalize(NormalizationForm.FormD);
+        var nfc = relativePath.Normalize(NormalizationForm.FormC);
         //normalize the stored column too: legacy rows may have been written under a different OS's separators
-        return dbContext.Files.FirstOrDefault(f => f.ProjectId == projectId && f.Filename.Replace("\\", "/") == relativePath);
+        return dbContext.Files.FirstOrDefault(f => f.ProjectId == projectId
+            && (f.Filename.Replace("\\", "/") == nfd || f.Filename.Replace("\\", "/") == nfc));
     }
 
     /// <summary>
@@ -168,7 +173,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
                 {
                     Id = lcmResource.Id,
                     ProjectId = projectId,
-                    Filename = Path.Join(MediaFileController.LinkedFiles, subfolder, lcmResource.Id.ToString(), metadata.Filename),
+                    Filename = MediaFilePath.ForUpload(subfolder, lcmResource.Id, metadata.Filename),
                     Metadata = FromLcmFileMetadata(metadata),
                     Revision = 0, // pending: no binary uploaded yet
                 };

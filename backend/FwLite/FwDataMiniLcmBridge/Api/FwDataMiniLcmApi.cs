@@ -2044,7 +2044,9 @@ public class FwDataMiniLcmApi(
     public async Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
         if (stream.SafeLength() > MediaFile.MaxFileSize) return new UploadFileResponse(UploadFileResult.TooBig);
-        var fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, TypeToLinkedFolder(metadata.MimeType), Path.GetFileName(metadata.Filename));
+        // LCM stores media references as NFD, and NTFS/ext4 don't treat NFC and NFD names as the same file.
+        var fileName = Path.GetFileName(metadata.Filename).Normalize(NormalizationForm.FormD);
+        var fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, TypeToLinkedFolder(metadata.MimeType), fileName);
         var directory = Path.GetDirectoryName(fullPath);
         if (directory is not null)
         {

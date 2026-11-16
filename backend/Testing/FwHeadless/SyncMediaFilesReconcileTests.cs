@@ -195,6 +195,17 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task SyncMediaFiles_ReservesPendingPathAsNfd()
+    {
+        var pendingId = await SeedPendingResource("süülda.wav");
+
+        await _lexboxMediaService.SyncMediaFiles(_projectId, _lcmMediaService);
+
+        MediaFilePath.Normalize(_dbContext.Files.Single(f => f.Id == pendingId).Filename)
+            .Should().Be($"LinkedFiles/AudioVisual/{pendingId}/süülda.wav");
+    }
+
+    [Fact]
     public async Task SyncMediaFiles_LeavesResourceWithoutMetadataUntouched()
     {
         // Without usable metadata (no filename) we can't reserve a path, so the resource is left as-is: no
