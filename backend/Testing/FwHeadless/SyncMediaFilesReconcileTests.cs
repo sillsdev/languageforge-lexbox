@@ -195,14 +195,14 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task SyncMediaFiles_ReservesPendingPathAsNfd()
+    public async Task SyncMediaFiles_ReservesPendingPathAsNfc()
     {
-        var pendingId = await SeedPendingResource("süülda.wav");
+        var pendingId = await SeedPendingResource("su\u0308u\u0308lda.wav");
 
         await _lexboxMediaService.SyncMediaFiles(_projectId, _lcmMediaService);
 
         MediaFilePath.Normalize(_dbContext.Files.Single(f => f.Id == pendingId).Filename)
-            .Should().Be($"LinkedFiles/AudioVisual/{pendingId}/süülda.wav");
+            .Should().Be($"LinkedFiles/AudioVisual/{pendingId}/s\u00fc\u00fclda.wav");
     }
 
     [Fact]

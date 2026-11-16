@@ -418,8 +418,8 @@ public class MediaFileServiceTests : IDisposable
     [Fact]
     public async Task FindMediaFile_MatchesNfdPathToRowSavedAsNfc()
     {
-        var nfcRow = await AddDbFile("süülda.wav");
-        var nfdPath = Path.Join(_cache.ProjectId.ProjectFolder, LinkedFileRelativePath("süülda.wav"));
+        var nfcRow = await AddDbFile("s\u00fc\u00fclda.wav");
+        var nfdPath = Path.Join(_cache.ProjectId.ProjectFolder, LinkedFileRelativePath("su\u0308u\u0308lda.wav"));
 
         _service.FindMediaFile(_projectId, nfdPath)!.Id.Should().Be(nfcRow.Id);
     }
@@ -427,9 +427,9 @@ public class MediaFileServiceTests : IDisposable
     [Fact]
     public async Task FindMediaFile_PrefersTheExactSpellingOverItsNfcTwin()
     {
-        await AddDbFile("süülda.wav");
-        var nfdRow = await AddDbFile("süülda.wav");
-        var nfdPath = Path.Join(_cache.ProjectId.ProjectFolder, LinkedFileRelativePath("süülda.wav"));
+        await AddDbFile("s\u00fc\u00fclda.wav");
+        var nfdRow = await AddDbFile("su\u0308u\u0308lda.wav");
+        var nfdPath = Path.Join(_cache.ProjectId.ProjectFolder, LinkedFileRelativePath("su\u0308u\u0308lda.wav"));
 
         _service.FindMediaFile(_projectId, nfdPath)!.Id.Should().Be(nfdRow.Id);
     }

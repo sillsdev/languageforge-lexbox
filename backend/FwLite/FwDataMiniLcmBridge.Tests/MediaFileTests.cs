@@ -210,11 +210,29 @@ public class MediaFileTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task SaveFile_PictureWithNfcFilenameIsFoundAfterLcmStoresItAsNfd()
+    public async Task GetEntry_FindsAudioSavedUnderAnNfcNameLikeFlexDoes()
     {
-        var nfcFileName = "süülda.jpg";
-        nfcFileName.IsNormalized(NormalizationForm.FormD).Should().BeFalse();
-        var upload = await _api.SaveFile(new MemoryStream("picture"u8.ToArray()), new LcmFileMetadata(nfcFileName, "image/jpeg"));
+        var entryId = await AddFileDirectly("638000000000000000s\u00fc\u00fclda.wav", "audio");
+
+        var entry = await _api.GetEntry(entryId);
+
+        entry!.CitationForm[_audioWs].Should().NotBe(MediaUri.NotFound.ToString());
+    }
+
+    [Fact]
+    public async Task SaveFile_StoresTheFileUnderItsNfcName()
+    {
+        var upload = await _api.SaveFile(new MemoryStream("audio"u8.ToArray()), new LcmFileMetadata("su\u0308u\u0308lda.wav", "audio/wav"));
+
+        var path = _mediaAdapter.PathFromMediaUri(upload.MediaUri!.Value, _api.Cache);
+
+        Path.GetFileName(path).Should().Be("s\u00fc\u00fclda.wav");
+    }
+
+    [Fact]
+    public async Task SaveFile_PictureIsFoundAfterLcmStoresItsReferenceAsNfd()
+    {
+        var upload = await _api.SaveFile(new MemoryStream("picture"u8.ToArray()), new LcmFileMetadata("s\u00fc\u00fclda.jpg", "image/jpeg"));
         var mediaUri = upload.MediaUri!.Value;
         var created = await _api.CreateEntry(new Entry
         {
@@ -228,11 +246,9 @@ public class MediaFileTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task SaveFile_AudioWithNfcFilenameIsFoundAfterLcmStoresItAsNfd()
+    public async Task SaveFile_AudioIsFoundAfterLcmStoresItsReferenceAsNfd()
     {
-        var nfcFileName = "süülda.wav";
-        nfcFileName.IsNormalized(NormalizationForm.FormD).Should().BeFalse();
-        var upload = await _api.SaveFile(new MemoryStream("audio"u8.ToArray()), new LcmFileMetadata(nfcFileName, "audio/wav"));
+        var upload = await _api.SaveFile(new MemoryStream("audio"u8.ToArray()), new LcmFileMetadata("s\u00fc\u00fclda.wav", "audio/wav"));
         var mediaUri = upload.MediaUri!.Value;
         var created = await _api.CreateEntry(new Entry { LexemeForm = { ["en"] = "test" } });
         var after = created.Copy();
@@ -245,11 +261,11 @@ public class MediaFileTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task SaveFile_DoesNotReuseTheIdOfAnNfcFileWithTheSameName()
+    public async Task SaveFile_DoesNotReuseTheIdOfAnNfdFileWithTheSameName()
     {
-        await StoreFileContentsAsync("süülda.wav", "older upload");
+        await StoreFileContentsAsync("su\u0308u\u0308lda.wav", "older upload");
 
-        var upload = await _api.SaveFile(new MemoryStream("new upload"u8.ToArray()), new LcmFileMetadata("süülda.wav", "audio/wav"));
+        var upload = await _api.SaveFile(new MemoryStream("new upload"u8.ToArray()), new LcmFileMetadata("s\u00fc\u00fclda.wav", "audio/wav"));
 
         (await ReadFile(upload.MediaUri!.Value)).Should().Be("new upload");
     }

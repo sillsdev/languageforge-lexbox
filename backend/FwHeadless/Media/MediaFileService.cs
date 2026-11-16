@@ -88,7 +88,8 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         var fwDataFolder = config.Value.GetFwDataFolder(config.Value.GetProjectFolder(projectId));
         if (!path.StartsWith(fwDataFolder)) return null;
         var relativePath = MediaFilePath.Normalize(Path.GetRelativePath(fwDataFolder, path));
-        // LCM hands us NFD paths, but uploads saved before MediaFilePath.ForUpload normalized were stored as NFC
+        // LCM hands us NFD paths, but files may be named either way (see MediaFilePath.ForUpload). Mirrors FLEx's
+        // exact, NFC, NFD lookup: https://github.com/sillsdev/liblcm/blob/da7140f07b92/src/SIL.LCModel.Utils/FileUtils.cs#L434
         var nfd = relativePath.Normalize(NormalizationForm.FormD);
         var nfc = relativePath.Normalize(NormalizationForm.FormC);
         //normalize the stored column too: legacy rows may have been written under a different OS's separators

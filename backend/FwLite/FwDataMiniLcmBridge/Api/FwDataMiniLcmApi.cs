@@ -2044,8 +2044,9 @@ public class FwDataMiniLcmApi(
     public async Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
         if (stream.SafeLength() > MediaFile.MaxFileSize) return new UploadFileResponse(UploadFileResult.TooBig);
-        // LCM stores media references as NFD, and NTFS/ext4 don't treat NFC and NFD names as the same file.
-        var fileName = Path.GetFileName(metadata.Filename).Normalize(NormalizationForm.FormD);
+        // NFC like FLEx names recordings; LCM still stores the reference as NFD, which LocalMediaAdapter resolves like FLEx.
+        // https://github.com/sillsdev/FieldWorks/blob/aa84a72144ba/Src/Common/Controls/Widgets/LabeledMultiStringView.cs#L431-L432
+        var fileName = Path.GetFileName(metadata.Filename).Normalize(NormalizationForm.FormC);
         var fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, TypeToLinkedFolder(metadata.MimeType), fileName);
         var directory = Path.GetDirectoryName(fullPath);
         if (directory is not null)
