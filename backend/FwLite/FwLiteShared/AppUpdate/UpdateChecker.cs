@@ -121,7 +121,7 @@ public class UpdateChecker(
         {
             response = await httpClientFactory
                 .CreateClient(HttpClientName)
-                .SendAsync(new HttpRequestMessage(HttpMethod.Get, config.Value.UpdateUrl)
+                .SendAsync(new HttpRequestMessage(HttpMethod.Get, config.Value.ResolveUpdateUrl())
                 {
                     Headers = { { "User-Agent", $"Fieldworks-Lite-Client/{config.Value.AppVersion}" } }
                 });

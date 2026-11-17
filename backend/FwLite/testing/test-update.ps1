@@ -306,23 +306,23 @@ function Set-UpdateEnv {
     if ([string]::IsNullOrWhiteSpace($mode)) { $mode = 'Never' }
     if ($mode -notin @('Never','Always')) { Warn 'Invalid mode.'; return }
     $url = Get-UpdateUrl
-    [Environment]::SetEnvironmentVariable('FwLite__UpdateUrl', $url, 'User')
+    [Environment]::SetEnvironmentVariable('FwLite__OverrideUpdateUrl', $url, 'User')
     [Environment]::SetEnvironmentVariable('FwLite__UpdateCheckCondition', $mode, 'User')
-    Ok "Set (User scope): FwLite__UpdateUrl=$url ; FwLite__UpdateCheckCondition=$mode"
+    Ok "Set (User scope): FwLite__OverrideUpdateUrl=$url ; FwLite__UpdateCheckCondition=$mode"
     Warn 'Relaunch the app (option 8) so it picks up these env vars.'
 }
 
 function Clear-UpdateEnv {
-    [Environment]::SetEnvironmentVariable('FwLite__UpdateUrl', $null, 'User')
+    [Environment]::SetEnvironmentVariable('FwLite__OverrideUpdateUrl', $null, 'User')
     [Environment]::SetEnvironmentVariable('FwLite__UpdateCheckCondition', $null, 'User')
-    Ok 'Cleared FwLite__UpdateUrl / FwLite__UpdateCheckCondition (User scope).'
+    Ok 'Cleared FwLite__OverrideUpdateUrl / FwLite__UpdateCheckCondition (User scope).'
 }
 
 # ---------------------------------------------------------------------------- menu
 function Show-Status {
     $pkg = Get-InstalledTestPackage
     $state = Read-State
-    $envUrl = [Environment]::GetEnvironmentVariable('FwLite__UpdateUrl', 'User')
+    $envUrl = [Environment]::GetEnvironmentVariable('FwLite__OverrideUpdateUrl', 'User')
     $envMode = [Environment]::GetEnvironmentVariable('FwLite__UpdateCheckCondition', 'User')
     $built = ($Versions.Keys | Where-Object { Test-Path (Join-Path $ArtifactsDir $Versions[$_].Bundle) }) -join ', '
 

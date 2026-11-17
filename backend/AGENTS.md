@@ -57,6 +57,10 @@ To build against local Harmony source (e.g. when developing the CRDT substrate),
 - Register services in `*Kernel.cs` files (e.g., `LexBoxKernel.cs`)
 - Use `AddScoped` for request-scoped, `AddSingleton` for app-wide
 
+### Options classes
+
+🚨 Never compute a value in a property that has a setter on a class bound from configuration (`BindConfiguration`/`Bind`). When the section has any key, the binder reads every settable property and writes the value back, freezing whatever it computed from defaults before later `Configure` calls run. `FwLiteConfig.UpdateUrl` froze `appVersion=Unknown` this way, so clients were told to reinstall their current version. Keep settable properties plain; derive values in a getter-only property or a method (`FwLiteConfig.ResolveUpdateUrl()`).
+
 ## Important Files
 
 - `Directory.Build.props` - Shared MSBuild properties
