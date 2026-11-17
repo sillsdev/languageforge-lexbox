@@ -8,7 +8,7 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-14 13:40\n"
+"PO-Revision-Date: 2026-11-17 07:24\n"
 "Last-Translator: \n"
 "Language-Team: Indonesian\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -655,7 +655,12 @@ msgstr "Otomatis"
 msgid "Auto syncing"
 msgstr "Sinkronisasi otomatis"
 
+#: src/project/sync/SyncMethodList.svelte
+msgid "Auto syncing. Last sync: #"
+msgstr "Sinkronisasi otomatis. Sinkronisasi terakhir: #"
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/project/SyncDialog.svelte
 msgid "Back"
 msgstr "Kembali"
 
@@ -1622,6 +1627,7 @@ msgstr "Kesalahan memeriksa pembaruan: {0}"
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Error getting sync status"
 msgstr "Kesalahan mendapatkan status sinkronisasi"
 
@@ -1810,11 +1816,6 @@ msgstr "Bidang"
 msgid "Fields"
 msgstr "Bidang"
 
-#. Product name
-#: src/project/SyncDialog.svelte
-msgid "FieldWorks Lite"
-msgstr "FieldWorks Lite"
-
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite mengumpulkan data penggunaan untuk membantu kami menyempurnakannya."
@@ -1844,15 +1845,14 @@ msgstr "Versi FieldWorks Lite"
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
 
+#: src/project/SyncDialog.svelte
+msgid "FieldWorks Send/Receive (on Lexbox)"
+msgstr "FieldWorks Kirim/Terima (di Lexbox)"
+
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "File"
 msgstr "Berkas"
-
-#. Error message for duplicate file upload
-#: src/lib/components/audio/AudioDialog.svelte
-msgid "File already exists"
-msgstr "File sudah ada"
 
 #. Label for audio file name input
 #: src/lib/components/audio/audio-editor.svelte
@@ -2294,11 +2294,6 @@ msgstr "Panjang:"
 msgid "Let this version use the internet?"
 msgstr "Apakah versi ini boleh menggunakan internet?"
 
-#. Product name
-#: src/project/SyncDialog.svelte
-msgid "Lexbox"
-msgstr "Lexbox"
-
 #. Alt text for the Lexbox logo image shown in the home screen app bar. "Lexbox" is a product name — do not translate.
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -2667,10 +2662,6 @@ msgstr "Nama"
 msgid "Name is required"
 msgstr "Nama harus diisi"
 
-#: src/project/SyncDialog.svelte
-msgid "Nearby"
-msgstr "Di sekitar sini"
-
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
 msgstr "Membutuhkan ` {0}`, yang tidak didukung oleh proyek ini, sehingga mungkin tidak akan berfungsi dengan baik"
@@ -2678,6 +2669,7 @@ msgstr "Membutuhkan ` {0}`, yang tidak didukung oleh proyek ini, sehingga mungki
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwLiteSyncView.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Never"
 msgstr "Tidak pernah."
 
@@ -2863,6 +2855,7 @@ msgstr "Tidak ada server"
 
 #. Status text in the project sidebar when the project has no server/sync partner configured.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "No server configured"
 msgstr "Tidak ada server yang dikonfigurasi"
 
@@ -2927,6 +2920,7 @@ msgstr "Tidak dalam proyek ini. Cobalah salah satunya pada data Anda, lalu tamba
 
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Not logged in"
 msgstr "Tidak masuk"
 
@@ -2991,6 +2985,10 @@ msgstr "Offline, tidak dapat mengunduh"
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
 msgstr "Offline, tidak dapat membuka berkas"
+
+#: src/project/sync/SyncMethodList.svelte
+msgid "Offline. Your changes are saved on this device."
+msgstr "Offline. Perubahan Anda telah disimpan di perangkat ini."
 
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
@@ -3092,6 +3090,10 @@ msgstr "Menonaktifkan fitur analitik"
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
 msgstr "oranye"
+
+#: src/project/SyncDialog.svelte
+msgid "Other FieldWorks Lite users"
+msgstr "Pengguna FieldWorks Lite lainnya"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
@@ -3710,6 +3712,10 @@ msgstr "Dijalankan dari menu entri"
 msgid "Runs in a sandbox, separate from the app"
 msgstr "Berjalan di lingkungan sandbox, terpisah dari aplikasi"
 
+#: src/project/sync/SyncMethodList.svelte
+msgid "Runs on Lexbox, not with FieldWorks on this computer"
+msgstr "Berjalan di Lexbox, bukan dengan FieldWorks di komputer ini"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
@@ -4150,6 +4156,7 @@ msgid "Sync"
 msgstr "Sinkronisasi"
 
 #. Dialog title
+#: src/project/ProjectSidebar.svelte
 #: src/project/SyncDialog.svelte
 msgid "Sync Changes"
 msgstr "Perubahan Sinkronisasi"
@@ -4169,6 +4176,7 @@ msgid "Sync now"
 msgstr "Sinkronkan sekarang"
 
 #: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Sync with {0}"
 msgstr "Sinkronkan dengan {0}"
 
@@ -4176,7 +4184,7 @@ msgstr "Sinkronkan dengan {0}"
 msgid "Sync with a folder..."
 msgstr "Sinkronkan dengan sebuah folder..."
 
-#: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Sync with a USB drive or another folder"
 msgstr "Sinkronkan dengan drive USB atau folder lain"
 
@@ -4217,11 +4225,6 @@ msgstr "Sudah disinkronkan dengan folder tersebut. Anda dapat melepaskan drive t
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
 msgstr "Disinkronkan: #"
-
-#. Menu item to start sync
-#: src/project/ProjectSidebar.svelte
-msgid "Synchronize"
-msgstr "Sinkronisasi"
 
 #. Progress message during sync
 #: src/project/sync/FwClassicSyncView.svelte
@@ -4771,6 +4774,10 @@ msgstr "File yang sedang diunggah"
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
 msgstr "Pengunggahan gambar tidak didukung di sini"
+
+#: src/project/SyncDialog.svelte
+msgid "USB Drive / Folder"
+msgstr "Drive USB / Folder"
 
 #. List item under the heading "A plugin can't"; it completes that sentence.
 #: src/lib/plugins/PluginsView.svelte
