@@ -87,7 +87,28 @@ export const morphTypes: IMorphType[] = [
     prefix: '-',
     secondaryOrder: 70,
   },
+  morphType('d7f713e4-e8cf-11d3-9764-00c04f186933', MorphTypeKind.BoundRoot, 'bound root', 'bd root', 10, {prefix: '*'}),
+  morphType('d7f713e7-e8cf-11d3-9764-00c04f186933', MorphTypeKind.BoundStem, 'bound stem', 'bd stem', 10, {prefix: '*'}),
+  morphType('d7f713df-e8cf-11d3-9764-00c04f186933', MorphTypeKind.Circumfix, 'circumfix', 'cfx', 0),
+  morphType('c2d140e5-7ca9-41f4-a69a-22fc7049dd2c', MorphTypeKind.Clitic, 'clitic', 'clit', 0),
+  morphType('d7f713e1-e8cf-11d3-9764-00c04f186933', MorphTypeKind.Enclitic, 'enclitic', 'enclit', 80, {prefix: '='}),
+  morphType('d7f713da-e8cf-11d3-9764-00c04f186933', MorphTypeKind.Infix, 'infix', 'ifx', 40, {prefix: '-', postfix: '-'}),
+  morphType('56db04bf-3d58-44cc-b292-4c8aa68538f4', MorphTypeKind.Particle, 'particle', 'part', 0),
+  morphType('d7f713e2-e8cf-11d3-9764-00c04f186933', MorphTypeKind.Proclitic, 'proclitic', 'proclit', 30, {postfix: '='}),
+  morphType('d7f713e5-e8cf-11d3-9764-00c04f186933', MorphTypeKind.Root, 'root', 'ubd root', 0),
+  morphType('d7f713dc-e8cf-11d3-9764-00c04f186933', MorphTypeKind.Simulfix, 'simulfix', 'smfx', 60, {prefix: '=', postfix: '='}),
+  morphType('d7f713de-e8cf-11d3-9764-00c04f186933', MorphTypeKind.Suprafix, 'suprafix', 'spfx', 50, {prefix: '~', postfix: '~'}),
+  morphType('18d9b1c3-b5b6-4c07-b92c-2fe1d2281bd4', MorphTypeKind.InfixingInterfix, 'infixing interfix', 'ifxnfx', 0, {prefix: '-', postfix: '-'}),
+  morphType('af6537b0-7175-4387-ba6a-36547d37fb13', MorphTypeKind.PrefixingInterfix, 'prefixing interfix', 'pfxnfx', 0, {postfix: '-'}),
+  morphType('3433683d-08a9-4bae-ae53-2a7798f64068', MorphTypeKind.SuffixingInterfix, 'suffixing interfix', 'sfxnfx', 0, {prefix: '-'}),
+  morphType('a23b6faa-1052-4f4d-984b-4b338bdaf95f', MorphTypeKind.Phrase, 'phrase', 'phr', 0),
+  morphType('0cc8c35a-cee9-434d-be58-5d29130fba5b', MorphTypeKind.DiscontiguousPhrase, 'discontiguous phrase', 'dis phr', 0),
 ];
+
+function morphType(id: string, kind: MorphTypeKind, name: string, abbreviation: string, secondaryOrder: number,
+  markers: Pick<IMorphType, 'prefix' | 'postfix'> = {}): IMorphType {
+  return {id, kind, name: {en: name}, abbreviation: {en: abbreviation}, description: {}, secondaryOrder, ...markers};
+}
 
 export const writingSystems: IWritingSystems = {
   'analysis': [

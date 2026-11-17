@@ -14,6 +14,7 @@
   import {initSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
   import type {Snippet} from 'svelte';
   import {tvt} from '$lib/views/view-text';
+  import {t} from 'svelte-i18n-lingui';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     entry: IEntry;
@@ -22,6 +23,7 @@
     modalMode?: boolean;
     onchange?: (entry: IEntry, field: EntryFieldId) => void;
     publishInDescription?: Snippet;
+    morphTypeField?: Snippet;
   }
 
   const {
@@ -31,6 +33,7 @@
     autofocus = false,
     modalMode = false,
     publishInDescription,
+    morphTypeField,
     ...rest
   }: Props = $props();
 
@@ -46,9 +49,11 @@
 
   const entryFields = $derived(viewService.currentView.entryFields);
   const fields = $derived(fieldRecord(entryFields));
+  const layoutFields = $derived(entryFields.flatMap((field) =>
+    field.fieldId === 'lexemeForm' && morphTypeField ? [field, {fieldId: 'morphType', show: true}] : [field]));
 </script>
 
-<Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas(entryFields) } })}>
+<Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas(layoutFields) } })}>
   <Editor.Field.Root fieldId="lexemeForm" class={cn(fields.lexemeForm?.show || 'hidden')}>
     <Editor.Field.Title name={$tvt(entityConfig.entry.lexemeForm.label)} helpId={entityConfig.entry.lexemeForm.helpId} />
     <Editor.Field.Body subGrid>
@@ -60,6 +65,15 @@
           writingSystems={writingSystemService.viewVernacular(viewService.currentView)} />
     </Editor.Field.Body>
   </Editor.Field.Root>
+
+  {#if morphTypeField}
+    <Editor.Field.Root style="grid-area: morphType">
+      <Editor.Field.Title name={$t`Morph type`} />
+      <Editor.Field.Body>
+        {@render morphTypeField()}
+      </Editor.Field.Body>
+    </Editor.Field.Root>
+  {/if}
 
   <Editor.Field.Root fieldId="citationForm" class={cn(fields.citationForm?.show || 'hidden')}>
     <Editor.Field.Title name={$tvt(entityConfig.entry.citationForm.label)} helpId={entityConfig.entry.citationForm.helpId} />

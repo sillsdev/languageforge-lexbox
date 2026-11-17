@@ -1836,6 +1836,10 @@ msgstr "Field"
 msgid "Fields"
 msgstr "Fields"
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "FieldWorks doesn't recognize the affix markers in \"{0}\". Remove them or choose a morph type."
+msgstr "FieldWorks doesn't recognize the affix markers in \"{0}\". Remove them or choose a morph type."
+
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite collects usage data to help us improve it."
@@ -2630,6 +2634,7 @@ msgid "morph type"
 msgstr "morph type"
 
 #: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
+#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 #: src/lib/plugins/plugin-api-adapter.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Morph type"

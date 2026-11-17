@@ -5,7 +5,7 @@
 </script>
 
 <script lang="ts">
-  import type {IEntry, ISense} from '$lib/dotnet-types';
+  import {MorphTypeKind, ViewBase, type IEntry, type IMorphType, type ISense} from '$lib/dotnet-types';
   import {createEntryOptions} from '$lib/create-entry-options';
   import {untrack} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
@@ -28,6 +28,10 @@
   import ObjectHeader from './object-editors/ObjectHeader.svelte';
   import SenseEditorPrimitive from './object-editors/SenseEditorPrimitive.svelte';
   import AddSenseButton from './object-editors/AddSenseButton.svelte';
+  import {Select} from '$lib/components/field-editors';
+  import {useMorphTypesService} from '$project/data/morph-types.svelte';
+  import {findMorphType, stripMarkers} from './morph-type-markers';
+  import type {ReadonlyDeep} from 'type-fest';
 
   let open = $state(false);
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'new-entry-dialog'});
@@ -40,6 +44,7 @@
   const writingSystemService = useWritingSystemService();
   const publicationService = usePublications();
   const dialogsService = useDialogsService();
+  const morphTypes = useMorphTypesService();
   dialogsService.invokeNewEntryDialog = openWithValue;
   const api = useMiniLcmApi();
   const saveHandler = useSaveHandler();
@@ -57,6 +62,55 @@
 
   let editor = $state<Editor.Root>();
 
+  // Classic only: like FLEx, affix markers typed in the lexeme form pick the morph type and are stripped on create
+  const pickMorphType = $derived(viewService.currentView.base === ViewBase.FieldWorks);
+  const morphTypeOptions = $derived(morphTypes.current
+    .filter(mt => mt.kind !== MorphTypeKind.Unknown)
+    .toSorted((a, b) => morphTypeLabel(a).localeCompare(morphTypeLabel(b))));
+  const selectedMorphType = $derived(morphTypes.current.find(mt => mt.kind === entry.morphType));
+  const detectedMorphType = $derived(findMorphType(writingSystemService.first(entry.lexemeForm, writingSystemService.vernacularNoAudio) ?? '', morphTypes.current));
+  // Only a change in what the markers say overrides the picker, so picking Root and then typing on keeps Root
+  let lastDetectedKind: MorphTypeKind | undefined;
+  let morphTypeAnnouncement = $state('');
+  $effect(() => {
+    if (!pickMorphType || !detectedMorphType.valid) return;
+    const kind = detectedMorphType.kind;
+    if (kind === lastDetectedKind) return;
+    lastDetectedKind = kind;
+    if (entry.morphType === kind) return;
+    entry.morphType = kind;
+    morphTypeAnnouncement = untrack(() => selectedMorphType && morphTypeLabel(selectedMorphType)) ?? '';
+  });
+
+  function morphTypeLabel(morphType: ReadonlyDeep<IMorphType>): string {
+    return writingSystemService.pickBestAlternative(morphType.name, 'analysis') || morphType.kind;
+  }
+
+  function onMorphTypePicked(morphType: ReadonlyDeep<IMorphType> | undefined) {
+    if (!morphType) return;
+    entry.morphType = morphType.kind;
+    if (morphType.kind === MorphTypeKind.Circumfix) return; // FLEx leaves the form alone: circumfix markers vary
+    for (const ws of writingSystemService.vernacularNoAudio) {
+      const form = entry.lexemeForm[ws.wsId];
+      if (!form) continue;
+      const bare = stripMarkers(form, findMorphType(form, morphTypes.current));
+      entry.lexemeForm[ws.wsId] = `${morphType.prefix ?? ''}${bare}${morphType.postfix ?? ''}`;
+    }
+    lastDetectedKind = detectedMorphType.valid ? detectedMorphType.kind : undefined;
+  }
+
+  // The entry as it will be stored: markers stripped from the lexeme form
+  function toStoredEntry(entry: IEntry): IEntry {
+    if (!pickMorphType) return {...entry, morphType: MorphTypeKind.Stem};
+    const lexemeForm = {...entry.lexemeForm};
+    for (const ws of writingSystemService.vernacularNoAudio) {
+      const form = lexemeForm[ws.wsId];
+      if (form) lexemeForm[ws.wsId] = stripMarkers(form, findMorphType(form, morphTypes.current));
+    }
+    return {...entry, lexemeForm};
+  }
+  const storedEntry = $derived(toStoredEntry(entry));
+
   async function createEntry(e: Event) {
     e.preventDefault();
     e.stopPropagation();
@@ -71,10 +125,10 @@
       entry.senses = sense ? [sense] : [];
       if (!validateEntry()) return;
 
-      const entrySnapshot = $state.snapshot(entry);
+      const entrySnapshot = toStoredEntry($state.snapshot(entry));
       // The dialog pre-populates publishIn (main publication + any active filter), so always create the entry as-is.
       await saveHandler.handleSave(() => api.createEntry(entrySnapshot, createEntryOptions.asIs));
-      requester.resolve(entry);
+      requester.resolve(entrySnapshot);
       requester = undefined;
       open = false;
     } finally {
@@ -85,8 +139,16 @@
   let errors: string[] = $state([]);
   function validateEntry(): boolean {
     errors = [];
+    if (pickMorphType) {
+      for (const ws of writingSystemService.vernacularNoAudio) {
+        const form = entry.lexemeForm[ws.wsId];
+        if (form && !findMorphType(form, morphTypes.current).valid) {
+          errors.push($t`FieldWorks doesn't recognize the affix markers in "${form}". Remove them or choose a morph type.`);
+        }
+      }
+    }
     // Allow entries with only an audio lexeme-form or citation-form to be created
-    if (!(writingSystemService.first(entry.lexemeForm) ?? writingSystemService.first(entry.citationForm))) {
+    if (!(writingSystemService.first(storedEntry.lexemeForm) ?? writingSystemService.first(entry.citationForm))) {
       errors.push(pt($t`Lexeme form or Citation form is required`, $t`Word or Display as is required`, viewService.currentView));
     }
     return errors.length === 0;
@@ -126,6 +188,7 @@
       const tmpEntry = defaultEntry();
       publishInIsFromTemplate = undefined;
       entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
+      lastDetectedKind = undefined;
       addMainPublicationPromise = addMainPublication(entry.id);
       addSense();
 
@@ -177,6 +240,16 @@
   </span>
 {/snippet}
 
+{#snippet morphTypeField()}
+  <Select
+    value={selectedMorphType}
+    onchange={onMorphTypePicked}
+    options={morphTypeOptions}
+    labelSelector={morphTypeLabel}
+    idSelector="id" />
+  <span class="sr-only" aria-live="polite">{morphTypeAnnouncement}</span>
+{/snippet}
+
 {#snippet publishInNote()}
   {#if publishInIsFromTemplate}{@render fromActiveFilter()}{/if}
 {/snippet}
@@ -202,7 +275,8 @@
         <Editor.Root bind:this={editor}>
           <Editor.Grid>
             <EntryEditorPrimitive bind:entry autofocus modalMode
-              publishInDescription={entryTemplate?.publishIn?.length ? publishInNote : undefined} />
+              publishInDescription={entryTemplate?.publishIn?.length ? publishInNote : undefined}
+              morphTypeField={pickMorphType ? morphTypeField : undefined} />
             {#if sense}
               <Editor.SubGrid>
                 <ObjectHeader type="sense">
@@ -220,7 +294,7 @@
           </Editor.Grid>
         </Editor.Root>
       </OverrideFields>
-      <DuplicateCheckSection {entry} {sense}
+      <DuplicateCheckSection entry={storedEntry} {sense}
         onNavigateToEntry={() => open = false} />
     </div>
     {#if errors.length}
