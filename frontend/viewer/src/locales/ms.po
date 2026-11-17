@@ -1402,6 +1402,7 @@ msgstr "Telah memuat turun {0}"
 msgid "Downloading {0}..."
 msgstr "Memuat turun {0}..."
 
+#: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Downloading update..."
 msgstr "Muat turun kemas kini..."
@@ -4729,6 +4730,7 @@ msgid "Update downloading in the background. Restart to apply once it's finished
 msgstr "Kemas kini memuat turun di latar belakang. Mulakan semula untuk menerapkan setelah selesai."
 
 #. Error message when update fails to install
+#: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
 msgstr "Kemas kini gagal dipasang."

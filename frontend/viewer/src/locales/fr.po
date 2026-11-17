@@ -1402,6 +1402,7 @@ msgstr "Téléchargé {0}"
 msgid "Downloading {0}..."
 msgstr "Téléchargement en cours {0}..."
 
+#: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Downloading update..."
 msgstr "Téléchargement de la mise à jour..."
@@ -4729,6 +4730,7 @@ msgid "Update downloading in the background. Restart to apply once it's finished
 msgstr "Mise à jour en cours de téléchargement en arrière-plan. Redémarrez pour l'appliquer une fois terminé."
 
 #. Error message when update fails to install
+#: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
 msgstr "Échec de l'installation de la mise à jour."

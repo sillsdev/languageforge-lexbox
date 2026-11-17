@@ -1402,6 +1402,7 @@ msgstr "Kupakuwa {0}"
 msgid "Downloading {0}..."
 msgstr "Inapakua {0}..."
 
+#: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Downloading update..."
 msgstr "Inapakua sasisho..."
@@ -4729,6 +4730,7 @@ msgid "Update downloading in the background. Restart to apply once it's finished
 msgstr "Sasisho linapakuliwa nyuma ya pazia. Anzisha upya ili kutumia mara litakapomalizika."
 
 #. Error message when update fails to install
+#: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
 msgstr "Sasisho limeshindwa kusakinishwa."
