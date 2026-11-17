@@ -139,10 +139,11 @@ public static class LcmCrdtKernel
     }
 
     /// <summary>
-    /// Pools are keyed by the exact connection string, so clearing a project's pool must use this string too.
-    /// SqliteConnectionStringBuilder quotes a path with a space, which names a different (empty) pool.
+    /// Pools are keyed by the exact connection string, so clearing a project's pool must use this string too:
+    /// the builder quotes a path with a space, so a hand-built string would name a different (empty) pool.
     /// </summary>
-    internal static string DbConnectionString(string dbPath) => $"Data Source={dbPath}";
+    internal static string DbConnectionString(string dbPath) =>
+        new SqliteConnectionStringBuilder { DataSource = dbPath }.ConnectionString;
 
     public static void ConfigureDbOptions(IServiceProvider provider, DbContextOptionsBuilder builder)
     {
