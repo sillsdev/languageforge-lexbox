@@ -650,7 +650,12 @@ msgstr "Auto"
 msgid "Auto syncing"
 msgstr "Auto syncing"
 
+#: src/project/sync/SyncMethodList.svelte
+msgid "Auto syncing. Last sync: #"
+msgstr "Auto syncing. Last sync: #"
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/project/SyncDialog.svelte
 msgid "Back"
 msgstr "Back"
 
@@ -1617,6 +1622,7 @@ msgstr "Error checking for updates: {0}"
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Error getting sync status"
 msgstr "Error getting sync status"
 
@@ -1805,11 +1811,6 @@ msgstr "Field"
 msgid "Fields"
 msgstr "Fields"
 
-#. Product name
-#: src/project/SyncDialog.svelte
-msgid "FieldWorks Lite"
-msgstr "FieldWorks Lite"
-
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite collects usage data to help us improve it."
@@ -1839,15 +1840,14 @@ msgstr "FieldWorks Lite version"
 msgid "FieldWorks logo"
 msgstr "FieldWorks logo"
 
+#: src/project/SyncDialog.svelte
+msgid "FieldWorks Send/Receive (on Lexbox)"
+msgstr "FieldWorks Send/Receive (on Lexbox)"
+
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "File"
 msgstr "File"
-
-#. Error message for duplicate file upload
-#: src/lib/components/audio/AudioDialog.svelte
-msgid "File already exists"
-msgstr "File already exists"
 
 #. Label for audio file name input
 #: src/lib/components/audio/audio-editor.svelte
@@ -2289,11 +2289,6 @@ msgstr "Length:"
 msgid "Let this version use the internet?"
 msgstr "Let this version use the internet?"
 
-#. Product name
-#: src/project/SyncDialog.svelte
-msgid "Lexbox"
-msgstr "Lexbox"
-
 #. Alt text for the Lexbox logo image shown in the home screen app bar. "Lexbox" is a product name — do not translate.
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -2662,10 +2657,6 @@ msgstr "Name"
 msgid "Name is required"
 msgstr "Name is required"
 
-#: src/project/SyncDialog.svelte
-msgid "Nearby"
-msgstr "Nearby"
-
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
 msgstr "Needs {0}, which this project doesn't support, so it may not work properly"
@@ -2673,6 +2664,7 @@ msgstr "Needs {0}, which this project doesn't support, so it may not work proper
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwLiteSyncView.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Never"
 msgstr "Never"
 
@@ -2858,6 +2850,7 @@ msgstr "No server"
 
 #. Status text in the project sidebar when the project has no server/sync partner configured.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "No server configured"
 msgstr "No server configured"
 
@@ -2922,6 +2915,7 @@ msgstr "Not in this project. Try one on your data, then add it or make it your o
 
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Not logged in"
 msgstr "Not logged in"
 
@@ -2986,6 +2980,10 @@ msgstr "Offline, unable to download"
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
 msgstr "Offline, unable to open file"
+
+#: src/project/sync/SyncMethodList.svelte
+msgid "Offline. Your changes are saved on this device."
+msgstr "Offline. Your changes are saved on this device."
 
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
@@ -3087,6 +3085,10 @@ msgstr "Opt out of analytics"
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
 msgstr "orange"
+
+#: src/project/SyncDialog.svelte
+msgid "Other FieldWorks Lite users"
+msgstr "Other FieldWorks Lite users"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
@@ -3705,6 +3707,10 @@ msgstr "Runs from an entry's menu"
 msgid "Runs in a sandbox, separate from the app"
 msgstr "Runs in a sandbox, separate from the app"
 
+#: src/project/sync/SyncMethodList.svelte
+msgid "Runs on Lexbox, not with FieldWorks on this computer"
+msgstr "Runs on Lexbox, not with FieldWorks on this computer"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
@@ -4145,6 +4151,7 @@ msgid "Sync"
 msgstr "Sync"
 
 #. Dialog title
+#: src/project/ProjectSidebar.svelte
 #: src/project/SyncDialog.svelte
 msgid "Sync Changes"
 msgstr "Sync Changes"
@@ -4164,6 +4171,7 @@ msgid "Sync now"
 msgstr "Sync now"
 
 #: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Sync with {0}"
 msgstr "Sync with {0}"
 
@@ -4171,7 +4179,7 @@ msgstr "Sync with {0}"
 msgid "Sync with a folder..."
 msgstr "Sync with a folder..."
 
-#: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Sync with a USB drive or another folder"
 msgstr "Sync with a USB drive or another folder"
 
@@ -4212,11 +4220,6 @@ msgstr "Synced with the folder. You can remove the drive."
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
 msgstr "Synced: #"
-
-#. Menu item to start sync
-#: src/project/ProjectSidebar.svelte
-msgid "Synchronize"
-msgstr "Synchronize"
 
 #. Progress message during sync
 #: src/project/sync/FwClassicSyncView.svelte
@@ -4766,6 +4769,10 @@ msgstr "Uploaded pending files"
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
 msgstr "Uploading pictures is not supported here"
+
+#: src/project/SyncDialog.svelte
+msgid "USB Drive / Folder"
+msgstr "USB Drive / Folder"
 
 #. List item under the heading "A plugin can't"; it completes that sentence.
 #: src/lib/plugins/PluginsView.svelte
