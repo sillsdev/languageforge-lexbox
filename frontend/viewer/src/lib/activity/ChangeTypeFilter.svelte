@@ -7,6 +7,7 @@
   import {Input} from '$lib/components/ui/input';
   import {Icon} from '$lib/components/ui/icon';
   import {SvelteSet} from 'svelte/reactivity';
+  import {watch} from 'runed';
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {changeTypeSection, CHANGE_TYPE_SECTIONS, type ChangeTypeSection} from './change-type-groups';
@@ -72,7 +73,7 @@
       if (count > 0 && count < section.types.length) expanded.add(section.id);
     }
   }
-  $effect(() => onOpenChange(open));
+  watch(() => open, onOpenChange);
 
   function isExpanded(section: Section): boolean {
     return !!query || expanded.has(section.id);
