@@ -145,7 +145,7 @@
         <Icon icon={isExpanded(section) ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'} class="size-4 text-muted-foreground" />
       </button>
       <button type="button"
-        class="invisible text-xs text-muted-foreground hover:text-foreground group-hover/header:visible"
+        class="text-xs text-muted-foreground hover:text-foreground md:opacity-0 group-hover/header:opacity-100 group-focus-within/header:opacity-100"
         onclick={() => only(section.types.map((ct) => ct.key))}>
         {$t`Only`}
       </button>
@@ -158,7 +158,7 @@
             {ct.label}
           </button>
           <button type="button"
-            class="invisible text-xs text-muted-foreground hover:text-foreground group-hover/row:visible"
+            class="text-xs text-muted-foreground hover:text-foreground md:opacity-0 group-hover/row:opacity-100 group-focus-within/row:opacity-100"
             onclick={() => only([ct.key])}>
             {$t`Only`}
           </button>
