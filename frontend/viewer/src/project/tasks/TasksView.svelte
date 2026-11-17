@@ -32,6 +32,10 @@
   function closeTask() {
     openTask.current = '';
   }
+  let lastTaskId = $state<string>();
+  watch(() => openTask.current, (current, previous) => {
+    if (!current && previous) lastTaskId = previous;
+  });
 
   function writingSystemOf(task: Task): IWritingSystem | undefined {
     if (!task.subjectWritingSystemId) return undefined;
@@ -88,7 +92,7 @@
     {#if openTask.current}
       <TaskView taskId={openTask.current} onClose={closeTask}/>
     {:else}
-      <TaskList onSelect={selectTask} />
+      <TaskList onSelect={selectTask} {lastTaskId} />
     {/if}
   </ViewErrorBoundary>
 </div>

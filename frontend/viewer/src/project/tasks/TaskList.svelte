@@ -1,6 +1,7 @@
 <script lang="ts">
-  import * as Card from '$lib/components/ui/card';
-  import {CircularProgress} from '$lib/components/ui/circular-progress';
+  import ListItem from '$lib/components/ListItem.svelte';
+  import * as Collapsible from '$lib/components/ui/collapsible';
+  import * as Select from '$lib/components/ui/select';
   import {Icon} from '$lib/components/ui/icon';
   import {Button} from '$lib/components/ui/button';
   import {Skeleton} from '$lib/components/ui/skeleton';
@@ -10,12 +11,15 @@
   import {plural, t} from 'svelte-i18n-lingui';
   import {navigate, useRouter} from 'svelte-routing';
   import {taskLabel, useTasksService, type Task} from './tasks-service';
-  import {getEntityConfig, type EntityType} from '$lib/views/entity-config';
+  import {getEntityConfig} from '$lib/views/entity-config';
   import {pt, tvt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
+  import {QueryParamState} from '$lib/utils/url.svelte';
   import {useTasksStats} from './tasks-stats.svelte';
+  import {tick} from 'svelte';
+  import {watch} from 'runed';
 
-  let {onSelect}: {onSelect: (taskId: string) => void} = $props();
+  let {onSelect, lastTaskId}: {onSelect: (taskId: string) => void, lastTaskId?: string} = $props();
 
   const tasksService = useTasksService();
   const writingSystemService = useWritingSystemService();
@@ -23,8 +27,21 @@
   const viewService = useViewService();
   const {base} = useRouter();
 
-  type Target = {task: Task, ws?: IWritingSystem};
-  type Field = {key: string, label: string, description?: string, entity: EntityType, targets: Target[]};
+  type Row = {task: Task, entity: 'entry' | 'sense' | 'example', ws?: IWritingSystem};
+
+  const wsFilter = new QueryParamState({key: 'ws', replaceOnDefaultValue: true});
+  // The editors hide audio writing systems when the feature is off, so there'd be nothing to fill in.
+  function usable(ws: IWritingSystem) {
+    return !ws.isAudio || features.audio;
+  }
+  function wsKey(ws: IWritingSystem) {
+    return `${ws.type}:${ws.wsId}`;
+  }
+  const filterGroups = $derived([
+    {label: $t`Vernacular`, writingSystems: writingSystemService.vernacular.filter(usable)},
+    {label: $t`Analysis`, writingSystems: writingSystemService.analysis.filter(usable)},
+  ].filter(group => group.writingSystems.length));
+  const filterWs = $derived(filterGroups.flatMap(g => g.writingSystems).find(ws => wsKey(ws) === wsFilter.current));
 
   function writingSystemOf(task: Task): IWritingSystem | undefined {
     if (!task.subjectWritingSystemId) return undefined;
@@ -34,37 +51,47 @@
     return writingSystems.find(ws => ws.wsId === task.subjectWritingSystemId);
   }
 
-  // Grouped by field so the chip count grows with the writing systems, not the row count.
-  const fields = $derived.by(() => {
-    const groups: Field[] = [];
-    for (const task of tasksService.listTasks()) {
-      const ws = writingSystemOf(task);
-      // The editors hide audio writing systems when the feature is off, so there'd be nothing to fill in.
-      if (ws?.isAudio && !features.audio) continue;
-      const entity = task.subjectType === 'example-sentence' ? 'example' : task.subjectType;
-      const key = `${entity}:${task.subjectFields.join()}`;
-      let group = groups.find(g => g.key === key);
-      if (!group) {
-        group = {key, label: pt($tvt(taskLabel(task)), viewService.currentView), description: task.description && pt($tvt(task.description), viewService.currentView), entity, targets: []};
-        groups.push(group);
-      }
-      group.targets.push({task, ws});
-    }
-    for (const group of groups) {
-      group.targets.sort((a, b) => Number(a.ws?.isAudio ?? false) - Number(b.ws?.isAudio ?? false));
-    }
-    return groups.filter(group => group.targets.length > 0);
+  function fieldKey(task: Task) {
+    return `${task.subjectType}:${task.subjectFields.join()}`;
+  }
+  const rows = $derived.by(() => {
+    const tasks = tasksService.listTasks();
+    // The service lists tasks per writing system; show each field's writing systems together instead.
+    const fieldOrder = [...new Set(tasks.map(fieldKey))];
+    return tasks
+      .map((task): Row => ({task, entity: task.subjectType === 'example-sentence' ? 'example' : task.subjectType, ws: writingSystemOf(task)}))
+      .filter(row => !row.ws || usable(row.ws))
+      // Tasks without a writing system belong to no language, so a language filter hides them.
+      .filter(row => !filterWs || (row.ws && wsKey(row.ws) === wsKey(filterWs)))
+      .sort((a, b) => fieldOrder.indexOf(fieldKey(a.task)) - fieldOrder.indexOf(fieldKey(b.task))
+        || Number(a.ws?.isAudio ?? false) - Number(b.ws?.isAudio ?? false));
   });
+
+  const stats = $derived(useTasksStats().current);
+  function isDone(row: Row) {
+    return stats.progress[row.task.id]?.remaining === 0;
+  }
+  const openRows = $derived(rows.filter(row => !isDone(row)));
+  const doneRows = $derived(rows.filter(isDone));
 
   const entities = $derived((['entry', 'sense', 'example'] as const)
     .map(entity => ({
       entity,
       label: pt($tvt(getEntityConfig(entity).$label), viewService.currentView),
-      fields: fields.filter(field => field.entity === entity),
+      rows: openRows.filter(row => row.entity === entity),
     }))
-    .filter(group => group.fields.length > 0));
+    .filter(group => group.rows.length > 0));
 
-  const stats = $derived(useTasksStats().current);
+  let doneOpen = $state(false);
+  let container = $state<HTMLElement>();
+  let doneTrigger = $state<HTMLElement | null>(null);
+  watch(() => lastTaskId, () => {
+    if (lastTaskId) void tick().then(() => focusRow(lastTaskId));
+  });
+  function focusRow(taskId: string) {
+    const row = container?.querySelector<HTMLElement>(`[data-task-id="${taskId}"]`);
+    (row?.checkVisibility() ? row : doneTrigger)?.focus();
+  }
 
   function remainingText(remaining: number): string {
     return pt(
@@ -78,54 +105,42 @@
   }
 </script>
 
-{#snippet progressAndName({task, ws}: Target, fieldLabel: string)}
-  {@const progress = stats.progress[task.id]}
-  {@const remaining = progress ? remainingText(progress.remaining) : ''}
-  <span class="sr-only">{fieldLabel},</span>
-  {#if !progress}
-    <Skeleton class="size-4 shrink-0 rounded-full" />
-  {:else if progress.remaining === 0}
-    <Icon icon="i-mdi-check-circle-outline" class="size-5" />
-    <span class="sr-only">{$t`Complete`},</span>
-  {:else}
-    <CircularProgress value={progress.percentDone} size={16} strokeWidth={2.5} />
-  {/if}
-  {#if ws}
-    <span class="flex items-baseline gap-1.5">
-      {ws.name}
-      {#if ws.abbreviation}<span class="text-muted-foreground text-xs">{ws.abbreviation}</span>{/if}
-    </span>
-    <!-- Audio marker trails the language, matching the task header. -->
-    {#if ws.isAudio}<Icon icon="i-mdi-microphone" class="size-4" /><span class="sr-only">{$t`Audio`},</span>{/if}
-    {#if progress}<span class="sr-only">, {remaining}</span>{/if}
-  {:else if progress}
-    <!-- No language to name it by, so show the count instead. -->
-    <span class="text-muted-foreground tabular-nums">{remaining}</span>
-  {/if}
+{#snippet wsName(ws: IWritingSystem)}
+  <span class="inline-flex items-baseline gap-1.5 {wsColor(ws)}">
+    {ws.name}
+    {#if ws.abbreviation}<span class="text-muted-foreground text-xs">{ws.abbreviation}</span>{/if}
+    {#if ws.isAudio}<Icon icon="i-mdi-microphone" class="size-4 self-center" /><span class="sr-only">{$t`Audio`}</span>{/if}
+  </span>
 {/snippet}
 
-{#snippet field({label, description, targets}: Field)}
-  <div class="flex flex-col gap-x-3 gap-y-2">
-    <span class="flex flex-wrap items-baseline gap-x-2">
-      <span class="text-sm font-medium">{label}</span>
-      {#if description}<span class="text-muted-foreground text-sm">{description}</span>{/if}
-    </span>
-    <span class="flex flex-wrap items-center gap-2">
-      {#each targets as target (target.task.id)}
-        {@const progress = stats.progress[target.task.id]}
-        {@const name = target.ws && `${target.ws.name} (${target.ws.wsId})`}
-        {@const title = name && (progress ? `${name}: ${remainingText(progress.remaining)}` : name)}
-        <button
-          type="button"
-          class="bg-secondary hover:bg-secondary/80 focus-visible:ring-ring/50 inline-flex min-h-8 items-center gap-1.5 rounded-full px-3 text-sm font-medium shadow-sm transition-colors outline-hidden focus-visible:ring-[3px] {progress?.remaining === 0 ? 'opacity-60' : ''} {target.ws ? wsColor(target.ws) : ''}"
-          {title}
-          onclick={() => onSelect(target.task.id)}
-        >
-          {@render progressAndName(target, label)}
-        </button>
-      {/each}
-    </span>
-  </div>
+{#snippet taskRow({task, ws}: Row, done: boolean)}
+  {@const progress = stats.progress[task.id]}
+  {@const description = task.description && pt($tvt(task.description), viewService.currentView)}
+  <li>
+    <ListItem
+      role={undefined}
+      data-task-id={task.id}
+      icon={done ? 'i-mdi-check-circle-outline' : undefined}
+      onclick={() => onSelect(task.id)}>
+      <span class="flex flex-wrap items-baseline gap-x-2 font-medium">
+        {pt($tvt(taskLabel(task)), viewService.currentView)}
+        {#if ws && !filterWs}<span aria-hidden="true" class="text-muted-foreground">·</span>{@render wsName(ws)}{/if}
+      </span>
+      <span class="text-muted-foreground text-sm tabular-nums">
+        {#if done}
+          {$t`Done`}
+        {:else if progress}
+          {remainingText(progress.remaining)}
+        {:else}
+          <Skeleton class="h-4 w-24 my-0.5" />
+        {/if}
+        {#if description}<span aria-hidden="true">·</span> {description}{/if}
+      </span>
+      {#snippet actions()}
+        <Icon icon="i-mdi-chevron-right" class="text-muted-foreground size-5 shrink-0" aria-hidden="true" />
+      {/snippet}
+    </ListItem>
+  </li>
 {/snippet}
 
 {#if stats.totalEntries === 0}
@@ -134,18 +149,55 @@
     <Button variant="outline" icon="i-mdi-book-alphabet" onclick={() => navigate(`${$base.uri}/browse`)}>{$t`Browse`}</Button>
   </div>
 {:else}
-  <div class="flex w-fit flex-col gap-4">
-    {#each entities as {entity, label, fields: rows} (entity)}
-      <Card.Root class="gap-y-3 py-4">
-        <Card.Header>
-          <Card.Title>{label}</Card.Title>
-        </Card.Header>
-        <Card.Content class="flex flex-col gap-3">
-          {#each rows as row (row.key)}
-            {@render field(row)}
+  <div class="flex max-w-2xl flex-col gap-5" bind:this={container}>
+    <p class="text-muted-foreground text-sm">{$t`Fill in what's missing, one field at a time.`}</p>
+    <Select.Root type="single" bind:value={wsFilter.current}>
+      <Select.Trigger class="w-full sm:w-auto sm:min-w-56 sm:self-start" aria-label={$t`Writing system`}>
+        {#if filterWs}{@render wsName(filterWs)}{:else}{$t`All writing systems`}{/if}
+      </Select.Trigger>
+      <Select.Content>
+        <Select.Item value="">{$t`All writing systems`}</Select.Item>
+        {#each filterGroups as group (group.label)}
+          <Select.Group>
+            <Select.GroupHeading>{group.label}</Select.GroupHeading>
+            {#each group.writingSystems as ws (wsKey(ws))}
+              <Select.Item value={wsKey(ws)} label={ws.name}>{@render wsName(ws)}</Select.Item>
+            {/each}
+          </Select.Group>
+        {/each}
+      </Select.Content>
+    </Select.Root>
+
+    {#each entities as {entity, label, rows: entityRows} (entity)}
+      <section class="flex flex-col gap-2">
+        <h2 class="text-muted-foreground text-sm font-medium">{label}</h2>
+        <ul class="flex flex-col gap-2">
+          {#each entityRows as row (row.task.id)}
+            {@render taskRow(row, false)}
           {/each}
-        </Card.Content>
-      </Card.Root>
+        </ul>
+      </section>
+    {:else}
+      <p>{filterWs ? $t`Nothing left to do for ${filterWs.name}.` : $t`Nothing left to do.`}</p>
     {/each}
+
+    {#if doneRows.length}
+      <Collapsible.Root open={doneOpen || openRows.length === 0} onOpenChange={open => doneOpen = open}>
+        <Collapsible.Trigger>
+          {#snippet child({props})}
+            <Button {...props} bind:ref={doneTrigger} variant="ghost" class="group -ms-3" icon="i-mdi-chevron-right" iconProps={{class: 'transition-transform group-data-[state=open]:rotate-90'}}>
+              {$t`Done (${doneRows.length})`}
+            </Button>
+          {/snippet}
+        </Collapsible.Trigger>
+        <Collapsible.Content>
+          <ul class="flex flex-col gap-2 pt-2">
+            {#each doneRows as row (row.task.id)}
+              {@render taskRow(row, true)}
+            {/each}
+          </ul>
+        </Collapsible.Content>
+      </Collapsible.Root>
+    {/if}
   </div>
 {/if}
