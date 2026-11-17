@@ -257,7 +257,7 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, GlobalEventBus e
             TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
 
     // Turns the proxy's running byte total into throttled progress events (bytes + speed).
-    // The JsEventListener channel is small (size 10) so we cap emission at ~4/sec.
+    // Capped at ~4/sec: faster than that only re-renders the progress bar, and fills the JsEventListener queue.
     private sealed class DownloadProgressReporter(GlobalEventBus eventBus, FwLiteRelease release)
     {
         private static readonly TimeSpan MinInterval = TimeSpan.FromMilliseconds(250);

@@ -18,9 +18,9 @@ const localStoragePreferencesService: IPreferencesService = {
 };
 
 const noopJsEventListener: IJsEventListener = {
-  nextEventAsync(): Promise<IFwEvent> {
+  nextEventsAsync(): Promise<IFwEvent[]> {
     // Never resolves — no events to deliver in a browser-only context
-    return new Promise<IFwEvent>(() => {});
+    return new Promise<IFwEvent[]>(() => {});
   },
   lastEvent(): Promise<IFwEvent | undefined> {
     return Promise.resolve(undefined);

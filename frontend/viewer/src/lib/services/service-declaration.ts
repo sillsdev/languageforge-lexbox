@@ -1,6 +1,7 @@
 import type {LexboxServiceProvider, LexboxServiceRegistry} from './service-provider';
 
 import type {DotNetServiceProvider} from './service-provider-dotnet';
+import type {EventBus} from './event-bus';
 
 declare global {
   interface Lexbox {
@@ -10,6 +11,7 @@ declare global {
     ServiceProvider: LexboxServiceProvider;
     Search: { openSearch: (search: string) => void };
     IsDotnetHosted?: boolean;
+    EventBus?: EventBus;
     // Expose svelte-routing navigate for native hosts (MAUI) and other integrations
     SvelteNavigate?: (url: string, options?: { replace?: boolean }) => void;
     /* eslint-enable @typescript-eslint/naming-convention */
