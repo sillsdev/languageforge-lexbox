@@ -8,7 +8,7 @@ msgstr ""
 "Language: vi\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-14 13:40\n"
+"PO-Revision-Date: 2026-11-17 07:24\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -655,7 +655,12 @@ msgstr "Tự động"
 msgid "Auto syncing"
 msgstr "Đang đồng bộ tự động"
 
+#: src/project/sync/SyncMethodList.svelte
+msgid "Auto syncing. Last sync: #"
+msgstr "Đồng bộ hóa tự động. Lần đồng bộ hóa gần nhất: #"
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/project/SyncDialog.svelte
 msgid "Back"
 msgstr "Quay lại"
 
@@ -1622,6 +1627,7 @@ msgstr "Kiểm tra lỗi khi cập nhật: {0}"
 
 #. Error notification
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Error getting sync status"
 msgstr "Lỗi khi lấy trạng thái đồng bộ"
 
@@ -1810,11 +1816,6 @@ msgstr "Trường"
 msgid "Fields"
 msgstr "Các trường"
 
-#. Product name
-#: src/project/SyncDialog.svelte
-msgid "FieldWorks Lite"
-msgstr "FieldWorks Lite"
-
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite thu thập dữ liệu sử dụng để giúp chúng tôi cải thiện ứng dụng này."
@@ -1844,15 +1845,14 @@ msgstr "Phiên bản FieldWorks Lite"
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
 
+#: src/project/SyncDialog.svelte
+msgid "FieldWorks Send/Receive (on Lexbox)"
+msgstr "FieldWorks Gửi/Nhận (trên Lexbox)"
+
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "File"
 msgstr "Tệp"
-
-#. Error message for duplicate file upload
-#: src/lib/components/audio/AudioDialog.svelte
-msgid "File already exists"
-msgstr "Tệp đã tồn tại"
 
 #. Label for audio file name input
 #: src/lib/components/audio/audio-editor.svelte
@@ -2294,11 +2294,6 @@ msgstr "Độ dài:"
 msgid "Let this version use the internet?"
 msgstr "Cho phép phiên bản này truy cập Internet chứ?"
 
-#. Product name
-#: src/project/SyncDialog.svelte
-msgid "Lexbox"
-msgstr "Lexbox"
-
 #. Alt text for the Lexbox logo image shown in the home screen app bar. "Lexbox" is a product name — do not translate.
 #: src/home/HomeView.svelte
 msgid "Lexbox logo"
@@ -2667,10 +2662,6 @@ msgstr "Tên"
 msgid "Name is required"
 msgstr "Tên là trường thông tin bắt buộc"
 
-#: src/project/SyncDialog.svelte
-msgid "Nearby"
-msgstr "Gần đây"
-
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
 msgstr "Cần có thư viện ` {0}`, mà dự án này không hỗ trợ, nên có thể nó sẽ không hoạt động đúng cách"
@@ -2678,6 +2669,7 @@ msgstr "Cần có thư viện ` {0}`, mà dự án này không hỗ trợ, nên 
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwLiteSyncView.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Never"
 msgstr "Không bao giờ"
 
@@ -2863,6 +2855,7 @@ msgstr "Không có máy chủ"
 
 #. Status text in the project sidebar when the project has no server/sync partner configured.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "No server configured"
 msgstr "Chưa cấu hình máy chủ"
 
@@ -2927,6 +2920,7 @@ msgstr "Không có trong dự án này. Hãy thử áp dụng một phương ph�
 
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Not logged in"
 msgstr "Chưa đăng nhập"
 
@@ -2991,6 +2985,10 @@ msgstr "Ngoại tuyến, không thể tải xuống"
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Offline, unable to open file"
 msgstr "Chế độ ngoại tuyến, không thể mở tệp"
+
+#: src/project/sync/SyncMethodList.svelte
+msgid "Offline. Your changes are saved on this device."
+msgstr "Chế độ ngoại tuyến. Các thay đổi của bạn đã được lưu trên thiết bị này."
 
 #. Sort option in activity view — earliest commit first.
 #: src/lib/activity/ActivityFilter.svelte
@@ -3092,6 +3090,10 @@ msgstr "Từ chối tham gia phân tích"
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
 msgstr "cam"
+
+#: src/project/SyncDialog.svelte
+msgid "Other FieldWorks Lite users"
+msgstr "Các người dùng FieldWorks Lite khác"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Component"
@@ -3710,6 +3712,10 @@ msgstr "Chạy từ menu của mục đó"
 msgid "Runs in a sandbox, separate from the app"
 msgstr "Chạy trong môi trường sandbox, tách biệt với ứng dụng"
 
+#: src/project/sync/SyncMethodList.svelte
+msgid "Runs on Lexbox, not with FieldWorks on this computer"
+msgstr "Chạy trên Lexbox, không chạy cùng với FieldWorks trên máy tính này"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
@@ -4150,6 +4156,7 @@ msgid "Sync"
 msgstr "Đồng bộ"
 
 #. Dialog title
+#: src/project/ProjectSidebar.svelte
 #: src/project/SyncDialog.svelte
 msgid "Sync Changes"
 msgstr "Đồng bộ các thay đổi"
@@ -4169,6 +4176,7 @@ msgid "Sync now"
 msgstr "Đồng bộ hóa ngay"
 
 #: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Sync with {0}"
 msgstr "Đồng bộ hóa với {0}"
 
@@ -4176,7 +4184,7 @@ msgstr "Đồng bộ hóa với {0}"
 msgid "Sync with a folder..."
 msgstr "Đồng bộ hóa với một thư mục..."
 
-#: src/project/sync/FolderSyncSection.svelte
+#: src/project/sync/SyncMethodList.svelte
 msgid "Sync with a USB drive or another folder"
 msgstr "Đồng bộ hóa với ổ USB hoặc một thư mục khác"
 
@@ -4217,11 +4225,6 @@ msgstr "Đã đồng bộ hóa với thư mục. Bạn có thể tháo ổ đĩa
 #: src/lib/activity/ActivityItem.svelte
 msgid "Synced: #"
 msgstr "Đã đồng bộ: #"
-
-#. Menu item to start sync
-#: src/project/ProjectSidebar.svelte
-msgid "Synchronize"
-msgstr "Đồng bộ hóa"
 
 #. Progress message during sync
 #: src/project/sync/FwClassicSyncView.svelte
@@ -4771,6 +4774,10 @@ msgstr "Các tệp đang chờ xử lý đã được tải lên"
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "Uploading pictures is not supported here"
 msgstr "Tính năng tải ảnh lên không được hỗ trợ tại đây"
+
+#: src/project/SyncDialog.svelte
+msgid "USB Drive / Folder"
+msgstr "Ổ USB / Thư mục"
 
 #. List item under the heading "A plugin can't"; it completes that sentence.
 #: src/lib/plugins/PluginsView.svelte
