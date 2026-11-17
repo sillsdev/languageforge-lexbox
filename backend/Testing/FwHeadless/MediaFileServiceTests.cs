@@ -19,6 +19,10 @@ namespace Testing.FwHeadless;
 [Trait("Category", "RequiresDb")]
 public class MediaFileServiceTests : IDisposable
 {
+    // ü as one code point, and as u + combining diaeresis
+    private const string Nfc = "\u00fc";
+    private const string Nfd = "u\u0308";
+
     private readonly MediaFileService _service;
     private readonly LexboxFwDataMediaAdapter _adapter;
     private readonly FwHeadlessConfig _fwHeadlessConfig;
@@ -418,8 +422,8 @@ public class MediaFileServiceTests : IDisposable
     [Fact]
     public async Task FindMediaFile_MatchesNfdPathToRowSavedAsNfc()
     {
-        var nfcRow = await AddDbFile("s\u00fc\u00fclda.wav");
-        var nfdPath = Path.Join(_cache.ProjectId.ProjectFolder, LinkedFileRelativePath("su\u0308u\u0308lda.wav"));
+        var nfcRow = await AddDbFile($"{Nfc}.wav");
+        var nfdPath = Path.Join(_cache.ProjectId.ProjectFolder, LinkedFileRelativePath($"{Nfd}.wav"));
 
         _service.FindMediaFile(_projectId, nfdPath)!.Id.Should().Be(nfcRow.Id);
     }
@@ -427,9 +431,9 @@ public class MediaFileServiceTests : IDisposable
     [Fact]
     public async Task FindMediaFile_PrefersTheExactSpellingOverItsNfcTwin()
     {
-        await AddDbFile("s\u00fc\u00fclda.wav");
-        var nfdRow = await AddDbFile("su\u0308u\u0308lda.wav");
-        var nfdPath = Path.Join(_cache.ProjectId.ProjectFolder, LinkedFileRelativePath("su\u0308u\u0308lda.wav"));
+        await AddDbFile($"{Nfc}.wav");
+        var nfdRow = await AddDbFile($"{Nfd}.wav");
+        var nfdPath = Path.Join(_cache.ProjectId.ProjectFolder, LinkedFileRelativePath($"{Nfd}.wav"));
 
         _service.FindMediaFile(_projectId, nfdPath)!.Id.Should().Be(nfdRow.Id);
     }

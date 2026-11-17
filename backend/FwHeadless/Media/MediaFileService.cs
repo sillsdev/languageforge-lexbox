@@ -90,12 +90,11 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         var relativePath = MediaFilePath.Normalize(Path.GetRelativePath(fwDataFolder, path));
         // LCM hands us NFD paths, but files may be named either way (see MediaFilePath.ForUpload). Mirrors FLEx's
         // exact, NFC, NFD lookup: https://github.com/sillsdev/liblcm/blob/da7140f07b92/src/SIL.LCModel.Utils/FileUtils.cs#L434
-        var nfd = relativePath.Normalize(NormalizationForm.FormD);
-        var nfc = relativePath.Normalize(NormalizationForm.FormC);
-        //normalize the stored column too: legacy rows may have been written under a different OS's separators
+        string[] spellings = [relativePath, relativePath.Normalize(NormalizationForm.FormC), relativePath.Normalize(NormalizationForm.FormD)];
+        //normalize the stored column too: legacy rows may have been written under a different OS's separators.
+        //Inline Replace, not MediaFilePath.Normalize, so EF can translate it to SQL.
         return dbContext.Files
-            .Where(f => f.ProjectId == projectId && (f.Filename.Replace("\\", "/") == relativePath
-                || f.Filename.Replace("\\", "/") == nfd || f.Filename.Replace("\\", "/") == nfc))
+            .Where(f => f.ProjectId == projectId && spellings.Contains(f.Filename.Replace("\\", "/")))
             .AsEnumerable()
             .OrderBy(f => MediaFilePath.Normalize(f.Filename) == relativePath ? 0 : 1)
             .FirstOrDefault();
