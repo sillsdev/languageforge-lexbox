@@ -158,8 +158,8 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
                 var status = info.InstallStatus();
                 if (status == InstallStatus.Downloaded)
                 {
-                    Interlocked.Exchange(ref _polling, 0);
                     NotifyDownloaded(info);
+                    Interlocked.Exchange(ref _polling, 0);
                     return;
                 }
                 if (IsDownloading(info)) continue;
@@ -180,8 +180,10 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
             _logger.LogError(e, "Failed polling Play in-app update download");
         }
 
-        Interlocked.Exchange(ref _polling, 0);
+        //Publish before releasing _polling: otherwise a resume could start a new loop whose Started event
+        //this terminal event would then dismiss.
         _eventBus.PublishEvent(new AppUpdateEvent(result, release));
+        Interlocked.Exchange(ref _polling, 0);
     }
 
     private Task<AppUpdateInfo?> GetAppUpdateInfo()
