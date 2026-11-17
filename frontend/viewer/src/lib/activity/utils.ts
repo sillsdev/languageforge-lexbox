@@ -8,7 +8,6 @@ export const UNKNOWN_AUTHOR_KEY = '__unknown__';
 export const FIELDWORKS_AUTHOR_KEY = authorFilterKey({authorName: 'FieldWorks'});
 // Mirrors SystemAuthorId in backend/FwLite/LcmCrdt/Utils/CommitHelpers.cs
 export const SYSTEM_AUTHOR_KEY = '00000000-0000-0000-0000-000000000001';
-export const ALL_CHANGE_TYPES = '__all__';
 export const MIN_VISIBLE_FILTERED = 20;
 
 export type ActivityLoad = {
@@ -27,14 +26,15 @@ export type MultiFilterSelection = string[] | 'all';
 
 export type ActivityFilters = {
   authorFilterKeys: MultiFilterSelection;
-  changeTypeFilterKeys: MultiFilterSelection;
+  /** Change-type keys to narrow the feed to; empty = no filter (everything shows). */
+  changeTypeFilterKeys: string[];
   sort: ActivitySort;
 };
 
 export function createDefaultActivityFilters(): ActivityFilters {
   return {
     authorFilterKeys: 'all',
-    changeTypeFilterKeys: 'all',
+    changeTypeFilterKeys: [],
     sort: ActivitySort.NewestFirst,
   };
 }
@@ -50,13 +50,9 @@ export function resolveFilterKeys(selected: MultiFilterSelection, allKeys: strin
 export function toServerQuery(filters: ActivityFilters): IActivityQuery {
   return {
     authorFilterKeys: filters.authorFilterKeys === 'all' ? undefined : filters.authorFilterKeys,
-    changeTypeKeys: filters.changeTypeFilterKeys === 'all' ? undefined : filters.changeTypeFilterKeys as ChangeType[],
+    changeTypeKeys: filters.changeTypeFilterKeys.length ? filters.changeTypeFilterKeys as ChangeType[] : undefined,
     sort: filters.sort,
   };
-}
-
-export function serverQueryKey(filters: ActivityFilters): string {
-  return JSON.stringify(toServerQuery(filters));
 }
 
 export function formatJsonForUi(json: object) {
@@ -109,5 +105,5 @@ export function applyMultiSelectValue(
 }
 
 export function hasActiveServerSideFilters(filters: ActivityFilters): boolean {
-  return filters.authorFilterKeys !== 'all' || filters.changeTypeFilterKeys !== 'all';
+  return filters.authorFilterKeys !== 'all' || filters.changeTypeFilterKeys.length > 0;
 }

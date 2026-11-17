@@ -116,7 +116,7 @@ msgstr "{0} (FieldWorks Lite)"
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
 
-#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ChangeTypeFilter.svelte
 msgid "{0} activity types"
 msgstr "{0} activity types"
 
@@ -394,6 +394,13 @@ msgstr "Account"
 msgid "Activity"
 msgstr "Activity"
 
+#. Label of the activity view filter that narrows the list by what kind of change was made.
+#: src/lib/activity/ChangeTypeFilter.svelte
+#: src/lib/activity/ChangeTypeFilter.svelte
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Activity type"
+msgstr "Activity type"
+
 #. Error boundary title shown if the whole Activity view crashes while rendering.
 #: src/lib/activity/ActivityView.svelte
 msgid "Activity view failed"
@@ -567,13 +574,6 @@ msgstr "Affixes"
 msgid "All"
 msgstr "All"
 
-#. Filter option in activity view activity-type dropdown — show all kinds of edits.
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-msgid "All activity types"
-msgstr "All activity types"
-
 #. Filter option in activity view author dropdown — show commits from every author.
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
@@ -712,6 +712,11 @@ msgstr "audio"
 msgid "Audio"
 msgstr "Audio"
 
+#. Group heading in the activity-type filter: changes to audio recordings and other media files.
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Audio & media"
+msgstr "Audio & media"
+
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Audio file not included in Send & Receive"
@@ -765,6 +770,7 @@ msgstr "Back"
 msgid "Back to all tasks"
 msgstr "Back to all tasks"
 
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
@@ -973,6 +979,14 @@ msgstr "Classic FieldWorks Projects"
 msgid "clear"
 msgstr "clear"
 
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Clear activity type filter"
+msgstr "Clear activity type filter"
+
+#: src/lib/activity/ActivityView.svelte
+msgid "Clear filters"
+msgstr "Clear filters"
+
 #. Activity-log line. {0} = field label (e.g. "Gloss", "Definition"). Means the field's value was erased.
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
@@ -1032,6 +1046,7 @@ msgstr "Commenter"
 msgid "comments"
 msgstr "comments"
 
+#: src/lib/activity/ChangeTypeFilter.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/SearchFilter.svelte
@@ -1652,6 +1667,11 @@ msgstr "Enter your name"
 msgid "entries"
 msgstr "entries"
 
+#. Group heading in the activity-type filter: changes to dictionary entries (FieldWorks wording).
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Entries"
+msgstr "Entries"
+
 #. Filter option label
 #. Dropdown to filter entries by missing fields
 #. Example: "Entries missing Definition" shows words without definitions
@@ -1794,6 +1814,7 @@ msgstr "Example, not in this project"
 msgid "examples"
 msgstr "examples"
 
+#: src/lib/activity/ChangeTypeFilter.svelte
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Examples"
@@ -2453,6 +2474,11 @@ msgstr "Light"
 msgid "List mode"
 msgstr "List mode"
 
+#. Group heading in the activity-type filter: changes to project lists (parts of speech, semantic domains...) and settings (writing systems, views).
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Lists & settings"
+msgstr "Lists & settings"
+
 #. Field name shown in advanced/classic view
 #. The literal meaning of the vernacular translated into the analysis language
 #. Contrasts with glosses/definitions in the analysis language
@@ -2642,6 +2668,11 @@ msgstr "Meaning {0}: {1}"
 #: src/lib/activity/ChangeSummary.svelte
 msgid "meanings"
 msgstr "meanings"
+
+#. Group heading in the activity-type filter: changes to meanings (simpler wording for "senses").
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Meanings"
+msgstr "Meanings"
 
 #. Noun for a media resource of non-audio/unknown type, e.g. "Added media file" in the activity log
 #: src/lib/activity/ChangeSummary.svelte
@@ -2885,10 +2916,6 @@ msgstr "No"
 msgid "No activity matches these filters"
 msgstr "No activity matches these filters"
 
-#: src/lib/activity/ActivityFilter.svelte
-msgid "No activity types"
-msgstr "No activity types"
-
 #: src/project/dashboard/DashboardView.svelte
 msgid "No analysis writing systems configured."
 msgstr "No analysis writing systems configured."
@@ -2957,6 +2984,10 @@ msgstr "No longer runs from an entry's menu"
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "No longer uses the internet"
 msgstr "No longer uses the internet"
+
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "No matching activity types"
+msgstr "No matching activity types"
 
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "No media files found"
@@ -3148,6 +3179,12 @@ msgstr "One FieldWorks Classic commit may consist of changes to multiple entries
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Online, a plugin can send this project's data to any website."
 msgstr "Online, a plugin can send this project's data to any website."
+
+#. Short hover button on a filter row: select only this row and clear the others.
+#: src/lib/activity/ChangeTypeFilter.svelte
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Only"
+msgstr "Only"
 
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
@@ -3814,6 +3851,7 @@ msgstr "Require approval for edits"
 msgid "Requires"
 msgstr "Requires"
 
+#: src/lib/activity/ChangeTypeFilter.svelte
 #: src/project/browse/SearchFilter.svelte
 msgid "Reset"
 msgstr "Reset"
@@ -3944,6 +3982,10 @@ msgstr "Saving turns off \"Always allow\" on this device, so the new version ask
 msgid "Search # or #"
 msgstr "Search # or #"
 
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Search activity types"
+msgstr "Search activity types"
+
 #. Search placeholder
 #: src/project/ProjectDropdown.svelte
 msgid "Search Dictionaries"
@@ -4067,6 +4109,11 @@ msgstr "Sense fields"
 #: src/lib/activity/ChangeSummary.svelte
 msgid "senses"
 msgstr "senses"
+
+#. Group heading in the activity-type filter: changes to senses (FieldWorks wording).
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Senses"
+msgstr "Senses"
 
 #. Field label for example text
 #. The sentence/phrase text for an example (source text in original language)
@@ -5191,6 +5238,11 @@ msgid "words"
 msgstr "words"
 
 #. Group header in morph type lists: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
+#. Group heading in the activity-type filter: changes to words (simpler wording for "entries").
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Words"
+msgstr "Words"
+
 #: src/project/data/morph-type-groups.ts
 msgid "Words and phrases"
 msgstr "Words and phrases"
