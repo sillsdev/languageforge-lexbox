@@ -156,7 +156,7 @@
                     {/snippet}
                     <div class="flex items-center gap-2">
                       <Icon icon="i-mdi-sync"/>
-                      <span>{$t`Synchronize`}</span>
+                      <span>{$t`Sync Changes`}</span>
                     </div>
                     <div
                       class="size-2 rounded-full"

@@ -13,7 +13,7 @@ public static class MiniLcmJson
 
     /// <summary>
     /// For the MiniLcm web API: internal properties are also ignored in request bodies, so the API's OpenAPI schema
-    /// leaves them out. The sync serializers keep reading them, so they stay on <see cref="AddExternalMiniLcmModifiers"/>.
+    /// leaves them out. The viewer's JS interop serializer keeps reading them, so it stays on <see cref="AddExternalMiniLcmModifiers"/>.
     /// </summary>
     public static IJsonTypeInfoResolver AddMiniLcmApiModifiers(this IJsonTypeInfoResolver resolver)
     {

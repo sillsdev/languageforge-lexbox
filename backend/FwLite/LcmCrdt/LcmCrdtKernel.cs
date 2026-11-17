@@ -1,3 +1,4 @@
+using LcmCrdt.LocalSync;
 using System.Linq.Expressions;
 using System.Text.Json;
 using MiniLcm.Media;
@@ -113,6 +114,9 @@ public static class LcmCrdtKernel
         services.AddScoped<LocalCommentReadStatusService>();
         services.AddScoped<LcmMediaService>();
         services.AddScoped<SyncRepository>();
+        services.AddScoped<ProjectIdentityService>();
+        services.AddScoped<CurrentAuthorService>();
+        services.TryAddSingleton<ILocalAuthorProvider, NoLocalAuthorProvider>();
         services.AddSingleton<CrdtProjectsService>();
         services.AddSingleton<IProjectProvider>(s => s.GetRequiredService<CrdtProjectsService>());
 
@@ -120,7 +124,7 @@ public static class LcmCrdtKernel
         services.AddSingleton(provider => new RefitSettings
         {
             ContentSerializer = new SystemTextJsonContentSerializer(
-                provider.GetRequiredService<IOptions<HarmonyConfig>>().Value.MakeLcmCrdtExternalJsonOptions())
+                provider.GetRequiredService<IOptions<HarmonyConfig>>().Value.MakeLcmCrdtSyncJsonOptions())
         });
         services.AddSingleton<CrdtHttpSyncService>();
         services.AddSingleton<IRefitHttpServiceFactory, RefitHttpServiceFactory>();

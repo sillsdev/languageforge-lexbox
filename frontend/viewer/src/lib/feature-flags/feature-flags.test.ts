@@ -1,7 +1,9 @@
 import {afterEach, describe, expect, it} from 'vitest';
 
 import {
+  CHANNEL_FLAGS,
   channelHasFlag,
+  channelNames,
   DEV_CHANNEL,
   flagsForChannel,
   isDevChannel,
@@ -40,10 +42,12 @@ describe('flagsForChannel', () => {
 
   it('returns flags for a known channel', () => {
     expect(flagsForChannel('BETA', TEST_FLAGS)).toEqual(['flag-one', 'flag-two']);
+    expect(flagsForChannel('beta alpha', TEST_FLAGS)).toEqual([...TEST_FLAGS.beta, ...TEST_FLAGS.alpha]);
   });
 
   it('returns no flags for an unknown channel', () => {
     expect(flagsForChannel('nightly', TEST_FLAGS)).toEqual([]);
+    expect(flagsForChannel('constructor', TEST_FLAGS)).toEqual([]);
   });
 });
 
@@ -60,10 +64,42 @@ describe('channelHasFlag', () => {
   });
 });
 
+describe('a flag name as the channel', () => {
+  it('turns on that flag alone', () => {
+    expect(channelHasFlag('flag-three', 'flag-three', TEST_FLAGS)).toBe(true);
+    expect(channelHasFlag('flag-three', '  Flag-Three ', TEST_FLAGS)).toBe(true);
+    expect(channelHasFlag('flag-one', 'flag-three', TEST_FLAGS)).toBe(false);
+  });
+
+  it('takes several names separated by commas or spaces', () => {
+    expect(channelHasFlag('flag-three', 'beta, flag-three', TEST_FLAGS)).toBe(true);
+    expect(channelHasFlag('flag-one', 'beta, flag-three', TEST_FLAGS)).toBe(true);
+    expect(channelHasFlag('flag-two', ' flag-one,Flag-Two ', TEST_FLAGS)).toBe(true);
+    expect(channelHasFlag('flag-three', 'flag-one flag-two', TEST_FLAGS)).toBe(false);
+    expect(channelHasFlag('flag-one', ' , ', TEST_FLAGS)).toBe(false);
+  });
+
+  it('is not shadowed by a property every object inherits', () => {
+    expect(channelHasFlag('constructor', 'constructor', TEST_FLAGS)).toBe(true);
+    expect(channelHasFlag('flag-one', 'constructor', TEST_FLAGS)).toBe(false);
+  });
+});
+
+describe('CHANNEL_FLAGS', () => {
+  it('names flags so each can be typed as the channel', () => {
+    const reserved = [...Object.keys(CHANNEL_FLAGS), DEV_CHANNEL];
+    for (const flag of Object.values(CHANNEL_FLAGS).flat()) {
+      expect(channelNames(flag)).toEqual([flag]);
+      expect(reserved).not.toContain(flag);
+    }
+  });
+});
+
 describe('isDevChannel', () => {
   it('matches the dev channel case-insensitively', () => {
     expect(isDevChannel('dev')).toBe(true);
     expect(isDevChannel(' DEV ')).toBe(true);
+    expect(isDevChannel('beta, dev')).toBe(true);
     expect(isDevChannel('beta')).toBe(false);
     expect(isDevChannel('')).toBe(false);
   });

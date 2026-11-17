@@ -19,7 +19,7 @@
   import {useWritingSystemService, usePublications} from '$project/data';
   import {useDialogsService} from '$lib/services/dialogs-service.js';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
-  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+  import {isSubmitEnter} from '$lib/utils/submit-on-enter';
   import {pt} from '$lib/views/view-text';
   import * as Editor from '$lib/components/editor';
   import Icon from '$lib/components/ui/icon/icon.svelte';
@@ -165,9 +165,7 @@
   }
 
   function handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'Enter' && !IsMobile.value) {
-      void createEntry(event);
-    }
+    if (isSubmitEnter(event)) void createEntry(event);
   }
 </script>
 

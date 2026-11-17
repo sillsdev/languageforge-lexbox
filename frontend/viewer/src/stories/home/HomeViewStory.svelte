@@ -55,6 +55,8 @@
     createProject: () => Promise.resolve(),
     createDemoProject: () => Promise.resolve(),
     deleteProject: () => Promise.resolve(),
+    openFromFolder: () => Promise.reject(new Error('Folder sync is not part of this story')),
+    syncProjectWithFolder: () => Promise.reject(new Error('Folder sync is not part of this story')),
   };
   const importFwdataService: IImportFwdataService = {
     import: (projectName: string) => Promise.resolve({name: projectName, dataFormat: ProjectDataFormat.Harmony}),

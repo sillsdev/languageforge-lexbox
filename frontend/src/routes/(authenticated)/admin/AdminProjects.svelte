@@ -5,7 +5,10 @@
   import {DEFAULT_PAGE_SIZE, limit} from '$lib/components/Paging';
   import {
     filterProjects,
+    isProjectSortColumn,
     ProjectFilter,
+    type ProjectSort,
+    sortProjects,
     type ProjectFilters,
     type ProjectItem,
     type ProjectItemWithDraftStatus,
@@ -61,9 +64,20 @@
     })),
     ...projects.map((p) => ({ ...p, isDraft: false as const })),
   ]);
+  // The sort lives in the URL, so a hand-edited value can be anything: fall back to the defaults.
+  const sort: ProjectSort = $derived({
+    column: isProjectSortColumn(filters.projectSort) ? filters.projectSort : filterDefaults.projectSort,
+    dir: filters.projectSortDir === 'asc' ? 'asc' : 'desc',
+  });
+  function setSort(newSort: ProjectSort): void {
+    filters.projectSort = newSort.column;
+    filters.projectSortDir = newSort.dir;
+  }
   const filteredProjects: ProjectItemWithDraftStatus[] = $derived(filterProjects(allProjects, filters));
+  // Sort before limiting, so the first rows are the top of the whole list, not a reshuffle of whatever was shown.
+  const sortedProjects = $derived(sortProjects(filteredProjects, sort));
   const shownProjects = $derived(
-    limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects,
+    limitResults ? limit(sortedProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : sortedProjects,
   );
 
   let deleteProjectModal: ConfirmDeleteModal | undefined = $state();
@@ -117,7 +131,7 @@
 
   <div class="divider"></div>
 
-  <ProjectTable projects={shownProjects}>
+  <ProjectTable projects={shownProjects} {sort} onSortChange={setSort}>
     {#snippet actions({ project })}
       <td class="p-0">
         {#if project.isDraft || !project.deletedDate}

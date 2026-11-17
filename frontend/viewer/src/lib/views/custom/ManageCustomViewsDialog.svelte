@@ -75,7 +75,7 @@
             <ButtonGroup.Root class="w-full">
               <Button
                 variant="outline"
-                class="flex-1 text-start h-auto"
+                class="flex-1 text-start h-14"
                 onclick={() => openEdit(view)}
               >
                 <div class="min-w-0 grow">
@@ -88,7 +88,7 @@
               </Button>
               <Button
                 variant="outline"
-                class="h-auto hover:bg-destructive/20! hover:text-destructive"
+                class="h-14 hover:bg-destructive/20! hover:text-destructive"
                 icon="i-mdi-trash-can-outline"
                 onclick={() => void onDelete(view)}
               />

@@ -8,7 +8,7 @@ using SIL.Harmony.Core;
 
 namespace FwLiteShared.Tests.Sync;
 
-public class SyncServiceTests
+public class SyncResultsProcessorTests
 {
     [Fact]
     public void GetUnreadCommentsFromSyncResults_ReturnsCreatedUserComments()
@@ -45,7 +45,7 @@ public class SyncServiceTests
 
         var results = new SyncResults([commit], [], true);
 
-        var unreadComments = SyncService.GetUnreadCommentsFromSyncResults(results, currentUserId: "current-user").ToArray();
+        var unreadComments = SyncResultsProcessor.GetUnreadCommentsFromSyncResults(results, currentUserId: "current-user").ToArray();
 
         unreadComments.Should().ContainSingle()
             .Which.Should().Be((comment.Id, threadId));
@@ -81,7 +81,7 @@ public class SyncServiceTests
 
         var results = new SyncResults([commit], [], true);
 
-        var unreadComments = SyncService.GetUnreadCommentsFromSyncResults(results, currentUserId: "current-user").ToArray();
+        var unreadComments = SyncResultsProcessor.GetUnreadCommentsFromSyncResults(results, currentUserId: "current-user").ToArray();
 
         unreadComments.Should().ContainSingle("comments authored by other users are unread, the current user's own are not")
             .Which.Should().Be((theirs.EntityId, threadId));
@@ -109,7 +109,7 @@ public class SyncServiceTests
 
         var results = new SyncResults([commit], [], true);
 
-        var unreadComments = SyncService.GetUnreadCommentsFromSyncResults(results, currentUserId: null).ToArray();
+        var unreadComments = SyncResultsProcessor.GetUnreadCommentsFromSyncResults(results, currentUserId: null).ToArray();
 
         unreadComments.Should().ContainSingle("with no current user, even an author-less synced comment is unread")
             .Which.Should().Be((comment.Id, threadId));
@@ -157,7 +157,7 @@ public class SyncServiceTests
 
         var results = new SyncResults([commit], [], true);
 
-        var (deletedCommentIds, deletedThreadIds) = SyncService.GetDeletedCommentsFromSyncResults(results);
+        var (deletedCommentIds, deletedThreadIds) = SyncResultsProcessor.GetDeletedCommentsFromSyncResults(results);
 
         deletedCommentIds.Should().ContainSingle().Which.Should().Be(commentId);
         deletedThreadIds.Should().ContainSingle().Which.Should().Be(deletedThreadId);
@@ -173,7 +173,7 @@ public class SyncServiceTests
             Text = "synced comment"
         });
 
-        SyncService.SyncResultsHaveCommentChanges(ResultsWith(change)).Should().BeTrue();
+        SyncResultsProcessor.SyncResultsHaveCommentChanges(ResultsWith(change)).Should().BeTrue();
     }
 
     [Fact]
@@ -181,7 +181,7 @@ public class SyncServiceTests
     {
         var change = new SetCommentThreadStatusChange(Guid.NewGuid(), ThreadStatus.Closed, DateTimeOffset.UtcNow);
 
-        SyncService.SyncResultsHaveCommentChanges(ResultsWith(change)).Should().BeTrue();
+        SyncResultsProcessor.SyncResultsHaveCommentChanges(ResultsWith(change)).Should().BeTrue();
     }
 
     [Fact]
@@ -189,7 +189,7 @@ public class SyncServiceTests
     {
         var change = new DeleteChange<CommentThread>(Guid.NewGuid());
 
-        SyncService.SyncResultsHaveCommentChanges(ResultsWith(change)).Should().BeTrue();
+        SyncResultsProcessor.SyncResultsHaveCommentChanges(ResultsWith(change)).Should().BeTrue();
     }
 
     [Fact]
@@ -198,13 +198,13 @@ public class SyncServiceTests
         // an entry deletion is not a comment change, so it must not trigger a comments-changed notification
         var change = new DeleteChange<Entry>(Guid.NewGuid());
 
-        SyncService.SyncResultsHaveCommentChanges(ResultsWith(change)).Should().BeFalse();
+        SyncResultsProcessor.SyncResultsHaveCommentChanges(ResultsWith(change)).Should().BeFalse();
     }
 
     [Fact]
     public void SyncResultsHaveCommentChanges_FalseWhenNothingSynced()
     {
-        SyncService.SyncResultsHaveCommentChanges(new SyncResults([], [], true)).Should().BeFalse();
+        SyncResultsProcessor.SyncResultsHaveCommentChanges(new SyncResults([], [], true)).Should().BeFalse();
     }
 
     private static SyncResults ResultsWith(IChange change)

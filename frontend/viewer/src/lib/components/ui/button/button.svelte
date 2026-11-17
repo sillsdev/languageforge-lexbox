@@ -84,6 +84,8 @@
         ? {icon, ...nullableIconProps}
         : undefined,
   );
+  // The size variants trim start padding for an icon followed by a label
+  const iconOnlyClass = $derived(!children && 'aspect-square px-0!');
   $effect(() => {
     if (autofocus && ref) {
       ref.focus();
@@ -109,7 +111,7 @@
   <Anchor
     bind:ref
     data-slot="button"
-    class={cn(buttonVariants({variant, size}), className, loading && 'loading')}
+    class={cn(buttonVariants({variant, size}), iconOnlyClass, className, loading && 'loading')}
     href={disabled ? undefined : href}
     aria-disabled={disabled}
     role={disabled ? 'link' : undefined}
@@ -122,7 +124,7 @@
   <button
     bind:this={ref}
     data-slot="button"
-    class={cn(buttonVariants({variant, size}), className, loading && 'loading')}
+    class={cn(buttonVariants({variant, size}), iconOnlyClass, className, loading && 'loading')}
     {type}
     disabled={disabled || loading}
     {...restProps}

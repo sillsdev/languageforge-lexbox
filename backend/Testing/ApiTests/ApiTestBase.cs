@@ -16,12 +16,18 @@ public class ApiTestBase
     public string BaseUrl => TestingEnvironmentVariables.ServerBaseUrl;
     private readonly SocketsHttpHandler _httpClientHandler;
     public readonly HttpClient HttpClient;
+    /// <summary>
+    /// Shares cookies (and so the login) with <see cref="HttpClient"/> but never retries.
+    /// Use it for requests whose body can't be replayed (uploads) or where the exact response matters.
+    /// </summary>
+    public readonly HttpClient HttpClientWithoutRetry;
     public string? CurrJwt { get; private set; }
     public LexAuthUser CurrentUser => JwtHelper.ToLexAuthUser(CurrJwt!);
 
     public ApiTestBase()
     {
         (_httpClientHandler, HttpClient) = NewHttpClient(BaseUrl);
+        HttpClientWithoutRetry = WithBaseUrl(new HttpClient(_httpClientHandler, disposeHandler: false), BaseUrl);
     }
 
     /// <summary>
@@ -66,6 +72,8 @@ public class ApiTestBase
     public void ClearCookies()
     {
         JwtHelper.ClearCookies(_httpClientHandler);
+        // the no-retry helpers treat CurrJwt as "logged in", and that's no longer true without the cookie
+        CurrJwt = null;
     }
 
     public async Task<JsonObject> ExecuteGql([StringSyntax("graphql")] string gql, bool expectGqlError = false, bool expectSuccessCode = true,

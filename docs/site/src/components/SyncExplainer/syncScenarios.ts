@@ -81,7 +81,7 @@ export const SCENARIOS: Scenario[] = [
         legs: ['leg2'],
         ghost: true,
         badge: 'you',
-        text: 'Pressing Sync on the Lexbox tab copies it into the FieldWorks Classic copy. Someone has to press it: it never runs by itself.',
+        text: 'Pressing Sync in FieldWorks Send/Receive (on Lexbox) copies it into the FieldWorks Classic copy. Someone has to press it: it never runs by itself.',
       },
       {
         t1: 'colleague',
@@ -95,7 +95,7 @@ export const SCENARIOS: Scenario[] = [
         ghost: true,
         check: ['colleague'],
         badge: 'done',
-        text: 'So: FieldWorks Lite teammates get your edit by themselves. For FieldWorks Classic colleagues, someone has to press Sync on the Lexbox tab, and then they run Send/Receive.',
+        text: 'So: FieldWorks Lite teammates get your edit by themselves. For FieldWorks Classic colleagues, someone has to press Sync in FieldWorks Send/Receive (on Lexbox), and then they run Send/Receive.',
       },
     ],
   },
@@ -118,7 +118,7 @@ export const SCENARIOS: Scenario[] = [
         t2: 'liteCopy',
         legs: ['leg2'],
         badge: 'you',
-        text: 'Sync on the Lexbox tab then merges their changes into the FieldWorks Lite copy…',
+        text: 'Sync in FieldWorks Send/Receive (on Lexbox) then merges their changes into the FieldWorks Lite copy…',
       },
       {
         t2: 'device',
@@ -130,13 +130,13 @@ export const SCENARIOS: Scenario[] = [
         t2: 'device',
         check: ['device'],
         badge: 'done',
-        text: 'So: your colleague runs Send/Receive first, then someone presses Sync on the Lexbox tab. FieldWorks Classic never sends anything on its own.',
+        text: 'So: your colleague runs Send/Receive first, then someone presses Sync in FieldWorks Send/Receive (on Lexbox). FieldWorks Classic never sends anything on its own.',
       },
     ],
   },
   {
     id: 'sync-button',
-    q: 'What does Sync on the Lexbox tab do?',
+    q: 'What does Sync in FieldWorks Send/Receive (on Lexbox) do?',
     steps: [
       {
         hlNodes: ['cloud'],
@@ -185,7 +185,7 @@ export const SCENARIOS: Scenario[] = [
         t1: 'liteCopy',
         check: ['liteCopy'],
         badge: 'done',
-        text: 'You never have to remember what you changed offline. To be sure it all went out, check that Synchronize says Up to date.',
+        text: 'You never have to remember what you changed offline. To be sure it all went out, open Sync Changes, tap Other FieldWorks Lite users and check that it says Up to date.',
       },
     ],
   },
@@ -209,7 +209,7 @@ export const SCENARIOS: Scenario[] = [
         t2: 'leg2',
         legs: ['leg2'],
         badge: 'you',
-        text: 'When someone presses Sync on the Lexbox tab, the two edits are merged. There is no error message and nothing to untangle by hand.',
+        text: 'When someone presses Sync in FieldWorks Send/Receive (on Lexbox), the two edits are merged. There is no error message and nothing to untangle by hand.',
       },
       {
         t1: 'leg2',
@@ -256,7 +256,7 @@ export const INITIAL = {
   title: 'An edit travels in three steps.',
   text:
     '**1** Your device ⇄ Lexbox: automatic whenever you’re online. ' +
-    '**2** Between the two copies inside Lexbox: someone presses **Sync** on the **Lexbox** tab. ' +
+    '**2** Between the two copies inside Lexbox: someone presses **Sync** under **FieldWorks Send/Receive (on Lexbox)**. ' +
     '**3** Lexbox ⇄ your colleague: they run **Send/Receive** in FieldWorks Classic. ' +
     'Pick a question below to watch it happen.',
 };
@@ -285,7 +285,7 @@ export const GHOST_LABEL = '✓ Teammates on FieldWorks Lite: automatic';
 /** `offline` replaces leg 1's trigger label while a step sets that flag. */
 export const LEG_TRIGGERS: Record<LegId, string> & {offline: string} = {
   leg1: 'automatic',
-  leg2: 'Sync on Lexbox tab',
+  leg2: 'Sync in Send/Receive (on Lexbox)',
   leg3: 'their Send/Receive',
   offline: 'offline',
 };
@@ -298,11 +298,11 @@ export const LEG_TRIGGERS: Record<LegId, string> & {offline: string} = {
 export const TRIGGER_INFO: Record<LegId, {title: string; body: string}> = {
   leg1: {
     title: 'Automatic',
-    body: 'Runs by itself after every edit and when you open the project. Nothing you have to press (Auto syncing on the FieldWorks Lite tab just runs it now).',
+    body: 'Runs by itself after every edit and when you open the project. Nothing you have to press (Auto syncing under Other FieldWorks Lite users just runs it now).',
   },
   leg2: {
-    title: 'Sync on the Lexbox tab',
-    body: 'In FieldWorks Lite: Synchronize → Lexbox tab (the second tab) → Sync. Not Auto syncing on the FieldWorks Lite tab, which only moves changes between your device and Lexbox. People in the FieldWorks Lite beta also have “Sync FieldWorks Lite” on the project page on lexbox.org.',
+    title: 'Sync in FieldWorks Send/Receive (on Lexbox)',
+    body: 'In FieldWorks Lite: Sync Changes → FieldWorks Send/Receive (on Lexbox) → Sync. Not Auto syncing under Other FieldWorks Lite users, which only moves changes between your device and Lexbox. People in the FieldWorks Lite beta also have “Sync FieldWorks Lite” on the project page on lexbox.org.',
   },
   leg3: {
     title: 'Send/Receive',

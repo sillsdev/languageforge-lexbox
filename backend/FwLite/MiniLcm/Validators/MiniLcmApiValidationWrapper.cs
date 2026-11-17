@@ -453,14 +453,16 @@ public partial class MiniLcmApiValidationWrapper(
         return _api.CreatePicture(entryId, senseId, picture, position);
     }
 
-    public Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
+    public async Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
     {
-        return _api.UpdatePicture(entryId, senseId, pictureId, update);
+        await validators.ValidateAndThrow(update);
+        return await _api.UpdatePicture(entryId, senseId, pictureId, update);
     }
 
-    public Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
+    public async Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
     {
-        return _api.SubmitUpdatePicture(entryId, senseId, pictureId, update);
+        await validators.ValidateAndThrow(update);
+        await _api.SubmitUpdatePicture(entryId, senseId, pictureId, update);
     }
 
     public Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Picture before, Picture after, IMiniLcmApi? api = null)

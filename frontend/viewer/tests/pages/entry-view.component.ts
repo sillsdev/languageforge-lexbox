@@ -76,9 +76,16 @@ export class EntryViewComponent {
     await this.waitForEntrySaved();
   }
 
-  async addSense(): Promise<void> {
+  /** Opens the add-sense dialog, fills in the gloss and submits it. */
+  async addSense(gloss: string): Promise<void> {
     await expect(this.addSenseButton).toBeVisible({timeout: 5000});
     await this.addSenseButton.click();
+    const dialog = this.page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await dialog.locator('[data-field-id="gloss"] input').first().fill(gloss);
+    await dialog.getByRole('button', {name: /add (sense|meaning)/i}).click();
+    await expect(dialog).toBeHidden();
+    await this.waitForEntrySaved();
   }
 
   async getSenseCount(): Promise<number> {

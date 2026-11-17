@@ -2,11 +2,9 @@ using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using LexCore.Utils;
 using FluentAssertions;
-using Squidex.Assets;
 using Testing.ApiTests;
 using Testing.Services;
 using static Testing.Services.Constants;
-using Squidex.Assets.TusClient;
 
 namespace Testing.Fixtures;
 
@@ -85,22 +83,7 @@ public class IntegrationFixture : IAsyncLifetime
 
     public async Task FinishLexboxProjectResetWithRepo(string projectCode, FileInfo repo)
     {
-        Exception? failureException = null;
-        // UploadFile.FromFile opens a FileStream nobody disposes; Windows then refuses to delete the zip.
-        await using var stream = repo.OpenRead();
-        await AdminApiTester.HttpClient.UploadWithProgressAsync(new Uri($"{AdminApiTester.BaseUrl}/api/project/upload-zip/{projectCode}"),
-            new UploadFile(stream, repo.Name, "application/zip", repo.Length), new UploadOptions
-            {
-                Metadata = new Dictionary<string, string> { ["filetype"] = "application/zip" },
-                ProgressHandler = new DelegatingProgressHandler
-                {
-                    OnFailedAsync = (e, ct) =>
-                    {
-                        failureException = e.Exception;
-                        return Task.CompletedTask;
-                    }
-                },
-            });
-        if (failureException is not null) throw failureException;
+        var response = await AdminApiTester.UploadResetZipWithoutRetry(projectCode, repo);
+        response.IsSuccessStatusCode.Should().BeTrue($"the reset upload returned {(int)response.Status}: {response.Body}");
     }
 }

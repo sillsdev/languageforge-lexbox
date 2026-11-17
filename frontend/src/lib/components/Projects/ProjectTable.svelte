@@ -7,6 +7,7 @@
   import Icon from '$lib/icons/Icon.svelte';
   import {projectUrl} from '$lib/util/project';
   import {resolve} from '$app/paths';
+  import {nextProjectSort, type ProjectSort, type ProjectSortColumn} from './project-sort';
 
   const allColumns = ['name', 'code', 'users', 'createdAt', 'lastChange', 'type', 'actions'] as const;
   type ProjectTableColumn = typeof allColumns extends Readonly<Array<infer T>> ? T : never;
@@ -14,38 +15,61 @@
     projects: ProjectItemWithDraftStatus[];
     columns?: Readonly<ProjectTableColumn[]>;
     actions?: Snippet<[{ project: ProjectItemWithDraftStatus }]>;
+    /** The order `projects` is already in. Headers are only clickable when `onSortChange` is set. */
+    sort?: ProjectSort;
+    onSortChange?: (sort: ProjectSort) => void;
   }
 
-  const { projects, columns = allColumns, actions }: Props = $props();
+  const { projects, columns = allColumns, actions, sort, onSortChange }: Props = $props();
+
+  function ariaSort(column: ProjectSortColumn): 'ascending' | 'descending' | undefined {
+    if (sort?.column !== column) return undefined;
+    return sort.dir === 'asc' ? 'ascending' : 'descending';
+  }
 
   function isColumnVisible(column: ProjectTableColumn): boolean {
     return columns.includes(column);
   }
 </script>
 
+{#snippet header(column: ProjectSortColumn, label: string, className = '')}
+  <th class={className} aria-sort={ariaSort(column)}>
+    {#if onSortChange}
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 cursor-pointer hover:text-base-content"
+        onclick={() => sort && onSortChange(nextProjectSort(sort, column))}
+      >
+        {label}
+        <span
+          class:invisible={sort?.column !== column}
+          class="{sort?.dir === 'desc' ? 'i-mdi-sort-descending' : 'i-mdi-sort-ascending'} text-xl"
+        ></span>
+      </button>
+    {:else}
+      {label}
+    {/if}
+  </th>
+{/snippet}
+
 <div class="overflow-x-auto @container scroll-shadow">
   <table class="table table-lg">
     <thead>
       <tr class="bg-base-200">
         {#if isColumnVisible('name')}
-          <th>{$t('project.table.name')}</th>
+          {@render header('name', $t('project.table.name'))}
         {/if}
         {#if isColumnVisible('code')}
-          <th>{$t('project.table.code')}</th>
+          {@render header('code', $t('project.table.code'))}
         {/if}
         {#if isColumnVisible('users')}
-          <th class="hidden @md:table-cell">{$t('project.table.users')}</th>
+          {@render header('users', $t('project.table.users'), 'hidden @md:table-cell')}
         {/if}
         {#if isColumnVisible('createdAt')}
-          <th class="hidden @xl:table-cell">
-            {$t('project.table.created_at')}
-            <span class="i-mdi-sort-descending text-xl align-[-5px] ml-2"></span>
-          </th>
+          {@render header('createdAt', $t('project.table.created_at'), 'hidden @xl:table-cell')}
         {/if}
         {#if isColumnVisible('lastChange')}
-          <th class="hidden @2xl:table-cell">
-            {$t('project.table.last_change')}
-          </th>
+          {@render header('lastChange', $t('project.table.last_change'), 'hidden @2xl:table-cell')}
         {/if}
         {#if isColumnVisible('type')}
           <th>{$t('project.table.type')}</th>
