@@ -76,7 +76,7 @@
             <Icon icon="i-mdi-cloud" class="absolute -bottom-1 -right-1.5 size-4 text-muted-foreground drop-shadow-[0_0_1px_var(--background)]" />
           </span>
         {/snippet}
-        {#snippet description()}{$t`Runs on Lexbox, not with FieldWorks on this computer`}{/snippet}
+        {#snippet description()}{$t`Sync FieldWorks Lite and FieldWorks Classic in Lexbox`}{/snippet}
       </SyncMethodButton>
     {/if}
     {#if showFolder}
