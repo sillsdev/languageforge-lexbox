@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Controllers.ActionResults;
 using LexBoxApi.Jobs;
@@ -66,7 +65,7 @@ public class ProjectController(
             ?? InitFwDataProjectInput.ValidateUiWritingSystem(wsUi);
         if (wsError is not null)
             return Problem(wsError, statusCode: StatusCodes.Status400BadRequest);
-        if (code is null || code.Length < 4 || !Regex.IsMatch(code, Project.ProjectCodeRegex))
+        if (code is null || code.Length < 4 || !ProjectCode.IsValidCode(code))
             return Problem($"Invalid project code '{code}'", statusCode: StatusCodes.Status400BadRequest);
         if (string.IsNullOrWhiteSpace(name))
             return Problem("A project name is required", statusCode: StatusCodes.Status400BadRequest);

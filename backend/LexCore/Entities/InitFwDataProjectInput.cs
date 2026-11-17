@@ -32,11 +32,13 @@ public record InitFwDataProjectInput(
             return $"Empty {kind} writing system code";
         if (tags.FirstOrDefault(t => t.Length > MaxWritingSystemTagLength) is { } tooLong)
             return $"The {kind} writing system code is longer than {MaxWritingSystemTagLength} characters: {tooLong[..32]}…";
-        // BCP 47 tags are case-insensitive, so "en" and "EN" are the same writing system
-        if (tags.GroupBy(t => t, StringComparer.OrdinalIgnoreCase).FirstOrDefault(g => g.Count() > 1) is { } duplicate)
-            return $"Duplicate {kind} writing system: {duplicate.Key}";
         if (tags.FirstOrDefault(t => !IetfLanguageTag.IsValid(t)) is { } invalid)
             return $"Invalid {kind} writing system code: {invalid}";
+        // BCP 47 tags are case-insensitive, so "en" and "EN" are the same writing system. Tags that differ only
+        // by an implicit script ("fr", "fr-Latn") get through, because spotting those needs the SLDR, which
+        // LexBox doesn't load; ProjectLoader.NewProject merges them into one writing system.
+        if (tags.GroupBy(t => t, StringComparer.OrdinalIgnoreCase).FirstOrDefault(g => g.Count() > 1) is { } duplicate)
+            return $"Duplicate {kind} writing system: {duplicate.Key}";
         return null;
     }
 

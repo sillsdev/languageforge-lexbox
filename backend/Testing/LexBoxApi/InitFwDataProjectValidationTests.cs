@@ -83,10 +83,13 @@ public class InitFwDataProjectValidationTests
         problem.Detail.Should().Contain("UI writing system code is longer than");
     }
 
-    [Fact]
-    public async Task Rejects_an_invalid_project_code()
+    [Theory]
+    [InlineData("Bad Code!")]
+    // A trailing newline passes a Regex.IsMatch with $, and the hg URL would then name project "abcd"
+    [InlineData("abcd\n")]
+    public async Task Rejects_an_invalid_project_code(string code)
     {
-        var result = await NewController().InitFwDataProject("Bad Code!", name: "My project", wsVernacular: ["fr"]);
+        var result = await NewController().InitFwDataProject(code, name: "My project", wsVernacular: ["fr"]);
         var problem = result.Result.Should().BeOfType<ObjectResult>()
             .Which.Value.Should().BeOfType<ProblemDetails>().Which;
         problem.Status.Should().Be(StatusCodes.Status400BadRequest);
