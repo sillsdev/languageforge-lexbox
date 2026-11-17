@@ -11,7 +11,6 @@
 
   const picture: IPicture = {
     id: 'story-picture-1',
-    order: 1,
     mediaUri: demoPictureMediaUris.house1,
     caption: {
       en: {spans: [{text: 'A traditional house', ws: 'en'}]},

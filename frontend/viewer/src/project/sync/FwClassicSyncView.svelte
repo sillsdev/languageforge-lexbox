@@ -31,7 +31,7 @@
   }: {
     syncStatus: SyncStatus;
     server?: ILexboxServer;
-    /** Which sync is running, shared with the other tab so only one runs at a time */
+    /** Which sync is running, shared across the dialog so only one runs at a time */
     syncing?: SyncTarget;
     /** Bumped by the dialog after each sync; the status reloads when it changes */
     syncCount?: number;
@@ -41,7 +41,7 @@
   } = $props();
 
   const service = useSyncStatusService();
-  // A Lexbox request that can take many seconds, so it only loads once this tab is shown.
+  // A Lexbox request that can take many seconds, so it only loads once this view is shown.
   // Errors (e.g. Lexbox unreachable) are expected, so they're shown inline instead of thrown.
   const remote = resource(() => syncCount, async (_, _prev, {signal}) => {
     const status = await service.getStatus();
@@ -106,7 +106,7 @@
   }
 </script>
 
-<p class="mb-6 text-lg text-center">
+<p class="mb-4 max-md:px-10 text-sm text-muted-foreground text-center">
   <Popover.Root>
     <Popover.InfoTrigger>
       {$t`Sync FieldWorks Lite and FieldWorks Classic`}
@@ -189,7 +189,7 @@
       <SyncArrow dir="left" class={cn(hgToCrdtCount && 'text-primary')} tailLength={120} size={1.25} />
       <Button
         loading={syncing === 'classic'}
-        disabled={syncing === 'lite' || !canSync || !remoteStatus}
+        disabled={(!!syncing && syncing !== 'classic') || !canSync || !remoteStatus}
         onclick={onSyncClick}
         class="my-1"
         icon="i-mdi-sync"

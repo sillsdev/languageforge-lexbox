@@ -26,7 +26,7 @@ export function isCustomView(view: View): view is CustomView {
   return 'custom' in view;
 }
 
-export type Overrides = Pick<Partial<View>, 'vernacular' | 'analysis'>;
+export type Overrides = Pick<Partial<View>, 'vernacular' | 'analysis' | 'senseFields'>;
 
 /** Convert a field array to a record keyed by fieldId, for template lookups. */
 export function fieldRecord<T extends FieldId>(fields: TypedViewField<T>[]): Partial<Record<T, TypedViewField<T>>> {

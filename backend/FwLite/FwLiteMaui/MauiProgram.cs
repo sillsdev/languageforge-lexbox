@@ -1,4 +1,6 @@
+using System.Runtime.InteropServices;
 using FwLiteShared.Analytics;
+using FwLiteShared.Auth;
 using FwLiteShared.Services;
 using LcmCrdt.Culture;
 using Microsoft.Extensions.Configuration;
@@ -128,7 +130,8 @@ public static class MauiProgram
         var app = builder.Build();
         holder.App = app;
         var logger = app.Services.GetRequiredService<ILogger<MauiApp>>();
-        logger.LogInformation("App started, {Version}", AppVersion.Version);
+        logger.LogInformation("App started, {Version}, {Runtime}, {OS}, MSAL {MsalVersion}",
+            AppVersion.Version, RuntimeInformation.FrameworkDescription, RuntimeInformation.OSDescription, OAuthClient.MsalVersion);
         FwLiteMauiConfiguration.LogSettingsFile(
             app.Services.GetRequiredService<IOptions<FwLiteMauiConfig>>().Value.SettingsFilePath, logger);
         IcuInit.TryInitialize(logger);

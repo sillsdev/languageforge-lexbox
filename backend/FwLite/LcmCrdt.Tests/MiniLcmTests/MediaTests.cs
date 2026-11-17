@@ -24,6 +24,24 @@ public class MediaTests : MediaTestsBase
     private LcmMediaService MediaService => _fixture.GetService<LcmMediaService>();
 
     [Fact]
+    public async Task SaveFile_FileOnDiskWithoutAResource_SavesUnderANewName()
+    {
+        // e.g. left behind by an earlier failed save, or a LocalPath that no longer matches (#2693)
+        var bytes = Encoding.UTF8.GetBytes("orphan");
+        Directory.CreateDirectory(MediaService.ProjectResourceCachePath);
+        var orphanPath = Path.Combine(MediaService.ProjectResourceCachePath, "orphan.txt");
+        await File.WriteAllBytesAsync(orphanPath, bytes);
+
+        var saved = await SaveTestFile("orphan.txt", bytes, "text/plain");
+
+        saved.Result.Should().Be(UploadFileResult.SavedLocally);
+        var resource = (await MediaService.AllResources()).Should().ContainSingle(r => r.Id == saved.MediaUri!.Value.FileId).Subject;
+        resource.LocalPath.Should().NotBe(orphanPath);
+        resource.Metadata!.Filename.Should().Be("orphan.txt");
+        (await ReadAllBytes(saved.MediaUri!.Value)).Should().Equal(bytes);
+    }
+
+    [Fact]
     public async Task DeleteFile_ForgetsTheResourceAndItsLocalCopy()
     {
         var saved = await Api.SaveFile(new MemoryStream(Encoding.UTF8.GetBytes("<html>old</html>")),

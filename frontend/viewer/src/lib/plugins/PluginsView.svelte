@@ -4,6 +4,7 @@
   import {Badge} from '$lib/components/ui/badge';
   import {Button, buttonVariants} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
+  import * as Collapsible from '$lib/components/ui/collapsible';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import {t} from 'svelte-i18n-lingui';
   import {navigate, useRouter} from 'svelte-routing';
@@ -94,6 +95,22 @@
     await pluginService.delete(plugin);
   }
 
+  // What the plugin API (plugin-api-adapter.ts) and the sandbox allow, in plain words.
+  // Keep in step with both when either changes.
+  type Ability = {lead: string; detail?: string};
+  const pluginCan: Ability[] = $derived([
+    {lead: $t`Read this project's dictionary`, detail: $t`Entries, audio, pictures, comments, change history and more`},
+    {lead: $t`Add and change entries`, detail: $t`Only if editing was turned on for it, and only with your approval`},
+    {lead: $t`Open entries and show you short messages`, detail: $t`You view or edit the entry in FieldWorks Lite as usual`},
+    {lead: $t`Export files to this device`},
+    {lead: $t`Remember its own settings on this device`},
+  ]);
+  const pluginCannot: Ability[] = $derived([
+    {lead: $t`Use the internet`, detail: $t`Unless internet access was turned on for it`},
+    {lead: $t`Change anything without asking`, detail: $t`Unless you choose to always allow its changes`},
+    {lead: $t`See your account, other projects or the rest of the app`},
+  ]);
+
   // ---- Examples shelf: managers only, since trying an example is the first step to adding it ----
 
   let shelfFilter = $state<ExampleFunction | 'all'>('all');
@@ -124,6 +141,26 @@
   });
 </script>
 
+{#snippet abilityList(heading: string, abilities: Ability[], icon: IconClass, iconClass: string)}
+  <div class="space-y-2">
+    <h3 class="font-semibold">{heading}</h3>
+    <ul class="space-y-2.5">
+      {#each abilities as ability (ability.lead)}
+        <li class="flex gap-2">
+          <!-- size-4 + mt-0.5 centers the icon on the first 20px line -->
+          <Icon {icon} class="mt-0.5 size-4 {iconClass}" />
+          <div>
+            <p class="font-medium">{ability.lead}</p>
+            {#if ability.detail}
+              <p class="text-muted-foreground">{ability.detail}</p>
+            {/if}
+          </div>
+        </li>
+      {/each}
+    </ul>
+  </div>
+{/snippet}
+
 <div class="h-full overflow-y-auto">
   <div class="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
@@ -143,11 +180,28 @@
       {/if}
     </div>
 
-    <Alert>
+    <!-- No role="alert": a live region would read the whole list aloud when it expands. -->
+    <Alert role={null}>
       <Icon icon="i-mdi-shield-alert-outline" class="text-amber-500" />
-      <AlertDescription>
-        {$t`Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust.`}
-      </AlertDescription>
+      <Collapsible.Root class="col-start-2" data-testid="plugin-abilities">
+        <AlertDescription>
+          <span>
+            {$t`Plugins are code. They run in a protected sandbox and can only change dictionary data with your approval, but you should still only use plugins from people you trust.`}
+            <!-- nowrap: the link moves to the next line whole instead of breaking -->
+            <Collapsible.Trigger
+              class="inline-flex cursor-pointer items-center gap-1 whitespace-nowrap font-medium text-primary hover:underline [&[data-state=open]>.i-mdi-chevron-down]:rotate-180">
+              {$t`What can a plugin do?`}
+              <i class="i-mdi-chevron-down size-4 transition-transform"></i>
+            </Collapsible.Trigger>
+          </span>
+        </AlertDescription>
+        <Collapsible.Content class="overflow-hidden">
+          <div class="mt-3 grid gap-x-6 gap-y-4 border-t pt-3 md:grid-cols-2">
+            {@render abilityList($t`A plugin can`, pluginCan, 'i-mdi-check', 'text-green-600 dark:text-green-500')}
+            {@render abilityList($t`A plugin can't`, pluginCannot, 'i-mdi-close', 'text-muted-foreground')}
+          </div>
+        </Collapsible.Content>
+      </Collapsible.Root>
     </Alert>
 
     <section aria-labelledby="plugins-in-project" class="space-y-2">

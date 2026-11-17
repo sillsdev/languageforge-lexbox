@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {buildPluginSrcdoc} from './plugin-srcdoc';
+import {buildPluginSrcdoc, installPluginFramePolicy} from './plugin-srcdoc';
 
 function parse(html: string): Document {
   return new DOMParser().parseFromString(html, 'text/html');
@@ -52,5 +52,14 @@ describe('buildPluginSrcdoc', () => {
   it('keeps the doctype when present and omits it when absent', () => {
     expect(buildPluginSrcdoc('<!DOCTYPE html><html></html>', []).startsWith('<!DOCTYPE html>')).toBe(true);
     expect(buildPluginSrcdoc('<html></html>', []).startsWith('<html')).toBe(true);
+  });
+});
+
+describe('installPluginFramePolicy', () => {
+  it('adds the frame policy to the app page once', () => {
+    installPluginFramePolicy();
+    installPluginFramePolicy();
+    const policies = [...document.head.querySelectorAll('meta[http-equiv="Content-Security-Policy"]')];
+    expect(policies.map(meta => meta.getAttribute('content'))).toEqual(['frame-src blob: data:']);
   });
 });

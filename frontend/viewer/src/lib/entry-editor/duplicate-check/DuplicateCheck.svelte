@@ -41,7 +41,6 @@
     classifyDuplicateCheckResults,
     getDuplicateCheckQueries,
     mergeSearchResults,
-    trapEnter,
     type DuplicateCheckMatch,
     type DuplicateCheckQueries,
   } from './duplicate-check';
@@ -234,7 +233,6 @@
         class={cn('rounded-md border', duplicateResultContainerClass(hasExactWordMatch))}>
         <Collapsible.Trigger
           class="w-full flex items-center gap-2 px-3 py-2 text-sm cursor-pointer"
-          onkeydown={trapEnter}
         >
           {#if hasExactWordMatch}
             <Icon icon="i-mdi-alert-circle-outline" class="size-5 shrink-0 text-amber-600 dark:text-amber-400" />
@@ -266,7 +264,6 @@
                     ? 'rounded-t'
                     : 'rounded'} hover:bg-accent px-2.5 py-2 text-start"
                   aria-expanded={isExpanded}
-                  onkeydown={trapEnter}
                   onclick={() => (expandedEntryId = isExpanded ? undefined : match.entry.id)}
                 >
                   <div class="grow min-w-0 text-sm {isExpanded ? '' : 'line-clamp-1'}">
@@ -292,7 +289,6 @@
                       variant="default"
                       size="sm"
                       icon="i-mdi-book-arrow-right-outline"
-                      onkeydown={trapEnter}
                       onclick={() => openEntry(match.entry)}
                     >
                       {pt($t`Go to entry`, $t`Go to word`, viewService.currentView)}
@@ -310,7 +306,6 @@
                 variant="ghost"
                 size="sm"
                 class="w-full text-muted-foreground"
-                onkeydown={trapEnter}
                 onclick={() => (displayCount = matches.length)}
               >
                 {$plural(matches.length - displayedMatches.length, {one: 'Show # more...', other: 'Show # more...'})}

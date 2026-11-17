@@ -241,16 +241,17 @@ public static class Json
         [property: Column("path")] string Path);
 
     /// <summary>
-    /// Web-cased <see cref="JsonSerializerOptions"/> for talking to the sync server (camelCase wire format),
-    /// with the external MiniLcm modifiers layered on. Harmony's <see cref="HarmonyConfig.ConfigureExternalJsonOptions"/>
-    /// then adds its <see cref="SIL.Harmony.Changes.IChange"/>/<c>IObject</c> polymorphism (type-info modifier plus the
-    /// change converter) so that <c>ChangeEntity&lt;IChange&gt;</c> fields in sync payloads round-trip.
+    /// Web-cased <see cref="JsonSerializerOptions"/> for talking to the sync server (camelCase wire format).
+    /// Harmony's <see cref="HarmonyConfig.ConfigureExternalJsonOptions"/> adds its <see cref="SIL.Harmony.Changes.IChange"/>/<c>IObject</c>
+    /// polymorphism (type-info modifier plus the change converter) so that <c>ChangeEntity&lt;IChange&gt;</c> fields in sync payloads round-trip.
+    /// No MiniLcm modifiers: the server stores these changes as-is and other clients replay them, so a hidden
+    /// [MiniLcmInternal] member embedded in a change (e.g. <see cref="Picture.Order"/> in <see cref="Changes.CreateSenseChange"/>) would be lost.
     /// </summary>
-    public static JsonSerializerOptions MakeLcmCrdtExternalJsonOptions(this HarmonyConfig config)
+    public static JsonSerializerOptions MakeLcmCrdtSyncJsonOptions(this HarmonyConfig config)
     {
         var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
         {
-            TypeInfoResolver = new DefaultJsonTypeInfoResolver().AddExternalMiniLcmModifiers()
+            TypeInfoResolver = new DefaultJsonTypeInfoResolver()
         };
         config.ConfigureExternalJsonOptions(options);
         return options;

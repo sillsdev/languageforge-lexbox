@@ -174,7 +174,7 @@ public class LcmMediaService(
                 var filename = response.Content.Headers.ContentDisposition?.FileName?.Replace("\"", "");
                 filename = Path.GetFileName(filename);
                 var localPath = Path.Combine(projectResourceCachePath, filename ?? remoteId);
-                localPath = EnsureUnique(localPath);
+                localPath = LocalMediaFiles.EnsureUnique(localPath);
                 await using var localFile = File.Create(localPath);
                 await stream.CopyToAsync(localFile);
                 return new DownloadResult(localPath);
@@ -220,13 +220,25 @@ public class LcmMediaService(
     {
         var projectResourceCachePath = ProjectResourceCachePath;
         Directory.CreateDirectory(projectResourceCachePath);
-        var localPath = Path.Combine(projectResourceCachePath, Path.GetFileName(metadata.Filename));
-        if (File.Exists(localPath)) return ((await resourceService.AllResources()).First(r => r.LocalPath == localPath), newResource: false);
-        //must scope just to the copy, otherwise we can't upload the file to the server
-        await using (var localFile = File.Create(localPath))
+        var targetPath = Path.Combine(projectResourceCachePath, Path.GetFileName(metadata.Filename));
+        // A file with the same name is only the same file if the bytes match; otherwise (two phones'
+        // IMG_0001.jpg) save this one under a free name. metadata.Filename keeps the user's name.
+        var tempPath = await LocalMediaFiles.CopyToTempFile(stream);
+        string localPath;
+        try
         {
-            await stream.CopyToAsync(localFile);
-            if (metadata.SizeInBytes is null && localFile.SafeLength() is { } length) metadata = metadata with { SizeInBytes = length };
+            var copies = LocalMediaFiles.ExistingCopies(tempPath, targetPath).ToArray();
+            if (copies.Length > 0)
+            {
+                // no row means the file was left behind (failed save, or a stale LocalPath, see #2693): don't reuse it
+                var existing = (await resourceService.AllResources()).FirstOrDefault(r => copies.Contains(r.LocalPath));
+                if (existing is not null) return (existing, newResource: false);
+            }
+            localPath = LocalMediaFiles.MoveToFreePath(tempPath, targetPath);
+        }
+        finally
+        {
+            LocalMediaFiles.DeleteIfExists(tempPath);
         }
 
         if (metadata.SizeInBytes is null) metadata = metadata with { SizeInBytes = new FileInfo(localPath).Length };
@@ -251,20 +263,83 @@ public class LcmMediaService(
         }
     }
 
-    private string EnsureUnique(string filePath)
+    /// <summary>
+    /// What local sync needs to know about this project's media, from one snapshot.
+    /// </summary>
+    /// <returns>Cached: resources whose files this device has, to offer to another device.
+    /// NotCached: resources the project uses whose files this device doesn't have yet.</returns>
+    public async Task<(HarmonyResource<LcmFileMetadata>[] Cached, Guid[] NotCached)> MediaForLocalSync()
     {
-        if (!File.Exists(filePath)) return filePath;
-        var directory = Path.GetDirectoryName(filePath);
-        ArgumentException.ThrowIfNullOrEmpty(directory);
-        var filename = Path.GetFileNameWithoutExtension(filePath);
-        var extension = Path.GetExtension(filePath);
-        var counter = 1;
-        while (File.Exists(filePath))
+        // AllResources is a full outer join of live resources and local copies: a local copy with no resource is a
+        // deleted picture's leftover file (the deletion came in by sync), which mustn't travel to other devices.
+        var all = await resourceService.AllResources();
+        var pendingUpload = (await resourceService.ListResourcesPendingUpload()).Select(r => r.Id).ToHashSet();
+        HarmonyResource<LcmFileMetadata>[] cached = [.. all.Where(r => r.Local && (r.Remote || pendingUpload.Contains(r.Id)) && File.Exists(r.LocalPath))];
+        Guid[] notCached = [.. all.Where(r => !r.Local).Select(r => r.Id)];
+        return (cached, notCached);
+    }
+
+    /// <summary>
+    /// Stores a file another device sent for a resource this project already knows, and records the local copy.
+    /// This makes no commit and leaves the resource's upload state alone: a picture still waiting to upload to
+    /// Lexbox stays pending, so it uploads from whichever device reaches Lexbox first.
+    /// </summary>
+    /// <returns>false if the resource is unknown or already cached here</returns>
+    public async Task<bool> AddLocalCopy(Guid resourceId, Stream content, string fileName)
+    {
+        var resource = await resourceService.GetResource(resourceId);
+        if (resource is null || resource.Local) return false;
+
+        var projectResourceCachePath = ProjectResourceCachePath;
+        Directory.CreateDirectory(projectResourceCachePath);
+        var name = MediaFileNames.MakeSafe(Path.GetFileName(resource.Metadata?.Filename ?? fileName));
+        var tempPath = Path.Combine(projectResourceCachePath, MediaFileNames.PartialPrefix + Guid.NewGuid().ToString("N"));
+        string? localPath = null;
+        try
         {
-            filePath = Path.Combine(directory, $"{filename}-{counter}{extension}");
-            counter++;
+            await using (var localFile = File.Create(tempPath))
+            {
+                await content.CopyToAsync(localFile);
+            }
+            localPath = MoveToUniqueName(tempPath, Path.Combine(projectResourceCachePath, name));
+            var recorded = await resourceService.AddLocalCopy(resourceId, localPath);
+            if (Path.GetFullPath(recorded.LocalPath) == Path.GetFullPath(localPath)) return true;
+            // another copy (e.g. a download) was recorded first and still has its file
+            logger.LogInformation("Resource {ResourceId} was cached concurrently, discarding this copy", resourceId);
+            DeleteIfExists(localPath);
+            return false;
         }
-        return filePath;
+        catch
+        {
+            DeleteIfExists(localPath);
+            throw;
+        }
+        finally
+        {
+            DeleteIfExists(tempPath);
+        }
+    }
+
+    // a download can take the same name between choosing it and moving there, so retry on a clash
+    private string MoveToUniqueName(string fromPath, string preferredPath)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            var localPath = LocalMediaFiles.EnsureUnique(preferredPath);
+            try
+            {
+                File.Move(fromPath, localPath);
+                return localPath;
+            }
+            catch (IOException) when (attempt < 5 && File.Exists(localPath))
+            {
+            }
+        }
+    }
+
+    private static void DeleteIfExists(string? path)
+    {
+        if (path is not null && File.Exists(path)) File.Delete(path);
     }
 
     public async Task<bool> UploadPendingResources()

@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using LexCore.Sync;
 using Testing.Fixtures;
@@ -20,6 +21,16 @@ public static class FwHeadlessTestHelpers
     public static async Task TriggerSync(HttpClient httpClient, Guid projectId)
     {
         var result = await httpClient.PostAsync($"api/fw-lite/sync/trigger/{projectId}", null);
+        result.ShouldBeSuccessful();
+    }
+
+    /// <summary>
+    /// Like <see cref="TriggerSync"/>, but also accepts the 429 FwHeadless returns when a sync is already running.
+    /// </summary>
+    public static async Task EnsureSyncRunningOrQueued(HttpClient httpClient, Guid projectId)
+    {
+        var result = await httpClient.PostAsync($"api/fw-lite/sync/trigger/{projectId}", null);
+        if (result.StatusCode == HttpStatusCode.TooManyRequests) return;
         result.ShouldBeSuccessful();
     }
 

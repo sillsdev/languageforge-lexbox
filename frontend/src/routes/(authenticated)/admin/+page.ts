@@ -19,7 +19,7 @@ import type {
   UserFilterInput,
 } from '$lib/gql/types';
 import type {LoadAdminDashboardProjectsQuery, LoadAdminDashboardUsersQuery} from '$lib/gql/types';
-import type {ProjectFilters} from '$lib/components/Projects';
+import type {ProjectFilters, ProjectSortColumn, SortDir} from '$lib/components/Projects';
 import {DEFAULT_PAGE_SIZE} from '$lib/components/Paging';
 import type {AdminTabId} from './AdminTabs.svelte';
 import {derived, readable} from 'svelte/store';
@@ -32,6 +32,8 @@ export type AdminSearchParams = ProjectFilters & {
   tab: AdminTabId
   usersICreated: boolean
   userType: UserType
+  projectSort: ProjectSortColumn
+  projectSortDir: SortDir
 };
 
 export type Project = NonNullable<LoadAdminDashboardProjectsQuery['projects']>[number];

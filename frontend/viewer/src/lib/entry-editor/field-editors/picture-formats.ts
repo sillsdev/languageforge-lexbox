@@ -16,8 +16,9 @@ export function isSupportedImageType(file: File): boolean {
   return /^image\/(jpeg|png|tiff|bmp)$/.test(file.type) || /\.(jpe?g|png|bmp|tiff?)$/i.test(file.name);
 }
 
-// iOS WebKit names every photo taken from the file picker's "Take Photo" option `image.jpg`, and
-// saved files are deduplicated by filename, so a second photo would silently reuse the first one.
+// iOS WebKit names every photo taken from the file picker's "Take Photo" option `image.jpg`. That
+// name tells nobody anything, and every such photo would otherwise end up as image-1.jpg,
+// image-2.jpg… in LinkedFiles, so give it a random name instead.
 export function uniqueUploadFilename(filename: string): string {
   const match = /^image(\.jpe?g)$/i.exec(filename);
   return match ? `${randomId()}${match[1]}` : filename;

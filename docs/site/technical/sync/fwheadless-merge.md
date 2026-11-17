@@ -15,8 +15,10 @@ There is no scheduler, no cron and no Mercurial hook. A merge happens because so
 
 Both go `POST /api/fw-lite/sync/trigger/{projectId}` (Lexbox) → `POST /api/merge/execute` (FwHeadless), which
 only *queues* the job. [One global worker](https://github.com/sillsdev/languageforge-lexbox/blob/develop/backend/FwHeadless/Services/SyncHostedService.cs) processes projects one
-at a time, so a queued project waits. Queuing is deduplicated: triggering a project that's already queued or running
-is a no-op.
+at a time, so a queued project waits. Queuing is deduplicated: triggering a project that's already queued is a no-op,
+because the queued job hasn't read the repo yet and will pick up the caller's changes. Triggering a project whose job is
+already *running* is refused with `429`, since that job may have read the repo before the caller's changes arrived; the
+caller sees "A sync is already running for this project" and tries again once it finishes.
 
 The client then polls for the result, but the job doesn't depend on it: closing FieldWorks Lite or the web page
 doesn't stop a queued job. FieldWorks Lite stops waiting after **15 minutes**; the Lexbox web button keeps waiting. The **first-ever**

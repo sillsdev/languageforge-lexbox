@@ -2,14 +2,22 @@
   import {t} from 'svelte-i18n-lingui';
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
-  import Input from '$lib/components/ui/input/input.svelte';
+  import Input, {inputVariants} from '$lib/components/ui/input/input.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
+  import {Icon} from '$lib/components/ui/icon';
+  import {cn} from '$lib/utils';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
+  import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
+  import NameDialog from '$lib/author/NameDialog.svelte';
+  import {useLocalAuthorName} from '$lib/author/local-author-name.svelte';
 
   let {refreshProjects}: {refreshProjects: () => Promise<void>} = $props();
 
   const projectsService = useProjectsService();
+  const platformFeatures = usePlatformFeaturesService();
+  const localAuthorName = useLocalAuthorName();
+  let nameDialog = $state<NameDialog>();
 
   let open = $state(false);
   let loading = $state(false);
@@ -20,6 +28,8 @@
   let name = $state('');
   let vernacularWs = $state('');
   let analysisWs = $state('');
+  let askForAuthorName = $state(false);
+  let authorName = $state('');
 
   function slugify(value: string): string {
     return value.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+/, '');
@@ -29,9 +39,10 @@
 
   let nameError = $derived(name.trim() ? undefined : $t`Name is required`);
   let vernacularWsError = $derived(vernacularWs.trim() ? undefined : $t`Vernacular writing system is required`);
-  let valid = $derived(!nameError && !vernacularWsError);
+  let authorNameError = $derived(!askForAuthorName || authorName.trim() ? undefined : $t`Enter your name`);
+  let valid = $derived(!nameError && !vernacularWsError && !authorNameError);
   // Surfaced only after a submit attempt, then they clear live as each field is fixed.
-  let fieldErrors = $derived(submitted ? [nameError, vernacularWsError].filter(e => e !== undefined) : []);
+  let fieldErrors = $derived(submitted ? [nameError, vernacularWsError, authorNameError].filter(e => e !== undefined) : []);
 
   export function openDialog() {
     error = undefined;
@@ -40,6 +51,9 @@
     vernacularWs = '';
     analysisWs = '';
     loading = false;
+    askForAuthorName = !localAuthorName.current;
+    authorName = '';
+    if (askForAuthorName) void platformFeatures.service.suggestedAuthorName().then(suggested => { if (!authorName && suggested) authorName = suggested; });
     open = true;
   }
 
@@ -51,6 +65,7 @@
     loading = true;
     error = undefined;
     try {
+      if (askForAuthorName) await localAuthorName.set(authorName.trim());
       await projectsService.createProject(name.trim(), code.trim(), vernacularWs.trim(), analysisWs.trim() || undefined);
       await refreshProjects();
       open = false;
@@ -79,23 +94,37 @@
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{$t`New Project`}</Dialog.DialogTitle>
     </Dialog.DialogHeader>
-    <div class="gap-2 grid grid-cols-[auto_1fr]">
-      <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
+    <div class="gap-x-4 gap-y-2 grid grid-cols-[auto_1fr] items-center">
+      <Label class="contents">
         {$t`Name`}
         <Input bind:value={name} autocapitalize="on" autofocus />
       </Label>
-      <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
+      <Label class="contents">
         {$t`Code`}
-        <Input readonly value={code} />
+        <Input readonly value={code} class="bg-muted dark:bg-muted" />
       </Label>
-      <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
+      <Label class="contents">
         {$t`Vernacular writing system code`}
         <Input bind:value={vernacularWs} placeholder={$t`e.g. th, sw`} />
       </Label>
-      <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
+      <Label class="contents">
         {$t`Analysis writing system code`}
         <Input bind:value={analysisWs} placeholder="en" />
       </Label>
+      {#if askForAuthorName}
+        <Label class="contents">
+          {$t`Your name`}
+          <Input bind:value={authorName} maxlength={60} autocomplete="name" autocapitalize="words" />
+        </Label>
+      {:else}
+        <span class="text-sm leading-none font-medium">{$t`Your name`}</span>
+        <button type="button" class={cn(inputVariants({variant: 'shell'}), 'px-3 bg-muted dark:bg-muted hover:bg-input dark:hover:bg-muted/50 cursor-pointer focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]')}
+          onclick={() => void nameDialog?.ask()}>
+          <span class="truncate">{localAuthorName.current}</span>
+          <span class="flex items-center gap-1.5 shrink-0 font-medium"><Icon icon="i-mdi-pencil" class="size-4" />{$t`Change`}</span>
+        </button>
+      {/if}
+      <p class="col-start-2 text-sm text-muted-foreground">{$t`Shown next to your changes in all projects you don't sync with Lexbox.`}</p>
       <div class="col-span-2 text-end space-y-2">
         {#each fieldErrors as fieldError (fieldError)}
           <p class="text-destructive">{fieldError}</p>
@@ -111,3 +140,4 @@
     </Dialog.DialogFooter>
   </Dialog.DialogContent>
 </Dialog.Root>
+<NameDialog bind:this={nameDialog} />

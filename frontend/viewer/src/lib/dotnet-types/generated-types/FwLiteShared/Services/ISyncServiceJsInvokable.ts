@@ -8,6 +8,7 @@ import type {ISyncJobResult} from '../../LexCore/Sync/ISyncJobResult';
 import type {IPendingCommits} from '../Sync/IPendingCommits';
 import type {ISyncResults} from '../../SIL/Harmony/ISyncResults';
 import type {ILexboxServer} from '../Auth/ILexboxServer';
+import type {IFolderSyncSummary} from '../LocalSync/IFolderSyncSummary';
 
 export interface ISyncServiceJsInvokable
 {
@@ -17,5 +18,7 @@ export interface ISyncServiceJsInvokable
 	getLatestSyncedCommitDate() : Promise<string | undefined>;
 	executeSync(skipNotifications: boolean) : Promise<ISyncResults>;
 	getCurrentServer() : Promise<ILexboxServer | undefined>;
+	syncWithFolder(path: string) : Promise<IFolderSyncSummary>;
+	getRememberedSyncFolder() : Promise<string | undefined>;
 }
 /* eslint-enable */

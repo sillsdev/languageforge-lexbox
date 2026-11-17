@@ -64,7 +64,7 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
         return (fileListing, result);
     }
 
-    public async Task<(Guid, HttpResponseMessage)> PostFile(string localPath, string? overrideFilename = null, string? overrideSubfolder = null, string? contentType = null, bool deleteContentLengthHeader = false, FileMetadata? metadata = null, string loginAs = "admin", IDictionary<string, string>? extraFields = null, Guid? fileId = null)
+    public async Task<(Guid, HttpResponseMessage)> PostFile(string localPath, string? overrideFilename = null, string? contentType = null, bool deleteContentLengthHeader = false, FileMetadata? metadata = null, string loginAs = "admin", IDictionary<string, string>? extraFields = null, Guid? fileId = null)
     {
         await LoginIfNeeded(loginAs);
         var filename = Path.GetFileName(localPath);
@@ -79,10 +79,6 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             if (overrideFilename is not null)
             {
                 formData.Add(new StringContent(overrideFilename), name: "filename");
-            }
-            if (overrideSubfolder is not null)
-            {
-                formData.Add(new StringContent(overrideSubfolder), name: "linkedFilesSubfolderOverride");
             }
             if (metadata is not null)
             {
@@ -109,12 +105,13 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             request.Content = formData;
             if (deleteContentLengthHeader) request.Content.Headers.ContentLength = null;
             var result = await HttpClient.SendAsync(request);
+            if (!result.IsSuccessStatusCode) return (Guid.Empty, result);
             var obj = await result.Content.ReadFromJsonAsync<PostFileResult>();
             return (obj?.guid ?? Guid.Empty, result);
         }
     }
 
-    public async Task<HttpResponseMessage> PutFile(string localPath, Guid fileId, string? overrideFilename = null, string? overrideSubfolder = null, string? contentType = null, bool deleteContentLengthHeader = false, FileMetadata? metadata = null, string loginAs = "admin")
+    public async Task<HttpResponseMessage> PutFile(string localPath, Guid fileId, string? overrideFilename = null, string? contentType = null, bool deleteContentLengthHeader = false, FileMetadata? metadata = null, string loginAs = "admin")
     {
         await LoginIfNeeded(loginAs);
         var filename = Path.GetFileName(localPath);
@@ -123,10 +120,6 @@ public class MediaFileTestFixture : ApiTestBase, IAsyncLifetime
             if (overrideFilename is not null)
             {
                 formData.Add(new StringContent(overrideFilename), name: "filename");
-            }
-            if (overrideSubfolder is not null)
-            {
-                formData.Add(new StringContent(overrideSubfolder), name: "linkedFilesSubfolderOverride");
             }
             if (metadata is not null)
             {

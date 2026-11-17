@@ -21,7 +21,7 @@ Rules a linter can't check, distilled from review corrections. Mechanical style 
 
 ## Serialization
 
-- `IChange` JSON options come from `MakeLcmCrdtExternalJsonOptions()`, never a hand-built `JsonSerializerOptions`.
+- `IChange` JSON options come from `MakeLcmCrdtSyncJsonOptions()`, never a hand-built `JsonSerializerOptions`.
 
 ## UI
 
@@ -31,6 +31,7 @@ Rules a linter can't check, distilled from review corrections. Mechanical style 
 ## Tests
 
 - Write the failing regression test before the fix.
+- A value must not cross between a test and its helper unseen: if one side writes it and the other checks it, the test passes it in or names a shared constant. A helper that writes and checks its own value is fine.
 - Run the tests that cover the change, filtered; whole suites are CI's job.
 
 ## Candidate lints (follow-up, not yet rules)
