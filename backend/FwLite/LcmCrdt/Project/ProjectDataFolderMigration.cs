@@ -181,7 +181,8 @@ public static class ProjectDataFolderMigration
             {
                 return new FileStream(lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose);
             }
-            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            // other IO errors (disk full, bad path) won't clear up by waiting; they fall back to the legacy root
+            catch (Exception e) when (e is UnauthorizedAccessException || IsSharingViolation(e))
             {
                 // access is also denied while the previous holder's lock file is pending deletion (e.g. an antivirus
                 // handle is still open); only a lasting denial means we can't lock at all
@@ -197,6 +198,10 @@ public static class ProjectDataFolderMigration
             }
         }
     }
+
+    // ERROR_SHARING_VIOLATION or ERROR_LOCK_VIOLATION; elsewhere .NET reports a held lock as a bare IOException
+    private static bool IsSharingViolation(Exception e) =>
+        e is IOException && (!OperatingSystem.IsWindows() || (e.HResult & 0xFFFF) is 32 or 33);
 
     private static void RetireLegacyDatabases(string legacyRoot, string[] projects, ILogger logger)
     {
