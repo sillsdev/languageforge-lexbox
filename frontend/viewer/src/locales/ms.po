@@ -1403,6 +1403,9 @@ msgid "Downloading {0}..."
 msgstr "Memuat turun {0}..."
 
 #: src/lib/notifications/NotificationOutlet.svelte
+msgid "Downloading update in the background. We'll let you know when it's ready."
+msgstr ""
+
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Downloading update..."
 msgstr "Muat turun kemas kini..."

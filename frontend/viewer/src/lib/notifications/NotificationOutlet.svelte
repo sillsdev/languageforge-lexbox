@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {AppNotification, type LoadingNotification} from './notifications';
+  import {AppNotification} from './notifications';
   import {useEventBus} from '$lib/services/event-bus';
   import type {IAppUpdateEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IAppUpdateEvent';
   import type {IUserNotificationEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IUserNotificationEvent';
@@ -29,20 +29,17 @@
 
   const eventBus = useEventBus();
 
-  // Shown while an accepted update downloads in the background (Android Play in-app updates);
-  // whatever result comes next replaces it
-  let downloadingNotification: LoadingNotification | undefined;
+  // Only a background download we announced needs a failure toast; the update dialog reports its own
+  let backgroundDownloadStarted = false;
 
   eventBus.onEventType<IAppUpdateEvent>(FwEventType.AppUpdate, event => {
     if (event.result == UpdateResult.Started) {
-      downloadingNotification ??= AppNotification.loading($t`Downloading update...`);
-      return;
-    }
-    const wasDownloading = !!downloadingNotification;
-    downloadingNotification?.dismiss();
-    downloadingNotification = undefined;
-
-    if (event.result == UpdateResult.Failed && wasDownloading) {
+      backgroundDownloadStarted = true;
+      AppNotification.display($t`Downloading update in the background. We'll let you know when it's ready.`, {
+        type: 'info',
+        timeout: 'long',
+      });
+    } else if (event.result == UpdateResult.Failed && backgroundDownloadStarted) {
       AppNotification.display($t`Update failed to install.`, 'error');
     } else if (event.result == UpdateResult.ManualUpdateRequired) {
       AppNotification.displayAction($t`A new version of FieldWorks Lite is available.`, {
