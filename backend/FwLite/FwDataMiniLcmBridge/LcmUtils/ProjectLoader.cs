@@ -101,7 +101,8 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         // empty list), CreateNewLangProj names the empty list in the default analysis WS, which it looks up
         // with GetWsFromStr(IcuLocale). GetWsFromStr expects a language tag, so this only works when the
         // two match: "pt-BR" is "pt_BR" in ICU, the lookup returns 0, and creation throws with the project
-        // already on disk. Remove this workaround once liblcm passes the tag. Until then hand liblcm "en" as the default
+        // already on disk. Remove this workaround once https://github.com/sillsdev/liblcm/issues/416 is fixed and released.
+        // Until then hand liblcm "en" as the default
         // and pass every requested analysis WS as additional; SetRequestedWritingSystems fixes the default.
         var substituteDefaultAnalysis = !IcuLocaleMatchesTag(analysisDefinitions[0]);
         var defaultAnalysis = substituteDefaultAnalysis ? CreateWritingSystemDefinition("en") : analysisDefinitions[0];
