@@ -1039,7 +1039,9 @@ msgstr ""
 msgid "Color"
 msgstr "Color"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Comment"
 msgstr "Comentario"
 
@@ -1153,6 +1155,7 @@ msgstr ""
 msgid "Continue"
 msgstr ""
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
 msgstr "Conversación"
@@ -3872,6 +3875,11 @@ msgstr ""
 msgid "Resolve"
 msgstr "Resolver"
 
+#. Status of a comment conversation in the activity view: someone marked it as done.
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+msgid "Resolved"
+msgstr ""
+
 #: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Restart"
@@ -4349,6 +4357,11 @@ msgstr ""
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Empieza por"
+
+#. Field label in the activity view for whether a comment conversation is resolved.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Status"
+msgstr ""
 
 #. Title of a loading notification shown when opening a project takes a while.
 #: src/DotnetProjectView.svelte
@@ -4956,6 +4969,11 @@ msgstr ""
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Unread"
 msgstr "No leídos"
+
+#. Status of a comment conversation in the activity view: still open, not marked as done.
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+msgid "Unresolved"
+msgstr ""
 
 #: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Unsaved changes"

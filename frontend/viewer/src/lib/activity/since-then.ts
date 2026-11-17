@@ -1,7 +1,7 @@
 import type {IEntry, IObjectWithId} from '$lib/dotnet-types';
 import {changedFieldIds, valueChanged} from '$lib/entry-editor/diff-view/changed-fields';
 import {entryCompareAs, exampleCompareAs, senseCompareAs} from '$lib/entry-editor/diff-view/compare-as';
-import {isObjectType, objectDiffRows} from '$lib/entry-editor/diff-view/diff-fields';
+import {diffRowsFor} from '$lib/entry-editor/diff-view/diff-fields';
 import {changeKind} from './change-header';
 import type {View} from '$lib/views/view-data';
 
@@ -62,9 +62,10 @@ function hasVisibleChange(
     case 'ExampleSentence':
       return changedFieldIds(view.exampleFields, before as never, after as never, exampleCompareAs).size > 0;
     default: {
-      if (!isObjectType(entityType)) return false;
+      const rows = diffRowsFor(entityType);
+      if (!rows) return false;
       const b = before as unknown as Record<string, unknown>, a = after as unknown as Record<string, unknown>;
-      return Object.entries(objectDiffRows[entityType]).some(([field, row]) => !!row && valueChanged(b[field], a[field]));
+      return Object.entries(rows).some(([field, row]) => !!row && valueChanged(b[field], a[field]));
     }
   }
 }

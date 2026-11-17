@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as Editor from '$lib/components/editor';
-  import {WritingSystemType, type IMultiString, type IRichMultiString, type IViewField, type IViewWritingSystem} from '$lib/dotnet-types';
+  import {ThreadStatus, WritingSystemType, type IMultiString, type IRichMultiString, type IViewField, type IViewWritingSystem} from '$lib/dotnet-types';
   import {useWritingSystemService} from '$project/data';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {FW_CLASSIC_VIEW, FW_LITE_VIEW} from '$lib/views/view-data';
@@ -57,6 +57,8 @@
         return value ? $t`Yes` : $t`No`;
       case 'wsType':
         return value === WritingSystemType.Analysis || value === 'Analysis' ? $t`Analysis` : $t`Vernacular`;
+      case 'threadStatus':
+        return value === ThreadStatus.Closed ? $t`Resolved` : $t`Unresolved`;
       case 'viewBase':
         return value === FW_CLASSIC_VIEW.base ? FW_CLASSIC_VIEW.name : value === FW_LITE_VIEW.base ? FW_LITE_VIEW.name : String(value);
       default:
