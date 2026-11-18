@@ -4,6 +4,8 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <RootNamespace>Testing</RootNamespace>
+    <!-- xunit.core's props mark any project referencing it as a test project, so dotnet test would try to run this one -->
+    <IsTestProject>false</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
