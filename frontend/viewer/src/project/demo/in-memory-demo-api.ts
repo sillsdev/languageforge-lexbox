@@ -113,7 +113,7 @@ export const mockUpdateService: IUpdateService = {
 };
 
 const mockJsEventListener: IJsEventListener = {
-  nextEventAsync: () => Promise.resolve(undefined!),
+  nextEventsAsync: () => Promise.resolve([]),
   lastEvent: () => Promise.resolve(undefined)
 };
 
