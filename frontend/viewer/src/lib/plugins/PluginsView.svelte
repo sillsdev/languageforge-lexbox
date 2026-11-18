@@ -6,6 +6,7 @@
   import {Icon} from '$lib/components/ui/icon';
   import * as Collapsible from '$lib/components/ui/collapsible';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+  import {SidebarTrigger} from '$lib/components/ui/sidebar';
   import {t} from 'svelte-i18n-lingui';
   import {navigate, useRouter} from 'svelte-routing';
   import {type IPlugin} from '$lib/dotnet-types';
@@ -164,14 +165,17 @@
 <div class="h-full overflow-y-auto">
   <div class="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <h1 class="text-2xl font-semibold flex items-center gap-2">
-          <Icon icon="i-mdi-puzzle" class="text-primary" />
-          {$t`Plugins`}
-        </h1>
-        <p class="text-sm text-muted-foreground">
-          {$t`Small custom apps that work with this project's dictionary — shared with the whole team.`}
-        </p>
+      <div class="flex items-start gap-2">
+        <SidebarTrigger icon="i-mdi-menu" class="aspect-square shrink-0 p-0" />
+        <div>
+          <h1 class="text-2xl font-semibold flex items-center gap-2">
+            <Icon icon="i-mdi-puzzle" class="text-primary" />
+            {$t`Plugins`}
+          </h1>
+          <p class="text-sm text-muted-foreground">
+            {$t`Small custom apps that work with this project's dictionary — shared with the whole team.`}
+          </p>
+        </div>
       </div>
       {#if canManage}
         <Button icon="i-mdi-plus" onclick={openCreate}>

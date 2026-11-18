@@ -2,6 +2,7 @@
   import {Badge} from '$lib/components/ui/badge';
   import {Button} from '$lib/components/ui/button';
   import {Icon} from '$lib/components/ui/icon';
+  import {SidebarTrigger} from '$lib/components/ui/sidebar';
   import {t} from 'svelte-i18n-lingui';
   import {untrack} from 'svelte';
   import {navigate, useLocation, useRouter} from 'svelte-routing';
@@ -134,10 +135,13 @@
 
 <div class="h-full flex flex-col bg-background" bind:this={containerElement}>
   {#if !isFullscreen}
-    <div class="flex items-center gap-2 border-b px-2 py-1.5">
-      <Button variant="ghost" size="icon" icon="i-mdi-arrow-left" title={$t`Back to plugins`} onclick={goBack} />
-      <Icon icon="i-mdi-puzzle" class="text-primary" />
-      <span class="font-medium truncate">{plugin?.name ?? $t`Plugin`}</span>
+    <div class="flex items-center gap-2 border-b px-4 py-1.5">
+      <nav aria-label={$t`Breadcrumb`} class="flex min-w-0 items-center gap-2">
+        <SidebarTrigger icon="i-mdi-menu" class="aspect-square shrink-0 p-0" />
+        <Button variant="link" class="px-0" onclick={goBack}>{$t`Plugins`}</Button>
+        <span class="text-muted-foreground" aria-hidden="true">/</span>
+        <h1 class="truncate font-semibold">{plugin?.name ?? $t`Plugin`}</h1>
+      </nav>
       {#if manifest?.permissions.includes('internet')}
         <Badge variant="destructive">
           <Icon icon="i-mdi-web" />
