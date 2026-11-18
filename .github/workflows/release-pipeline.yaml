@@ -117,7 +117,8 @@ jobs:
           - { hg-version: '3', runs-on: ubuntu-24.04 }
           - { hg-version: '6', runs-on: ubuntu-24.04 }
           - { hg-version: '7', runs-on: ubuntu-latest }
-          - { hg-version: '3', runs-on: windows-latest }
+          # No Windows hg 3: on .NET 11 its Chorus 5.2 reads hg's exit code before hg exits
+          # ("Process must exit before requested information can be determined"). Real hg 3 users run it on .NET Framework.
           - { hg-version: '6', runs-on: windows-latest }
           - { hg-version: '7', runs-on: windows-latest }
     permissions:

@@ -36,7 +36,12 @@
         <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" VersionOverride="4.1.0" />
         <PackageReference Include="SIL.Chorus.LibChorus" VersionOverride="5.2.0-beta0005" />
         <PackageReference Include="SIL.Chorus.Mercurial" VersionOverride="3.0.3.11" />
+        <!-- Chorus 5.2's resumable transport stores its state with BinaryFormatter, which .NET 9 removed -->
+        <PackageReference Include="System.Runtime.Serialization.Formatters" />
       </ItemGroup>
+      <PropertyGroup>
+        <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+      </PropertyGroup>
     </When>
   </Choose>
   <Target Name="ValidateMercurialVersion" BeforeTargets="CollectPackageReferences;Build">
