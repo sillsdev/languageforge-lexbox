@@ -17,26 +17,37 @@ public class LexboxHttpClientTests
         return builder.Services.BuildServiceProvider();
     }
 
-    private static int CountResilienceHandlers(HttpMessageHandler handler)
+    private static List<Type> HandlerChain(ServiceProvider services, string clientName)
     {
-        var count = 0;
+        var handler = services.GetRequiredService<IHttpMessageHandlerFactory>().CreateHandler(clientName);
+        var chain = new List<Type>();
         while (handler is DelegatingHandler delegating)
         {
-            if (delegating is ResilienceHandler) count++;
+            if (delegating is ResilienceHandler or HttpClientAuthHandler) chain.Add(delegating.GetType());
             handler = delegating.InnerHandler!;
         }
-        return count;
+        return chain;
+    }
+
+    private static HttpStandardResilienceOptions StandardOptions(ServiceProvider services, string clientName)
+    {
+        return services.GetRequiredService<IOptionsMonitor<HttpStandardResilienceOptions>>().Get($"{clientName}-standard");
+    }
+
+    [Theory]
+    [InlineData(FwHeadlessKernel.LexboxHttpClientName)]
+    [InlineData(FwHeadlessKernel.LexboxSyncHttpClientName)]
+    public void EachRetryRunsAuth(string clientName)
+    {
+        using var services = BuildServices();
+        HandlerChain(services, clientName).Should().Equal(typeof(ResilienceHandler), typeof(HttpClientAuthHandler));
     }
 
     [Fact]
-    public void SyncClient_ReplacesTheDefaultResilienceHandler()
+    public void SyncClient_UsesLongerTimeouts()
     {
         using var services = BuildServices();
-        var handler = services.GetRequiredService<IHttpMessageHandlerFactory>().CreateHandler(FwHeadlessKernel.LexboxSyncHttpClientName);
-
-        CountResilienceHandlers(handler).Should().Be(1);
-        var options = services.GetRequiredService<IOptionsMonitor<HttpStandardResilienceOptions>>()
-            .Get($"{FwHeadlessKernel.LexboxSyncHttpClientName}-standard");
+        var options = StandardOptions(services, FwHeadlessKernel.LexboxSyncHttpClientName);
         options.AttemptTimeout.Timeout.Should().Be(TimeSpan.FromSeconds(30));
         options.TotalRequestTimeout.Timeout.Should().Be(TimeSpan.FromSeconds(90));
     }
@@ -45,8 +56,8 @@ public class LexboxHttpClientTests
     public void DefaultClient_KeepsTheStandardTimeouts()
     {
         using var services = BuildServices();
-        var options = services.GetRequiredService<IOptionsMonitor<HttpStandardResilienceOptions>>()
-            .Get($"{FwHeadlessKernel.LexboxHttpClientName}-standard");
+        var options = StandardOptions(services, FwHeadlessKernel.LexboxHttpClientName);
         options.AttemptTimeout.Timeout.Should().Be(TimeSpan.FromSeconds(10));
+        options.TotalRequestTimeout.Timeout.Should().Be(TimeSpan.FromSeconds(30));
     }
 }

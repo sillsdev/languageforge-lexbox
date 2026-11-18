@@ -52,11 +52,13 @@ public static class FwHeadlessKernel
         services.AddScoped<CrdtSyncService>();
         services.AddScoped<ProjectContextFromIdService>();
         services.AddTransient<HttpClientAuthHandler>();
-        services.AddLexboxHttpClient(LexboxHttpClientName);
-        // Lexbox stores a push in one transaction, so a project's whole unpushed history must fit in one attempt
+        services.AddLexboxHttpClient(LexboxHttpClientName)
+            .AddHttpMessageHandler<HttpClientAuthHandler>();
+        // Lexbox stores a push in one transaction, so a project's whole unpushed history must fit in one attempt.
+        // The resilience handler goes before auth, like the default one, so every retry re-runs auth.
+        var syncClient = services.AddLexboxHttpClient(LexboxSyncHttpClientName);
 #pragma warning disable EXTEXP0001
-        services.AddLexboxHttpClient(LexboxSyncHttpClientName)
-            .RemoveAllResilienceHandlers()
+        syncClient.RemoveAllResilienceHandlers()
 #pragma warning restore EXTEXP0001
             .AddStandardResilienceHandler(options =>
             {
@@ -65,6 +67,7 @@ public static class FwHeadlessKernel
                 // must be at least twice the attempt timeout
                 options.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(60);
             });
+        syncClient.AddHttpMessageHandler<HttpClientAuthHandler>();
         return services;
     }
 
@@ -74,6 +77,6 @@ public static class FwHeadlessKernel
             (provider, client) =>
             {
                 client.BaseAddress = new Uri(provider.GetRequiredService<IOptions<FwHeadlessConfig>>().Value.LexboxUrl);
-            }).AddHttpMessageHandler<HttpClientAuthHandler>();
+            });
     }
 }
