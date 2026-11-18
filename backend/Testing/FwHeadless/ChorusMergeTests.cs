@@ -8,8 +8,6 @@ namespace Testing.FwHeadless;
 
 /// <summary>
 /// Makes FwHeadless merge two hg heads with the real chorusmerge (FieldWorks plugin, as the FwHeadless user).
-/// Chorus only merges heads against a local commit, so the merge happens in the closing S/R,
-/// which runs only when the CRDT sync writes to FwData.
 /// </summary>
 [Trait("Category", "Integration")]
 [Collection("FwHeadless Sync")]
@@ -56,6 +54,8 @@ public class ChorusMergeTests : ApiTestBase, IAsyncLifetime
         Hg(cloneA, $"pull {RepoUrl}");
         HeadsOnBranch(cloneA).Should().HaveCount(2);
 
+        // Chorus only merges heads into a new local commit, so give the sync a change to write to FwData.
+        // The sync's closing S/R commits that write and merges it with the other head.
         await FwHeadlessTestHelpers.AddCreateEntryCommit(HttpClient, _projectId);
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
         var result = await FwHeadlessTestHelpers.AwaitSyncSuccess(HttpClient, _projectId);
@@ -63,7 +63,7 @@ public class ChorusMergeTests : ApiTestBase, IAsyncLifetime
 
         Hg(cloneA, $"pull {RepoUrl}");
         HeadsOnBranch(cloneA).Should().ContainSingle();
-        Hg(cloneA, $"log -r {FwBranch} --template \"{{p2rev}}\"").Should().NotBe("-1", "the branch head should be a merge commit");
+        ParentsOf(cloneA, FwBranch).Should().HaveCount(2, "the branch head should be a merge commit");
         var mergedPartsOfSpeech = Hg(cloneA, $"cat -r {FwBranch} {PartsOfSpeechFile}");
         mergedPartsOfSpeech.Should().Contain(">Added_A</AUni>").And.Contain(">Added_B</AUni>").And.NotContain("<<<<<<<");
     }
@@ -115,9 +115,13 @@ public class ChorusMergeTests : ApiTestBase, IAsyncLifetime
         File.WriteAllText(path, content.Replace(listEnd, item + listEnd));
     }
 
-    private static string[] HeadsOnBranch(string repoDir)
+    private static string[] HeadsOnBranch(string repoDir) => Commits(repoDir, $"heads {FwBranch}");
+
+    private static string[] ParentsOf(string repoDir, string rev) => Commits(repoDir, $"parents -r {rev}");
+
+    private static string[] Commits(string repoDir, string hgCommand)
     {
-        return Hg(repoDir, $"heads {FwBranch} --template \"{{node}}\\n\"")
+        return Hg(repoDir, $"{hgCommand} --template \"{{node}}\\n\"")
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     }
 
