@@ -45,6 +45,12 @@ public class RichMultiString(IDictionary<WritingSystemId, RichString> dictionary
 
     public void Add(WritingSystemId key, RichString value)
     {
+        // null when a blank string was deserialized as a RichString, see the indexer setter
+        if (value is null)
+        {
+            Remove(key);
+            return;
+        }
         value.EnsureWs(key);
         dictionary.Add(key, value);
     }
