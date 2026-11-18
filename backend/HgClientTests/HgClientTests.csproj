@@ -31,12 +31,12 @@
       </ItemGroup>
     </When>
     <!-- hg 3 shipped with Chorus 5.2, which can't run on .NET 11 (it uses BinaryFormatter, and on Windows reads hg's
-         exit code before hg exits). Use FLEx Bridge 4.3's Chorus instead: the newest that doesn't bundle with zstd-v2,
-         which hg 3 can't read. -->
+         exit code before hg exits). Use the backend's Chorus from before it started bundling with zstd-v2, which hg 3
+         can't read (sillsdev/chorus#398). -->
     <When Condition=" '$(MercurialVersion)' == '3' ">
       <ItemGroup>
         <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" VersionOverride="4.3.0-beta0048" />
-        <PackageReference Include="SIL.Chorus.LibChorus" VersionOverride="6.0.0-beta0063" />
+        <PackageReference Include="SIL.Chorus.LibChorus" VersionOverride="6.0.0-beta0074" />
         <PackageReference Include="SIL.Chorus.Mercurial" VersionOverride="3.0.3.11" />
       </ItemGroup>
     </When>
