@@ -11,7 +11,8 @@ namespace LexBoxApi.Services;
 
 public class CrdtCommitService(LexBoxDbContext dbContext)
 {
-    public async Task AddCommits(Guid projectId, IAsyncEnumerable<ServerCommit> commits, CancellationToken token = default)
+    /// <returns>how many commits were new; commits whose id is already stored are skipped</returns>
+    public async Task<int> AddCommits(Guid projectId, IAsyncEnumerable<ServerCommit> commits, CancellationToken token = default)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync(token);
         var linqToDbContext = dbContext.CreateLinqToDBContext();
@@ -23,7 +24,7 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
         await tmpTable.BulkCopyAsync(new BulkCopyOptions{BulkCopyType = BulkCopyType.ProviderSpecific, MaxBatchSize = 10}, stampedCommits, token);
 
         var commitsTable = linqToDbContext.GetTable<ServerCommit>();
-        await commitsTable
+        var inserted = await commitsTable
             .Merge()
             .Using(tmpTable)
             .OnTargetKey()
@@ -31,6 +32,7 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
             .MergeAsync(token);
 
         await transaction.CommitAsync(token);
+        return inserted;
     }
 
     public IAsyncEnumerable<ServerCommit> GetMissingCommits(Guid projectId, SyncState localState, SyncState remoteState)

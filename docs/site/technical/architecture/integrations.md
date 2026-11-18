@@ -42,7 +42,7 @@ sequenceDiagram
 | Endpoint | Purpose |
 | --- | --- |
 | `GET /api/crdt/{projectId}/get` | server's sync state (head commits) |
-| `POST /api/crdt/{projectId}/add` | push commits; the server then broadcasts `OnProjectUpdated` |
+| `POST /api/crdt/{projectId}/add` | push commits; if any were new, the server then broadcasts `OnProjectUpdated` |
 | `POST /api/crdt/{projectId}/changes` | send your sync state, stream back what you're missing |
 | `POST /api/crdt/{projectId}/countChanges` | cheap "how far behind am I" count |
 | `GET /api/crdt/listProjects`, `/lookupProjectId` | discovery |

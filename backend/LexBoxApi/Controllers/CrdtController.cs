@@ -45,7 +45,9 @@ public class CrdtController(
     public async Task<ActionResult> Add(Guid projectId, StreamJsonAsyncEnumerable<ServerCommit> commits, Guid? clientId, CancellationToken token)
     {
         await permissionService.AssertCanPushCrdtChanges(projectId);
-        await crdtCommitService.AddCommits(projectId, commits, token);
+        var inserted = await crdtCommitService.AddCommits(projectId, commits, token);
+        // listeners sync on this, so clients resending commits we already have would re-trigger each other forever
+        if (inserted == 0) return Ok();
 
         await hubContext.Clients.Group(CrdtProjectChangeHub.ProjectGroup(projectId)).OnProjectUpdated(projectId, clientId);
         return Ok();
