@@ -46,7 +46,7 @@ Everything above runs in Kubernetes; the same manifests serve production, stagin
 
 ## Tech stack
 
-- **Backend**: .NET 10, C#, Entity Framework Core, GraphQL (Hot Chocolate)
+- **Backend**: .NET 11, C#, Entity Framework Core, GraphQL (Hot Chocolate)
 - **Frontend**: SvelteKit, TypeScript
 - **FW Lite client**: .NET MAUI (desktop/mobile) or an ASP.NET Core host (web), both driving the same Svelte viewer
 - **Sync engine**: [Harmony](https://github.com/sillsdev/harmony), SIL's CRDT library, stored in SQLite on the client

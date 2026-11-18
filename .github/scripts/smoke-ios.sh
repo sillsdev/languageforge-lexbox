@@ -37,14 +37,25 @@ STDERR="$OUT_DIR/ios-stderr.log"
 PID="$(xcrun simctl launch --stdout="$STDOUT" --stderr="$STDERR" "$UDID" "$BUNDLE_ID" | awk '{print $NF}')"
 DATA="$(xcrun simctl get_app_container "$UDID" "$BUNDLE_ID" data)"
 
+# -D skip: CoreCLR's debugger transport leaves FIFOs (clr-debug-pipe-*) in the app's tmp dir, which is inside the
+# folders searched here; reading one blocks forever.
+viewer_loaded() { grep -rqs -D skip 'Viewer loaded' "$@"; }
 for _ in $(seq "$TIMEOUT"); do
-  grep -rqs 'Viewer loaded' "$STDOUT" "$STDERR" "$DATA" && break
+  viewer_loaded "$STDOUT" "$STDERR" "$DATA" && break
   kill -0 "$PID" 2>/dev/null || { echo "The app exited early"; break; }
   sleep 1
 done
 xcrun simctl io "$UDID" screenshot "$OUT_DIR/ios.png" || true
 found=false
-grep -rqs 'Viewer loaded' "$STDOUT" "$STDERR" "$DATA" && found=true
+viewer_loaded "$STDOUT" "$STDERR" "$DATA" && found=true
+if [ "$found" = false ] && kill -0 "$PID" 2>/dev/null; then
+  echo "::group::The app is still running without 'Viewer loaded': native stacks"
+  sample "$PID" 3 2>&1 || true
+  echo "::endgroup::"
+fi
+# A hung .NET app never finishes the graceful shutdown simctl terminate asks for, and terminate then blocks;
+# the simulator app is a host process, so SIGKILL it first.
+kill -9 "$PID" 2>/dev/null || true
 xcrun simctl terminate "$UDID" "$BUNDLE_ID" 2>/dev/null || true
 cat "$STDOUT" "$STDERR" 2>/dev/null || true
 find "$DATA" -name 'app*.log' -print -exec cat {} \; 2>/dev/null || true

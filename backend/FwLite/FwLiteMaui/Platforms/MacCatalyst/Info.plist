@@ -36,6 +36,25 @@
 	<string>FieldWorks Lite uses the camera to take pictures for dictionary entries.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>FieldWorks Lite uses the microphone to record audio for dictionary entries.</string>
+	<!-- Apps built with the iOS/Mac Catalyst 27 SDK must use the UIKit scene lifecycle (MT7199), or they hang or
+	     crash at launch on iOS/macOS 27. SceneDelegate is MAUI's MauiUISceneDelegate, as in the MAUI 11 templates. -->
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneConfigurationName</key>
+					<string>__MAUI_DEFAULT_SCENE_CONFIGURATION__</string>
+					<key>UISceneDelegateClassName</key>
+					<string>SceneDelegate</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/logo_background.appiconset</string>
 </dict>

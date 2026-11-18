@@ -18,7 +18,7 @@ progress proxy) → install → **Restart now** onto the new version.
 
 ## Prerequisites
 - Windows, PowerShell 7 (`pwsh`).
-- .NET 10 SDK; the Windows 10 SDK (provides `MakeAppx.exe` / `SignTool.exe`).
+- .NET 11 SDK; the Windows 10 SDK (provides `MakeAppx.exe` / `SignTool.exe`).
 - `pnpm` (the harness builds the viewer so the MSIX contains the UI).
 - Admin rights **once** to trust the self-signed signing cert (see below).
 

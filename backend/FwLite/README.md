@@ -3,7 +3,7 @@
 ## Development
 
 ### Prerequisites
- * [dotnet sdk](https://dotnet.microsoft.com/en-us/download) currently 10.0 is required
+ * [dotnet sdk](https://dotnet.microsoft.com/en-us/download) currently 11.0 is required
  * [node](https://nodejs.org/en/download/)
  * [Taskfile](https://taskfile.dev/installation/)
     * windows: `winget install Task.Task`
@@ -38,7 +38,7 @@ optional `fw-lite-settings.json`, and how to turn on verbose logging.
 
 ### Building for a specific framework
 ```bash
-dotnet build -f net10.0-ios
+dotnet build backend/FwLite/FwLiteMaui/FwLiteMaui.csproj -f net11.0-ios
 ```
 You can choose which framework to build for with the `-f` flag.
 
