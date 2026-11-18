@@ -14,6 +14,7 @@ namespace FwHeadless;
 public static class FwHeadlessKernel
 {
     public const string LexboxHttpClientName = "LexboxHttpClient";
+    public const string LexboxSyncHttpClientName = "LexboxSyncHttpClient";
     public static IServiceCollection AddFwHeadless(this IServiceCollection services)
     {
         services
@@ -51,11 +52,28 @@ public static class FwHeadlessKernel
         services.AddScoped<CrdtSyncService>();
         services.AddScoped<ProjectContextFromIdService>();
         services.AddTransient<HttpClientAuthHandler>();
-        services.AddHttpClient(LexboxHttpClientName,
+        services.AddLexboxHttpClient(LexboxHttpClientName);
+        // Lexbox stores a push in one transaction, so a project's whole unpushed history must fit in one attempt
+#pragma warning disable EXTEXP0001
+        services.AddLexboxHttpClient(LexboxSyncHttpClientName)
+            .RemoveAllResilienceHandlers()
+#pragma warning restore EXTEXP0001
+            .AddStandardResilienceHandler(options =>
+            {
+                options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(30);
+                options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(90);
+                // must be at least twice the attempt timeout
+                options.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(60);
+            });
+        return services;
+    }
+
+    private static IHttpClientBuilder AddLexboxHttpClient(this IServiceCollection services, string name)
+    {
+        return services.AddHttpClient(name,
             (provider, client) =>
             {
                 client.BaseAddress = new Uri(provider.GetRequiredService<IOptions<FwHeadlessConfig>>().Value.LexboxUrl);
             }).AddHttpMessageHandler<HttpClientAuthHandler>();
-        return services;
     }
 }
