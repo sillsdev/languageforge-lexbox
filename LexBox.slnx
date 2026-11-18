@@ -37,6 +37,7 @@
   <Project Path="backend/LexCore/LexCore.csproj" />
   <Project Path="backend/LexData/LexData.csproj" />
   <Project Path="backend/SyncReverseProxy/SyncReverseProxy.csproj" />
+  <Project Path="backend/Testing.Utils/Testing.Utils.csproj" />
   <Project Path="backend/Testing/Testing.csproj" />
   <Project Path="backend/WebServiceDefaults/WebServiceDefaults.csproj" />
 </Solution>

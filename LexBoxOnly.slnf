@@ -10,6 +10,7 @@
       "backend\\LexData\\LexData.csproj",
       "backend\\LfClassicData\\LfClassicData.csproj",
       "backend\\SyncReverseProxy\\SyncReverseProxy.csproj",
+      "backend\\Testing.Utils\\Testing.Utils.csproj",
       "backend\\Testing\\Testing.csproj"
     ]
   }

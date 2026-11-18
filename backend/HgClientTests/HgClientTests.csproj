@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!-- Tests a LexBox server with the hg client (MercurialVersion 3, 6 or 7) and the LibChorus and LfMergeBridge
        that FLEx Bridge shipped with it. Old LibChorus needs an older SIL.Core than LCModel, FwHeadless and LexBoxApi,
-       so this project must only reference LexCore. -->
+       so this project must only reference LexCore (via Testing.Utils). -->
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <!-- To switch Mercurial versions (3, 6 or 7), set the MercurialVersion env var (or pass -p:) for both dotnet build and dotnet test -->
@@ -44,10 +44,8 @@
            Text="MercurialVersion must be 3, 6 or 7, got '$(MercurialVersion)'" />
   </Target>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="FluentAssertions" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio">
       <PrivateAssets>all</PrivateAssets>
@@ -60,20 +58,7 @@
     <PackageReference Include="XunitXml.TestLogger" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LexCore\LexCore.csproj" />
-  </ItemGroup>
-  <!-- Testing's API helpers, compiled here because Testing itself references LexBoxApi and LCModel -->
-  <ItemGroup>
-    <Compile Include="..\Testing\ApiTests\ApiTestBase.cs" Link="Shared\%(Filename)%(Extension)" />
-    <Compile Include="..\Testing\Fixtures\AssertHttpResponse.cs" Link="Shared\%(Filename)%(Extension)" />
-    <Compile Include="..\Testing\Fixtures\IntegrationFixture.cs" Link="Shared\%(Filename)%(Extension)" />
-    <Compile Include="..\Testing\LexCore\Utils\GqlUtils.cs" Link="Shared\%(Filename)%(Extension)" />
-    <Compile Include="..\Testing\Services\Constants.cs" Link="Shared\%(Filename)%(Extension)" />
-    <Compile Include="..\Testing\Services\HgRepoTestHelpers.cs" Link="Shared\%(Filename)%(Extension)" />
-    <Compile Include="..\Testing\Services\JwtHelper.cs" Link="Shared\%(Filename)%(Extension)" />
-    <Compile Include="..\Testing\Services\TestingEnvironmentVariables.cs" Link="Shared\%(Filename)%(Extension)" />
-    <Compile Include="..\Testing\Services\Utils.cs" Link="Shared\%(Filename)%(Extension)" />
-    <Content Include="..\Testing\test-template-repo.zip" Link="test-template-repo.zip" CopyToOutputDirectory="PreserveNewest" />
+    <ProjectReference Include="..\Testing.Utils\Testing.Utils.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
