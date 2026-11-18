@@ -359,6 +359,29 @@ public abstract class PictureTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task MovePicture_WrongSense_Throws()
+    {
+        var otherSenseId = Guid.NewGuid();
+        await Api.CreateSense(_entryId, new Sense { Id = otherSenseId, Gloss = { { "en", "other" } } });
+
+        var act = () => Api.MovePicture(_entryId, otherSenseId, _pictureId, new BetweenPosition(null, null));
+        await act.Should().ThrowAsync<ParentMismatchException>().WithMessage($"*{_pictureId}*{otherSenseId}*");
+
+        // a plain move must never re-parent
+        (await GetPictureIds()).Should().Equal(_pictureId);
+    }
+
+    [Fact]
+    public async Task MovePicture_WrongEntry_Throws()
+    {
+        var otherEntryId = Guid.NewGuid();
+        await Api.CreateEntry(new Entry { Id = otherEntryId, LexemeForm = { { "en", "other" } } });
+
+        var act = () => Api.MovePicture(otherEntryId, _senseId, _pictureId, new BetweenPosition(null, null));
+        await act.Should().ThrowAsync<ParentMismatchException>();
+    }
+
+    [Fact]
     public async Task MovePicture_Reparent_ReparentsToDifferentSense()
     {
         var before = await Api.GetPicture(_entryId, _senseId, _pictureId);

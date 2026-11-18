@@ -2097,6 +2097,7 @@ public class FwDataMiniLcmApi(
     public async Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update) => await UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
     public async Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update) => await UpdatePartOfSpeech(id, update);
     public async Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update) => await UpdatePicture(entryId, senseId, pictureId, update);
+    public async Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null) => await CreatePicture(entryId, senseId, picture, position);
     public async Task SubmitMovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder) => await MovePicture(entryId, senseId, pictureId, position, kind);
     public async Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update) => await UpdatePublication(id, update);
     public async Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update) => await UpdateSemanticDomain(id, update);

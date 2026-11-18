@@ -527,6 +527,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.CreatePicture(entryId, senseId, NormalizePicture(picture), position);
     }
 
+    public async Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null)
+    {
+        await _api.SubmitCreatePicture(entryId, senseId, NormalizePicture(picture), position);
+    }
+
     public Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
     {
         return _api.UpdatePicture(entryId, senseId, pictureId, NormalizePatch(update));

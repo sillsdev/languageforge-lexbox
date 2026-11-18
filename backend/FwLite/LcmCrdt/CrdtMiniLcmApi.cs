@@ -518,6 +518,11 @@ public class CrdtMiniLcmApi(
         return await pictureApi.CreatePicture(entryId, senseId, picture, between);
     }
 
+    public async Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? between = null)
+    {
+        await pictureApi.SubmitCreatePicture(entryId, senseId, picture, between);
+    }
+
     public async Task<Picture?> GetPicture(Guid entryId, Guid senseId, Guid id)
     {
         return await pictureApi.GetPicture(entryId, senseId, id);

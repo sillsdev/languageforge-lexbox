@@ -8,22 +8,14 @@ public class SyncContext
 {
     private readonly bool _deferDeletes;
     private readonly DeferredDeletes _deferredDeletes = new();
-    private readonly IReadOnlyDictionary<Guid, Sense> _sensesBefore;
-    private readonly IReadOnlyDictionary<Guid, Sense> _sensesAfter;
-    private readonly IReadOnlyDictionary<Guid, ExampleSentence> _examplesBefore;
-    private readonly IReadOnlyDictionary<Guid, ExampleSentence> _examplesAfter;
-    private readonly IReadOnlyDictionary<Guid, Picture> _picturesBefore;
-    private readonly IReadOnlyDictionary<Guid, Picture> _picturesAfter;
+    private readonly Descendants _before;
+    private readonly Descendants _after;
 
     private SyncContext(bool deferDeletes, Descendants before, Descendants after)
     {
         _deferDeletes = deferDeletes;
-        _sensesBefore = before.Senses;
-        _sensesAfter = after.Senses;
-        _examplesBefore = before.Examples;
-        _examplesAfter = after.Examples;
-        _picturesBefore = before.Pictures;
-        _picturesAfter = after.Pictures;
+        _before = before;
+        _after = after;
     }
 
     private record Descendants(
@@ -51,14 +43,14 @@ public class SyncContext
     }
 
     /// <summary>Used to differentiate an add/create from what is actually a reparent</summary>
-    public Sense? ExistedBefore(Sense sense) => _sensesBefore.GetValueOrDefault(sense.Id);
-    public ExampleSentence? ExistedBefore(ExampleSentence example) => _examplesBefore.GetValueOrDefault(example.Id);
-    public Picture? ExistedBefore(Picture picture) => _picturesBefore.GetValueOrDefault(picture.Id);
+    public Sense? ExistedBefore(Sense sense) => _before.Senses.GetValueOrDefault(sense.Id);
+    public ExampleSentence? ExistedBefore(ExampleSentence example) => _before.Examples.GetValueOrDefault(example.Id);
+    public Picture? ExistedBefore(Picture picture) => _before.Pictures.GetValueOrDefault(picture.Id);
 
     /// <summary>Used to differentiate a delete from what is actually a reparent</summary>
-    public bool StillExists(Sense sense) => _sensesAfter.ContainsKey(sense.Id);
-    public bool StillExists(ExampleSentence example) => _examplesAfter.ContainsKey(example.Id);
-    public bool StillExists(Picture picture) => _picturesAfter.ContainsKey(picture.Id);
+    public bool StillExists(Sense sense) => _after.Senses.ContainsKey(sense.Id);
+    public bool StillExists(ExampleSentence example) => _after.Examples.ContainsKey(example.Id);
+    public bool StillExists(Picture picture) => _after.Pictures.ContainsKey(picture.Id);
 
     public Task<int> HandleDelete(Func<Task<int>> delete) => _deferDeletes
         ? _deferredDeletes.Defer(delete)

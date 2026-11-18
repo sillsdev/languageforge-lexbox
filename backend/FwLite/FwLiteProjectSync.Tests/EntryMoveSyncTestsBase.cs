@@ -434,27 +434,27 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         actualTarget.Pictures[0].Caption["en"].Should().BeEquivalentTo(new RichString("edited", "en"));
     }
 
-    [Theory]
-    // the merged sense listed first means its delete is diffed before the survivor's add: only deferring the delete keeps the picture alive
-    [InlineData(true)]
-    [InlineData(false)]
-    public async Task CanSyncPictureMovedOutOfMergedSense(bool mergedSenseFirst)
+    [Fact]
+    public async Task CanSyncPicturesMovedOutOfMergedSense()
     {
-        // FLEx "Merge Sense into...": the merged sense's pictures are appended to the survivor and the merged sense is deleted
+        // FLEx "Merge Sense into...": the merged sense's pictures are appended to the survivor and the merged sense is deleted.
+        // The delete is diffed before the survivor's pictures, so only deferring it keeps the pictures alive.
         var kept = NewPicture("kept");
-        var moved = NewPicture("moved");
-        var mergedSense = NewSenseWithPictures("merged", moved);
+        var moved1 = NewPicture("moved1");
+        var moved2 = NewPicture("moved2");
+        var mergedSense = NewSenseWithPictures("merged", moved1, moved2);
         var survivingSense = NewSenseWithPictures("surviving", kept);
-        var entry = await CreateEntry("entry", mergedSenseFirst ? [mergedSense, survivingSense] : [survivingSense, mergedSense]);
+        var entry = await CreateEntry("entry", mergedSense, survivingSense);
 
         var after = Copy([entry]);
-        MovePicture(after, moved, survivingSense.Id);
+        MovePicture(after, moved1, survivingSense.Id);
+        MovePicture(after, moved2, survivingSense.Id);
         after[0].Senses.RemoveAll(s => s.Id == mergedSense.Id);
         await Sync([entry], after);
 
         var actualEntry = await GetEntry(entry.Id);
         SenseIds(actualEntry).Should().Equal(survivingSense.Id);
-        PictureIds(actualEntry.Senses[0]).Should().Equal(kept.Id, moved.Id);
+        PictureIds(actualEntry.Senses[0]).Should().Equal(kept.Id, moved1.Id, moved2.Id);
     }
 
     [Theory]
@@ -482,11 +482,36 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         if (!sourceSenseDeleted) PictureIds(await GetSense(entry.Id, sourceSense.Id)).Should().BeEmpty();
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task CanSyncPictureMovedToCreatedEntry(bool sourceEntryDeleted)
+    {
+        var picture = NewPicture("picture");
+        var sourceSense = NewSenseWithPictures("source", picture);
+        var sourceEntry = await CreateEntry("source-entry", sourceSense);
+        var createdSense = NewSense("created");
+        var createdEntry = NewEntry("created-entry", createdSense);
+
+        Entry[] before = [sourceEntry];
+        var after = Copy(before);
+        if (sourceEntryDeleted) after.Clear();
+        after.Add(createdEntry);
+        MovePicture(after, picture, createdSense.Id);
+        await Sync(before, after);
+
+        PictureIds(await GetSense(createdEntry.Id, createdSense.Id)).Should().Equal(picture.Id);
+        if (sourceEntryDeleted)
+            (await Api.GetEntry(sourceEntry.Id)).Should().BeNull();
+        else
+            PictureIds(await GetSense(sourceEntry.Id, sourceSense.Id)).Should().BeEmpty();
+    }
+
     #endregion
 
     #region Unsupported moves
 
-    // FLEx can't re-parent translations (examples are never merged), so the sync rejects it before writing anything.
+    // Sync doesn't support moving a translation to another example yet, so it rejects that before writing anything.
 
     [Fact]
     public async Task SyncThrows_TranslationMovedToDifferentExampleSentence()

@@ -113,6 +113,21 @@ public class SyncContextTests
         context.WithoutMovedInDescendants(after.Senses[0]).Pictures.Should().BeEmpty();
     }
 
+    [Fact]
+    public void GenuinePictureCreateAndDelete_AreNotMoves()
+    {
+        var deleted = NewPicture();
+        var before = NewEntry(NewSense(deleted), NewSense());
+        var after = before.Copy();
+        after.Senses[0].Pictures.Clear();
+        var created = NewPicture();
+        after.Senses[1].Pictures.Add(created);
+
+        var context = SyncContext.For(before, after);
+        context.ExistedBefore(created).Should().BeNull();
+        context.StillExists(deleted).Should().BeFalse();
+    }
+
     #endregion
 
     #region Stripping moved-in descendants out of a create payload
@@ -262,10 +277,9 @@ public class SyncContextTests
     [Fact]
     public void SenseMovedToAnotherEntryCarryingItsChildren_DoesNotThrow()
     {
-        // the picture and translation travel with their moved parents; their direct parents don't change
-        var picture = NewPicture();
-        var movingSense = NewSense(picture);
-        movingSense.ExampleSentences = [NewExample()];
+        // the translation travels with its moved parents; its direct parent doesn't change
+        var movingSense = NewSense();
+        movingSense.ExampleSentences = [NewExample(NewTranslation())];
         var sourceEntry = NewEntry(movingSense);
 
         var sourceEntryAfter = sourceEntry.Copy();
@@ -274,18 +288,6 @@ public class SyncContextTests
         var createdEntry = NewEntry(movedSense);
 
         var act = () => SyncContext.For([sourceEntry], [sourceEntryAfter, createdEntry]);
-        act.Should().NotThrow();
-    }
-
-    [Fact]
-    public void GenuinePictureCreateAndDelete_DoesNotThrow()
-    {
-        var before = NewEntry(NewSense(NewPicture()), NewSense());
-        var after = before.Copy();
-        after.Senses[0].Pictures.Clear();
-        after.Senses[1].Pictures.Add(NewPicture());
-
-        var act = () => SyncContext.For(before, after);
         act.Should().NotThrow();
     }
 

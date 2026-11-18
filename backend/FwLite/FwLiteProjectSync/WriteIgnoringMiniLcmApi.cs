@@ -260,6 +260,11 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
         return Task.FromResult(picture);
     }
 
+    public Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null)
+    {
+        return Task.CompletedTask;
+    }
+
     public async Task<Picture> UpdatePicture(Guid entryId,
         Guid senseId,
         Guid pictureId,

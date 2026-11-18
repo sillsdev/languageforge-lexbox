@@ -239,10 +239,13 @@ This orchestrates the bidirectional sync:
 Assume any object owned by an entry or sense can show up under a different parent with the same id. Sync must apply that as a move, never a delete plus create. FLEx features that do it:
 
 - **Merge Sense into...**: the merged sense's examples, pictures and subsenses move to the surviving sense.
-- **Merge Entry**: senses move to the surviving entry.
-- **Move Sense to a New Entry**, drag-and-drop, promote/demote: senses move.
+- **Merge with entry...**: senses move to the surviving entry.
+- **Move Sense to a New Entry**, promote/demote: senses move.
+- Drag-and-drop in the entry editor moves any item of a sequence to another owner of the same field (`SliceTreeNode.OnDragDrop`), so likely examples, pictures and translations too.
 
-Translations can't move in FLEx (examples are never merged), so sync still rejects that (`SyncContext.VerifyNoUnsupportedMoves`). LIFT import and other rarer paths aren't checked; if one reparents something, that check surfaces it.
+Sync supports moving senses, examples and pictures. A moved translation still throws `MoveNotSupportedException` (`SyncContext.VerifyNoUnsupportedMoves`).
+
+On CRDT a picture is part of its sense's row, so a picture move is a remove plus a same-id create carrying the data as of the sync. An edit or delete another client made to the picture under its old sense doesn't follow it.
 
 ### Concurrency model: CRDT forgives, FwData doesn't
 

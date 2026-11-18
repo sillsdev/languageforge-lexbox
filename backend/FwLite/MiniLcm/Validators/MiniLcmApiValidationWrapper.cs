@@ -453,6 +453,11 @@ public partial class MiniLcmApiValidationWrapper(
         return _api.CreatePicture(entryId, senseId, picture, position);
     }
 
+    public Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null)
+    {
+        return _api.SubmitCreatePicture(entryId, senseId, picture, position);
+    }
+
     public async Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
     {
         await validators.ValidateAndThrow(update);

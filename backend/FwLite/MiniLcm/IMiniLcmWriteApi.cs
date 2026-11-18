@@ -139,6 +139,7 @@ public interface IMiniLcmWriteApi
     /// <param name="position">Where the picture should be inserted in the sense's list of pictures. If null it will be appended to the end of the list.</param>
     /// <returns></returns>
     Task<Picture> CreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null);
+    Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null);
     Task<Picture> UpdatePicture(Guid entryId,
         Guid senseId,
         Guid pictureId,

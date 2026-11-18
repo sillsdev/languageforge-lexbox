@@ -166,6 +166,54 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
     }
 
     [Fact]
+    public async Task ReorderingAPictureDeletedInCrdt_DoesNotWedge()
+    {
+        var deleted = NewPicture("deleted");
+        var keep1 = NewPicture("keep1");
+        var keep2 = NewPicture("keep2");
+        var keep3 = NewPicture("keep3");
+        var sense = NewSenseWithPictures("sense", deleted, keep1, keep2, keep3);
+        var entry = await CreateEntry("entry", sense);
+        await Api.DeletePicture(entry.Id, sense.Id, deleted.Id);
+
+        var after = entry.Copy();
+        var moved = after.Senses[0].Pictures[0];
+        after.Senses[0].Pictures.RemoveAt(0);
+        after.Senses[0].Pictures.Add(moved);
+
+        var sync = () => Sync([entry], [after]);
+        await sync.Should().NotThrowAsync();
+
+        PictureIds((await GetEntry(entry.Id)).Senses[0]).Should().Equal(keep1.Id, keep2.Id, keep3.Id);
+    }
+
+    [Fact]
+    public async Task ReorderingAPictureReparentedInCrdt_DoesNotWedge()
+    {
+        var moved = NewPicture("moved");
+        var keep1 = NewPicture("keep1");
+        var keep2 = NewPicture("keep2");
+        var keep3 = NewPicture("keep3");
+        var sourceSense = NewSenseWithPictures("source", moved, keep1, keep2, keep3);
+        var targetSense = NewSense("target");
+        var entry = await CreateEntry("entry", sourceSense, targetSense);
+        await Api.MovePicture(entry.Id, targetSense.Id, moved.Id, new BetweenPosition(null, null), MoveKind.Reparent);
+
+        // the other side merely reordered the picture within its original sense
+        var after = entry.Copy();
+        var reordered = after.Senses[0].Pictures[0];
+        after.Senses[0].Pictures.RemoveAt(0);
+        after.Senses[0].Pictures.Add(reordered);
+
+        var sync = () => Sync([entry], [after]);
+        await sync.Should().NotThrowAsync();
+
+        var actual = await GetEntry(entry.Id);
+        PictureIds(actual.Senses[0]).Should().Equal(keep1.Id, keep2.Id, keep3.Id);
+        PictureIds(actual.Senses[1]).Should().Equal(moved.Id);
+    }
+
+    [Fact]
     public async Task ReorderingASenseReparentedInCrdt_DoesNotWedge()
     {
         var moved = NewSense("moved");

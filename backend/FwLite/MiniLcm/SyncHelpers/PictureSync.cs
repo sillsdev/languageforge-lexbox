@@ -63,7 +63,7 @@ public static class PictureSync
                 await api.SubmitMovePicture(entryId, senseId, afterPicture.Id, position, MoveKind.Reparent);
                 return 1 + await Sync(entryId, senseId, before, afterPicture, api);
             }
-            await api.CreatePicture(entryId, senseId, afterPicture, position);
+            await api.SubmitCreatePicture(entryId, senseId, afterPicture, position);
             return 1;
         }
 
