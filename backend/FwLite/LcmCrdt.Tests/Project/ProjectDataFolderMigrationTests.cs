@@ -92,8 +92,12 @@ public class ProjectDataFolderMigrationTests : IAsyncLifetime
         await DisposeProviders();
         var legacyHashes = HashFiles(LegacyRoot);
 
-        Migrate().Should().BeTrue();
+        var result = MigrateKeepingLease();
 
+        result.Outcome.Should().Be(ProjectDataFolderMigration.MigrationOutcome.Migrated);
+        result.ProjectCount.Should().Be(1);
+        result.Bytes.Should().BeGreaterThan(0);
+        result.RetireFailures.Should().Be(0);
         // contents unchanged, only the database is renamed so it can't be opened and synced again
         var expectedLegacy = legacyHashes.ToDictionary(
             kv => kv.Key == "example.sqlite" ? "example.sqlite" + ProjectDataFolderMigration.RetiredDbExtension : kv.Key,
@@ -176,7 +180,7 @@ public class ProjectDataFolderMigrationTests : IAsyncLifetime
         // created after the migration, e.g. by an older version; must not be copied over the migrated data
         CreateEmptyDb(Path.Join(LegacyRoot, "later.sqlite"));
 
-        Migrate().Should().BeTrue();
+        MigrateKeepingLease().Outcome.Should().Be(ProjectDataFolderMigration.MigrationOutcome.AlreadyMigrated);
 
         File.Exists(LcmCrdtConfig.ProjectFolderDbPath(TargetRoot, "first")).Should().BeTrue();
         File.Exists(Path.Join(LegacyRoot, "first.sqlite")).Should().BeFalse();
@@ -191,7 +195,7 @@ public class ProjectDataFolderMigrationTests : IAsyncLifetime
         Directory.CreateDirectory(TargetRoot);
         await File.WriteAllTextAsync(Path.Join(TargetRoot, "someone-elses.txt"), "keep");
 
-        Migrate().Should().BeFalse();
+        MigrateKeepingLease().Outcome.Should().Be(ProjectDataFolderMigration.MigrationOutcome.TargetExists);
 
         Directory.EnumerateFileSystemEntries(TargetRoot).Select(Path.GetFileName).Should().BeEquivalentTo(["someone-elses.txt"]);
     }
@@ -203,8 +207,10 @@ public class ProjectDataFolderMigrationTests : IAsyncLifetime
         await File.WriteAllTextAsync(Path.Join(LegacyRoot, "corrupt.sqlite"), "this is not a sqlite database");
         var legacyHashes = HashFiles(LegacyRoot);
 
-        Migrate().Should().BeFalse();
+        var result = MigrateKeepingLease();
 
+        result.Outcome.Should().Be(ProjectDataFolderMigration.MigrationOutcome.Failed);
+        result.Error.Should().BeOfType<SqliteException>();
         Directory.Exists(TargetRoot).Should().BeFalse();
         Directory.EnumerateFileSystemEntries(Path.GetDirectoryName(TargetRoot)!).Should()
             .BeEquivalentTo([LeaseFile], "staging and the migration lock are cleaned up, the lease is held while on legacy");
@@ -224,7 +230,7 @@ public class ProjectDataFolderMigrationTests : IAsyncLifetime
         File.Delete(corrupt);
 
         // instance B could migrate now, but must not while A is still writing to the legacy folder
-        Migrate().Should().BeFalse();
+        MigrateKeepingLease().Outcome.Should().Be(ProjectDataFolderMigration.MigrationOutcome.Deferred);
         Directory.Exists(TargetRoot).Should().BeFalse();
         File.Exists(Path.Join(LegacyRoot, "proj.sqlite")).Should().BeTrue();
 
@@ -244,6 +250,8 @@ public class ProjectDataFolderMigrationTests : IAsyncLifetime
         var results = await Task.WhenAll(Enumerable.Range(0, 4).Select(_ => Task.Run(MigrateKeepingLease)));
 
         results.Should().AllSatisfy(r => r.Migrated.Should().BeTrue());
+        // so the success event is sent once, not by every instance
+        results.Count(r => r.Outcome == ProjectDataFolderMigration.MigrationOutcome.Migrated).Should().Be(1);
         for (var i = 0; i < 3; i++) File.Exists(LcmCrdtConfig.ProjectFolderDbPath(TargetRoot, $"proj{i}")).Should().BeTrue();
     }
 

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Data.Sqlite;
@@ -32,13 +33,44 @@ public static class ProjectDataFolderMigration
 
     public record Marker(string MigratedFrom, DateTimeOffset MigratedAt, string[] Projects);
 
-    /// <param name="Migrated">true when the target root is ready to use; false when the caller must keep using
-    /// the legacy root with the flat layout.</param>
+    public enum MigrationOutcome
+    {
+        /// <summary>By an earlier start, or by another instance while this one waited for the lock.</summary>
+        AlreadyMigrated,
+        Migrated,
+        /// <summary>Another instance is still using the legacy root; retried on a later start.</summary>
+        Deferred,
+        /// <summary>The target root exists but wasn't created by a migration.</summary>
+        TargetExists,
+        Failed,
+    }
+
     /// <param name="LegacyLease">when using the legacy root: hold (don't dispose) for the process lifetime, so no
     /// other instance migrates the data out from under this one. Null if it couldn't be taken.</param>
-    public sealed record MigrationResult(bool Migrated, IDisposable? LegacyLease = null);
+    public sealed record MigrationResult(MigrationOutcome Outcome, IDisposable? LegacyLease = null)
+    {
+        /// <summary>true when the target root is ready to use; false when the caller must keep using the legacy
+        /// root with the flat layout.</summary>
+        public bool Migrated => Outcome is MigrationOutcome.Migrated or MigrationOutcome.AlreadyMigrated;
+        public int ProjectCount { get; init; }
+        /// <summary>Databases plus media.</summary>
+        public long Bytes { get; init; }
+        public TimeSpan Duration { get; init; }
+        /// <summary>Media referenced from outside the legacy media cache, so still lost on uninstall.</summary>
+        public int MediaLeftBehind { get; init; }
+        /// <summary>Legacy databases that couldn't be renamed, so an older version could still open and sync them.</summary>
+        public int RetireFailures { get; init; }
+        public Exception? Error { get; init; }
+    }
 
     public static MigrationResult TryMigrate(string legacyRoot, string targetRoot, ILogger logger)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        var result = TryMigrateCore(legacyRoot, targetRoot, logger);
+        return result with { Duration = stopwatch.Elapsed };
+    }
+
+    private static MigrationResult TryMigrateCore(string legacyRoot, string targetRoot, ILogger logger)
     {
         legacyRoot = Path.GetFullPath(legacyRoot);
         targetRoot = Path.TrimEndingDirectorySeparator(Path.GetFullPath(targetRoot));
@@ -47,7 +79,7 @@ public static class ProjectDataFolderMigration
         string parent;
         try
         {
-            if (IsMigrated(targetRoot, legacyRoot, logger)) return new(Migrated: true);
+            if (IsMigrated(targetRoot, legacyRoot, logger)) return new(MigrationOutcome.AlreadyMigrated);
             parent = Path.GetDirectoryName(targetRoot) ?? throw new ArgumentException($"'{targetRoot}' has no parent folder", nameof(targetRoot));
             Directory.CreateDirectory(parent);
             migrationLock = AcquireMigrationLock(parent, targetName, logger);
@@ -56,7 +88,7 @@ public static class ProjectDataFolderMigration
         {
             // e.g. no write access to the parent folder, which blocks every other instance's migration too
             logger.LogError(e, "Failed to prepare data migration to {TargetRoot}, keeping data in {LegacyRoot}", targetRoot, legacyRoot);
-            return new(Migrated: false);
+            return new(MigrationOutcome.Failed) { Error = e };
         }
 
         using (migrationLock)
@@ -68,7 +100,7 @@ public static class ProjectDataFolderMigration
             catch (Exception e)
             {
                 logger.LogError(e, "Failed to migrate data from {LegacyRoot} to {TargetRoot}, keeping data in the legacy folder", legacyRoot, targetRoot);
-                return UseLegacy(parent, targetName, logger);
+                return UseLegacy(MigrationOutcome.Failed, parent, targetName, logger) with { Error = e };
             }
         }
     }
@@ -76,20 +108,21 @@ public static class ProjectDataFolderMigration
     private static MigrationResult MigrateWhileLocked(string legacyRoot, string targetRoot, string parent, string targetName, ILogger logger)
     {
         // another process may have finished while we waited for the lock
-        if (IsMigrated(targetRoot, legacyRoot, logger)) return new(Migrated: true);
+        if (IsMigrated(targetRoot, legacyRoot, logger)) return new(MigrationOutcome.AlreadyMigrated);
         if (Directory.Exists(targetRoot))
         {
             logger.LogError("{TargetRoot} already exists but was not created by a data migration, keeping data in {LegacyRoot}", targetRoot, legacyRoot);
-            return UseLegacy(parent, targetName, logger);
+            return UseLegacy(MigrationOutcome.TargetExists, parent, targetName, logger);
         }
 
-        string[] projects;
+        CopyResult copied;
+        int retireFailures;
         using (var exclusiveLease = OpenLegacyLease(parent, targetName, FileShare.None))
         {
             if (exclusiveLease is null)
             {
                 logger.LogWarning("Another FieldWorks Lite instance is using {LegacyRoot}, data will be migrated on a later start", legacyRoot);
-                return UseLegacy(parent, targetName, logger);
+                return UseLegacy(MigrationOutcome.Deferred, parent, targetName, logger);
             }
 
             DeleteStagingFolders(parent, targetName, logger);
@@ -97,8 +130,8 @@ public static class ProjectDataFolderMigration
             try
             {
                 Directory.CreateDirectory(staging);
-                projects = CopyAndVerify(legacyRoot, staging, targetRoot, logger);
-                WriteMarker(staging, new Marker(legacyRoot, DateTimeOffset.UtcNow, projects));
+                copied = CopyAndVerify(legacyRoot, staging, targetRoot, logger);
+                WriteMarker(staging, new Marker(legacyRoot, DateTimeOffset.UtcNow, copied.Projects));
                 MoveIntoPlace(staging, targetRoot);
             }
             finally
@@ -106,11 +139,17 @@ public static class ProjectDataFolderMigration
                 if (Directory.Exists(staging)) TryDeleteDirectory(staging, logger);
             }
 
-            logger.LogInformation("Migrated {ProjectCount} projects from {LegacyRoot} to {TargetRoot}", projects.Length, legacyRoot, targetRoot);
-            RetireLegacyDatabases(legacyRoot, projects, logger);
+            logger.LogInformation("Migrated {ProjectCount} projects from {LegacyRoot} to {TargetRoot}", copied.Projects.Length, legacyRoot, targetRoot);
+            retireFailures = RetireLegacyDatabases(legacyRoot, copied.Projects, logger);
         }
 
-        return new(Migrated: true);
+        return new(MigrationOutcome.Migrated)
+        {
+            ProjectCount = copied.Projects.Length,
+            Bytes = copied.Bytes,
+            MediaLeftBehind = copied.MediaLeftBehind,
+            RetireFailures = retireFailures,
+        };
     }
 
     private static void MoveIntoPlace(string staging, string targetRoot)
@@ -130,11 +169,11 @@ public static class ProjectDataFolderMigration
         }
     }
 
-    private static MigrationResult UseLegacy(string parent, string targetName, ILogger logger)
+    private static MigrationResult UseLegacy(MigrationOutcome outcome, string parent, string targetName, ILogger logger)
     {
         var lease = OpenLegacyLease(parent, targetName, FileShare.ReadWrite);
         if (lease is null) logger.LogWarning("Failed to take the legacy data folder lease");
-        return new(Migrated: false, lease);
+        return new(outcome, lease);
     }
 
     /// <summary>
@@ -164,7 +203,7 @@ public static class ProjectDataFolderMigration
         if (Directory.Exists(legacyRoot) && Directory.EnumerateFiles(legacyRoot, "*.sqlite").Any())
         {
             // e.g. a downgraded version created projects in the legacy folder; they are not migrated twice
-            logger.LogWarning("{LegacyRoot} contains projects created after data was migrated to {TargetRoot}; they are not shown", legacyRoot, targetRoot);
+            logger.LogError("{LegacyRoot} contains projects created after data was migrated to {TargetRoot}; they are not shown", legacyRoot, targetRoot);
         }
         return true;
     }
@@ -203,8 +242,9 @@ public static class ProjectDataFolderMigration
     private static bool IsSharingViolation(Exception e) =>
         e is IOException && (!OperatingSystem.IsWindows() || (e.HResult & 0xFFFF) is 32 or 33);
 
-    private static void RetireLegacyDatabases(string legacyRoot, string[] projects, ILogger logger)
+    private static int RetireLegacyDatabases(string legacyRoot, string[] projects, ILogger logger)
     {
+        var failures = 0;
         foreach (var code in projects)
         {
             var legacyDb = Path.Combine(legacyRoot, $"{code}.sqlite");
@@ -214,19 +254,24 @@ public static class ProjectDataFolderMigration
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, "Failed to retire migrated database {LegacyDb}", legacyDb);
+                // an older version could still open and sync it, forking sync with the migrated copy
+                logger.LogError(e, "Failed to retire migrated database {LegacyDb}", legacyDb);
+                failures++;
             }
         }
+        return failures;
     }
 
-    private static string[] CopyAndVerify(string legacyRoot, string staging, string targetRoot, ILogger logger)
+    private sealed record CopyResult(string[] Projects, long Bytes, int MediaLeftBehind);
+
+    private static CopyResult CopyAndVerify(string legacyRoot, string staging, string targetRoot, ILogger logger)
     {
-        if (!Directory.Exists(legacyRoot)) return [];
+        if (!Directory.Exists(legacyRoot)) return new([], 0, 0);
         var legacyCache = Path.Combine(legacyRoot, LocalResourcesCacheDirName);
         var stagingCache = Path.Combine(staging, LocalResourcesCacheDirName);
         var legacyDbs = Directory.GetFiles(legacyRoot, "*.sqlite");
         // a failed migration is retried on every start, so fail the cheap checks before the (large) media copy
-        EnsureFreeSpace(staging, legacyDbs, legacyCache);
+        var bytes = EnsureFreeSpace(staging, legacyDbs, legacyCache);
 
         var oldCachePrefix = AsDirectoryPrefix(legacyCache);
         var newCachePrefix = AsDirectoryPrefix(Path.Combine(targetRoot, LocalResourcesCacheDirName));
@@ -242,8 +287,9 @@ public static class ProjectDataFolderMigration
         }
 
         if (Directory.Exists(legacyCache)) CopyDirectory(legacyCache, stagingCache);
+        var mediaLeftBehind = 0;
         foreach (var stagedDb in stagedDbs)
-            VerifyLocalResources(stagedDb, oldCachePrefix, newCachePrefix, AsDirectoryPrefix(stagingCache), AsDirectoryPrefix(legacyRoot), logger);
+            mediaLeftBehind += VerifyLocalResources(stagedDb, oldCachePrefix, newCachePrefix, AsDirectoryPrefix(stagingCache), AsDirectoryPrefix(legacyRoot), logger);
         CopyProjectDataCache(legacyRoot, staging, targetRoot, legacyDbs, logger);
 
         var legacyFailedSyncs = Path.Combine(legacyRoot, FailedSyncsDirName);
@@ -260,10 +306,10 @@ public static class ProjectDataFolderMigration
             }
         }
 
-        return [.. legacyDbs.Select(db => Path.GetFileNameWithoutExtension(db))];
+        return new([.. legacyDbs.Select(db => Path.GetFileNameWithoutExtension(db))], bytes, mediaLeftBehind);
     }
 
-    private static void EnsureFreeSpace(string staging, string[] legacyDbs, string legacyCache)
+    private static long EnsureFreeSpace(string staging, string[] legacyDbs, string legacyCache)
     {
         var needed = legacyDbs.Sum(db => FileLength(db) + FileLength(db + "-wal"));
         if (Directory.Exists(legacyCache))
@@ -273,6 +319,7 @@ public static class ProjectDataFolderMigration
         const long headroom = 200L * 1024 * 1024;
         if (available < needed + headroom)
             throw new IOException($"Not enough free space to migrate: {needed} bytes needed plus {headroom} spare, {available} available");
+        return needed;
     }
 
     private static long FileLength(string path) => File.Exists(path) ? new FileInfo(path).Length : 0;
@@ -372,11 +419,11 @@ public static class ProjectDataFolderMigration
         }
     }
 
-    private static void VerifyLocalResources(string stagedDb, string oldPrefix, string newPrefix, string stagingPrefix, string legacyRootPrefix, ILogger logger)
+    private static int VerifyLocalResources(string stagedDb, string oldPrefix, string newPrefix, string stagingPrefix, string legacyRootPrefix, ILogger logger)
     {
         var leftInLegacy = 0;
         using var connection = Open(stagedDb, SqliteOpenMode.ReadWrite);
-        if (!TableExists(connection, "LocalResource")) return;
+        if (!TableExists(connection, "LocalResource")) return 0;
         using var command = connection.CreateCommand();
         command.CommandText = "SELECT LocalPath FROM LocalResource";
         using var reader = command.ExecuteReader();
@@ -397,6 +444,7 @@ public static class ProjectDataFolderMigration
 
         if (leftInLegacy > 0)
             logger.LogWarning("{Count} media files referenced by {StagedDb} are outside the media cache and were not migrated", leftInLegacy, stagedDb);
+        return leftInLegacy;
     }
 
     private static bool TableExists(SqliteConnection connection, string table)
