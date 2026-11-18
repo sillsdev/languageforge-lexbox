@@ -6,7 +6,9 @@
 # and, via COPY . ., made every test-data edit invalidate the image build cache.
 **/*.Tests
 Testing
-!Testing/test-template-repo.zip
+Testing.Utils
+!Testing.Utils/test-template-repo.zip
+HgClientTests
 FwLite/FwLiteWeb
 FwLite/FwLiteMaui
 FwLite/FwLiteShared

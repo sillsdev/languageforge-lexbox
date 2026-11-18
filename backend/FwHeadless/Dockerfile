@@ -86,7 +86,7 @@ RUN cd /app \
 # standalone apphost (Core only). Web publish does not copy the extra assemblies FixFwData needs
 # (e.g. Logging.Abstractions); the csproj PublishFixFwData target must publish it into the same
 # output. Running it here catches a broken publish early. Bind-mount the fixture so it isn't shipped.
-RUN --mount=type=bind,source=Testing/test-template-repo.zip,target=/tmp/test-template-repo.zip \
+RUN --mount=type=bind,source=Testing.Utils/test-template-repo.zip,target=/tmp/test-template-repo.zip \
     test -f FixFwData \
     && python3 -c "import zipfile; open('/tmp/smoke.fwdata','wb').write(zipfile.ZipFile('/tmp/test-template-repo.zip').read('kevin-test-01.fwdata'))" \
     && ./FixFwData /tmp/smoke.fwdata; ec=$?; rm -f /tmp/smoke.fwdata; \
