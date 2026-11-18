@@ -22,9 +22,9 @@ namespace FwLiteMaui;
 /// than by registering an <c>IInstallStateUpdatedListener</c>: the C# binding's generic
 /// <c>OnStateUpdate(InstallState)</c> has a name-clash that fails to compile without a Java-source
 /// wrapper (dotnet/android-libraries#1006), and polling is a documented alternative for the flexible
-/// flow. While a download is in progress (the user accepted Play's prompt, or one was already running at
-/// launch/resume) we poll every few seconds and raise a <see cref="UpdateResult.Started"/> event so the
-/// web UI shows a persistent "downloading" toast until the download finishes.
+/// flow. When the user accepts Play's prompt we raise a <see cref="UpdateResult.Started"/> event (the web UI
+/// says the download is running in the background), and while a download is in progress we poll every few
+/// seconds so the restart prompt (or a failure) shows as soon as it's done.
 ///
 /// This only does anything for builds installed from Google Play; for sideloaded/debug builds Play
 /// reports "no update available" and every call here is a harmless no-op.
@@ -75,7 +75,7 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
                 return;
             }
 
-            //Accepted in an earlier run and Play is still downloading: show progress instead of prompting again.
+            //Accepted in an earlier run and Play is still downloading: watch for it to finish instead of prompting again.
             if (IsDownloading(info))
             {
                 StartPollingDownload();
@@ -114,7 +114,7 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
 
     /// <summary>
     /// Called from <see cref="MainActivity"/> with the result of Play's update bottom sheet. When the user
-    /// accepted, Play starts downloading in the background; show that in the UI until it's done.
+    /// accepted, Play starts downloading in the background.
     /// </summary>
     public void OnUpdateFlowResult(Result resultCode)
     {
@@ -124,6 +124,7 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
             return;
         }
 
+        _eventBus.PublishEvent(new AppUpdateEvent(UpdateResult.Started, new FwLiteRelease(string.Empty, string.Empty)));
         StartPollingDownload();
     }
 
@@ -137,16 +138,11 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
     {
         if (_downloadedNotified) return;
         if (Interlocked.Exchange(ref _polling, 1) == 1) return;
-        _eventBus.PublishEvent(new AppUpdateEvent(UpdateResult.Started, new FwLiteRelease(string.Empty, string.Empty)));
         _ = Task.Run(PollDownload);
     }
 
     private async Task PollDownload()
     {
-        //Anything but Downloaded ends the "downloading" toast in the UI: Failed shows an error, Unknown
-        //(cancelled, or we gave up waiting) just clears it.
-        var result = UpdateResult.Unknown;
-        var release = new FwLiteRelease(string.Empty, string.Empty);
         try
         {
             var deadline = DateTime.UtcNow + MaxDownloadPollDuration;
@@ -159,14 +155,13 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
                 if (status == InstallStatus.Downloaded)
                 {
                     NotifyDownloaded(info);
-                    Interlocked.Exchange(ref _polling, 0);
-                    return;
+                    break;
                 }
                 if (IsDownloading(info)) continue;
                 if (status == InstallStatus.Failed)
                 {
                     _logger.LogWarning("Play in-app update download failed");
-                    result = UpdateResult.Failed;
+                    _eventBus.PublishEvent(new AppUpdateEvent(UpdateResult.Failed, new FwLiteRelease(string.Empty, string.Empty)));
                 }
                 else
                 {
@@ -179,11 +174,10 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
         {
             _logger.LogError(e, "Failed polling Play in-app update download");
         }
-
-        //Publish before releasing _polling: otherwise a resume could start a new loop whose Started event
-        //this terminal event would then dismiss.
-        _eventBus.PublishEvent(new AppUpdateEvent(result, release));
-        Interlocked.Exchange(ref _polling, 0);
+        finally
+        {
+            Interlocked.Exchange(ref _polling, 0);
+        }
     }
 
     private Task<AppUpdateInfo?> GetAppUpdateInfo()
