@@ -547,14 +547,14 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.UpdatePicture(entryId, senseId, NormalizePicture(before), NormalizePicture(after), api);
     }
 
-    public Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.MovePicture(entryId, senseId, pictureId, position, kind);
+        await _api.MovePicture(entryId, senseId, pictureId, position, kind);
     }
 
-    public Task SubmitMovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    public async Task SubmitMovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.SubmitMovePicture(entryId, senseId, pictureId, position, kind);
+        await _api.SubmitMovePicture(entryId, senseId, pictureId, position, kind);
     }
 
     public Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)

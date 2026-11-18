@@ -453,9 +453,9 @@ public partial class MiniLcmApiValidationWrapper(
         return _api.CreatePicture(entryId, senseId, picture, position);
     }
 
-    public Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null)
+    public async Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null)
     {
-        return _api.SubmitCreatePicture(entryId, senseId, picture, position);
+        await _api.SubmitCreatePicture(entryId, senseId, picture, position);
     }
 
     public async Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
@@ -475,14 +475,14 @@ public partial class MiniLcmApiValidationWrapper(
         return _api.UpdatePicture(entryId, senseId, before, after, api ?? this);
     }
 
-    public Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.MovePicture(entryId, senseId, pictureId, position, kind);
+        await _api.MovePicture(entryId, senseId, pictureId, position, kind);
     }
 
-    public Task SubmitMovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    public async Task SubmitMovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.SubmitMovePicture(entryId, senseId, pictureId, position, kind);
+        await _api.SubmitMovePicture(entryId, senseId, pictureId, position, kind);
     }
 
     public Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
