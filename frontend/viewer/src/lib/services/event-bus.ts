@@ -59,9 +59,16 @@ export class EventBus {
   }
 
   public notifyEvent(event: IFwEvent) {
-    // Each callback gets its own task: the event loop isn't blocked, and a callback that throws
-    // reaches the global error handler without stopping the other callbacks.
-    this._onEvent.forEach(callback => setTimeout(() => callback(event)));
+    // Deferred so the read loop isn't blocked. Subscribers are read when the task runs, not now: one that
+    // subscribes in between (e.g. onSync, after reading the not-yet-updated cache) must still get this event.
+    setTimeout(() => this._onEvent.forEach(callback => {
+      try {
+        callback(event);
+      } catch (error) {
+        // Let the other callbacks run; the rethrow still reaches the global error handler.
+        setTimeout(() => { throw error; });
+      }
+    }));
   }
 
   public onProjectClosed(callback: (reason: CloseReason) => void): () => void {
