@@ -52,7 +52,6 @@ public class AnalyticsServiceTests
         {
             AppVersion = "1.2.3",
             Os = FwLitePlatform.Windows,
-            Edition = LexCore.Entities.FwLiteEdition.Windows,
         };
 
         var props = AnalyticsService.BuildProperties("tok",

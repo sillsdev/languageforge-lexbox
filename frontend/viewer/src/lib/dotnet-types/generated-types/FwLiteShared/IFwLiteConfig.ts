@@ -12,7 +12,7 @@ export interface IFwLiteConfig
 	appVersion: string;
 	os: FwLitePlatform;
 	feedbackUrl: string;
-	updateUrl: string;
+	overrideUpdateUrl?: string;
 	edition: number;
 	updateCheckCondition: number;
 	updateCheckInterval: unknown;
