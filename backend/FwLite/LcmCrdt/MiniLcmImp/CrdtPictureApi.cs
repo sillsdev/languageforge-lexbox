@@ -73,13 +73,49 @@ public class CrdtPictureApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeW
         return await GetPicture(entryId, senseId, after.Id) ?? throw NotFoundException.ForType<Picture>(after.Id);
     }
 
-    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between)
+    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var sense = await repo.GetSense(senseId);
         if (sense is null) throw NotFoundException.ForType<Sense>(senseId);
-        var order = OrderPicker.PickOrder(sense.Pictures, between);
-        await harmonyChangeWriter.AddChange(new ReorderSensePictureChange(pictureId, senseId, order));
+        if (kind == MoveKind.Reorder)
+        {
+            var order = OrderPicker.PickOrder(sense.Pictures, between);
+            await harmonyChangeWriter.AddChange(new ReorderSensePictureChange(pictureId, senseId, order));
+            return;
+        }
+        CrdtSenseApi.VerifySenseBelongsToEntry(entryId, sense);
+        var sourceSenseId = await repo.GetPictureSenseId(pictureId) ?? throw NotFoundException.ForType<Picture>(pictureId);
+        await Reparent(repo, pictureId, sourceSenseId, senseId, between);
+    }
+
+    public async Task SubmitMovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        // the picture is gone or was reparented on this side: the move is moot, skip it
+        var sourceSenseId = await repo.GetPictureSenseId(pictureId);
+        if (sourceSenseId is null) return;
+        if (kind == MoveKind.Reorder || sourceSenseId == senseId)
+        {
+            if (sourceSenseId != senseId) return;
+            var sense = await repo.GetSense(senseId);
+            if (sense is null) return;
+            await harmonyChangeWriter.AddChange(new ReorderSensePictureChange(pictureId, senseId, OrderPicker.PickOrder(sense.Pictures, between)));
+            return;
+        }
+        // no target checks: a deleted target sense is fine (the picture is then deleted with it, delete wins)
+        await Reparent(repo, pictureId, sourceSenseId.Value, senseId, between);
+    }
+
+    // pictures live inside their sense's row, so a move is a remove from one sense and a create (same id) on the other
+    private async Task Reparent(MiniLcmRepository repo, Guid pictureId, Guid sourceSenseId, Guid targetSenseId, BetweenPosition between)
+    {
+        var sourceSense = await repo.GetSense(sourceSenseId) ?? throw NotFoundException.ForType<Sense>(sourceSenseId);
+        var picture = sourceSense.Pictures.Single(p => p.Id == pictureId);
+        await harmonyChangeWriter.AddChanges([
+            new RemoveSensePictureChange(pictureId, sourceSenseId),
+            new CreateSensePictureChange(picture, targetSenseId, between)
+        ]);
     }
 
     public async Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)

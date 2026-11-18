@@ -12,26 +12,24 @@ public class SyncContext
     private readonly IReadOnlyDictionary<Guid, Sense> _sensesAfter;
     private readonly IReadOnlyDictionary<Guid, ExampleSentence> _examplesBefore;
     private readonly IReadOnlyDictionary<Guid, ExampleSentence> _examplesAfter;
+    private readonly IReadOnlyDictionary<Guid, Picture> _picturesBefore;
+    private readonly IReadOnlyDictionary<Guid, Picture> _picturesAfter;
 
-    private SyncContext(bool deferDeletes,
-        IReadOnlyDictionary<Guid, Sense> sensesBefore,
-        IReadOnlyDictionary<Guid, Sense> sensesAfter,
-        IReadOnlyDictionary<Guid, ExampleSentence> examplesBefore,
-        IReadOnlyDictionary<Guid, ExampleSentence> examplesAfter)
+    private SyncContext(bool deferDeletes, Descendants before, Descendants after)
     {
         _deferDeletes = deferDeletes;
-        _sensesBefore = sensesBefore;
-        _sensesAfter = sensesAfter;
-        _examplesBefore = examplesBefore;
-        _examplesAfter = examplesAfter;
+        _sensesBefore = before.Senses;
+        _sensesAfter = after.Senses;
+        _examplesBefore = before.Examples;
+        _examplesAfter = after.Examples;
+        _picturesBefore = before.Pictures;
+        _picturesAfter = after.Pictures;
     }
 
-    private SyncContext(bool deferDeletes,
-        (IReadOnlyDictionary<Guid, Sense> senses, IReadOnlyDictionary<Guid, ExampleSentence> examples) before,
-        (IReadOnlyDictionary<Guid, Sense> senses, IReadOnlyDictionary<Guid, ExampleSentence> examples) after
-        ) : this(deferDeletes, before.senses, after.senses, before.examples, after.examples)
-    {
-    }
+    private record Descendants(
+        IReadOnlyDictionary<Guid, Sense> Senses,
+        IReadOnlyDictionary<Guid, ExampleSentence> Examples,
+        IReadOnlyDictionary<Guid, Picture> Pictures);
 
     /// <summary>Always defers deletes so descendants can move between entries; the caller must call <see cref="FlushDeletes"/>.</summary>
     public static SyncContext For(Entry[] beforeEntries, Entry[] afterEntries)
@@ -49,18 +47,18 @@ public class SyncContext
     public static SyncContext For(Sense beforeSense, Sense afterSense, bool deferDeletes = false)
     {
         if (beforeSense.Id != afterSense.Id) throw new ArgumentException("Sense ids must match", nameof(afterSense));
-        return new SyncContext(deferDeletes,
-            (new Dictionary<Guid, Sense>() { { beforeSense.Id, beforeSense } }, beforeSense.ExampleSentences.ToDictionary(e => e.Id)),
-            (new Dictionary<Guid, Sense>() { { afterSense.Id, afterSense } }, afterSense.ExampleSentences.ToDictionary(e => e.Id)));
+        return new SyncContext(deferDeletes, Of(beforeSense), Of(afterSense));
     }
 
     /// <summary>Used to differentiate an add/create from what is actually a reparent</summary>
     public Sense? ExistedBefore(Sense sense) => _sensesBefore.GetValueOrDefault(sense.Id);
     public ExampleSentence? ExistedBefore(ExampleSentence example) => _examplesBefore.GetValueOrDefault(example.Id);
+    public Picture? ExistedBefore(Picture picture) => _picturesBefore.GetValueOrDefault(picture.Id);
 
     /// <summary>Used to differentiate a delete from what is actually a reparent</summary>
     public bool StillExists(Sense sense) => _sensesAfter.ContainsKey(sense.Id);
     public bool StillExists(ExampleSentence example) => _examplesAfter.ContainsKey(example.Id);
+    public bool StillExists(Picture picture) => _picturesAfter.ContainsKey(picture.Id);
 
     public Task<int> HandleDelete(Func<Task<int>> delete) => _deferDeletes
         ? _deferredDeletes.Defer(delete)
@@ -68,7 +66,8 @@ public class SyncContext
     public Task<int> FlushDeletes() => _deferredDeletes.DeleteAll();
 
     public bool HasMovedInDescendants(Entry entry) => entry.Senses.Any(s => ExistedBefore(s) is not null || HasMovedInDescendants(s));
-    public bool HasMovedInDescendants(Sense sense) => sense.ExampleSentences.Any(e => ExistedBefore(e) is not null);
+    public bool HasMovedInDescendants(Sense sense) =>
+        sense.ExampleSentences.Any(e => ExistedBefore(e) is not null) || sense.Pictures.Any(p => ExistedBefore(p) is not null);
 
     /// <summary>A copy with moved-in descendants stripped. Genuinely new descendants are kept.</summary>
     public Entry WithoutMovedInDescendants(Entry entry) => entry with
@@ -82,31 +81,31 @@ public class SyncContext
     {
         var copy = sense.Copy();
         copy.ExampleSentences = [.. sense.ExampleSentences.Where(e => ExistedBefore(e) is null)];
+        copy.Pictures = [.. sense.Pictures.Where(p => ExistedBefore(p) is null)];
         return copy;
     }
 
-    private static (IReadOnlyDictionary<Guid, Sense> senses, IReadOnlyDictionary<Guid, ExampleSentence> examples) All(Entry[] entries)
+    private static Descendants All(Entry[] entries) => Of(entries.SelectMany(e => e.Senses).ToArray());
+
+    private static Descendants Of(params Sense[] senseList)
     {
-        var senseCount = entries.Sum(e => e.Senses.Count);
-        var exampleCount = entries.SelectMany(e => e.Senses).Sum(s => s.ExampleSentences.Count);
         //by using the counts to preallocate, we avoid the cost of resizing the dictionary as it grows, it requires counting all the entries first, but that is cheap compared to the cost of resizing the dictionary
-        Dictionary<Guid, Sense> senses = new(senseCount);
-        Dictionary<Guid, ExampleSentence> examples = new(exampleCount);
-        foreach (var entry in entries)
+        Dictionary<Guid, Sense> senses = new(senseList.Length);
+        Dictionary<Guid, ExampleSentence> examples = new(senseList.Sum(s => s.ExampleSentences.Count));
+        Dictionary<Guid, Picture> pictures = new(senseList.Sum(s => s.Pictures.Count));
+        foreach (var sense in senseList)
         {
-            foreach (var sense in entry.Senses)
-            {
-                senses[sense.Id] = sense;
-                foreach (var example in sense.ExampleSentences)
-                    examples[example.Id] = example;
-            }
+            senses[sense.Id] = sense;
+            foreach (var example in sense.ExampleSentences)
+                examples[example.Id] = example;
+            foreach (var picture in sense.Pictures)
+                pictures[picture.Id] = picture;
         }
-        return (senses, examples);
+        return new Descendants(senses, examples, pictures);
     }
 
     private static void VerifyNoUnsupportedMoves(Entry[] beforeEntries, Entry[] afterEntries)
     {
-        ThrowIfContainsMoves(nameof(Picture), PictureParents(beforeEntries), PictureParents(afterEntries));
         ThrowIfContainsMoves(nameof(Translation), TranslationParents(beforeEntries), TranslationParents(afterEntries));
     }
 
@@ -124,16 +123,8 @@ public class SyncContext
         }
     }
 
-    // parent maps tolerate duplicate ids (First wins): a duplicated child is corrupt data the sync
+    // the parent map tolerates duplicate ids (First wins): a duplicated child is corrupt data the sync
     // otherwise handles, not something detection should turn into a hard failure
-    private static IEnumerable<(Guid ChildId, Guid ParentId)> PictureParents(Entry[] entries)
-    {
-        return entries.SelectMany(e => e.Senses)
-            .SelectMany(s => s.Pictures, (s, p) => (ChildId: p.Id, ParentId: s.Id))
-            .GroupBy(p => p.ChildId)
-            .Select(g => (ChildId: g.Key, ParentId: g.First().ParentId));
-    }
-
     private static IEnumerable<(Guid ChildId, Guid ParentId)> TranslationParents(Entry[] entries)
     {
         return entries.SelectMany(e => e.Senses)

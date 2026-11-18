@@ -57,6 +57,40 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         ExampleIds(actual.Senses[0]).Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task PictureMovedToSenseDeletedInCrdt_IsDeleted()
+    {
+        var picture = NewPicture("picture");
+        var sourceSense = NewSenseWithPictures("source", picture);
+        var targetSense = NewSense("target");
+        var entry = await CreateEntry("entry", sourceSense, targetSense);
+        await Api.DeleteSense(entry.Id, targetSense.Id);
+
+        var after = Copy([entry]);
+        MovePicture(after, picture, targetSense.Id);
+        await Sync([entry], after);
+
+        var actual = await GetEntry(entry.Id);
+        SenseIds(actual).Should().Equal(sourceSense.Id);
+        PictureIds(actual.Senses[0]).Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task PictureMovedButDeletedInCrdt_StaysDeleted()
+    {
+        var picture = NewPicture("picture");
+        var sourceSense = NewSenseWithPictures("source", picture);
+        var targetSense = NewSense("target");
+        var entry = await CreateEntry("entry", sourceSense, targetSense);
+        await Api.DeletePicture(entry.Id, sourceSense.Id, picture.Id);
+
+        var after = Copy([entry]);
+        MovePicture(after, picture, targetSense.Id);
+        await Sync([entry], after);
+
+        (await GetEntry(entry.Id)).Senses.SelectMany(s => s.Pictures).Should().BeEmpty();
+    }
+
     // A target sense CRDT reparented since the snapshot is still a valid target: the example follows it to its new entry.
 
     [Fact]

@@ -548,9 +548,14 @@ public class CrdtMiniLcmApi(
         return await pictureApi.UpdatePicture(entryId, senseId, before, after, api ?? this);
     }
 
-    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between)
+    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
-        await pictureApi.MovePicture(entryId, senseId, pictureId, between);
+        await pictureApi.MovePicture(entryId, senseId, pictureId, between, kind);
+    }
+
+    public async Task SubmitMovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
+    {
+        await pictureApi.SubmitMovePicture(entryId, senseId, pictureId, between, kind);
     }
 
     public async Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)

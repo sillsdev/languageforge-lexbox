@@ -92,6 +92,27 @@ public class SyncContextTests
         context.ExistedBefore(NewExample()).Should().BeNull();
     }
 
+    [Fact]
+    public void PictureMovedOutOfDeletedSense_IsAMove()
+    {
+        // FLEx "Merge Sense into..."
+        var picture = NewPicture();
+        var mergedSense = NewSense(picture);
+        var survivingSense = NewSense();
+        var before = NewEntry(mergedSense, survivingSense);
+
+        var after = before.Copy();
+        after.Senses.RemoveAt(0);
+        var movedPicture = picture.Copy();
+        after.Senses[0].Pictures.Add(movedPicture);
+
+        var context = SyncContext.For(before, after);
+        context.ExistedBefore(movedPicture).Should().BeSameAs(mergedSense.Pictures[0]);
+        context.StillExists(picture).Should().BeTrue();
+        context.HasMovedInDescendants(after.Senses[0]).Should().BeTrue();
+        context.WithoutMovedInDescendants(after.Senses[0]).Pictures.Should().BeEmpty();
+    }
+
     #endregion
 
     #region Stripping moved-in descendants out of a create payload
@@ -219,25 +240,6 @@ public class SyncContextTests
     #region Unsupported moves are refused before anything is written
 
     [Fact]
-    public void PictureMovedToDifferentSense_Throws()
-    {
-        var picture = NewPicture();
-        var sourceSense = NewSense(picture);
-        var targetSense = NewSense();
-        var before = NewEntry(sourceSense, targetSense);
-
-        var after = before.Copy();
-        after.Senses[0].Pictures.Clear();
-        after.Senses[1].Pictures.Add(picture.Copy());
-
-        var act = () => SyncContext.For(before, after);
-        act.Should().Throw<MoveNotSupportedException>()
-            .WithMessage($"*{picture.Id}*{sourceSense.Id}*{targetSense.Id}*");
-        act = () => SyncContext.For([before], [after]);
-        act.Should().Throw<MoveNotSupportedException>();
-    }
-
-    [Fact]
     public void TranslationMovedToDifferentExampleSentence_Throws()
     {
         var translation = NewTranslation();
@@ -254,22 +256,6 @@ public class SyncContextTests
         act.Should().Throw<MoveNotSupportedException>()
             .WithMessage($"*{translation.Id}*{sourceExample.Id}*{targetExample.Id}*");
         act = () => SyncContext.For([before], [after]);
-        act.Should().Throw<MoveNotSupportedException>();
-    }
-
-    [Fact]
-    public void PictureMovedToSurvivingSenseWhileItsOwnSenseIsDeleted_Throws()
-    {
-        var picture = NewPicture();
-        var deletedSense = NewSense(picture);
-        var survivingSense = NewSense();
-        var before = NewEntry(deletedSense, survivingSense);
-
-        var after = before.Copy();
-        after.Senses.RemoveAt(0);
-        after.Senses[0].Pictures.Add(picture.Copy());
-
-        var act = () => SyncContext.For(before, after);
         act.Should().Throw<MoveNotSupportedException>();
     }
 

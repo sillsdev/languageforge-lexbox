@@ -234,6 +234,16 @@ This orchestrates the bidirectional sync:
    - `fwdataApi.Save()` must be called after changes
    - Missing this = data loss
 
+### FLEx reparents objects, guid-intact
+
+Assume any object owned by an entry or sense can show up under a different parent with the same id. Sync must apply that as a move, never a delete plus create. FLEx features that do it:
+
+- **Merge Sense into...**: the merged sense's examples, pictures and subsenses move to the surviving sense.
+- **Merge Entry**: senses move to the surviving entry.
+- **Move Sense to a New Entry**, drag-and-drop, promote/demote: senses move.
+
+Translations can't move in FLEx (examples are never merged), so sync still rejects that (`SyncContext.VerifyNoUnsupportedMoves`). LIFT import and other rarer paths aren't checked; if one reparents something, that check surfaces it.
+
 ### Concurrency model: CRDT forgives, FwData doesn't
 
 Sync applies a diff of the stale last-synced snapshot vs current FwData onto CRDT, but a diff of live FwData vs live CRDT onto FwData. So a change reaching CRDT can be invalid (another client deleted or reparented its target since the snapshot), while a change reaching FwData is never stale. That's the point of a CRDT: it merges conflicting intent (delete-wins, etc.); FwData has no conflict resolution and must not fake one.

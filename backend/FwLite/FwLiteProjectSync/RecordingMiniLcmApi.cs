@@ -345,10 +345,16 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return await _api.UpdatePicture(entryId, senseId, before, after, api);
     }
 
-    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between)
+    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
-        RunRecords.Add(new RunRecord(nameof(MovePicture), $"Move picture {pictureId} in sense {senseId} {Position(between)}"));
-        await _api.MovePicture(entryId, senseId, pictureId, between);
+        RunRecords.Add(new RunRecord(nameof(MovePicture), $"Move picture {pictureId} in sense {senseId} {Position(between)} ({kind})"));
+        await _api.MovePicture(entryId, senseId, pictureId, between, kind);
+    }
+
+    public async Task SubmitMovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
+    {
+        RunRecords.Add(new RunRecord(nameof(SubmitMovePicture), $"Move picture {pictureId} in sense {senseId} {Position(between)} ({kind})"));
+        await _api.SubmitMovePicture(entryId, senseId, pictureId, between, kind);
     }
 
     public async Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)

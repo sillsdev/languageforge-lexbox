@@ -278,7 +278,12 @@ public partial class WriteIgnoringMiniLcmApi(IMiniLcmReadApi api) : IMiniLcmApi
         return Task.FromResult(after);
     }
 
-    public Task MovePicture(Guid entryId, Guid senseId, Guid exampleId, BetweenPosition between)
+    public Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task SubmitMovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         return Task.CompletedTask;
     }

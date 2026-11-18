@@ -359,6 +359,23 @@ public abstract class PictureTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task MovePicture_Reparent_ReparentsToDifferentSense()
+    {
+        var before = await Api.GetPicture(_entryId, _senseId, _pictureId);
+        var targetSenseId = Guid.NewGuid();
+        await Api.CreateSense(_entryId, new Sense { Id = targetSenseId, Gloss = { { "en", "target" } } });
+        var existing = await Api.CreatePicture(_entryId, targetSenseId, new Picture { Id = Guid.NewGuid(), MediaUri = _mediaUri });
+
+        await Api.MovePicture(_entryId, targetSenseId, _pictureId, new BetweenPosition(null, existing.Id), MoveKind.Reparent);
+
+        var targetSense = await Api.GetSense(_entryId, targetSenseId);
+        targetSense.Should().NotBeNull();
+        targetSense.Pictures.Select(p => p.Id).Should().Equal(_pictureId, existing.Id);
+        targetSense.Pictures[0].Should().BeEquivalentTo(before, options => options.Excluding(p => p!.Order));
+        (await GetPictureIds()).Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task DeletePicture_RemovesOnlyThatPicture()
     {
         var second = await CreatePicture("second");

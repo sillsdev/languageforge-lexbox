@@ -147,9 +147,9 @@ public partial class MiniLcmApiNotifyWrapper(
         return result;
     }
 
-    async Task IMiniLcmWriteApi.MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position)
+    async Task IMiniLcmWriteApi.MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind)
     {
-        await _api.MovePicture(entryId, senseId, pictureId, position);
+        await _api.MovePicture(entryId, senseId, pictureId, position, kind);
         NotifyEntryChanged(entryId);
     }
 

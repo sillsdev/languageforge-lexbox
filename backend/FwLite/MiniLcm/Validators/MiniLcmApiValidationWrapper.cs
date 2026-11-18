@@ -470,9 +470,14 @@ public partial class MiniLcmApiValidationWrapper(
         return _api.UpdatePicture(entryId, senseId, before, after, api ?? this);
     }
 
-    public Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position)
+    public Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.MovePicture(entryId, senseId, pictureId, position);
+        return _api.MovePicture(entryId, senseId, pictureId, position, kind);
+    }
+
+    public Task SubmitMovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    {
+        return _api.SubmitMovePicture(entryId, senseId, pictureId, position, kind);
     }
 
     public Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
