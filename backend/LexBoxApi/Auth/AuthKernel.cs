@@ -27,7 +27,7 @@ namespace LexBoxApi.Auth;
 public static class AuthKernel
 {
     public const string DefaultScheme = "JwtOrCookie";
-    public const string JwtOverBasicAuthUsername = "bearer";
+    public const string JwtOverBasicAuthUsername = LexAuthConstants.JwtOverBasicAuthUsername;
     public const string AuthCookieName = LexAuthConstants.AuthCookieName;
     public const string OAuthAuthenticationType = "OAuth";
 

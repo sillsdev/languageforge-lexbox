@@ -31,8 +31,8 @@ tasks:
       MercurialVersion: '{{.HG}}'
       TEST_EXPECTED_HG_VERSION: '{{.HG}}'
     cmds:
-      - dotnet build
-      - dotnet test --filter="Category=HgIntegration&FullyQualifiedName!~Testing.Browser&{{.FILTER}}" --results-directory ./test-results --logger trx
+      - dotnet build ../HgClientTests/HgClientTests.csproj
+      - dotnet test ../HgClientTests/HgClientTests.csproj --no-build --filter="Category=HgIntegration&{{.FILTER}}" --results-directory ./test-results --logger trx
 
   integration-env:
     interactive: true

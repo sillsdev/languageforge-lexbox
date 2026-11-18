@@ -1,5 +1,7 @@
 namespace Testing.Services;
 
+public record SendReceiveAuth(string Username, string Password);
+
 public static class Constants
 {
     public static readonly string BasePath = Path.Join(Path.GetTempPath(), "SR_Tests");

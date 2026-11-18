@@ -28,7 +28,7 @@ GitHub Actions workflows and deployment. Full runs take 30-60+ min across Linux,
 | Workflow | Triggers | What it does |
 |----------|----------|--------------|
 | `integration-test.yaml` | Called by others | Run integration tests (except hg client tests) against an environment |
-| `hg-client-test.yaml` | Called by `release-pipeline.yaml` | Run the hg client tests (`Category=HgIntegration`) with one hg version (3, 6 or 7) against an environment |
+| `hg-client-test.yaml` | Called by `release-pipeline.yaml` | Run the hg client tests (`Category=HgIntegration`) from `backend/HgClientTests` with one hg version (3, 6 or 7) and the LibChorus FLEx Bridge shipped with it, against an environment |
 | `integration-test-gha.yaml` | API/UI changes | Spin up K8s in GHA, run integration tests |
 | `deploy.yaml` | Called by others | Deploy to K8s environment via fleet repo |
 | `deploy-branch.yaml` | Manual | Deploy feature branch to develop |

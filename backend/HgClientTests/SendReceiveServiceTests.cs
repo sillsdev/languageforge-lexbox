@@ -1,18 +1,19 @@
+using System.Diagnostics;
 using Chorus.VcsDrivers.Mercurial;
-using LexBoxApi.Auth;
+using LexCore.Auth;
 using FluentAssertions;
 using SIL.Progress;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
 using Testing.ApiTests;
 using Testing.Fixtures;
-using Testing.Logging;
 using Testing.Services;
 using Xunit.Abstractions;
 using static Testing.Services.Constants;
+using static HgClientTests.SendReceiveService;
 using static Testing.Services.Utils;
 
-namespace Testing.SyncReverseProxy;
+namespace HgClientTests;
 
 [Trait("Category", "HgIntegration")]
 public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClassFixture<HgClientFixture>
@@ -31,11 +32,15 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClass
         _adminApiTester = _srFixture.AdminApiTester;
     }
 
+    private static string? VersionOf(Type type) =>
+        FileVersionInfo.GetVersionInfo(type.Assembly.Location).ProductVersion?.Split('+')[0];
+
     [Fact]
     public async Task VerifyHgWorking()
     {
         var version = await SendReceiveService.GetHgVersion();
         _output.WriteLine("Hg version: " + version);
+        _output.WriteLine($"LibChorus {VersionOf(typeof(HgRepository))}, LfMergeBridge {VersionOf(typeof(LfMergeBridge.LfMergeBridge))}");
         HgRunner.Run("hg version", Environment.CurrentDirectory, 5, new XunitStringBuilderProgress(_output) { ShowVerbose = true });
         HgRepository.GetEnvironmentReadinessMessage("en").Should().BeNull();
     }
@@ -49,7 +54,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClass
         var jwt = await JwtHelper.GetProjectJwtForUser(new SendReceiveAuth(user, TestingEnvironmentVariables.DefaultPassword), projectCode);
         var sendReceiveParams = GetParams(hgProtocol, projectCode);
         _sendReceiveService.RunCloneSendReceive(sendReceiveParams,
-            new SendReceiveAuth(AuthKernel.JwtOverBasicAuthUsername, jwt));
+            new SendReceiveAuth(LexAuthConstants.JwtOverBasicAuthUsername, jwt));
     }
 
     [Theory]

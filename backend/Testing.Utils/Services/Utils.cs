@@ -1,7 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using LexCore.Entities;
-using Quartz.Util;
 using FluentAssertions;
 using Testing.ApiTests;
 using static Testing.Services.Constants;
@@ -11,16 +10,6 @@ namespace Testing.Services;
 public static class Utils
 {
     private static int _folderIndex = 1;
-
-    public static SendReceiveParams GetParams(HgProtocol protocol,
-        string? projectCode = null,
-        [CallerMemberName] string projectName = "")
-    {
-        projectCode ??= TestingEnvironmentVariables.ProjectCode;
-        var sendReceiveParams = new SendReceiveParams(projectCode, protocol.GetTestHostName(),
-            GetNewProjectDir(projectCode, projectName));
-        return sendReceiveParams;
-    }
 
     public static ProjectConfig GetNewProjectConfig(HgProtocol? protocol = null, bool isConfidential = false, Guid? owningOrgId = null, [CallerMemberName] string projectName = "")
     {
@@ -128,13 +117,6 @@ public static class Utils
         return AddMemberToProject(config.Id, apiTester, usernameOrEmail, role, overrideJwt);
     }
 
-    public static void ValidateSendReceiveOutput(string srOutput)
-    {
-        srOutput.Should().NotContain("abort");
-        srOutput.Should().NotContain("failure");
-        srOutput.Should().NotContain("error");
-    }
-
     public static string ToProjectCodeFriendlyString(string name)
     {
         var dashesBeforeCapitals = Regex.Replace(name, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9]|(?<=[0-9])[A-Z])", "-$1")
@@ -148,11 +130,11 @@ public static class Utils
         await Task.Delay(TestingEnvironmentVariables.HgRefreshInterval);
     }
 
-    private static string GetNewProjectDir(string projectCode,
+    public static string GetNewProjectDir(string projectCode,
         [CallerMemberName] string projectName = "")
     {
         projectName = projectName[..Math.Min(projectName.Length, 40)]; // make sure the path isn't too long
-        var projectDir = projectName.IsNullOrWhiteSpace() ? BasePath : Path.Join(BasePath, projectName);
+        var projectDir = string.IsNullOrWhiteSpace(projectName) ? BasePath : Path.Join(BasePath, projectName);
         // Add a random id to the path to be certain we prevent naming clashes.
         // Letters only: this path ends up in hg error text, and Chorus (<= 6.0.0-beta0074) classifies errors by searching
         // that whole text for HTTP status codes, so a hex id containing e.g. "404" turns an auth failure into a "project not found".

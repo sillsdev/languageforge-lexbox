@@ -4,11 +4,13 @@
     "projects": [
       "backend\\FixFwData\\FixFwData.csproj",
       "backend\\FwLite\\MiniLcm\\MiniLcm.csproj",
+      "backend\\HgClientTests\\HgClientTests.csproj",
       "backend\\LexBoxApi\\LexBoxApi.csproj",
       "backend\\LexCore\\LexCore.csproj",
       "backend\\LexData\\LexData.csproj",
       "backend\\LfClassicData\\LfClassicData.csproj",
       "backend\\SyncReverseProxy\\SyncReverseProxy.csproj",
+      "backend\\Testing.Utils\\Testing.Utils.csproj",
       "backend\\Testing\\Testing.csproj"
     ]
   }
