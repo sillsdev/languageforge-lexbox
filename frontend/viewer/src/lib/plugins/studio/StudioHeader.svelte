@@ -1,5 +1,6 @@
 <script lang="ts">
   import {Button} from '$lib/components/ui/button';
+  import {SidebarTrigger} from '$lib/components/ui/sidebar';
   import {t} from 'svelte-i18n-lingui';
   import {AppNotification} from '$lib/notifications/notifications';
   import {useStudio, type StudioStatus} from './plugin-studio.svelte';
@@ -34,6 +35,7 @@
 
 <header class="flex flex-wrap items-center gap-x-3 gap-y-2 border-b px-4 py-2.5">
   <nav aria-label={$t`Breadcrumb`} class="flex min-w-0 items-center gap-2">
+    <SidebarTrigger icon="i-mdi-menu" class="aspect-square shrink-0 p-0" />
     <Button variant="link" class="px-0" onclick={() => void studio.leave()}>{$t`Plugins`}</Button>
     <span class="text-muted-foreground" aria-hidden="true">/</span>
     {#if studio.mode === 'example'}
