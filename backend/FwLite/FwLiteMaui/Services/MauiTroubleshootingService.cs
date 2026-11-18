@@ -21,7 +21,7 @@ public class MauiTroubleshootingService(
     private readonly IBrowser _browser = browser;
     private readonly IShare _share = share;
     private FwLiteMauiConfig Config => config.Value;
-    // projects can live outside BaseDataDir (Windows MSIX, see FwLiteMauiConfig.ProjectDataDir)
+    // projects can live outside BaseDataDir (Windows MSIX, see FwLiteMauiConfig.ResolveProjectDataDir)
     private string DataDirectory => lcmCrdtConfig.Value.ProjectPath;
 
     [JSInvokable]

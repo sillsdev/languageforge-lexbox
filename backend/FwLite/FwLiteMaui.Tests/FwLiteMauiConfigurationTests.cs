@@ -74,6 +74,36 @@ public class FwLiteMauiConfigurationTests : IDisposable
     }
 
     [Fact]
+    public void ResolveProjectDataDir_FollowsBaseDataDir_AfterBinding()
+    {
+        var first = Path.Combine(_dataDir, "first");
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["BaseDataDir"] = first })
+            .Build().Get<FwLiteMauiConfig>()!;
+        config.ResolveProjectDataDir().Should().Be(Path.GetFullPath(first));
+
+        var second = Path.Combine(_dataDir, "second");
+        config.BaseDataDir = second;
+
+        config.ResolveProjectDataDir().Should().Be(Path.GetFullPath(second));
+    }
+
+    [Fact]
+    public void ResolveProjectDataDir_HonorsOverride()
+    {
+        var overridden = Path.Combine(_dataDir, "override");
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["BaseDataDir"] = Path.Combine(_dataDir, "base"),
+                ["OverrideProjectDataDir"] = overridden,
+            })
+            .Build().Get<FwLiteMauiConfig>()!;
+
+        config.ResolveProjectDataDir().Should().Be(Path.GetFullPath(overridden));
+    }
+
+    [Fact]
     public void CorruptSettingsFile_IsSkippedInsteadOfCrashing()
     {
         File.WriteAllText(SettingsFilePath, "{ not json");
