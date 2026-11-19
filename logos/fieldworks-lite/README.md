@@ -3,6 +3,9 @@
 A navy dictionary with a thumb index: the coral tab is the word you are looking up, and the ล on the cover is shared with Lexbox.
 Part of the SIL lexical tools logo family (FLEx, FieldWorks Lite, Lexbox, The Combine, Webonary).
 
+**Start with `index.html`.** Open it in any browser: it shows every file at its real size, which file to use where, mock-ups,
+the colours, and a download of the whole set. It is a self-contained snapshot, so `render.mjs` does not update it.
+
 ## Which file
 
 The logo is drawn four times, from detailed to simple. Pick the drawing by the size it appears at on screen, and the `-reversed`
