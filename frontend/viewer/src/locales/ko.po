@@ -8,7 +8,7 @@ msgstr ""
 "Language: ko\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-17 07:24\n"
+"PO-Revision-Date: 2026-11-19 07:27\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -1401,6 +1401,10 @@ msgstr "다운로드 {0}"
 #: src/home/Server.svelte
 msgid "Downloading {0}..."
 msgstr "다운로드 {0}..."
+
+#: src/lib/notifications/NotificationOutlet.svelte
+msgid "Downloading update in the background. We'll let you know when it's ready."
+msgstr "백그라운드에서 업데이트를 다운로드 중입니다. 준비가 완료되면 알려드리겠습니다."
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Downloading update..."
@@ -4729,6 +4733,7 @@ msgid "Update downloading in the background. Restart to apply once it's finished
 msgstr "백그라운드에서 업데이트를 다운로드 중입니다. 다운로드가 완료되면 재시작하여 적용하십시오."
 
 #. Error message when update fails to install
+#: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
 msgstr "업데이트를 설치하지 못했습니다."
