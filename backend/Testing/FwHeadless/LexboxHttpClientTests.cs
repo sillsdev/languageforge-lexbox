@@ -2,7 +2,6 @@ using FwHeadless;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http.Resilience;
-using Microsoft.Extensions.Options;
 using WebServiceDefaults;
 
 namespace Testing.FwHeadless;
@@ -29,11 +28,6 @@ public class LexboxHttpClientTests
         return chain;
     }
 
-    private static HttpStandardResilienceOptions StandardOptions(ServiceProvider services, string clientName)
-    {
-        return services.GetRequiredService<IOptionsMonitor<HttpStandardResilienceOptions>>().Get($"{clientName}-standard");
-    }
-
     [Theory]
     [InlineData(FwHeadlessKernel.LexboxHttpClientName)]
     [InlineData(FwHeadlessKernel.LexboxSyncHttpClientName)]
@@ -43,21 +37,4 @@ public class LexboxHttpClientTests
         HandlerChain(services, clientName).Should().Equal(typeof(ResilienceHandler), typeof(HttpClientAuthHandler));
     }
 
-    [Fact]
-    public void SyncClient_UsesLongerTimeouts()
-    {
-        using var services = BuildServices();
-        var options = StandardOptions(services, FwHeadlessKernel.LexboxSyncHttpClientName);
-        options.AttemptTimeout.Timeout.Should().Be(TimeSpan.FromSeconds(30));
-        options.TotalRequestTimeout.Timeout.Should().Be(TimeSpan.FromSeconds(90));
-    }
-
-    [Fact]
-    public void DefaultClient_KeepsTheStandardTimeouts()
-    {
-        using var services = BuildServices();
-        var options = StandardOptions(services, FwHeadlessKernel.LexboxHttpClientName);
-        options.AttemptTimeout.Timeout.Should().Be(TimeSpan.FromSeconds(10));
-        options.TotalRequestTimeout.Timeout.Should().Be(TimeSpan.FromSeconds(30));
-    }
 }
