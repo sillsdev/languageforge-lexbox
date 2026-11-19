@@ -11,7 +11,7 @@ namespace LexBoxApi.Services;
 
 public class CrdtCommitService(LexBoxDbContext dbContext)
 {
-    /// <returns>how many commits were new; commits whose id is already stored are skipped</returns>
+    /// <returns>how many commits were new; commits whose id is already stored in this project are skipped</returns>
     public async Task<int> AddCommits(Guid projectId, IAsyncEnumerable<ServerCommit> commits, CancellationToken token = default)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync(token);
@@ -31,6 +31,18 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
             .OnTargetKey()
             .InsertWhenNotMatched()
             .MergeAsync(token);
+
+        if (inserted < await tmpTable.CountAsync(token))
+        {
+            var collidingIds = await (
+                from tmp in tmpTable
+                join existing in commitsTable on tmp.Id equals existing.Id
+                where existing.ProjectId != tmp.ProjectId
+                select tmp.Id).Take(5).ToListAsync(token);
+            if (collidingIds.Count > 0)
+                throw new InvalidOperationException(
+                    $"Commits already exist in another project, e.g. {string.Join(", ", collidingIds)}. Pushed to project {projectId}.");
+        }
 
         await transaction.CommitAsync(token);
         return inserted;
