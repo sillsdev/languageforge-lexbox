@@ -21,7 +21,8 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
         //A projection lambda here would let linq2db v6 wrap our Sql.Expr<...>::jsonb cast in the
         //EF value-converter (JsonSerializer.Serialize) and fail SQL translation.
         var stampedCommits = commits.Select(c => { c.ProjectId = projectId; return c; });
-        await tmpTable.BulkCopyAsync(new BulkCopyOptions{BulkCopyType = BulkCopyType.ProviderSpecific, MaxBatchSize = 10}, stampedCommits, token);
+        //rows stream into COPY either way; a small MaxBatchSize only adds a server round trip per batch
+        await tmpTable.BulkCopyAsync(new BulkCopyOptions{BulkCopyType = BulkCopyType.ProviderSpecific}, stampedCommits, token);
 
         var commitsTable = linqToDbContext.GetTable<ServerCommit>();
         var inserted = await commitsTable
