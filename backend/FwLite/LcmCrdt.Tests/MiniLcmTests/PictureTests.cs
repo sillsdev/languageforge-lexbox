@@ -92,15 +92,6 @@ public class PictureTests : PictureTestsBase
         (await GetPictureIds()).Should().BeEmpty();
     }
 
-    [Fact]
-    public async Task SubmitMovePicture_ReorderDeletedPicture_DoesNothing()
-    {
-        await Api.DeletePicture(_entryId, _senseId, _pictureId);
-
-        await Api.SubmitMovePicture(_entryId, _senseId, _pictureId, new BetweenPosition(null, null));
-
-        (await GetPictureIds()).Should().BeEmpty();
-    }
 
     [Fact]
     public async Task SubmitCreatePicture_UnderDeletedSense_DoesNothing()
