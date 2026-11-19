@@ -59,7 +59,8 @@ function tarProjectInPod(pod) {
   runKubectl([
     "exec", "--context", context, "-n", namespace, "-c", "fw-headless", pod, "--",
     "sh", "-c",
-    `"cd ${projectFolder} && tar czf ${remoteTar} ."`
+    // .hg/wcache holds a symlink that Windows tar can't extract; hg rebuilds the cache when needed
+    `"cd ${projectFolder} && tar czf ${remoteTar} --exclude=.hg/wcache ."`
   ]);
 }
 
