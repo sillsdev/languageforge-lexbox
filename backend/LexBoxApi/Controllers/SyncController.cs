@@ -81,6 +81,7 @@ public class SyncController(
     /// which is what the snapshot is intended to represent.
     /// </param>
     [HttpPost("regenerate-snapshot/{projectId}")]
+    [AdminRequired]
     [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
