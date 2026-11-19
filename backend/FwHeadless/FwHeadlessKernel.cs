@@ -39,6 +39,7 @@ public static class FwHeadlessKernel
             .AddLcmCrdtClientCore()
             .AddFwDataBridge(ServiceLifetime.Scoped)
             .AddFwLiteProjectSync();
+        services.Configure<FwDataBridgeConfig>(config => config.UseGlobalWritingSystemStore = false);
         services.RemoveAll(typeof(IMediaAdapter));
         services.AddScoped<IMediaAdapter, LexboxFwDataMediaAdapter>();
         services.AddScoped<MediaFileService>();

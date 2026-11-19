@@ -18,6 +18,7 @@ public static class FwDataTestsKernel
             // the default resolves to an installed FieldWorks (if any), whose <lang>.ldml templates change WS defaults (e.g. Font).
             // Use liblcm's packaged templates (copied to the test output) so results don't depend on the machine.
             config.TemplatesFolder = Path.GetFullPath("Templates");
+            config.UseGlobalWritingSystemStore = false;
         });
         if (mockProjectLoader)
         {
