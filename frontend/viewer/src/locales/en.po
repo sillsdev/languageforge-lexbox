@@ -1397,6 +1397,10 @@ msgstr "Downloaded {0}"
 msgid "Downloading {0}..."
 msgstr "Downloading {0}..."
 
+#: src/lib/notifications/NotificationOutlet.svelte
+msgid "Downloading update in the background. We'll let you know when it's ready."
+msgstr "Downloading update in the background. We'll let you know when it's ready."
+
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Downloading update..."
 msgstr "Downloading update..."
@@ -4724,6 +4728,7 @@ msgid "Update downloading in the background. Restart to apply once it's finished
 msgstr "Update downloading in the background. Restart to apply once it's finished."
 
 #. Error message when update fails to install
+#: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
 msgstr "Update failed to install."
