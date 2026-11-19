@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using MiniLcm.Models;
 using SIL.LCModel.Core.WritingSystems;
 using SIL.LCModel.Utils;
+using SIL.WritingSystems;
 
 namespace FwDataMiniLcmBridge.Tests;
 
@@ -20,7 +21,7 @@ public class WritingSystemIsolationTests : IDisposable
     public void Dispose()
     {
         _services.Dispose();
-        SingletonsContainer.Get<CoreGlobalWritingSystemRepository>().Remove(_wsTag);
+        SingletonsContainer.Get<CoreGlobalWritingSystemRepository>()?.Remove(_wsTag);
         foreach (var project in _projects)
         {
             if (Directory.Exists(project.ProjectFolder)) Directory.Delete(project.ProjectFolder, true);
@@ -32,18 +33,31 @@ public class WritingSystemIsolationTests : IDisposable
     public async Task NewWritingSystem_DoesNotInheritSettingsFromAnotherProject()
     {
         var factory = _services.GetRequiredService<FwDataFactory>();
+        var baselineApi = factory.GetFwDataMiniLcmApi(NewProject(), false);
+        var baseline = Settings(baselineApi, await baselineApi.CreateWritingSystem(NewWritingSystem()));
 
         var projectA = NewProject();
         var apiA = factory.GetFwDataMiniLcmApi(projectA, false);
         await apiA.CreateWritingSystem(NewWritingSystem());
         await apiA.UpdateWritingSystem(_wsTag, WritingSystemType.Vernacular,
             new UpdateObjectInput<WritingSystem>().Set(ws => ws.Font, "Project A Font"));
+        var lcmWsA = apiA.Cache.ServiceLocator.WritingSystemManager.Get(_wsTag);
+        lcmWsA.DefaultCollation = new IcuRulesCollationDefinition("standard") { IcuRules = "&a < z" };
+        lcmWsA.CharacterSets.Add(new CharacterSetDefinition("index") { Characters = { "z", "a" } });
+        lcmWsA.RightToLeftScript = true;
+        lcmWsA.SpellCheckingId = "project_a_dictionary";
         await factory.CloseProjectAsync(projectA);
 
         var apiB = factory.GetFwDataMiniLcmApi(NewProject(), false);
-        var wsB = await apiB.CreateWritingSystem(NewWritingSystem());
+        var settingsB = Settings(apiB, await apiB.CreateWritingSystem(NewWritingSystem()));
 
-        wsB.Font.Should().NotBe("Project A Font");
+        settingsB.Should().BeEquivalentTo(baseline);
+    }
+
+    private object Settings(FwDataMiniLcmApi api, WritingSystem ws)
+    {
+        var lcmWs = api.Cache.ServiceLocator.WritingSystemManager.Get(_wsTag);
+        return new { ws, lcmWs.RightToLeftScript, lcmWs.SpellCheckingId };
     }
 
     private FwDataProject NewProject()
