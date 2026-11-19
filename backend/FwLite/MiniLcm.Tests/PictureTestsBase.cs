@@ -6,9 +6,9 @@ namespace MiniLcm.Tests;
 
 public abstract class PictureTestsBase : MiniLcmTestBase
 {
-    private readonly Guid _entryId = Guid.NewGuid();
-    private readonly Guid _senseId = Guid.NewGuid();
-    private readonly Guid _pictureId = Guid.NewGuid();
+    protected readonly Guid _entryId = Guid.NewGuid();
+    protected readonly Guid _senseId = Guid.NewGuid();
+    protected readonly Guid _pictureId = Guid.NewGuid();
     private MediaUri _mediaUri;
 
     public override async Task InitializeAsync()
@@ -60,7 +60,7 @@ public abstract class PictureTestsBase : MiniLcmTestBase
         }, position);
     }
 
-    private async Task<Guid[]> GetPictureIds()
+    protected async Task<Guid[]> GetPictureIds()
     {
         var sense = await Api.GetSense(_entryId, _senseId);
         sense.Should().NotBeNull();
