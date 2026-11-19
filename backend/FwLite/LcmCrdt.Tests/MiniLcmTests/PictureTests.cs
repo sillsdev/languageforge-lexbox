@@ -1,3 +1,4 @@
+using MiniLcm.Media;
 using MiniLcm.SyncHelpers;
 
 namespace LcmCrdt.Tests.MiniLcmTests;
@@ -89,5 +90,30 @@ public class PictureTests : PictureTestsBase
 
         // delete wins
         (await GetPictureIds()).Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SubmitMovePicture_ReorderDeletedPicture_DoesNothing()
+    {
+        await Api.DeletePicture(_entryId, _senseId, _pictureId);
+
+        await Api.SubmitMovePicture(_entryId, _senseId, _pictureId, new BetweenPosition(null, null));
+
+        (await GetPictureIds()).Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SubmitCreatePicture_UnderDeletedSense_DoesNothing()
+    {
+        var targetSenseId = Guid.NewGuid();
+        await Api.CreateSense(_entryId, new Sense { Id = targetSenseId, Gloss = { { "en", "target" } } });
+        await Api.DeleteSense(_entryId, targetSenseId);
+        var picture = new Picture { Id = Guid.NewGuid(), MediaUri = new MediaUri(Guid.NewGuid(), "test") };
+
+        await Api.SubmitCreatePicture(_entryId, targetSenseId, picture);
+
+        var entry = await Api.GetEntry(_entryId);
+        entry.Should().NotBeNull();
+        entry.Senses.SelectMany(s => s.Pictures).Select(p => p.Id).Should().Equal(_pictureId);
     }
 }
