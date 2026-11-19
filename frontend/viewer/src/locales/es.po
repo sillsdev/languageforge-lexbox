@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-17 07:24\n"
+"PO-Revision-Date: 2026-11-19 07:27\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -1401,6 +1401,10 @@ msgstr "Descargado {0}"
 #: src/home/Server.svelte
 msgid "Downloading {0}..."
 msgstr "Descargando {0}..."
+
+#: src/lib/notifications/NotificationOutlet.svelte
+msgid "Downloading update in the background. We'll let you know when it's ready."
+msgstr "Descargando la actualización en segundo plano. Te avisaremos cuando esté listo."
 
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Downloading update..."
@@ -4729,6 +4733,7 @@ msgid "Update downloading in the background. Restart to apply once it's finished
 msgstr "La actualización se está descargando en segundo plano. Reinicie para aplicarla cuando termine."
 
 #. Error message when update fails to install
+#: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Update failed to install."
 msgstr "Error al instalar la actualización."
