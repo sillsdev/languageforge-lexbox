@@ -113,6 +113,7 @@ public class SyncController(
     }
 
     [HttpPost("block")]
+    [AdminRequired]
     [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -133,6 +134,7 @@ public class SyncController(
     }
 
     [HttpPost("unblock")]
+    [AdminRequired]
     [RequireScope(LexboxAuthScope.SendAndReceive, exclusive: false)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

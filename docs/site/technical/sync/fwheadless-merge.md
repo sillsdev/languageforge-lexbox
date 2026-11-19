@@ -94,7 +94,8 @@ waiting on a job can also time out while the job keeps running.
 
 **Blocking.** If Chorus reports a rollback during Send/Receive, FwHeadless blocks the project from syncing
 immediately, before *and* after the merge. A blocked project is refused at the trigger endpoint (HTTP 423) and
-checked again when its queued job starts. Unblocking is a deliberate action; there's no button for it.
+checked again when its queued job starts. Only an admin can unblock it (or block a project by hand); there's no
+button for it.
 
 Other landmines worth knowing: a stale snapshot makes every subsequent diff wrong; a stale hg lock hangs
 Send/Receive; and a FieldWorks data-model version that doesn't match FwHeadless's risks corrupt data.
