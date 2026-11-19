@@ -36,5 +36,4 @@ public class LexboxHttpClientTests
         using var services = BuildServices();
         HandlerChain(services, clientName).Should().Equal(typeof(ResilienceHandler), typeof(HttpClientAuthHandler));
     }
-
 }
