@@ -129,15 +129,15 @@ public class OAuthClient
 
     private async ValueTask ConfigureCache()
     {
+        if (_cacheConfigured) return;
         if (_options.TokenCacheStore is { } store)
         {
-            if (!_cacheConfigured) UseTokenCacheStore(store);
+            UseTokenCacheStore(store);
             return;
         }
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
             !RuntimeInformation.IsOSPlatform(OSPlatform.Linux) &&
             !RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) return;
-        if (_cacheConfigured) return;
         try
         {
             await _cacheConfiguredSemaphore.WaitAsync();
