@@ -40,7 +40,7 @@ public class FwDataBridgeConfig
     public string ProjectsFolder { get; set; } = DataFolder;
     public string TemplatesFolder { get; set; } = Path.Join(ProgramFolder, "Templates");
     public bool AutoMigrateLcmData { get; set; } = false;
-    // liblcm shares one machine-wide writing system store across all projects; servers hosting unrelated users' projects must turn it off.
+    // liblcm seeds new writing systems from one on-disk store shared by every project; servers hosting unrelated users' projects must turn it off.
     public bool UseGlobalWritingSystemStore { get; set; } = true;
 
     public GridifyMapper<ILexEntry> Mapper { get; set; } = EntryFilter.NewMapper(new LexEntryFilterMapProvider());

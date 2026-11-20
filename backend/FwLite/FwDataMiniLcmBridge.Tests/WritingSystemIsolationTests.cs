@@ -21,7 +21,8 @@ public class WritingSystemIsolationTests : IDisposable
     public void Dispose()
     {
         _services.Dispose();
-        SingletonsContainer.Get<CoreGlobalWritingSystemRepository>()?.Remove(_wsTag);
+        // Item, not Get: Get would open the real store if none is registered.
+        (SingletonsContainer.Item(typeof(CoreGlobalWritingSystemRepository).FullName!) as CoreGlobalWritingSystemRepository)?.Remove(_wsTag);
         foreach (var project in _projects)
         {
             if (Directory.Exists(project.ProjectFolder)) Directory.Delete(project.ProjectFolder, true);
@@ -65,7 +66,7 @@ public class WritingSystemIsolationTests : IDisposable
         var config = _services.GetRequiredService<IOptions<FwDataBridgeConfig>>().Value;
         Directory.CreateDirectory(config.ProjectsFolder);
         var project = new FwDataProject($"ws-isolation-test_{Guid.NewGuid()}", config.ProjectsFolder);
-        _services.GetRequiredService<IProjectLoader>().NewProject(project, "en", "en");
+        _services.GetRequiredService<IProjectLoader>().NewProject(project, "en", "en").Dispose();
         _projects.Add(project);
         return project;
     }
