@@ -9,12 +9,13 @@ public static class PictureSync
         Guid senseId,
         IList<Picture> beforePictures,
         IList<Picture> afterPictures,
-        IMiniLcmApi api)
+        IMiniLcmApi api,
+        SyncContext context)
     {
         return await DiffCollection.DiffOrderable(
             beforePictures,
             afterPictures,
-            new PicturesDiffApi(api, entryId, senseId));
+            new PicturesDiffApi(api, entryId, senseId, context));
     }
 
     public static async Task<int> Sync(Guid entryId,
@@ -46,7 +47,7 @@ public static class PictureSync
         return new UpdateObjectInput<Picture>(patchDocument);
     }
 
-    private class PicturesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId) : IOrderableCollectionDiffApi<Picture, Guid>
+    private class PicturesDiffApi(IMiniLcmApi api, Guid entryId, Guid senseId, SyncContext context) : IOrderableCollectionDiffApi<Picture, Guid>
     {
         public Guid GetId(Picture value)
         {
@@ -55,18 +56,27 @@ public static class PictureSync
 
         public async Task<int> Add(Picture afterPicture, BetweenPosition<Picture> between)
         {
-            await api.CreatePicture(entryId, senseId, afterPicture, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
+            var position = new BetweenPosition(between.Previous?.Id, between.Next?.Id);
+            // a known id arriving here is a move (e.g. FLEx "Merge Sense"); see ExampleSentenceSync
+            if (context.ExistedBefore(afterPicture) is { } before)
+            {
+                await api.SubmitMovePicture(entryId, senseId, afterPicture.Id, position, MoveKind.Reparent);
+                return 1 + await Sync(entryId, senseId, before, afterPicture, api);
+            }
+            await api.SubmitCreatePicture(entryId, senseId, afterPicture, position);
             return 1;
         }
 
         public async Task<int> Move(Picture picture, BetweenPosition<Picture> between)
         {
-            await api.MovePicture(entryId, senseId, picture.Id, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
+            await api.SubmitMovePicture(entryId, senseId, picture.Id, new BetweenPosition(between.Previous?.Id, between.Next?.Id));
             return 1;
         }
 
         public async Task<int> Remove(Picture beforePicture)
         {
+            // it was moved. Add will handle it.
+            if (context.StillExists(beforePicture)) return 0;
             await api.DeletePicture(entryId, senseId, beforePicture.Id);
             return 1;
         }

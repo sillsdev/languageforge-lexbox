@@ -41,8 +41,8 @@ public static class EntrySync
     }
 
     /// <summary>
-    /// The viewer's updateEntry path. Re-parenting a picture or translation between this entry's own senses
-    /// is refused with <see cref="MoveNotSupportedException"/> and nothing is written (develop did delete+create).
+    /// The viewer's updateEntry path. Re-parenting a translation between this entry's own example sentences
+    /// is refused with <see cref="MoveNotSupportedException"/> and nothing is written.
     /// </summary>
     public static async Task<int> SyncFull(Entry beforeEntry, Entry afterEntry, IMiniLcmApi api)
     {
@@ -305,7 +305,7 @@ public static class EntrySync
                 await api.SubmitMoveSense(entryId, sense.Id, position, MoveKind.Reparent);
                 return 1 + await SenseSync.Sync(entryId, before, sense, api, context);
             }
-            // a genuinely new sense whose payload holds a moved-in example: create it without the example, then move it in
+            // a genuinely new sense whose payload holds a moved-in example or picture: create it without them, then move them in
             if (context.HasMovedInDescendants(sense))
             {
                 var payload = context.WithoutMovedInDescendants(sense);
@@ -331,7 +331,7 @@ public static class EntrySync
                 return Task.FromResult(0);
             }
 
-            // defer, so example-sentences can be moved out before being cascade-deleted
+            // defer, so example sentences and pictures can be moved out before being cascade-deleted
             return context.HandleDelete(async () =>
             {
                 await api.DeleteSense(entryId, sense.Id);

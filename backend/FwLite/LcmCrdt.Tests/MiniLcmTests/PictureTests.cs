@@ -1,3 +1,6 @@
+using MiniLcm.Media;
+using MiniLcm.SyncHelpers;
+
 namespace LcmCrdt.Tests.MiniLcmTests;
 
 public class PictureTests : PictureTestsBase
@@ -35,5 +38,73 @@ public class PictureTests : PictureTestsBase
     {
         var sense = await BulkCreateEntryWith(PicturesContradictingListOrder());
         sense.Pictures.Select(p => p.Order).Should().Equal(1, 2, 3);
+    }
+
+    // FwData's SubmitMovePicture is just MovePicture, so these lenient cases are CRDT-only
+
+    [Fact]
+    public async Task SubmitMovePicture_ReorderUnderWrongSense_DoesNothing()
+    {
+        var otherSenseId = Guid.NewGuid();
+        await Api.CreateSense(_entryId, new Sense { Id = otherSenseId, Gloss = { { "en", "other" } } });
+
+        await Api.SubmitMovePicture(_entryId, otherSenseId, _pictureId, new BetweenPosition(null, null));
+
+        (await GetPictureIds()).Should().Equal(_pictureId);
+        var otherSense = await Api.GetSense(_entryId, otherSenseId);
+        otherSense.Should().NotBeNull();
+        otherSense.Pictures.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SubmitMovePicture_ReorderUnderMissingSense_DoesNothing()
+    {
+        await Api.SubmitMovePicture(_entryId, Guid.NewGuid(), _pictureId, new BetweenPosition(null, null));
+
+        (await GetPictureIds()).Should().Equal(_pictureId);
+    }
+
+    [Fact]
+    public async Task SubmitMovePicture_ReparentDeletedPicture_DoesNothing()
+    {
+        var targetSenseId = Guid.NewGuid();
+        await Api.CreateSense(_entryId, new Sense { Id = targetSenseId, Gloss = { { "en", "target" } } });
+        await Api.DeletePicture(_entryId, _senseId, _pictureId);
+
+        await Api.SubmitMovePicture(_entryId, targetSenseId, _pictureId, new BetweenPosition(null, null), MoveKind.Reparent);
+
+        var targetSense = await Api.GetSense(_entryId, targetSenseId);
+        targetSense.Should().NotBeNull();
+        targetSense.Pictures.Should().BeEmpty();
+        (await GetPictureIds()).Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SubmitMovePicture_ReparentToDeletedSense_DeletesPicture()
+    {
+        var targetSenseId = Guid.NewGuid();
+        await Api.CreateSense(_entryId, new Sense { Id = targetSenseId, Gloss = { { "en", "target" } } });
+        await Api.DeleteSense(_entryId, targetSenseId);
+
+        await Api.SubmitMovePicture(_entryId, targetSenseId, _pictureId, new BetweenPosition(null, null), MoveKind.Reparent);
+
+        // delete wins
+        (await GetPictureIds()).Should().BeEmpty();
+    }
+
+
+    [Fact]
+    public async Task SubmitCreatePicture_UnderDeletedSense_DoesNothing()
+    {
+        var targetSenseId = Guid.NewGuid();
+        await Api.CreateSense(_entryId, new Sense { Id = targetSenseId, Gloss = { { "en", "target" } } });
+        await Api.DeleteSense(_entryId, targetSenseId);
+        var picture = new Picture { Id = Guid.NewGuid(), MediaUri = new MediaUri(Guid.NewGuid(), "test") };
+
+        await Api.SubmitCreatePicture(_entryId, targetSenseId, picture);
+
+        var entry = await Api.GetEntry(_entryId);
+        entry.Should().NotBeNull();
+        entry.Senses.SelectMany(s => s.Pictures).Select(p => p.Id).Should().Equal(_pictureId);
     }
 }

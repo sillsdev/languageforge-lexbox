@@ -8,7 +8,7 @@ using MiniLcm.Tests;
 
 namespace FwLiteProjectSync.Tests;
 /// <summary>
-/// FLEx re-parents senses and examples guid-intact (drag-and-drop, "Merge Sense into...", merging entries),
+/// FLEx re-parents senses, examples and pictures guid-intact (drag-and-drop, "Merge Sense into...", merging entries),
 /// so the diff between two states must apply them as moves, not as a delete and a create.
 /// </summary>
 public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixture) : IClassFixture<ExtraWritingSystemsSyncFixture>, IAsyncLifetime
@@ -400,30 +400,118 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
 
     #endregion
 
-    #region Unsupported moves
+    #region Picture moves
 
-    // FLEx can also re-parent pictures and translations, but we don't support that yet, so the sync
-    // must detect and reject it before writing anything.
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public async Task CanSyncPictureMovedToDifferentSense(bool sameEntry, bool sourceSenseFirst)
+    {
+        var picture = NewPicture("picture");
+        var sourceSense = NewSenseWithPictures("source", picture);
+        var targetSense = NewSense("target");
+        List<Entry> before = sameEntry
+            ? [await CreateEntry("entry", sourceSenseFirst ? [sourceSense, targetSense] : [targetSense, sourceSense])]
+            : sourceSenseFirst
+                ? [await CreateEntry("source-entry", sourceSense), await CreateEntry("target-entry", targetSense)]
+                : [await CreateEntry("target-entry", targetSense), await CreateEntry("source-entry", sourceSense)];
+        var sourceEntryId = EntryOf(before, sourceSense.Id).Id;
+        var targetEntryId = EntryOf(before, targetSense.Id).Id;
+
+        var after = Copy(before);
+        // moved AND edited in the same sync: the move must be followed by the field diff
+        MovePicture(after, picture, targetSense.Id).Caption["en"] = new RichString("edited", "en");
+        if (sameEntry)
+            await Sync(before.Single(), after.Single());
+        else
+            await Sync(before, after);
+
+        PictureIds(await GetSense(sourceEntryId, sourceSense.Id)).Should().BeEmpty();
+        var actualTarget = await GetSense(targetEntryId, targetSense.Id);
+        PictureIds(actualTarget).Should().Equal(picture.Id);
+        actualTarget.Pictures[0].Caption["en"].Should().BeEquivalentTo(new RichString("edited", "en"));
+    }
+
+    [Fact]
+    public async Task CanSyncPicturesMovedOutOfMergedSense()
+    {
+        // FLEx "Merge Sense into...": the merged sense's pictures are appended to the survivor and the merged sense is deleted.
+        // The delete is diffed before the survivor's pictures, so only deferring it keeps the pictures alive.
+        var kept = NewPicture("kept");
+        var moved1 = NewPicture("moved1");
+        var moved2 = NewPicture("moved2");
+        var mergedSense = NewSenseWithPictures("merged", moved1, moved2);
+        var survivingSense = NewSenseWithPictures("surviving", kept);
+        var entry = await CreateEntry("entry", mergedSense, survivingSense);
+
+        var after = Copy([entry]);
+        MovePicture(after, moved1, survivingSense.Id);
+        MovePicture(after, moved2, survivingSense.Id);
+        after[0].Senses.RemoveAll(s => s.Id == mergedSense.Id);
+        await Sync([entry], after);
+
+        var actualEntry = await GetEntry(entry.Id);
+        SenseIds(actualEntry).Should().Equal(survivingSense.Id);
+        PictureIds(actualEntry.Senses[0]).Should().Equal(kept.Id, moved1.Id, moved2.Id);
+    }
 
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task SyncThrows_PictureMovedToDifferentSense(bool targetSenseCreated)
+    public async Task CanSyncPictureMovedToCreatedSense(bool sourceSenseDeleted)
     {
-        var picture = new Picture { Id = Guid.NewGuid(), MediaUri = new MediaUri(Guid.NewGuid(), "localhost") };
-        var sourceSense = NewSense("source");
-        sourceSense.Pictures = [picture];
-        var targetSense = NewSense("target");
-        var entry = await CreateEntry("entry", targetSenseCreated ? [sourceSense] : [sourceSense, targetSense]);
+        var picture = NewPicture("picture");
+        var sourceSense = NewSenseWithPictures("source", picture);
+        var otherSense = NewSense("other");
+        var entry = await CreateEntry("entry", sourceSense, otherSense);
+        var createdSense = NewSense("created");
 
-        var after = entry.Copy();
-        if (targetSenseCreated) after.Senses.Add(targetSense);
-        var movedPicture = after.Senses[0].Pictures.Single();
-        after.Senses[0].Pictures.Clear();
-        after.Senses.Single(s => s.Id == targetSense.Id).Pictures.Add(movedPicture);
+        var after = Copy([entry]);
+        if (sourceSenseDeleted)
+            after[0].Senses.RemoveAll(s => s.Id == sourceSense.Id);
+        after[0].Senses.Add(createdSense);
+        MovePicture(after, picture, createdSense.Id);
+        await Sync([entry], after);
 
-        await SyncShouldRejectMove(entry, after, picture.Id);
+        var actualEntry = await GetEntry(entry.Id);
+        var actualCreatedSense = actualEntry.Senses.Single(s => s.Id == createdSense.Id);
+        actualCreatedSense.Gloss["en"].Should().Be("created");
+        PictureIds(actualCreatedSense).Should().Equal(picture.Id);
+        if (!sourceSenseDeleted) PictureIds(await GetSense(entry.Id, sourceSense.Id)).Should().BeEmpty();
     }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task CanSyncPictureMovedToCreatedEntry(bool sourceEntryDeleted)
+    {
+        var picture = NewPicture("picture");
+        var sourceSense = NewSenseWithPictures("source", picture);
+        var sourceEntry = await CreateEntry("source-entry", sourceSense);
+        var createdSense = NewSense("created");
+        var createdEntry = NewEntry("created-entry", createdSense);
+
+        Entry[] before = [sourceEntry];
+        var after = Copy(before);
+        if (sourceEntryDeleted) after.Clear();
+        after.Add(createdEntry);
+        MovePicture(after, picture, createdSense.Id);
+        await Sync(before, after);
+
+        PictureIds(await GetSense(createdEntry.Id, createdSense.Id)).Should().Equal(picture.Id);
+        if (sourceEntryDeleted)
+            (await Api.GetEntry(sourceEntry.Id)).Should().BeNull();
+        else
+            PictureIds(await GetSense(sourceEntry.Id, sourceSense.Id)).Should().BeEmpty();
+    }
+
+    #endregion
+
+    #region Unsupported moves
+
+    // Sync doesn't support moving a translation to another example yet, so it rejects that before writing anything.
 
     [Fact]
     public async Task SyncThrows_TranslationMovedToDifferentExampleSentence()
@@ -547,6 +635,16 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         return new Sense { Id = Guid.NewGuid(), Gloss = { { "en", gloss } }, ExampleSentences = [.. examples] };
     }
 
+    protected static Sense NewSenseWithPictures(string gloss, params Picture[] pictures)
+    {
+        return new Sense { Id = Guid.NewGuid(), Gloss = { { "en", gloss } }, Pictures = [.. pictures] };
+    }
+
+    protected static Picture NewPicture(string caption)
+    {
+        return new Picture { Id = Guid.NewGuid(), MediaUri = new MediaUri(Guid.NewGuid(), "localhost"), Caption = { { "en", new RichString(caption, "en") } } };
+    }
+
     protected static ExampleSentence NewExample(string sentence, params Translation[] translations)
     {
         return new ExampleSentence { Id = Guid.NewGuid(), Sentence = { { "en", new RichString(sentence) } }, Translations = [.. translations] };
@@ -600,6 +698,15 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
         return moved;
     }
 
+    /// <summary>Re-parents the picture the way FLEx "Merge Sense" does: same guid, appended to the new owner.</summary>
+    protected static Picture MovePicture(IList<Entry> entries, Picture picture, Guid toSenseId)
+    {
+        foreach (var sense in entries.SelectMany(e => e.Senses)) sense.Pictures.RemoveAll(p => p.Id == picture.Id);
+        var moved = picture.Copy();
+        entries.SelectMany(e => e.Senses).Single(s => s.Id == toSenseId).Pictures.Add(moved);
+        return moved;
+    }
+
     protected static Entry EntryOf(IEnumerable<Entry> entries, Guid senseId)
     {
         return entries.Single(e => e.Senses.Any(s => s.Id == senseId));
@@ -635,6 +742,7 @@ public abstract class EntryMoveSyncTestsBase(ExtraWritingSystemsSyncFixture fixt
 
     protected static IEnumerable<Guid> SenseIds(Entry entry) => entry.Senses.Select(s => s.Id);
     protected static IEnumerable<Guid> ExampleIds(Sense sense) => sense.ExampleSentences.Select(e => e.Id);
+    protected static IEnumerable<Guid> PictureIds(Sense sense) => sense.Pictures.Select(p => p.Id);
 
     #endregion
 }

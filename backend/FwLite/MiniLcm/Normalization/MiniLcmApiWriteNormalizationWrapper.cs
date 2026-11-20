@@ -527,6 +527,11 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.CreatePicture(entryId, senseId, NormalizePicture(picture), position);
     }
 
+    public async Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null)
+    {
+        await _api.SubmitCreatePicture(entryId, senseId, NormalizePicture(picture), position);
+    }
+
     public Task<Picture> UpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update)
     {
         return _api.UpdatePicture(entryId, senseId, pictureId, NormalizePatch(update));
@@ -542,9 +547,14 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
         return await _api.UpdatePicture(entryId, senseId, NormalizePicture(before), NormalizePicture(after), api);
     }
 
-    public Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position)
+    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
     {
-        return _api.MovePicture(entryId, senseId, pictureId, position);
+        await _api.MovePicture(entryId, senseId, pictureId, position, kind);
+    }
+
+    public async Task SubmitMovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder)
+    {
+        await _api.SubmitMovePicture(entryId, senseId, pictureId, position, kind);
     }
 
     public Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)

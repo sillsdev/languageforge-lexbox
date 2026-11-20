@@ -3,6 +3,7 @@ using FwDataMiniLcmBridge.Api;
 using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
 using MiniLcm;
+using MiniLcm.Media;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Tests;
@@ -101,6 +102,26 @@ public class CrdtEntrySyncTests(ExtraWritingSystemsSyncFixture fixture) : EntryS
         var actual = await Api.GetEntry(entry.Id);
         actual.Should().NotBeNull();
         actual.Senses[0].ExampleSentences.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SyncFull_PictureAddedToSenseDeletedInCrdt_DoesNotThrow()
+    {
+        var entry = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "victim" } },
+            Senses = [new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "gloss" } } }]
+        });
+        await Api.DeleteSense(entry.Id, entry.Senses[0].Id);
+        var after = entry.Copy();
+        after.Senses[0].Pictures.Add(new Picture { Id = Guid.NewGuid(), MediaUri = new MediaUri(Guid.NewGuid(), "localhost") });
+
+        await EntrySync.SyncFull(entry, after, Api);
+
+        var actual = await Api.GetEntry(entry.Id);
+        actual.Should().NotBeNull();
+        actual.Senses.Should().BeEmpty();
     }
 
     #endregion
