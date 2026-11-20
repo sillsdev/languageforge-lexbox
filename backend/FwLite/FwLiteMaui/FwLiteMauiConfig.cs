@@ -20,12 +20,21 @@ public class FwLiteMauiConfig
     /// <summary>
     /// App-local state only: logs, the auth cache, the settings file and the WebView profile. On Windows MSIX
     /// this is the package folder, which is deleted on uninstall, so never put user data here.
-    /// Projects belong in <see cref="ProjectDataDir"/>.
+    /// Projects belong in <see cref="ResolveProjectDataDir"/>.
     /// </summary>
     public string BaseDataDir
     {
         get;
         set => field = Path.GetFullPath(value);
+    }
+
+    /// <summary>
+    /// Replaces <see cref="ResolveProjectDataDir"/>, e.g. env FwLiteMaui__OverrideProjectDataDir.
+    /// </summary>
+    public string? OverrideProjectDataDir
+    {
+        get;
+        set => field = string.IsNullOrEmpty(value) ? null : Path.GetFullPath(value);
     }
 
     /// <summary>
@@ -38,14 +47,11 @@ public class FwLiteMauiConfig
     /// from <c>LcmCrdtConfig.ProjectPath</c> or <c>HarmonyConfig</c>, never from this property.
     /// </para>
     /// </summary>
-    public string ProjectDataDir
+    //a method, not a property: configuration binding reads every settable property and writes the value back,
+    //which freezes a computed default at bind time
+    public string ResolveProjectDataDir()
     {
-        get => field ?? DefaultProjectDataDir();
-        set => field = Path.GetFullPath(value);
-    }
-
-    private string DefaultProjectDataDir()
-    {
+        if (OverrideProjectDataDir is not null) return OverrideProjectDataDir;
 #if WINDOWS
         if (!FwLiteMauiKernel.IsPortableApp && BaseDataDir == _defaultBaseDataDir)
             return WindowsProjectDataDir();

@@ -6,7 +6,7 @@ using static LcmCrdt.Project.ProjectDataFolderMigration;
 namespace FwLiteMaui;
 
 /// <summary>
-/// The folder projects are read from and created in. When <see cref="FwLiteMauiConfig.ProjectDataDir"/> moved
+/// The folder projects are read from and created in. When <see cref="FwLiteMauiConfig.ResolveProjectDataDir"/> moved
 /// away from <see cref="FwLiteMauiConfig.BaseDataDir"/>, existing data is migrated there first; if that fails
 /// the app keeps using the old folder and layout, and the migration is retried on the next start.
 /// </summary>
@@ -20,11 +20,12 @@ public record ProjectDataLocation(string Root, bool UseProjectFolders, IDisposab
 
     public static ProjectDataLocation Resolve(FwLiteMauiConfig config, IAnalyticsService analytics, ILogger logger)
     {
-        if (config.ProjectDataDir == config.BaseDataDir) return new(config.BaseDataDir, UseProjectFolders: false);
-        var result = TryMigrate(config.BaseDataDir, config.ProjectDataDir, logger);
+        var projectDataDir = config.ResolveProjectDataDir();
+        if (projectDataDir == config.BaseDataDir) return new(config.BaseDataDir, UseProjectFolders: false);
+        var result = TryMigrate(config.BaseDataDir, projectDataDir, logger);
         if (result.Outcome != MigrationOutcome.AlreadyMigrated) analytics.Track(MigrationEvent, MigrationProperties(result));
         return result.Migrated
-            ? new(config.ProjectDataDir, UseProjectFolders: true)
+            ? new(projectDataDir, UseProjectFolders: true)
             : new(config.BaseDataDir, UseProjectFolders: false, result.LegacyLease);
     }
 
