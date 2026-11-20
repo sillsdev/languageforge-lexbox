@@ -54,7 +54,7 @@
                 <span class="i-mdi-book-open-variant text-4xl"></span>
                 <div>
                   <div class="font-bold">Lexicon data</div>
-                  <div>Entries, senses and other dictionary data in projects you are a member of (read-only)</div>
+                  <div>Entries, senses, pictures, audio and other dictionary data in projects you are a member of (read-only)</div>
                 </div>
               </div>
             {/if}

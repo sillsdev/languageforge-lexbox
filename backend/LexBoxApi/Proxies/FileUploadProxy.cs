@@ -14,6 +14,7 @@ public static class FileUploadProxy
 {
     public const string UserCanUploadMediaFilesPolicy = "UserCanUploadMediaFiles";
     public const string UserCanDownloadMediaFilesPolicy = "UserCanDownloadMediaFiles";
+    public const string UserCanListMediaFilesPolicy = "UserCanListMediaFiles";
 
     public static void AddFileUploadProxy(this IServiceCollection services)
     {
@@ -38,9 +39,8 @@ public static class FileUploadProxy
 
         var group = app.MapGroup("/api/media");
 
-        //media upload/download
         group.Map("/list/{projectId:guid}/{**catch-all}",
-            Forward).RequireAuthorization(authorizeForDownloadAttribute);
+            Forward).RequireAuthorization(new AuthorizeAttribute { Policy = UserCanListMediaFilesPolicy });
 
         //media upload/download
         group.MapGet("/{fileId:guid}",
@@ -53,7 +53,7 @@ public static class FileUploadProxy
             Forward).RequireAuthorization(authorizeForUploadAttribute);
 
         //metadata requests
-        group.Map("/metadata/{fileId:guid}",
+        group.MapGet("/metadata/{fileId:guid}",
             Forward).RequireAuthorization(authorizeForDownloadAttribute);
 
         return group;
