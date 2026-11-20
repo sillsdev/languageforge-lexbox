@@ -1,4 +1,4 @@
-// Rebuilds png/ from the SVGs. After editing a drawing: cd logos && pnpm install && node fieldworks-lite/render.mjs
+// Rebuilds png/ (not committed) and the favicons from the SVGs. After editing a drawing: cd logos && pnpm install && node fieldworks-lite/render.mjs
 import { render } from '../render-logos.mjs'
 
 render(import.meta.dirname, {

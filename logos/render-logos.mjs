@@ -3,7 +3,7 @@ import { PNG } from 'pngjs'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-// Writes dir/png/: the PNGs, favicon.ico and favicon.svg, all from the SVGs in dir.
+// Writes the PNGs to dir/png/ (not committed) and favicon.ico and favicon.svg to dir, all from the SVGs in dir.
 export function render(dir, { pngs, ico, faviconSvg }) {
   const src = name => readFileSync(join(dir, name))
   const out = name => join(dir, 'png', name)
@@ -34,7 +34,7 @@ export function render(dir, { pngs, ico, faviconSvg }) {
     header.writeUInt32LE(offset, entry + 12)
     offset += png.length
   })
-  writeFileSync(out('favicon.ico'), Buffer.concat([header, ...images]))
+  writeFileSync(join(dir, 'favicon.ico'), Buffer.concat([header, ...images]))
 
   // Browsers draw an SVG favicon at a single size, so unlike the .ico it can't switch drawings by size;
   // it switches light to dark instead. Classes carry the folder name so they can't hide anything on a page
@@ -44,7 +44,7 @@ export function render(dir, { pngs, ico, faviconSvg }) {
     .replace(/<title>.*?<\/title>/s, '')
     .replace(/^\s*<svg\b[^>]*>/, '')
     .replace(/<\/svg>\s*$/, '')
-  writeFileSync(out('favicon.svg'),
+  writeFileSync(join(dir, 'favicon.svg'),
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><title>${faviconSvg.title}</title>` +
     `<style>.${cls}-fav-d{display:none}@media (prefers-color-scheme:dark){.${cls}-fav-l{display:none}.${cls}-fav-d{display:inline}}</style>` +
     `<g class="${cls}-fav-l">${body(faviconSvg.light)}</g>` +
