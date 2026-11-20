@@ -42,11 +42,10 @@ public class UpdateCheckerTests
 
     [Theory]
     [InlineData(FwLitePlatform.iOS)]
-    [InlineData(FwLitePlatform.Mac)]
     [InlineData(FwLitePlatform.Android)]
     public void ShouldCheckReleaseFeed_WhenStoreDistributedPlatform_ReturnsFalse(FwLitePlatform os)
     {
-        //iOS/Mac have no GitHub release feed and Android is Play-driven; the feed round-trip is pointless.
+        //iOS has no GitHub release feed and Android is Play-driven; the feed round-trip is pointless.
         //Preferences are empty (never checked), so the throttle would otherwise allow the check - this
         //proves the platform skip wins for the default OnInterval condition.
         var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.OnInterval, Os = os };
@@ -57,7 +56,6 @@ public class UpdateCheckerTests
 
     [Theory]
     [InlineData(FwLitePlatform.iOS)]
-    [InlineData(FwLitePlatform.Mac)]
     [InlineData(FwLitePlatform.Android)]
     public void ShouldCheckReleaseFeed_WhenAlwaysConfigured_OverridesStoreDistributedSkip(FwLitePlatform os)
     {
@@ -68,11 +66,14 @@ public class UpdateCheckerTests
         checker.ShouldCheckReleaseFeed().Should().BeTrue();
     }
 
-    [Fact]
-    public void ShouldCheckReleaseFeed_WhenNonStorePlatform_DelegatesToThrottle()
+    [Theory]
+    [InlineData(FwLitePlatform.Windows)]
+    [InlineData(FwLitePlatform.Linux)]
+    [InlineData(FwLitePlatform.Mac)]
+    public void ShouldCheckReleaseFeed_WhenNonStorePlatform_DelegatesToThrottle(FwLitePlatform os)
     {
-        //Windows uses the feed; with an empty last-check the throttle allows the check.
-        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.OnInterval, Os = FwLitePlatform.Windows };
+        //These use the feed; with an empty last-check the throttle allows the check.
+        var config = new FwLiteConfig { UpdateCheckCondition = UpdateCheckCondition.OnInterval, Os = os };
         var checker = CreateUpdateChecker(config);
 
         checker.ShouldCheckReleaseFeed().Should().BeTrue();
