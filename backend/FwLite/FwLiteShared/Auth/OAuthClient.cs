@@ -160,9 +160,9 @@ public class OAuthClient
     private void UseTokenCacheStore(ITokenCacheStore store)
     {
         //like MsalCacheHelper: a storage failure costs the saved login, it must not break sign-in
-        _application.UserTokenCache.SetBeforeAccess(args =>
+        _application.UserTokenCache.SetBeforeAccessAsync(async args =>
         {
-            TokenCacheStoreLock.Wait();
+            await TokenCacheStoreLock.WaitAsync();
             try
             {
                 args.TokenCache.DeserializeMsalV3(store.Read(), shouldClearExistingCache: true);
