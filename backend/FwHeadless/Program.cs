@@ -93,6 +93,7 @@ app.MapDefaultEndpoints();
 app.MapMediaFileRoutes();
 app.MapMergeRoutes();
 app.MapLexiconRoutes();
+app.MapProjectRoutes();
 
 // DELETE endpoint to delete the FieldWorks repo/project (and nothing else)
 app.MapDelete("/api/manage/repo/{projectId}", async (Guid projectId, ProjectDeletionService deletionService) =>

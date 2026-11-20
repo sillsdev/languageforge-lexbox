@@ -17,6 +17,8 @@ public class ProjectCodeTests
     [InlineData("!")]
     [InlineData("#")]
     [InlineData("-not-start-with-dash")]
+    [InlineData("test\n")] // Regex $ matches before a trailing newline; the hg URL would then drop it
+    [InlineData("test\r\n")]
     public void InvalidCodesThrows(string code)
     {
         Assert.Throws<ArgumentException>(() => new ProjectCode(code));
