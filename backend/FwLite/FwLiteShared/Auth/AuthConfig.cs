@@ -35,6 +35,11 @@ public class AuthConfig
     public Func<Microsoft.Identity.Client.Extensibility.ICustomWebUi>? CustomWebUiFactory { get; set; }
     /// <summary>Redirect URI to register with MSAL when <see cref="CustomWebUiFactory"/> is set. Defaults to <c>msal{ClientId}://auth</c>.</summary>
     public string? CustomWebUiRedirectUri { get; set; }
+    /// <summary>
+    /// Saves the login where MSAL's cache helper can't. The helper supports only Windows, Linux and macOS, and .NET
+    /// doesn't count Mac Catalyst as macOS, so without this Mac logins are kept in memory only.
+    /// </summary>
+    public ITokenCacheStore? TokenCacheStore { get; set; }
 
     public LexboxServer GetServerByAuthority(string authority)
     {
