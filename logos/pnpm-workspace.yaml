@@ -1,0 +1,2 @@
+# Its own workspace, so the repo-root and frontend workspaces leave it alone.
+minimumReleaseAge: 1440
