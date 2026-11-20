@@ -54,13 +54,16 @@ public class FwLiteMauiConfig
     }
 
     /// <summary>
-    /// C:\ProgramData\SIL\FieldWorks Lite\{user}, next to FieldWorks' own C:\ProgramData\SIL\FieldWorks.
-    /// MSIX only redirects AppData writes, so this folder survives uninstall. One folder per Windows user: a
-    /// project file is only writable by the user that created it, and the project db holds per-user state.
+    /// C:\ProgramData\SIL\FieldWorks Lite\{profile folder}, next to FieldWorks' own C:\ProgramData\SIL\FieldWorks.
+    /// MSIX only redirects AppData writes, so this folder survives uninstall. One folder per Windows user because
+    /// the project db holds per-user state (login, role). Other accounts can read it (ProgramData's default ACL).
+    /// Keyed by the C:\Users\{profile folder} name, not the user name: renaming an account keeps its profile
+    /// folder, and a local and a domain account with the same name get different ones.
     /// </summary>
     public static string WindowsProjectDataDir()
     {
-        var userFolder = string.Concat(Environment.UserName.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
+        var userFolder = Path.GetFileName(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
+        if (string.IsNullOrEmpty(userFolder)) userFolder = Environment.UserName;
         return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
             "SIL",
             "FieldWorks Lite",

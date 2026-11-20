@@ -6,7 +6,8 @@ namespace LcmCrdt;
 public class LcmCrdtConfig
 {
     public string ProjectPath { get; set; } = Path.GetFullPath(".");
-    public string ProjectCacheFileName { get; set; } = "project-cache.json";
+    public const string DefaultProjectCacheFileName = "project-cache.json";
+    public string ProjectCacheFileName { get; set; } = DefaultProjectCacheFileName;
     public bool EnableProjectDataFileCache { get; set; } = true;
 
     /// <summary>

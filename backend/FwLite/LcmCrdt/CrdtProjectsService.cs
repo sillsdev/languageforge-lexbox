@@ -380,8 +380,7 @@ public partial class CrdtProjectsService(
             var shmFile = sqliteFile + "-shm";
             try
             {
-                var connStr = new SqliteConnectionStringBuilder { DataSource = sqliteFile }.ConnectionString;
-                using var clearConn = new SqliteConnection(connStr);
+                using var clearConn = new SqliteConnection(LcmCrdtKernel.DbConnectionString(sqliteFile));
                 SqliteConnection.ClearPool(clearConn);
             }
             catch
@@ -430,9 +429,10 @@ public partial class CrdtProjectsService(
     public async Task DeleteProject(string code)
     {
         var project = GetProject(code) ?? throw new InvalidOperationException($"Project '{code}' not found");
+        // db first: if it can't be deleted, the project stays usable with its not-yet-uploaded media
+        await EnsureDeleteProject(project.DbPath);
         var projectResourceCachePath = LcmMediaService.ProjectCachePath(project, provider.GetRequiredService<IOptions<HarmonyConfig>>().Value);
         if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
-        await EnsureDeleteProject(project.DbPath);
         DeleteProjectFolderIfEmpty(project);
     }
 

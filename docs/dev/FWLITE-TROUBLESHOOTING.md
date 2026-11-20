@@ -5,8 +5,9 @@ Applies to the desktop and mobile app (`backend/FwLite/FwLiteMaui`). FW Lite Web
 
 ## Where the files are
 
-Everything lives in the app data directory. The quickest way to find it: open the app, open **Troubleshoot**
-(home page menu, or a project's sidebar) and use **Open Data Directory** / **Open Log file** / **Share Log file**.
+Logs and the settings file live in the app data directory. Open the app, open **Troubleshoot** (home page menu,
+or a project's sidebar) and use **Open Log file** / **Share Log file**. **Open Data Directory** opens the project
+folder, which on an installed Windows app is not the app data directory (see the end of this page).
 
 | Platform | Data directory |
 |----------|----------------|
@@ -81,6 +82,8 @@ The data directory can only be moved with the `FwLiteMaui__BaseDataDir` environm
 in the default (or env-var) directory before it is read, so a `BaseDataDir` inside the file is ignored.
 
 On an installed Windows app (MSIX, not the portable zip) projects are not in the data directory: they are in
-`C:\ProgramData\SIL\FieldWorks Lite\<Windows user name>\projects\`, so they survive uninstalling the app. The
-**Data Directory** field in the Troubleshoot dialog shows that project folder; logs and the settings file stay in
-the app's own data directory.
+`C:\ProgramData\SIL\FieldWorks Lite\<profile folder name>\projects\` (the user's folder name under `C:\Users`), so they survive uninstalling the app. The
+**Data Directory** field in the Troubleshoot dialog shows `C:\ProgramData\SIL\FieldWorks Lite\<profile folder name>`
+(or the app data directory if moving the projects failed); logs and the settings file stay in the app data directory.
+If it shows the app data directory, the projects are still there and uninstalling deletes them: sync them to
+Lexbox first, and check `app.log` for why the move failed.
