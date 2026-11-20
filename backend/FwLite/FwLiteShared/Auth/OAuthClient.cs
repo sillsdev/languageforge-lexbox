@@ -129,6 +129,11 @@ public class OAuthClient
 
     private async ValueTask ConfigureCache()
     {
+        if (_options.TokenCacheStore is { } store)
+        {
+            if (!_cacheConfigured) UseTokenCacheStore(store);
+            return;
+        }
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
             !RuntimeInformation.IsOSPlatform(OSPlatform.Linux) &&
             !RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) return;
@@ -146,6 +151,43 @@ public class OAuthClient
             _cacheConfiguredSemaphore.Release();
         }
 
+    }
+
+    //one OAuthClient per server, all sharing one store: held from before to after each cache access so they
+    //don't overwrite each other's changes, like MsalCacheHelper's file lock
+    private static readonly SemaphoreSlim TokenCacheStoreLock = new(1, 1);
+
+    private void UseTokenCacheStore(ITokenCacheStore store)
+    {
+        //like MsalCacheHelper: a storage failure costs the saved login, it must not break sign-in
+        _application.UserTokenCache.SetBeforeAccess(args =>
+        {
+            TokenCacheStoreLock.Wait();
+            try
+            {
+                args.TokenCache.DeserializeMsalV3(store.Read(), shouldClearExistingCache: true);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to read the saved login");
+            }
+        });
+        _application.UserTokenCache.SetAfterAccess(args =>
+        {
+            try
+            {
+                if (args.HasStateChanged) store.Write(args.TokenCache.SerializeMsalV3());
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to save the login");
+            }
+            finally
+            {
+                TokenCacheStoreLock.Release();
+            }
+        });
+        _cacheConfigured = true;
     }
 
     private class HttpClientFactoryAdapter(IHttpMessageHandlerFactory httpMessageHandlerFactory)
