@@ -4,7 +4,7 @@ A navy dictionary with a thumb index: the coral tab is the word you are looking 
 Part of the SIL lexical tools logo family (FLEx, FieldWorks Lite, Lexbox, The Combine, Webonary).
 
 **Start with `index.html`.** Open it in any browser: it shows every file at its real size, which file to use where, mock-ups,
-the colours, and a download of the whole set. It shows the files in this folder, so it stays current when a drawing changes.
+the colours, and a download of every file. It shows the files in this folder, so it stays current when a drawing changes.
 
 ## Which file
 
