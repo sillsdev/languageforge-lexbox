@@ -37,10 +37,15 @@ public static class FileUploadProxy
             Policy = UserCanDownloadMediaFilesPolicy
         };
 
+        var authorizeForListAttribute = new AuthorizeAttribute
+        {
+            Policy = UserCanListMediaFilesPolicy
+        };
+
         var group = app.MapGroup("/api/media");
 
         group.Map("/list/{projectId:guid}/{**catch-all}",
-            Forward).RequireAuthorization(new AuthorizeAttribute { Policy = UserCanListMediaFilesPolicy });
+            Forward).RequireAuthorization(authorizeForListAttribute);
 
         //media upload/download
         group.MapGet("/{fileId:guid}",

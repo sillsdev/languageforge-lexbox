@@ -44,6 +44,14 @@ public class MediaFileRequirementHandler(IHttpContextAccessor httpContextAccesso
 
     private static async ValueTask<Guid?> GetProjectId(HttpRequest request)
     {
+        // FwHeadless serves file routes by id alone, so a caller-supplied projectId must not stand in for the file's own project
+        if (GetFileId(request) is {} fileId)
+        {
+            var dbContext = request.HttpContext.RequestServices.GetRequiredService<LexBoxDbContext>();
+            var file = await dbContext.Files.FindAsync(fileId);
+            return file?.ProjectId;
+        }
+
         Guid? projectId = null;
         if (request.RouteValues.TryGetValue("projectId", out var projectIdValue))
         {
@@ -55,13 +63,6 @@ public class MediaFileRequirementHandler(IHttpContextAccessor httpContextAccesso
             {
                 if (projectIdValueFromQuery.FirstOrDefault() is string sq && Guid.TryParse(sq, out var parsed)) projectId = parsed;
             }
-        }
-
-        if (projectId is null && GetFileId(request) is {} fileId)
-        {
-            var dbContext = request.HttpContext.RequestServices.GetRequiredService<LexBoxDbContext>();
-            var file = await dbContext.Files.FindAsync(fileId);
-            projectId = file?.ProjectId;
         }
         return projectId;
     }
