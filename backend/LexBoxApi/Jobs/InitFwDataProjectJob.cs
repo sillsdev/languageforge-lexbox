@@ -85,9 +85,18 @@ public class InitFwDataProjectJob(
         switch (outcome.Result)
         {
             case InitAttemptResult.Created:
-                await projectService.FinishFwDataInit(projectId);
-                logger.LogInformation("Initialised project {ProjectId} ({Code}) from the template", projectId, project.Code);
-                return;
+                try
+                {
+                    await projectService.FinishFwDataInit(projectId);
+                    logger.LogInformation("Initialised project {ProjectId} ({Code}) from the template", projectId, project.Code);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    // The repo is populated, so a later attempt sees Created again and retries marking it ready
+                    logger.LogError(ex, "Failed to mark project {ProjectId} ({Code}) as initialised", projectId, project.Code);
+                }
+                break;
 
             case InitAttemptResult.Failed:
                 logger.LogError("Creating project {ProjectId} ({Code}) from the template failed, rolling it back: {Error}",
