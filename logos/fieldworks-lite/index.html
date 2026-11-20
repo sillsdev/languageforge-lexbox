@@ -104,7 +104,7 @@ figure { margin:0; display:flex; flex-direction:column; align-items:center; gap:
 .doc { background:#fff; border:1px solid var(--line); border-radius:10px; padding:22px; display:flex; gap:18px; align-items:center; color:#1f2a44 }
 .doc b { font-size:22px; display:block } .doc span { color:#5d6475; font-size:13px }
 .ink { display:flex; gap:22px; align-items:center; background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px }
-.ink1 { -webkit-mask:var(--m) center/contain no-repeat; mask:var(--m) center/contain no-repeat; background:var(--ink, #1f2a44) }
+.ink1 rect { fill:var(--ink, #1f2a44) }
 .inks { display:flex; gap:6px; flex-wrap:wrap }
 .inks button { all:unset; cursor:pointer; display:inline-flex; align-items:center; gap:5px; font-size:12px; color:#5d6475; padding:2px 8px 2px 3px; border:1px solid #dedad0; border-radius:99px }
 .inks button i { width:14px; height:14px; border-radius:50% }
@@ -215,7 +215,7 @@ footer { border-top:1px solid var(--line); padding-top:16px; font-size:13px; col
     <div class="use">
       <div class="ink">
         <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
-          <div class="ink1" data-mask="fieldworks-lite-onecolor.svg" style="width:110px;height:110px"></div>
+          <svg class="ink1" data-mask="fieldworks-lite-onecolor.svg" width="110" height="110"></svg>
           <div class="inks" id="inks"></div>
         </div>
         <img data-f="fieldworks-lite-mono.svg" width="110" height="110" alt="">
@@ -290,7 +290,7 @@ const PICK = [
   ["App icon for Mac", "macOS Dock and Finder: the rounded square on Apple's 824-in-1024 grid", `${N}-appicon-macos.svg`, "bare", [[`${N}-appicon-macos.svg`, "SVG"]]],
   ["App icon, rounded", "Web pages, documents, anywhere the icon is shown as it is", `${N}-appicon.svg`, "bare", [[`${N}-appicon.svg`, "SVG"]]],
   ["App icon without a box", "Windows and Linux: the drawing for each size (tiny at 24 to 32, small at 48, full at 256); reversed on dark taskbars", `${N}-tiny.svg`, false, [[`${N}-tiny.svg`, "SVG 24-47"], [`${N}-tiny-reversed.svg`, "SVG dark"], [`${N}-small.svg`, "SVG 48-95"], [`${N}.svg`, "SVG 96+"]]],
-  ["Website favicon", "The browser tab icon: link both, the SVG first", "favicon.svg", false, [["favicon.svg", "SVG (dark-aware)"], ["favicon.ico", "ICO 16/32/48"]]],
+  ["Website favicon", "The browser tab icon: link both, the ICO first so browsers that take SVG pick the SVG", "favicon.svg", false, [["favicon.svg", "SVG (dark-aware)"], ["favicon.ico", "ICO 16/32/48"]]],
   ["Cropped to a circle", "Android launcher layers, profile pictures: the book centred in the circle, not the square", `${N}-reversed-circle.svg`, true, [[`${N}-circle.svg`, "SVG light"], [`${N}-reversed-circle.svg`, "SVG dark"], [`${N}-onecolor-circle.svg`, "SVG one colour"]]],
   ["Large: 96 px and up", "Slides, documents, About screen, web pages", `${N}.svg`, false, [[`${N}.svg`, "SVG"]]],
   ["Large on navy or dark", "Same, on dark grounds", `${N}-reversed.svg`, true, [[`${N}-reversed.svg`, "SVG"]]],
@@ -382,7 +382,7 @@ const FILES = [
   ["favicon.ico", "Browser favicon for browsers without SVG: micro at 16, tiny at 32, small at 48.", false],
 ];
 $("#files").innerHTML = FILES.map(([f, what, navy]) => {
-  const pv = f.includes("-onecolor") ? `<div class="ink1" data-mask="${f}" style="width:120px;height:120px"></div>` : f === "favicon.ico" ? `<div style="display:flex;gap:14px;align-items:flex-end">${[[16, "micro"], [32, "tiny"], [48, "small"]].map(([z, t]) => img(`${N}-${t}.svg`, z)).join("")}</div>` : img(f, 120);
+  const pv = f.includes("-onecolor") ? `<svg class="ink1" data-mask="${f}" width="120" height="120"></svg>` : f === "favicon.ico" ? `<div style="display:flex;gap:14px;align-items:flex-end">${[[16, "micro"], [32, "tiny"], [48, "small"]].map(([z, t]) => img(`${N}-${t}.svg`, z)).join("")}</div>` : img(f, 120);
   return `<div class="file"><div class="pv${navy ? " navy" : ""}">${pv}</div><div class="bd"><code>${f}</code><p>${what}</p>
     <div class="gets">${dl(f, f.endsWith(".ico") ? "ICO" : "SVG")}</div></div></div>`;
 }).join("");
@@ -402,7 +402,9 @@ document.addEventListener("click", e => {
 });
 let tt; const toast = m => { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("on"), 1400); };
 
-document.querySelectorAll("[data-mask]").forEach(d => d.style.setProperty("--m", `url("${F[d.dataset.mask][0]}")`));
+// an SVG <mask>, not CSS mask-image: CSS masks need CORS, so they stay blank when the page is opened from disk
+document.querySelectorAll("[data-mask]").forEach((s, i) => { s.setAttribute("viewBox", "0 0 256 256");
+  s.innerHTML = `<mask id="ink1-${i}" style="mask-type:alpha"><image href="${F[s.dataset.mask][0]}" width="256" height="256"/></mask><rect width="256" height="256" mask="url(#ink1-${i})"/>`; });
 const INKS = [["#1f2a44", "Navy"], ["#000000", "Black"], ["#EE5D50", "Coral"], ["#2e7d6b", "Any other"]];
 $("#inks").innerHTML = INKS.map(([c, n], i) => `<button type="button" data-ink="${c}" aria-pressed="${i === 0}"><i style="background:${c}"></i>${n}</button>`).join("");
 $("#inks").addEventListener("click", e => {
