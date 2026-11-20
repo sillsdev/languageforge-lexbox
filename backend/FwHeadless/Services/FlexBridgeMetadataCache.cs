@@ -9,11 +9,11 @@ namespace FwHeadless.Services;
 /// </summary>
 public static class FlexBridgeMetadataCache
 {
-    private static readonly FieldInfo CacheField =
-        Type.GetType("LibFLExBridgeChorusPlugin.Infrastructure.MetadataCache, LibFLExBridge-ChorusPlugin", throwOnError: true)!
-            .GetField("_mdc", BindingFlags.Static | BindingFlags.NonPublic)
-        ?? throw new MissingFieldException("MetadataCache", "_mdc");
+    private static readonly Lazy<FieldInfo> CacheField = new(() =>
+        Type.GetType("LibFLExBridgeChorusPlugin.Infrastructure.MetadataCache, LibFLExBridge-ChorusPlugin")
+            ?.GetField("_mdc", BindingFlags.Static | BindingFlags.NonPublic)
+        ?? throw new MissingFieldException("MetadataCache", "_mdc"));
 
     // Not thread-safe: FwHeadless runs one Send/Receive at a time
-    public static void Reset() => CacheField.SetValue(null, null);
+    public static void Reset() => CacheField.Value.SetValue(null, null);
 }
