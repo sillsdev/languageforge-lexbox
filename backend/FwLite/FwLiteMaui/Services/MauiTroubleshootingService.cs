@@ -9,6 +9,7 @@ namespace FwLiteMaui.Services;
 
 public class MauiTroubleshootingService(
     IOptions<FwLiteMauiConfig> config,
+    IOptions<LcmCrdtConfig> lcmCrdtConfig,
     ILogger<MauiTroubleshootingService> logger,
     IConfigurationRoot configuration,
     CrdtProjectsService projectsService,
@@ -20,6 +21,8 @@ public class MauiTroubleshootingService(
     private readonly IBrowser _browser = browser;
     private readonly IShare _share = share;
     private FwLiteMauiConfig Config => config.Value;
+    // projects can live outside BaseDataDir (Windows MSIX, see FwLiteMauiConfig.ProjectDataDir)
+    private string DataDirectory => lcmCrdtConfig.Value.ProjectPath;
 
     [JSInvokable]
     public Task<bool> GetCanShare() => Task.FromResult(true);
@@ -30,7 +33,7 @@ public class MauiTroubleshootingService(
         try
         {
             //obviously intended to open a url in the browser, but on windows it just opens explorer
-            await _browser.OpenAsync("file://" + Config.BaseDataDir);
+            await _browser.OpenAsync("file://" + DataDirectory);
             return true;
         }
         catch (Exception e)
@@ -43,7 +46,7 @@ public class MauiTroubleshootingService(
     [JSInvokable]
     public Task<string> GetDataDirectory()
     {
-        return Task.FromResult(Config.BaseDataDir);
+        return Task.FromResult(DataDirectory);
     }
 
     [JSInvokable]
