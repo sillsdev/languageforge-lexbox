@@ -12,6 +12,7 @@ Looking for [FieldWorks Lite](backend/FwLite/README.md)?
 * [deployment](deployment/README.md) - k8s config for production, staging, develop and local development environments
 * [frontend](frontend/README.md) - SvelteKit app
 * hgweb - hgweb Dockerfile and config
+* logos - FieldWorks Lite and Lexbox logos. No logo anywhere in this repo is under the MIT licence: see [logos/LICENSE.md](logos/LICENSE.md)
 * otel - Open Telemetry collector config
 * [platform.bible-extension](platform.bible-extension/README.md) - Platform.Bible extension
 

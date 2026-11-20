@@ -81,3 +81,5 @@ The word tab casts a shadow of black at 18% opacity on light grounds.
 - Straighten, rotate, stretch or crop the book: the slight turn is part of the logo.
 - Use the ล or the coral tab on their own as a logo.
 - Redraw it from a screenshot: download the file instead.
+
+The logo is not under this repository's MIT licence: see [`../LICENSE.md`](../LICENSE.md).
