@@ -75,3 +75,5 @@ On dark grounds the blue side, the ล and the lid keep their light-ground colou
 - Stretch, rotate or crop the crate.
 - Use the ล or the blue tile on their own as a logo.
 - Redraw it from a screenshot: download the file instead.
+
+The logo is not under this repository's MIT licence: see [`../LICENSE.md`](../LICENSE.md).
