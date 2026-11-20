@@ -21,7 +21,7 @@ public class MockFwProjectLoader(IOptions<FwDataBridgeConfig> config)
 
     public override LcmCache NewProject(FwDataProject project, string analysisWs, string vernacularWs, string uiWs = "en")
     {
-        Init();
+        InitLcm();
         var lcmDirectories = new LcmDirectories(project.ProjectsPath, TemplatesFolder);
         var progress = new LcmThreadedProgress();
         var cache = LcmCache.CreateCacheWithNewBlankLangProj(

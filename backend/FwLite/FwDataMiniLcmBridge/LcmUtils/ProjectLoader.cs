@@ -59,11 +59,30 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         }
     }
 
+    protected void InitLcm()
+    {
+        Init();
+        if (!config.Value.UseGlobalWritingSystemStore) DisableGlobalWritingSystemStore();
+    }
+
+    // Same approach as LfMerge: liblcm passes the registered null to each project as its global store.
+    private static void DisableGlobalWritingSystemStore()
+    {
+        lock (_initLock)
+        {
+            var key = typeof(CoreGlobalWritingSystemRepository).FullName!;
+            if (!SingletonsContainer.Contains<CoreGlobalWritingSystemRepository>())
+                SingletonsContainer.Add(key, null);
+            else if (SingletonsContainer.Item(key) is not null)
+                throw new InvalidOperationException("The global writing system store was opened before it could be disabled");
+        }
+    }
+
     public virtual LcmCache LoadCache(FwDataProject project)
     {
         using var activity = FwDataMiniLcmBridgeActivitySource.Value.StartActivity();
         activity?.SetTag("app.project_code", project.Name);
-        Init();
+        InitLcm();
         if (!Directory.Exists(project.ProjectsPath)) Directory.CreateDirectory(project.ProjectsPath);
         if (!Directory.Exists(TemplatesFolder)) Directory.CreateDirectory(TemplatesFolder);
         var lcmDirectories = new LcmDirectories(project.ProjectsPath, TemplatesFolder);
@@ -91,7 +110,7 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         IReadOnlyList<string> vernacularWss,
         string uiWs = "en")
     {
-        Init();
+        InitLcm();
         var lcmDirectories = new LcmDirectories(project.ProjectsPath, TemplatesFolder);
         var progress = new LcmThreadedProgress();
         var analysisDefinitions = analysisWss.Select(CreateWritingSystemDefinition).ToList();
