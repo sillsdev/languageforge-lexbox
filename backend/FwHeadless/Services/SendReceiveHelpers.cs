@@ -76,6 +76,7 @@ public static class SendReceiveHelpers
         var combinedProgress = new CombiningProgress(sbProgress, progress);
         var lfMergeBridgeOutputForClient = await Task.Run(() =>
         {
+            FlexBridgeMetadataCache.Reset();
             LfMergeBridge.LfMergeBridge.Execute(method, combinedProgress, flexBridgeOptions.ToDictionary(), out var output);
             return output;
         });
