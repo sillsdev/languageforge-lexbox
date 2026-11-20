@@ -1,3 +1,6 @@
+using System.Text;
+using FwHeadless.Controllers;
+
 namespace FwHeadless.Media;
 
 /// <summary>
@@ -10,4 +13,8 @@ namespace FwHeadless.Media;
 public static class MediaFilePath
 {
     public static string Normalize(string path) => path.Replace('\\', '/');
+
+    // NFC like FLEx names its files (LabeledMultiStringView.CreateNewSoundFilename).
+    public static string ForUpload(string subfolder, Guid fileId, string filename) =>
+        Normalize(Path.Join(MediaFileController.LinkedFiles, subfolder, fileId.ToString(), filename.Normalize(NormalizationForm.FormC)));
 }

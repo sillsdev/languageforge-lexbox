@@ -38,6 +38,10 @@ namespace Testing.FwHeadless;
 [Trait("Category", "RequiresDb")]
 public class SyncMediaFilesReconcileTests : IAsyncLifetime
 {
+    // ü as one code point, and as u + combining diaeresis
+    private const string Nfc = "\u00fc";
+    private const string Nfd = "u\u0308";
+
     private readonly MediaFileService _lexboxMediaService;
     private readonly LexBoxDbContext _dbContext;
     private readonly Guid _projectId = Guid.NewGuid();
@@ -192,6 +196,17 @@ public class SyncMediaFilesReconcileTests : IAsyncLifetime
         var pendingRow = _dbContext.Files.Single(f => f.Id == pendingId);
         pendingRow.Revision.Should().Be(0);
         MediaFilePath.Normalize(pendingRow.Filename).Should().Be($"LinkedFiles/Plugins/{pendingId}/plugin-abc123.html");
+    }
+
+    [Fact]
+    public async Task SyncMediaFiles_ReservesPendingPathAsNfc()
+    {
+        var pendingId = await SeedPendingResource($"{Nfd}.wav");
+
+        await _lexboxMediaService.SyncMediaFiles(_projectId, _lcmMediaService);
+
+        MediaFilePath.Normalize(_dbContext.Files.Single(f => f.Id == pendingId).Filename)
+            .Should().Be($"LinkedFiles/AudioVisual/{pendingId}/{Nfc}.wav");
     }
 
     [Fact]

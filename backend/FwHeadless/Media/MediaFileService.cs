@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using System.Security.Cryptography;
+using System.Text;
 using FwHeadless.Controllers;
 using FwHeadless.Services;
 using LcmCrdt.MediaServer;
@@ -87,8 +88,16 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         var fwDataFolder = config.Value.GetFwDataFolder(config.Value.GetProjectFolder(projectId));
         if (!path.StartsWith(fwDataFolder)) return null;
         var relativePath = MediaFilePath.Normalize(Path.GetRelativePath(fwDataFolder, path));
-        //normalize the stored column too: legacy rows may have been written under a different OS's separators
-        return dbContext.Files.FirstOrDefault(f => f.ProjectId == projectId && f.Filename.Replace("\\", "/") == relativePath);
+        // LCM hands us NFD paths, but files may be named either way (see MediaFilePath.ForUpload). Mirrors FLEx's
+        // exact, NFC, NFD lookup: https://github.com/sillsdev/liblcm/blob/da7140f07b92/src/SIL.LCModel.Utils/FileUtils.cs#L434
+        string[] spellings = [relativePath, relativePath.Normalize(NormalizationForm.FormC), relativePath.Normalize(NormalizationForm.FormD)];
+        //normalize the stored column too: legacy rows may have been written under a different OS's separators.
+        //Inline Replace, not MediaFilePath.Normalize, so EF can translate it to SQL.
+        return dbContext.Files
+            .Where(f => f.ProjectId == projectId && spellings.Contains(f.Filename.Replace("\\", "/")))
+            .AsEnumerable()
+            .OrderBy(f => MediaFilePath.Normalize(f.Filename) == relativePath ? 0 : 1)
+            .FirstOrDefault();
     }
 
     /// <summary>
@@ -168,7 +177,7 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
                 {
                     Id = lcmResource.Id,
                     ProjectId = projectId,
-                    Filename = Path.Join(MediaFileController.LinkedFiles, subfolder, lcmResource.Id.ToString(), metadata.Filename),
+                    Filename = MediaFilePath.ForUpload(subfolder, lcmResource.Id, metadata.Filename),
                     Metadata = FromLcmFileMetadata(metadata),
                     Revision = 0, // pending: no binary uploaded yet
                 };
