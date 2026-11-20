@@ -340,7 +340,7 @@ public class SeedingData(
         LexiconApp("lexicon-mcp-server", "Lexicon MCP server (prototype)"),
         LexiconApp("lexicon-lift-tool", "Lexicon LIFT tool (prototype)", canWrite: true),
         LexiconApp("dictionary-app-builder", "Dictionary App Builder", canWrite: true),
-    ],a => a.ClientId ?? throw new InvalidOperationException("ClientId is null"));
+    ], a => a.ClientId ?? throw new InvalidOperationException("ClientId is null"));
 
     /// <summary>
     /// A lexicon API client: a native app with a loopback redirect on any port, like FieldWorks Lite.
