@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using System.Collections.Concurrent;
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwDataMiniLcmBridge.Media;
@@ -40,79 +40,114 @@ public class FwDataFactory(
         });
     }
 
-    private static string CacheKey(FwDataProject project) => $"{nameof(FwDataFactory)}|{project.FilePath}";
-    private static string FilePathFromCacheKey(string cacheKey) => cacheKey.Split('|')[1];
+    internal static string CacheKey(FwDataProject project) => $"{nameof(FwDataFactory)}|{project.FilePath}";
 
     public FwDataMiniLcmApi GetFwDataMiniLcmApi(FwDataProject project, bool saveOnDispose)
     {
         return new FwDataMiniLcmApi(new(() => GetProjectServiceCached(project)), saveOnDispose, fwdataLogger, project, mediaAdapter, config);
     }
 
-    private HashSet<string> _projectCacheKeys = [];
+    // One lock per project, held for the whole load, so concurrent requests share a load instead of racing
+    // (IMemoryCache.GetOrCreate isn't atomic) and the cache only ever holds a finished LcmCache.
+    // Never pruned: it grows by one small Lock per distinct project path this factory opens.
+    private readonly ConcurrentDictionary<string, Lock> _keyLocks = new();
+    private Lock KeyLock(string key) => _keyLocks.GetOrAdd(key, _ => new());
+
+    private readonly Lock _openCachesLock = new();
+    // Whoever removes an instance from here disposes it, so eviction, close and shutdown dispose it exactly once.
+    // Keyed by instance so a stale eviction callback can't untrack a newer cache for the same project.
+    private Dictionary<LcmCache, string> _openCaches = [];
+
+    private static string FilePathFromCacheKey(string cacheKey) => cacheKey.Split('|')[1];
+
     private LcmCache GetProjectServiceCached(FwDataProject project)
     {
         var key = CacheKey(project);
-        var projectService = cache.GetOrCreate(key,
-                entry =>
-                {
-                    entry.SlidingExpiration = CacheSlidingExpiration;
-                    entry.RegisterPostEvictionCallback(OnLcmProjectCacheEviction, (logger, _projectCacheKeys));
-                    logger.LogInformation("Loading project {ProjectFileName}", project.FileName);
-                    var projectService = projectLoader.LoadCache(project);
-                    logger.LogInformation("Project {ProjectFileName} loaded", project.FileName);
-                    _projectCacheKeys.Add(key);
-                    return projectService;
-                });
-        if (projectService is null)
+        if (cache.TryGetValue(key, out LcmCache? hit) && !hit!.IsDisposed) return hit;
+        lock (KeyLock(key))
         {
-            throw new InvalidOperationException("Project service is null");
+            if (cache.TryGetValue(key, out hit) && !hit!.IsDisposed) return hit;
+            DisposeTrackedCaches(key);
+            logger.LogInformation("Loading project {ProjectFileName}", project.FileName);
+            var lcmCache = projectLoader.LoadCache(project);
+            logger.LogInformation("Project {ProjectFileName} loaded", project.FileName);
+            lock (_openCachesLock)
+            {
+                _openCaches.Add(lcmCache, key);
+            }
+            // The entry is committed to the cache when it's disposed.
+            using (var entry = cache.CreateEntry(key))
+            {
+                entry.SlidingExpiration = CacheSlidingExpiration;
+                entry.RegisterPostEvictionCallback(OnLcmProjectCacheEviction);
+                entry.Value = lcmCache;
+            }
+            return lcmCache;
         }
-        if (projectService.IsDisposed)
-        {
-            throw new InvalidOperationException("Project service is disposed");
-        }
-
-        return projectService;
     }
 
-    private static void OnLcmProjectCacheEviction(object keyObj, object? value, EvictionReason reason, object? state)
+    private bool Untrack(LcmCache lcmCache)
     {
-        if (value is null) return;
+        lock (_openCachesLock)
+        {
+            return _openCaches.Remove(lcmCache);
+        }
+    }
+
+    // Call with KeyLock(key) held: an expired entry's eviction callback may not have run yet.
+    private void DisposeTrackedCaches(string key)
+    {
+        List<LcmCache> untracked;
+        lock (_openCachesLock)
+        {
+            untracked = _openCaches.Where(open => open.Value == key).Select(open => open.Key).ToList();
+            foreach (var lcmCache in untracked) _openCaches.Remove(lcmCache);
+        }
+        foreach (var lcmCache in untracked)
+        {
+            if (lcmCache.IsDisposed) continue;
+            lcmCache.Dispose();
+            logger.LogInformation("FW Data Project {ProjectFileName} disposed", FilePathFromCacheKey(key));
+        }
+    }
+
+    private void OnLcmProjectCacheEviction(object keyObj, object? value, EvictionReason reason, object? state)
+    {
+        if (value is not LcmCache lcmCache) return;
         // todo this could trigger when the service is still referenced elsewhere, for example in a long running task.
         // disposing of the service while it's still in use would be bad.
         // one way around this would be to return a lease object, only after a timeout and no more references to the lease object would the service be disposed.
-        var lcmCache = (LcmCache)value;
-        var (logger, projectCacheKeys) = ((ILogger<FwDataFactory>, HashSet<string>))state!;
-        if (keyObj.ToString() is not string key)
-        {
-            Debug.Fail($"Eviction callback called with null key {keyObj}");
-            logger.LogError("Eviction callback called with null key {Key}", keyObj);
-            return;
-        }
+        var key = (string)keyObj;
         var filePath = FilePathFromCacheKey(key);
-        logger.LogInformation("Evicting project {ProjectFileName} from cache", filePath);
-        projectCacheKeys.Remove(key);
-        if (!lcmCache.IsDisposed)
+        logger.LogInformation("Evicting project {ProjectFileName} from cache ({EvictionReason})", filePath, reason);
+        lock (KeyLock(key))
         {
+            if (!Untrack(lcmCache) || lcmCache.IsDisposed) return;
             lcmCache.Dispose();
-            logger.LogInformation("FW Data Project {ProjectFileName} disposed", filePath);
-            GC.Collect();
         }
+        logger.LogInformation("FW Data Project {ProjectFileName} disposed", filePath);
+        GC.Collect();
     }
 
     public void Dispose()
     {
         logger.LogInformation("Closing all projects");
-        //ensure a race condition doesn't cause us to dispose of a project that's already been disposed
-        var projectCacheKeys = Interlocked.Exchange(ref _projectCacheKeys, []);
-        foreach (var key in projectCacheKeys)
+        Dictionary<LcmCache, string> openCaches;
+        lock (_openCachesLock)
         {
-            var lcmCache = cache.Get<LcmCache>(key);
-            if (lcmCache is null || lcmCache.IsDisposed) continue;
-            var filePath = FilePathFromCacheKey(key);
-            lcmCache.Dispose(); //need to explicitly call dispose as that blocks, just removing from the cache does not block, meaning it will not finish disposing before the program exits.
-            logger.LogInformation("FW Data Project {ProjectFileName} disposed", filePath);
-            cache.Remove(key);
+            openCaches = _openCaches;
+            _openCaches = [];
+        }
+        foreach (var (lcmCache, key) in openCaches)
+        {
+            if (!lcmCache.IsDisposed)
+            {
+                //need to explicitly call dispose as that blocks, just removing from the cache does not block, meaning it will not finish disposing before the program exits.
+                lcmCache.Dispose();
+                logger.LogInformation("FW Data Project {ProjectFileName} disposed", FilePathFromCacheKey(key));
+            }
+            if (cache.TryGetValue(key, out LcmCache? current) && ReferenceEquals(current, lcmCache))
+                cache.Remove(key);
         }
     }
 
@@ -121,13 +156,23 @@ public class FwDataFactory(
         // if we are shutting down, don't do anything because we want project dispose to be called as part of the shutdown process.
         if (_shuttingDown) return;
         logger.LogInformation("Explicitly Closing project {ProjectFileName}", project.FilePath);
-        var cacheKey = CacheKey(project);
-        var lcmCache = cache.Get<LcmCache>(cacheKey);
-        if (lcmCache is null) return;
-        // Dispose cache immediately so file locks are released before we return.
+        var key = CacheKey(project);
+        // Dispose immediately (waiting for a load still in flight) so file locks are released before we return.
         // The caller assumes the project is ready to be opened somewhere else (e.g. in FieldWorks)
-        if (!lcmCache.IsDisposed) await Task.Run(lcmCache.Dispose);
-        cache.Remove(cacheKey);
+        await Task.Run(() =>
+        {
+            lock (KeyLock(key))
+            {
+                if (cache.TryGetValue(key, out LcmCache? lcmCache) && lcmCache is not null)
+                {
+                    // Untracked first, so the eviction callback that Remove triggers leaves the disposal to us.
+                    var owned = Untrack(lcmCache);
+                    cache.Remove(key);
+                    if (owned && !lcmCache.IsDisposed) lcmCache.Dispose();
+                }
+                DisposeTrackedCaches(key);
+            }
+        });
     }
 
     public IAsyncDisposable DeferCloseAsync(FwDataProject project)
