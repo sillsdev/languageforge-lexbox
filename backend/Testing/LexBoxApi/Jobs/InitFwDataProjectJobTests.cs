@@ -8,7 +8,7 @@ using LexCore.Sync;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
-namespace Testing.LexBoxApi;
+namespace Testing.LexBoxApi.Jobs;
 
 /// <summary>
 /// Unit tests for how one run of InitFwDataProjectJob decides what happened to a creation. Every run must be

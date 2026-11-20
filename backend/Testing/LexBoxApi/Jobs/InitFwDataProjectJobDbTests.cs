@@ -50,6 +50,7 @@ public class InitFwDataProjectJobDbTests(TestingServicesFixture testing)
 
         await job.Execute(Mock.Of<IJobExecutionContext>());
 
+        hgService.Verify(h => h.GetLastCommitTimeFromHg(It.IsAny<ProjectCode>()), Times.Once);
         scheduler.Verify(s => s.ScheduleJob(
             It.Is<ITrigger>(t => t.JobDataMap.GetString(nameof(InitFwDataProjectJob.Attempt)) == "2"),
             It.IsAny<CancellationToken>()), Times.Once);
