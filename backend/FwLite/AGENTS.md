@@ -241,9 +241,9 @@ Assume any object owned by an entry or sense can show up under a different paren
 - **Merge Sense into...**: the merged sense's examples, pictures and subsenses move to the surviving sense.
 - **Merge with entry...**: senses move to the surviving entry.
 - **Move Sense to a New Entry**, promote/demote: senses move.
-- Drag-and-drop in the entry editor moves any item of a sequence to another owner of the same field (`SliceTreeNode.OnDragDrop`), so likely examples, pictures and translations too.
+- Drag-and-drop in the entry editor moves an item of an owning sequence to another owner of the same field (`SliceTreeNode.OnDragDrop` → `MoveOwnSeq`), so likely examples and pictures too.
 
-Sync supports moving senses, examples and pictures. A moved translation still throws `MoveNotSupportedException` (`SyncContext.VerifyNoUnsupportedMoves`).
+Sync supports moving senses, examples and pictures. A moved translation still throws `MoveNotSupportedException` (`SyncContext.VerifyNoUnsupportedMoves`), but FLEx can't move one: `Translations` is an owning collection, so a drag-and-drop move fails, and no merge or LIFT import re-owns a translation (Chorus merge and Bulk Edit unchecked).
 
 On CRDT a picture is part of its sense's row, so a picture move is a remove plus a same-id create carrying the data as of the sync. An edit or delete another client made to the picture under its old sense doesn't follow it.
 
