@@ -277,7 +277,8 @@
 
         {#if selectedField}
           <!-- Tinted like the selected field row, to show the languages belong to it. -->
-          <div class="flex flex-col gap-4 md:sticky md:top-0 md:rounded-lg md:border md:border-primary/25 md:bg-primary/5 md:p-4 md:dark:bg-primary/10">
+          <!-- md:mt-7 = the left column's group heading plus its gap, so the panel starts level with the first row. -->
+          <div class="flex flex-col gap-4 md:sticky md:top-0 md:mt-7 md:rounded-lg md:border md:border-primary/25 md:bg-primary/5 md:p-4 md:dark:bg-primary/10">
             <div class="flex items-start gap-1">
               {#if drilledIn}
                 <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" aria-label={$t`Back to fields`} onclick={() => fieldParam.current = ''} />
