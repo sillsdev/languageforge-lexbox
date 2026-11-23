@@ -31,7 +31,7 @@
   import {Select} from '$lib/components/field-editors';
   import {useMorphTypesService} from '$project/data/morph-types.svelte';
   import {findMorphType, fitsMorphType, hasLeftoverMarkers, stripMarkers} from './morph-type-markers';
-  import {liteMorphTypes} from '$lib/views/view-data';
+  import {wordsAndPhrases} from '$lib/views/view-data';
   import type {ReadonlyDeep} from 'type-fest';
 
   let open = $state(false);
@@ -63,8 +63,10 @@
 
   let editor = $state<Editor.Root>();
 
-  // Classic only: like FLEx, affix markers typed in the lexeme form pick the morph type and are stripped on create
-  const pickMorphType = $derived(viewService.currentView.base === ViewBase.FieldWorks);
+  // Like FLEx, affix markers typed in the lexeme form pick the morph type and are stripped on create.
+  // Lite only shows the picker once the markers say it's not a word or phrase, which is rare.
+  let affixDetected = $state(false);
+  const pickMorphType = $derived(viewService.currentView.base === ViewBase.FieldWorks || affixDetected);
   const morphTypeOptions = $derived(morphTypes.current
     .filter(mt => mt.kind !== MorphTypeKind.Unknown)
     .toSorted((a, b) => morphTypeLabel(a).localeCompare(morphTypeLabel(b))));
@@ -74,13 +76,15 @@
   let lastDetectedKind: MorphTypeKind | undefined;
   let morphTypeAnnouncement = $state('');
   $effect(() => {
-    if (!pickMorphType || !detectedMorphType.valid) return;
+    if (!detectedMorphType.valid) return;
     const kind = detectedMorphType.kind;
+    if (!wordsAndPhrases.has(kind)) affixDetected = true;
     if (kind === lastDetectedKind) return;
     lastDetectedKind = kind;
     if (entry.morphType === kind) return;
     entry.morphType = kind;
-    morphTypeAnnouncement = untrack(() => selectedMorphType && morphTypeLabel(selectedMorphType)) ?? '';
+    const label = untrack(() => selectedMorphType && morphTypeLabel(selectedMorphType));
+    morphTypeAnnouncement = label ? $t`Morph type: ${label}` : '';
   });
 
   function morphTypeLabel(morphType: ReadonlyDeep<IMorphType>): string {
@@ -100,24 +104,16 @@
     lastDetectedKind = detectedMorphType.valid ? detectedMorphType.kind : undefined;
   }
 
-  // Lite has no picker, so the markers alone decide
-  const morphTypeKind = $derived(pickMorphType ? entry.morphType
-    : detectedMorphType.valid ? detectedMorphType.kind : MorphTypeKind.Stem);
-
   type LexemeFormCheck = {stored: string, error?: string, warning?: string};
   // As strict as FLEx's dialog, so we never store a form FLEx would refuse
   function checkLexemeForm(form: string): LexemeFormCheck {
     const match = findMorphType(form, morphTypes.current);
     const stored = stripMarkers(form, match);
-    if (!pickMorphType && (!match.valid || !liteMorphTypes.has(match.kind))) {
-      const marker = match.leading || match.trailing;
-      return {stored, error: $t`Words can't start or end with "${marker}". To add affixes, switch to the FieldWorks Classic view.`};
-    }
     if (!match.valid) {
       return {stored, error: $t`The markers in "${form}" don't fit any morph type. Check the start and end of the word.`};
     }
-    if (!fitsMorphType(morphTypeKind, match.kind)) {
-      const label = selectedMorphType ? morphTypeLabel(selectedMorphType) : morphTypeKind;
+    if (!fitsMorphType(entry.morphType, match.kind)) {
+      const label = selectedMorphType ? morphTypeLabel(selectedMorphType) : entry.morphType;
       return {stored, error: $t`"${form}" doesn't match the morph type ${label}.`};
     }
     if (hasLeftoverMarkers(stored, morphTypes.current)) {
@@ -133,7 +129,7 @@
   const storedEntry = $derived.by(() => {
     const lexemeForm = {...entry.lexemeForm};
     for (const check of lexemeFormChecks) lexemeForm[check.wsId] = check.stored;
-    return {...entry, lexemeForm, morphType: morphTypeKind};
+    return {...entry, lexemeForm};
   });
 
   async function createEntry(e: Event) {
@@ -207,6 +203,7 @@
       publishInIsFromTemplate = undefined;
       entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
       lastDetectedKind = undefined;
+      affixDetected = false;
       addMainPublicationPromise = addMainPublication(entry.id);
       addSense();
 

@@ -9,7 +9,7 @@ export interface TypedViewField<T extends FieldId> extends IViewField {
 }
 
 /** The Lite view only lists entries of these morph types */
-export const liteMorphTypes: ReadonlySet<MorphTypeKind> = new Set([
+export const wordsAndPhrases: ReadonlySet<MorphTypeKind> = new Set([
   MorphTypeKind.Root, MorphTypeKind.BoundRoot,
   MorphTypeKind.Stem, MorphTypeKind.BoundStem,
   MorphTypeKind.Particle,

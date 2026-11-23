@@ -73,7 +73,7 @@
           writingSystems={writingSystemService.viewVernacular(viewService.currentView)} />
     </Editor.Field.Body>
     {#if lexemeFormNote}
-      <Editor.Field.Body>
+      <Editor.Field.Body class="mt-2">
         {@render lexemeFormNote()}
       </Editor.Field.Body>
     {/if}

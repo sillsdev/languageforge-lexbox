@@ -73,26 +73,27 @@ test.describe('New entry morph type', () => {
     await expect(dialog.getByText(`"--zed" will be saved as "-zed".`, {exact: false})).toBeVisible();
   });
 
-  test('lite view has no morph type picker and blocks affix markers', async ({page}) => {
+  test('lite view shows the morph type picker only once an affix is typed', async ({page}) => {
     const projectPage = new DemoProjectPage(page);
     await projectPage.goto();
     await useView(page, /FieldWorks Lite/);
 
     const dialog = await openNewEntryDialog(page);
+    await lexemeInput(dialog).fill('zed zed');
     await expect(morphTypeSelect(dialog)).toHaveCount(0);
     await lexemeInput(dialog).fill('-zed');
-    await expect(dialog.getByText(`Words can't start or end with "-".`, {exact: false})).toBeVisible();
-    await dialog.getByRole('button', {name: /add word/i}).click();
-    await expect(dialog).toBeVisible();
+    await expect(morphTypeSelect(dialog)).toHaveText(/suffix/);
+    await lexemeInput(dialog).fill('zed');
+    await expect(morphTypeSelect(dialog)).toHaveText(/stem/);
+    await lexemeInput(dialog).fill('-zed');
 
-    await lexemeInput(dialog).fill('zed zed');
     await dialog.getByRole('button', {name: /add word/i}).click();
     await expect(dialog).toBeHidden();
     const created = await page.evaluate(async () => {
       const api = window.__PLAYWRIGHT_UTILS__.demoApi;
       const entries = await api.getEntries(undefined);
-      return entries.filter(e => Object.values(e.lexemeForm).includes('zed zed')).map(e => e.morphType);
+      return entries.filter(e => Object.values(e.lexemeForm).includes('zed')).map(e => e.morphType);
     });
-    expect(created).toEqual(['Phrase']);
+    expect(created).toEqual(['Suffix']);
   });
 });
