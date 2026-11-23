@@ -47,7 +47,7 @@ test.describe('Missing filter', () => {
     await page.getByRole('button', {name: 'Toggle filters'}).click();
     await page.getByRole('button', {name: 'Entries missing...'}).click();
     await page.getByRole('option', {name: label}).click();
-    await expect(page.getByRole('button', {name: `Missing: ${label}`})).toBeVisible();
+    await expect(page.getByRole('button', {name: `Missing: ${label}`, exact: true})).toBeVisible();
     await page.keyboard.press('Escape');
   }
 
