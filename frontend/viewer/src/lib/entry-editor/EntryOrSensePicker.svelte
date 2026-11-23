@@ -132,7 +132,10 @@
 
 
   async function onClickCreateNewEntry(): Promise<void> {
-    const entry = await dialogsService.createNewEntry(search);
+    const entry = await dialogsService.createNewEntry({
+      text: search,
+      wsId: writingSystemService.viewVernacularNoAudio(viewService.currentView)[0]?.wsId,
+    });
     selectedEntry = entry;
     if (entry) {
       addedEntries = [entry];

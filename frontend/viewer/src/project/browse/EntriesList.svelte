@@ -21,6 +21,7 @@
   import {EntryLoaderService} from '$lib/services/entry-loader-service.svelte';
   import {onDestroy, untrack} from 'svelte';
   import {useViewService} from '$lib/views/view-service.svelte';
+  import {useWritingSystemService} from '$project/data';
   import {pt} from '$lib/views/view-text';
 
   let {
@@ -53,6 +54,7 @@
   const dialogsService = useDialogsService();
   const projectEventBus = useProjectEventBus();
   const viewService = useViewService();
+  const writingSystemService = useWritingSystemService();
 
   // The closures maybe need to be created OUTSIDE untrack so they maintain reactivity
   const deps = {
@@ -123,7 +125,8 @@
   });
 
   async function handleNewEntry(headword: string | undefined = undefined) {
-    const entry = await dialogsService.createNewEntry(headword, {
+    const wsId = sort?.writingSystem ?? writingSystemService.viewVernacularNoAudio(viewService.currentView)[0]?.wsId;
+    const entry = await dialogsService.createNewEntry(headword ? {text: headword, wsId} : undefined, {
       publishIn: publication ? [publication] : [],
     }, {
       semanticDomains: semanticDomain ? [semanticDomain] : [],

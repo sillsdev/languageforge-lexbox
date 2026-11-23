@@ -136,4 +136,19 @@ test.describe('Sort by writing system', () => {
     await expect(row.locator('strong')).toHaveText('qtxseh / qtxny');
     await expect(wsTrigger()).toBeVisible();
   });
+
+  test('new entry from the search prefills the writing system the list is showing', async () => {
+    const {page} = projectPage;
+
+    await wsTrigger().click();
+    await page.getByRole('menuitem', {name: 'Chichewa'}).click();
+
+    await projectPage.entriesList.filterByText('qtxnothing');
+    await projectPage.entriesList.entryRows.filter({hasText: 'Add to dictionary'}).click();
+
+    const dialog = page.getByRole('dialog');
+    const lexemeForm = dialog.locator('[data-field-id="lexemeForm"]');
+    await expect(lexemeForm.locator('[title$="(ny)"] input')).toHaveValue('qtxnothing');
+    await expect(lexemeForm.locator('[title$="(seh)"] input')).toHaveValue('');
+  });
 });
