@@ -169,7 +169,7 @@
   {@const ws = writingSystemOf(task)}
   <li>
     <ChoiceRow data-task-id={task.id} class={isDone(task) ? 'text-muted-foreground' : ''} onclick={() => openTask(task)}>
-      <span class="font-medium">{#if ws}{@render wsName(ws)}{:else}{$t`No language needed`}{/if}</span>
+      <span class="font-medium">{#if ws}{@render wsName(ws)}{:else}{pt(task.prompt, viewService.currentView)}{/if}</span>
       {#if !isDone(task)}<span class="text-muted-foreground text-sm tabular-nums">{@render progress(task)}</span>{/if}
       {#snippet trailing()}
         {#if isDone(task)}{@render doneMark()}{/if}

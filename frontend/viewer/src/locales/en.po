@@ -2819,10 +2819,6 @@ msgstr "No internet"
 msgid "No items found"
 msgstr "No items found"
 
-#: src/project/tasks/TaskList.svelte
-msgid "No language needed"
-msgstr "No language needed"
-
 #. Status on a tab: nothing was changed in this item after this change.
 #: src/lib/activity/ActivityItem.svelte
 msgid "No later changes"
