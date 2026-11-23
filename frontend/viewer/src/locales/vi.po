@@ -135,8 +135,32 @@ msgstr "{0} tác giả"
 msgid "{0} can't be added: this device already has a different project with the same code, {1}."
 msgstr ""
 
+#. Chip label in the removable filter chips under the entry search bar. {0} = field name (e.g. Word, Gloss); {1} = text the user typed.
+#. Filter: the field contains that text.
+#: src/project/browse/SearchFilter.svelte
+msgid "{0} contains “{1}”"
+msgstr ""
+
+#. Chip label in the removable filter chips under the entry search bar. {0} = field name (e.g. Word, Gloss); {1} = text the user typed.
+#. Filter: the field ends with that text.
+#: src/project/browse/SearchFilter.svelte
+msgid "{0} ends with “{1}”"
+msgstr ""
+
+#. Chip label in the removable filter chips under the entry search bar. {0} = field name (e.g. Word, Gloss); {1} = text the user typed.
+#. Filter: the field exactly equals that text.
+#: src/project/browse/SearchFilter.svelte
+msgid "{0} is “{1}”"
+msgstr ""
+
 #: src/home/OpenFromFolderItem.svelte
 msgid "{0} is already on this device, so it was opened without syncing."
+msgstr ""
+
+#. Chip label in the removable filter chips under the entry search bar. {0} = field name (e.g. Word, Gloss); {1} = text the user typed.
+#. Filter: the field does not equal that text.
+#: src/project/browse/SearchFilter.svelte
+msgid "{0} is not “{1}”"
 msgstr ""
 
 #: src/lib/plugins/PluginsView.svelte
@@ -170,6 +194,12 @@ msgstr "{0} đã giải quyết"
 msgid "{0} Server"
 msgstr "Máy chủ {0}"
 
+#. Chip label in the removable filter chips under the entry search bar. {0} = field name (e.g. Word, Gloss); {1} = text the user typed.
+#. Filter: the field starts with that text.
+#: src/project/browse/SearchFilter.svelte
+msgid "{0} starts with “{1}”"
+msgstr ""
+
 #. Activity list row footer: how many further changes in this commit were left off the row (# = count). Clicking the row shows them all.
 #: src/lib/activity/ActivityView.svelte
 msgid "{num, plural, one {(+# more change)} other {(+# more changes)}}"
@@ -189,6 +219,11 @@ msgstr "{num, plural, other {# thay đổi}}"
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
 msgstr "{num, plural, one {Còn # mục} other {Còn # mục}}"
 
+#. Screen-reader announcement (not visible) of how many filters are active in the entry search bar. # = count.
+#: src/project/browse/filter/ActiveFilterChips.svelte
+msgid "{num, plural, one {# filter applied} other {# filters applied}}"
+msgstr ""
+
 #. Commit count display
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
@@ -207,6 +242,12 @@ msgstr "{num, plural, one {# bình luận chưa đọc} other {# bình luận ch
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# word to go} other {# words to go}}"
 msgstr "{num, plural, one {Còn # từ} other {Còn # từ}}"
+
+#. Chip in the filter chips row counting active filters hidden because they do not fit. # = number hidden.
+#: src/project/browse/filter/ActiveFilterChips.svelte
+#: src/project/browse/filter/ActiveFilterChips.svelte
+msgid "{num, plural, one {+# more} other {+# more}}"
+msgstr ""
 
 #. Button revealing the rest of a truncated possible-duplicates list in the New Entry dialog; # is the number of hidden matches
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
@@ -668,7 +709,6 @@ msgstr "Quay lại"
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
-#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/plugins/studio/StudioNotice.svelte
 msgid "Back to plugins"
@@ -706,6 +746,7 @@ msgstr "Khớp tốt nhất"
 msgid "blue"
 msgstr "xanh dương"
 
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Breadcrumb"
 msgstr ""
@@ -867,6 +908,12 @@ msgstr "Dự án FieldWorks Classic"
 #: src/lib/components/field-editors/select.svelte
 msgid "clear"
 msgstr "xóa"
+
+#. Button next to the filter chips under the entry search bar. Removes all active filters.
+#: src/project/browse/filter/ActiveFilterChips.svelte
+#: src/project/browse/filter/ActiveFilterChips.svelte
+msgid "Clear filters"
+msgstr ""
 
 #. Activity-log line. {0} = field label (e.g. "Gloss", "Definition"). Means the field's value was erased.
 #: src/lib/activity/ChangeSummary.svelte
@@ -2105,6 +2152,12 @@ msgstr ""
 msgid "Grammatical info."
 msgstr "Thông tin ngữ pháp."
 
+#. Chip label in the removable filter chips under the entry search bar. {0} = the selected grammatical category (e.g. noun).
+#. Relevant view: Classic. Lite view equivalent: "Part of speech: {0}"
+#: src/project/browse/SearchFilter.svelte
+msgid "Grammatical info.: {0}"
+msgstr ""
+
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
 msgid "green"
@@ -2120,13 +2173,16 @@ msgid "Harmony snapshots regenerated successfully"
 msgstr "Các bản chụp nhanh Harmony đã được tạo lại thành công"
 
 #: src/project/browse/SearchFilter.svelte
+#: src/project/browse/SearchFilter.svelte
 msgid "Has comments"
 msgstr "Có bình luận"
 
 #: src/project/browse/SearchFilter.svelte
+#: src/project/browse/SearchFilter.svelte
 msgid "Has unread comments"
 msgstr "Còn có bình luận chưa đọc"
 
+#: src/project/browse/SearchFilter.svelte
 #: src/project/browse/SearchFilter.svelte
 msgid "Has unresolved comments"
 msgstr "Còn có các bình luận chưa được giải quyết"
@@ -2586,6 +2642,7 @@ msgstr "Từ còn thiếu {0}"
 #. Filter result label
 #. Shows "Missing: Definition" or "Missing: Example" in filtered results
 #. {0} = field name (Definition, Gloss, Example sentence, etc.)
+#: src/project/browse/SearchFilter.svelte
 #: src/project/browse/filter/MissingSelect.svelte
 msgid "Missing: {0}"
 msgstr "Thiếu: {0}"
@@ -3135,6 +3192,12 @@ msgstr ""
 msgid "Part of speech"
 msgstr "Loại từ"
 
+#. Chip label in the removable filter chips under the entry search bar. {0} = the selected part of speech (e.g. noun).
+#. Relevant view: Lite. Classic view equivalent: "Grammatical info.: {0}"
+#: src/project/browse/SearchFilter.svelte
+msgid "Part of speech: {0}"
+msgstr ""
+
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Grammatical categories (noun, verb, adjective, etc.). Classic view calls these "Grammatical info."
 #: src/lib/activity/ChangeSummary.svelte
 msgid "parts of speech"
@@ -3267,6 +3330,7 @@ msgstr ""
 msgid "plugins"
 msgstr ""
 
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/project/ProjectSidebar.svelte
@@ -3375,6 +3439,11 @@ msgstr ""
 #: src/project/browse/SearchFilter.svelte
 msgid "Publication"
 msgstr "Phát hành"
+
+#. Chip label in the removable filter chips under the entry search bar. {0} = the selected publication (a dictionary or word list entries are assigned to).
+#: src/project/browse/SearchFilter.svelte
+msgid "Publication: {0}"
+msgstr ""
 
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Publications are dictionaries or word lists that entries can be assigned to for distribution.
 #: src/lib/activity/ChangeSummary.svelte
@@ -3566,6 +3635,11 @@ msgstr "Gỡ bỏ"
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Remove audio"
 msgstr "Xóa âm thanh"
+
+#. Screen-reader label (not visible) for the remove button on a filter chip. {0} = the whole chip label, e.g. "Word contains “abc”".
+#: src/project/browse/filter/ActiveFilterChips.svelte
+msgid "Remove filter: {0}"
+msgstr ""
 
 #: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "Remove from project"
@@ -3850,6 +3924,16 @@ msgstr ""
 #: src/project/browse/SearchFilter.svelte
 msgid "Semantic domain"
 msgstr "Miền ngữ nghĩa"
+
+#. Chip label in the removable filter chips under the entry search bar. {0} = the selected semantic domain (meaning category, e.g. "Plants").
+#: src/project/browse/SearchFilter.svelte
+msgid "Semantic domain: {0}"
+msgstr ""
+
+#. Chip label in the removable filter chips under the entry search bar. {0} = the selected semantic domain; the filter also matches its narrower subdomains.
+#: src/project/browse/SearchFilter.svelte
+msgid "Semantic domain: {0} and subdomains"
+msgstr ""
 
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Semantic domains are meaning categories assigned to senses (e.g. "plants", "emotions", "body parts").
 #: src/lib/activity/ChangeSummary.svelte

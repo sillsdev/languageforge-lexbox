@@ -3,15 +3,17 @@
   import {ComposableInput} from '$lib/components/ui/input';
   import {t} from 'svelte-i18n-lingui';
   import {useProjectStats, useWritingSystemService} from '$project/data';
-  import {pt} from '$lib/views/view-text';
+  import {pt, tvt} from '$lib/views/view-text';
   import {ViewBase} from '$lib/dotnet-types';
+  import {entityConfig} from '$lib/views/entity-config';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {formatNumber} from '$lib/components/ui/format';
   import ViewT from '$lib/views/ViewT.svelte';
   import {Input} from '$lib/components/ui/input';
   import OpFilter, {type Op} from './filter/OpFilter.svelte';
   import WsSelect from './filter/WsSelect.svelte';
-  import FieldSelect, {type SelectedField} from './filter/FieldSelect.svelte';
+  import FieldSelect, {type FilterField, type SelectedField} from './filter/FieldSelect.svelte';
+  import ActiveFilterChips, {type FilterChip} from './filter/ActiveFilterChips.svelte';
   import MissingSelect, {type MissingOption} from './filter/MissingSelect.svelte';
   import SemanticDomainSelect from './filter/SemanticDomainSelect.svelte';
   import PartOfSpeechSelect from './filter/PartOfSpeechSelect.svelte';
@@ -48,6 +50,7 @@
   } = $props();
 
   let inputRef = $state<HTMLInputElement | null>(null);
+  let filterButton = $state<HTMLElement | null>(null);
   let missingField = $state<MissingOption | null>(null);
   let selectedField = $state<SelectedField | null>(null);
   let selectedWs = $state<string[]>(wsService.vernacularNoAudio.map(ws => ws.wsId));
@@ -144,6 +147,10 @@
 
   function resetFilters() {
     search = '';
+    clearFilters();
+  }
+
+  function clearFilters() {
     missingField = null;
     // null tells FieldSelect to fall back to its default field; WsSelect then reacts to the
     // wsType change and repopulates selectedWs with the full writing-system set.
@@ -161,6 +168,57 @@
   }
 
   let filtersExpanded = $state(false);
+
+  const fields: FilterField[] = $derived([
+    { id: 'lexemeForm', label: pt($tvt(entityConfig.entry.lexemeForm.label), viewService.currentView), ws: 'vernacular-no-audio' },
+    { id: 'citationForm', label: pt($tvt(entityConfig.entry.citationForm.label), viewService.currentView), ws: 'vernacular-no-audio' },
+    { id: 'senses.gloss', label: $t(entityConfig.sense.gloss.label), ws: 'analysis-no-audio' },
+  ]);
+
+  function fieldChipLabel(field: string, value: string): string {
+    switch (filterOp) {
+      case 'starts-with': return $t`${field} starts with “${value}”`;
+      case 'contains': return $t`${field} contains “${value}”`;
+      case 'ends-with': return $t`${field} ends with “${value}”`;
+      case 'equals': return $t`${field} is “${value}”`;
+      case 'not-equals': return $t`${field} is not “${value}”`;
+    }
+  }
+
+  const chips: FilterChip[] = $derived.by(() => {
+    const result: FilterChip[] = [];
+    if (selectedField && fieldFilterValue && selectedWs?.length > 0) {
+      const field = fields.find(f => f.id === selectedField?.id)?.label ?? selectedField.id;
+      result.push({key: 'field', label: fieldChipLabel(field, fieldFilterValue), remove: () => fieldFilterValue = ''});
+    }
+    if (semanticDomain) {
+      const domain = `${semanticDomain.code} ${wsService.pickBestAlternative(semanticDomain.name, 'analysis')}`;
+      result.push({
+        key: 'semanticDomain',
+        label: includeSubDomains ? $t`Semantic domain: ${domain} and subdomains` : $t`Semantic domain: ${domain}`,
+        remove: () => { semanticDomain = undefined; includeSubDomains = false; },
+      });
+    }
+    if (partOfSpeech) {
+      const name = wsService.pickBestAlternative(partOfSpeech.name, 'analysis');
+      result.push({
+        key: 'partOfSpeech',
+        label: pt($t`Grammatical info.: ${name}`, $t`Part of speech: ${name}`, viewService.currentView),
+        remove: () => partOfSpeech = undefined,
+      });
+    }
+    if (publication) {
+      const name = wsService.pickBestAlternative(publication.name, 'analysis');
+      result.push({key: 'publication', label: $t`Publication: ${name}`, remove: () => publication = undefined});
+    }
+    if (missingField) {
+      result.push({key: 'missing', label: $t`Missing: ${missingField.label}`, remove: () => missingField = null});
+    }
+    if (hasComments) result.push({key: 'hasComments', label: $t`Has comments`, remove: () => hasComments = false});
+    if (unreadComments) result.push({key: 'unreadComments', label: $t`Has unread comments`, remove: () => unreadComments = false});
+    if (openComments) result.push({key: 'openComments', label: $t`Has unresolved comments`, remove: () => openComments = false});
+    return result;
+  });
 </script>
 
 <Hotkey key="f" onHotkey={focusSearch} />
@@ -198,7 +256,7 @@
           </Button>
         {/snippet}
         {#snippet trigger({ props })}
-          <Button {...props} variant="ghost"
+          <Button {...props} bind:ref={filterButton} variant="ghost"
             size={IsMobile.value ? 'icon-sm' : 'icon-xs'}
             icon={userFilterActive ? 'i-mdi-filter' : 'i-mdi-filter-outline'}
             aria-label={$t`Toggle filters`} />
@@ -209,7 +267,7 @@
             <div class="flex flex-col gap-2 items-stretch">
               <div class="flex flex-row gap-2 flex-1">
                 <!-- Field Picker -->
-                <FieldSelect bind:value={selectedField} />
+                <FieldSelect bind:value={selectedField} {fields} />
                 <!-- Writing System Picker -->
                 <WsSelect bind:value={selectedWs} wsType={selectedField?.ws} />
               </div>
@@ -257,3 +315,7 @@
     {/snippet}
   </ComposableInput>
 </div>
+<ActiveFilterChips {chips}
+  onShowMore={() => filtersExpanded = true}
+  onClear={clearFilters}
+  onEmptied={() => filterButton?.focus()} />

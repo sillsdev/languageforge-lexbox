@@ -5,26 +5,16 @@
     id: string;
     ws: WritingSystemSelection;
   }
+
+  export type FilterField = SelectedField & { label: string };
 </script>
 
 <script lang="ts">
   import * as Select from '$lib/components/ui/select';
   import {untrack} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
-  import {pt, tvt} from '$lib/views/view-text';
-  import {useViewService} from '$lib/views/view-service.svelte';
-  import {entityConfig} from '$lib/views/entity-config';
 
-  const viewService = useViewService();
-  let fields: LabeledSelectedField[] = $derived([
-    { id: 'lexemeForm', label: pt($tvt(entityConfig.entry.lexemeForm.label), viewService.currentView), ws: 'vernacular-no-audio' },
-    { id: 'citationForm', label: pt($tvt(entityConfig.entry.citationForm.label), viewService.currentView), ws: 'vernacular-no-audio' },
-    { id: 'senses.gloss', label: $t(entityConfig.sense.gloss.label), ws: 'analysis-no-audio' },
-  ]);
-
-  let {value = $bindable()}: { value: SelectedField | null } = $props();
-
-  type LabeledSelectedField = SelectedField & { label: string };
+  let {value = $bindable(), fields}: { value: SelectedField | null, fields: FilterField[] } = $props();
 
   const labeledValue = $derived(fields.find(f => f.id === value?.id) ?? fields[0]);
   // Reactively fall back to the default field so the parent can reset the selection by setting value = null.
