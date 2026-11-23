@@ -95,6 +95,11 @@ describe('morph type markers', () => {
     expect(findMorphType('walk', custom)).toMatchObject({valid: true, kind: K.Stem});
   });
 
+  it('keeps a stem-like type the project gave its own markers', () => {
+    const custom = [{kind: K.Stem}, {kind: K.Clitic, prefix: '#'}];
+    expect(findMorphType('#lo', custom)).toMatchObject({valid: true, kind: K.Clitic});
+  });
+
   it('rejects the markers of morph types FW Lite does not know', () => {
     const custom = [{kind: K.Stem}, {kind: K.Unknown, prefix: '%'}];
     expect(findMorphType('%ed', custom)).toMatchObject({valid: false, unsupported: true});

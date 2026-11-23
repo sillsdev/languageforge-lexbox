@@ -32,13 +32,13 @@ function sameMarkers(a: MarkerSource, b: MarkerSource): boolean {
   return (a.prefix ?? '') === (b.prefix ?? '') && (a.postfix ?? '') === (b.postfix ?? '');
 }
 
-// FLEx never detects these from markers, so they're always read as a stem
+// FLEx never detects these from markers, so unmarked they read as a stem
 const stemLike = new Set([MorphTypeKind.Particle, MorphTypeKind.Circumfix, MorphTypeKind.Root,
   MorphTypeKind.DiscontiguousPhrase, MorphTypeKind.Phrase, MorphTypeKind.Clitic]);
 
 // Interfixes and bound roots read as their common type, like in FLEx, unless the project gave them their own markers
 function detectedKind(match: MarkerSource, morphTypes: MarkerSource[]): MorphTypeKind {
-  if (stemLike.has(match.kind)) return MorphTypeKind.Stem;
+  if (stemLike.has(match.kind) && !match.prefix && !match.postfix) return MorphTypeKind.Stem;
   const common = morphTypes.find(mt => mt.kind === ambiguousToDefault[match.kind]);
   return common && sameMarkers(common, match) ? common.kind : match.kind;
 }
