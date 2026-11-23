@@ -220,10 +220,16 @@
               {@const ws = writingSystemOf(task)}
               <li>
                 <button type="button" data-task-id={task.id} onclick={() => openTask(task)}
-                  class="bg-card hover:bg-accent focus-visible:ring-ring/50 flex size-full flex-col rounded-lg border px-4 py-3 text-start focus-visible:ring-[3px] focus-visible:outline-none">
-                  <span class="font-medium">{text(taskLabel(task))}</span>
-                  {#if ws}<span class="text-sm">{@render wsName(ws)}</span>{/if}
-                  <span class="text-muted-foreground text-sm tabular-nums">{@render progress(task)}</span>
+                  class="bg-card hover:bg-accent focus-visible:ring-ring/50 flex size-full items-center gap-3 rounded-lg border px-4 py-3 text-start focus-visible:ring-[3px] focus-visible:outline-none">
+                  <span class="flex min-w-0 grow flex-col">
+                    <!-- Field and language share a line on phones to keep the stacked tiles short. -->
+                    <span class="flex flex-wrap items-baseline gap-x-2 md:flex-col md:items-start">
+                      <span class="font-medium">{text(taskLabel(task))}</span>
+                      {#if ws}<span class="text-sm">{@render wsName(ws)}</span>{/if}
+                    </span>
+                    <span class="text-muted-foreground text-sm tabular-nums">{@render progress(task)}</span>
+                  </span>
+                  <Icon icon="i-mdi-play" class="text-primary size-5 shrink-0" aria-hidden="true" />
                 </button>
               </li>
             {/each}
