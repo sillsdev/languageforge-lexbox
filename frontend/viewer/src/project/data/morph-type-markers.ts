@@ -32,8 +32,13 @@ function sameMarkers(a: MarkerSource, b: MarkerSource): boolean {
   return (a.prefix ?? '') === (b.prefix ?? '') && (a.postfix ?? '') === (b.postfix ?? '');
 }
 
-// Like FLEx, but only while the common type still shares the markers: a project can give e.g. interfixes their own
+// FLEx never detects these from markers, so they're always read as a stem
+const stemLike = new Set([MorphTypeKind.Particle, MorphTypeKind.Circumfix, MorphTypeKind.Root,
+  MorphTypeKind.DiscontiguousPhrase, MorphTypeKind.Phrase, MorphTypeKind.Clitic]);
+
+// Interfixes and bound roots read as their common type, like in FLEx, unless the project gave them their own markers
 function detectedKind(match: MarkerSource, morphTypes: MarkerSource[]): MorphTypeKind {
+  if (stemLike.has(match.kind)) return MorphTypeKind.Stem;
   const common = morphTypes.find(mt => mt.kind === ambiguousToDefault[match.kind]);
   return common && sameMarkers(common, match) ? common.kind : match.kind;
 }
@@ -54,7 +59,8 @@ export function findMorphType(form: string, morphTypes: MarkerSource[]): MorphTy
   const leading = longest(morphTypes.map(mt => mt.prefix ?? '').filter(p => p && trimmed.startsWith(p)));
   const trailing = longest(morphTypes.map(mt => mt.postfix ?? '')
     .filter(p => p && trimmed.length > p.length && trimmed.endsWith(p)));
-  const match = morphTypes.find(mt => (mt.prefix ?? '') === leading && (mt.postfix ?? '') === trailing);
+  const matches = morphTypes.filter(mt => (mt.prefix ?? '') === leading && (mt.postfix ?? '') === trailing);
+  const match = matches.find(mt => mt.kind !== MorphTypeKind.Unknown) ?? matches[0];
   if (!match && (leading || trailing)) return {valid: false, leading, trailing};
   // A project's own morph types have no kind FW Lite can create entries with
   if (match?.kind === MorphTypeKind.Unknown) return {valid: false, leading, trailing, unsupported: true};

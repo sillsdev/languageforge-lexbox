@@ -90,6 +90,11 @@ describe('morph type markers', () => {
     expect(findMorphType('ed-', custom)).toMatchObject({valid: true, kind: K.Prefix});
   });
 
+  it('reads an unmarked form as a stem even when the project marks stems or has its own unmarked types', () => {
+    const custom = [{kind: K.Unknown}, {kind: K.Circumfix}, {kind: K.Root}, {kind: K.Stem, prefix: '^'}];
+    expect(findMorphType('walk', custom)).toMatchObject({valid: true, kind: K.Stem});
+  });
+
   it('rejects the markers of morph types FW Lite does not know', () => {
     const custom = [{kind: K.Stem}, {kind: K.Unknown, prefix: '%'}];
     expect(findMorphType('%ed', custom)).toMatchObject({valid: false, unsupported: true});
