@@ -511,6 +511,10 @@ msgstr "Todos los tipos de actividad"
 msgid "All authors"
 msgstr "Todos los autores"
 
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "All entries"
+msgstr ""
+
 #: src/project/browse/filter/MorphTypeSelect.svelte
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "All morph types"
@@ -946,6 +950,7 @@ msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
+#: src/project/browse/SearchFilter.svelte
 msgid "Comments"
 msgstr "Comentarios"
 
@@ -2140,18 +2145,6 @@ msgstr ""
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
 msgstr "Las instantáneas de Harmony se regeneraron con éxito"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has comments"
-msgstr "Tiene comentarios"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unread comments"
-msgstr "Tiene comentarios no leídos"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unresolved comments"
-msgstr "Tiene comentarios sin resolver"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -4938,6 +4931,18 @@ msgstr "¿Dónde están mis proyectos?"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "¿Por qué?"
+
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With comments"
+msgstr ""
+
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unread comments"
+msgstr ""
+
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unresolved comments"
+msgstr ""
 
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
 #: src/lib/activity/ChangeSummary.svelte

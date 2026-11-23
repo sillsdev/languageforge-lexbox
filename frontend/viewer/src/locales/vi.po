@@ -511,6 +511,10 @@ msgstr "Tất cả các loại hoạt động"
 msgid "All authors"
 msgstr "Tất cả các tác giả"
 
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "All entries"
+msgstr ""
+
 #: src/project/browse/filter/MorphTypeSelect.svelte
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "All morph types"
@@ -946,6 +950,7 @@ msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
+#: src/project/browse/SearchFilter.svelte
 msgid "Comments"
 msgstr "Bình luận"
 
@@ -2140,18 +2145,6 @@ msgstr ""
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
 msgstr "Các bản chụp nhanh Harmony đã được tạo lại thành công"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has comments"
-msgstr "Có bình luận"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unread comments"
-msgstr "Còn có bình luận chưa đọc"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unresolved comments"
-msgstr "Còn có các bình luận chưa được giải quyết"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -4938,6 +4931,18 @@ msgstr "Dự án của tôi ở đâu?"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "Tại sao vậy?"
+
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With comments"
+msgstr ""
+
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unread comments"
+msgstr ""
+
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unresolved comments"
+msgstr ""
 
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
 #: src/lib/activity/ChangeSummary.svelte

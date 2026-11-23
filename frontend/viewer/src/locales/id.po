@@ -511,6 +511,10 @@ msgstr "Semua jenis aktivitas"
 msgid "All authors"
 msgstr "Semua penulis"
 
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "All entries"
+msgstr ""
+
 #: src/project/browse/filter/MorphTypeSelect.svelte
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "All morph types"
@@ -946,6 +950,7 @@ msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
+#: src/project/browse/SearchFilter.svelte
 msgid "Comments"
 msgstr "Komentar"
 
@@ -2140,18 +2145,6 @@ msgstr ""
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
 msgstr "Snapshot Harmony telah dibuat ulang dengan sukses"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has comments"
-msgstr "Ada komentar"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unread comments"
-msgstr "Ada komentar yang belum dibaca"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unresolved comments"
-msgstr "Masih ada komentar yang belum ditanggapi"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -4938,6 +4931,18 @@ msgstr "Di mana proyek saya?"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "Mengapa demikian?"
+
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With comments"
+msgstr ""
+
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unread comments"
+msgstr ""
+
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unresolved comments"
+msgstr ""
 
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
 #: src/lib/activity/ChangeSummary.svelte
