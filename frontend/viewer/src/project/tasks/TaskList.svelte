@@ -365,7 +365,7 @@
         {:else if hasLanguageStep && !IsMobile.value}
           <!-- mt-7 = the first group heading plus its gap, so it starts level with the first row. -->
           <p class="text-muted-foreground mt-7 rounded-lg border border-dashed p-4 text-sm">
-            {$t`Pick a field to see its languages.`}
+            {$t`Pick what's missing to get started.`}
           </p>
         {/if}
       </div>
