@@ -483,6 +483,10 @@ msgstr ""
 msgid "Advanced: settings file"
 msgstr "Zaidi: faili ya mipangilio"
 
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "Affixes"
+msgstr ""
+
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
@@ -885,6 +889,10 @@ msgstr "futa"
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Cleared {0}"
+msgstr ""
+
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "Clitics"
 msgstr ""
 
 #. Button to close popup
@@ -3109,6 +3117,10 @@ msgstr "Jiondoe kwenye uchanganuzi"
 msgid "orange"
 msgstr "machungwa"
 
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "Other"
+msgstr ""
+
 #: src/project/SyncDialog.svelte
 msgid "Other FieldWorks Lite users"
 msgstr ""
@@ -4973,8 +4985,6 @@ msgstr "Neno au maana:"
 msgid "words"
 msgstr ""
 
-#: src/project/browse/filter/MorphTypeSelect.svelte
-#: src/project/browse/filter/MorphTypeSelect.svelte
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "Words and phrases"
 msgstr ""

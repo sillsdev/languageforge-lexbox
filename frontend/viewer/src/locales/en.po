@@ -478,6 +478,10 @@ msgstr "Added to {0}"
 msgid "Advanced: settings file"
 msgstr "Advanced: settings file"
 
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "Affixes"
+msgstr "Affixes"
+
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
@@ -881,6 +885,10 @@ msgstr "clear"
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Cleared {0}"
 msgstr "Cleared {0}"
+
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "Clitics"
+msgstr "Clitics"
 
 #. Button to close popup
 #: src/lib/components/field-editors/multi-select.svelte
@@ -3104,6 +3112,10 @@ msgstr "Opt out of analytics"
 msgid "orange"
 msgstr "orange"
 
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "Other"
+msgstr "Other"
+
 #: src/project/SyncDialog.svelte
 msgid "Other FieldWorks Lite users"
 msgstr "Other FieldWorks Lite users"
@@ -4968,8 +4980,6 @@ msgstr "Word or meaning:"
 msgid "words"
 msgstr "words"
 
-#: src/project/browse/filter/MorphTypeSelect.svelte
-#: src/project/browse/filter/MorphTypeSelect.svelte
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "Words and phrases"
 msgstr "Words and phrases"
