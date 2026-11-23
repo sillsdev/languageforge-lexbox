@@ -216,25 +216,6 @@
         {/snippet}
         <div class="space-y-4">
           <div class="flex flex-col">
-            <Label class="p-2">{$t`Specific field`}</Label>
-            <div class="flex flex-col gap-2 items-stretch">
-              <div class="flex flex-row gap-2 flex-1">
-                <!-- Field Picker -->
-                <FieldSelect bind:value={selectedField} />
-                <!-- Writing System Picker -->
-                <WsSelect bind:value={selectedWs} wsType={selectedField?.ws} />
-              </div>
-              <div class="flex flex-row gap-2 flex-1">
-                <OpFilter bind:value={filterOp} />
-                <Input
-                  bind:value={fieldFilterValue}
-                  placeholder={$t`Filter for...`}
-                  class="flex-1"
-                />
-              </div>
-            </div>
-          </div>
-          <div class="flex flex-col">
             <Label id="{uid}-morph-type-label" class="p-2">{$t`Morph type`}</Label>
             <MorphTypeSelect bind:value={morphTypes} labelledBy="{uid}-morph-type-label"
               describedBy={showLiteMorphHint ? `${uid}-lite-morph-hint` : undefined} />
@@ -267,6 +248,25 @@
           <div class="flex flex-col">
             <Label class="p-2">{$t`Incomplete entries`}</Label>
             <MissingSelect bind:value={missingField} />
+          </div>
+          <div class="flex flex-col">
+            <Label class="p-2">{$t`Specific field`}</Label>
+            <div class="flex flex-col gap-2 items-stretch">
+              <div class="flex flex-row gap-2 flex-1">
+                <!-- Field Picker -->
+                <FieldSelect bind:value={selectedField} />
+                <!-- Writing System Picker -->
+                <WsSelect bind:value={selectedWs} wsType={selectedField?.ws} />
+              </div>
+              <div class="flex flex-row gap-2 flex-1">
+                <OpFilter bind:value={filterOp} />
+                <Input
+                  bind:value={fieldFilterValue}
+                  placeholder={$t`Filter for...`}
+                  class="flex-1"
+                />
+              </div>
+            </div>
           </div>
           {#if features.comments}
             <div class="flex flex-col">
