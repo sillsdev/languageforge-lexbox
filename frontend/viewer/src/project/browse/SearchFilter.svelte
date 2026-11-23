@@ -235,6 +235,18 @@
             </div>
           </div>
           <div class="flex flex-col">
+            <Label id="{uid}-morph-type-label" class="p-2">{$t`Morph type`}</Label>
+            <MorphTypeSelect bind:value={morphTypes} labelledBy="{uid}-morph-type-label"
+              describedBy={showLiteMorphHint ? `${uid}-lite-morph-hint` : undefined} />
+            {#if showLiteMorphHint}
+              <p id="{uid}-lite-morph-hint" class="flex items-center gap-1 text-xs text-muted-foreground mt-1 px-1">
+                <Icon icon="i-mdi-information-outline" class="size-3.5 shrink-0" />
+                {$t`This view shows only whole words and phrases.`}
+                <button type="button" class="underline hover:text-foreground" onclick={() => morphTypes = 'all'}>{$t`Show all`}</button>
+              </p>
+            {/if}
+          </div>
+          <div class="flex flex-col">
             <Label class="p-2">{$t`Semantic domain`}</Label>
             <SemanticDomainSelect bind:value={semanticDomain} />
             <Switch
@@ -251,18 +263,6 @@
           <div class="flex flex-col">
             <Label class="p-2">{$t`Publication`}</Label>
             <PublicationSelect bind:value={publication} />
-          </div>
-          <div class="flex flex-col">
-            <Label id="{uid}-morph-type-label" class="p-2">{$t`Morph type`}</Label>
-            <MorphTypeSelect bind:value={morphTypes} labelledBy="{uid}-morph-type-label"
-              describedBy={showLiteMorphHint ? `${uid}-lite-morph-hint` : undefined} />
-            {#if showLiteMorphHint}
-              <p id="{uid}-lite-morph-hint" class="flex items-center gap-1 text-xs text-muted-foreground mt-1 px-1">
-                <Icon icon="i-mdi-information-outline" class="size-3.5 shrink-0" />
-                {$t`This view shows only whole words and phrases.`}
-                <button type="button" class="underline hover:text-foreground" onclick={() => morphTypes = 'all'}>{$t`Show all`}</button>
-              </p>
-            {/if}
           </div>
           <div class="flex flex-col">
             <Label class="p-2">{$t`Incomplete entries`}</Label>
