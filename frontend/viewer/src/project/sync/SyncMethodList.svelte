@@ -78,7 +78,7 @@
                 <stop offset=".55" stop-color="#5b6cff" />
                 <stop offset="1" stop-color="#9a4dff" />
               </linearGradient>
-              <path id="classic-cloud" transform="translate(12 13) scale(.8)" d="M6.5 20q-2.28 0-3.89-1.57Q1 16.85 1 14.58q0-1.95 1.17-3.48q1.18-1.53 3.08-1.95q.63-2.3 2.5-3.72Q9.63 4 12 4q2.93 0 4.96 2.04Q19 8.07 19 11q1.73.2 2.86 1.5q1.14 1.28 1.14 3q0 1.88-1.31 3.19T18.5 20Z" />
+              <path id="classic-cloud" transform="translate(14 13) scale(.8)" d="M6.5 20q-2.28 0-3.89-1.57Q1 16.85 1 14.58q0-1.95 1.17-3.48q1.18-1.53 3.08-1.95q.63-2.3 2.5-3.72Q9.63 4 12 4q2.93 0 4.96 2.04Q19 8.07 19 11q1.73.2 2.86 1.5q1.14 1.28 1.14 3q0 1.88-1.31 3.19T18.5 20Z" />
               <mask id="classic-cloud-notch" maskUnits="userSpaceOnUse" x="0" y="0" width="30" height="30">
                 <rect width="30" height="30" fill="#fff" />
                 <use href="#classic-cloud" stroke="#000" stroke-width="3.2" stroke-linejoin="round" />
