@@ -17,8 +17,7 @@
   import PartOfSpeechSelect from './filter/PartOfSpeechSelect.svelte';
   import PublicationSelect from './filter/PublicationSelect.svelte';
   import MorphTypeSelect from './filter/MorphTypeSelect.svelte';
-  import {WORDS_AND_PHRASES} from '$project/data/morph-types.svelte';
-  import type {MultiFilterSelection} from '$lib/activity/utils';
+  import {sameFilter, toGridify, viewDefaultMorphTypeFilter, type MorphTypeFilter} from './filter/morph-type-filter';
   import {watch} from 'runed';
   import {Icon} from '$lib/components/ui/icon';
   import Label from '$lib/components/ui/label/label.svelte';
@@ -30,6 +29,7 @@
   import Hotkey from '$lib/components/hotkey/hotkey.svelte';
   import {useFeatures} from '$lib/services/feature-service';
 
+  const uid = $props.id();
   const features = useFeatures();
   const stats = useProjectStats();
   const viewService = useViewService();
@@ -58,6 +58,7 @@
   let fieldFilterValue = $state('');
   let filterOp = $state<Op>('contains')
   let includeSubDomains = $state(false);
+  let userFilterActive = $state(false);
   let filterActive = $state(false);
   let hasComments = $state(false);
   let openComments = $state(false);
@@ -67,21 +68,17 @@
     inputRef?.select();
   }
 
-  function viewDefaultMorphTypes(): MultiFilterSelection {
-    return viewService.currentView.base === ViewBase.FwLite ? [...WORDS_AND_PHRASES] : 'all';
+  function viewDefaultMorphTypes(): MorphTypeFilter {
+    return viewDefaultMorphTypeFilter(viewService.currentView.base);
   }
 
-  // Views act as presets: switching view replaces the morph type filter, even one the user cleared
-  let morphTypes = $state<MultiFilterSelection>(viewDefaultMorphTypes());
+  // Views act as presets: switching view base replaces the morph type filter, even one the user cleared
+  let morphTypes = $state<MorphTypeFilter>(viewDefaultMorphTypes());
   watch(() => viewService.currentView.base, () => {
     morphTypes = viewDefaultMorphTypes();
   }, {lazy: true});
 
-  // Selecting none filters nothing, same as 'all'
-  function morphFilterKey(selection: MultiFilterSelection): string {
-    return selection === 'all' ? '' : [...selection].sort().join();
-  }
-  const morphTypesAtDefault = $derived(morphFilterKey(morphTypes) === morphFilterKey(viewDefaultMorphTypes()));
+  const morphTypesAtDefault = $derived(sameFilter(morphTypes, viewDefaultMorphTypes()));
   const showLiteMorphHint = $derived(morphTypesAtDefault && viewService.currentView.base === ViewBase.FwLite);
 
   $effect(() => {
@@ -137,9 +134,11 @@
       newFilter.push('OpenCommentThreads!=null');
     }
 
-    if (morphTypes !== 'all' && morphTypes.length > 0) {
-      newFilter.push('(' + morphTypes.map(mt => `MorphType=${mt}`).join('|') + ')');
-    }
+    // all user selected filters should be before this line!
+    userFilterActive = newFilter.length > 0;
+
+    const morphTypeFilter = toGridify(morphTypes);
+    if (morphTypeFilter) newFilter.push(morphTypeFilter);
 
     filterActive = newFilter.length > 0;
     gridifyFilter = newFilter.join(', ');
@@ -151,8 +150,7 @@
     return v.replace(/([(),|\\]|\/i)/g, '\\$1');
   }
 
-  const canReset = $derived(!!search || fieldFilterValue !== '' || !!missingField || !!semanticDomain || !!partOfSpeech
-    || !!publication || hasComments || unreadComments || openComments || !morphTypesAtDefault);
+  const canReset = $derived(userFilterActive || !!search || fieldFilterValue !== '' || !morphTypesAtDefault);
 
   function resetFilters() {
     search = '';
@@ -255,10 +253,11 @@
             <PublicationSelect bind:value={publication} />
           </div>
           <div class="flex flex-col">
-            <Label class="p-2">{$t`Morph type`}</Label>
-            <MorphTypeSelect bind:value={morphTypes} describedBy={showLiteMorphHint ? 'lite-morph-hint' : undefined} />
+            <Label id="{uid}-morph-type-label" class="p-2">{$t`Morph type`}</Label>
+            <MorphTypeSelect bind:value={morphTypes} labelledBy="{uid}-morph-type-label"
+              describedBy={showLiteMorphHint ? `${uid}-lite-morph-hint` : undefined} />
             {#if showLiteMorphHint}
-              <p id="lite-morph-hint" class="flex items-center gap-1 text-xs text-muted-foreground mt-1 px-1">
+              <p id="{uid}-lite-morph-hint" class="flex items-center gap-1 text-xs text-muted-foreground mt-1 px-1">
                 <Icon icon="i-mdi-information-outline" class="size-3.5 shrink-0" />
                 {$t`This view shows only whole words and phrases.`}
                 <button type="button" class="underline hover:text-foreground" onclick={() => morphTypes = 'all'}>{$t`Show all`}</button>

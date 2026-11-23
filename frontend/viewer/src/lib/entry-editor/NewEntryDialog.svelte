@@ -31,7 +31,8 @@
   import AddSenseButton from './object-editors/AddSenseButton.svelte';
   import type {WsInputNote} from '$lib/components/field-editors';
   import type {EntryFieldId} from '$lib/views/entity-config';
-  import {morphTypeLabel, useMorphTypesService, WORDS_AND_PHRASES} from '$project/data/morph-types.svelte';
+  import {morphTypeLabel, useMorphTypesService} from '$project/data/morph-types.svelte';
+  import {WORDS_AND_PHRASES} from '$project/data/morph-type-groups';
   import {checkLexemeForm, findMorphType, fitsMorphType, stripMarkers, type LexemeFormCheck} from '$project/data/morph-type-markers';
 
   let open = $state(false);

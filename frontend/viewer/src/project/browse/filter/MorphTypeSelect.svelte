@@ -1,89 +1,65 @@
-<script lang="ts" module>
-  import {MorphTypeKind} from '$lib/dotnet-types';
-  import {WORDS_AND_PHRASES} from '$project/data/morph-types.svelte';
-
-  const AFFIXES: string[] = [
-    MorphTypeKind.Prefix, MorphTypeKind.Suffix, MorphTypeKind.Infix,
-    MorphTypeKind.Circumfix, MorphTypeKind.Simulfix, MorphTypeKind.Suprafix,
-    MorphTypeKind.PrefixingInterfix, MorphTypeKind.InfixingInterfix, MorphTypeKind.SuffixingInterfix,
-  ];
-
-  const CLITICS: string[] = [MorphTypeKind.Clitic, MorphTypeKind.Enclitic, MorphTypeKind.Proclitic];
-</script>
-
 <script lang="ts">
   import * as Select from '$lib/components/ui/select';
   import {Icon} from '$lib/components/ui/icon';
   import {t} from 'svelte-i18n-lingui';
+  import {MorphTypeKind} from '$lib/dotnet-types';
   import {useWritingSystemService} from '$project/data';
   import {useMorphTypesService} from '$project/data/morph-types.svelte';
-  import {resolveFilterKeys, type MultiFilterSelection} from '$lib/activity/utils';
+  import {AFFIXES, CLITICS, WORDS_AND_PHRASES} from '$project/data/morph-type-groups';
+  import {checkState, selectedKinds, toggleAll, toggleGroup, toggleKind, type CheckState, type MorphTypeFilter} from './morph-type-filter';
 
   const ALL = '__all__';
 
-  let {value = $bindable(), describedBy}: {value: MultiFilterSelection, describedBy?: string} = $props();
+  let {value = $bindable(), labelledBy, describedBy}: {value: MorphTypeFilter, labelledBy?: string, describedBy?: string} = $props();
+  const triggerId = $props.id();
 
   const morphTypesService = useMorphTypesService();
   const wsService = useWritingSystemService();
-
-  type Option = {kind: string, label: string};
-  type Group = {key: string, label: string, kinds: readonly string[], options: Option[]};
 
   const options = $derived(morphTypesService.current
     .filter(mt => !mt.deletedAt && mt.kind !== MorphTypeKind.Unknown)
     .map(mt => ({kind: mt.kind, label: wsService.pickBestAlternative(mt.name, 'analysis') || mt.kind}))
     .sort((a, b) => a.label.localeCompare(b.label)));
-  const allKinds = $derived(options.map(o => o.kind));
+  const listed = $derived(options.map(o => o.kind));
 
-  const groups: Group[] = $derived.by(() => {
-    const defined: Omit<Group, 'options'>[] = [
+  const groups = $derived.by(() => {
+    const defined = [
       {key: '__words__', label: $t`Words and phrases`, kinds: WORDS_AND_PHRASES},
       {key: '__affixes__', label: $t`Affixes`, kinds: AFFIXES},
       {key: '__clitics__', label: $t`Clitics`, kinds: CLITICS},
     ];
     const grouped = new Set(defined.flatMap(g => g.kinds));
-    const other = {key: '__other__', label: $t`Other`, kinds: allKinds.filter(k => !grouped.has(k))};
+    const other = {key: '__other__', label: $t`Other`, kinds: listed.filter(k => !grouped.has(k))};
     return [...defined, other]
       .map(g => ({...g, options: options.filter(o => g.kinds.includes(o.kind))}))
       .filter(g => g.options.length > 0);
   });
 
-  // The selection can hold kinds this project doesn't list (e.g. the Lite default)
-  const selected = $derived(resolveFilterKeys(value, allKinds));
-  const selectedListed = $derived(allKinds.filter(k => selected.includes(k)));
-
-  type Check = 'all' | 'some' | 'none';
-  function checkState(kinds: readonly string[]): Check {
-    const count = kinds.filter(k => selected.includes(k)).length;
-    return count === 0 ? 'none' : count === kinds.length ? 'all' : 'some';
-  }
-  const allCheck = $derived(value === 'all' ? 'all' : checkState(allKinds));
-
-  // Names the selection when it is exactly one group
-  const exactGroup = $derived(groups.find(g =>
+  const selected = $derived(selectedKinds(value, listed));
+  const selectedListed = $derived(listed.filter(k => selected.includes(k)));
+  const allCheck: CheckState = $derived(value === 'all' ? 'all' : checkState(selected, listed));
+  const groupChecks = $derived(new Map(groups.map(g => [g.key, checkState(selected, g.options.map(o => o.kind))])));
+  const selectedGroup = $derived(groups.find(g =>
     selectedListed.length === g.options.length && selectedListed.every(k => g.kinds.includes(k))));
 
-  function normalize(kinds: string[]): MultiFilterSelection {
-    return allKinds.length > 0 && allKinds.every(k => kinds.includes(k)) ? 'all' : kinds;
-  }
+  // Fully checked header rows are in the value too, so bits-ui marks them aria-selected
+  const selectValue = $derived([
+    ...selected,
+    ...(allCheck === 'all' ? [ALL] : []),
+    ...groups.filter(g => groupChecks.get(g.key) === 'all').map(g => g.key),
+  ]);
 
   function onValueChange(newValue: string[]) {
-    if (newValue.includes(ALL)) {
-      value = allCheck === 'all' ? [] : 'all';
-      return;
-    }
-    const group = groups.find(g => newValue.includes(g.key));
-    if (group) {
-      const groupKinds = [...new Set([...group.kinds, ...group.options.map(o => o.kind)])];
-      const without = selected.filter(k => !groupKinds.includes(k));
-      value = checkState(group.options.map(o => o.kind)) === 'all' ? without : normalize([...without, ...groupKinds]);
-      return;
-    }
-    value = normalize(newValue);
+    const toggled = [...newValue.filter(v => !selectValue.includes(v)), ...selectValue.filter(v => !newValue.includes(v))];
+    const group = groups.find(g => toggled.includes(g.key));
+    const kind = listed.find(k => toggled.includes(k));
+    if (toggled.includes(ALL)) value = toggleAll(value, listed);
+    else if (group) value = toggleGroup(value, group.kinds, listed);
+    else if (kind) value = toggleKind(value, kind, listed);
   }
 </script>
 
-{#snippet checkIcon(check: Check)}
+{#snippet checkIcon(check: CheckState | undefined)}
   {#if check === 'all'}
     <Icon icon="i-mdi-check" class="size-4" />
   {:else if check === 'some'}
@@ -91,12 +67,15 @@
   {/if}
 {/snippet}
 
-<Select.Root type="multiple" value={selected} {onValueChange}>
-  <Select.Trigger class="flex-1" aria-describedby={describedBy}>
+<Select.Root type="multiple" value={selectValue} {onValueChange}>
+  <!-- Labelled by the label plus itself, so the selection stays part of the name -->
+  <Select.Trigger id={triggerId} class="flex-1" aria-labelledby={labelledBy ? `${labelledBy} ${triggerId}` : undefined} aria-describedby={describedBy}>
     {#if allCheck === 'all' || selected.length === 0}
       <span class="text-muted-foreground">{$t`Any morph type`}</span>
-    {:else if exactGroup}
-      {exactGroup.label}
+    {:else if selectedGroup}
+      {selectedGroup.label}
+    {:else if selectedListed.length === 0}
+      {$t`${selected.length} morph types`}
     {:else if selectedListed.length <= 3}
       {options.filter(o => selected.includes(o.kind)).map(o => o.label).join(', ')}
     {:else}
@@ -111,7 +90,7 @@
     {#each groups as group (group.key)}
       <Select.Group>
         <Select.Item value={group.key} label={group.label}>
-          {#snippet selectedIndicator()}{@render checkIcon(checkState(group.options.map(o => o.kind)))}{/snippet}
+          {#snippet selectedIndicator()}{@render checkIcon(groupChecks.get(group.key))}{/snippet}
           <span class="font-bold">{group.label}</span>
         </Select.Item>
         {#each group.options as option (option.kind)}
