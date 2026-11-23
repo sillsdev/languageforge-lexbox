@@ -28,7 +28,7 @@
 >
   {#if selected}
     <!-- A clipped bar, not an inset shadow: a shadow wraps along the top edge of a rounded first row. -->
-    <span aria-hidden="true" class="bg-primary absolute inset-y-0 start-0 w-1"></span>
+    <span aria-hidden="true" class="bg-primary absolute inset-y-0 start-0 w-1.25"></span>
   {/if}
   <span class="flex min-w-0 grow flex-col">{@render children()}</span>
   {@render trailing?.()}
