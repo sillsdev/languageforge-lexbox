@@ -80,7 +80,7 @@
               </mask>
             </defs>
             <image href={flexLogo} width="28" height="28" mask="url(#classic-cloud-notch)" />
-            <use href="#classic-cloud" fill="#54b4fc" />
+            <use href="#classic-cloud" fill="#2f93ee" />
           </svg>
         {/snippet}
         {#snippet description()}{$t`Sync FieldWorks Lite and FieldWorks Classic in Lexbox`}{/snippet}
