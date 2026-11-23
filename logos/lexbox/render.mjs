@@ -10,19 +10,10 @@ render(import.meta.dirname, {
     'lexbox-128.png': ['lexbox.svg', 128],
     'lexbox-512.png': ['lexbox.svg', 512],
 
-    'lexbox-reversed-16.png': ['lexbox-tiny-reversed.svg', 16],
-    'lexbox-reversed-32.png': ['lexbox-tiny-reversed.svg', 32],
-    'lexbox-reversed-48.png': ['lexbox-small-reversed.svg', 48],
-    'lexbox-reversed-128.png': ['lexbox-reversed.svg', 128],
-    'lexbox-reversed-512.png': ['lexbox-reversed.svg', 512],
-
     'lexbox-appicon-512.png': ['lexbox-appicon.svg', 512],
     'lexbox-appicon-1024.png': ['lexbox-appicon.svg', 1024],
   },
   ico: ['lexbox-16.png', 'lexbox-32.png', 'lexbox-48.png'],
-  faviconSvg: {
-    title: 'Lexbox, favicon (reversed in dark mode)',
-    light: 'lexbox-tiny.svg',
-    dark: 'lexbox-tiny-reversed.svg',
-  },
+  // No dark drawing: the light ones read on dark grounds too.
+  faviconSvg: { title: 'Lexbox', light: 'lexbox-tiny.svg' },
 })
