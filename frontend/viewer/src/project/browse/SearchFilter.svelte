@@ -228,25 +228,6 @@
             {/if}
           </div>
           <div class="flex flex-col">
-            <Label class="p-2">{$t`Specific field`}</Label>
-            <div class="flex flex-col gap-2 items-stretch">
-              <div class="flex flex-row gap-2 flex-1">
-                <!-- Field Picker -->
-                <FieldSelect bind:value={selectedField} />
-                <!-- Writing System Picker -->
-                <WsSelect bind:value={selectedWs} wsType={selectedField?.ws} />
-              </div>
-              <div class="flex flex-row gap-2 flex-1">
-                <OpFilter bind:value={filterOp} />
-                <Input
-                  bind:value={fieldFilterValue}
-                  placeholder={$t`Filter for...`}
-                  class="flex-1"
-                />
-              </div>
-            </div>
-          </div>
-          <div class="flex flex-col">
             <Label class="p-2">{$t`Semantic domain`}</Label>
             <SemanticDomainSelect bind:value={semanticDomain} />
             <Switch
@@ -275,6 +256,25 @@
               <Switch class="mt-1.5" bind:checked={openComments} label={$t`Has unresolved comments`} />
             </div>
           {/if}
+          <div class="flex flex-col">
+            <Label class="p-2">{$t`Specific field`}</Label>
+            <div class="flex flex-col gap-2 items-stretch">
+              <div class="flex flex-row gap-2 flex-1">
+                <!-- Field Picker -->
+                <FieldSelect bind:value={selectedField} />
+                <!-- Writing System Picker -->
+                <WsSelect bind:value={selectedWs} wsType={selectedField?.ws} />
+              </div>
+              <div class="flex flex-row gap-2 flex-1">
+                <OpFilter bind:value={filterOp} />
+                <Input
+                  bind:value={fieldFilterValue}
+                  placeholder={$t`Filter for...`}
+                  class="flex-1"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </ResponsivePopup>
     {/snippet}
