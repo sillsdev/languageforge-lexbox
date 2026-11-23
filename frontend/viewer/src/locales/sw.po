@@ -2824,6 +2824,10 @@ msgstr ""
 msgid "No items found"
 msgstr "Hakuna kitu kilichopatikana"
 
+#: src/project/tasks/TaskList.svelte
+msgid "No language needed"
+msgstr ""
+
 #. Status on a tab: nothing was changed in this item after this change.
 #: src/lib/activity/ActivityItem.svelte
 msgid "No later changes"

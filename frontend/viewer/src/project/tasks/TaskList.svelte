@@ -81,8 +81,8 @@
   }
 
   // Desktop shows the first field's languages until the user picks one; phones drill in instead.
-  const pickedField = $derived(fields.find(f => f.key === fieldParam.current && f.tasks.length > 1));
-  const selectedField = $derived(pickedField ?? (IsMobile.value ? undefined : entities.flatMap(e => e.fields).find(f => f.tasks.length > 1)));
+  const pickedField = $derived(fields.find(f => f.key === fieldParam.current));
+  const selectedField = $derived(pickedField ?? (IsMobile.value ? undefined : entities[0]?.fields[0]));
   const drilledIn = $derived(IsMobile.value && !!selectedField);
   const languageGroups = $derived.by(() => {
     const tasks = selectedField?.tasks ?? [];
@@ -116,10 +116,6 @@
     // Once tasks have been used the card has done its job, and it would push Recent down.
     if (!projectStorage.tasksHelpDismissed.current) dismissHelp();
     onSelect(task.id);
-  }
-  function pickField(field: Field) {
-    if (field.tasks.length === 1) openTask(field.tasks[0]);
-    else fieldParam.current = field.key;
   }
 
   let container = $state<HTMLElement>();
@@ -173,7 +169,7 @@
   {@const ws = writingSystemOf(task)}
   <li>
     <ChoiceRow data-task-id={task.id} class={isDone(task) ? 'text-muted-foreground' : ''} onclick={() => openTask(task)}>
-      <span class="font-medium">{#if ws}{@render wsName(ws)}{/if}</span>
+      <span class="font-medium">{#if ws}{@render wsName(ws)}{:else}{$t`No language needed`}{/if}</span>
       {#if !isDone(task)}<span class="text-muted-foreground text-sm tabular-nums">{@render progress(task)}</span>{/if}
       {#snippet trailing()}
         {#if isDone(task)}{@render doneMark()}{/if}
@@ -247,20 +243,15 @@
                 <!-- Rounds the end rows instead of overflow-hidden, which would clip the selected row's pointer. -->
                 <ul class="flex flex-col divide-y rounded-lg border [&>li:first-child>button]:rounded-t-lg [&>li:last-child>button]:rounded-b-lg">
                   {#each entityFields as field (field.key)}
-                    {@const single = field.tasks.length === 1 ? field.tasks[0] : undefined}
                     {@const done = field.tasks.every(isDone)}
                     <li class="relative">
                       <ChoiceRow
                         data-field-key={field.key}
-                        data-task-id={single?.id}
                         selected={field.key === selectedField?.key}
                         class={done ? 'text-muted-foreground' : ''}
-                        onclick={() => pickField(field)}>
+                        onclick={() => fieldParam.current = field.key}>
                         <span class="font-medium">{field.label}</span>
                         <span class="text-muted-foreground text-sm">{field.description}</span>
-                        {#if single && !done}
-                          <span class="text-muted-foreground text-sm tabular-nums">{@render progress(single)}</span>
-                        {/if}
                         {#snippet trailing()}
                           {#if done}{@render doneMark()}{/if}
                         {/snippet}

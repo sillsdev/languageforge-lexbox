@@ -2824,6 +2824,10 @@ msgstr ""
 msgid "No items found"
 msgstr "항목을 찾을 수 없습니다."
 
+#: src/project/tasks/TaskList.svelte
+msgid "No language needed"
+msgstr ""
+
 #. Status on a tab: nothing was changed in this item after this change.
 #: src/lib/activity/ActivityItem.svelte
 msgid "No later changes"
