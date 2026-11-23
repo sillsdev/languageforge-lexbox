@@ -228,10 +228,8 @@
               <li>
                 <button type="button" data-task-id={task.id} onclick={() => openTask(task)}
                   class="bg-card hover:bg-accent focus-visible:ring-ring/50 flex size-full flex-col rounded-lg border px-4 py-3 text-start focus-visible:ring-[3px] focus-visible:outline-none">
-                  <span class="flex flex-wrap items-baseline gap-x-2 font-medium">
-                    {text(taskLabel(task))}
-                    {#if ws}<span aria-hidden="true" class="text-muted-foreground">·</span>{@render wsName(ws)}{/if}
-                  </span>
+                  <span class="font-medium">{text(taskLabel(task))}</span>
+                  {#if ws}<span class="text-sm">{@render wsName(ws)}</span>{/if}
                   <span class="text-muted-foreground text-sm tabular-nums">{@render progress(task)}</span>
                 </button>
               </li>
@@ -284,8 +282,7 @@
               {#if drilledIn}
                 <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" aria-label={$t`Back to fields`} onclick={() => fieldParam.current = ''} />
               {/if}
-              <div class="flex min-w-0 flex-col">
-                <p class="text-muted-foreground text-sm font-medium">{entities.find(e => e.entity === selectedField.entity)?.label}</p>
+              <div class="flex min-w-0 flex-wrap items-baseline gap-x-2">
                 <h3 id="task-languages-heading" tabindex="-1" class="text-base font-semibold outline-none">{selectedField.label}</h3>
                 <p class="text-muted-foreground text-sm">{selectedField.description}</p>
               </div>

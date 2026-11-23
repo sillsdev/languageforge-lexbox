@@ -27,5 +27,9 @@
 >
   <span class="flex min-w-0 grow flex-col">{@render children()}</span>
   {@render trailing?.()}
-  <Icon icon="i-mdi-chevron-right" class="shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" />
+  <Icon
+    icon="i-mdi-chevron-right"
+    class={cn('shrink-0 rtl:rotate-180', selected ? 'text-primary' : 'text-muted-foreground')}
+    aria-hidden="true"
+  />
 </button>
