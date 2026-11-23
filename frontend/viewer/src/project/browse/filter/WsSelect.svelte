@@ -9,7 +9,10 @@
   let {value = $bindable(), wsType}: { value: string[], wsType: WritingSystemSelection | undefined } = $props();
   let writingSystems = $derived(wsType ? wsService.pickWritingSystems(wsType) : []);
   watch(() => writingSystems, () => {
-    value = writingSystems.map(ws => ws.wsId);
+    const available = writingSystems.map(ws => ws.wsId);
+    // The popover remounts this, which must not undo the user's narrowed choice
+    if (value.length && value.every(id => available.includes(id))) return;
+    value = available;
   });
 </script>
 <Select.Root disabled={!wsType} type="multiple" bind:value>

@@ -37,6 +37,11 @@ test('active filters show as removable chips, capped with a "+N more" chip', asy
     await page.getByPlaceholder('Filter for...').fill('ku');
     await page.getByRole('button', {name: 'Entries missing...'}).click();
     await page.getByRole('option', {name: 'Example sentences'}).click();
+    const wsSelect = page.getByText('Any Ws', {exact: true});
+    await wsSelect.click();
+    await page.getByRole('option').first().click();
+    await page.keyboard.press('Escape');
+    await expect(wsSelect).toHaveCount(0);
     await page.keyboard.press('Escape');
 
     // Only one chip fits beside "+2 more" and "Clear filters" at this width
@@ -50,6 +55,8 @@ test('active filters show as removable chips, capped with a "+N more" chip', asy
     await expect(popoverContent).toBeHidden();
     await more.click();
     await expect(popoverContent).toBeVisible();
+    // Reopening the popover keeps the narrowed writing system choice
+    await expect(page.getByText('Any Ws', {exact: true})).toHaveCount(0);
     await page.keyboard.press('Escape');
     await expect(popoverContent).toBeHidden();
   });
