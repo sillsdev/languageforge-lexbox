@@ -4,7 +4,7 @@ import {getEntityConfig, type FieldId} from '$lib/views/entity-config';
 import {vt, type ViewText} from '$lib/views/view-text';
 import {gt, msg} from 'svelte-i18n-lingui';
 import type {IEntry, IExampleSentence, IRichString, ISense, IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
-import {defaultExampleSentence, defaultSense, firstTruthy, isEntry, isSense} from '$lib/utils';
+import {defaultExampleSentence, defaultSense, defaultTranslation, firstTruthy, isEntry, isSense} from '$lib/utils';
 import {TaskSubject} from './subject.svelte';
 import {subscribeLanguageChange} from '$lib/i18n';
 
@@ -26,6 +26,8 @@ export interface Task {
   description?: ViewText;
   subjectType: 'entry' | 'sense' | 'example-sentence';
   subjectFields: FieldId[];
+  /** Shown and saved with the subject, but never required. */
+  optionalFields?: FieldId[];
   subjectWritingSystemId?: string;
   subjectWritingSystemType?: WritingSystemType;
   /** Already translated, see subject. */
@@ -198,7 +200,10 @@ export class TasksService {
 
   public exampleSentenceTasks() {
     subscribeLanguageChange();
-    return TasksService.makeExampleSentenceTasks(this.writingSystemService.vernacular);
+    return [
+      ...TasksService.makeExampleSentenceTasks(this.writingSystemService.vernacular),
+      ...TasksService.makeTranslationTasks(this.writingSystemService.analysis),
+    ];
   }
 
   public static *makeExampleSentenceTasks(vernacular: IWritingSystem[]) {
@@ -211,9 +216,12 @@ export class TasksService {
         subject: gt`Missing Example sentence ${writingSystem.abbreviation}`,
         subjectType: 'example-sentence',
         subjectFields: ['sentence'],
+        optionalFields: ['translations'],
         subjectWritingSystemId: writingSystem.wsId,
         subjectWritingSystemType: writingSystem.type,
-        prompt: writingSystem.isAudio ? gt`Record an example sentence` : gt`Type an example sentence`,
+        prompt: writingSystem.isAudio
+          ? gt`Record an example sentence, and type a translation if you can`
+          : gt`Type an example sentence, and a translation if you can`,
         taskKind: 'provide-missing',
         gridifyFilter: `Senses.ExampleSentences=null|Senses.ExampleSentences.Sentence[${writingSystem.wsId}]=`,
         getSubjectValue: s => TasksService.getSubjectValue(taskExample, s),
@@ -221,6 +229,31 @@ export class TasksService {
       };
       yield taskExample;
     }
+  }
+
+  public static *makeTranslationTasks(analysis: IWritingSystem[]) {
+    for (const writingSystem of analysis) {
+      const taskTranslation: Task = {
+        id: `example-translation-${writingSystem.wsId}`,
+        description: msg`What the example sentence means`,
+        contextFields: ['sentence'],
+        subject: gt`Missing Translation ${writingSystem.abbreviation}`,
+        subjectType: 'example-sentence',
+        subjectFields: ['translations'],
+        subjectWritingSystemId: writingSystem.wsId,
+        subjectWritingSystemType: writingSystem.type,
+        prompt: writingSystem.isAudio ? gt`Record a translation of the example sentence` : gt`Translate the example sentence`,
+        taskKind: 'provide-missing',
+        gridifyFilter: `Senses.ExampleSentences.Translations.Text[${writingSystem.wsId}]=`,
+        getSubjectValue: s => TasksService.getTranslationValue(s as IExampleSentence, writingSystem.wsId),
+        isComplete: s => !!TasksService.getTranslationValue(s as IExampleSentence, writingSystem.wsId)
+      };
+      yield taskTranslation;
+    }
+  }
+
+  private static getTranslationValue(example: IExampleSentence, wsId: string): string | undefined {
+    return firstTruthy(example.translations, t => asString(t.text[wsId]));
   }
 
   private static getHeadwordValue(entry: IEntry, wsId: string): string | undefined {
@@ -299,9 +332,13 @@ export class TasksService {
     } else if (task.subjectType === 'example-sentence') {
       for (const sense of entry.senses) {
         let examples = sense.exampleSentences;
-        if (examples.length === 0) examples = [defaultExampleSentence(sense.id)];
-        for (const example of examples) {
+        const translating = task.subjectFields.includes('translations');
+        // there's nothing to translate in a new example
+        if (examples.length === 0 && !translating) examples = [defaultExampleSentence(sense.id)];
+        for (let example of examples) {
           if (task.getSubjectValue(example)) continue;
+          // a real translation rather than the editor's draft, so isComplete sees what's typed
+          if (translating && !example.translations.length) example = {...example, translations: [defaultTranslation()]};
           subjects.push(new TaskSubject(entry, sense, example, (s) => task.getSubjectValue(s.exampleSentence!)));
         }
       }

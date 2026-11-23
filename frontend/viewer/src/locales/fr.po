@@ -2689,6 +2689,10 @@ msgid "Missing Semantic domains"
 msgstr "Domaines sémantiques manquants"
 
 #: src/project/tasks/tasks-service.ts
+msgid "Missing Translation {0}"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
 msgid "Missing Word {0}"
 msgstr "Mot {0} manquant"
 
@@ -3583,12 +3587,16 @@ msgid "Record a Lexeme form or Citation form"
 msgstr "Enregistrer une forme de lexème ou un autonyme"
 
 #: src/project/tasks/tasks-service.ts
+msgid "Record a translation of the example sentence"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
 msgid "Record a Word"
 msgstr "Enregistrer un mot"
 
 #: src/project/tasks/tasks-service.ts
-msgid "Record an example sentence"
-msgstr "Enregistrer une phrase d'exemple"
+msgid "Record an example sentence, and type a translation if you can"
+msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Display as"
@@ -4699,6 +4707,10 @@ msgstr ""
 msgid "Total entries"
 msgstr "Total des entrées"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Translate the example sentence"
+msgstr ""
+
 #. Standalone noun used as {0} in activity-log strings (e.g. "Added translation"). Refers to one of an example sentence's free translations.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "translation"
@@ -4783,10 +4795,9 @@ msgstr "Taper une forme de lexème ou de Citation"
 msgid "Type a Word"
 msgstr "Tapez un mot"
 
-#. Task instruction
 #: src/project/tasks/tasks-service.ts
-msgid "Type an example sentence"
-msgstr "Saisir une phrase exemplaire"
+msgid "Type an example sentence, and a translation if you can"
+msgstr ""
 
 #. Label for audio file type
 #: src/lib/components/audio/audio-editor.svelte
@@ -5082,6 +5093,10 @@ msgstr ""
 
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "What it asks for"
+msgstr ""
+
+#: src/project/tasks/tasks-service.ts
+msgid "What the example sentence means"
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte

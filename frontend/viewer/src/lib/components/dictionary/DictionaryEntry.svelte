@@ -15,6 +15,7 @@
     class: className,
     headwordClass = '',
     highlightSenseId = undefined,
+    highlightExampleId = undefined,
     hideExamples = false,
     inline = false,
     respectView = true,
@@ -26,6 +27,7 @@
     actions?: Snippet;
     headwordClass?: string;
     highlightSenseId?: string;
+    highlightExampleId?: string;
     hideExamples?: boolean;
     /** Render senses as one flowing line (no line break per sense) — for compact previews */
     inline?: boolean;
@@ -142,12 +144,14 @@
       </span>
       {#if !hideExamples}
         {#each sense.exampleSentences as example (example.id)}
-          {#each example.sentences as sentence, j (sentence)}
-            {@const first = j === 0}
-            {@const last = j === example.sentences.length - 1}
-            {#if j > 0};{/if}
-            {#if first}[{/if}<span class={sentence.color}>{sentence.text}</span>{#if last}]{/if}
-          {/each}
+          <span class={cn(highlightExampleId === example.id && 'rounded bg-primary/20')}>
+            {#each example.sentences as sentence, j (sentence)}
+              {@const first = j === 0}
+              {@const last = j === example.sentences.length - 1}
+              {#if j > 0};{/if}
+              {#if first}[{/if}<span class={sentence.color}>{sentence.text}</span>{#if last}]{/if}
+            {/each}
+          </span>
         {/each}
       {/if}
     </span>

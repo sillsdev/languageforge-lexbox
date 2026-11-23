@@ -16,6 +16,7 @@
   import type {Overrides} from '$lib/views/view-data';
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
   import {pt} from '$lib/views/view-text';
+  import {untrack} from 'svelte';
   import {useViewService} from '$lib/views/view-service.svelte';
 
   let {
@@ -35,6 +36,7 @@
     onCompletedSubject?: (subject: TaskSubject) => void,
   } = $props();
   const viewService = useViewService();
+  const shownFields = $derived([...task.subjectFields, ...task.optionalFields ?? []]);
   const overrides = $derived.by((): Overrides => {
     if (!task.subjectWritingSystemId) return {};
     const ws = {wsId: task.subjectWritingSystemId};
@@ -43,12 +45,13 @@
         analysis: [ws],
         vernacular: [],
       };
-    } else {
-      return {
-        analysis: [],
-        vernacular: [ws],
-      };
     }
+    // optional fields (example translations) keep the view's analysis writing systems
+    if (task.optionalFields?.length) return {vernacular: [ws]};
+    return {
+      analysis: [],
+      vernacular: [ws],
+    };
   });
   const entryPersistence = new EntryPersistence(() => entry);
   //need to create a snapshot, otherwise changes to the subjects will trigger this derived and it will skip to the next subject
@@ -121,15 +124,16 @@
   let form = $state<HTMLFormElement>();
   $effect(() => {
     if (!form) return;
-    let inputs = form?.querySelectorAll<HTMLElement>('input, .ProseMirror');
-
-    if (!inputs || inputs.length < 0) return;
-    for (let input of inputs) {
-      if (input.checkVisibility()) {
-        input.focus();
-        return;
+    let inputs = form.querySelectorAll<HTMLElement>('input, .ProseMirror');
+    // focusing reads editor state, which would re-run this and pull the caret back from any other field
+    untrack(() => {
+      for (let input of inputs) {
+        if (input.checkVisibility()) {
+          input.focus();
+          return;
+        }
       }
-    }
+    });
   });
 </script>
 
@@ -142,7 +146,7 @@
     </Drawer.Header>
     <div class="mx-2 md:mx-4 shadow-inner rounded-md p-4">
       {#if entry}
-        <DictionaryEntry {entry} headwordClass="text-2xl" highlightSenseId={subject?.sense?.id} hideExamples={task.subjectType !== 'example-sentence'}/>
+        <DictionaryEntry {entry} headwordClass="text-2xl" highlightSenseId={subject?.sense?.id} highlightExampleId={subject?.exampleSentence?.id} hideExamples={task.subjectType !== 'example-sentence'}/>
       {/if}
     </div>
     <Drawer.Footer class="gap-4">
@@ -157,7 +161,7 @@
             <input type="submit" style="display: none;"/>
             <Editor.Root bind:this={editor}>
               <Editor.Grid>
-                <OverrideFields shownFields={task.subjectFields} {overrides}>
+                <OverrideFields {shownFields} {overrides}>
                   {#if task.subjectType === 'entry' && subject.entry}
                     <EntryEditorPrimitive autofocus modalMode bind:entry={subject.entry}/>
                   {:else if task.subjectType === 'sense' && subject.sense}

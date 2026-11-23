@@ -2684,6 +2684,10 @@ msgid "Missing Semantic domains"
 msgstr "Missing Semantic domains"
 
 #: src/project/tasks/tasks-service.ts
+msgid "Missing Translation {0}"
+msgstr "Missing Translation {0}"
+
+#: src/project/tasks/tasks-service.ts
 msgid "Missing Word {0}"
 msgstr "Missing Word {0}"
 
@@ -3578,12 +3582,16 @@ msgid "Record a Lexeme form or Citation form"
 msgstr "Record a Lexeme form or Citation form"
 
 #: src/project/tasks/tasks-service.ts
+msgid "Record a translation of the example sentence"
+msgstr "Record a translation of the example sentence"
+
+#: src/project/tasks/tasks-service.ts
 msgid "Record a Word"
 msgstr "Record a Word"
 
 #: src/project/tasks/tasks-service.ts
-msgid "Record an example sentence"
-msgstr "Record an example sentence"
+msgid "Record an example sentence, and type a translation if you can"
+msgstr "Record an example sentence, and type a translation if you can"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Display as"
@@ -4694,6 +4702,10 @@ msgstr "Topics the sense belongs to"
 msgid "Total entries"
 msgstr "Total entries"
 
+#: src/project/tasks/tasks-service.ts
+msgid "Translate the example sentence"
+msgstr "Translate the example sentence"
+
 #. Standalone noun used as {0} in activity-log strings (e.g. "Added translation"). Refers to one of an example sentence's free translations.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "translation"
@@ -4778,10 +4790,9 @@ msgstr "Type a Lexeme form or Citation form"
 msgid "Type a Word"
 msgstr "Type a Word"
 
-#. Task instruction
 #: src/project/tasks/tasks-service.ts
-msgid "Type an example sentence"
-msgstr "Type an example sentence"
+msgid "Type an example sentence, and a translation if you can"
+msgstr "Type an example sentence, and a translation if you can"
 
 #. Label for audio file type
 #: src/lib/components/audio/audio-editor.svelte
@@ -5078,6 +5089,10 @@ msgstr "What can a plugin do?"
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "What it asks for"
 msgstr "What it asks for"
+
+#: src/project/tasks/tasks-service.ts
+msgid "What the example sentence means"
+msgstr "What the example sentence means"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
