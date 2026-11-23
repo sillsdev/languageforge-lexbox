@@ -1,12 +1,6 @@
 <script lang="ts" module>
   import {MorphTypeKind} from '$lib/dotnet-types';
-
-  export const WORDS_AND_PHRASES: string[] = [
-    MorphTypeKind.Root, MorphTypeKind.BoundRoot,
-    MorphTypeKind.Stem, MorphTypeKind.BoundStem,
-    MorphTypeKind.Particle,
-    MorphTypeKind.Phrase, MorphTypeKind.DiscontiguousPhrase,
-  ];
+  import {WORDS_AND_PHRASES} from '$project/data/morph-types.svelte';
 
   const AFFIXES: string[] = [
     MorphTypeKind.Prefix, MorphTypeKind.Suffix, MorphTypeKind.Infix,
@@ -33,7 +27,7 @@
   const wsService = useWritingSystemService();
 
   type Option = {kind: string, label: string};
-  type Group = {key: string, label: string, kinds: string[], options: Option[]};
+  type Group = {key: string, label: string, kinds: readonly string[], options: Option[]};
 
   const options = $derived(morphTypesService.current
     .filter(mt => !mt.deletedAt && mt.kind !== MorphTypeKind.Unknown)
@@ -42,7 +36,7 @@
   const allKinds = $derived(options.map(o => o.kind));
 
   const groups: Group[] = $derived.by(() => {
-    const defined = [
+    const defined: Omit<Group, 'options'>[] = [
       {key: '__words__', label: $t`Words and phrases`, kinds: WORDS_AND_PHRASES},
       {key: '__affixes__', label: $t`Affixes`, kinds: AFFIXES},
       {key: '__clitics__', label: $t`Clitics`, kinds: CLITICS},
@@ -59,7 +53,7 @@
   const selectedListed = $derived(allKinds.filter(k => selected.includes(k)));
 
   type Check = 'all' | 'some' | 'none';
-  function checkState(kinds: string[]): Check {
+  function checkState(kinds: readonly string[]): Check {
     const count = kinds.filter(k => selected.includes(k)).length;
     return count === 0 ? 'none' : count === kinds.length ? 'all' : 'some';
   }

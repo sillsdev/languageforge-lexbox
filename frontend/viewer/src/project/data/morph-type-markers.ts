@@ -63,9 +63,38 @@ export function fitsMorphType(chosen: MorphTypeKind, detected: MorphTypeKind): b
   return normalize(chosen) === normalize(detected);
 }
 
-/** True for a stored form like "-s" (from "--s"), which would still read as marked */
-export function hasLeftoverMarkers(stored: string, morphTypes: MarkerSource[]): boolean {
-  if (!stored.trim()) return false;
-  const match = findMorphType(stored, morphTypes);
-  return !match.valid || !!match.leading || !!match.trailing;
+export type LexemeFormProblem =
+  | {kind: 'unmatchedMarkers', leading: string, trailing: string}
+  | {kind: 'incompleteCircumfix'}
+  | {kind: 'mismatch'}
+  | {kind: 'leftoverMarker', marker: string};
+
+export type LexemeFormCheck = {stored: string, problem?: LexemeFormProblem};
+
+/**
+ * How a typed lexeme form will be stored as the chosen morph type, and why it can't or shouldn't be.
+ * Stricter than FLEx's Insert Entry dialog, which lets the chosen type disagree with the markers.
+ * Only leftoverMarker is a warning; the rest block creating the entry.
+ */
+export function checkLexemeForm(form: string, chosen: MorphTypeKind, morphTypes: MarkerSource[]): LexemeFormCheck {
+  const match = findMorphType(form, morphTypes);
+  const stored = stripMarkers(form, match);
+  if (!match.valid) return {stored, problem: {kind: 'unmatchedMarkers', leading: match.leading, trailing: match.trailing}};
+  if (!fitsMorphType(chosen, match.kind)) return {stored, problem: {kind: 'mismatch'}};
+  if (chosen === MorphTypeKind.Circumfix && !isCompleteCircumfix(stored, morphTypes)) {
+    return {stored, problem: {kind: 'incompleteCircumfix'}};
+  }
+  const leftover = stored.trim() ? findMorphType(stored, morphTypes) : undefined;
+  const marker = leftover && (leftover.leading || leftover.trailing);
+  if (marker) return {stored, problem: {kind: 'leftoverMarker', marker}};
+  return {stored};
+}
+
+// liblcm StringServices.GetCircumfixLeftAndRightParts: "a- -b" or "a-.-b", each side a valid form
+function isCompleteCircumfix(form: string, morphTypes: MarkerSource[]): boolean {
+  const leftEnd = form.search(/[ .]/);
+  if (leftEnd < 0) return false;
+  const left = form.slice(0, leftEnd);
+  const right = form.slice(Math.max(form.lastIndexOf(' '), form.lastIndexOf('.')) + 1);
+  return [left, right].every(part => part.trim() && findMorphType(part, morphTypes).valid);
 }

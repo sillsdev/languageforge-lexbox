@@ -16,7 +16,8 @@
   import SemanticDomainSelect from './filter/SemanticDomainSelect.svelte';
   import PartOfSpeechSelect from './filter/PartOfSpeechSelect.svelte';
   import PublicationSelect from './filter/PublicationSelect.svelte';
-  import MorphTypeSelect, {WORDS_AND_PHRASES} from './filter/MorphTypeSelect.svelte';
+  import MorphTypeSelect from './filter/MorphTypeSelect.svelte';
+  import {WORDS_AND_PHRASES} from '$project/data/morph-types.svelte';
   import type {MultiFilterSelection} from '$lib/activity/utils';
   import {watch} from 'runed';
   import {Icon} from '$lib/components/ui/icon';

@@ -1,12 +1,12 @@
 <script lang="ts">
   import * as Editor from '$lib/components/editor';
-  import {ViewBase, type IEntry} from '$lib/dotnet-types';
+  import {MorphTypeKind, type IEntry} from '$lib/dotnet-types';
   import {objectTemplateAreas, useViewService} from '$lib/views/view-service.svelte';
   import {fieldRecord} from '$lib/views/view-data';
   import {entityConfig, type EntryFieldId} from '../../views/entity-config';
   import {cn} from '$lib/utils';
   import {useComplexFormTypes, usePublications, useWritingSystemService} from '$project/data';
-  import {MultiSelect, MultiWsInput, RichMultiWsInput, Select} from '$lib/components/field-editors';
+  import {MultiSelect, MultiWsInput, RichMultiWsInput, Select, type WsInputNote} from '$lib/components/field-editors';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
   import ComplexForms from '../field-editors/ComplexForms.svelte';
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
@@ -14,8 +14,7 @@
   import {initSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
   import type {Snippet} from 'svelte';
   import {tvt} from '$lib/views/view-text';
-  import {t} from 'svelte-i18n-lingui';
-  import {useMorphTypesService} from '$project/data/morph-types.svelte';
+  import {morphTypeLabel, useMorphTypesService} from '$project/data/morph-types.svelte';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     entry: IEntry;
@@ -24,9 +23,9 @@
     modalMode?: boolean;
     onchange?: (entry: IEntry, field: EntryFieldId) => void;
     publishInDescription?: Snippet;
-    /** Replaces the read-only morph type the Classic view shows */
-    morphTypeField?: Snippet;
-    lexemeFormNote?: Snippet;
+    /** Changing the morph type later can leave the lexeme form's markers inconsistent, so only a new entry may set it */
+    newEntry?: boolean;
+    lexemeFormNotes?: Partial<Record<string, WsInputNote>>;
   }
 
   const {
@@ -36,8 +35,8 @@
     autofocus = false,
     modalMode = false,
     publishInDescription,
-    morphTypeField,
-    lexemeFormNote,
+    newEntry = false,
+    lexemeFormNotes,
     ...rest
   }: Props = $props();
 
@@ -54,14 +53,12 @@
 
   const entryFields = $derived(viewService.currentView.entryFields);
   const fields = $derived(fieldRecord(entryFields));
-  // Morph type is only set when creating an entry; changing it later is how FLEx data gets inconsistent
-  const showMorphType = $derived(!!morphTypeField || (!modalMode && viewService.currentView.base === ViewBase.FieldWorks));
-  const morphType = $derived(morphTypes.current.find(mt => mt.kind === entry.morphType));
-  const layoutFields = $derived(entryFields.flatMap((field) =>
-    field.fieldId === 'lexemeForm' && showMorphType ? [field, {fieldId: 'morphType', show: true}] : [field]));
+  const morphTypeOptions = $derived(morphTypes.current
+    .filter(mt => mt.kind !== MorphTypeKind.Unknown)
+    .toSorted((a, b) => morphTypeLabel(a, writingSystemService).localeCompare(morphTypeLabel(b, writingSystemService))));
 </script>
 
-<Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas(layoutFields) } })}>
+<Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas(entryFields) } })}>
   <Editor.Field.Root fieldId="lexemeForm" class={cn(fields.lexemeForm?.show || 'hidden')}>
     <Editor.Field.Title name={$tvt(entityConfig.entry.lexemeForm.label)} helpId={entityConfig.entry.lexemeForm.helpId} />
     <Editor.Field.Body subGrid>
@@ -70,28 +67,27 @@
           bind:value={entry.lexemeForm}
           {readonly}
           {autofocus}
+          notes={lexemeFormNotes}
           writingSystems={writingSystemService.viewVernacular(viewService.currentView)} />
     </Editor.Field.Body>
-    {#if lexemeFormNote}
-      <Editor.Field.Body class="mt-2">
-        {@render lexemeFormNote()}
-      </Editor.Field.Body>
-    {/if}
   </Editor.Field.Root>
 
-  {#if showMorphType}
-    <Editor.Field.Root style="grid-area: morphType" data-testid="morph-type-field">
-      <Editor.Field.Title name={$t`Morph type`} />
-      <Editor.Field.Body>
-        {#if morphTypeField}
-          {@render morphTypeField()}
-        {:else}
-          <Select readonly value={morphType} options={morphType ? [morphType] : []} idSelector="id"
-            labelSelector={(mt) => writingSystemService.pickBestAlternative(mt.name, 'analysis') || mt.kind} />
-        {/if}
-      </Editor.Field.Body>
-    </Editor.Field.Root>
-  {/if}
+  <Editor.Field.Root fieldId="morphType" class={cn(fields.morphType?.show || 'hidden')}>
+    <Editor.Field.Title name={$tvt(entityConfig.entry.morphType.label)} helpId={entityConfig.entry.morphType.helpId} />
+    <Editor.Field.Body>
+      <Select
+        value={morphTypes.byKind(entry.morphType)}
+        options={morphTypeOptions}
+        labelSelector={(mt) => morphTypeLabel(mt, writingSystemService)}
+        idSelector="id"
+        readonly={readonly || !newEntry}
+        onchange={(mt) => {
+          if (!mt) return;
+          entry.morphType = mt.kind;
+          onFieldChanged('morphType');
+        }} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
 
   <Editor.Field.Root fieldId="citationForm" class={cn(fields.citationForm?.show || 'hidden')}>
     <Editor.Field.Title name={$tvt(entityConfig.entry.citationForm.label)} helpId={entityConfig.entry.citationForm.helpId} />

@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {MorphTypeKind as K} from '$lib/dotnet-types';
-import {findMorphType, fitsMorphType, hasLeftoverMarkers, stripMarkers} from './morph-type-markers';
+import {checkLexemeForm, findMorphType, fitsMorphType, stripMarkers} from './morph-type-markers';
 
 // FLEx's canonical markers (MiniLcm CanonicalMorphTypes)
 const morphTypes = [
@@ -25,7 +25,7 @@ const morphTypes = [
   {kind: K.DiscontiguousPhrase},
 ];
 
-describe('findMorphType', () => {
+describe('morph type markers', () => {
   it.each([
     ['walk', K.Stem, 'walk'],
     ['  walk ', K.Stem, 'walk'],
@@ -64,18 +64,24 @@ describe('findMorphType', () => {
     [K.SuffixingInterfix, K.Suffix, true],
     [K.Suffix, K.Stem, false],
     [K.Root, K.BoundStem, false],
-  ])('a form detected as %s fits %s: %s', (chosen, detected, fits) => {
+  ])('%s fits a form detected as %s: %s', (chosen, detected, fits) => {
     expect(fitsMorphType(chosen, detected)).toBe(fits);
   });
 
   it.each([
-    ['s', false],
-    ['', false],
-    ['-s', true],
-    ['s=', true],
-    ['*s-', true],
-  ])('stored form %j has leftover markers: %s', (stored, leftover) => {
-    expect(hasLeftoverMarkers(stored, morphTypes)).toBe(leftover);
+    ['walk', K.Stem, {stored: 'walk'}],
+    ['walk', K.Root, {stored: 'walk'}],
+    ['-ed', K.Suffix, {stored: 'ed'}],
+    ['--ed', K.Suffix, {stored: '-ed', problem: {kind: 'leftoverMarker', marker: '-'}}],
+    ['*ed-', K.Suffix, {stored: 'ed', problem: {kind: 'unmatchedMarkers', leading: '*', trailing: '-'}}],
+    ['ed', K.Suffix, {stored: 'ed', problem: {kind: 'mismatch'}}],
+    ['a- -b', K.Circumfix, {stored: 'a- -b'}],
+    ['a-.-b', K.Circumfix, {stored: 'a-.-b'}],
+    ['ab', K.Circumfix, {stored: 'ab', problem: {kind: 'incompleteCircumfix'}}],
+    [' -b', K.Circumfix, {stored: 'b', problem: {kind: 'mismatch'}}],
+    ['a- ~b', K.Circumfix, {stored: 'a- ~b', problem: {kind: 'incompleteCircumfix'}}],
+  ])('%j as %s is checked as %j', (form, chosen, check) => {
+    expect(checkLexemeForm(form, chosen, morphTypes)).toEqual(check);
   });
 
   it('uses the project\'s own markers', () => {

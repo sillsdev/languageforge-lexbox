@@ -14,27 +14,32 @@ async function openNewEntryDialog(page: Page): Promise<Locator> {
   return dialog;
 }
 
-function lexemeInput(dialog: Locator): Locator {
-  return dialog.locator('[data-field-id="lexemeForm"]').locator('input').first();
+function lexemeInput(dialog: Locator, index = 0): Locator {
+  return dialog.locator('[data-field-id="lexemeForm"]').locator('input').nth(index);
 }
 
-function morphTypeSelect(dialog: Locator): Locator {
-  return dialog.getByTestId('morph-type-field').getByRole('combobox');
+function morphTypeSelect(scope: Locator | Page): Locator {
+  return scope.locator('[data-field-id="morphType"]:visible').getByRole('combobox');
+}
+
+async function createdMorphTypes(page: Page, lexeme: string): Promise<string[]> {
+  return page.evaluate(async (lexeme) => {
+    const entries = await window.__PLAYWRIGHT_UTILS__.demoApi.getEntries(undefined);
+    return entries.filter(e => Object.values(e.lexemeForm).includes(lexeme)).map(e => e.morphType);
+  }, lexeme);
 }
 
 test.describe('New entry morph type', () => {
   test('classic view picks the morph type from affix markers and stores the bare form', async ({page}) => {
-    const projectPage = new DemoProjectPage(page);
-    await projectPage.goto();
+    await new DemoProjectPage(page).goto();
     await useView(page, /FieldWorks Classic/);
 
     const dialog = await openNewEntryDialog(page);
-    await expect(morphTypeSelect(dialog)).toHaveText(/stem/);
-
+    await expect(morphTypeSelect(dialog)).toHaveText('stem');
     await lexemeInput(dialog).fill('-zed');
-    await expect(morphTypeSelect(dialog)).toHaveText(/suffix/);
+    await expect(morphTypeSelect(dialog)).toHaveText('suffix');
     await lexemeInput(dialog).fill('zed-');
-    await expect(morphTypeSelect(dialog)).toHaveText(/prefix/);
+    await expect(morphTypeSelect(dialog)).toHaveText('prefix');
 
     await morphTypeSelect(dialog).click();
     await page.getByRole('option', {name: 'infix', exact: true}).click();
@@ -42,58 +47,55 @@ test.describe('New entry morph type', () => {
 
     await dialog.getByRole('button', {name: /create entry/i}).click();
     await expect(dialog).toBeHidden();
-    const created = await page.evaluate(async () => {
-      const api = window.__PLAYWRIGHT_UTILS__.demoApi;
-      const entries = await api.getEntries(undefined);
-      return entries.filter(e => Object.values(e.lexemeForm).includes('zed')).map(e => e.morphType);
-    });
-    expect(created).toEqual(['Infix']);
+    expect(await createdMorphTypes(page, 'zed')).toEqual(['Infix']);
 
     await test.step('the entry editor shows the morph type read-only', async () => {
-      await page.getByRole('row', {name: /zed/}).first().click();
-      const editorMorphType = page.getByTestId('morph-type-field').getByRole('combobox');
-      await expect(editorMorphType).toHaveText(/infix/);
-      await expect(editorMorphType).toBeDisabled();
+      await expect(morphTypeSelect(page)).toHaveText('infix');
+      await expect(morphTypeSelect(page)).toBeDisabled();
     });
   });
 
-  test('classic view blocks unknown marker combinations and warns about leftover markers', async ({page}) => {
-    const projectPage = new DemoProjectPage(page);
-    await projectPage.goto();
+  test('classic view keeps a picked type the markers allow and blocks forms that fit no type', async ({page}) => {
+    await new DemoProjectPage(page).goto();
     await useView(page, /FieldWorks Classic/);
 
     const dialog = await openNewEntryDialog(page);
+    await morphTypeSelect(dialog).click();
+    await page.getByRole('option', {name: 'root', exact: true}).click();
+    await lexemeInput(dialog).fill('zed');
+    await expect(morphTypeSelect(dialog)).toHaveText('root');
+
     await lexemeInput(dialog).fill('*zed-');
-    await expect(dialog.getByText(`The markers in "*zed-" don't fit any morph type.`, {exact: false})).toBeVisible();
-    await dialog.getByRole('button', {name: /create entry/i}).click();
-    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(`"*zed-" can't both start with "*" and end with "-".`, {exact: false})).toBeVisible();
+    await expect(lexemeInput(dialog)).toHaveAttribute('aria-invalid', 'true');
 
     await lexemeInput(dialog).fill('--zed');
-    await expect(morphTypeSelect(dialog)).toHaveText(/suffix/);
-    await expect(dialog.getByText(`"--zed" will be saved as "-zed".`, {exact: false})).toBeVisible();
+    await expect(morphTypeSelect(dialog)).toHaveText('suffix');
+    await expect(dialog.getByText(`"--zed" will be saved as "-zed". Is there an extra "-"?`)).toBeVisible();
+
+    await lexemeInput(dialog).fill('-zed');
+    await lexemeInput(dialog, 1).fill('zed');
+    await dialog.getByRole('button', {name: /create entry/i}).click();
+    await expect(dialog.getByText(`"zed" doesn't match the morph type suffix. Type "-zed" instead.`)).toBeVisible();
+    await expect(lexemeInput(dialog, 1)).toBeFocused();
   });
 
   test('lite view shows the morph type picker only once an affix is typed', async ({page}) => {
-    const projectPage = new DemoProjectPage(page);
-    await projectPage.goto();
+    await new DemoProjectPage(page).goto();
     await useView(page, /FieldWorks Lite/);
 
     const dialog = await openNewEntryDialog(page);
+    await lexemeInput(dialog).fill('well-known');
     await lexemeInput(dialog).fill('zed zed');
     await expect(morphTypeSelect(dialog)).toHaveCount(0);
     await lexemeInput(dialog).fill('-zed');
-    await expect(morphTypeSelect(dialog)).toHaveText(/suffix/);
+    await expect(morphTypeSelect(dialog)).toHaveText('suffix');
     await lexemeInput(dialog).fill('zed');
-    await expect(morphTypeSelect(dialog)).toHaveText(/stem/);
+    await expect(morphTypeSelect(dialog)).toHaveText('stem');
     await lexemeInput(dialog).fill('-zed');
 
     await dialog.getByRole('button', {name: /add word/i}).click();
     await expect(dialog).toBeHidden();
-    const created = await page.evaluate(async () => {
-      const api = window.__PLAYWRIGHT_UTILS__.demoApi;
-      const entries = await api.getEntries(undefined);
-      return entries.filter(e => Object.values(e.lexemeForm).includes('zed')).map(e => e.morphType);
-    });
-    expect(created).toEqual(['Suffix']);
+    expect(await createdMorphTypes(page, 'zed')).toEqual(['Suffix']);
   });
 });

@@ -37,8 +37,20 @@ msgstr ""
 msgid "“{0}” can now make changes without asking. You can change this from the plugin toolbar or its card."
 msgstr ""
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" can't both start with \"{1}\" and end with \"{2}\". Remove one of them."
+msgstr ""
+
 #: src/lib/plugins/PluginSandbox.svelte
 msgid "“{0}” changed an entry"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" doesn't match the morph type {1}. Type \"{2}\" instead."
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" ends with \"{1}\" but doesn't start with a matching marker."
 msgstr ""
 
 #: src/lib/plugins/PluginSandbox.svelte
@@ -47,6 +59,10 @@ msgstr ""
 
 #: src/lib/plugins/PluginSandbox.svelte
 msgid "“{0}” made {1}"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" starts with \"{1}\" but doesn't end with a matching marker."
 msgstr ""
 
 #: src/lib/plugins/PluginSandbox.svelte
@@ -60,6 +76,10 @@ msgstr ""
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginsView.svelte
 msgid "“{0}” will ask before making changes again."
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" will be saved as \"{1}\". Is there an extra \"{2}\"?"
 msgstr ""
 
 #. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
@@ -251,6 +271,10 @@ msgstr ""
 
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "3. Try it here"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "A circumfix needs a left and a right part, separated by a space, like \"a- -b\"."
 msgstr ""
 
 #. Update notification
@@ -1841,10 +1865,6 @@ msgstr "필드"
 msgid "Fields"
 msgstr "필드"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "FieldWorks doesn't recognize the affix markers in \"{0}\". Remove them or choose a morph type."
-msgstr ""
-
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite는 서비스 개선을 위해 사용 현황 데이터를 수집합니다."
@@ -2638,11 +2658,14 @@ msgstr ""
 msgid "morph type"
 msgstr ""
 
-#: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 #: src/lib/plugins/plugin-api-adapter.ts
+#: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Morph type"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Morph type: {0}"
 msgstr ""
 
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Morph types classify the morphological status of entries (e.g. "root", "stem", "bound stem").

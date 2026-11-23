@@ -32,9 +32,21 @@ msgstr "“{0}” added an entry"
 msgid "“{0}” can now make changes without asking. You can change this from the plugin toolbar or its card."
 msgstr "“{0}” can now make changes without asking. You can change this from the plugin toolbar or its card."
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" can't both start with \"{1}\" and end with \"{2}\". Remove one of them."
+msgstr "\"{0}\" can't both start with \"{1}\" and end with \"{2}\". Remove one of them."
+
 #: src/lib/plugins/PluginSandbox.svelte
 msgid "“{0}” changed an entry"
 msgstr "“{0}” changed an entry"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" doesn't match the morph type {1}. Type \"{2}\" instead."
+msgstr "\"{0}\" doesn't match the morph type {1}. Type \"{2}\" instead."
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" ends with \"{1}\" but doesn't start with a matching marker."
+msgstr "\"{0}\" ends with \"{1}\" but doesn't start with a matching marker."
 
 #: src/lib/plugins/PluginSandbox.svelte
 msgid "“{0}” kept asking to change your dictionary after you said no. Reload it to try again."
@@ -43,6 +55,10 @@ msgstr "“{0}” kept asking to change your dictionary after you said no. Reloa
 #: src/lib/plugins/PluginSandbox.svelte
 msgid "“{0}” made {1}"
 msgstr "“{0}” made {1}"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" starts with \"{1}\" but doesn't end with a matching marker."
+msgstr "\"{0}\" starts with \"{1}\" but doesn't end with a matching marker."
 
 #: src/lib/plugins/PluginSandbox.svelte
 msgid "“{0}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin."
@@ -56,6 +72,10 @@ msgstr "\"{0}\" was added for everyone on this project."
 #: src/lib/plugins/PluginsView.svelte
 msgid "“{0}” will ask before making changes again."
 msgstr "“{0}” will ask before making changes again."
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" will be saved as \"{1}\". Is there an extra \"{2}\"?"
+msgstr "\"{0}\" will be saved as \"{1}\". Is there an extra \"{2}\"?"
 
 #. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
 #. Shown in place of the sense's number and gloss; "sense" is "meaning" in the Lite view
@@ -247,6 +267,10 @@ msgstr "2. Have an AI write it"
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "3. Try it here"
 msgstr "3. Try it here"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "A circumfix needs a left and a right part, separated by a space, like \"a- -b\"."
+msgstr "A circumfix needs a left and a right part, separated by a space, like \"a- -b\"."
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -1836,10 +1860,6 @@ msgstr "Field"
 msgid "Fields"
 msgstr "Fields"
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "FieldWorks doesn't recognize the affix markers in \"{0}\". Remove them or choose a morph type."
-msgstr "FieldWorks doesn't recognize the affix markers in \"{0}\". Remove them or choose a morph type."
-
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite collects usage data to help us improve it."
@@ -2633,12 +2653,15 @@ msgstr "More options for {0}"
 msgid "morph type"
 msgstr "morph type"
 
-#: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
-#: src/lib/entry-editor/object-editors/EntryEditorPrimitive.svelte
 #: src/lib/plugins/plugin-api-adapter.ts
+#: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Morph type"
 msgstr "Morph type"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Morph type: {0}"
+msgstr "Morph type: {0}"
 
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Morph types classify the morphological status of entries (e.g. "root", "stem", "bound stem").
 #: src/lib/activity/ChangeSummary.svelte
