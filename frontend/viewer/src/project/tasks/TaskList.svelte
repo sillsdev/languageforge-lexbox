@@ -247,11 +247,12 @@
             {#each entities as {entity, label, fields: entityFields} (entity)}
               <div class="flex flex-col gap-2">
                 <h3 class="text-muted-foreground text-sm font-medium">{label}</h3>
-                <ul class="flex flex-col divide-y overflow-hidden rounded-lg border">
+                <!-- Rounds the end rows instead of overflow-hidden, which would clip the selected row's pointer. -->
+                <ul class="flex flex-col divide-y rounded-lg border [&>li:first-child>button]:rounded-t-lg [&>li:last-child>button]:rounded-b-lg">
                   {#each entityFields as field (field.key)}
                     {@const single = field.tasks.length === 1 ? field.tasks[0] : undefined}
                     {@const done = field.tasks.every(isDone)}
-                    <li>
+                    <li class="relative">
                       <ChoiceRow
                         data-field-key={field.key}
                         data-task-id={single?.id}
@@ -267,6 +268,11 @@
                           {#if done}{@render doneMark()}{/if}
                         {/snippet}
                       </ChoiceRow>
+                      {#if field.key === selectedField?.key && !IsMobile.value}
+                        <!-- Points at the language panel. Solid fill matching the row's translucent tint over the page. -->
+                        <span aria-hidden="true"
+                          class="absolute -end-2.5 top-1/2 size-5 -translate-y-1/2 rotate-45 border-t border-r bg-[color-mix(in_oklab,var(--primary)_10%,var(--background))] dark:bg-[color-mix(in_oklab,var(--primary)_20%,var(--background))] rtl:border-t-0 rtl:border-r-0 rtl:border-b rtl:border-l"></span>
+                      {/if}
                     </li>
                   {/each}
                 </ul>
