@@ -20,7 +20,11 @@
   import {tick} from 'svelte';
   import {watch} from 'runed';
 
-  let {onSelect, lastTaskId}: {onSelect: (taskId: string) => void, lastTaskId?: string} = $props();
+  type TaskOrigin = 'recent' | 'list';
+  let {onSelect, lastTask}: {
+    onSelect: (taskId: string, origin: TaskOrigin) => void,
+    lastTask?: {id: string, origin: TaskOrigin},
+  } = $props();
 
   const tasksService = useTasksService();
   const writingSystemService = useWritingSystemService();
@@ -45,12 +49,16 @@
     return writingSystems.find(ws => ws.wsId === task.subjectWritingSystemId);
   }
 
+  function fieldKey(task: Task): string {
+    return `${task.subjectType}:${task.subjectFields.join()}`;
+  }
+
   const fields = $derived.by(() => {
     const groups: Field[] = [];
     for (const task of tasksService.listTasks()) {
       // The editors hide audio writing systems when the feature is off, so there'd be nothing to fill in.
       if (writingSystemOf(task)?.isAudio && !features.audio) continue;
-      const key = `${task.subjectType}:${task.subjectFields.join()}`;
+      const key = fieldKey(task);
       let field = groups.find(f => f.key === key);
       if (!field) {
         field = {
@@ -80,16 +88,19 @@
     return remaining(task) === 0;
   }
 
-  // Desktop shows the first field's languages until the user picks one; phones drill in instead.
-  // A field with no writing system has nothing to choose, so its row starts the task itself.
+  // With only one language there's nothing to choose, so the field's row starts the task itself.
   function directTask(field: Field): Task | undefined {
-    return field.tasks.length === 1 && !field.tasks[0].subjectWritingSystemId ? field.tasks[0] : undefined;
+    return field.tasks.length === 1 ? field.tasks[0] : undefined;
   }
   const pickedField = $derived(fields.find(f => f.key === fieldParam.current && !directTask(f)));
-  const selectedField = $derived(pickedField ?? (IsMobile.value ? undefined : entities.flatMap(e => e.fields).find(f => !directTask(f))));
-  const drilledIn = $derived(IsMobile.value && !!selectedField);
+  const hasLanguageStep = $derived(fields.some(f => !directTask(f)));
+  const drilledIn = $derived(IsMobile.value && !!pickedField);
+  $effect(() => {
+    // A stale or hand-edited ?field= would otherwise linger in the URL with nothing selected.
+    if (fields.length && fieldParam.current && !pickedField) fieldParam.set('', {replace: true});
+  });
   const languageGroups = $derived.by(() => {
-    const tasks = selectedField?.tasks ?? [];
+    const tasks = pickedField?.tasks ?? [];
     const written = tasks.filter(task => !writingSystemOf(task)?.isAudio);
     const audio = tasks.filter(task => writingSystemOf(task)?.isAudio);
     if (!written.length || !audio.length) return [{label: '', tasks}];
@@ -100,7 +111,8 @@
   const recentIds = $derived(projectStorage.recentTasks.current.split(',').filter(Boolean));
   const recentTasks = $derived(recentIds
     .map(id => allTasks.find(task => task.id === id))
-    .filter((task): task is Task => !!task && !isDone(task))
+    // Waiting for the count keeps finished tasks from flashing up while stats load.
+    .filter((task): task is Task => !!task && remaining(task) !== undefined && !isDone(task))
     .slice(0, 3));
 
   let helpOpen = $state(false);
@@ -115,24 +127,53 @@
     void tick().then(() => focusFirst('#tasks-help-link'));
   }
 
-  function openTask(task: Task) {
-    void projectStorage.recentTasks.set([task.id, ...recentIds.filter(id => id !== task.id)].slice(0, 5).join());
+  function openTask(task: Task, origin: TaskOrigin) {
+    // Writing before the stored list has loaded would overwrite it.
+    if (!projectStorage.recentTasks.loading) {
+      const ids = [task.id, ...recentIds.filter(id => id !== task.id && allTasks.some(t => t.id === id))];
+      void projectStorage.recentTasks.set(ids.slice(0, 5).join());
+    }
     // Once tasks have been used the card has done its job, and it would push Recent down.
     if (!projectStorage.tasksHelpDismissed.current) dismissHelp();
-    onSelect(task.id);
+    onSelect(task.id, origin);
+  }
+
+  function pickField(field: Field, event: MouseEvent) {
+    // Desktop just swaps the panel, so Back should leave the page rather than step through every field viewed.
+    fieldParam.set(field.key, {replace: !IsMobile.value});
+    // event.detail is 0 for keyboard activation. Otherwise keyboard users tab past every remaining field to reach the languages.
+    if (!IsMobile.value && event.detail === 0) void tick().then(() => focusFirst('#task-languages-heading'));
   }
 
   let container = $state<HTMLElement>();
-  function focusFirst(selector: string) {
-    [...container?.querySelectorAll<HTMLElement>(selector) ?? []].find(el => el.checkVisibility())?.focus();
+  function focusFirst(...selectors: string[]) {
+    for (const selector of selectors) {
+      const el = [...container?.querySelectorAll<HTMLElement>(selector) ?? []].find(el => el.checkVisibility());
+      if (el) return el.focus();
+    }
   }
-  watch(() => lastTaskId, () => {
-    if (lastTaskId) void tick().then(() => focusFirst(`[data-task-id="${lastTaskId}"]`));
+  watch(() => lastTask, () => {
+    if (!lastTask) return;
+    const recent = `[data-recent-task-id="${lastTask.id}"]`;
+    const row = `[data-task-id="${lastTask.id}"]`;
+    const task = allTasks.find(t => t.id === lastTask.id);
+    const fallback = task ? `[data-field-key="${fieldKey(task)}"]` : '#task-list-heading';
+    void tick().then(() => focusFirst(...(lastTask.origin === 'recent' ? [recent, row] : [row, recent]), fallback));
   });
   watch(() => pickedField?.key, (key, previousKey) => {
     if (!IsMobile.value) return;
     void tick().then(() => focusFirst(key ? '#task-languages-heading' : `[data-field-key="${previousKey}"]`));
   }, {lazy: true});
+
+  // The language panel starts level with the selected row, so the row's pointer always lands on it.
+  let fieldColumn = $state<HTMLElement>();
+  let panelOffset = $state(0);
+  function measurePanelOffset() {
+    const row = pickedField && fieldColumn?.querySelector(`[data-field-key="${pickedField.key}"]`);
+    if (!row || !fieldColumn) return;
+    panelOffset = row.getBoundingClientRect().top - fieldColumn.getBoundingClientRect().top;
+  }
+  watch(() => [pickedField?.key, fieldColumn], () => void tick().then(measurePanelOffset));
 
   function remainingText(count: number): string {
     return pt(
@@ -172,7 +213,7 @@
 {#snippet languageRow(task: Task)}
   {@const ws = writingSystemOf(task)}
   <li>
-    <ChoiceRow starts data-task-id={task.id} class={isDone(task) ? 'text-muted-foreground' : ''} onclick={() => openTask(task)}>
+    <ChoiceRow starts data-task-id={task.id} aria-describedby="task-starts-hint" class={isDone(task) ? 'text-muted-foreground' : ''} onclick={() => openTask(task, 'list')}>
       <span class="font-medium">{#if ws}{@render wsName(ws)}{:else}{pt(task.prompt, viewService.currentView)}{/if}</span>
       {#if !isDone(task)}<span class="text-muted-foreground text-sm tabular-nums">{@render progress(task)}</span>{/if}
       {#snippet trailing()}
@@ -182,6 +223,8 @@
   </li>
 {/snippet}
 
+<svelte:window onresize={measurePanelOffset} />
+
 {#if stats.totalEntries === 0}
   <div class="flex flex-col items-start gap-3 px-4">
     <p class="text-muted-foreground">{pt($t`Add some entries first.`, $t`Add some words first.`, viewService.currentView)}</p>
@@ -189,14 +232,16 @@
   </div>
 {:else}
   <div class="flex max-w-[55.5rem] flex-col gap-8" bind:this={container}>
+    <span id="task-starts-hint" hidden>{$t`Starts the task`}</span>
     {#if !drilledIn}
       <div class="flex flex-col gap-4">
         <!-- Same disclosure link style as "What can a plugin do?" on the plugins page. -->
         <p class="text-muted-foreground">
           {$t`Fill in what's missing, a few at a time.`}
+          <!-- Plain primary is too dark to read as text on the dark background. -->
           <button id="tasks-help-link" type="button" aria-expanded={showHelp} aria-controls="tasks-help"
             onclick={() => showHelp ? closeHelp() : helpOpen = true}
-            class="text-primary inline-flex cursor-pointer items-center gap-1 font-medium whitespace-nowrap hover:underline">
+            class="text-primary inline-flex cursor-pointer items-center gap-1 font-medium whitespace-nowrap hover:underline dark:text-[color-mix(in_oklab,var(--primary)_70%,white)]">
             {$t`How tasks work`}
             <Icon icon="i-mdi-chevron-down" class="size-4 transition-transform {showHelp ? 'rotate-180' : ''}" />
           </button>
@@ -206,7 +251,7 @@
             <Card.Content class="flex flex-col items-start gap-3">
               <ol class="flex list-decimal flex-col gap-1 ps-5">
                 <li>{$t`Pick what's missing, like a Gloss or an Example sentence.`}</li>
-                <li>{$t`Pick the language to fill it in.`}</li>
+                <li>{$t`If there's more than one language, pick one.`}</li>
                 <li>{pt($t`You'll see the entries that need it, a few at a time. Fill them in or skip them.`, $t`You'll see the words that need it, a few at a time. Fill them in or skip them.`, viewService.currentView)}</li>
               </ol>
               <Button variant="secondary" size="sm" onclick={closeHelp}>{$t`Got it`}</Button>
@@ -223,7 +268,7 @@
             {#each recentTasks as task (task.id)}
               {@const ws = writingSystemOf(task)}
               <li>
-                <button type="button" data-task-id={task.id} onclick={() => openTask(task)}
+                <button type="button" data-recent-task-id={task.id} aria-describedby="task-starts-hint" onclick={() => openTask(task, 'recent')}
                   class="bg-card hover:bg-accent focus-visible:ring-ring/50 flex size-full items-center gap-3 rounded-lg border px-4 py-3 text-start focus-visible:ring-[3px] focus-visible:outline-none">
                   <span class="flex min-w-0 grow flex-col">
                     <!-- Field and language share a line on phones to keep the stacked tiles short. -->
@@ -243,10 +288,10 @@
     {/if}
 
     <section class="flex flex-col gap-3">
-      {#if !drilledIn}<h2 class="text-base font-semibold">{$t`All tasks`}</h2>{/if}
+      {#if !drilledIn}<h2 id="task-list-heading" tabindex="-1" class="text-base font-semibold outline-none">{$t`All tasks`}</h2>{/if}
       <div class="grid items-start gap-6 md:grid-cols-[minmax(0,18rem)_minmax(0,36rem)]">
         {#if !drilledIn}
-          <div class="flex flex-col gap-5">
+          <div class="flex flex-col gap-5" bind:this={fieldColumn}>
             {#each entities as {entity, label, fields: entityFields} (entity)}
               <div class="flex flex-col gap-2">
                 <h3 class="text-muted-foreground text-sm font-medium">{label}</h3>
@@ -255,16 +300,23 @@
                   {#each entityFields as field (field.key)}
                     {@const done = field.tasks.every(isDone)}
                     {@const direct = directTask(field)}
+                    {@const ws = direct && writingSystemOf(direct)}
+                    {@const selected = field.key === pickedField?.key}
                     <li class="relative">
                       <ChoiceRow
                         data-field-key={field.key}
                         data-task-id={direct?.id}
-                        selected={field.key === selectedField?.key}
+                        aria-describedby={direct ? 'task-starts-hint' : undefined}
+                        {selected}
                         starts={!!direct}
                         class={done ? 'text-muted-foreground' : ''}
-                        onclick={() => direct ? openTask(direct) : fieldParam.current = field.key}>
-                        <span class="font-medium">{field.label}</span>
-                        <span class="text-muted-foreground text-sm">{field.description}</span>
+                        onclick={(event) => direct ? openTask(direct, 'list') : pickField(field, event)}>
+                        <span class="flex flex-wrap items-baseline gap-x-2">
+                          <span class="font-medium">{field.label}</span>
+                          {#if ws}<span class="text-sm">{@render wsName(ws)}</span>{/if}
+                        </span>
+                        <!-- Muted grey is too light on the selected tint. -->
+                        <span class="text-sm {selected ? 'text-foreground/75' : 'text-muted-foreground'}">{field.description}</span>
                         {#if direct && !done}
                           <span class="text-muted-foreground text-sm tabular-nums">{@render progress(direct)}</span>
                         {/if}
@@ -272,10 +324,10 @@
                           {#if done}{@render doneMark()}{/if}
                         {/snippet}
                       </ChoiceRow>
-                      {#if field.key === selectedField?.key && !IsMobile.value}
+                      {#if selected && !IsMobile.value}
                         <!-- Points at the language panel. Solid fill matching the row's translucent tint over the page. -->
                         <span aria-hidden="true"
-                          class="absolute -end-2.5 top-1/2 size-5 -translate-y-1/2 rotate-45 border-t border-r bg-[color-mix(in_oklab,var(--primary)_10%,var(--background))] dark:bg-[color-mix(in_oklab,var(--primary)_20%,var(--background))] rtl:border-t-0 rtl:border-r-0 rtl:border-b rtl:border-l"></span>
+                          class="absolute -end-2.5 top-1/2 size-5 -translate-y-1/2 rotate-45 border-t border-r bg-[color-mix(in_oklab,var(--primary)_15%,var(--background))] dark:bg-[color-mix(in_oklab,var(--primary)_25%,var(--background))] rtl:border-t-0 rtl:border-r-0 rtl:border-b rtl:border-l"></span>
                       {/if}
                     </li>
                   {/each}
@@ -285,17 +337,18 @@
           </div>
         {/if}
 
-        {#if selectedField}
-          <!-- Tinted like the selected field row, to show the languages belong to it. -->
-          <!-- md:mt-7 = the left column's group heading plus its gap, so the panel starts level with the first row. -->
-          <div class="flex flex-col gap-4 md:sticky md:top-0 md:mt-7 md:rounded-lg md:border md:border-primary/25 md:bg-primary/5 md:p-4 md:dark:bg-primary/10">
+        {#if pickedField}
+          <!-- Tinted like the selected field row, to show the languages belong to it. Scrolls itself if taller than the view. -->
+          <div style:--panel-offset="{panelOffset}px"
+            class="flex flex-col gap-4 md:sticky md:top-0 md:mt-(--panel-offset) md:max-h-[calc(100dvh-6rem)] md:overflow-y-auto md:rounded-lg md:border md:border-primary/25 md:bg-primary/5 md:p-4 md:dark:bg-primary/10">
             <div class="flex items-start gap-1">
               {#if drilledIn}
-                <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" aria-label={$t`Back to fields`} onclick={() => fieldParam.current = ''} />
+                <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" aria-label={$t`Back to all tasks`} onclick={() => fieldParam.current = ''} />
               {/if}
               <div class="flex min-w-0 flex-wrap items-baseline gap-x-2">
-                <h3 id="task-languages-heading" tabindex="-1" class="text-base font-semibold outline-none">{selectedField.label}</h3>
-                <p class="text-muted-foreground text-sm">{selectedField.description}</p>
+                <h3 id="task-languages-heading" tabindex="-1" class="text-base font-semibold outline-none">{pickedField.label}</h3>
+                <!-- On desktop the selected row beside the panel already shows this. -->
+                {#if drilledIn}<p class="text-muted-foreground text-sm">{pickedField.description}</p>{/if}
               </div>
             </div>
             {#each languageGroups as group (group.label)}
@@ -309,6 +362,11 @@
               </div>
             {/each}
           </div>
+        {:else if hasLanguageStep && !IsMobile.value}
+          <!-- mt-7 = the first group heading plus its gap, so it starts level with the first row. -->
+          <p class="text-muted-foreground mt-7 rounded-lg border border-dashed p-4 text-sm">
+            {$t`Pick a field to see its languages.`}
+          </p>
         {/if}
       </div>
     </section>

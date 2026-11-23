@@ -3,9 +3,11 @@
   import type {Task} from './tasks-service';
   import ReviewList from './ReviewList.svelte';
   import {type TaskSubject} from './subject.svelte';
-  import {t} from 'svelte-i18n-lingui';
+  import {Icon} from '$lib/components/ui/icon';
+  import {plural, t} from 'svelte-i18n-lingui';
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
+  import {useTasksStats} from './tasks-stats.svelte';
 
   let {
     subjects,
@@ -15,12 +17,15 @@
     },
     onContinue = () => {
     },
+    onClose = () => {
+    },
   }: {
     subjects: TaskSubject[],
     allSubjects: TaskSubject[],
     task: Task,
     onFinish: () => void,
     onContinue: () => void,
+    onClose: () => void,
   } = $props();
 
   // Compute a larger flex-basis at the edges and smaller in the center.
@@ -46,25 +51,54 @@
   });
   let review = $state(false);
   const viewService = useViewService();
+  const statsResource = useTasksStats();
+  const remaining = $derived(statsResource.current.progress[task.id]?.remaining);
+  const taskComplete = $derived(remaining === 0);
+
+  function filledText(count: number): string {
+    return pt(
+      $plural(count, {one: 'You filled in # entry', other: 'You filled in # entries'}),
+      $plural(count, {one: 'You filled in # word', other: 'You filled in # words'}),
+      viewService.currentView);
+  }
+
+  function remainingText(count: number): string {
+    return pt(
+      $plural(count, {one: '# entry to go', other: '# entries to go'}),
+      $plural(count, {one: '# word to go', other: '# words to go'}),
+      viewService.currentView);
+  }
 </script>
 {#if !review}
-  <div class="flex flex-col items-center justify-center">
-    <h1 class="text-8xl pb-2">🎊</h1>
-    <h2 class="text-lg">{$t`You completed ${subjects.length} ${pt(task.subject, viewService.currentView)}`}</h2>
-    <div class="flex flex-wrap gap-2 justify-center mt-4 max-w-2xl">
-      {#each subjects as subject, index (subject)}
-        <span class="px-2 py-1 bg-primary text-primary-foreground rounded text-center min-w-max"
-              style="flex: 0 0 {basis[index]}%">
-          {subject.subject}
-        </span>
-      {/each}
+  <div class="flex grow flex-col md:justify-center">
+    <div class="flex flex-col items-center gap-2 p-4 text-center">
+      <Icon icon="i-mdi-check-circle-outline" class="text-primary size-12" />
+      {#if taskComplete}
+        <h2 class="text-xl font-semibold">{$t`This task is complete`}</h2>
+        <p class="text-muted-foreground">{filledText(subjects.length)}</p>
+      {:else}
+        <h2 class="text-xl font-semibold">{filledText(subjects.length)}</h2>
+        {#if remaining}
+          <p class="text-muted-foreground tabular-nums">{remainingText(remaining)}</p>
+        {/if}
+      {/if}
+      <div class="flex flex-wrap gap-2 justify-center mt-2 max-w-2xl">
+        {#each subjects as subject, index (subject)}
+          <span class="px-2 py-1 bg-primary text-primary-foreground rounded text-center min-w-max"
+                style="flex: 0 0 {basis[index]}%">
+            {subject.subject}
+          </span>
+        {/each}
+      </div>
     </div>
-  </div>
-  <div class="grow"></div>
-  <div class="px-4 pt-4 pb-2 flex flex-col gap-2 self-stretch">
-    <p>{$t`Do you want to:`}</p>
-    <Button variant="secondary" onclick={onContinue}>{$t`Keep going`}</Button>
-    <Button autofocus onclick={() => review = true}>{$t`Review`}</Button>
+    <div class="grow md:hidden"></div>
+    <div class="px-4 pt-4 pb-2 flex flex-col gap-2 self-stretch md:self-center md:w-full md:max-w-sm">
+      {#if !taskComplete}
+        <Button autofocus onclick={onContinue}>{$t`Keep going`}</Button>
+      {/if}
+      <Button variant={taskComplete ? 'default' : 'outline'} autofocus={taskComplete} icon="i-mdi-arrow-left" onclick={onClose}>{$t`Back to tasks`}</Button>
+      <Button variant="ghost" onclick={() => review = true}>{$t`Review what you filled in`}</Button>
+    </div>
   </div>
 {:else}
   <ReviewList subjects={allSubjects} onFinish={() => onFinish()}></ReviewList>

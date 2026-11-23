@@ -22,7 +22,8 @@
   {...rest}
   class={cn(
     'relative flex w-full items-center overflow-hidden gap-3 px-4 py-3 text-start hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50',
-    selected && 'bg-primary/10 dark:bg-primary/20',
+    // Same tint as a selected ListItem, kept on hover so it never drops to the plain hover grey.
+    selected && 'bg-primary/15 hover:bg-primary/15 dark:bg-primary/25 dark:hover:bg-primary/25',
     className,
   )}
 >

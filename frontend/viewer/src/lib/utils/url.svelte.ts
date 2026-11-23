@@ -29,13 +29,18 @@ export class QueryParamState {
   #waitingForHistoryChange: boolean = false;
 
   public set current(value: string) {
+    this.set(value);
+  }
+
+  /** `replace` overrides `allowBack` for this one change. */
+  public set(value: string, {replace = false}: {replace?: boolean} = {}): void {
     if (value === this.#current) return;
     //history events don't trigger popstate, so we need to set the value directly
     this.#current = value;
-    void this.updateHistory();
+    void this.updateHistory(this.config.allowBack && !replace);
   }
 
-  private async updateHistory(): Promise<void> {
+  private async updateHistory(allowBack = this.config.allowBack): Promise<void> {
     const isDefault = this.#current === this.defaultValue;
     this.#waitingForHistoryChange = true;
     await queueHistoryChange(() => {
@@ -47,10 +52,10 @@ export class QueryParamState {
           currentUrl.searchParams.set(this.config.key, this.#current);
         }
         if (this.config.replaceOnDefaultValue && isDefault) {
-          if (this.config.allowBack) {
+          if (allowBack) {
             if (!this.isOnTopOfHistoryStack()) {
-              console.warn(`${this.fullKey}: wanted to pop history, but not on top of history stack. Pushing new state instead so change is applied.`);
-              history.pushState(null, '', currentUrl.href);
+              // e.g. after a reload or deep link: pushing would leave Back returning to the value we just cleared.
+              history.replaceState(null, '', currentUrl.href);
               return;
             }
             //the last history event was pushed by us so we need to just go back otherwise the next back will do nothing
@@ -60,7 +65,7 @@ export class QueryParamState {
             history.replaceState(null, '', currentUrl.href);
           }
         } else {
-          if (this.config.allowBack) {
+          if (allowBack) {
             history.pushState({pushKey: this.fullKey}, '', currentUrl.href);
           } else {
             history.replaceState(null, '', currentUrl.href);

@@ -26,15 +26,18 @@
 
   const selectedTask = $derived(tasksService.listTasks().find(task => task.id === openTask.current));
 
-  function selectTask(taskId: string) {
+  let lastOrigin: 'recent' | 'list' = 'list';
+  function selectTask(taskId: string, origin: 'recent' | 'list') {
+    lastOrigin = origin;
     openTask.current = taskId;
   }
   function closeTask() {
     openTask.current = '';
   }
-  let lastTaskId = $state<string>();
-  watch(() => openTask.current, (current, previous) => {
-    if (!current && previous) lastTaskId = previous;
+  let lastTask = $state<{id: string, origin: 'recent' | 'list'}>();
+  // pre, so the remounting list already has it when its own watch first runs.
+  watch.pre(() => openTask.current, (current, previous) => {
+    if (!current && previous) lastTask = {id: previous, origin: lastOrigin};
   });
 
   function writingSystemOf(task: Task): IWritingSystem | undefined {
@@ -92,7 +95,7 @@
     {#if openTask.current}
       <TaskView taskId={openTask.current} onClose={closeTask}/>
     {:else}
-      <TaskList onSelect={selectTask} {lastTaskId} />
+      <TaskList onSelect={selectTask} {lastTask} />
     {/if}
   </ViewErrorBoundary>
 </div>

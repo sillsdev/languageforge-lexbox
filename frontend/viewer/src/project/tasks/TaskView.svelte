@@ -28,6 +28,7 @@
   const task = $derived(tasksService.listTasks().find(task => task.id === taskId));
   watch(() => taskId, () => {
     completedSubjects = [];
+    allCompletedSubjects = [];
     showDone = false;
   });
   let entry = $state<IEntry>();
@@ -40,6 +41,10 @@
   let allCompletedSubjects = $state<TaskSubject[]>([]);
 
   function onDone() {
+    if (allCompletedSubjects.length === 0) {
+      onClose();
+      return;
+    }
     showDone = true;
   }
   function onContinue() {
@@ -57,7 +62,6 @@
         </details>
       </DevContent>
       {#if entryCount === 0}
-        <!-- Already-done state: calm and centered, distinct from DoneView's confetti (which celebrates active completion). -->
         <div class="flex grow flex-col items-center justify-center gap-3 p-4 text-center">
           <Icon icon="i-mdi-check-circle-outline" class="text-primary size-16" />
           <h1 class="text-xl font-semibold">{$t`This task is complete`}</h1>
@@ -93,11 +97,12 @@
         {/if}
       </div>
     {:else}
-      <DoneView subjects={completedSubjects}
+      <DoneView subjects={completedSubjects.length ? completedSubjects : allCompletedSubjects}
                 allSubjects={allCompletedSubjects}
                 {task}
                 onFinish={() => onClose()}
-                onContinue={onContinue}
+                {onContinue}
+                {onClose}
       />
     {/if}
   {:else}
