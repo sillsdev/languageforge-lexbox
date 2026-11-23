@@ -1820,6 +1820,10 @@ msgstr "Bidang"
 msgid "Fields"
 msgstr "Medan"
 
+#: src/project/SyncDialog.svelte
+msgid "FieldWorks Classic (in Lexbox)"
+msgstr ""
+
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite mengumpul data penggunaan untuk membantu kami memperbaikinya."
@@ -1848,10 +1852,6 @@ msgstr "Versi FieldWorks Lite"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
-
-#: src/project/SyncDialog.svelte
-msgid "FieldWorks Send/Receive (on Lexbox)"
-msgstr ""
 
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/plugin-api-adapter.ts
@@ -3716,10 +3716,6 @@ msgstr ""
 msgid "Runs in a sandbox, separate from the app"
 msgstr ""
 
-#: src/project/sync/SyncMethodList.svelte
-msgid "Runs on Lexbox, not with FieldWorks on this computer"
-msgstr ""
-
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
@@ -4174,6 +4170,10 @@ msgstr "Segerak selesai. {0} telah digunakan pada FieldWorks Classic. {1} telah 
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Segerakkan FieldWorks Lite dan FieldWorks Classic"
+
+#: src/project/sync/SyncMethodList.svelte
+msgid "Sync FieldWorks Lite and FieldWorks Classic in Lexbox"
+msgstr ""
 
 #: src/home/OpenFromFolderItem.svelte
 msgid "Sync now"
