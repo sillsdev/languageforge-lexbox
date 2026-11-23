@@ -239,6 +239,35 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CanFilterToMissingTranslationText()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations.Text[en]=" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingTranslationText_AndSearch()
+    {
+        var results = await Api.SearchEntries(Banana, new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations.Text[en]=" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana);
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingTranslationTextInOtherWritingSystem()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations.Text[fr]=" })).ToArrayAsync();
+        //Kiwi's example is translated, just not into fr
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana, Kiwi);
+    }
+
+    [Fact]
+    public async Task CanFilterTranslationTextContains()
+    {
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations.Text[en]=*translation" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Kiwi);
+    }
+
+    [Fact]
     public async Task CanFilterToMissingSemanticDomains()
     {
         var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.SemanticDomains=null" })).ToArrayAsync();

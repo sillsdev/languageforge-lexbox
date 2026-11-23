@@ -80,6 +80,7 @@ public static class GridifyFilterDocs
         public override Expression<Func<Entry, object?>> EntrySensesExampleSentences => Field;
         public override Expression<Func<Entry, string, object>> EntrySensesExampleSentencesSentence => WsField;
         public override Expression<Func<Entry, object?>> EntrySensesExampleSentencesTranslations => Field;
+        public override Expression<Func<Entry, string, object>> EntrySensesExampleSentencesTranslationsText => WsField;
         public override Expression<Func<Entry, object?>> EntrySensesPartOfSpeechId => Field;
         public override Expression<Func<Entry, object?>> EntrySenses => Field;
         public override Expression<Func<Entry, string, object>> EntrySensesGloss => WsField;

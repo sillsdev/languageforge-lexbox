@@ -12,6 +12,8 @@ public abstract class EntryFilterMapProvider<T>
     public abstract Expression<Func<T, string, object>> EntrySensesExampleSentencesSentence { get; }
     public abstract Expression<Func<T, object?>> EntrySensesExampleSentencesTranslations { get; }
     public virtual Func<string, object>? EntrySensesExampleSentencesTranslationsConverter { get; } = null;
+    //one value per example sentence: the text of all its translations in the writing system, joined
+    public abstract Expression<Func<T, string, object>> EntrySensesExampleSentencesTranslationsText { get; }
     public abstract Expression<Func<T, object?>> EntrySensesPartOfSpeechId { get; }
     public abstract Expression<Func<T, object?>> EntrySenses { get; }
     public abstract Expression<Func<T, string, object>> EntrySensesGloss { get; }

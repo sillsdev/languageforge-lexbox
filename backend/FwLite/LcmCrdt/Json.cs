@@ -224,6 +224,12 @@ public static class Json
         return guid?.ToString() ?? "";
     }
 
+    [Sql.Expression("(select group_concat(s.value->>'Text', '') from json_each({0}) as t, json_each(t.value->'Text'->{1}->'Spans') as s)", ServerSideOnly = true)]
+    public static string? TranslationsPlainText(IEnumerable<Translation>? translations, string ws)
+    {
+        throw new NotImplementedException("only supported server side");
+    }
+
     //Json.Value's path walker can't handle a key captured from an outer json_each row; use At for that.
     [Sql.Expression("{0}->>{1}", ServerSideOnly = true)]
     public static string? At(MultiString value, string key)
