@@ -16,13 +16,12 @@
   import SemanticDomainSelect from './filter/SemanticDomainSelect.svelte';
   import PartOfSpeechSelect from './filter/PartOfSpeechSelect.svelte';
   import PublicationSelect from './filter/PublicationSelect.svelte';
-  import MorphTypeSelect from './filter/MorphTypeSelect.svelte';
+  import MorphTypeSelect, {WORDS_AND_PHRASES} from './filter/MorphTypeSelect.svelte';
   import type {MultiFilterSelection} from '$lib/activity/utils';
   import {watch} from 'runed';
   import {Icon} from '$lib/components/ui/icon';
   import Label from '$lib/components/ui/label/label.svelte';
   import type {ISemanticDomain, IPartOfSpeech, IPublication} from '$lib/dotnet-types';
-  import {MorphTypeKind} from '$lib/dotnet-types';
   import {Switch} from '$lib/components/ui/switch';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
@@ -67,15 +66,8 @@
     inputRef?.select();
   }
 
-  const LITE_MORPHEME_TYPES: string[] = [
-    MorphTypeKind.Root, MorphTypeKind.BoundRoot,
-    MorphTypeKind.Stem, MorphTypeKind.BoundStem,
-    MorphTypeKind.Particle,
-    MorphTypeKind.Phrase, MorphTypeKind.DiscontiguousPhrase,
-  ];
-
   function viewDefaultMorphTypes(): MultiFilterSelection {
-    return viewService.currentView.base === ViewBase.FwLite ? [...LITE_MORPHEME_TYPES] : 'all';
+    return viewService.currentView.base === ViewBase.FwLite ? [...WORDS_AND_PHRASES] : 'all';
   }
 
   // Views act as presets: switching view replaces the morph type filter, even one the user cleared
@@ -263,8 +255,7 @@
           </div>
           <div class="flex flex-col">
             <Label class="p-2">{$t`Morph type`}</Label>
-            <MorphTypeSelect bind:value={morphTypes} describedBy={showLiteMorphHint ? 'lite-morph-hint' : undefined}
-              selectionLabel={showLiteMorphHint ? $t`Words and phrases` : undefined} />
+            <MorphTypeSelect bind:value={morphTypes} describedBy={showLiteMorphHint ? 'lite-morph-hint' : undefined} />
             {#if showLiteMorphHint}
               <p id="lite-morph-hint" class="flex items-center gap-1 text-xs text-muted-foreground mt-1 px-1">
                 <Icon icon="i-mdi-information-outline" class="size-3.5 shrink-0" />

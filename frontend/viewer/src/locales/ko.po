@@ -4973,7 +4973,9 @@ msgstr "단어 또는 의미:"
 msgid "words"
 msgstr ""
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/MorphTypeSelect.svelte
+#: src/project/browse/filter/MorphTypeSelect.svelte
+#: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "Words and phrases"
 msgstr ""
 

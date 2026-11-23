@@ -4968,7 +4968,9 @@ msgstr "Word or meaning:"
 msgid "words"
 msgstr "words"
 
-#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/MorphTypeSelect.svelte
+#: src/project/browse/filter/MorphTypeSelect.svelte
+#: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "Words and phrases"
 msgstr "Words and phrases"
 
