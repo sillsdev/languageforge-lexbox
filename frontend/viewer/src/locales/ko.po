@@ -511,10 +511,6 @@ msgstr "모든 활동 유형"
 msgid "All authors"
 msgstr "모든 저자"
 
-#: src/project/browse/filter/CommentSelect.svelte
-msgid "All entries"
-msgstr ""
-
 #: src/project/browse/filter/MorphTypeSelect.svelte
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "All morph types"
@@ -4934,6 +4930,10 @@ msgstr "왜 그럴까요?"
 
 #: src/project/browse/filter/CommentSelect.svelte
 msgid "With comments"
+msgstr ""
+
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With or without comments"
 msgstr ""
 
 #: src/project/browse/filter/CommentSelect.svelte

@@ -511,10 +511,6 @@ msgstr "Semua jenis aktiviti"
 msgid "All authors"
 msgstr "Semua pengarang"
 
-#: src/project/browse/filter/CommentSelect.svelte
-msgid "All entries"
-msgstr ""
-
 #: src/project/browse/filter/MorphTypeSelect.svelte
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "All morph types"
@@ -4934,6 +4930,10 @@ msgstr "Mengapa begitu?"
 
 #: src/project/browse/filter/CommentSelect.svelte
 msgid "With comments"
+msgstr ""
+
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With or without comments"
 msgstr ""
 
 #: src/project/browse/filter/CommentSelect.svelte

@@ -511,10 +511,6 @@ msgstr "Tous les types d'activité"
 msgid "All authors"
 msgstr "Tous les auteurs"
 
-#: src/project/browse/filter/CommentSelect.svelte
-msgid "All entries"
-msgstr ""
-
 #: src/project/browse/filter/MorphTypeSelect.svelte
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "All morph types"
@@ -4934,6 +4930,10 @@ msgstr "Pourquoi?"
 
 #: src/project/browse/filter/CommentSelect.svelte
 msgid "With comments"
+msgstr ""
+
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With or without comments"
 msgstr ""
 
 #: src/project/browse/filter/CommentSelect.svelte

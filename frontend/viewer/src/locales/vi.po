@@ -511,10 +511,6 @@ msgstr "Tất cả các loại hoạt động"
 msgid "All authors"
 msgstr "Tất cả các tác giả"
 
-#: src/project/browse/filter/CommentSelect.svelte
-msgid "All entries"
-msgstr ""
-
 #: src/project/browse/filter/MorphTypeSelect.svelte
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "All morph types"
@@ -4934,6 +4930,10 @@ msgstr "Tại sao vậy?"
 
 #: src/project/browse/filter/CommentSelect.svelte
 msgid "With comments"
+msgstr ""
+
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With or without comments"
 msgstr ""
 
 #: src/project/browse/filter/CommentSelect.svelte

@@ -23,7 +23,7 @@
     {#if selected}
       {selected.label}
     {:else}
-      <span class="text-muted-foreground">{$t`All entries`}</span>
+      <span class="text-muted-foreground">{$t`With or without comments`}</span>
     {/if}
   </Select.Trigger>
   <Select.Content>
