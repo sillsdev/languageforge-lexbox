@@ -126,7 +126,7 @@
   }
 
   .chip {
-    @apply max-w-48 bg-primary/10 text-primary hover:bg-primary/20;
+    @apply max-w-[min(12rem,100%)] bg-primary/10 text-primary hover:bg-primary/20;
   }
 
   .chip-plain {
