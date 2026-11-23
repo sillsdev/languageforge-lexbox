@@ -81,8 +81,12 @@
   }
 
   // Desktop shows the first field's languages until the user picks one; phones drill in instead.
-  const pickedField = $derived(fields.find(f => f.key === fieldParam.current));
-  const selectedField = $derived(pickedField ?? (IsMobile.value ? undefined : entities[0]?.fields[0]));
+  // A field with no writing system has nothing to choose, so its row starts the task itself.
+  function directTask(field: Field): Task | undefined {
+    return field.tasks.length === 1 && !field.tasks[0].subjectWritingSystemId ? field.tasks[0] : undefined;
+  }
+  const pickedField = $derived(fields.find(f => f.key === fieldParam.current && !directTask(f)));
+  const selectedField = $derived(pickedField ?? (IsMobile.value ? undefined : entities.flatMap(e => e.fields).find(f => !directTask(f))));
   const drilledIn = $derived(IsMobile.value && !!selectedField);
   const languageGroups = $derived.by(() => {
     const tasks = selectedField?.tasks ?? [];
@@ -168,7 +172,7 @@
 {#snippet languageRow(task: Task)}
   {@const ws = writingSystemOf(task)}
   <li>
-    <ChoiceRow data-task-id={task.id} class={isDone(task) ? 'text-muted-foreground' : ''} onclick={() => openTask(task)}>
+    <ChoiceRow starts data-task-id={task.id} class={isDone(task) ? 'text-muted-foreground' : ''} onclick={() => openTask(task)}>
       <span class="font-medium">{#if ws}{@render wsName(ws)}{:else}{pt(task.prompt, viewService.currentView)}{/if}</span>
       {#if !isDone(task)}<span class="text-muted-foreground text-sm tabular-nums">{@render progress(task)}</span>{/if}
       {#snippet trailing()}
@@ -250,14 +254,20 @@
                 <ul class="flex flex-col divide-y rounded-lg border [&>li:first-child>button]:rounded-t-lg [&>li:last-child>button]:rounded-b-lg">
                   {#each entityFields as field (field.key)}
                     {@const done = field.tasks.every(isDone)}
+                    {@const direct = directTask(field)}
                     <li class="relative">
                       <ChoiceRow
                         data-field-key={field.key}
+                        data-task-id={direct?.id}
                         selected={field.key === selectedField?.key}
+                        starts={!!direct}
                         class={done ? 'text-muted-foreground' : ''}
-                        onclick={() => fieldParam.current = field.key}>
+                        onclick={() => direct ? openTask(direct) : fieldParam.current = field.key}>
                         <span class="font-medium">{field.label}</span>
                         <span class="text-muted-foreground text-sm">{field.description}</span>
+                        {#if direct && !done}
+                          <span class="text-muted-foreground text-sm tabular-nums">{@render progress(direct)}</span>
+                        {/if}
                         {#snippet trailing()}
                           {#if done}{@render doneMark()}{/if}
                         {/snippet}

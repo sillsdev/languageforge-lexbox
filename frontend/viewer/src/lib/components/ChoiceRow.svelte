@@ -6,11 +6,13 @@
 
   type Props = HTMLButtonAttributes & {
     selected?: boolean;
+    /** Starts something (play icon) rather than leading to a next step (chevron). */
+    starts?: boolean;
     trailing?: Snippet;
     children: Snippet;
   };
 
-  const {selected = false, trailing, children, class: className, ...rest}: Props = $props();
+  const {selected = false, starts = false, trailing, children, class: className, ...rest}: Props = $props();
 </script>
 
 <!-- A row in a bordered divide-y group, for choosing what to do next (not for data rows like entries). -->
@@ -31,8 +33,8 @@
   <span class="flex min-w-0 grow flex-col">{@render children()}</span>
   {@render trailing?.()}
   <Icon
-    icon="i-mdi-chevron-right"
-    class={cn('shrink-0 rtl:rotate-180', selected ? 'text-primary' : 'text-muted-foreground')}
+    icon={starts ? 'i-mdi-play' : 'i-mdi-chevron-right'}
+    class={cn('shrink-0', !starts && 'rtl:rotate-180', selected || starts ? 'text-primary' : 'text-muted-foreground')}
     aria-hidden="true"
   />
 </button>
