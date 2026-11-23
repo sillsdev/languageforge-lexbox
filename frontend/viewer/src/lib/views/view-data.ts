@@ -1,12 +1,20 @@
 import type {EntityFields, EntityType, EntryFieldId, ExampleFieldId, FieldId, SenseFieldId} from './entity-config';
 
-import {ViewBase, type ICustomView, type IViewField} from '$lib/dotnet-types';
+import {MorphTypeKind, ViewBase, type ICustomView, type IViewField} from '$lib/dotnet-types';
 import type {Merge} from 'type-fest';
 
 export interface TypedViewField<T extends FieldId> extends IViewField {
   fieldId: T;
   show: boolean;
 }
+
+/** The Lite view only lists entries of these morph types */
+export const liteMorphTypes: ReadonlySet<MorphTypeKind> = new Set([
+  MorphTypeKind.Root, MorphTypeKind.BoundRoot,
+  MorphTypeKind.Stem, MorphTypeKind.BoundStem,
+  MorphTypeKind.Particle,
+  MorphTypeKind.Phrase, MorphTypeKind.DiscontiguousPhrase,
+]);
 
 export type View = Merge<Omit<ICustomView, 'deletedAt'>, {
   entryFields: TypedViewField<EntryFieldId>[];

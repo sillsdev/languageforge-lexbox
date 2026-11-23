@@ -1,12 +1,12 @@
 <script lang="ts">
   import * as Editor from '$lib/components/editor';
-  import type {IEntry} from '$lib/dotnet-types';
+  import {ViewBase, type IEntry} from '$lib/dotnet-types';
   import {objectTemplateAreas, useViewService} from '$lib/views/view-service.svelte';
   import {fieldRecord} from '$lib/views/view-data';
   import {entityConfig, type EntryFieldId} from '../../views/entity-config';
   import {cn} from '$lib/utils';
   import {useComplexFormTypes, usePublications, useWritingSystemService} from '$project/data';
-  import {MultiSelect, MultiWsInput, RichMultiWsInput} from '$lib/components/field-editors';
+  import {MultiSelect, MultiWsInput, RichMultiWsInput, Select} from '$lib/components/field-editors';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
   import ComplexForms from '../field-editors/ComplexForms.svelte';
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
@@ -15,6 +15,7 @@
   import type {Snippet} from 'svelte';
   import {tvt} from '$lib/views/view-text';
   import {t} from 'svelte-i18n-lingui';
+  import {useMorphTypesService} from '$project/data/morph-types.svelte';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     entry: IEntry;
@@ -23,7 +24,9 @@
     modalMode?: boolean;
     onchange?: (entry: IEntry, field: EntryFieldId) => void;
     publishInDescription?: Snippet;
+    /** Replaces the read-only morph type the Classic view shows */
     morphTypeField?: Snippet;
+    lexemeFormNote?: Snippet;
   }
 
   const {
@@ -34,6 +37,7 @@
     modalMode = false,
     publishInDescription,
     morphTypeField,
+    lexemeFormNote,
     ...rest
   }: Props = $props();
 
@@ -41,6 +45,7 @@
   const complexFormTypes = useComplexFormTypes();
   const publications = usePublications();
   const viewService = useViewService();
+  const morphTypes = useMorphTypesService();
   initSubjectContext(() => entry);
 
   function onFieldChanged(field: EntryFieldId) {
@@ -49,8 +54,11 @@
 
   const entryFields = $derived(viewService.currentView.entryFields);
   const fields = $derived(fieldRecord(entryFields));
+  // Morph type is only set when creating an entry; changing it later is how FLEx data gets inconsistent
+  const showMorphType = $derived(!!morphTypeField || (!modalMode && viewService.currentView.base === ViewBase.FieldWorks));
+  const morphType = $derived(morphTypes.current.find(mt => mt.kind === entry.morphType));
   const layoutFields = $derived(entryFields.flatMap((field) =>
-    field.fieldId === 'lexemeForm' && morphTypeField ? [field, {fieldId: 'morphType', show: true}] : [field]));
+    field.fieldId === 'lexemeForm' && showMorphType ? [field, {fieldId: 'morphType', show: true}] : [field]));
 </script>
 
 <Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas(layoutFields) } })}>
@@ -64,13 +72,23 @@
           {autofocus}
           writingSystems={writingSystemService.viewVernacular(viewService.currentView)} />
     </Editor.Field.Body>
+    {#if lexemeFormNote}
+      <Editor.Field.Body>
+        {@render lexemeFormNote()}
+      </Editor.Field.Body>
+    {/if}
   </Editor.Field.Root>
 
-  {#if morphTypeField}
-    <Editor.Field.Root style="grid-area: morphType">
+  {#if showMorphType}
+    <Editor.Field.Root style="grid-area: morphType" data-testid="morph-type-field">
       <Editor.Field.Title name={$t`Morph type`} />
       <Editor.Field.Body>
-        {@render morphTypeField()}
+        {#if morphTypeField}
+          {@render morphTypeField()}
+        {:else}
+          <Select readonly value={morphType} options={morphType ? [morphType] : []} idSelector="id"
+            labelSelector={(mt) => writingSystemService.pickBestAlternative(mt.name, 'analysis') || mt.kind} />
+        {/if}
       </Editor.Field.Body>
     </Editor.Field.Root>
   {/if}

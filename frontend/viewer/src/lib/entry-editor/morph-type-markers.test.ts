@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {MorphTypeKind as K} from '$lib/dotnet-types';
-import {findMorphType, stripMarkers} from './morph-type-markers';
+import {findMorphType, fitsMorphType, hasLeftoverMarkers, stripMarkers} from './morph-type-markers';
 
 // FLEx's canonical markers (MiniLcm CanonicalMorphTypes)
 const morphTypes = [
@@ -38,7 +38,10 @@ describe('findMorphType', () => {
     ['=a=', K.Simulfix, 'a'],
     ['~a~', K.Suprafix, 'a'],
     ['*bound', K.BoundStem, 'bound'],
-    ['-', K.Stem, '-'],
+    ['--s', K.Suffix, '-s'],
+    ['-', K.Suffix, ''],
+    ['*', K.BoundStem, ''],
+    ['~', K.Suprafix, ''],
     ['', K.Stem, ''],
   ])('%j is %s, stored as %j', (form, kind, stored) => {
     const match = findMorphType(form, morphTypes);
@@ -52,6 +55,27 @@ describe('findMorphType', () => {
 
   it('treats unmarked forms as stems before the morph types have loaded', () => {
     expect(findMorphType('walk', [])).toMatchObject({valid: true, kind: K.Stem});
+  });
+
+  it.each([
+    [K.Root, K.Stem, true],
+    [K.Particle, K.Phrase, true],
+    [K.BoundRoot, K.BoundStem, true],
+    [K.SuffixingInterfix, K.Suffix, true],
+    [K.Suffix, K.Stem, false],
+    [K.Root, K.BoundStem, false],
+  ])('a form detected as %s fits %s: %s', (chosen, detected, fits) => {
+    expect(fitsMorphType(chosen, detected)).toBe(fits);
+  });
+
+  it.each([
+    ['s', false],
+    ['', false],
+    ['-s', true],
+    ['s=', true],
+    ['*s-', true],
+  ])('stored form %j has leftover markers: %s', (stored, leftover) => {
+    expect(hasLeftoverMarkers(stored, morphTypes)).toBe(leftover);
   });
 
   it('uses the project\'s own markers', () => {

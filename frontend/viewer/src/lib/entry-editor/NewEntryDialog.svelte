@@ -30,7 +30,8 @@
   import AddSenseButton from './object-editors/AddSenseButton.svelte';
   import {Select} from '$lib/components/field-editors';
   import {useMorphTypesService} from '$project/data/morph-types.svelte';
-  import {findMorphType, stripMarkers} from './morph-type-markers';
+  import {findMorphType, fitsMorphType, hasLeftoverMarkers, stripMarkers} from './morph-type-markers';
+  import {liteMorphTypes} from '$lib/views/view-data';
   import type {ReadonlyDeep} from 'type-fest';
 
   let open = $state(false);
@@ -99,17 +100,41 @@
     lastDetectedKind = detectedMorphType.valid ? detectedMorphType.kind : undefined;
   }
 
-  // The entry as it will be stored: markers stripped from the lexeme form
-  function toStoredEntry(entry: IEntry): IEntry {
-    if (!pickMorphType) return {...entry, morphType: MorphTypeKind.Stem};
-    const lexemeForm = {...entry.lexemeForm};
-    for (const ws of writingSystemService.vernacularNoAudio) {
-      const form = lexemeForm[ws.wsId];
-      if (form) lexemeForm[ws.wsId] = stripMarkers(form, findMorphType(form, morphTypes.current));
+  // Lite has no picker, so the markers alone decide
+  const morphTypeKind = $derived(pickMorphType ? entry.morphType
+    : detectedMorphType.valid ? detectedMorphType.kind : MorphTypeKind.Stem);
+
+  type LexemeFormCheck = {stored: string, error?: string, warning?: string};
+  // As strict as FLEx's dialog, so we never store a form FLEx would refuse
+  function checkLexemeForm(form: string): LexemeFormCheck {
+    const match = findMorphType(form, morphTypes.current);
+    const stored = stripMarkers(form, match);
+    if (!pickMorphType && (!match.valid || !liteMorphTypes.has(match.kind))) {
+      const marker = match.leading || match.trailing;
+      return {stored, error: $t`Words can't start or end with "${marker}". To add affixes, switch to the FieldWorks Classic view.`};
     }
-    return {...entry, lexemeForm};
+    if (!match.valid) {
+      return {stored, error: $t`The markers in "${form}" don't fit any morph type. Check the start and end of the word.`};
+    }
+    if (!fitsMorphType(morphTypeKind, match.kind)) {
+      const label = selectedMorphType ? morphTypeLabel(selectedMorphType) : morphTypeKind;
+      return {stored, error: $t`"${form}" doesn't match the morph type ${label}.`};
+    }
+    if (hasLeftoverMarkers(stored, morphTypes.current)) {
+      return {stored, warning: $t`"${form}" will be saved as "${stored}". Is there an extra marker?`};
+    }
+    return {stored};
   }
-  const storedEntry = $derived(toStoredEntry(entry));
+  const lexemeFormChecks = $derived(writingSystemService.vernacularNoAudio
+    .map(ws => entry.lexemeForm[ws.wsId]?.trim() ? {wsId: ws.wsId, ...checkLexemeForm(entry.lexemeForm[ws.wsId])} : undefined)
+    .filter(check => !!check));
+
+  // The entry as it will be stored: markers stripped from the lexeme form
+  const storedEntry = $derived.by(() => {
+    const lexemeForm = {...entry.lexemeForm};
+    for (const check of lexemeFormChecks) lexemeForm[check.wsId] = check.stored;
+    return {...entry, lexemeForm, morphType: morphTypeKind};
+  });
 
   async function createEntry(e: Event) {
     e.preventDefault();
@@ -125,7 +150,7 @@
       entry.senses = sense ? [sense] : [];
       if (!validateEntry()) return;
 
-      const entrySnapshot = toStoredEntry($state.snapshot(entry));
+      const entrySnapshot = $state.snapshot(storedEntry);
       // The dialog pre-populates publishIn (main publication + any active filter), so always create the entry as-is.
       await saveHandler.handleSave(() => api.createEntry(entrySnapshot, createEntryOptions.asIs));
       requester.resolve(entrySnapshot);
@@ -139,14 +164,7 @@
   let errors: string[] = $state([]);
   function validateEntry(): boolean {
     errors = [];
-    if (pickMorphType) {
-      for (const ws of writingSystemService.vernacularNoAudio) {
-        const form = entry.lexemeForm[ws.wsId];
-        if (form && !findMorphType(form, morphTypes.current).valid) {
-          errors.push($t`FieldWorks doesn't recognize the affix markers in "${form}". Remove them or choose a morph type.`);
-        }
-      }
-    }
+    if (lexemeFormChecks.some(check => check.error)) return false; // already shown under the lexeme form
     // Allow entries with only an audio lexeme-form or citation-form to be created
     if (!(writingSystemService.first(storedEntry.lexemeForm) ?? writingSystemService.first(entry.citationForm))) {
       errors.push(pt($t`Lexeme form or Citation form is required`, $t`Word or Display as is required`, viewService.currentView));
@@ -250,6 +268,16 @@
   <span class="sr-only" aria-live="polite">{morphTypeAnnouncement}</span>
 {/snippet}
 
+{#snippet lexemeFormNote()}
+  {#each lexemeFormChecks as check (check.wsId)}
+    {#if check.error}
+      <p class="text-sm text-destructive">{check.error}</p>
+    {:else if check.warning}
+      <p class="text-sm text-amber-700 dark:text-amber-300">{check.warning}</p>
+    {/if}
+  {/each}
+{/snippet}
+
 {#snippet publishInNote()}
   {#if publishInIsFromTemplate}{@render fromActiveFilter()}{/if}
 {/snippet}
@@ -276,7 +304,8 @@
           <Editor.Grid>
             <EntryEditorPrimitive bind:entry autofocus modalMode
               publishInDescription={entryTemplate?.publishIn?.length ? publishInNote : undefined}
-              morphTypeField={pickMorphType ? morphTypeField : undefined} />
+              morphTypeField={pickMorphType ? morphTypeField : undefined}
+              lexemeFormNote={lexemeFormChecks.some(check => check.error || check.warning) ? lexemeFormNote : undefined} />
             {#if sense}
               <Editor.SubGrid>
                 <ObjectHeader type="sense">
