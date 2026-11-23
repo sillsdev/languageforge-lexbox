@@ -157,6 +157,10 @@ msgstr ""
 msgid "{0} MB"
 msgstr "{0} MB"
 
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "{0} morph types"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
 msgstr "{0} 답글"
@@ -502,6 +506,11 @@ msgstr "모든 활동 유형"
 msgid "All authors"
 msgstr "모든 저자"
 
+#: src/project/browse/filter/MorphTypeSelect.svelte
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "All morph types"
+msgstr ""
+
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Allow and run it"
 msgstr ""
@@ -548,6 +557,10 @@ msgstr "분석 기능이 비활성화되어 있습니다."
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any grammatical info."
 msgstr "모든 문법 정보."
+
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "Any morph type"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Any grammatical info."
@@ -668,7 +681,6 @@ msgstr "뒤로"
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
-#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/plugins/studio/StudioNotice.svelte
 msgid "Back to plugins"
@@ -706,6 +718,7 @@ msgstr "베스트 매치"
 msgid "blue"
 msgstr "파란색"
 
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Breadcrumb"
 msgstr ""
@@ -3267,6 +3280,7 @@ msgstr ""
 msgid "plugins"
 msgstr ""
 
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/project/ProjectSidebar.svelte
@@ -3997,6 +4011,10 @@ msgstr "보기 {0} 더보기..."
 
 #: src/lib/plugins/PluginsView.svelte
 msgid "Show fewer examples"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Show only morph types"
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte

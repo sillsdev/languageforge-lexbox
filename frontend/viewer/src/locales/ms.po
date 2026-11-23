@@ -157,6 +157,10 @@ msgstr ""
 msgid "{0} MB"
 msgstr "{0} MB"
 
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "{0} morph types"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
 msgstr "{0} balasan"
@@ -502,6 +506,11 @@ msgstr "Semua jenis aktiviti"
 msgid "All authors"
 msgstr "Semua pengarang"
 
+#: src/project/browse/filter/MorphTypeSelect.svelte
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "All morph types"
+msgstr ""
+
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Allow and run it"
 msgstr ""
@@ -548,6 +557,10 @@ msgstr "Analitik telah dimatikan."
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any grammatical info."
 msgstr "Mana-mana maklumat tatabahasa."
+
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "Any morph type"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Any grammatical info."
@@ -668,7 +681,6 @@ msgstr "Balik"
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
-#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/plugins/studio/StudioNotice.svelte
 msgid "Back to plugins"
@@ -706,6 +718,7 @@ msgstr "Padanan terbaik"
 msgid "blue"
 msgstr "biru"
 
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Breadcrumb"
 msgstr ""
@@ -3267,6 +3280,7 @@ msgstr ""
 msgid "plugins"
 msgstr ""
 
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/project/ProjectSidebar.svelte
@@ -3997,6 +4011,10 @@ msgstr "Tunjukkan {0} lagi..."
 
 #: src/lib/plugins/PluginsView.svelte
 msgid "Show fewer examples"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Show only morph types"
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
