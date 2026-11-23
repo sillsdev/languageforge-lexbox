@@ -8,10 +8,11 @@
 
   let {value = $bindable(), wsType}: { value: string[], wsType: WritingSystemSelection | undefined } = $props();
   let writingSystems = $derived(wsType ? wsService.pickWritingSystems(wsType) : []);
-  watch(() => writingSystems, () => {
-    const available = writingSystems.map(ws => ws.wsId);
+  watch(() => writingSystems, (current, previous) => {
+    const available = current.map(ws => ws.wsId);
+    const hadAll = !!previous?.length && value.length === previous.length;
     // The popover remounts this, which must not undo the user's narrowed choice
-    if (value.length && value.every(id => available.includes(id))) return;
+    if (!hadAll && value.length && value.every(id => available.includes(id))) return;
     value = available;
   });
 </script>
