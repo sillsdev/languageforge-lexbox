@@ -88,6 +88,7 @@
     return selection === 'all' ? '' : [...selection].sort().join();
   }
   const morphTypesAtDefault = $derived(morphFilterKey(morphTypes) === morphFilterKey(viewDefaultMorphTypes()));
+  const showLiteMorphHint = $derived(morphTypesAtDefault && viewService.currentView.base === ViewBase.FwLite);
 
   $effect(() => {
     let newFilter: string[] = [];
@@ -211,7 +212,7 @@
         }}
       >
         {#snippet titleActions()}
-          <Button variant="ghost" size="sm" icon="i-mdi-filter-remove-outline" onclick={resetFilters} disabled={!canReset}>
+          <Button variant="ghost" size="sm" icon="i-mdi-filter-remove-outline" onclick={resetFilters} disabled={!canReset} title={$t`Reset to view defaults`}>
             {$t`Reset`}
           </Button>
         {/snippet}
@@ -260,8 +261,13 @@
             <PublicationSelect bind:value={publication} />
           </div>
           <div class="flex flex-col">
-            <Label class="p-2">{$t`Show only morph types`}</Label>
-            <MorphTypeSelect bind:value={morphTypes} />
+            <Label class="p-2">{$t`Morph type`}</Label>
+            <MorphTypeSelect bind:value={morphTypes} describedBy={showLiteMorphHint ? 'lite-morph-hint' : undefined} />
+            {#if showLiteMorphHint}
+              <p id="lite-morph-hint" class="text-sm text-muted-foreground mt-1.5 px-2">
+                {$t`The Lite view hides affixes and clitics. Choose All morph types to show them.`}
+              </p>
+            {/if}
           </div>
           <div class="flex flex-col">
             <Label class="p-2">{$t`Incomplete entries`}</Label>

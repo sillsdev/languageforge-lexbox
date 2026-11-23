@@ -2623,6 +2623,7 @@ msgstr "morph type"
 
 #: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
 #: src/lib/plugins/plugin-api-adapter.ts
+#: src/project/browse/SearchFilter.svelte
 msgid "Morph type"
 msgstr "Morph type"
 
@@ -3671,6 +3672,10 @@ msgstr "Requires"
 msgid "Reset"
 msgstr "Reset"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Reset to view defaults"
+msgstr "Reset to view defaults"
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
@@ -4008,10 +4013,6 @@ msgstr "Show {0} more..."
 msgid "Show fewer examples"
 msgstr "Show fewer examples"
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Show only morph types"
-msgstr "Show only morph types"
-
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
 msgid "Show or hide captions"
 msgstr "Show or hide captions"
@@ -4305,6 +4306,10 @@ msgstr "The *FieldWorks Lite* view is designed for non-linguists and differs fro
 #: src/project/sync/folder-sync-messages.ts
 msgid "The copy of {0} in this folder didn't come from the same original as the copy on this device, so the two can't be combined. Choose another folder."
 msgstr "The copy of {0} in this folder didn't come from the same original as the copy on this device, so the two can't be combined. Choose another folder."
+
+#: src/project/browse/SearchFilter.svelte
+msgid "The Lite view hides affixes and clitics. Choose All morph types to show them."
+msgstr "The Lite view hides affixes and clitics. Choose All morph types to show them."
 
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to change the dictionary"
