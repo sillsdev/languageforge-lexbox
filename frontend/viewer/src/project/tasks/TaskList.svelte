@@ -106,6 +106,15 @@
     void projectStorage.tasksHelpDismissed.set('true');
   }
 
+  function openHelp() {
+    helpOpen = true;
+    void tick().then(() => focusFirst('#tasks-help-title'));
+  }
+  function closeHelp() {
+    dismissHelp();
+    void tick().then(() => focusFirst('#tasks-help-link'));
+  }
+
   function openTask(task: Task) {
     void projectStorage.recentTasks.set([task.id, ...recentIds.filter(id => id !== task.id)].slice(0, 5).join());
     // Once tasks have been used the card has done its job, and it would push Recent down.
@@ -164,17 +173,11 @@
   </span>
 {/snippet}
 
-{#snippet taskRow(task: Task, withField: boolean)}
+{#snippet languageRow(task: Task)}
   {@const ws = writingSystemOf(task)}
   <li>
     <ChoiceRow data-task-id={task.id} class={isDone(task) ? 'text-muted-foreground' : ''} onclick={() => openTask(task)}>
-      <span class="flex flex-wrap items-baseline gap-x-2 font-medium">
-        {#if withField}
-          {text(taskLabel(task))}
-          {#if ws}<span aria-hidden="true" class="text-muted-foreground">·</span>{/if}
-        {/if}
-        {#if ws}{@render wsName(ws)}{/if}
-      </span>
+      <span class="font-medium">{#if ws}{@render wsName(ws)}{/if}</span>
       {#if !isDone(task)}<span class="text-muted-foreground text-sm tabular-nums">{@render progress(task)}</span>{/if}
       {#snippet trailing()}
         {#if isDone(task)}{@render doneMark()}{/if}
@@ -192,16 +195,16 @@
   <div class="flex max-w-[55.5rem] flex-col gap-8" bind:this={container}>
     {#if !drilledIn}
       <div class="flex flex-col gap-4">
-        <div class="flex items-center gap-1">
+        <div class="flex flex-wrap items-baseline gap-x-2">
           <p class="text-muted-foreground">{$t`Fill in what's missing, a few at a time.`}</p>
           {#if !showHelp}
-            <Button variant="ghost" size="icon-sm" icon="i-mdi-help-circle-outline" aria-label={$t`How tasks work`} onclick={() => helpOpen = true} />
+            <Button id="tasks-help-link" variant="link" size="sm" class="h-auto p-0" onclick={openHelp}>{$t`How tasks work`}</Button>
           {/if}
         </div>
         {#if showHelp}
           <Card.Root class="gap-3 py-4">
             <Card.Header>
-              <Card.Title>{$t`How tasks work`}</Card.Title>
+              <Card.Title id="tasks-help-title" tabindex={-1} class="outline-none">{$t`How tasks work`}</Card.Title>
             </Card.Header>
             <Card.Content class="flex flex-col items-start gap-3">
               <ol class="flex list-decimal flex-col gap-1 ps-5">
@@ -209,17 +212,29 @@
                 <li>{$t`Pick the language to fill it in.`}</li>
                 <li>{pt($t`You'll see the entries that need it, a few at a time. Fill them in or skip them.`, $t`You'll see the words that need it, a few at a time. Fill them in or skip them.`, viewService.currentView)}</li>
               </ol>
-              <Button variant="secondary" size="sm" onclick={dismissHelp}>{$t`Got it`}</Button>
+              <Button variant="secondary" size="sm" onclick={closeHelp}>{$t`Got it`}</Button>
             </Card.Content>
           </Card.Root>
         {/if}
       </div>
       {#if recentTasks.length}
         <section class="flex flex-col gap-3">
-          <h2 class="text-base font-semibold">{$t`Recent`}</h2>
-          <ul class="flex flex-col divide-y overflow-hidden rounded-lg border">
+          <h2 class="flex items-center gap-1.5 text-base font-semibold">
+            <Icon icon="i-mdi-history" class="text-muted-foreground size-4" />{$t`Recent`}
+          </h2>
+          <ul class="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-3">
             {#each recentTasks as task (task.id)}
-              {@render taskRow(task, true)}
+              {@const ws = writingSystemOf(task)}
+              <li>
+                <button type="button" data-task-id={task.id} onclick={() => openTask(task)}
+                  class="bg-card hover:bg-accent focus-visible:ring-ring/50 flex size-full flex-col rounded-lg border px-4 py-3 text-start focus-visible:ring-[3px] focus-visible:outline-none">
+                  <span class="flex flex-wrap items-baseline gap-x-2 font-medium">
+                    {text(taskLabel(task))}
+                    {#if ws}<span aria-hidden="true" class="text-muted-foreground">·</span>{@render wsName(ws)}{/if}
+                  </span>
+                  <span class="text-muted-foreground text-sm tabular-nums">{@render progress(task)}</span>
+                </button>
+              </li>
             {/each}
           </ul>
         </section>
@@ -263,12 +278,14 @@
         {/if}
 
         {#if selectedField}
-          <div class="flex flex-col gap-4 md:sticky md:top-0">
+          <!-- Tinted like the selected field row, to show the languages belong to it. -->
+          <div class="flex flex-col gap-4 md:sticky md:top-0 md:rounded-lg md:border md:border-primary/25 md:bg-primary/5 md:p-4 md:dark:bg-primary/10">
             <div class="flex items-start gap-1">
               {#if drilledIn}
                 <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" aria-label={$t`Back to fields`} onclick={() => fieldParam.current = ''} />
               {/if}
               <div class="flex min-w-0 flex-col">
+                <p class="text-muted-foreground text-sm font-medium">{entities.find(e => e.entity === selectedField.entity)?.label}</p>
                 <h3 id="task-languages-heading" tabindex="-1" class="text-base font-semibold outline-none">{selectedField.label}</h3>
                 <p class="text-muted-foreground text-sm">{selectedField.description}</p>
               </div>
@@ -276,9 +293,9 @@
             {#each languageGroups as group (group.label)}
               <div class="flex flex-col gap-2">
                 {#if group.label}<h4 class="text-muted-foreground text-sm font-medium">{group.label}</h4>{/if}
-                <ul class="flex flex-col divide-y overflow-hidden rounded-lg border">
+                <ul class="bg-background flex flex-col divide-y overflow-hidden rounded-lg border">
                   {#each group.tasks as task (task.id)}
-                    {@render taskRow(task, false)}
+                    {@render languageRow(task)}
                   {/each}
                 </ul>
               </div>
