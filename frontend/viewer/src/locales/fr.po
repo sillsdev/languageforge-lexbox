@@ -2341,6 +2341,10 @@ msgstr "Lumière"
 msgid "List mode"
 msgstr "Mode liste"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Lite view hides affixes and clitics."
+msgstr ""
+
 #. Field name shown in advanced/classic view
 #. The literal meaning of the vernacular translated into the analysis language
 #. Contrasts with glosses/definitions in the analysis language
@@ -4014,6 +4018,10 @@ msgstr "Afficher"
 msgid "Show {0} more..."
 msgstr "Afficher {0} plus..."
 
+#: src/project/browse/SearchFilter.svelte
+msgid "Show all"
+msgstr ""
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "Show fewer examples"
 msgstr ""
@@ -4310,10 +4318,6 @@ msgstr "La vue *FieldWorks Lite* est conçue pour les non-linguistes et diffère
 
 #: src/project/sync/folder-sync-messages.ts
 msgid "The copy of {0} in this folder didn't come from the same original as the copy on this device, so the two can't be combined. Choose another folder."
-msgstr ""
-
-#: src/project/browse/SearchFilter.svelte
-msgid "The Lite view hides affixes and clitics. Choose All morph types to show them."
 msgstr ""
 
 #: src/lib/plugins/studio/panels/VersionReview.svelte

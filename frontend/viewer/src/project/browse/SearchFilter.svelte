@@ -19,6 +19,7 @@
   import MorphTypeSelect from './filter/MorphTypeSelect.svelte';
   import type {MultiFilterSelection} from '$lib/activity/utils';
   import {watch} from 'runed';
+  import {Icon} from '$lib/components/ui/icon';
   import Label from '$lib/components/ui/label/label.svelte';
   import type {ISemanticDomain, IPartOfSpeech, IPublication} from '$lib/dotnet-types';
   import {MorphTypeKind} from '$lib/dotnet-types';
@@ -264,8 +265,10 @@
             <Label class="p-2">{$t`Morph type`}</Label>
             <MorphTypeSelect bind:value={morphTypes} describedBy={showLiteMorphHint ? 'lite-morph-hint' : undefined} />
             {#if showLiteMorphHint}
-              <p id="lite-morph-hint" class="text-sm text-muted-foreground mt-1.5 px-2">
-                {$t`The Lite view hides affixes and clitics. Choose All morph types to show them.`}
+              <p id="lite-morph-hint" class="flex items-center gap-1 text-xs text-muted-foreground mt-1 px-1">
+                <Icon icon="i-mdi-information-outline" class="size-3.5 shrink-0" />
+                {$t`Lite view hides affixes and clitics.`}
+                <button type="button" class="underline hover:text-foreground" onclick={() => morphTypes = 'all'}>{$t`Show all`}</button>
               </p>
             {/if}
           </div>
