@@ -19,12 +19,15 @@
   aria-current={selected || undefined}
   {...rest}
   class={cn(
-    'flex w-full items-center gap-3 px-4 py-3 text-start hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50',
-    selected &&
-      'bg-primary/10 dark:bg-primary/20 shadow-[inset_4px_0_0_var(--primary)] rtl:shadow-[inset_-4px_0_0_var(--primary)]',
+    'relative flex w-full items-center gap-3 px-4 py-3 text-start hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50',
+    selected && 'bg-primary/10 dark:bg-primary/20',
     className,
   )}
 >
+  {#if selected}
+    <!-- Inset from the ends so it never bends around a rounded first or last row. -->
+    <span aria-hidden="true" class="bg-primary absolute inset-y-2 start-0 w-1 rounded-e-full"></span>
+  {/if}
   <span class="flex min-w-0 grow flex-col">{@render children()}</span>
   {@render trailing?.()}
   <Icon
