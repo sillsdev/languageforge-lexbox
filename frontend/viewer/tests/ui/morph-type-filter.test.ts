@@ -10,7 +10,7 @@ test('Lite morph type preset follows the view and Reset', async ({page}) => {
   const hint = page.getByText('This view shows only whole words and phrases.');
   const resetButton = page.getByRole('button', {name: 'Reset'});
   function morphTypeTrigger(name: string) {
-    return page.getByRole('button', {name, exact: true});
+    return page.getByRole('button', {name: `Morph type ${name}`, exact: true});
   }
 
   await test.step('Lite starts with the words-and-phrases preset', async () => {

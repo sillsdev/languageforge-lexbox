@@ -10,7 +10,8 @@
 
   const ALL = '__all__';
 
-  let {value = $bindable(), describedBy}: {value: MorphTypeFilter, describedBy?: string} = $props();
+  let {value = $bindable(), labelledBy, describedBy}: {value: MorphTypeFilter, labelledBy?: string, describedBy?: string} = $props();
+  const triggerId = $props.id();
 
   const morphTypesService = useMorphTypesService();
   const wsService = useWritingSystemService();
@@ -67,7 +68,8 @@
 {/snippet}
 
 <Select.Root type="multiple" value={selectValue} {onValueChange}>
-  <Select.Trigger class="flex-1" aria-describedby={describedBy}>
+  <!-- Labelled by the label plus itself, so the selection stays part of the name -->
+  <Select.Trigger id={triggerId} class="flex-1" aria-labelledby={labelledBy ? `${labelledBy} ${triggerId}` : undefined} aria-describedby={describedBy}>
     {#if allCheck === 'all' || selected.length === 0}
       <span class="text-muted-foreground">{$t`Any morph type`}</span>
     {:else if selectedGroup}

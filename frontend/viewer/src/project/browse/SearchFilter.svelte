@@ -29,6 +29,7 @@
   import Hotkey from '$lib/components/hotkey/hotkey.svelte';
   import {useFeatures} from '$lib/services/feature-service';
 
+  const uid = $props.id();
   const features = useFeatures();
   const stats = useProjectStats();
   const viewService = useViewService();
@@ -252,10 +253,11 @@
             <PublicationSelect bind:value={publication} />
           </div>
           <div class="flex flex-col">
-            <Label class="p-2">{$t`Morph type`}</Label>
-            <MorphTypeSelect bind:value={morphTypes} describedBy={showLiteMorphHint ? 'lite-morph-hint' : undefined} />
+            <Label id="{uid}-morph-type-label" class="p-2">{$t`Morph type`}</Label>
+            <MorphTypeSelect bind:value={morphTypes} labelledBy="{uid}-morph-type-label"
+              describedBy={showLiteMorphHint ? `${uid}-lite-morph-hint` : undefined} />
             {#if showLiteMorphHint}
-              <p id="lite-morph-hint" class="flex items-center gap-1 text-xs text-muted-foreground mt-1 px-1">
+              <p id="{uid}-lite-morph-hint" class="flex items-center gap-1 text-xs text-muted-foreground mt-1 px-1">
                 <Icon icon="i-mdi-information-outline" class="size-3.5 shrink-0" />
                 {$t`This view shows only whole words and phrases.`}
                 <button type="button" class="underline hover:text-foreground" onclick={() => morphTypes = 'all'}>{$t`Show all`}</button>
