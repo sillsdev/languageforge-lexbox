@@ -185,15 +185,7 @@
   function validateEntry(): boolean {
     errors = [];
     submitted = true;
-    if (blocked) {
-      // Errors show under their inputs, except for writing systems this view hides
-      const shown = new Set(writingSystemService.viewVernacular(viewService.currentView).map(ws => ws.wsId));
-      for (const [wsId, note] of Object.entries(allNotes)) {
-        const ws = writingSystemService.vernacularNoAudio.find(ws => ws.wsId === wsId);
-        if (!shown.has(wsId) && note.severity === 'error') errors.push(`${ws?.abbreviation ?? wsId}: ${note.message}`);
-      }
-      return false;
-    }
+    if (blocked) return false; // shown under the lexeme form
     // Allow entries with only an audio lexeme-form or citation-form to be created
     if (!(writingSystemService.first(storedEntry.lexemeForm) ?? writingSystemService.first(entry.citationForm))) {
       errors.push(pt($t`Lexeme form or Citation form is required`, $t`Word or Display as is required`, viewService.currentView));
