@@ -78,10 +78,13 @@
     if (settledKind.current && !WORDS_AND_PHRASES.includes(settledKind.current)) affixTyped = true;
   });
 
-  // The markers only override a picked type they contradict, so a picked root survives typing but "-ed" makes a suffix
+  // The markers only override a picked type they contradict, so a picked root survives typing but "-ed" makes a suffix.
+  // A picked circumfix stays too: typing its left part ("a-") reads as a prefix.
   let morphTypeAnnouncement = $state('');
   $effect(() => {
-    if (!detectedKind || fitsMorphType(untrack(() => entry.morphType), detectedKind)) return;
+    if (!detectedKind) return;
+    const chosen = untrack(() => entry.morphType);
+    if (chosen === MorphTypeKind.Circumfix || fitsMorphType(chosen, detectedKind)) return;
     entry.morphType = detectedKind;
     const morphType = morphTypes.byKind(detectedKind);
     morphTypeAnnouncement = $t`Morph type: ${morphType ? morphTypeLabel(morphType, writingSystemService) : detectedKind}`;
@@ -107,6 +110,8 @@
     switch (problem?.kind) {
       case undefined:
         return undefined;
+      case 'unsupportedMorphType':
+        return {message: $t`The markers in "${form}" belong to a morph type FieldWorks Lite can't create yet.`, severity: 'error'};
       case 'unmatchedMarkers': {
         const {leading, trailing} = problem;
         const message = leading && trailing
@@ -128,9 +133,11 @@
         return {message: $t`"${form}" will be saved as "${stored}". Is there an extra "${problem.marker}"?`, severity: 'warning'};
     }
   }
-  const allNotes = $derived(Object.fromEntries(Object.entries(lexemeFormChecks)
-    .map(([wsId, check]) => [wsId, toNote(entry.lexemeForm[wsId], check)])
-    .filter(([, note]) => note)));
+  const allNotes: Record<string, WsInputNote> = $derived(Object.fromEntries(Object.entries(lexemeFormChecks)
+    .flatMap(([wsId, check]) => {
+      const note = toNote(entry.lexemeForm[wsId], check);
+      return note ? [[wsId, note] as const] : [];
+    })));
   // Notes wait for a pause in typing, so "~a" doesn't flash an error before the closing "~" is typed
   const allNotesKey = $derived(JSON.stringify(allNotes));
   const settledNotesKey = new Debounced(() => allNotesKey, 600);
@@ -178,7 +185,15 @@
   function validateEntry(): boolean {
     errors = [];
     submitted = true;
-    if (blocked) return false; // shown under the lexeme form
+    if (blocked) {
+      // Errors show under their inputs, except for writing systems this view hides
+      const shown = new Set(writingSystemService.viewVernacular(viewService.currentView).map(ws => ws.wsId));
+      for (const [wsId, note] of Object.entries(allNotes)) {
+        const ws = writingSystemService.vernacularNoAudio.find(ws => ws.wsId === wsId);
+        if (!shown.has(wsId) && note.severity === 'error') errors.push(`${ws?.abbreviation ?? wsId}: ${note.message}`);
+      }
+      return false;
+    }
     // Allow entries with only an audio lexeme-form or citation-form to be created
     if (!(writingSystemService.first(storedEntry.lexemeForm) ?? writingSystemService.first(entry.citationForm))) {
       errors.push(pt($t`Lexeme form or Citation form is required`, $t`Word or Display as is required`, viewService.currentView));

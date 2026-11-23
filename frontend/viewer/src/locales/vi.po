@@ -4357,6 +4357,10 @@ msgstr "Chế độ xem *FieldWorks Lite* được thiết kế cho người kh�
 msgid "The copy of {0} in this folder didn't come from the same original as the copy on this device, so the two can't be combined. Choose another folder."
 msgstr ""
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "The markers in \"{0}\" belong to a morph type FieldWorks Lite can't create yet."
+msgstr ""
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to change the dictionary"
 msgstr ""

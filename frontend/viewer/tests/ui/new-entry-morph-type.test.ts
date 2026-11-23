@@ -78,6 +78,13 @@ test.describe('New entry morph type', () => {
     await dialog.getByRole('button', {name: /create entry/i}).click();
     await expect(dialog.getByText(`"zed" doesn't match the morph type suffix. Type "-zed" instead.`)).toBeVisible();
     await expect(lexemeInput(dialog, 1)).toBeFocused();
+
+    await lexemeInput(dialog, 1).fill('');
+    await morphTypeSelect(dialog).click();
+    await page.getByRole('option', {name: 'circumfix', exact: true}).click();
+    await lexemeInput(dialog).fill('');
+    await lexemeInput(dialog).pressSequentially('a- -b');
+    await expect(morphTypeSelect(dialog)).toHaveText('circumfix');
   });
 
   test('lite view shows the morph type picker only once an affix is typed', async ({page}) => {

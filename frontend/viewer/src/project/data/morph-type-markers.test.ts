@@ -84,6 +84,19 @@ describe('morph type markers', () => {
     expect(checkLexemeForm(form, chosen, morphTypes)).toEqual(check);
   });
 
+  it('keeps an interfix that has its own markers', () => {
+    const custom = [{kind: K.Stem}, {kind: K.Prefix, postfix: '-'}, {kind: K.PrefixingInterfix, postfix: '+'}];
+    expect(findMorphType('ed+', custom)).toMatchObject({valid: true, kind: K.PrefixingInterfix});
+    expect(findMorphType('ed-', custom)).toMatchObject({valid: true, kind: K.Prefix});
+  });
+
+  it('rejects the markers of morph types FW Lite does not know', () => {
+    const custom = [{kind: K.Stem}, {kind: K.Unknown, prefix: '%'}];
+    expect(findMorphType('%ed', custom)).toMatchObject({valid: false, unsupported: true});
+    expect(checkLexemeForm('%ed', K.Stem, custom).problem).toEqual({kind: 'unsupportedMorphType'});
+    expect(findMorphType('%', custom)).toMatchObject({valid: false, unsupported: true});
+  });
+
   it('uses the project\'s own markers', () => {
     const custom = [{kind: K.Stem}, {kind: K.Suffix, prefix: '--'}];
     const match = findMorphType('--ed', custom);

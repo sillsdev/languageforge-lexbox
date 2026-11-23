@@ -4,7 +4,7 @@ type MarkerSource = Pick<IMorphType, 'kind' | 'prefix' | 'postfix'>;
 
 export type MorphTypeMatch =
   | {valid: true, kind: MorphTypeKind, leading: string, trailing: string}
-  | {valid: false, leading: string, trailing: string};
+  | {valid: false, leading: string, trailing: string, unsupported?: boolean};
 
 // FLEx can't tell these apart by markers, so it picks the common type (liblcm MorphServices.FindMorphType)
 const ambiguousToDefault: Partial<Record<MorphTypeKind, MorphTypeKind>> = {
@@ -28,11 +28,21 @@ function longest(markers: string[]): string {
   return markers.reduce((a, b) => b.length > a.length ? b : a, '');
 }
 
+function sameMarkers(a: MarkerSource, b: MarkerSource): boolean {
+  return (a.prefix ?? '') === (b.prefix ?? '') && (a.postfix ?? '') === (b.postfix ?? '');
+}
+
+// Like FLEx, but only while the common type still shares the markers: a project can give e.g. interfixes their own
+function detectedKind(match: MarkerSource, morphTypes: MarkerSource[]): MorphTypeKind {
+  const common = morphTypes.find(mt => mt.kind === ambiguousToDefault[match.kind]);
+  return common && sameMarkers(common, match) ? common.kind : match.kind;
+}
+
 // FLEx's GetTypeIfMatchesPrefix: typing just "-" already means suffix
 function loneMarkerType(form: string, morphTypes: MarkerSource[]): MorphTypeKind | undefined {
-  const matches = morphTypes.filter(mt => mt.prefix === form);
+  const matches = morphTypes.filter(mt => mt.prefix === form && mt.kind !== MorphTypeKind.Unknown);
   const match = matches.find(mt => !mt.postfix) ?? matches[0];
-  return match && normalize(match.kind);
+  return match && detectedKind(match, morphTypes);
 }
 
 /** Mirrors FLEx's InsertEntryDlg: detects the morph type from affix markers like `-ed`, `re-` or `*bound`. */
@@ -46,7 +56,9 @@ export function findMorphType(form: string, morphTypes: MarkerSource[]): MorphTy
     .filter(p => p && trimmed.length > p.length && trimmed.endsWith(p)));
   const match = morphTypes.find(mt => (mt.prefix ?? '') === leading && (mt.postfix ?? '') === trailing);
   if (!match && (leading || trailing)) return {valid: false, leading, trailing};
-  let kind = match ? normalize(match.kind) : MorphTypeKind.Stem;
+  // A project's own morph types have no kind FW Lite can create entries with
+  if (match?.kind === MorphTypeKind.Unknown) return {valid: false, leading, trailing, unsupported: true};
+  let kind = match ? detectedKind(match, morphTypes) : MorphTypeKind.Stem;
   if (kind === MorphTypeKind.Stem && trimmed.includes(' ')) kind = MorphTypeKind.Phrase;
   return {valid: true, kind, leading, trailing};
 }
@@ -65,6 +77,7 @@ export function fitsMorphType(chosen: MorphTypeKind, detected: MorphTypeKind): b
 
 export type LexemeFormProblem =
   | {kind: 'unmatchedMarkers', leading: string, trailing: string}
+  | {kind: 'unsupportedMorphType'}
   | {kind: 'incompleteCircumfix'}
   | {kind: 'mismatch'}
   | {kind: 'leftoverMarker', marker: string};
@@ -79,7 +92,10 @@ export type LexemeFormCheck = {stored: string, problem?: LexemeFormProblem};
 export function checkLexemeForm(form: string, chosen: MorphTypeKind, morphTypes: MarkerSource[]): LexemeFormCheck {
   const match = findMorphType(form, morphTypes);
   const stored = stripMarkers(form, match);
-  if (!match.valid) return {stored, problem: {kind: 'unmatchedMarkers', leading: match.leading, trailing: match.trailing}};
+  if (!match.valid) {
+    return {stored, problem: match.unsupported ? {kind: 'unsupportedMorphType'}
+      : {kind: 'unmatchedMarkers', leading: match.leading, trailing: match.trailing}};
+  }
   if (!fitsMorphType(chosen, match.kind)) return {stored, problem: {kind: 'mismatch'}};
   if (chosen === MorphTypeKind.Circumfix && !isCompleteCircumfix(stored, morphTypes)) {
     return {stored, problem: {kind: 'incompleteCircumfix'}};
