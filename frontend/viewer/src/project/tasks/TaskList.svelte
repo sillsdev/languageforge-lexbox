@@ -165,15 +165,20 @@
     void tick().then(() => focusFirst(key ? '#task-languages-heading' : `[data-field-key="${previousKey}"]`));
   }, {lazy: true});
 
-  // The language panel starts level with the selected row, so the row's pointer always lands on it.
+  // The language panel starts level with the selected row, so the row's pointer always lands on it,
+  // but never hangs past the end of the list and stretches the page.
   let fieldColumn = $state<HTMLElement>();
+  let panel = $state<HTMLElement>();
+  let listHeight = $state(0);
+  let panelHeight = $state(0);
   let panelOffset = $state(0);
-  function measurePanelOffset() {
+  // Heights are read directly, not from the bindings: those lag a frame behind a newly picked field.
+  watch([() => pickedField?.key, () => listHeight, () => panelHeight], () => {
     const row = pickedField && fieldColumn?.querySelector(`[data-field-key="${pickedField.key}"]`);
-    if (!row || !fieldColumn) return;
-    panelOffset = row.getBoundingClientRect().top - fieldColumn.getBoundingClientRect().top;
-  }
-  watch(() => [pickedField?.key, fieldColumn], () => void tick().then(measurePanelOffset));
+    if (!row || !fieldColumn || !panel) return;
+    const rowTop = row.getBoundingClientRect().top - fieldColumn.getBoundingClientRect().top;
+    panelOffset = Math.max(0, Math.min(rowTop, fieldColumn.offsetHeight - panel.offsetHeight));
+  });
 
   function remainingText(count: number): string {
     return pt(
@@ -222,8 +227,6 @@
     </ChoiceRow>
   </li>
 {/snippet}
-
-<svelte:window onresize={measurePanelOffset} />
 
 {#if stats.totalEntries === 0}
   <div class="flex flex-col items-start gap-3 px-4">
@@ -291,7 +294,7 @@
       {#if !drilledIn}<h2 id="task-list-heading" tabindex="-1" class="text-base font-semibold outline-none">{$t`All tasks`}</h2>{/if}
       <div class="grid items-start gap-6 md:grid-cols-[minmax(0,18rem)_minmax(0,36rem)]">
         {#if !drilledIn}
-          <div class="flex flex-col gap-5" bind:this={fieldColumn}>
+          <div class="flex flex-col gap-5" bind:this={fieldColumn} bind:offsetHeight={listHeight}>
             {#each entities as {entity, label, fields: entityFields} (entity)}
               <div class="flex flex-col gap-2">
                 <h3 class="text-muted-foreground text-sm font-medium">{label}</h3>
@@ -339,8 +342,8 @@
 
         {#if pickedField}
           <!-- Tinted like the selected field row, to show the languages belong to it. Scrolls itself if taller than the view. -->
-          <div style:--panel-offset="{panelOffset}px"
-            class="flex flex-col gap-4 md:sticky md:top-0 md:mt-(--panel-offset) md:max-h-[calc(100dvh-6rem)] md:overflow-y-auto md:rounded-lg md:border md:border-primary/25 md:bg-primary/5 md:p-4 md:dark:bg-primary/10">
+          <div bind:this={panel} bind:offsetHeight={panelHeight} style:--panel-offset="{panelOffset}px"
+            class="flex flex-col gap-4 md:sticky md:top-0 md:bottom-0 md:mt-(--panel-offset) md:max-h-[calc(100dvh-6rem)] md:overflow-y-auto md:rounded-lg md:border md:border-primary/25 md:bg-primary/5 md:p-4 md:dark:bg-primary/10">
             <div class="flex items-start gap-1">
               {#if drilledIn}
                 <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" aria-label={$t`Back to all tasks`} onclick={() => fieldParam.current = ''} />
