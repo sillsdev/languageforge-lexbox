@@ -158,6 +158,7 @@ msgid "{0} MB"
 msgstr "{0} MB"
 
 #: src/project/browse/filter/MorphTypeSelect.svelte
+#: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "{0} morph types"
 msgstr ""
 

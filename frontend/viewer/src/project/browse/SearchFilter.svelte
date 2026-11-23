@@ -16,8 +16,8 @@
   import SemanticDomainSelect from './filter/SemanticDomainSelect.svelte';
   import PartOfSpeechSelect from './filter/PartOfSpeechSelect.svelte';
   import PublicationSelect from './filter/PublicationSelect.svelte';
-  import MorphTypeSelect, {WORDS_AND_PHRASES} from './filter/MorphTypeSelect.svelte';
-  import type {MultiFilterSelection} from '$lib/activity/utils';
+  import MorphTypeSelect from './filter/MorphTypeSelect.svelte';
+  import {sameFilter, toGridify, viewDefaultMorphTypeFilter, type MorphTypeFilter} from './filter/morph-type-filter';
   import {watch} from 'runed';
   import {Icon} from '$lib/components/ui/icon';
   import Label from '$lib/components/ui/label/label.svelte';
@@ -57,6 +57,7 @@
   let fieldFilterValue = $state('');
   let filterOp = $state<Op>('contains')
   let includeSubDomains = $state(false);
+  let userFilterActive = $state(false);
   let filterActive = $state(false);
   let hasComments = $state(false);
   let openComments = $state(false);
@@ -66,21 +67,17 @@
     inputRef?.select();
   }
 
-  function viewDefaultMorphTypes(): MultiFilterSelection {
-    return viewService.currentView.base === ViewBase.FwLite ? [...WORDS_AND_PHRASES] : 'all';
+  function viewDefaultMorphTypes(): MorphTypeFilter {
+    return viewDefaultMorphTypeFilter(viewService.currentView.base);
   }
 
-  // Views act as presets: switching view replaces the morph type filter, even one the user cleared
-  let morphTypes = $state<MultiFilterSelection>(viewDefaultMorphTypes());
+  // Views act as presets: switching view base replaces the morph type filter, even one the user cleared
+  let morphTypes = $state<MorphTypeFilter>(viewDefaultMorphTypes());
   watch(() => viewService.currentView.base, () => {
     morphTypes = viewDefaultMorphTypes();
   }, {lazy: true});
 
-  // Selecting none filters nothing, same as 'all'
-  function morphFilterKey(selection: MultiFilterSelection): string {
-    return selection === 'all' ? '' : [...selection].sort().join();
-  }
-  const morphTypesAtDefault = $derived(morphFilterKey(morphTypes) === morphFilterKey(viewDefaultMorphTypes()));
+  const morphTypesAtDefault = $derived(sameFilter(morphTypes, viewDefaultMorphTypes()));
   const showLiteMorphHint = $derived(morphTypesAtDefault && viewService.currentView.base === ViewBase.FwLite);
 
   $effect(() => {
@@ -136,9 +133,11 @@
       newFilter.push('OpenCommentThreads!=null');
     }
 
-    if (morphTypes !== 'all' && morphTypes.length > 0) {
-      newFilter.push('(' + morphTypes.map(mt => `MorphType=${mt}`).join('|') + ')');
-    }
+    // all user selected filters should be before this line!
+    userFilterActive = newFilter.length > 0;
+
+    const morphTypeFilter = toGridify(morphTypes);
+    if (morphTypeFilter) newFilter.push(morphTypeFilter);
 
     filterActive = newFilter.length > 0;
     gridifyFilter = newFilter.join(', ');
@@ -150,8 +149,7 @@
     return v.replace(/([(),|\\]|\/i)/g, '\\$1');
   }
 
-  const canReset = $derived(!!search || fieldFilterValue !== '' || !!missingField || !!semanticDomain || !!partOfSpeech
-    || !!publication || hasComments || unreadComments || openComments || !morphTypesAtDefault);
+  const canReset = $derived(userFilterActive || !!search || fieldFilterValue !== '' || !morphTypesAtDefault);
 
   function resetFilters() {
     search = '';
