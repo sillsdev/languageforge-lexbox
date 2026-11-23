@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ListItem from '$lib/components/ListItem.svelte';
+  import ChoiceRow from '$lib/components/ChoiceRow.svelte';
   import * as Card from '$lib/components/ui/card';
   import {Icon} from '$lib/components/ui/icon';
   import {Button} from '$lib/components/ui/button';
@@ -67,7 +67,8 @@
     return groups;
   });
 
-  const entities = $derived((['entry', 'sense', 'example'] as const)
+  // Meanings first: WeSay's common tasks lead, and word-level fields shouldn't take the top of the page.
+  const entities = $derived((['sense', 'example', 'entry'] as const)
     .map(entity => ({entity, label: text(getEntityConfig(entity).$label), fields: fields.filter(f => f.entity === entity)}))
     .filter(group => group.fields.length > 0));
 
@@ -81,7 +82,7 @@
 
   // Desktop shows the first field's languages until the user picks one; phones drill in instead.
   const pickedField = $derived(fields.find(f => f.key === fieldParam.current && f.tasks.length > 1));
-  const selectedField = $derived(pickedField ?? (IsMobile.value ? undefined : fields.find(f => f.tasks.length > 1)));
+  const selectedField = $derived(pickedField ?? (IsMobile.value ? undefined : entities.flatMap(e => e.fields).find(f => f.tasks.length > 1)));
   const drilledIn = $derived(IsMobile.value && !!selectedField);
   const languageGroups = $derived.by(() => {
     const tasks = selectedField?.tasks ?? [];
@@ -97,8 +98,6 @@
     .map(id => allTasks.find(task => task.id === id))
     .filter((task): task is Task => !!task && !isDone(task))
     .slice(0, 3));
-  const suggestedTask = $derived(recentTasks.length ? undefined
-    : allTasks.find(task => task.subjectFields[0] === 'gloss' && remaining(task)) ?? allTasks.find(task => remaining(task)));
 
   let helpOpen = $state(false);
   const showHelp = $derived(helpOpen || (!projectStorage.tasksHelpDismissed.loading && !projectStorage.tasksHelpDismissed.current));
@@ -109,6 +108,8 @@
 
   function openTask(task: Task) {
     void projectStorage.recentTasks.set([task.id, ...recentIds.filter(id => id !== task.id)].slice(0, 5).join());
+    // Once tasks have been used the card has done its job, and it would push Recent down.
+    if (!projectStorage.tasksHelpDismissed.current) dismissHelp();
     onSelect(task.id);
   }
   function pickField(field: Field) {
@@ -152,22 +153,21 @@
   {@const count = remaining(task)}
   {#if count === undefined}
     <Skeleton class="my-0.5 h-4 w-24" />
-  {:else if count === 0}
-    {$t`Done`}
   {:else}
     {remainingText(count)}
   {/if}
 {/snippet}
 
+{#snippet doneMark()}
+  <span class="text-muted-foreground flex shrink-0 items-center gap-1 text-sm">
+    <Icon icon="i-mdi-check-circle-outline" class="size-4" />{$t`Done`}
+  </span>
+{/snippet}
+
 {#snippet taskRow(task: Task, withField: boolean)}
   {@const ws = writingSystemOf(task)}
   <li>
-    <ListItem
-      role={undefined}
-      data-task-id={task.id}
-      class={isDone(task) ? 'opacity-70' : ''}
-      icon={isDone(task) ? 'i-mdi-check-circle-outline' : undefined}
-      onclick={() => openTask(task)}>
+    <ChoiceRow data-task-id={task.id} class={isDone(task) ? 'text-muted-foreground' : ''} onclick={() => openTask(task)}>
       <span class="flex flex-wrap items-baseline gap-x-2 font-medium">
         {#if withField}
           {text(taskLabel(task))}
@@ -175,11 +175,11 @@
         {/if}
         {#if ws}{@render wsName(ws)}{/if}
       </span>
-      <span class="text-muted-foreground text-sm tabular-nums">{@render progress(task)}</span>
-      {#snippet actions()}
-        <Icon icon="i-mdi-chevron-right" class="text-muted-foreground size-5 shrink-0" aria-hidden="true" />
+      {#if !isDone(task)}<span class="text-muted-foreground text-sm tabular-nums">{@render progress(task)}</span>{/if}
+      {#snippet trailing()}
+        {#if isDone(task)}{@render doneMark()}{/if}
       {/snippet}
-    </ListItem>
+    </ChoiceRow>
   </li>
 {/snippet}
 
@@ -189,7 +189,7 @@
     <Button variant="outline" icon="i-mdi-book-alphabet" onclick={() => navigate(`${$base.uri}/browse`)}>{$t`Browse`}</Button>
   </div>
 {:else}
-  <div class="flex max-w-[55.5rem] flex-col gap-6" bind:this={container}>
+  <div class="flex max-w-[55.5rem] flex-col gap-8" bind:this={container}>
     {#if !drilledIn}
       <div class="flex flex-col gap-4">
         <div class="flex items-center gap-1">
@@ -213,78 +213,79 @@
             </Card.Content>
           </Card.Root>
         {/if}
-        {#if recentTasks.length || suggestedTask}
-          <section class="flex flex-col gap-2">
-            <h2 class="text-muted-foreground text-sm font-medium">{recentTasks.length ? $t`Continue` : $t`Start here`}</h2>
-            <ul class="flex flex-col gap-2">
-              {#each recentTasks.length ? recentTasks : [suggestedTask!] as task (task.id)}
-                {@render taskRow(task, true)}
-              {/each}
-            </ul>
-          </section>
-        {/if}
       </div>
-    {/if}
-
-    <div class="grid items-start gap-6 md:grid-cols-[minmax(0,18rem)_minmax(0,36rem)]">
-      {#if !drilledIn}
-        <div class="flex flex-col gap-5">
-          {#each entities as {entity, label, fields: entityFields} (entity)}
-            <section class="flex flex-col gap-2">
-              <h2 class="text-muted-foreground text-sm font-medium">{label}</h2>
-              <ul class="flex flex-col gap-2">
-                {#each entityFields as field (field.key)}
-                  {@const single = field.tasks.length === 1 ? field.tasks[0] : undefined}
-                  <li>
-                    <ListItem
-                      role={undefined}
-                      data-field-key={field.key}
-                      data-task-id={single?.id}
-                      selected={field.key === selectedField?.key}
-                      icon={field.tasks.every(isDone) ? 'i-mdi-check-circle-outline' : undefined}
-                      onclick={() => pickField(field)}>
-                      <span class="font-medium">{field.label}</span>
-                      <span class="text-muted-foreground text-sm">
-                        {field.description}
-                        {#if single}
-                          <span class="block tabular-nums">{@render progress(single)}</span>
-                        {/if}
-                      </span>
-                      {#snippet actions()}
-                        <Icon icon="i-mdi-chevron-right" class="text-muted-foreground size-5 shrink-0" aria-hidden="true" />
-                      {/snippet}
-                    </ListItem>
-                  </li>
-                {/each}
-              </ul>
-            </section>
-          {/each}
-        </div>
-      {/if}
-
-      {#if selectedField}
-        <section class="flex flex-col gap-3 md:sticky md:top-0" aria-labelledby="task-languages-heading">
-          <div class="flex items-start gap-1">
-            {#if drilledIn}
-              <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" aria-label={$t`Back to fields`} onclick={() => fieldParam.current = ''} />
-            {/if}
-            <div class="flex min-w-0 flex-col">
-              <h2 id="task-languages-heading" tabindex="-1" class="text-lg font-semibold outline-none">{selectedField.label}</h2>
-              <p class="text-muted-foreground text-sm">{selectedField.description}</p>
-            </div>
-          </div>
-          {#each languageGroups as group (group.label)}
-            <div class="flex flex-col gap-2">
-              {#if group.label}<h3 class="text-muted-foreground text-sm font-medium">{group.label}</h3>{/if}
-              <ul class="flex flex-col gap-2">
-                {#each group.tasks as task (task.id)}
-                  {@render taskRow(task, false)}
-                {/each}
-              </ul>
-            </div>
-          {/each}
+      {#if recentTasks.length}
+        <section class="flex flex-col gap-3">
+          <h2 class="text-base font-semibold">{$t`Recent`}</h2>
+          <ul class="flex flex-col divide-y overflow-hidden rounded-lg border">
+            {#each recentTasks as task (task.id)}
+              {@render taskRow(task, true)}
+            {/each}
+          </ul>
         </section>
       {/if}
-    </div>
+    {/if}
+
+    <section class="flex flex-col gap-3">
+      {#if !drilledIn}<h2 class="text-base font-semibold">{$t`All tasks`}</h2>{/if}
+      <div class="grid items-start gap-6 md:grid-cols-[minmax(0,18rem)_minmax(0,36rem)]">
+        {#if !drilledIn}
+          <div class="flex flex-col gap-5">
+            {#each entities as {entity, label, fields: entityFields} (entity)}
+              <div class="flex flex-col gap-2">
+                <h3 class="text-muted-foreground text-sm font-medium">{label}</h3>
+                <ul class="flex flex-col divide-y overflow-hidden rounded-lg border">
+                  {#each entityFields as field (field.key)}
+                    {@const single = field.tasks.length === 1 ? field.tasks[0] : undefined}
+                    {@const done = field.tasks.every(isDone)}
+                    <li>
+                      <ChoiceRow
+                        data-field-key={field.key}
+                        data-task-id={single?.id}
+                        selected={field.key === selectedField?.key}
+                        class={done ? 'text-muted-foreground' : ''}
+                        onclick={() => pickField(field)}>
+                        <span class="font-medium">{field.label}</span>
+                        <span class="text-muted-foreground text-sm">{field.description}</span>
+                        {#if single && !done}
+                          <span class="text-muted-foreground text-sm tabular-nums">{@render progress(single)}</span>
+                        {/if}
+                        {#snippet trailing()}
+                          {#if done}{@render doneMark()}{/if}
+                        {/snippet}
+                      </ChoiceRow>
+                    </li>
+                  {/each}
+                </ul>
+              </div>
+            {/each}
+          </div>
+        {/if}
+
+        {#if selectedField}
+          <div class="flex flex-col gap-4 md:sticky md:top-0">
+            <div class="flex items-start gap-1">
+              {#if drilledIn}
+                <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" aria-label={$t`Back to fields`} onclick={() => fieldParam.current = ''} />
+              {/if}
+              <div class="flex min-w-0 flex-col">
+                <h3 id="task-languages-heading" tabindex="-1" class="text-base font-semibold outline-none">{selectedField.label}</h3>
+                <p class="text-muted-foreground text-sm">{selectedField.description}</p>
+              </div>
+            </div>
+            {#each languageGroups as group (group.label)}
+              <div class="flex flex-col gap-2">
+                {#if group.label}<h4 class="text-muted-foreground text-sm font-medium">{group.label}</h4>{/if}
+                <ul class="flex flex-col divide-y overflow-hidden rounded-lg border">
+                  {#each group.tasks as task (task.id)}
+                    {@render taskRow(task, false)}
+                  {/each}
+                </ul>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
+    </section>
   </div>
 {/if}

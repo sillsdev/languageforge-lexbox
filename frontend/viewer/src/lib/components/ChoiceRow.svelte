@@ -1,0 +1,31 @@
+<script lang="ts">
+  import type {Snippet} from 'svelte';
+  import type {HTMLButtonAttributes} from 'svelte/elements';
+  import {Icon} from '$lib/components/ui/icon';
+  import {cn} from '$lib/utils';
+
+  type Props = HTMLButtonAttributes & {
+    selected?: boolean;
+    trailing?: Snippet;
+    children: Snippet;
+  };
+
+  const {selected = false, trailing, children, class: className, ...rest}: Props = $props();
+</script>
+
+<!-- A row in a bordered divide-y group, for choosing what to do next (not for data rows like entries). -->
+<button
+  type="button"
+  aria-current={selected || undefined}
+  {...rest}
+  class={cn(
+    'flex w-full items-center gap-3 px-4 py-3 text-start hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50',
+    selected &&
+      'bg-primary/10 dark:bg-primary/20 shadow-[inset_4px_0_0_var(--primary)] rtl:shadow-[inset_-4px_0_0_var(--primary)]',
+    className,
+  )}
+>
+  <span class="flex min-w-0 grow flex-col">{@render children()}</span>
+  {@render trailing?.()}
+  <Icon icon="i-mdi-chevron-right" class="shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" />
+</button>
