@@ -106,10 +106,6 @@
     void projectStorage.tasksHelpDismissed.set('true');
   }
 
-  function openHelp() {
-    helpOpen = true;
-    void tick().then(() => focusFirst('#tasks-help-title'));
-  }
   function closeHelp() {
     dismissHelp();
     void tick().then(() => focusFirst('#tasks-help-link'));
@@ -195,17 +191,18 @@
   <div class="flex max-w-[55.5rem] flex-col gap-8" bind:this={container}>
     {#if !drilledIn}
       <div class="flex flex-col gap-4">
-        <div class="flex flex-wrap items-baseline gap-x-2">
-          <p class="text-muted-foreground">{$t`Fill in what's missing, a few at a time.`}</p>
-          {#if !showHelp}
-            <Button id="tasks-help-link" variant="link" size="sm" class="h-auto p-0" onclick={openHelp}>{$t`How tasks work`}</Button>
-          {/if}
-        </div>
+        <!-- Same disclosure link style as "What can a plugin do?" on the plugins page. -->
+        <p class="text-muted-foreground">
+          {$t`Fill in what's missing, a few at a time.`}
+          <button id="tasks-help-link" type="button" aria-expanded={showHelp} aria-controls="tasks-help"
+            onclick={() => showHelp ? closeHelp() : helpOpen = true}
+            class="text-primary inline-flex cursor-pointer items-center gap-1 font-medium whitespace-nowrap hover:underline">
+            {$t`How tasks work`}
+            <Icon icon="i-mdi-chevron-down" class="size-4 transition-transform {showHelp ? 'rotate-180' : ''}" />
+          </button>
+        </p>
         {#if showHelp}
-          <Card.Root class="gap-3 py-4">
-            <Card.Header>
-              <Card.Title id="tasks-help-title" tabindex={-1} class="outline-none">{$t`How tasks work`}</Card.Title>
-            </Card.Header>
+          <Card.Root id="tasks-help" class="py-4">
             <Card.Content class="flex flex-col items-start gap-3">
               <ol class="flex list-decimal flex-col gap-1 ps-5">
                 <li>{$t`Pick what's missing, like a Gloss or an Example sentence.`}</li>
