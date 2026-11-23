@@ -11,7 +11,7 @@ namespace LexCore.Auth;
 
 public record LexAuthUser
 {
-    // The auth cookie must fit in one 8 KB header line at our ingress. See HeaderTests.CheckIngressHeaderSizeLimit.
+    // The auth cookie must fit in one 8 KB header line at our ingress. See HeaderTests.CheckHeaderSizeLimit.
     public const int MaxJwtLength = 7000;
     // Not enforced: a non-admin with more projects gets a JWT the ingress may reject (~44 chars per project).
     public const int MaxProjectCount = 140;

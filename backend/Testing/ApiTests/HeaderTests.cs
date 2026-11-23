@@ -12,7 +12,7 @@ public class HeaderTests : ApiTestBase
     }
 
     [Fact]
-    public async Task CheckIngressHeaderSizeLimit()
+    public async Task CheckHeaderSizeLimit()
     {
         /*
         Since 2026-11-20 our nginx ingress (staging and production) rejects any header line over 8 KB with
