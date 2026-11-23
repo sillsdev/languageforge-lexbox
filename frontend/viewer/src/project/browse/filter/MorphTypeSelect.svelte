@@ -9,7 +9,11 @@
 
   const ALL = '__all__';
 
-  let {value = $bindable(), describedBy}: {value: MultiFilterSelection, describedBy?: string} = $props();
+  let {value = $bindable(), describedBy, selectionLabel}: {
+    value: MultiFilterSelection,
+    describedBy?: string,
+    selectionLabel?: string,
+  } = $props();
 
   const morphTypesService = useMorphTypesService();
   const wsService = useWritingSystemService();
@@ -33,7 +37,9 @@
 
 <Select.Root type="multiple" value={selected} {onValueChange}>
   <Select.Trigger class="flex-1" aria-describedby={describedBy}>
-    {#if showingAll}
+    {#if selectionLabel}
+      {selectionLabel}
+    {:else if showingAll}
       <span class="text-muted-foreground">{$t`Any morph type`}</span>
     {:else if selectedLabels.length <= 3}
       {selectedLabels.join(', ')}

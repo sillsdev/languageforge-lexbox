@@ -2336,10 +2336,6 @@ msgstr "Light"
 msgid "List mode"
 msgstr "List mode"
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Lite view hides affixes and clitics."
-msgstr "Lite view hides affixes and clitics."
-
 #. Field name shown in advanced/classic view
 #. The literal meaning of the vernacular translated into the analysis language
 #. Contrasts with glosses/definitions in the analysis language
@@ -4493,6 +4489,10 @@ msgstr "This task is complete"
 msgid "This version"
 msgstr "This version"
 
+#: src/project/browse/SearchFilter.svelte
+msgid "This view shows only whole words and phrases."
+msgstr "This view shows only whole words and phrases."
+
 #. Description of sync operation
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
@@ -4967,6 +4967,10 @@ msgstr "Word or meaning:"
 #: src/lib/activity/ChangeSummary.svelte
 msgid "words"
 msgstr "words"
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Words and phrases"
+msgstr "Words and phrases"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Words missing both Word and Display as"

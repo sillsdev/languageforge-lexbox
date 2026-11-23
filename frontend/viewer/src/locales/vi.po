@@ -2341,10 +2341,6 @@ msgstr "Sáng"
 msgid "List mode"
 msgstr "Chế độ danh sách"
 
-#: src/project/browse/SearchFilter.svelte
-msgid "Lite view hides affixes and clitics."
-msgstr ""
-
 #. Field name shown in advanced/classic view
 #. The literal meaning of the vernacular translated into the analysis language
 #. Contrasts with glosses/definitions in the analysis language
@@ -4498,6 +4494,10 @@ msgstr "Nhiệm vụ này đã hoàn thành"
 msgid "This version"
 msgstr ""
 
+#: src/project/browse/SearchFilter.svelte
+msgid "This view shows only whole words and phrases."
+msgstr ""
+
 #. Description of sync operation
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
@@ -4971,6 +4971,10 @@ msgstr "Từ hoặc ý nghĩa:"
 #. Lowercase plural noun interpolated into activity-log lines (e.g. "Created 5 words"). Paired with "words" / "entries" terminology across the app.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "words"
+msgstr ""
+
+#: src/project/browse/SearchFilter.svelte
+msgid "Words and phrases"
 msgstr ""
 
 #: src/project/tasks/tasks-service.ts
