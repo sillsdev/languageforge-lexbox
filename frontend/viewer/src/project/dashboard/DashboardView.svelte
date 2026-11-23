@@ -12,9 +12,13 @@
   import {Icon} from '$lib/components/ui/icon';
   import {Button} from '$lib/components/ui/button';
   import {dashboardSuggestionUrl} from '$lib/about/community-links';
+  import {Link} from 'svelte-routing';
+  import {useTasksService} from '$project/tasks/tasks-service';
+  import type {FieldId} from '$lib/views/entity-config';
 
   const stats = useDashboardStats();
   const writingSystemService = useWritingSystemService();
+  const tasksService = useTasksService();
   // Not $derived: the resource's factory always resolves to the same DashboardStats instance,
   // so this reference never changes — reactivity comes from that instance's own $state fields.
   const dashboard = stats.current;
@@ -32,7 +36,7 @@
   }
 
   const fieldStatGridClass =
-    'grid gap-y-3 gap-x-1.5 text-sm leading-none grid-cols-[1fr_minmax(5.5rem,auto)_14px]';
+    'grid gap-y-3 gap-x-1.5 text-sm leading-none grid-cols-[1fr_minmax(5.5rem,auto)_14px_14px]';
 </script>
 
 {#snippet fieldStatRow(
@@ -40,21 +44,44 @@
   field: FieldCompletion | undefined,
   total: number | undefined,
   wsColorClass: string,
+  ws: {wsId: string, abbreviation: string},
+  taskField: FieldId,
 )}
-  <div class="grid grid-cols-subgrid col-span-full items-center">
-    <span class="min-w-0">{label}</span>
-    {#if field && total !== undefined}
-      <span class="tabular-nums text-muted-foreground text-right whitespace-nowrap"
-        >{formatCount(field, total)}</span
-      >
-      <div class="{wsColorClass} flex size-3.5 items-center justify-center justify-self-end self-center">
-        <CircularProgress value={field.percent} />
-      </div>
-    {:else}
-      <Skeleton class="h-3.5 w-14 justify-self-end" />
-      <Skeleton class="size-3.5 rounded-full justify-self-end" />
-    {/if}
-  </div>
+  {@const task = field && total !== undefined && field.filled < total ? tasksService.findTask(taskField, ws.wsId) : undefined}
+  {#if task}
+    <Link
+      to="./tasks?taskId={encodeURIComponent(task.id)}"
+      class="grid grid-cols-subgrid col-span-full items-center -mx-2 -my-1.5 px-2 py-1.5 rounded-md hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+    >
+      {@render fieldStatCells(label, field, total, wsColorClass, ws)}
+      <Icon icon="i-mdi-chevron-right" class="size-3.5 text-muted-foreground rtl:rotate-180" aria-hidden="true" />
+    </Link>
+  {:else}
+    <div class="grid grid-cols-subgrid col-span-full items-center">
+      {@render fieldStatCells(label, field, total, wsColorClass, ws)}
+    </div>
+  {/if}
+{/snippet}
+
+{#snippet fieldStatCells(
+  label: string,
+  field: FieldCompletion | undefined,
+  total: number | undefined,
+  wsColorClass: string,
+  ws: {abbreviation: string},
+)}
+  <span class="min-w-0">{label}<span class="sr-only"> ({ws.abbreviation})</span></span>
+  {#if field && total !== undefined}
+    <span class="tabular-nums text-muted-foreground text-right whitespace-nowrap"
+      >{formatCount(field, total)}</span
+    >
+    <div class="{wsColorClass} flex size-3.5 items-center justify-center justify-self-end self-center">
+      <CircularProgress value={field.percent} />
+    </div>
+  {:else}
+    <Skeleton class="h-3.5 w-14 justify-self-end" />
+    <Skeleton class="size-3.5 rounded-full justify-self-end" />
+  {/if}
 {/snippet}
 
 {#snippet summaryCard(title: string, field: FieldCompletion | undefined, total: number | undefined)}
@@ -160,9 +187,9 @@
                   <Card.Title class={wsColorClass}>{ws.abbreviation}</Card.Title>
                 </Card.Header>
                 <Card.Content class={fieldStatGridClass}>
-                  {@render fieldStatRow($t`Lexeme form`, ws.lexemeForm, dashboard.totalEntries, wsColorClass)}
-                  {@render fieldStatRow($t`Citation form`, ws.citationForm, dashboard.totalEntries, wsColorClass)}
-                  {@render fieldStatRow($t`Example sentences`, ws.exampleSentence, dashboard.totalEntries, wsColorClass)}
+                  {@render fieldStatRow($t`Lexeme form`, ws.lexemeForm, dashboard.totalEntries, wsColorClass, ws, 'lexemeForm')}
+                  {@render fieldStatRow($t`Citation form`, ws.citationForm, dashboard.totalEntries, wsColorClass, ws, 'citationForm')}
+                  {@render fieldStatRow($t`Example sentences`, ws.exampleSentence, dashboard.totalEntries, wsColorClass, ws, 'sentence')}
                 </Card.Content>
               </Card.Root>
             {/each}
@@ -187,8 +214,8 @@
                   <Card.Title class={wsColorClass}>{ws.abbreviation}</Card.Title>
                 </Card.Header>
                 <Card.Content class={fieldStatGridClass}>
-                  {@render fieldStatRow($t`Gloss`, ws.gloss, dashboard.totalEntries, wsColorClass)}
-                  {@render fieldStatRow($t`Definition`, ws.definition, dashboard.totalEntries, wsColorClass)}
+                  {@render fieldStatRow($t`Gloss`, ws.gloss, dashboard.totalEntries, wsColorClass, ws, 'gloss')}
+                  {@render fieldStatRow($t`Definition`, ws.definition, dashboard.totalEntries, wsColorClass, ws, 'definition')}
                 </Card.Content>
               </Card.Root>
             {/each}
