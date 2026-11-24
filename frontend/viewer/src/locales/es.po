@@ -161,6 +161,13 @@ msgstr ""
 msgid "{0} MB"
 msgstr "{0} MB"
 
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#: src/project/tasks/SubjectPopup.svelte
+#: src/project/tasks/SubjectPopup.svelte
+msgid "{0} of {1} done"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
 msgstr "{0} respuestas"
@@ -3005,11 +3012,6 @@ msgstr "No se encontraron entradas similares"
 msgid "No similar words found"
 msgstr "No se encontraron palabras similares"
 
-#. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
-#: src/project/tasks/SubjectPopup.svelte
-msgid "No subject, unable to create a new {0}"
-msgstr "No hay tema, no se puede crear un nuevo {0}"
-
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
 msgstr "No hay sistemas vernáculos de escritura configurados."
@@ -3493,6 +3495,10 @@ msgstr "Imagen anterior"
 #: src/project/ProjectSidebar.svelte
 msgid "Privacy"
 msgstr "Privacidad"
+
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Progress"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -4306,11 +4312,6 @@ msgstr ""
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
 msgstr "piedra"
-
-#. Error message
-#: src/project/tasks/SubjectPopup.svelte
-msgid "Subject does not have suitable object of type: {0}"
-msgstr "El asunto no tiene un objeto de tipo adecuado: {0}"
 
 #. Button to confirm selection
 #: src/lib/components/SubmitOrCancel.svelte

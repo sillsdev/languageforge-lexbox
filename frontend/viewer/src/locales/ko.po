@@ -161,6 +161,13 @@ msgstr ""
 msgid "{0} MB"
 msgstr "{0} MB"
 
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#: src/project/tasks/SubjectPopup.svelte
+#: src/project/tasks/SubjectPopup.svelte
+msgid "{0} of {1} done"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
 msgstr "{0} 답글"
@@ -3005,11 +3012,6 @@ msgstr "유사한 항목이 없습니다."
 msgid "No similar words found"
 msgstr "유사한 단어가 없습니다."
 
-#. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
-#: src/project/tasks/SubjectPopup.svelte
-msgid "No subject, unable to create a new {0}"
-msgstr "제목이 없습니다, 새로 만들 수 없습니다 {0}"
-
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
 msgstr "구성된 토착어 쓰기 시스템이 없습니다."
@@ -3493,6 +3495,10 @@ msgstr "이전 사진"
 #: src/project/ProjectSidebar.svelte
 msgid "Privacy"
 msgstr "개인정보 보호"
+
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Progress"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -4306,11 +4312,6 @@ msgstr ""
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
 msgstr "돌"
-
-#. Error message
-#: src/project/tasks/SubjectPopup.svelte
-msgid "Subject does not have suitable object of type: {0}"
-msgstr "제목에 적합한 객체 유형이 없습니다: {0}"
 
 #. Button to confirm selection
 #: src/lib/components/SubmitOrCancel.svelte

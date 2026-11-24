@@ -37,7 +37,6 @@
   let entriesList = $state<EntriesList>();
   let entryCount = $state<number | null>(null);
   let completedSubjects = $state<TaskSubject[]>([]);
-  let progress = $derived((completedSubjects.length) / Math.min(entryCount ?? TASK_SUBJECT_COUNT, TASK_SUBJECT_COUNT));
   let showDone = $state(false);
   let allCompletedSubjects = $state<TaskSubject[]>([]);
 
@@ -85,7 +84,8 @@
           <SubjectPopup
             bind:entry
             {task}
-            {progress}
+            completed={completedSubjects.length}
+            total={TASK_SUBJECT_COUNT}
             onNextEntry={async () => {
               const next = await entriesList?.selectNextEntry();
               if (!next) await onDone();
