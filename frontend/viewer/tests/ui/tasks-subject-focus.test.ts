@@ -23,7 +23,7 @@ test('typing in an optional translation field keeps focus there', async ({page})
   await expect(sentence).not.toContainText('ola');
 });
 
-test('a translation task shows the sentence and starts in the translation field', async ({page}) => {
+test('a translation task shows the sentence in the preview and starts in the translation field', async ({page}) => {
   const projectPage = new DemoProjectPage(page);
   await projectPage.goto();
   const {id: entryId} = await projectPage.api.createEntryWithForms({seh: '0000'});
@@ -43,9 +43,7 @@ test('a translation task shows the sentence and starts in the translation field'
   await projectPage.entriesList.entryRows.filter({hasText: '0000'}).click();
 
   const popup = page.getByRole('dialog');
-  await expect(popup.getByRole('textbox', {name: 'Chw'})).toHaveText('Moni');
-  await expect(popup.getByRole('textbox', {name: 'Chw'})).toHaveAttribute('contenteditable', 'false');
-  // only languages the sentence has text in
-  await expect(popup.locator('[id$="-seh"]')).toHaveCount(0);
+  await expect(popup.getByText('Moni')).toBeVisible();
+  await expect(popup.getByRole('textbox', {name: 'Chw'})).toHaveCount(0);
   await expect(popup.getByRole('textbox', {name: 'Por'})).toBeFocused();
 });

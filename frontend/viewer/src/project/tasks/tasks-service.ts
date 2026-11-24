@@ -36,7 +36,7 @@ export function useTasksService() {
 
 export interface Task {
   id: string;
-  /** Shown read-only above the subject, if they're on the subject's entity. */
+  /** For TaskContext, which no task form renders yet: the preview covers context except audio and hidden languages. */
   contextFields: FieldId[];
   /** Already translated, unlike fieldLabel and description: tasks are rebuilt on language change. */
   subject: ViewText;

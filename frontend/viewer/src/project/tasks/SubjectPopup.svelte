@@ -18,8 +18,6 @@
   import {pt} from '$lib/views/view-text';
   import {untrack} from 'svelte';
   import {useViewService} from '$lib/views/view-service.svelte';
-  import {useWritingSystemService} from '$project/data';
-  import TaskContext from './TaskContext.svelte';
 
   let {
     entry = $bindable(),
@@ -38,7 +36,6 @@
     onCompletedSubject?: (subject: TaskSubject) => void,
   } = $props();
   const viewService = useViewService();
-  const writingSystemService = useWritingSystemService();
   const shownFields = $derived([...task.subjectFields, ...task.optionalFields ?? []]);
   const entryPersistence = new EntryPersistence(() => entry);
   //need to create a snapshot, otherwise changes to the subjects will trigger this derived and it will skip to the next subject
@@ -52,11 +49,6 @@
     return task.subjectWritingSystemType === WritingSystemType.Analysis
       ? {analysis: ws, vernacular: []}
       : {analysis: [], vernacular: ws};
-  });
-  // once per subject, so what's typed into the subject doesn't show up as context too
-  const contextFields = $derived.by(() => {
-    const current = subject;
-    return current ? untrack(() => TasksService.contextFields(task, current, writingSystemService)) : [];
   });
   $effect(() => {
     if (entry && subjects.length === 0) {
@@ -159,7 +151,6 @@
             <input type="submit" style="display: none;"/>
             <Editor.Root bind:this={editor}>
               <Editor.Grid>
-                <TaskContext fields={contextFields}/>
                 <OverrideFields {shownFields} {overrides}>
                   {#if task.subjectType === 'entry' && subject.entry}
                     <EntryEditorPrimitive autofocus modalMode bind:entry={subject.entry}/>
