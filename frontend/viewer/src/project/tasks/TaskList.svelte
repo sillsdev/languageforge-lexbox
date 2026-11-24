@@ -260,7 +260,7 @@
           <h2 class="flex items-center gap-1.5 text-base font-semibold">
             <Icon icon="i-mdi-history" class="text-muted-foreground size-4" />{$t`Recent`}
           </h2>
-          <ul class="grid gap-x-6 gap-y-3 md:grid-cols-[repeat(2,minmax(0,28rem))]">
+          <ul class="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-3">
             {#each recentTasks as task (task.id)}
               {@const ws = writingSystemOf(task)}
               <li>
