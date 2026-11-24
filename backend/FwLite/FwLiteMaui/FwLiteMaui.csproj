@@ -116,7 +116,8 @@
          Link names the generated icon "appicon", which AndroidManifest.xml and the Info.plist XSAppIconAssets refer to. -->
     <MauiIcon Condition="'$(TargetPlatform)' == 'ios'" Include="$(FwLiteLogos)fieldworks-lite-appicon-square.svg" Link="appicon.svg" />
     <MauiIcon Condition="'$(TargetPlatform)' == 'maccatalyst'" Include="$(FwLiteLogos)fieldworks-lite-appicon-macos.svg" Link="appicon.svg" />
-    <!-- The logo guide (index.html) sizes the book at 85% of the visible 72dp icon: 0.85 * 72/108.
+    <!-- ForegroundScale="0.57" = 0.85 * 72/108: the logo guide (index.html) draws the circle file at 85% of the visible icon,
+         but ForegroundScale is relative to the full 108dp adaptive-icon layer, of which the launcher shows only the middle 72dp.
          Resizetizer doesn't notice a ForegroundScale change: clean obj before checking a new value. -->
     <MauiIcon Condition="'$(TargetPlatform)' == 'android'" Include="$(FwLiteLogos)fieldworks-lite-circle.svg" Link="appicon.svg" Color="#ffffff" ForegroundScale="0.57" />
     <!-- Windows: tiles and store logo come from this; the taskbar icons from ApplicationIcon above and FwLiteMsixTaskbarIcons below.
