@@ -56,3 +56,27 @@ test('tasks page: open, close, deep-link back, help card', async ({page}) => {
     await expect(page.locator('#tasks-help')).toBeHidden();
   });
 });
+
+test('tasks page: Back skips field picks on desktop but steps out of a field on phones', async ({page}) => {
+  const multiLanguageField = page.locator('[data-field-key]:not([data-task-id])');
+
+  await test.step('desktop: picking fields replaces history', async () => {
+    await page.goto('/testing/project-view/browse');
+    await page.goto(tasksUrl);
+    await multiLanguageField.nth(0).click();
+    await multiLanguageField.nth(1).click();
+    await expect(page).toHaveURL(/[?&]field=/);
+    await page.goBack();
+    await expect(page).toHaveURL(/\/browse/);
+  });
+
+  await test.step('phone: Back leaves the picked field', async () => {
+    await page.setViewportSize({width: 375, height: 812});
+    await page.goto(tasksUrl);
+    await multiLanguageField.first().click();
+    await expect(page.locator('#task-languages-heading')).toBeVisible();
+    await page.goBack();
+    await expect(page).not.toHaveURL(/field=/);
+    await expect(page.getByRole('heading', {name: 'All tasks'})).toBeVisible();
+  });
+});

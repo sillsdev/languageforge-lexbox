@@ -37,10 +37,10 @@ export class QueryParamState {
     if (value === this.#current) return;
     //history events don't trigger popstate, so we need to set the value directly
     this.#current = value;
-    void this.updateHistory(this.config.allowBack && !replace);
+    void this.updateHistory(!!this.config.allowBack && !replace);
   }
 
-  private async updateHistory(allowBack = this.config.allowBack): Promise<void> {
+  private async updateHistory(allowBack: boolean): Promise<void> {
     const isDefault = this.#current === this.defaultValue;
     this.#waitingForHistoryChange = true;
     await queueHistoryChange(() => {
