@@ -2,6 +2,7 @@ import {describe, it, expect} from 'vitest';
 import {type IEntry, type IExampleSentence, type ISemanticDomain, type ISense, type IWritingSystem, ViewBase, WritingSystemType} from '$lib/dotnet-types';
 import {defaultEntry, defaultExampleSentence, defaultSense} from '$lib/utils';
 import {TasksService} from './tasks-service';
+import type {WritingSystemService} from '$project/data';
 import {pt, type ViewText} from '$lib/views/view-text';
 
 function bothViews(text: ViewText): string[] {
@@ -304,5 +305,20 @@ describe('tasks service', () => {
     });
 
 
+  });
+});
+
+describe('findTask', () => {
+  const vernacular = {...vernacularWs, wsId: 'seh'};
+  const service = new TasksService({vernacular: [vernacular], analysis: [analysisWs]} as unknown as WritingSystemService);
+
+  it('finds the single-field task for a field and writing system', () => {
+    // Headword also covers lexemeForm and comes first in the list
+    expect(service.findTask('lexemeForm', 'seh')?.id).toBe('entry-no-lexeme-form-seh');
+    expect(service.findTask('gloss', 'en')?.id).toBe('sense-no-gloss-en');
+  });
+
+  it('needs the writing system to match', () => {
+    expect(service.findTask('gloss', 'seh')).toBeUndefined();
   });
 });
