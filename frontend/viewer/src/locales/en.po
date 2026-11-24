@@ -1843,6 +1843,10 @@ msgstr "Field"
 msgid "Fields"
 msgstr "Fields"
 
+#: src/project/SyncDialog.svelte
+msgid "FieldWorks Classic (in Lexbox)"
+msgstr "FieldWorks Classic (in Lexbox)"
+
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite collects usage data to help us improve it."
@@ -1871,10 +1875,6 @@ msgstr "FieldWorks Lite version"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "FieldWorks logo"
-
-#: src/project/SyncDialog.svelte
-msgid "FieldWorks Send/Receive (on Lexbox)"
-msgstr "FieldWorks Send/Receive (on Lexbox)"
 
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/plugin-api-adapter.ts
@@ -3739,10 +3739,6 @@ msgstr "Runs from an entry's menu"
 msgid "Runs in a sandbox, separate from the app"
 msgstr "Runs in a sandbox, separate from the app"
 
-#: src/project/sync/SyncMethodList.svelte
-msgid "Runs on Lexbox, not with FieldWorks on this computer"
-msgstr "Runs on Lexbox, not with FieldWorks on this computer"
-
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
@@ -4202,6 +4198,10 @@ msgstr "Sync complete. {0} were applied to FieldWorks Classic. {1} were applied 
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Sync FieldWorks Lite and FieldWorks Classic"
+
+#: src/project/sync/SyncMethodList.svelte
+msgid "Sync FieldWorks Lite and FieldWorks Classic in Lexbox"
+msgstr "Sync FieldWorks Lite and FieldWorks Classic in Lexbox"
 
 #: src/home/OpenFromFolderItem.svelte
 msgid "Sync now"

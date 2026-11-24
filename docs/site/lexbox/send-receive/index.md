@@ -46,7 +46,7 @@ URL already contains your login and the project code.
 ## If your team also uses FieldWorks Lite
 
 FieldWorks Lite work reaches Send/Receive only after someone presses **Sync** in
-FieldWorks Lite, under **Sync Changes** → **FieldWorks Send/Receive (on Lexbox)**. People in the FieldWorks
+FieldWorks Lite, under **Sync Changes** → **FieldWorks Classic (in Lexbox)**. People in the FieldWorks
 Lite beta also have **Sync FieldWorks Lite** on the project page. If a colleague's FieldWorks Lite changes are missing after your
 Send/Receive, ask for a Sync, then run Send/Receive again. See [Keep the two sides in step](/lexbox/fw-lite#keep-the-two-sides-in-step).
 
