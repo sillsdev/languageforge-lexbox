@@ -75,15 +75,15 @@
   <div class="flex grow flex-col md:justify-center">
     <div class="flex flex-col items-center gap-2 p-4 text-center">
       <Icon icon="i-mdi-check-circle-outline" class="text-primary size-12" />
-      <!-- Focus the heading, not a button: the Enter that saved the last item would otherwise press it. -->
+      <!-- Focus the heading, not a button: the Enter that saved the last item would otherwise press it.
+           One heading, so focus stays put when the counts arrive and the task turns out complete. -->
+      <h2 tabindex="-1" {@attach el => el.focus()} class="text-xl font-semibold outline-none">
+        {taskComplete ? $t`This task is complete` : filledText(filledEntries)}
+      </h2>
       {#if taskComplete}
-        <h2 tabindex="-1" {@attach el => el.focus()} class="text-xl font-semibold outline-none">{$t`This task is complete`}</h2>
         <p class="text-muted-foreground">{filledText(filledEntries)}</p>
-      {:else}
-        <h2 tabindex="-1" {@attach el => el.focus()} class="text-xl font-semibold outline-none">{filledText(filledEntries)}</h2>
-        {#if remaining}
-          <p class="text-muted-foreground tabular-nums">{remainingText(remaining)}</p>
-        {/if}
+      {:else if remaining}
+        <p class="text-muted-foreground tabular-nums">{remainingText(remaining)}</p>
       {/if}
       <div class="flex flex-wrap gap-2 justify-center mt-2 max-w-2xl">
         {#each subjects as subject, index (subject)}

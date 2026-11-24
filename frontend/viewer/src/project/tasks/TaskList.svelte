@@ -97,8 +97,9 @@
   const hasLanguageStep = $derived(fields.some(f => !directTask(f)));
   const drilledIn = $derived(IsMobile.value && !!pickedField);
   $effect(() => {
-    // A stale or hand-edited ?field= would otherwise linger in the URL with nothing selected.
-    if (fields.length && fieldParam.current && !pickedField) fieldParam.set('', {replace: true});
+    // A stale or hand-edited ?field= would otherwise linger in the URL. Only unknown keys: a field can
+    // briefly look single-language (no language step) while features load.
+    if (fields.length && fieldParam.current && !fields.some(f => f.key === fieldParam.current)) fieldParam.set('', {replace: true});
   });
   const languageGroups = $derived.by(() => {
     const tasks = pickedField?.tasks ?? [];
