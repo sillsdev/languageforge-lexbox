@@ -44,5 +44,7 @@ test('a translation task shows the sentence and starts in the translation field'
 
   const popup = page.getByRole('dialog');
   await expect(popup.getByRole('textbox', {name: 'Chw'})).toHaveText('Moni');
+  // only languages the sentence has text in
+  await expect(popup.locator('[id$="-seh"]')).toHaveCount(0);
   await expect(popup.getByRole('textbox', {name: 'Por'})).toBeFocused();
 });

@@ -61,15 +61,15 @@
   let subjects = $derived(TasksService.subjects(task, $state.snapshot(entry)));
   let subjectIndex = $state(0);
   let subject = $derived(subjects.at(subjectIndex));
-  // The sentence being translated: the view's languages plus any other that has text, so audio and
-  // out-of-view sentences still show. Read once per example so a field doesn't vanish while it's cleared.
+  // The sentence being translated, in the languages it has text in (audio and out-of-view ones too), so
+  // empty boxes don't push the translation down. With no sentence yet, the view's languages so one can be added.
+  // Read once per example so a field doesn't vanish while it's cleared.
   const sentenceWritingSystems = $derived.by(() => {
     const example = subject?.exampleSentence;
     return untrack(() => {
-      const inView = new Set(writingSystemService.viewVernacular(viewService.currentView).map(ws => ws.wsId));
-      return writingSystemService.vernacular
-        .filter(ws => inView.has(ws.wsId) || !!asString(example?.sentence[ws.wsId]))
-        .map(({wsId}) => ({wsId}));
+      const withText = writingSystemService.vernacular.filter(ws => !!asString(example?.sentence[ws.wsId]));
+      const shown = withText.length ? withText : writingSystemService.viewVernacular(viewService.currentView);
+      return shown.map(({wsId}) => ({wsId}));
     });
   });
   $effect(() => {
