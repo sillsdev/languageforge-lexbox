@@ -131,7 +131,15 @@ public static class ProjectDataFolderMigration
             try
             {
                 Directory.CreateDirectory(staging);
-                onCopyStarting?.Invoke();
+                try
+                {
+                    onCopyStarting?.Invoke();
+                }
+                catch (Exception e)
+                {
+                    //it only reports progress, so it must not fail the migration
+                    logger.LogWarning(e, "Reporting the start of the data copy failed");
+                }
                 copied = CopyAndVerify(legacyRoot, staging, targetRoot, logger);
                 WriteMarker(staging, new Marker(legacyRoot, DateTimeOffset.UtcNow, copied.Projects));
                 MoveIntoPlace(staging, targetRoot);

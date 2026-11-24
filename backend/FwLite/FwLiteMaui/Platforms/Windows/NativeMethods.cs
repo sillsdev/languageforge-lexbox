@@ -9,7 +9,7 @@ internal static class NativeMethods
         WM_NCHITTEST = 0x0084, WM_TIMER = 0x0113, WM_DPICHANGED = 0x02E0;
     internal const uint WS_POPUP = 0x80000000, WS_EX_APPWINDOW = 0x00040000;
     internal const uint SWP_NOSIZE = 0x0001, SWP_NOZORDER = 0x0004, SWP_NOACTIVATE = 0x0010;
-    internal const uint MONITOR_DEFAULTTOPRIMARY = 1, MONITOR_DEFAULTTONEAREST = 2;
+    internal const uint MONITOR_DEFAULTTONULL = 0, MONITOR_DEFAULTTOPRIMARY = 1, MONITOR_DEFAULTTONEAREST = 2;
     internal const uint AW_BLEND = 0x00080000, AW_HIDE = 0x00010000, SRCCOPY = 0x00CC0020;
     internal const uint DT_CENTER = 0x1, DT_VCENTER = 0x4, DT_SINGLELINE = 0x20, DT_NOPREFIX = 0x800, DT_END_ELLIPSIS = 0x8000;
     internal const int SM_YVIRTUALSCREEN = 77, SM_CYVIRTUALSCREEN = 79;
@@ -102,6 +102,7 @@ internal static class NativeMethods
     [DllImport("user32.dll")] internal static extern bool DestroyWindow(nint hwnd);
     [DllImport("user32.dll")] internal static extern bool ShowWindow(nint hwnd, int command);
     [DllImport("user32.dll")] internal static extern bool SetWindowPos(nint hwnd, nint insertAfter, int x, int y, int width, int height, uint flags);
+    [DllImport("user32.dll")] internal static extern bool IsIconic(nint hwnd);
     [DllImport("user32.dll")] internal static extern bool GetWindowRect(nint hwnd, out RECT rect);
     [DllImport("user32.dll")] internal static extern bool GetWindowPlacement(nint hwnd, ref WINDOWPLACEMENT placement);
     [DllImport("user32.dll")] internal static extern bool SetWindowPlacement(nint hwnd, ref WINDOWPLACEMENT placement);

@@ -26,7 +26,7 @@ internal static class SplashHandOff
         try
         {
             held = viewerLoadState is not null && TryHold(window.GetWindowHandle(), viewerLoadState);
-            if (held) window.Activated += RemoveSplashFromTaskbar;
+            if (held) RemoveSplashFromTaskbarOnceShown(window);
         }
         catch
         {
@@ -35,10 +35,15 @@ internal static class SplashHandOff
         if (!held) StartupSplash.Close();
     }
 
-    private static void RemoveSplashFromTaskbar(object sender, Microsoft.UI.Xaml.WindowActivatedEventArgs args)
+    private static void RemoveSplashFromTaskbarOnceShown(Microsoft.UI.Xaml.Window window)
     {
-        ((Microsoft.UI.Xaml.Window)sender).Activated -= RemoveSplashFromTaskbar;
-        StartupSplash.RemoveFromTaskbar();
+        window.Activated += OnActivated;
+
+        void OnActivated(object sender, Microsoft.UI.Xaml.WindowActivatedEventArgs args)
+        {
+            window.Activated -= OnActivated;
+            StartupSplash.RemoveFromTaskbar();
+        }
     }
 
     private static bool TryHold(nint hwnd, ViewerLoadState viewerLoadState)
@@ -48,6 +53,7 @@ internal static class SplashHandOff
         var belowScreens = GetSystemMetrics(SM_YVIRTUALSCREEN) + GetSystemMetrics(SM_CYVIRTUALSCREEN) + 100;
         //off screen, not hidden: the page loads and paints there, so the window arrives finished
         if (!MoveTo(hwnd, onScreen.Left, belowScreens)) return false;
+        var parkedTop = NormalPosition(hwnd)?.rcNormalPosition.Top;
         _ = RevealWhenLoaded();
         return true;
 
@@ -59,9 +65,23 @@ internal static class SplashHandOff
             }
             finally
             {
-                if (!MoveNormalPosition(hwnd, onScreen.Top - belowScreens)) MoveTo(hwnd, onScreen.Left, onScreen.Top);
+                MoveBack();
                 StartupSplash.Close();
             }
+        }
+
+        void MoveBack()
+        {
+            //only if it's still where we put it: moving a window that something else placed meanwhile could put it above the screen
+            if (NormalPosition(hwnd) is { } placement && placement.rcNormalPosition.Top == parkedTop)
+            {
+                placement.rcNormalPosition.Top -= belowScreens - onScreen.Top;
+                placement.rcNormalPosition.Bottom -= belowScreens - onScreen.Top;
+                //the placement, because SetWindowPos doesn't move the restored position of a window that was minimized or maximized meanwhile
+                SetWindowPlacement(hwnd, ref placement);
+            }
+            //whatever happened above, don't leave it where no monitor shows it
+            if (!IsIconic(hwnd) && MonitorFromWindow(hwnd, MONITOR_DEFAULTTONULL) == 0) MoveTo(hwnd, onScreen.Left, onScreen.Top);
         }
     }
 
@@ -70,13 +90,9 @@ internal static class SplashHandOff
         return SetWindowPos(hwnd, 0, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
     }
 
-    /// <summary>Unlike SetWindowPos, this also moves a window that was minimized or maximized while it waited.</summary>
-    private static bool MoveNormalPosition(nint hwnd, int down)
+    private static WINDOWPLACEMENT? NormalPosition(nint hwnd)
     {
         var placement = new WINDOWPLACEMENT { length = Marshal.SizeOf<WINDOWPLACEMENT>() };
-        if (!GetWindowPlacement(hwnd, ref placement)) return false;
-        placement.rcNormalPosition.Top += down;
-        placement.rcNormalPosition.Bottom += down;
-        return SetWindowPlacement(hwnd, ref placement);
+        return GetWindowPlacement(hwnd, ref placement) ? placement : null;
     }
 }

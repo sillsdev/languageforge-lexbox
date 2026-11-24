@@ -14,6 +14,8 @@ namespace FwLiteMaui.WinUI;
 /// </summary>
 internal static class StartupSplash
 {
+    /// <summary>Set this environment variable to start without the splash, for a machine where it misbehaves.</summary>
+    public const string DisableVariable = "FWLITE_NO_SPLASH";
     private const string ClassName = "FwLiteStartupSplash";
     private const string LogoResource = "splash-logo.png";
     private const int WidthDip = 380, HeightDip = 240, LogoDip = 96;
@@ -32,6 +34,7 @@ internal static class StartupSplash
     {
         //a toast click starts the process as a COM server, which may never open a window
         if (args.Contains("-ToastActivated")) return;
+        if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable(DisableVariable))) return;
         _requested = true;
         new Thread(Run) { IsBackground = true, Name = "Startup splash" }.Start();
     }

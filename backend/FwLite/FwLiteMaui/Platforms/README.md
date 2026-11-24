@@ -14,6 +14,7 @@ Each line was checked against the code it names. Read the cited file before chan
 
 - MAUI's splash screen is Android/iOS only and the manifest `uap:SplashScreen` is ignored for WinUI 3 desktop apps, hence the native window started from `Windows/Program.cs`.
 - The main window waits off screen and is revealed once the viewer reports its first screen through `lexbox.WhenFirstScreenReady` (`frontend/viewer/src/lib/first-screen.ts`). Revealing as soon as the data arrives shows a white window for 200 to 350 ms.
+- A failure in the splash or the hand-off must never stop the app from opening; both fall back to a normal start. Env `FWLITE_NO_SPLASH=1` skips them, for a machine where they misbehave.
 - Portable (single-file) builds show nothing for 10 to 20 s on the first run of a new exe: that wait is before .NET starts, so the splash can't cover it.
 
 ## Android (`Android/AndroidInAppUpdateService.cs`)
