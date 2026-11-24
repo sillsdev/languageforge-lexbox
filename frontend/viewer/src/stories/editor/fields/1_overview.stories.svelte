@@ -4,6 +4,10 @@
   import * as Editor from '$lib/components/editor';
   import {writingSystems as demoWritingSystems} from '$project/demo/demo-entry-data';
   import {inputVariants} from '$lib/components/ui/input/input.svelte';
+  import {Input} from '$lib/components/ui/input';
+  import {Button} from '$lib/components/ui/button';
+  import AudioInput from '$lib/components/field-editors/audio-input.svelte';
+  import type {Snippet} from 'svelte';
 
   const { Story } = defineMeta({
     title: 'editor/fields/overview',
@@ -14,7 +18,85 @@
   const ws3 = demoWritingSystems.vernacular[0];
   const writingSystems2 = [ws1, ws2];
   const writingSystems3 = [ws1, ws2, ws3];
+
+  const posOptions = [{value: 'Noun'}, {value: 'Verb'}, {value: 'Adjective'}, {value: 'Adverb'}];
+  const richValue = {spans: [{ws: ws1.wsId, text: 'Value '}, {ws: ws2.wsId, text: 'Value'}]};
 </script>
+
+{#snippet matrixRow(name: string, field: Snippet<[{readonly: boolean; empty: boolean}]>, disabled?: Snippet)}
+  <div class="col-span-full font-bold mt-4 border-b">{name}</div>
+  {#each [false, true] as empty (empty)}
+    <div class="text-muted-foreground text-sm self-center">{empty ? 'Empty' : 'Filled'}</div>
+    {#each [false, true] as readonly (readonly)}
+      <Editor.Root>
+        <Editor.Grid class="grid-cols-1!">
+          <Editor.Field.Root>
+            <Editor.Field.Body subGrid>
+              {@render field({readonly, empty})}
+            </Editor.Field.Body>
+          </Editor.Field.Root>
+        </Editor.Grid>
+      </Editor.Root>
+    {/each}
+    <div class="text-muted-foreground text-sm self-center">
+      {#if disabled && !empty}{@render disabled()}{:else if !disabled}n/a{/if}
+    </div>
+  {/each}
+{/snippet}
+
+{#snippet wsInput({readonly, empty}: {readonly: boolean; empty: boolean})}
+  <WsInput {readonly} value={empty ? undefined : 'Value'} writingSystem={ws1} />
+{/snippet}
+{#snippet richWsInput({readonly, empty}: {readonly: boolean; empty: boolean})}
+  <RichWsInput {readonly} value={empty ? undefined : richValue} writingSystem={ws1} />
+{/snippet}
+{#snippet multiWsInput({readonly, empty}: {readonly: boolean; empty: boolean})}
+  <MultiWsInput {readonly} value={empty ? {} : {[ws1.wsId]: 'Value'}} writingSystems={writingSystems2} />
+{/snippet}
+{#snippet richMultiWsInput({readonly, empty}: {readonly: boolean; empty: boolean})}
+  <RichMultiWsInput {readonly} value={empty ? {} : {[ws1.wsId]: richValue}} writingSystems={writingSystems2} />
+{/snippet}
+{#snippet select({readonly, empty}: {readonly: boolean; empty: boolean})}
+  <Select {readonly} value={empty ? undefined : posOptions[0]} idSelector="value" labelSelector="value" options={posOptions} />
+{/snippet}
+{#snippet multiSelect({readonly, empty}: {readonly: boolean; empty: boolean})}
+  <MultiSelect {readonly} values={empty ? [] : posOptions.slice(0, 2)} idSelector="value" labelSelector="value" options={posOptions} />
+{/snippet}
+{#snippet audioInput({readonly, empty}: {readonly: boolean; empty: boolean})}
+  <AudioInput {readonly} audioId={empty ? undefined : 'demo-audio'} />
+{/snippet}
+{#snippet nativeInput({readonly, empty}: {readonly: boolean; empty: boolean})}
+  <Input {readonly} value={empty ? '' : 'Value'} />
+{/snippet}
+{#snippet nativeInputDisabled()}
+  <Input disabled value="Value" />
+{/snippet}
+{#snippet outlineButton({readonly}: {readonly: boolean; empty: boolean})}
+  <Button variant="outline" class="w-full" disabled={readonly}>Value</Button>
+{/snippet}
+{#snippet outlineButtonDisabled()}
+  <Button variant="outline" class="w-full" disabled>Value</Button>
+{/snippet}
+
+<Story name="State matrix" parameters={{fwlite: {resizable: false}}}>
+  {#snippet template()}
+    <div class="grid grid-cols-[auto_repeat(3,minmax(0,1fr))] gap-x-4 gap-y-2 items-start p-2">
+      <div></div>
+      <div class="font-bold">Editable</div>
+      <div class="font-bold">Read-only</div>
+      <div class="font-bold">Disabled <span class="font-normal text-muted-foreground">(field editors have no disabled prop)</span></div>
+      {@render matrixRow('Native Input (reference)', nativeInput, nativeInputDisabled)}
+      {@render matrixRow('Outline Button (reference, read-only = disabled)', outlineButton, outlineButtonDisabled)}
+      {@render matrixRow('WS Input', wsInput)}
+      {@render matrixRow('Rich WS Input', richWsInput)}
+      {@render matrixRow('Multi WS Input', multiWsInput)}
+      {@render matrixRow('Rich Multi WS Input', richMultiWsInput)}
+      {@render matrixRow('Select', select)}
+      {@render matrixRow('Multi Select', multiSelect)}
+      {@render matrixRow('Audio Input', audioInput)}
+    </div>
+  {/snippet}
+</Story>
 
 <Story name="All fields">
   {#snippet template()}

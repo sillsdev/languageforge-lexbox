@@ -3,9 +3,10 @@
   import type {Task} from './tasks-service';
   import ReviewList from './ReviewList.svelte';
   import {type TaskSubject} from './subject.svelte';
-  import {t} from 'svelte-i18n-lingui';
+  import {plural, t} from 'svelte-i18n-lingui';
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
+  import {useTasksStats} from './tasks-stats.svelte';
 
   let {
     subjects,
@@ -15,12 +16,15 @@
     },
     onContinue = () => {
     },
+    onClose = () => {
+    },
   }: {
     subjects: TaskSubject[],
     allSubjects: TaskSubject[],
     task: Task,
     onFinish: () => void,
     onContinue: () => void,
+    onClose: () => void,
   } = $props();
 
   // Compute a larger flex-basis at the edges and smaller in the center.
@@ -46,25 +50,60 @@
   });
   let review = $state(false);
   const viewService = useViewService();
+  const statsResource = useTasksStats();
+  const remaining = $derived(statsResource.current.progress[task.id]?.remaining);
+  const taskComplete = $derived(remaining === 0);
+  // A task can fill several senses or examples of one entry.
+  const filledEntries = $derived(new Set(subjects.map(subject => subject.entry.id)).size);
+
+  function filledText(count: number): string {
+    return pt(
+      $plural(count, {one: 'You filled in # entry', other: 'You filled in # entries'}),
+      $plural(count, {one: 'You filled in # word', other: 'You filled in # words'}),
+      viewService.currentView);
+  }
+
+  function remainingText(count: number): string {
+    return pt(
+      $plural(count, {one: '# entry to go', other: '# entries to go'}),
+      $plural(count, {one: '# word to go', other: '# words to go'}),
+      viewService.currentView);
+  }
 </script>
 {#if !review}
-  <div class="flex flex-col items-center justify-center">
-    <h1 class="text-8xl pb-2">🎊</h1>
-    <h2 class="text-lg">{$t`You completed ${subjects.length} ${pt(task.subject, viewService.currentView)}`}</h2>
-    <div class="flex flex-wrap gap-2 justify-center mt-4 max-w-2xl">
-      {#each subjects as subject, index (subject)}
-        <span class="px-2 py-1 bg-primary text-primary-foreground rounded text-center min-w-max"
-              style="flex: 0 0 {basis[index]}%">
-          {subject.subject}
-        </span>
-      {/each}
+  <div class="flex grow flex-col">
+    <!-- Desktop: twice the space below as above, since truly centered content looks low. -->
+    <div class="max-md:hidden md:grow"></div>
+    <div class="flex flex-col items-center gap-2 p-4 text-center">
+      <span aria-hidden="true" class="text-5xl">🎊</span>
+      <!-- Focus the heading, not a button: the Enter that saved the last item would otherwise press it.
+           One heading, so focus stays put when the counts arrive and the task turns out complete. -->
+      <h2 tabindex="-1" {@attach el => el.focus()} class="text-xl font-semibold outline-none">
+        {taskComplete ? $t`This task is complete` : filledText(filledEntries)}
+      </h2>
+      {#if taskComplete}
+        <p class="text-muted-foreground">{filledText(filledEntries)}</p>
+      {:else if remaining}
+        <p class="text-muted-foreground tabular-nums">{remainingText(remaining)}</p>
+      {/if}
+      <div class="flex flex-wrap gap-2 justify-center mt-2 max-w-2xl">
+        {#each subjects as subject, index (subject)}
+          <span class="px-2 py-1 bg-primary text-primary-foreground rounded text-center min-w-max"
+                style="flex: 0 0 {basis[index]}%">
+            {subject.subject}
+          </span>
+        {/each}
+      </div>
     </div>
-  </div>
-  <div class="grow"></div>
-  <div class="px-4 pt-4 pb-2 flex flex-col gap-2 self-stretch">
-    <p>{$t`Do you want to:`}</p>
-    <Button variant="secondary" onclick={onContinue}>{$t`Keep going`}</Button>
-    <Button autofocus onclick={() => review = true}>{$t`Review`}</Button>
+    <div class="grow md:hidden"></div>
+    <div class="px-4 pt-4 pb-2 flex flex-col gap-2 self-stretch md:self-center md:w-full md:max-w-sm">
+      {#if !taskComplete}
+        <Button onclick={onContinue}>{$t`Keep going`}</Button>
+      {/if}
+      <Button variant={taskComplete ? 'default' : 'outline'} icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}} onclick={onClose}>{$t`Back to tasks`}</Button>
+      <Button variant="outline" onclick={() => review = true}>{$t`Review what you filled in`}</Button>
+    </div>
+    <div class="max-md:hidden md:grow-[2]"></div>
   </div>
 {:else}
   <ReviewList subjects={allSubjects} onFinish={() => onFinish()}></ReviewList>

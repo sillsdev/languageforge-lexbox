@@ -30,14 +30,15 @@ export class DialogsService {
     this.#invokeManageCustomViews = dialog;
   }
 
-  async createNewEntry(headword?: string, newEntry?: EntryTemplate, newSense?: SenseTemplate): Promise<IEntry | undefined> {
+  /** `search.wsId` is the writing system the search text was typed in; it defaults to the project's default vernacular. */
+  async createNewEntry(search?: {text: string, wsId?: string}, newEntry?: EntryTemplate, newSense?: SenseTemplate): Promise<IEntry | undefined> {
     if (!this.#invokeNewEntryDialog) throw new Error('No new entry dialog');
     const partialEntry: Partial<IEntry> = {};
     Object.assign(partialEntry, newEntry);
-    if (headword) {
-      const defaultWs = this.writingSystemService.defaultVernacular?.wsId;
-      if (defaultWs === undefined) throw new Error('No default vernacular');
-      partialEntry.lexemeForm = {[defaultWs]: headword};
+    if (search?.text) {
+      const wsId = search.wsId ?? this.writingSystemService.defaultVernacular?.wsId;
+      if (wsId === undefined) throw new Error('No default vernacular');
+      partialEntry.lexemeForm = {[wsId]: search.text};
     }
     const entry = await this.#invokeNewEntryDialog(partialEntry, newSense);
     return entry;

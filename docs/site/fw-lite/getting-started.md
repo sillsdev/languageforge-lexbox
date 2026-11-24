@@ -57,6 +57,8 @@ Then press **Refresh Projects** (the circular arrow next to your name). Still mi
 
 Tap the project in the list to open it. **Browse** shows your words. Pick one and change a
 field. To add a word, use **New Word** (on a phone the button just says **New**).
+Type an affix the way FieldWorks Classic does, such as `-ed` for a suffix or `re-` for a
+prefix: FieldWorks Lite sets its morph type and saves the word without the markers.
 
 <Screenshot name="project-word-open" alt="A project open in Browse: the word list in the middle and the selected word's fields on the right" />
 

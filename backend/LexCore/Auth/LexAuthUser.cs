@@ -11,9 +11,10 @@ namespace LexCore.Auth;
 
 public record LexAuthUser
 {
-    // from testing done in November 2023, we started getting errors at 10,200 chars. See HeaderTests.CheckCloudflareHeaderSizeLimit.
-    public const int MaxJwtLength = 9000;
-    public const int MaxProjectCount = 170;
+    // The auth cookie must fit in one 8 KB header line at our ingress. See HeaderTests.CheckHeaderSizeLimit.
+    public const int MaxJwtLength = 7000;
+    // Not enforced: a non-admin with more projects gets a JWT the ingress may reject (~44 chars per project).
+    public const int MaxProjectCount = 140;
     public const long NewUserUpdatedTimestamp = -1;
     public static readonly JsonTypeInfo LexAuthUserTypeInfo =
         JsonSerializerOptions.Default.GetTypeInfo(typeof(LexAuthUser));

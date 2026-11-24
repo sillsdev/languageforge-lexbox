@@ -11,8 +11,12 @@
   import {watch} from 'runed';
   import {computeCommandScore} from 'bits-ui';
   import CommandSeparator from '../ui/command/command-separator.svelte';
+  import {Input} from '../ui/input';
+  import {tryUseFieldBody} from '../editor/field/field-root.svelte';
 
   type Value = ReadonlyDeep<MutableValue>;
+
+  const labelledBy = tryUseFieldBody()?.labelId;
 
   let {
     value = $bindable(),
@@ -24,6 +28,7 @@
     clearable?: boolean | 'row' | 'button';
     idSelector: ConditionalKeys<Value, Primitive> | ((value: Value) => Primitive);
     labelSelector: ConditionalKeys<Value, string> | ((value: Value) => string);
+    groupSelector?: (value: Value) => string;
     placeholder?: string;
     filterPlaceholder?: string;
     emptyResultsPlaceholder?: string;
@@ -38,6 +43,7 @@
     clearable = false,
     idSelector,
     labelSelector,
+    groupSelector,
     placeholder,
     filterPlaceholder,
     emptyResultsPlaceholder,
@@ -92,21 +98,28 @@
 
   const RENDER_LIMIT = 100;
   const renderedOptions = $derived(filteredOptions.slice(0, RENDER_LIMIT));
+  const renderedGroups = $derived.by(() => {
+    if (!groupSelector) return [{heading: undefined, options: renderedOptions}];
+    const groups: {heading: string; options: Value[]}[] = [];
+    for (const option of renderedOptions) {
+      const heading = groupSelector(option);
+      const group = groups.find((g) => g.heading === heading);
+      if (group) group.options.push(option);
+      else groups.push({heading, options: [option]});
+    }
+    return groups;
+  });
 </script>
 
 {#snippet trigger({props}: {props: Record<string, unknown>})}
   <div class="relative w-full">
     <Button
-      disabled={readonly}
       bind:ref={triggerRef}
       variant="outline"
       {...props}
       role="combobox"
       aria-expanded={open}
-      class={cn(
-        'w-full h-auto min-h-10 px-2 justify-between disabled:opacity-100 disabled:border-transparent',
-        className,
-      )}
+      class={cn('w-full h-auto min-h-10 px-2 justify-between', className)}
     >
       {#if value}
         <span class="x-ellipsis mr-4">
@@ -120,18 +133,16 @@
         </span>
       {/if}
     </Button>
-    {#if !readonly}
-      <div class="absolute right-0 z-10 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none">
-        {#if clearable === true || clearable === 'button'}
-          <XButton
-            onclick={() => selectValue(undefined)}
-            aria-label={$t`clear`}
-            class={cn('pointer-events-auto bg-transparent', value || 'invisible')}
-          />
-        {/if}
-        <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
-      </div>
-    {/if}
+    <div class="absolute right-0 z-10 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none">
+      {#if clearable === true || clearable === 'button'}
+        <XButton
+          onclick={() => selectValue(undefined)}
+          aria-label={$t`clear`}
+          class={cn('pointer-events-auto bg-transparent', value || 'invisible')}
+        />
+      {/if}
+      <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
+    </div>
   </div>
 {/snippet}
 
@@ -158,34 +169,44 @@
         </CommandGroup>
         <CommandSeparator />
       {/if}
-      <CommandGroup>
-        {#each renderedOptions as option, i (getId(option))}
-          {@const label = getLabel(option)}
-          {@const id = getId(option)}
-          {@const selected = value && getId(value) === id}
-          <CommandItem
-            keywords={[label.toLocaleLowerCase()]}
-            value={label.toLocaleLowerCase() + String(id)}
-            onSelect={() => selectValue(option)}
-            class={cn('group h-12 md:h-9', label || 'text-muted-foreground')}
-            data-value-index={i}
-            aria-label={label}
-          >
-            <Icon icon="i-mdi-check" class={cn('md:hidden', selected || 'invisible')} />
-            {label || $t`Untitled`}
-          </CommandItem>
-        {/each}
-        {#if renderedOptions.length < filteredOptions.length}
-          <div class="text-muted-foreground text-sm px-2 py-1">
-            {$t`Refine your filter to see more...`}
-          </div>
-        {/if}
-      </CommandGroup>
+      {#each renderedGroups as group, g (group.heading ?? '')}
+        <CommandGroup heading={group.heading}>
+          {#each group.options as option (getId(option))}
+            {@const label = getLabel(option)}
+            {@const id = getId(option)}
+            {@const selected = value && getId(value) === id}
+            <CommandItem
+              keywords={[label.toLocaleLowerCase()]}
+              value={label.toLocaleLowerCase() + String(id)}
+              onSelect={() => selectValue(option)}
+              class={cn('group h-12 md:h-9', label || 'text-muted-foreground')}
+              data-value-index={renderedOptions.indexOf(option)}
+              aria-label={label}
+            >
+              <Icon icon="i-mdi-check" class={cn('md:hidden', selected || 'invisible')} />
+              {label || $t`Untitled`}
+            </CommandItem>
+          {/each}
+          {#if g === renderedGroups.length - 1 && renderedOptions.length < filteredOptions.length}
+            <div class="text-muted-foreground text-sm px-2 py-1">
+              {$t`Refine your filter to see more...`}
+            </div>
+          {/if}
+        </CommandGroup>
+      {/each}
     </CommandList>
   </Command>
 {/snippet}
 
-{#if IsMobile.value}
+{#if readonly}
+  <Input
+    readonly
+    value={value ? getLabel(value) || $t`Untitled` : ''}
+    placeholder={placeholder ?? $t`None`}
+    aria-labelledby={labelledBy}
+    class={className}
+  />
+{:else if IsMobile.value}
   <Drawer bind:open>
     <DrawerTrigger child={trigger} />
     <DrawerContent handle={true} class="overflow-hidden">
