@@ -3,6 +3,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using FwLiteShared.LocalSync.Hosting;
 using Microsoft.Extensions.Logging;
+using Windows.Devices.Radios;
 using Windows.Devices.WiFiDirect;
 using Windows.Security.Credentials;
 
@@ -25,6 +26,8 @@ public sealed class WindowsAccessPoint(ILogger<WindowsAccessPoint> logger) : IAc
     public async Task<AccessPointInfo> Start(AccessPointCredentials network, CancellationToken cancellationToken = default)
     {
         await Stop();
+        // Windows reports a switched-off radio as an aborted start whose error is "Success", so check first
+        if (await IsWifiOff()) throw new AccessPointUnavailableException(WifiOffMessage);
         var started = new TaskCompletionSource<WiFiDirectAdvertisementPublisherStatusChangedEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
         var publisher = new WiFiDirectAdvertisementPublisher();
         publisher.Advertisement.IsAutonomousGroupOwnerEnabled = true;
@@ -43,7 +46,12 @@ public sealed class WindowsAccessPoint(ILogger<WindowsAccessPoint> logger) : IAc
             publisher.Start();
             var status = await started.Task.WaitAsync(StartTimeout, cancellationToken);
             if (status.Status != WiFiDirectAdvertisementPublisherStatus.Started)
-                throw new AccessPointUnavailableException($"Windows couldn't create the Wi-Fi network ({status.Error})");
+                throw new AccessPointUnavailableException(status.Error switch
+                {
+                    WiFiDirectError.RadioNotAvailable => WifiOffMessage,
+                    WiFiDirectError.ResourceInUse => "Wi-Fi is busy with something else, such as Mobile hotspot. Turn that off, then try again.",
+                    _ => "Windows couldn't create the Wi-Fi network",
+                });
 
             var address = await WaitForAddress(cancellationToken)
                           ?? throw new AccessPointUnavailableException("The Wi-Fi network was created but never got an address");
@@ -62,8 +70,28 @@ public sealed class WindowsAccessPoint(ILogger<WindowsAccessPoint> logger) : IAc
         }
     }
 
+    private const string WifiOffMessage = "Wi-Fi is turned off on this computer. Turn it on, then try again.";
+
+    private async Task<bool> IsWifiOff()
+    {
+        try
+        {
+            var radios = await Radio.GetRadiosAsync();
+            var wifi = radios.Where(r => r.Kind == RadioKind.WiFi).ToList();
+            return wifi.Count > 0 && wifi.All(r => r.State != RadioState.On);
+        }
+        catch (Exception e)
+        {
+            // can't tell; starting the network reports the problem instead
+            logger.LogInformation(e, "Couldn't read the Wi-Fi radio's state");
+            return false;
+        }
+    }
+
     private void StopPublisher(WiFiDirectAdvertisementPublisher publisher)
     {
+        // stopping one that already stopped or aborted throws; one still starting (a timeout) must be stopped
+        if (publisher.Status is WiFiDirectAdvertisementPublisherStatus.Aborted or WiFiDirectAdvertisementPublisherStatus.Stopped) return;
         try
         {
             publisher.Stop();

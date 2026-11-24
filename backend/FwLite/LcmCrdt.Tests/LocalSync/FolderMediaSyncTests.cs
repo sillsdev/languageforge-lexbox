@@ -102,6 +102,18 @@ public class FolderMediaSyncTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task APictureNoDeviceHasUploaded_IsNotFoundRatherThanDownloaded()
+    {
+        var picture = await TakePictureOnA();
+        // the commits arrive without the file, as over Wi-Fi before media is copied there
+        await _b.DataModel.SyncWith(_a.DataModel);
+
+        var file = await _b.GetService<LcmMediaService>().GetFileStream(picture, downloadIfMissing: true);
+
+        file.Result.Should().Be(ReadFileResult.NotFound, "Lexbox has no copy to download yet");
+    }
+
+    [Fact]
     public async Task EachFileIsCopiedOnce()
     {
         await TakePictureOnA();
