@@ -14,6 +14,7 @@
   import {Icon} from '$lib/components/ui/icon';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
   import ViewErrorBoundary from '$lib/layout/ViewErrorBoundary.svelte';
+  import {useProjectStorage} from '$lib/storage';
 
   // The open task lives in the URL so Back and reload work.
   const openTask = new QueryParamState({key: 'taskId', allowBack: true, replaceOnDefaultValue: true});
@@ -26,12 +27,29 @@
 
   const selectedTask = $derived(tasksService.listTasks().find(task => task.id === openTask.current));
 
-  function selectTask(taskId: string) {
+  // Here rather than in the list, so tasks opened from the Dashboard or a link count as recent too.
+  const projectStorage = useProjectStorage();
+  watch([() => selectedTask?.id, () => projectStorage.recentTasks.loading], ([taskId, loading]) => {
+    // Writing before the stored list has loaded would overwrite it.
+    if (!taskId || loading) return;
+    const known = tasksService.listTasks().map(task => task.id);
+    const stored = projectStorage.recentTasks.current.split(',').filter(id => id !== taskId && known.includes(id));
+    void projectStorage.recentTasks.set([taskId, ...stored].slice(0, 5).join());
+  });
+
+  let lastOrigin: 'recent' | 'list' = 'list';
+  function selectTask(taskId: string, origin: 'recent' | 'list') {
+    lastOrigin = origin;
     openTask.current = taskId;
   }
   function closeTask() {
     openTask.current = '';
   }
+  let lastTask = $state<{id: string, origin: 'recent' | 'list'}>();
+  // pre, so the remounting list already has it when its own watch first runs.
+  watch.pre(() => openTask.current, (current, previous) => {
+    if (!current && previous) lastTask = {id: previous, origin: lastOrigin};
+  });
 
   function writingSystemOf(task: Task): IWritingSystem | undefined {
     if (!task.subjectWritingSystemId) return undefined;
@@ -57,7 +75,7 @@
   <div class="flex flex-row items-center gap-1 min-w-0">
     <SidebarTrigger icon="i-mdi-menu" class="aspect-square shrink-0 p-0" />
     {#if openTask.current}
-      <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" onclick={closeTask} aria-label={$t`Back to tasks`} />
+      <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}} onclick={closeTask} aria-label={$t`Back to tasks`} />
     {/if}
     <!-- One line at every width. The header queries its OWN width (not the viewport — the sidebar makes viewport
          a poor proxy) and drops the least-important parts as it narrows, in order: full name + dash, then the
@@ -88,7 +106,7 @@
     {#if openTask.current}
       <TaskView taskId={openTask.current} onClose={closeTask}/>
     {:else}
-      <TaskList onSelect={selectTask} />
+      <TaskList onSelect={selectTask} {lastTask} />
     {/if}
   </ViewErrorBoundary>
 </div>
