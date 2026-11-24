@@ -73,7 +73,7 @@ const configMain: webpack.Configuration = merge(configBase, {
         // We want all files from the assets folder copied into the output folder under assets
         { from: 'assets', to: './assets/', noErrorOnMissing: true },
         {
-          from: '../logos/fieldworks-lite/png/fieldworks-lite-micro-reversed-64.png',
+          from: '../logos/fieldworks-lite/png/fieldworks-lite-micro-64.png',
           to: './assets/fieldworks-lite.png',
         },
         // We want all files from the contributions folder copied into the output folder under contributions

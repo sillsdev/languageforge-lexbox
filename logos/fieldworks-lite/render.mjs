@@ -25,7 +25,7 @@ render(import.meta.dirname, {
     'fieldworks-lite-splash-512.png': ['fieldworks-lite-splash.svg', 512],
 
     // Platform.Bible tab icon: shown at 16 px, so the micro drawing, at 4x for high-density screens.
-    'fieldworks-lite-micro-reversed-64.png': ['fieldworks-lite-micro-reversed.svg', 64],
+    'fieldworks-lite-micro-64.png': ['fieldworks-lite-micro.svg', 64],
 
     'fieldworks-lite-appicon-512.png': ['fieldworks-lite-appicon.svg', 512],
     'fieldworks-lite-appicon-1024.png': ['fieldworks-lite-appicon.svg', 1024],
