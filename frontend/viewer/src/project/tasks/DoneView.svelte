@@ -96,7 +96,7 @@
       {#if !taskComplete}
         <Button autofocus onclick={onContinue}>{$t`Keep going`}</Button>
       {/if}
-      <Button variant={taskComplete ? 'default' : 'outline'} autofocus={taskComplete} icon="i-mdi-arrow-left" onclick={onClose}>{$t`Back to tasks`}</Button>
+      <Button variant={taskComplete ? 'default' : 'outline'} autofocus={taskComplete} icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}} onclick={onClose}>{$t`Back to tasks`}</Button>
       <Button variant="ghost" onclick={() => review = true}>{$t`Review what you filled in`}</Button>
     </div>
   </div>

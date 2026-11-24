@@ -64,7 +64,7 @@
   <div class="flex flex-row items-center gap-1 min-w-0">
     <SidebarTrigger icon="i-mdi-menu" class="aspect-square shrink-0 p-0" />
     {#if openTask.current}
-      <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" onclick={closeTask} aria-label={$t`Back to tasks`} />
+      <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}} onclick={closeTask} aria-label={$t`Back to tasks`} />
     {/if}
     <!-- One line at every width. The header queries its OWN width (not the viewport — the sidebar makes viewport
          a poor proxy) and drops the least-important parts as it narrows, in order: full name + dash, then the

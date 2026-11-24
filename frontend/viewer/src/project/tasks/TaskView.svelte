@@ -66,7 +66,7 @@
           <Icon icon="i-mdi-check-circle-outline" class="text-primary size-16" />
           <h1 class="text-xl font-semibold">{$t`This task is complete`}</h1>
           <p class="text-muted-foreground max-w-sm">{pt($t`Every entry already has this field filled in.`, $t`Every word already has this field filled in.`, viewService.currentView)}</p>
-          <Button variant="outline" icon="i-mdi-arrow-left" onclick={onClose} class="mt-2">{$t`Back to tasks`}</Button>
+          <Button variant="outline" icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}} onclick={onClose} class="mt-2">{$t`Back to tasks`}</Button>
         </div>
       {/if}
       <div class={cn('contents', entryCount === 0 && 'hidden')}>

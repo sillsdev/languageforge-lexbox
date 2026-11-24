@@ -165,8 +165,7 @@
     void tick().then(() => focusFirst(key ? '#task-languages-heading' : `[data-field-key="${previousKey}"]`));
   }, {lazy: true});
 
-  // The language panel starts level with the selected row, so the row's pointer always lands on it,
-  // but never hangs past the end of the list and stretches the page.
+  // Level with the selected row so its pointer lands on the panel, but never past the list's end (that would stretch the page).
   let fieldColumn = $state<HTMLElement>();
   let panel = $state<HTMLElement>();
   let listHeight = $state(0);
@@ -238,7 +237,6 @@
     <span id="task-starts-hint" hidden>{$t`Starts the task`}</span>
     {#if !drilledIn}
       <div class="flex flex-col gap-4">
-        <!-- Same disclosure link style as "What can a plugin do?" on the plugins page. -->
         <p class="text-muted-foreground">
           {$t`Fill in what's missing, a few at a time.`}
           <!-- Plain primary is too dark to read as text on the dark background. -->
@@ -274,7 +272,6 @@
                 <button type="button" data-recent-task-id={task.id} aria-describedby="task-starts-hint" onclick={() => openTask(task, 'recent')}
                   class="bg-card hover:bg-accent focus-visible:ring-ring/50 flex size-full items-center gap-3 rounded-lg border px-4 py-3 text-start focus-visible:ring-[3px] focus-visible:outline-none">
                   <span class="flex min-w-0 grow flex-col">
-                    <!-- Field and language share a line on phones to keep the stacked tiles short. -->
                     <span class="flex flex-wrap items-baseline gap-x-2 md:flex-col md:items-start">
                       <span class="font-medium">{text(taskLabel(task))}</span>
                       {#if ws}<span class="text-sm">{@render wsName(ws)}</span>{/if}
@@ -341,12 +338,11 @@
         {/if}
 
         {#if pickedField}
-          <!-- Tinted like the selected field row, to show the languages belong to it. Scrolls itself if taller than the view. -->
           <div bind:this={panel} bind:offsetHeight={panelHeight} style:--panel-offset="{panelOffset}px"
             class="flex flex-col gap-4 md:sticky md:top-0 md:bottom-0 md:mt-(--panel-offset) md:max-h-[calc(100dvh-6rem)] md:overflow-y-auto md:rounded-lg md:border md:border-primary/25 md:bg-primary/5 md:p-4 md:dark:bg-primary/10">
             <div class="flex items-start gap-1">
               {#if drilledIn}
-                <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" aria-label={$t`Back to all tasks`} onclick={() => fieldParam.current = ''} />
+                <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}} aria-label={$t`Back to all tasks`} onclick={() => fieldParam.current = ''} />
               {/if}
               <div class="flex min-w-0 flex-wrap items-baseline gap-x-2">
                 <h3 id="task-languages-heading" tabindex="-1" class="text-base font-semibold outline-none">{pickedField.label}</h3>
