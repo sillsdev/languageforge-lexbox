@@ -45,7 +45,7 @@ so an SVG that switched to the tiny drawing at 32 px would put the ล into 16 p
 
 For places that don't take SVG, `render.mjs` writes PNGs to `png/`: light and reversed at 16, 32, 48, 128 and 512 px (each from the
 right drawing), the app icons (the store one with no alpha channel, which App Store Connect requires), and the circle and splash files at 512.
-`png/` is committed because the app builds use some of these files and can't run the script. The script also rebuilds the favicons
+Only the files app builds read are committed (builds can't run the script); `logos/.gitignore` lists them. The script also rebuilds the favicons
 and the copies the viewer and docs keep, so run it after editing a drawing, and add a row to its table for a new size.
 
 ```sh
