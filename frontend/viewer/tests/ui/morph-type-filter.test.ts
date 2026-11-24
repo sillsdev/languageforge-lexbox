@@ -24,6 +24,7 @@ test('Lite morph type preset follows the view and Reset', async ({page}) => {
     await page.getByRole('button', {name: 'Show all'}).click();
     await expect(morphTypeTrigger('Any morph type')).toBeVisible();
     await expect(hint).toBeHidden();
+    await expect(morphTypeTrigger('Any morph type')).toBeFocused();
     await expect(resetButton).toBeEnabled();
 
     await resetButton.click();

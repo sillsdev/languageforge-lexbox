@@ -963,6 +963,7 @@ msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
+#: src/project/browse/SearchFilter.svelte
 msgid "Comments"
 msgstr "댓글"
 
@@ -1859,6 +1860,10 @@ msgstr "필드"
 msgid "Fields"
 msgstr "필드"
 
+#: src/project/SyncDialog.svelte
+msgid "FieldWorks Classic (in Lexbox)"
+msgstr ""
+
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite는 서비스 개선을 위해 사용 현황 데이터를 수집합니다."
@@ -1887,10 +1892,6 @@ msgstr "FieldWorks Lite 버전"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "FieldWorks 로고"
-
-#: src/project/SyncDialog.svelte
-msgid "FieldWorks Send/Receive (on Lexbox)"
-msgstr ""
 
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/plugin-api-adapter.ts
@@ -2161,18 +2162,6 @@ msgstr ""
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
 msgstr "Harmony 스냅샷이 성공적으로 재생성되었습니다."
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has comments"
-msgstr "댓글이 있습니다"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unread comments"
-msgstr "읽지 않은 댓글이 있습니다"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unresolved comments"
-msgstr "해결되지 않은 댓글이 있습니다"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -3775,10 +3764,6 @@ msgstr ""
 msgid "Runs in a sandbox, separate from the app"
 msgstr ""
 
-#: src/project/sync/SyncMethodList.svelte
-msgid "Runs on Lexbox, not with FieldWorks on this computer"
-msgstr ""
-
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
@@ -4238,6 +4223,10 @@ msgstr "동기화 완료. {0} 는 FieldWorks Classic에 적용되었습니다. {
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "FieldWorks Lite와 FieldWorks Classic 동기화"
+
+#: src/project/sync/SyncMethodList.svelte
+msgid "Sync FieldWorks Lite and FieldWorks Classic in Lexbox"
+msgstr ""
 
 #: src/home/OpenFromFolderItem.svelte
 msgid "Sync now"
@@ -4976,6 +4965,26 @@ msgstr "내 프로젝트는 어디에 있나요?"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "왜 그럴까요?"
+
+#. Option in the entry-list "Comments" filter: entries that have any comment threads.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With comments"
+msgstr ""
+
+#. Placeholder of the entry-list "Comments" filter when no option is chosen, i.e. comments do not filter the list.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With or without comments"
+msgstr ""
+
+#. Option in the entry-list "Comments" filter: entries with comments the user has not read.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unread comments"
+msgstr ""
+
+#. Option in the entry-list "Comments" filter: entries with comment threads not yet marked resolved.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unresolved comments"
+msgstr ""
 
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
 #: src/lib/activity/ChangeSummary.svelte

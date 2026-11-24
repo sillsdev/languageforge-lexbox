@@ -963,6 +963,7 @@ msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
+#: src/project/browse/SearchFilter.svelte
 msgid "Comments"
 msgstr "Bình luận"
 
@@ -1859,6 +1860,10 @@ msgstr "Trường"
 msgid "Fields"
 msgstr "Các trường"
 
+#: src/project/SyncDialog.svelte
+msgid "FieldWorks Classic (in Lexbox)"
+msgstr ""
+
 #: src/home/HomeView.svelte
 msgid "FieldWorks Lite collects usage data to help us improve it."
 msgstr "FieldWorks Lite thu thập dữ liệu sử dụng để giúp chúng tôi cải thiện ứng dụng này."
@@ -1887,10 +1892,6 @@ msgstr "Phiên bản FieldWorks Lite"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
-
-#: src/project/SyncDialog.svelte
-msgid "FieldWorks Send/Receive (on Lexbox)"
-msgstr ""
 
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/plugin-api-adapter.ts
@@ -2161,18 +2162,6 @@ msgstr ""
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
 msgstr "Các bản chụp nhanh Harmony đã được tạo lại thành công"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has comments"
-msgstr "Có bình luận"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unread comments"
-msgstr "Còn có bình luận chưa đọc"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unresolved comments"
-msgstr "Còn có các bình luận chưa được giải quyết"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -3775,10 +3764,6 @@ msgstr ""
 msgid "Runs in a sandbox, separate from the app"
 msgstr ""
 
-#: src/project/sync/SyncMethodList.svelte
-msgid "Runs on Lexbox, not with FieldWorks on this computer"
-msgstr ""
-
 #. Relevant view: Classic
 #. Lite view equivalent: "Same word"
 #. Badge on a possible-duplicate result: its headword is identical to the one being typed in the New Entry dialog
@@ -4238,6 +4223,10 @@ msgstr "Đồng bộ hoàn tất. {0} được áp dụng cho FieldWorks Classic
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Sync FieldWorks Lite and FieldWorks Classic"
 msgstr "Đồng bộ FieldWorks Lite và FieldWorks Classic"
+
+#: src/project/sync/SyncMethodList.svelte
+msgid "Sync FieldWorks Lite and FieldWorks Classic in Lexbox"
+msgstr ""
 
 #: src/home/OpenFromFolderItem.svelte
 msgid "Sync now"
@@ -4976,6 +4965,26 @@ msgstr "Dự án của tôi ở đâu?"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "Tại sao vậy?"
+
+#. Option in the entry-list "Comments" filter: entries that have any comment threads.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With comments"
+msgstr ""
+
+#. Placeholder of the entry-list "Comments" filter when no option is chosen, i.e. comments do not filter the list.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With or without comments"
+msgstr ""
+
+#. Option in the entry-list "Comments" filter: entries with comments the user has not read.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unread comments"
+msgstr ""
+
+#. Option in the entry-list "Comments" filter: entries with comment threads not yet marked resolved.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unresolved comments"
+msgstr ""
 
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
 #: src/lib/activity/ChangeSummary.svelte

@@ -58,7 +58,7 @@
 
   const methodTitles = $derived<Record<SyncMethod, string>>({
     lite: $t`Other FieldWorks Lite users`,
-    classic: $t`FieldWorks Send/Receive (on Lexbox)`,
+    classic: $t`FieldWorks Classic (in Lexbox)`,
     folder: $t`USB Drive / Folder`,
     nearby: 'Nearby devices',
   });
