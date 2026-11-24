@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Select from '$lib/components/ui/select';
   import {Icon} from '$lib/components/ui/icon';
-  import {t} from 'svelte-i18n-lingui';
+  import {plural, t} from 'svelte-i18n-lingui';
   import {MorphTypeKind} from '$lib/dotnet-types';
   import {useWritingSystemService} from '$project/data';
   import {useMorphTypesService} from '$project/data/morph-types.svelte';
@@ -74,12 +74,10 @@
       <span class="text-muted-foreground">{$t`Any morph type`}</span>
     {:else if selectedGroup}
       {selectedGroup.label}
-    {:else if selectedListed.length === 0}
-      {$t`${selected.length} morph types`}
-    {:else if selectedListed.length <= 3}
+    {:else if selectedListed.length > 0 && selectedListed.length <= 3}
       {options.filter(o => selected.includes(o.kind)).map(o => o.label).join(', ')}
     {:else}
-      {$t`${selectedListed.length} morph types`}
+      {$plural(selectedListed.length || selected.length, {one: '# morph type', other: '# morph types'})}
     {/if}
   </Select.Trigger>
   <Select.Content>

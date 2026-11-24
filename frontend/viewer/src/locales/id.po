@@ -157,11 +157,6 @@ msgstr ""
 msgid "{0} MB"
 msgstr "{0} MB"
 
-#: src/project/browse/filter/MorphTypeSelect.svelte
-#: src/project/browse/filter/MorphTypeSelect.svelte
-msgid "{0} morph types"
-msgstr ""
-
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
 msgstr "{0} balasan"
@@ -193,6 +188,12 @@ msgstr "{num, plural, other {# perubahan}}"
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
 msgstr "{num, plural, one {# sisa entri} other {# sisa entri}}"
+
+#. Text on the morph type filter dropdown trigger, summarizing the selection. # is the number of selected morph types.
+#. Morph type: linguistic category of an entry (e.g. stem, prefix, clitic).
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "{num, plural, one {# morph type} other {# morph types}}"
+msgstr ""
 
 #. Commit count display
 #: src/project/sync/FwClassicSyncView.svelte
@@ -484,6 +485,7 @@ msgstr ""
 msgid "Advanced: settings file"
 msgstr "Tingkat Lanjut: berkas pengaturan"
 
+#. Group header in the morph type filter list. Affixes are bound morphemes added to a stem (prefix, suffix, infix...).
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "Affixes"
 msgstr ""
@@ -511,6 +513,7 @@ msgstr "Semua jenis aktivitas"
 msgid "All authors"
 msgstr "Semua penulis"
 
+#. Option in the morph type filter list that selects or clears every morph type at once.
 #: src/project/browse/filter/MorphTypeSelect.svelte
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "All morph types"
@@ -563,6 +566,7 @@ msgstr "Fitur analitik dinonaktifkan."
 msgid "Any grammatical info."
 msgstr "Info tata bahasa apa pun."
 
+#. Text on the morph type filter dropdown trigger when no morph type filter is applied.
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "Any morph type"
 msgstr ""
@@ -892,6 +896,7 @@ msgstr "jelas"
 msgid "Cleared {0}"
 msgstr ""
 
+#. Group header in the morph type filter list. Clitics are bound forms that act like words but attach phonologically to a neighbor (proclitic, enclitic).
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "Clitics"
 msgstr ""
@@ -3107,6 +3112,7 @@ msgstr "Menonaktifkan fitur analitik"
 msgid "orange"
 msgstr "oranye"
 
+#. Group header in the morph type filter list for morph types that are not words and phrases, affixes, or clitics.
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "Other"
 msgstr ""
@@ -3679,6 +3685,7 @@ msgstr ""
 msgid "Reset"
 msgstr "Atur Ulang"
 
+#. Tooltip of the Reset button in the entry-list filter popover. Restores the filters the current view applies by default.
 #: src/project/browse/SearchFilter.svelte
 msgid "Reset to view defaults"
 msgstr ""
@@ -4016,6 +4023,7 @@ msgstr "Tampilkan"
 msgid "Show {0} more..."
 msgstr "Tampilkan {0} selengkapnya..."
 
+#. Link-style button after the hint "This view shows only whole words and phrases." Removes the morph type filter.
 #: src/project/browse/SearchFilter.svelte
 msgid "Show all"
 msgstr ""
@@ -4496,6 +4504,8 @@ msgstr "Tugas ini selesai"
 msgid "This version"
 msgstr ""
 
+#. Relevant view: Lite
+#. Hint under the morph type filter in the entry-list filter popover; a "Show all" button follows it.
 #: src/project/browse/SearchFilter.svelte
 msgid "This view shows only whole words and phrases."
 msgstr ""
@@ -4991,6 +5001,7 @@ msgstr "Kata atau makna:"
 msgid "words"
 msgstr ""
 
+#. Group header in the morph type filter list: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "Words and phrases"
 msgstr ""

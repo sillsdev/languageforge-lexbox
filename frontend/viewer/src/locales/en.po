@@ -152,11 +152,6 @@ msgstr "{0} KB to {1} KB, no new permissions"
 msgid "{0} MB"
 msgstr "{0} MB"
 
-#: src/project/browse/filter/MorphTypeSelect.svelte
-#: src/project/browse/filter/MorphTypeSelect.svelte
-msgid "{0} morph types"
-msgstr "{0} morph types"
-
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
 msgstr "{0} replies"
@@ -188,6 +183,12 @@ msgstr "{num, plural, one {# change} other {# changes}}"
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
 msgstr "{num, plural, one {# entry to go} other {# entries to go}}"
+
+#. Text on the morph type filter dropdown trigger, summarizing the selection. # is the number of selected morph types.
+#. Morph type: linguistic category of an entry (e.g. stem, prefix, clitic).
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "{num, plural, one {# morph type} other {# morph types}}"
+msgstr "{num, plural, one {# morph type} other {# morph types}}"
 
 #. Commit count display
 #: src/project/sync/FwClassicSyncView.svelte
@@ -479,6 +480,7 @@ msgstr "Added to {0}"
 msgid "Advanced: settings file"
 msgstr "Advanced: settings file"
 
+#. Group header in the morph type filter list. Affixes are bound morphemes added to a stem (prefix, suffix, infix...).
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "Affixes"
 msgstr "Affixes"
@@ -506,6 +508,7 @@ msgstr "All activity types"
 msgid "All authors"
 msgstr "All authors"
 
+#. Option in the morph type filter list that selects or clears every morph type at once.
 #: src/project/browse/filter/MorphTypeSelect.svelte
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "All morph types"
@@ -558,6 +561,7 @@ msgstr "Analytics are turned off."
 msgid "Any grammatical info."
 msgstr "Any grammatical info."
 
+#. Text on the morph type filter dropdown trigger when no morph type filter is applied.
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "Any morph type"
 msgstr "Any morph type"
@@ -887,6 +891,7 @@ msgstr "clear"
 msgid "Cleared {0}"
 msgstr "Cleared {0}"
 
+#. Group header in the morph type filter list. Clitics are bound forms that act like words but attach phonologically to a neighbor (proclitic, enclitic).
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "Clitics"
 msgstr "Clitics"
@@ -3102,6 +3107,7 @@ msgstr "Opt out of analytics"
 msgid "orange"
 msgstr "orange"
 
+#. Group header in the morph type filter list for morph types that are not words and phrases, affixes, or clitics.
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "Other"
 msgstr "Other"
@@ -3674,6 +3680,7 @@ msgstr "Requires"
 msgid "Reset"
 msgstr "Reset"
 
+#. Tooltip of the Reset button in the entry-list filter popover. Restores the filters the current view applies by default.
 #: src/project/browse/SearchFilter.svelte
 msgid "Reset to view defaults"
 msgstr "Reset to view defaults"
@@ -4011,6 +4018,7 @@ msgstr "Show"
 msgid "Show {0} more..."
 msgstr "Show {0} more..."
 
+#. Link-style button after the hint "This view shows only whole words and phrases." Removes the morph type filter.
 #: src/project/browse/SearchFilter.svelte
 msgid "Show all"
 msgstr "Show all"
@@ -4491,6 +4499,8 @@ msgstr "This task is complete"
 msgid "This version"
 msgstr "This version"
 
+#. Relevant view: Lite
+#. Hint under the morph type filter in the entry-list filter popover; a "Show all" button follows it.
 #: src/project/browse/SearchFilter.svelte
 msgid "This view shows only whole words and phrases."
 msgstr "This view shows only whole words and phrases."
@@ -4986,6 +4996,7 @@ msgstr "Word or meaning:"
 msgid "words"
 msgstr "words"
 
+#. Group header in the morph type filter list: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
 #: src/project/browse/filter/MorphTypeSelect.svelte
 msgid "Words and phrases"
 msgstr "Words and phrases"
