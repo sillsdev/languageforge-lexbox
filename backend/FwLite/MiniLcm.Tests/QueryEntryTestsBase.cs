@@ -267,6 +267,52 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
         results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Kiwi);
     }
 
+    private Task CreateEntryWithExamples(string lexeme, params ExampleSentence[] examples) =>
+        BaseApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", lexeme } },
+            Senses = [new() { ExampleSentences = [.. examples] }]
+        }, CreateEntryOptions.AsIs);
+
+    private static ExampleSentence ExampleWith(params string[] enTranslations) => new()
+    {
+        Sentence = { { "en", new RichString("a sentence") } },
+        Translations = [.. enTranslations.Select(t => new Translation() { Text = { { "en", new RichString(t) } } })]
+    };
+
+    [Fact]
+    public async Task CanFilterToMissingTranslationText_BlankTranslationMatches()
+    {
+        await CreateEntryWithExamples("BlankTranslation", ExampleWith(""));
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations.Text[en]=" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana, "BlankTranslation");
+    }
+
+    [Fact]
+    public async Task CanFilterToMissingTranslationText_MatchesWhenAnyExampleIsUntranslated()
+    {
+        await CreateEntryWithExamples("MixedExamples", ExampleWith("translated"), ExampleWith());
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations.Text[en]=" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana, "MixedExamples");
+    }
+
+    [Fact]
+    public async Task CanFilterToNonEmptyTranslationText()
+    {
+        await CreateEntryWithExamples("BlankTranslation", ExampleWith(""));
+        await CreateEntryWithExamples("MixedExamples", ExampleWith("translated"), ExampleWith());
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations.Text[en]!=" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Kiwi, "MixedExamples");
+    }
+
+    [Fact]
+    public async Task CanFilterTranslationText_WithTwoTranslationsOnOneExample()
+    {
+        await CreateEntryWithExamples("TwoTranslations", ExampleWith("first", "second"));
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations.Text[en]=*second" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo("TwoTranslations");
+    }
+
     [Fact]
     public async Task CanFilterToMissingSemanticDomains()
     {

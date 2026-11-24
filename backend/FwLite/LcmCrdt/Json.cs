@@ -224,8 +224,8 @@ public static class Json
         return guid?.ToString() ?? "";
     }
 
-    [Sql.Expression("(select group_concat(s.value->>'Text', '') from json_each({0}) as t, json_each(t.value->'Text'->{1}->'Spans') as s)", ServerSideOnly = true)]
-    public static string? TranslationsPlainText(IEnumerable<Translation>? translations, string ws)
+    [Sql.Expression("coalesce((select group_concat(tsp.value->>'Text', '') from json_each({0}) as tr, json_each(tr.value->'Text'->{1}->'Spans') as tsp), '')", ServerSideOnly = true)]
+    public static string TranslationsPlainText(IEnumerable<Translation>? translations, string ws)
     {
         throw new NotImplementedException("only supported server side");
     }
