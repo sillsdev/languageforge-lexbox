@@ -7,6 +7,7 @@ test('tasks page: open, close, deep-link back, help card', async ({page}) => {
   await expect(page.getByRole('heading', {name: 'All tasks'})).toBeVisible();
 
   let taskId = '';
+  let otherTaskId = '';
   await test.step('picking a multi-language field shows its languages; starting a task opens it', async () => {
     // Rows that start a task directly carry data-task-id; the others have a language step.
     const field = page.locator('[data-field-key]:not([data-task-id])').first();
@@ -16,6 +17,7 @@ test('tasks page: open, close, deep-link back, help card', async ({page}) => {
     const languageRow = page.locator('[data-task-id]:not([data-field-key])').first();
     await expect(languageRow).toBeVisible();
     taskId = (await languageRow.getAttribute('data-task-id'))!;
+    otherTaskId = (await page.locator('[data-task-id]:not([data-field-key])').nth(1).getAttribute('data-task-id'))!;
     await languageRow.click();
     await expect(page).toHaveURL(new RegExp(`[?&]taskId=${taskId}`));
     await expect(page.getByRole('button', {name: 'Back to tasks'}).first()).toBeVisible();
@@ -30,11 +32,12 @@ test('tasks page: open, close, deep-link back, help card', async ({page}) => {
     await expect(page.locator(`[data-recent-task-id="${taskId}"]`)).toBeVisible();
   });
 
-  await test.step('browser Back after closing a deep-linked task does not reopen it', async () => {
-    await page.goto(`${tasksUrl}?taskId=${taskId}`);
+  await test.step('a deep-linked task counts as recent, and browser Back after closing it does not reopen it', async () => {
+    await page.goto(`${tasksUrl}?taskId=${otherTaskId}`);
     await expect(page.getByRole('button', {name: 'Back to tasks'}).first()).toBeVisible();
     await page.getByRole('button', {name: 'Back to tasks'}).first().click();
     await expect(page.getByRole('heading', {name: 'All tasks'})).toBeVisible();
+    await expect(page.locator(`[data-recent-task-id="${otherTaskId}"]`)).toBeVisible();
     await page.goBack();
     await expect(page).not.toHaveURL(/taskId=/);
     await expect(page.getByRole('button', {name: 'Back to tasks'})).toHaveCount(0);

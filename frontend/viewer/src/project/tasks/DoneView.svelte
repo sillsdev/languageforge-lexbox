@@ -54,6 +54,8 @@
   const statsResource = useTasksStats();
   const remaining = $derived(statsResource.current.progress[task.id]?.remaining);
   const taskComplete = $derived(remaining === 0);
+  // A task can fill several senses or examples of one entry.
+  const filledEntries = $derived(new Set(subjects.map(subject => subject.entry.id)).size);
 
   function filledText(count: number): string {
     return pt(
@@ -75,9 +77,9 @@
       <Icon icon="i-mdi-check-circle-outline" class="text-primary size-12" />
       {#if taskComplete}
         <h2 class="text-xl font-semibold">{$t`This task is complete`}</h2>
-        <p class="text-muted-foreground">{filledText(subjects.length)}</p>
+        <p class="text-muted-foreground">{filledText(filledEntries)}</p>
       {:else}
-        <h2 class="text-xl font-semibold">{filledText(subjects.length)}</h2>
+        <h2 class="text-xl font-semibold">{filledText(filledEntries)}</h2>
         {#if remaining}
           <p class="text-muted-foreground tabular-nums">{remainingText(remaining)}</p>
         {/if}

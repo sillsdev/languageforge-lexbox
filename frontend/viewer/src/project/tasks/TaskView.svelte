@@ -14,6 +14,7 @@
   import {useViewService} from '$lib/views/view-service.svelte';
   import {cn} from '$lib/utils';
   import {useProjectContext} from '$project/project-context.svelte';
+  import {tick} from 'svelte';
 
   const TASK_SUBJECT_COUNT = 10;
   const projectContext = useProjectContext();
@@ -40,8 +41,11 @@
   let showDone = $state(false);
   let allCompletedSubjects = $state<TaskSubject[]>([]);
 
-  function onDone() {
+  async function onDone() {
     if (allCompletedSubjects.length === 0) {
+      // Close the entry drawer first so it drops its history entry, or Back would reopen the task.
+      entry = undefined;
+      await tick();
       onClose();
       return;
     }
@@ -84,13 +88,13 @@
             {progress}
             onNextEntry={async () => {
               const next = await entriesList?.selectNextEntry();
-              if (!next) onDone();
+              if (!next) await onDone();
             }}
             onCompletedSubject={subject => {
               completedSubjects.push(subject);
               allCompletedSubjects.push(subject);
               if (completedSubjects.length === TASK_SUBJECT_COUNT) {
-                onDone();
+                void onDone();
               }
             }}
           />

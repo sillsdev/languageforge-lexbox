@@ -14,6 +14,7 @@
   import {Icon} from '$lib/components/ui/icon';
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
   import ViewErrorBoundary from '$lib/layout/ViewErrorBoundary.svelte';
+  import {useProjectStorage} from '$lib/storage';
 
   // The open task lives in the URL so Back and reload work.
   const openTask = new QueryParamState({key: 'taskId', allowBack: true, replaceOnDefaultValue: true});
@@ -25,6 +26,16 @@
   watch(() => tasksService.listTasks().map(task => task.id).join(), () => void statsResource.refetch());
 
   const selectedTask = $derived(tasksService.listTasks().find(task => task.id === openTask.current));
+
+  // Here rather than in the list, so tasks opened from the Dashboard or a link count as recent too.
+  const projectStorage = useProjectStorage();
+  watch([() => selectedTask?.id, () => projectStorage.recentTasks.loading], ([taskId, loading]) => {
+    // Writing before the stored list has loaded would overwrite it.
+    if (!taskId || loading) return;
+    const known = tasksService.listTasks().map(task => task.id);
+    const stored = projectStorage.recentTasks.current.split(',').filter(id => id !== taskId && known.includes(id));
+    void projectStorage.recentTasks.set([taskId, ...stored].slice(0, 5).join());
+  });
 
   let lastOrigin: 'recent' | 'list' = 'list';
   function selectTask(taskId: string, origin: 'recent' | 'list') {

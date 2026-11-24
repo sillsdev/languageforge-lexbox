@@ -128,11 +128,6 @@
   }
 
   function openTask(task: Task, origin: TaskOrigin) {
-    // Writing before the stored list has loaded would overwrite it.
-    if (!projectStorage.recentTasks.loading) {
-      const ids = [task.id, ...recentIds.filter(id => id !== task.id && allTasks.some(t => t.id === id))];
-      void projectStorage.recentTasks.set(ids.slice(0, 5).join());
-    }
     // Once tasks have been used the card has done its job, and it would push Recent down.
     if (!projectStorage.tasksHelpDismissed.current) dismissHelp();
     onSelect(task.id, origin);
