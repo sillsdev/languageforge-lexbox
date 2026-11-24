@@ -78,14 +78,17 @@
     if (settledKind.current && !WORDS_AND_PHRASES.includes(settledKind.current)) affixTyped = true;
   });
 
-  // The markers only override a picked type they contradict, so a picked root survives typing but "-ed" makes a suffix.
-  // A picked circumfix stays too: typing its left part ("a-") reads as a prefix.
+  // The morph type follows the markers until the user picks one. A picked type only gives way to markers that
+  // contradict it, so a picked root survives typing but "-ed" makes a suffix. A picked circumfix stays regardless:
+  // typing its left part ("a-") reads as a prefix.
   let morphTypeAnnouncement = $state('');
-  let circumfixPicked = $state(false);
+  let picked = $state<MorphTypeKind>();
   $effect(() => {
     if (!detectedKind) return;
-    const chosen = untrack(() => entry.morphType);
-    if (untrack(() => circumfixPicked) || fitsMorphType(chosen, detectedKind)) return;
+    const chosen = untrack(() => picked);
+    if (chosen && (chosen === MorphTypeKind.Circumfix || fitsMorphType(chosen, detectedKind))) return;
+    picked = undefined;
+    if (untrack(() => entry.morphType) === detectedKind) return;
     entry.morphType = detectedKind;
     const morphType = morphTypes.byKind(detectedKind);
     morphTypeAnnouncement = $t`Morph type: ${morphType ? morphTypeLabel(morphType, writingSystemService) : detectedKind}`;
@@ -93,9 +96,9 @@
 
   function onEntryFieldChanged(_entry: IEntry, field: EntryFieldId) {
     if (field !== 'morphType') return;
-    circumfixPicked = entry.morphType === MorphTypeKind.Circumfix;
+    picked = entry.morphType;
     // FLEx leaves circumfix forms alone: their markers vary
-    if (circumfixPicked) return;
+    if (picked === MorphTypeKind.Circumfix) return;
     for (const ws of writingSystemService.vernacularNoAudio) {
       const form = entry.lexemeForm[ws.wsId];
       if (!form?.trim()) continue;
@@ -230,7 +233,7 @@
       publishInIsFromTemplate = undefined;
       entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
       affixTyped = false;
-      circumfixPicked = false;
+      picked = undefined;
       submitted = false;
       morphTypeAnnouncement = '';
       addMainPublicationPromise = addMainPublication(entry.id);

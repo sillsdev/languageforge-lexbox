@@ -36,6 +36,8 @@ test.describe('New entry morph type', () => {
 
     const dialog = await openNewEntryDialog(page);
     await expect(morphTypeSelect(dialog)).toHaveText('stem');
+    await lexemeInput(dialog).fill('zed zed');
+    await expect(morphTypeSelect(dialog)).toHaveText('phrase');
     await lexemeInput(dialog).fill('-zed');
     await expect(morphTypeSelect(dialog)).toHaveText('suffix');
     await lexemeInput(dialog).fill('zed-');
