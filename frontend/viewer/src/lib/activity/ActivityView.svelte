@@ -79,8 +79,10 @@
   const queryKey = $derived(JSON.stringify(serverQuery));
 
   const activity = resource(
-    [() => queryKey, () => pageCount, () => serverQuery, () => historyService.loaded],
-    async ([key, pages, query, loaded], _previous, current): Promise<ActivityLoad> => {
+    // serverQuery is read untracked: a new but equal query object must not refetch (and re-append) the page
+    [() => queryKey, () => pageCount, () => historyService.loaded],
+    async ([key, pages, loaded], _previous, current): Promise<ActivityLoad> => {
+      const query = serverQuery;
       if (!loaded) return emptyActivityLoad;
 
       if (pages > 1 && current.data?.queryKey !== key) {
