@@ -228,7 +228,7 @@
     <Button variant="outline" icon="i-mdi-book-alphabet" onclick={() => navigate(`${$base.uri}/browse`)}>{$t`Browse`}</Button>
   </div>
 {:else}
-  <div class="flex max-w-[55.5rem] flex-col gap-8" bind:this={container}>
+  <div class="flex max-w-[57.5rem] flex-col gap-8" bind:this={container}>
     <span id="task-starts-hint" hidden>{$t`Starts the task`}</span>
     {#if !drilledIn}
       <div class="flex flex-col gap-4">
@@ -260,7 +260,7 @@
           <h2 class="flex items-center gap-1.5 text-base font-semibold">
             <Icon icon="i-mdi-history" class="text-muted-foreground size-4" />{$t`Recent`}
           </h2>
-          <ul class="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-3">
+          <ul class="grid gap-x-6 gap-y-3 md:grid-cols-[repeat(2,minmax(0,28rem))]">
             {#each recentTasks as task (task.id)}
               {@const ws = writingSystemOf(task)}
               <li>
@@ -284,7 +284,7 @@
 
     <section class="flex flex-col gap-3">
       {#if !drilledIn}<h2 id="task-list-heading" tabindex="-1" class="text-base font-semibold outline-none">{$t`All tasks`}</h2>{/if}
-      <div class="grid items-start gap-6 md:grid-cols-[minmax(0,18rem)_minmax(0,36rem)]">
+      <div class="grid items-start gap-6 md:grid-cols-[repeat(2,minmax(0,28rem))]">
         {#if !drilledIn}
           <div class="flex flex-col gap-5" bind:this={fieldColumn} bind:offsetHeight={listHeight}>
             {#each entities as {entity, label, fields: entityFields} (entity)}
@@ -333,28 +333,32 @@
         {/if}
 
         {#if pickedField}
-          <div bind:this={panel} bind:offsetHeight={panelHeight} style:--panel-offset="{panelOffset}px"
-            class="flex flex-col gap-4 md:sticky md:top-0 md:bottom-0 md:mt-(--panel-offset) md:max-h-[calc(100dvh-6rem)] md:overflow-y-auto md:rounded-lg md:border md:border-primary/25 md:bg-primary/5 md:p-4 md:dark:bg-primary/10">
-            <div class="flex items-start gap-1">
-              {#if drilledIn}
-                <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}} aria-label={$t`Back to all tasks`} onclick={() => fieldParam.current = ''} />
-              {/if}
-              <div class="flex min-w-0 flex-wrap items-baseline gap-x-2">
-                <h3 id="task-languages-heading" tabindex="-1" class="text-base font-semibold outline-none">{pickedField.label}</h3>
-                <!-- On desktop the selected row beside the panel already shows this. -->
-                {#if drilledIn}<p class="text-muted-foreground text-sm">{pickedField.description}</p>{/if}
+          <!-- A spacer rather than a margin: sticky can slide the panel up over a sibling, but not over its own margin. -->
+          <div class="md:self-stretch">
+            <div aria-hidden="true" class="max-md:hidden" style:height="{panelOffset}px"></div>
+            <div bind:this={panel} bind:offsetHeight={panelHeight}
+              class="flex flex-col gap-4 md:sticky md:top-0 md:bottom-0 md:max-h-[calc(100dvh-6rem)] md:overflow-y-auto md:rounded-lg md:border md:border-primary/25 md:bg-primary/5 md:p-4 md:dark:bg-primary/10">
+              <div class="flex items-start gap-1">
+                {#if drilledIn}
+                  <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}} aria-label={$t`Back to all tasks`} onclick={() => fieldParam.current = ''} />
+                {/if}
+                <div class="flex min-w-0 flex-wrap items-baseline gap-x-2">
+                  <h3 id="task-languages-heading" tabindex="-1" class="text-base font-semibold outline-none">{pickedField.label}</h3>
+                  <!-- On desktop the selected row beside the panel already shows this. -->
+                  {#if drilledIn}<p class="text-muted-foreground text-sm">{pickedField.description}</p>{/if}
+                </div>
               </div>
+              {#each languageGroups as group (group.label)}
+                <div class="flex flex-col gap-2">
+                  {#if group.label}<h4 class="text-muted-foreground text-sm font-medium">{group.label}</h4>{/if}
+                  <ul class="bg-background flex flex-col divide-y overflow-hidden rounded-lg border">
+                    {#each group.tasks as task (task.id)}
+                      {@render languageRow(task)}
+                    {/each}
+                  </ul>
+                </div>
+              {/each}
             </div>
-            {#each languageGroups as group (group.label)}
-              <div class="flex flex-col gap-2">
-                {#if group.label}<h4 class="text-muted-foreground text-sm font-medium">{group.label}</h4>{/if}
-                <ul class="bg-background flex flex-col divide-y overflow-hidden rounded-lg border">
-                  {#each group.tasks as task (task.id)}
-                    {@render languageRow(task)}
-                  {/each}
-                </ul>
-              </div>
-            {/each}
           </div>
         {:else if hasLanguageStep && !IsMobile.value}
           <!-- mt-7 = the first group heading plus its gap, so it starts level with the first row. -->
