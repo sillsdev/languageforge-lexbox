@@ -72,7 +72,9 @@
   }
 </script>
 {#if !review}
-  <div class="flex grow flex-col md:justify-center">
+  <div class="flex grow flex-col">
+    <!-- Desktop: twice the space below as above, since truly centered content looks low. -->
+    <div class="max-md:hidden md:grow"></div>
     <div class="flex flex-col items-center gap-2 p-4 text-center">
       <Icon icon="i-mdi-check-circle-outline" class="text-primary size-12" />
       <!-- Focus the heading, not a button: the Enter that saved the last item would otherwise press it.
@@ -102,6 +104,7 @@
       <Button variant={taskComplete ? 'default' : 'outline'} icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}} onclick={onClose}>{$t`Back to tasks`}</Button>
       <Button variant="outline" onclick={() => review = true}>{$t`Review what you filled in`}</Button>
     </div>
+    <div class="max-md:hidden md:grow-[2]"></div>
   </div>
 {:else}
   <ReviewList subjects={allSubjects} onFinish={() => onFinish()}></ReviewList>
