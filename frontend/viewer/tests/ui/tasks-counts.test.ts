@@ -25,10 +25,11 @@ test('task counts follow entry changes in the open task, on the list afterwards 
   const partOfSpeechBefore = await partOfSpeechCount();
   const otherBefore = await otherCount();
 
-  async function addEntryMissingPartOfSpeech() {
-    await page.evaluate(async (morphType) => {
+  async function addEntryMissingPartOfSpeech({announce}: {announce: boolean}) {
+    await page.evaluate(async ({morphType, announce}) => {
       const id = crypto.randomUUID();
-      await window.__PLAYWRIGHT_UTILS__.demoApi.createEntry({
+      const api = window.__PLAYWRIGHT_UTILS__.demoApi;
+      const entry = {
         id,
         lexemeForm: {seh: 'qtaskcount'},
         citationForm: {},
@@ -49,26 +50,34 @@ test('task counts follow entry changes in the open task, on the list afterwards 
         complexFormTypes: [],
         publishIn: [],
         homographNumber: 0,
-      }, {includeComplexFormsAndComponents: true, autoAddMainPublication: false});
-    }, MorphTypeKind.Stem);
+      };
+      if (announce) await api.createEntry(entry, {includeComplexFormsAndComponents: true, autoAddMainPublication: false});
+      else (api as unknown as {_entries: unknown[]})._entries.push(entry);
+    }, {morphType: MorphTypeKind.Stem, announce});
   }
 
   await partOfSpeechTask.click();
   const header = page.locator('h1').locator('..');
   await expect(header).toContainText(`${partOfSpeechBefore} `);
 
-  await addEntryMissingPartOfSpeech();
+  await addEntryMissingPartOfSpeech({announce: true});
   await expect(header).toContainText(`${partOfSpeechBefore + 1} `);
 
   await page.getByRole('button', {name: 'Back to tasks'}).click();
   await expect.poll(partOfSpeechCount).toBe(partOfSpeechBefore + 1);
   await expect.poll(otherCount).toBe(otherBefore + 1);
 
-  // The stats outlive this view, so their subscription to entry changes has to as well.
+  // Not every change is announced, so entering the view recounts whatever it shows.
   await page.getByRole('button', {name: 'Browse'}).click();
   await expect(partOfSpeechTask).toBeHidden();
-  await addEntryMissingPartOfSpeech();
+  await addEntryMissingPartOfSpeech({announce: false});
   await page.getByRole('button', {name: 'Tasks'}).click();
   await expect.poll(partOfSpeechCount).toBe(partOfSpeechBefore + 2);
   await expect.poll(otherCount).toBe(otherBefore + 2);
+
+  // The stats outlive the view, so their subscription to entry changes has to as well.
+  await partOfSpeechTask.click();
+  await expect(header).toContainText(`${partOfSpeechBefore + 2} `);
+  await addEntryMissingPartOfSpeech({announce: true});
+  await expect(header).toContainText(`${partOfSpeechBefore + 3} `);
 });

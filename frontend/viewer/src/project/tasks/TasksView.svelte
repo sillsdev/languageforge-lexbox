@@ -22,6 +22,8 @@
   const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
   const statsResource = useTasksStats();
+  // Not every change is announced (the local API's writes aren't), so don't trust counts from an earlier visit.
+  statsResource.current.invalidate();
   const selectedTask = $derived(tasksService.listTasks().find(task => task.id === openTask.current));
   watch([() => tasksService.listTasks().map(task => task.id).join(), () => selectedTask?.id], ([, taskId]) => {
     statsResource.current.showing = taskId ?? 'all';
