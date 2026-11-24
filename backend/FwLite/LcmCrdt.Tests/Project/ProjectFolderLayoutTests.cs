@@ -98,23 +98,42 @@ public class ProjectFolderLayoutTests : IAsyncLifetime
         Directory.Exists(Path.Join(_projectPath, "projects", "existing")).Should().BeFalse();
     }
 
+    private async Task SaveFile(CrdtProject project)
+    {
+        // leaves pooled connections that delete must clear
+        await using var scope = _services!.CreateAsyncScope();
+        var api = await scope.ServiceProvider.OpenCrdtProject(project);
+        await api.SaveFile(new MemoryStream([1]), new LcmFileMetadata("recording.wav", "audio/wav"));
+    }
+
     [Fact]
     public async Task DeleteProject_RemovesTheProjectFolder()
     {
         var service = NewProjectsService(useProjectFolders: true);
         var project = await service.CreateProject(new("To Delete", "to-delete"));
-        // leaves pooled connections that delete must clear
-        await using (var scope = _services!.CreateAsyncScope())
-        {
-            var api = await scope.ServiceProvider.OpenCrdtProject(project);
-            await api.SaveFile(new MemoryStream([1]), new LcmFileMetadata("recording.wav", "audio/wav"));
-        }
+        var other = await service.CreateProject(new("Other", "other"));
+        await SaveFile(project);
+        await SaveFile(other);
         Directory.EnumerateFiles(LcmCrdtConfig.ProjectFolderResourcesPath(_projectPath, "to-delete")).Should().ContainSingle();
 
         await service.DeleteProject("to-delete");
 
         Directory.Exists(Path.GetDirectoryName(project.DbPath)).Should().BeFalse();
         service.GetProject("to-delete").Should().BeNull();
+        File.Exists(other.DbPath).Should().BeTrue();
+        Directory.EnumerateFiles(LcmCrdtConfig.ProjectFolderResourcesPath(_projectPath, "other")).Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task SaveFile_UsesTheSharedCacheWhenProjectFoldersAreOff()
+    {
+        var service = NewProjectsService(useProjectFolders: false);
+        var project = await service.CreateProject(new("Flat Media", "flat-media"));
+
+        await SaveFile(project);
+
+        Directory.EnumerateFiles(Path.Join(_projectPath, LcmCrdtConfig.LocalResourcesCacheDirName, "flat-media")).Should().ContainSingle();
+        Directory.Exists(Path.Join(_projectPath, "projects")).Should().BeFalse();
     }
 
     [Fact]

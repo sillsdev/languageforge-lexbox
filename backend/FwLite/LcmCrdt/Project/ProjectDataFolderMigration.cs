@@ -413,6 +413,8 @@ public static class ProjectDataFolderMigration
             {
                 // the app only stores media in the project's cache folder, but anything else in the legacy folder is lost on uninstall
                 if (legacyPath.StartsWith(AsDirectoryPrefix(legacyRoot), StringComparison.OrdinalIgnoreCase)) leftInLegacy++;
+                // relative rows would otherwise resolve against the new cache root
+                SetLocalPath(connection, id, legacyPath);
                 continue;
             }
 
@@ -420,16 +422,21 @@ public static class ProjectDataFolderMigration
             // a file that was already missing before the migration can't be expected to be copied
             if (File.Exists(legacyPath) && !File.Exists(Path.Combine(stagedMedia, file)))
                 throw new InvalidDataException($"Media file '{file}' referenced by '{stagedDb}' was not copied");
-            using var update = connection.CreateCommand();
-            update.CommandText = "UPDATE LocalResource SET LocalPath = @path WHERE Id = @id";
-            update.Parameters.AddWithValue("@id", id);
-            update.Parameters.AddWithValue("@path", string.Join('/', code, LcmCrdtConfig.ProjectResourcesDirName, file.Replace(Path.DirectorySeparatorChar, '/')));
-            update.ExecuteNonQuery();
+            SetLocalPath(connection, id, string.Join('/', code, LcmCrdtConfig.ProjectResourcesDirName, file.Replace(Path.DirectorySeparatorChar, '/')));
         }
 
         if (leftInLegacy > 0)
             logger.LogWarning("{Count} media files referenced by {StagedDb} are outside the project's media folder and were not migrated", leftInLegacy, stagedDb);
         return leftInLegacy;
+    }
+
+    private static void SetLocalPath(SqliteConnection connection, string id, string path)
+    {
+        using var update = connection.CreateCommand();
+        update.CommandText = "UPDATE LocalResource SET LocalPath = @path WHERE Id = @id";
+        update.Parameters.AddWithValue("@id", id);
+        update.Parameters.AddWithValue("@path", path);
+        update.ExecuteNonQuery();
     }
 
     private static List<(string Id, string LocalPath)> ReadLocalResources(SqliteConnection connection)

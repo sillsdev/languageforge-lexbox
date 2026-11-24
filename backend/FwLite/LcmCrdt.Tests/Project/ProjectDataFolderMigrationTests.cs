@@ -163,7 +163,8 @@ public class ProjectDataFolderMigrationTests : IAsyncLifetime
         result.Migrated.Should().BeTrue();
         result.MediaLeftBehind.Should().Be(1, "other-project/c.png stays in the legacy folder");
         var paths = await ReadLocalPaths(LcmCrdtConfig.ProjectFolderDbPath(TargetRoot, "proj"));
-        paths.Should().BeEquivalentTo(["proj/resources/absolute.png", "proj/resources/relative.png", elsewhere, "other-project/c.png"]);
+        paths.Should().BeEquivalentTo(["proj/resources/absolute.png", "proj/resources/relative.png", elsewhere,
+            Path.GetFullPath(Path.Join(LegacyRoot, LcmCrdtConfig.LocalResourcesCacheDirName, "other-project", "c.png"))]);
         var resources = LcmCrdtConfig.ProjectFolderResourcesPath(TargetRoot, "proj");
         (await File.ReadAllTextAsync(Path.Join(resources, "absolute.png"))).Should().Be("absolute");
         (await File.ReadAllTextAsync(Path.Join(resources, "relative.png"))).Should().Be("relative");
