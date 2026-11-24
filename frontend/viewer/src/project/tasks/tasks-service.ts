@@ -44,6 +44,14 @@ export function taskLabel(task: Task): ViewText {
   return (getEntityConfig(entity) as Record<string, {label: ViewText}>)[task.subjectFields[0]].label;
 }
 
+// The popup shows only written text, so an example without any has nothing to translate.
+function hasWrittenSentence(example: IExampleSentence): boolean {
+  return Object.values(example.sentence).some(value => {
+    const text = asString(value);
+    return !!text && !text.startsWith('sil-media:');
+  });
+}
+
 export class TasksService {
 
   constructor(private writingSystemService: WritingSystemService) {
@@ -337,6 +345,7 @@ export class TasksService {
         if (examples.length === 0 && !translating) examples = [defaultExampleSentence(sense.id)];
         for (let example of examples) {
           if (task.getSubjectValue(example)) continue;
+          if (translating && !hasWrittenSentence(example)) continue;
           // a real translation rather than the editor's draft, so isComplete sees what's typed
           if (translating && !example.translations.length) example = {...example, translations: [defaultTranslation()]};
           subjects.push(new TaskSubject(entry, sense, example, (s) => task.getSubjectValue(s.exampleSentence!)));
