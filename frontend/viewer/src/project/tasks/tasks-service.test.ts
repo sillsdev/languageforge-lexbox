@@ -144,17 +144,14 @@ describe('tasks service', () => {
       function translation(wsId: string, text: string) {
         return {id: crypto.randomUUID(), text: {[wsId]: {spans: [{text, ws: wsId}]}}};
       }
-      function withSentence(e: Partial<IExampleSentence>) {
-        return newExample({sentence: {seh: {spans: [{text: 'moni', ws: 'seh'}]}}, ...e});
-      }
 
       it('should return an example without a translation, with an empty one to fill in', () => {
         let example: IExampleSentence;
         const entry = newEntry({
           senses: [newSense({
             exampleSentences: [
-              withSentence({translations: [translation('en', 'hello')]}),
-              example = withSentence({}),
+              newExample({translations: [translation('en', 'hello')]}),
+              example = newExample({}),
             ]
           })]
         });
@@ -166,7 +163,7 @@ describe('tasks service', () => {
 
       it('should keep the existing translation of an example missing this writing system', () => {
         const existing = translation('fr', 'bonjour');
-        const entry = newEntry({senses: [newSense({exampleSentences: [withSentence({translations: [existing]})]})]});
+        const entry = newEntry({senses: [newSense({exampleSentences: [newExample({translations: [existing]})]})]});
         const [subject] = TasksService.subjects(translationTask, entry);
         expect(subject.exampleSentence?.translations).toStrictEqual([existing]);
       });
@@ -179,13 +176,6 @@ describe('tasks service', () => {
 
       it('is not complete with only a translation in another writing system', () => {
         expect(translationTask.isComplete(newExample({translations: [translation('fr', 'bonjour')]}))).toBe(false);
-      });
-
-      it('should skip examples with no written sentence to translate', () => {
-        const blank = newExample({});
-        const audioOnly = newExample({sentence: {'seh-Zxxx-x-audio': {spans: [{text: 'sil-media://lexbox.org/abc', ws: 'seh-Zxxx-x-audio'}]}}});
-        const entry = newEntry({senses: [newSense({exampleSentences: [blank, audioOnly]})]});
-        expect(TasksService.subjects(translationTask, entry)).toStrictEqual([]);
       });
 
       it('should not create an example when none exist', () => {

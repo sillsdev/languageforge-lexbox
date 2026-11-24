@@ -18,6 +18,7 @@
   import {pt} from '$lib/views/view-text';
   import {untrack} from 'svelte';
   import {useViewService} from '$lib/views/view-service.svelte';
+  import {useWritingSystemService} from '$project/data';
 
   let {
     entry = $bindable(),
@@ -36,11 +37,14 @@
     onCompletedSubject?: (subject: TaskSubject) => void,
   } = $props();
   const viewService = useViewService();
+  const writingSystemService = useWritingSystemService();
   const shownFields = $derived([...task.subjectFields, ...task.optionalFields ?? []]);
   const overrides = $derived.by((): Overrides => {
     if (!task.subjectWritingSystemId) return {};
     const ws = {wsId: task.subjectWritingSystemId};
     if (task.subjectWritingSystemType === WritingSystemType.Analysis) {
+      // the sentence being translated, in every language so audio and out-of-view sentences show too
+      if (task.optionalFields?.length) return {analysis: [ws], vernacular: writingSystemService.vernacular.map(({wsId}) => ({wsId}))};
       return {
         analysis: [ws],
         vernacular: [],
@@ -127,12 +131,12 @@
     let inputs = form.querySelectorAll<HTMLElement>('input, .ProseMirror');
     // focusing reads editor state, which would re-run this and pull the caret back from any other field
     untrack(() => {
-      for (let input of inputs) {
-        if (input.checkVisibility()) {
-          input.focus();
-          return;
-        }
-      }
+      const visible = [...inputs].filter(input => input.checkVisibility());
+      // multi-ws inputs are id'd `${rootId}-${wsId}`; the task's empty field beats context fields like the sentence being translated
+      const own = visible.filter(input => input.id.endsWith(`-${task.subjectWritingSystemId}`));
+      const candidates = own.length ? own : visible;
+      const target = candidates.find(input => !(input instanceof HTMLInputElement ? input.value : input.textContent)) ?? candidates[0];
+      target?.focus();
     });
   });
 </script>
@@ -146,7 +150,7 @@
     </Drawer.Header>
     <div class="mx-2 md:mx-4 shadow-inner rounded-md p-4">
       {#if entry}
-        <DictionaryEntry {entry} headwordClass="text-2xl" highlightSenseId={subject?.sense?.id} highlightExampleId={subject?.exampleSentence?.id} hideExamples={task.subjectType !== 'example-sentence'} respectView={!task.subjectFields.includes('translations')}/>
+        <DictionaryEntry {entry} headwordClass="text-2xl" highlightSenseId={subject?.sense?.id} highlightExampleId={subject?.exampleSentence?.id} hideExamples={task.subjectType !== 'example-sentence'}/>
       {/if}
     </div>
     <Drawer.Footer class="gap-4">
