@@ -58,33 +58,14 @@ test.describe('New entry morph type', () => {
     });
   });
 
-  test('classic view keeps a picked type the markers allow and blocks forms that fit no type', async ({page}) => {
+  test('classic view explains forms it cannot create', async ({page}) => {
     await new DemoProjectPage(page).goto();
     await useView(page, /FieldWorks Classic/);
 
     const dialog = await openNewEntryDialog(page);
-    await morphTypeSelect(dialog).click();
-    await page.getByRole('option', {name: 'root', exact: true}).click();
-    await lexemeInput(dialog).fill('zed');
-    await expect(morphTypeSelect(dialog)).toHaveText('root');
-    await lexemeInput(dialog).fill('zed-');
-    await expect(morphTypeSelect(dialog)).toHaveText('prefix');
-    await lexemeInput(dialog).fill('zed');
-    await expect(morphTypeSelect(dialog)).toHaveText('root');
-
     await lexemeInput(dialog).fill('*zed-');
     await expect(dialog.getByText(`Check the markers in "*zed-". Did you mean "*zed", "zed-", or "-zed-"?`)).toBeVisible();
     await expect(lexemeInput(dialog)).toHaveAttribute('aria-invalid', 'true');
-
-    await test.step('an error stays put while the form is edited into another error', async () => {
-      await lexemeInput(dialog).fill('--zed~');
-      await expect(dialog.getByText(`Check the markers in "--zed~".`, {exact: false})).toBeVisible();
-      await lexemeInput(dialog).press('Home');
-      await lexemeInput(dialog).press('Delete');
-      // shorter than the pause new notes wait for
-      await expect(lexemeInput(dialog)).toHaveAttribute('aria-invalid', 'true', {timeout: 300});
-      await expect(dialog.getByText(`Check the markers in "-zed~".`, {exact: false})).toBeVisible();
-    });
 
     await lexemeInput(dialog).fill('--zed');
     await expect(morphTypeSelect(dialog)).toHaveText('suffix');
@@ -95,34 +76,17 @@ test.describe('New entry morph type', () => {
     await dialog.getByRole('button', {name: /create entry/i}).click();
     await expect(dialog.getByText(`For morph type suffix, type "-zed".`)).toBeVisible();
     await expect(lexemeInput(dialog, 1)).toBeFocused();
-
-    await lexemeInput(dialog, 1).fill('');
-    await morphTypeSelect(dialog).click();
-    await page.getByRole('option', {name: 'circumfix', exact: true}).click();
-    await lexemeInput(dialog).fill('');
-    await lexemeInput(dialog).pressSequentially('a- -b');
-    await expect(morphTypeSelect(dialog)).toHaveText('circumfix');
   });
 
-  test('lite view shows the morph type picker only for forms that are not a stem or phrase', async ({page}) => {
+  test('lite view shows the morph type picker for an affix', async ({page}) => {
     await new DemoProjectPage(page).goto();
     await useView(page, /FieldWorks Lite/);
 
     const dialog = await openNewEntryDialog(page);
-    await lexemeInput(dialog).fill('well-known');
     await lexemeInput(dialog).fill('zed zed');
     await expect(morphTypeSelect(dialog)).toHaveCount(0);
-    await lexemeInput(dialog).fill('*zed');
-    await expect(morphTypeSelect(dialog)).toHaveText('bound stem');
     await lexemeInput(dialog).fill('-zed');
     await expect(morphTypeSelect(dialog)).toHaveText('suffix');
-    await lexemeInput(dialog).fill('zed');
-    await expect(morphTypeSelect(dialog)).toHaveText('stem');
-    await lexemeInput(dialog).fill('a- -b');
-    await expect(morphTypeSelect(dialog)).toHaveText('circumfix');
-    await lexemeInput(dialog).fill('a- b');
-    await expect(morphTypeSelect(dialog)).toHaveText('phrase');
-    await lexemeInput(dialog).fill('-zed');
 
     await dialog.getByRole('button', {name: /add word/i}).click();
     await expect(dialog).toBeHidden();

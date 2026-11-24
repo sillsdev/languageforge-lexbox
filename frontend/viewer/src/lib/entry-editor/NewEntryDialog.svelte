@@ -5,10 +5,9 @@
 </script>
 
 <script lang="ts">
-  import {MorphTypeKind, ViewBase, type IEntry, type ISense} from '$lib/dotnet-types';
+  import {ViewBase, type IEntry, type ISense, type MorphTypeKind} from '$lib/dotnet-types';
   import {createEntryOptions} from '$lib/create-entry-options';
   import {tick, untrack} from 'svelte';
-  import {Debounced} from 'runed';
   import {locale, t} from 'svelte-i18n-lingui';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {Button} from '$lib/components/ui/button';
@@ -32,7 +31,8 @@
   import type {WsInputNote} from '$lib/components/field-editors';
   import type {EntryFieldId} from '$lib/views/entity-config';
   import {morphTypeLabel, useMorphTypesService} from '$project/data/morph-types.svelte';
-  import {checkLexemeForm, findMorphType, fitsMorphType, stripMarkers, type LexemeFormCheck} from '$project/data/morph-type-markers';
+  import type {LexemeFormProblem} from '$project/data/morph-type-markers';
+  import {NewEntryMorphType} from './new-entry-morph-type.svelte';
 
   let open = $state(false);
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'new-entry-dialog'});
@@ -64,67 +64,27 @@
   let editor = $state<Editor.Root>();
   let dialogContent = $state<HTMLElement | null>(null);
 
-  // Like FLEx, affix markers typed in the lexeme form pick the morph type and are stripped on create.
-  // Lite shows the picker only once the form reads as something other than a stem or phrase, which is rare.
-  // Waiting for a pause keeps "well-known" from showing it on the way through "well-".
-  let unusualMorphType = $state(false);
-  const showMorphType = $derived(viewService.currentView.base === ViewBase.FieldWorks || unusualMorphType);
-  const firstForm = $derived(writingSystemService.vernacularNoAudio.map(ws => entry.lexemeForm[ws.wsId]).find(form => form?.trim()) ?? '');
-  const detected = $derived(findMorphType(firstForm, morphTypes.current));
-  const detectedKind = $derived(detected.valid ? detected.kind : undefined);
-  const settledKind = new Debounced(() => detectedKind, 600);
-  $effect(() => {
-    const kind = settledKind.current;
-    // Lite users can't fix a type mismatch in another writing system without the picker
-    const mismatch = Object.keys(settledNotes.current).some(wsId => lexemeFormChecks[wsId]?.problem?.kind === 'mismatch');
-    if (untrack(() => unusualMorphType) || !(mismatch || (kind && kind !== MorphTypeKind.Stem && kind !== MorphTypeKind.Phrase))) return;
-    unusualMorphType = true;
-    announceMorphType(untrack(() => entry.morphType));
+  const morphType = new NewEntryMorphType({
+    entry: () => entry,
+    vernacularWsIds: () => writingSystemService.vernacularNoAudio.map(ws => ws.wsId),
+    alwaysShowPicker: () => viewService.currentView.base === ViewBase.FieldWorks,
+    morphTypes,
   });
 
-  // The morph type follows the form until the user picks one. A pick holds unless the markers contradict it, so a
-  // picked root survives "zed", "-zed" makes a suffix, and deleting the "-" brings the root back.
-  // A picked circumfix always holds: typing its left part ("a-") reads as a prefix.
-  let morphTypeAnnouncement = $state('');
-  let picked = $state<MorphTypeKind>();
-  $effect(() => {
-    if (!detected.valid) return;
-    const unmarked = !detected.leading && !detected.trailing;
-    const kind = picked && (picked === MorphTypeKind.Circumfix || unmarked || fitsMorphType(picked, detected.kind))
-      ? picked : detected.kind;
-    if (untrack(() => entry.morphType) === kind) return;
-    entry.morphType = kind;
-    if (untrack(() => showMorphType)) announceMorphType(kind);
-  });
-
-  function announceMorphType(kind: MorphTypeKind) {
-    const morphType = morphTypes.byKind(kind);
-    morphTypeAnnouncement = $t`Morph type: ${morphType ? morphTypeLabel(morphType, writingSystemService) : kind}`;
+  function morphTypeName(kind: MorphTypeKind): string {
+    const type = morphTypes.byKind(kind);
+    return type ? morphTypeLabel(type, writingSystemService) : kind;
   }
+  const morphTypeAnnouncement = $derived(morphType.announced ? $t`Morph type: ${morphTypeName(morphType.announced)}` : '');
 
   function onEntryFieldChanged(_entry: IEntry, field: EntryFieldId) {
-    if (field !== 'morphType') return;
-    picked = entry.morphType;
-    // FLEx leaves circumfix forms alone: their markers vary
-    if (picked === MorphTypeKind.Circumfix) return;
-    for (const ws of writingSystemService.vernacularNoAudio) {
-      const form = entry.lexemeForm[ws.wsId];
-      const match = findMorphType(form ?? '', morphTypes.current);
-      if (!form?.trim() || (match.valid && match.kind === MorphTypeKind.Circumfix)) continue;
-      const bare = stripMarkers(form, match);
-      entry.lexemeForm[ws.wsId] = morphTypes.decorate(bare, entry.morphType) ?? bare;
-    }
+    if (field === 'morphType') morphType.onPicked();
   }
 
-  const lexemeFormChecks = $derived(Object.fromEntries(writingSystemService.vernacularNoAudio
-    .filter(ws => entry.lexemeForm[ws.wsId]?.trim())
-    .map(ws => [ws.wsId, checkLexemeForm(entry.lexemeForm[ws.wsId], entry.morphType, morphTypes.current)])));
-  const blocked = $derived(Object.values(lexemeFormChecks).some(check => check.problem && check.problem.kind !== 'leftoverMarker'));
-
-  function toNote(form: string, {stored, problem}: LexemeFormCheck): WsInputNote | undefined {
-    switch (problem?.kind) {
-      case undefined:
-        return undefined;
+  function toNote(wsId: string, problem: LexemeFormProblem): WsInputNote {
+    const form = entry.lexemeForm[wsId];
+    const stored = morphType.storedLexemeForm[wsId];
+    switch (problem.kind) {
       case 'unsupportedMorphType':
         return {message: $t`The markers in "${form}" are for a custom morph type. FieldWorks Lite can't create those yet.`, severity: 'error'};
       case 'unmatchedMarkers': {
@@ -135,8 +95,7 @@
         return {message, severity: 'error'};
       }
       case 'mismatch': {
-        const morphType = morphTypes.byKind(entry.morphType);
-        const label = morphType ? morphTypeLabel(morphType, writingSystemService) : entry.morphType;
+        const label = morphTypeName(entry.morphType);
         const expected = morphTypes.decorate(stored, entry.morphType) ?? stored;
         return {message: $t`For morph type ${label}, type "${expected}".`, severity: 'error'};
       }
@@ -146,22 +105,10 @@
         return {message: $t`"${form}" will be saved as "${stored}". Is there an extra "${problem.marker}"?`, severity: 'warning'};
     }
   }
-  const allNotes: Record<string, WsInputNote> = $derived(Object.fromEntries(Object.entries(lexemeFormChecks)
-    .flatMap(([wsId, check]) => {
-      const note = toNote(entry.lexemeForm[wsId], check);
-      return note ? [[wsId, note] as const] : [];
-    })));
-  // Notes wait for a pause in typing, so "~a" doesn't flash an error before the closing "~" is typed.
-  // A shown note stays up while typing, kept current, until its problem is fixed.
-  const settledNotes = new Debounced(() => allNotes, 600);
-  const lexemeFormNotes = $derived(Object.fromEntries(Object.entries(allNotes).filter(([wsId]) => settledNotes.current[wsId])));
+  const lexemeFormNotes = $derived(Object.fromEntries(Object.entries(morphType.shownProblems)
+    .map(([wsId, problem]) => [wsId, toNote(wsId, problem)])));
 
-  // The entry as it will be stored: markers stripped from the lexeme form
-  const storedEntry = $derived.by(() => {
-    const lexemeForm = {...entry.lexemeForm};
-    for (const [wsId, check] of Object.entries(lexemeFormChecks)) lexemeForm[wsId] = check.stored;
-    return {...entry, lexemeForm};
-  });
+  const storedEntry = $derived({...entry, lexemeForm: morphType.storedLexemeForm});
 
   async function createEntry(e: Event) {
     e.preventDefault();
@@ -176,12 +123,8 @@
       await addMainPublicationPromise; // make sure the main publication landed before we snapshot the entry
       if (!morphTypes.current.length) await morphTypes.refetch(); // markers can't be checked without them
       entry.senses = sense ? [sense] : [];
-      // Show what the pause would have, and stop once if that's news (a warning, or the picker in Lite)
-      const shownBefore = {morphType: showMorphType, notes: Object.keys(lexemeFormNotes)};
-      await Promise.all([settledKind.updateImmediately(), settledNotes.updateImmediately()]);
-      await tick();
-      const news = showMorphType !== shownBefore.morphType || Object.keys(lexemeFormNotes).some(wsId => !shownBefore.notes.includes(wsId));
-      if (news && !blocked) return;
+      // Stop once to show what the pause would have (a warning, or the picker in Lite)
+      if (await morphType.settle() && !morphType.blocked) return;
       if (!validateEntry()) {
         await tick();
         dialogContent?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
@@ -202,7 +145,7 @@
   let errors: string[] = $state([]);
   function validateEntry(): boolean {
     errors = [];
-    if (blocked) return false; // shown under the lexeme form
+    if (morphType.blocked) return false; // shown under the lexeme form
     // Allow entries with only an audio lexeme-form or citation-form to be created
     if (!(writingSystemService.first(storedEntry.lexemeForm) ?? writingSystemService.first(entry.citationForm))) {
       errors.push(pt($t`Lexeme form or Citation form is required`, $t`Word or Display as is required`, viewService.currentView));
@@ -244,11 +187,7 @@
       const tmpEntry = defaultEntry();
       publishInIsFromTemplate = undefined;
       entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
-      unusualMorphType = false;
-      picked = undefined;
-      settledKind.setImmediately(undefined);
-      settledNotes.setImmediately({});
-      morphTypeAnnouncement = '';
+      morphType.reset();
       addMainPublicationPromise = addMainPublication(entry.id);
       addSense();
 
@@ -318,7 +257,7 @@
       <span class="sr-only" aria-live="polite">{morphTypeAnnouncement}</span>
       <OverrideFields shownFields={[
         'lexemeForm', 'citationForm',
-        ...(showMorphType ? ['morphType'] as const : []),
+        ...(morphType.showPicker ? ['morphType'] as const : []),
         'gloss', 'definition', 'partOfSpeechId',
         /* only show semantic domains and publications if the "template" set it */
         ...(entryTemplate?.publishIn?.length ? ['publishIn'] as const : []),
