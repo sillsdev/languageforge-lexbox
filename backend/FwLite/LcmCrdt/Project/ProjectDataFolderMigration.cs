@@ -8,7 +8,8 @@ namespace LcmCrdt.Project;
 
 /// <summary>
 /// One-time copy of a legacy data folder (flat <c>{code}.sqlite</c> files plus <c>localResourcesCache</c>)
-/// into a new root that uses the project-folder layout (<see cref="LcmCrdtConfig.UseProjectFolders"/>).
+/// into a new root that uses the project-folder layout (<see cref="LcmCrdtConfig.UseProjectFolders"/>), where
+/// each project's database and media share one folder.
 /// Used to move Windows MSIX installs out of the package folder, which is deleted on uninstall (#1391).
 /// <para>
 /// Everything is copied into a staging folder and verified there, and the new root then appears in one
@@ -26,7 +27,6 @@ namespace LcmCrdt.Project;
 public static class ProjectDataFolderMigration
 {
     public const string MarkerFileName = "fwlite-data-migration.json";
-    public const string LocalResourcesCacheDirName = "localResourcesCache";
     public const string FailedSyncsDirName = "failedSyncs";
     public const string RetiredDbExtension = ".migrated";
     private const string StagingSuffix = ".migrating-";
@@ -56,7 +56,7 @@ public static class ProjectDataFolderMigration
         /// <summary>Databases plus media.</summary>
         public long Bytes { get; init; }
         public TimeSpan Duration { get; init; }
-        /// <summary>Media referenced from outside the legacy media cache, so still lost on uninstall.</summary>
+        /// <summary>Media referenced from outside the project's legacy media folder, so still lost on uninstall.</summary>
         public int MediaLeftBehind { get; init; }
         /// <summary>Legacy databases that couldn't be renamed, so an older version could still open and sync them.</summary>
         public int RetireFailures { get; init; }
@@ -267,29 +267,20 @@ public static class ProjectDataFolderMigration
     private static CopyResult CopyAndVerify(string legacyRoot, string staging, string targetRoot, ILogger logger)
     {
         if (!Directory.Exists(legacyRoot)) return new([], 0, 0);
-        var legacyCache = Path.Combine(legacyRoot, LocalResourcesCacheDirName);
-        var stagingCache = Path.Combine(staging, LocalResourcesCacheDirName);
+        var legacyCache = Path.Combine(legacyRoot, LcmCrdtConfig.LocalResourcesCacheDirName);
         var legacyDbs = Directory.GetFiles(legacyRoot, "*.sqlite");
+        string[] projects = [.. legacyDbs.Select(db => Path.GetFileNameWithoutExtension(db))];
         // a failed migration is retried on every start, so fail the cheap checks before the (large) media copy
         var bytes = EnsureFreeSpace(staging, legacyDbs, legacyCache);
-
-        var oldCachePrefix = AsDirectoryPrefix(legacyCache);
-        var newCachePrefix = AsDirectoryPrefix(Path.Combine(targetRoot, LocalResourcesCacheDirName));
-        var stagedDbs = new List<string>();
         foreach (var legacyDb in legacyDbs)
         {
             var stagedDb = LcmCrdtConfig.ProjectFolderDbPath(staging, Path.GetFileNameWithoutExtension(legacyDb));
             Directory.CreateDirectory(Path.GetDirectoryName(stagedDb)!);
             CopyDatabase(legacyDb, stagedDb);
-            RewriteLocalResourcePaths(stagedDb, oldCachePrefix, newCachePrefix);
             VerifyDatabase(legacyDb, stagedDb);
-            stagedDbs.Add(stagedDb);
         }
 
-        if (Directory.Exists(legacyCache)) CopyDirectory(legacyCache, stagingCache);
-        var mediaLeftBehind = 0;
-        foreach (var stagedDb in stagedDbs)
-            mediaLeftBehind += VerifyLocalResources(stagedDb, oldCachePrefix, newCachePrefix, AsDirectoryPrefix(stagingCache), AsDirectoryPrefix(legacyRoot), logger);
+        var mediaLeftBehind = projects.Sum(code => CopyProjectMedia(code, legacyRoot, legacyCache, staging, logger));
         CopyProjectDataCache(legacyRoot, staging, targetRoot, legacyDbs, logger);
 
         var legacyFailedSyncs = Path.Combine(legacyRoot, FailedSyncsDirName);
@@ -306,7 +297,7 @@ public static class ProjectDataFolderMigration
             }
         }
 
-        return new([.. legacyDbs.Select(db => Path.GetFileNameWithoutExtension(db))], bytes, mediaLeftBehind);
+        return new(projects, bytes, mediaLeftBehind);
     }
 
     private static long EnsureFreeSpace(string staging, string[] legacyDbs, string legacyCache)
@@ -378,25 +369,6 @@ public static class ProjectDataFolderMigration
         source.BackupDatabase(dest);
     }
 
-    /// <summary>
-    /// Rows written before <c>StoreLocalResourcePathsRelativeToCache</c> hold absolute media paths
-    /// (<c>LocalResource.LocalPath</c>); those pointing into the legacy media cache are re-pointed at the new one.
-    /// Relative rows already resolve against the new cache, and rows elsewhere are left alone.
-    /// </summary>
-    private static void RewriteLocalResourcePaths(string dbPath, string oldPrefix, string newPrefix)
-    {
-        using var connection = Open(dbPath, SqliteOpenMode.ReadWrite);
-        if (!TableExists(connection, "LocalResource")) return;
-        using var command = connection.CreateCommand();
-        command.CommandText = """
-                              UPDATE LocalResource SET LocalPath = @newPrefix || substr(LocalPath, length(@oldPrefix) + 1)
-                              WHERE substr(LocalPath, 1, length(@oldPrefix)) = @oldPrefix COLLATE NOCASE
-                              """;
-        command.Parameters.AddWithValue("@oldPrefix", oldPrefix);
-        command.Parameters.AddWithValue("@newPrefix", newPrefix);
-        command.ExecuteNonQuery();
-    }
-
     private static void VerifyDatabase(string sourceDb, string stagedDb)
     {
         using var source = Open(sourceDb, SqliteOpenMode.ReadWrite);
@@ -419,32 +391,55 @@ public static class ProjectDataFolderMigration
         }
     }
 
-    private static int VerifyLocalResources(string stagedDb, string oldPrefix, string newPrefix, string stagingPrefix, string legacyRootPrefix, ILogger logger)
+    /// <summary>
+    /// Copies a project's media out of the shared legacy cache into its project folder and re-points its
+    /// <c>LocalResource.LocalPath</c> rows there. Legacy rows are absolute, or relative to the cache when written
+    /// with <c>StoreLocalResourcePathsRelativeToCache</c>; migrated rows are always relative.
+    /// </summary>
+    private static int CopyProjectMedia(string code, string legacyRoot, string legacyCache, string staging, ILogger logger)
     {
-        var leftInLegacy = 0;
+        var legacyMedia = AsDirectoryPrefix(Path.Combine(legacyCache, code));
+        var stagedMedia = LcmCrdtConfig.ProjectFolderResourcesPath(staging, code);
+        if (Directory.Exists(legacyMedia)) CopyDirectory(legacyMedia, stagedMedia);
+
+        var stagedDb = LcmCrdtConfig.ProjectFolderDbPath(staging, code);
         using var connection = Open(stagedDb, SqliteOpenMode.ReadWrite);
         if (!TableExists(connection, "LocalResource")) return 0;
-        using var command = connection.CreateCommand();
-        command.CommandText = "SELECT LocalPath FROM LocalResource";
-        using var reader = command.ExecuteReader();
-        while (reader.Read())
+        var leftInLegacy = 0;
+        foreach (var (id, localPath) in ReadLocalResources(connection))
         {
-            var localPath = reader.GetString(0);
-            if (!localPath.StartsWith(newPrefix, StringComparison.Ordinal))
+            var legacyPath = Path.GetFullPath(localPath, legacyCache);
+            if (!legacyPath.StartsWith(legacyMedia, StringComparison.OrdinalIgnoreCase))
             {
-                // the app only stores media in the cache, but anything else in the legacy folder is lost on uninstall
-                if (localPath.StartsWith(legacyRootPrefix, StringComparison.OrdinalIgnoreCase)) leftInLegacy++;
+                // the app only stores media in the project's cache folder, but anything else in the legacy folder is lost on uninstall
+                if (legacyPath.StartsWith(AsDirectoryPrefix(legacyRoot), StringComparison.OrdinalIgnoreCase)) leftInLegacy++;
                 continue;
             }
-            var relative = localPath[newPrefix.Length..];
+
+            var file = legacyPath[legacyMedia.Length..];
             // a file that was already missing before the migration can't be expected to be copied
-            if (File.Exists(oldPrefix + relative) && !File.Exists(stagingPrefix + relative))
-                throw new InvalidDataException($"Media file '{relative}' referenced by '{stagedDb}' was not copied");
+            if (File.Exists(legacyPath) && !File.Exists(Path.Combine(stagedMedia, file)))
+                throw new InvalidDataException($"Media file '{file}' referenced by '{stagedDb}' was not copied");
+            using var update = connection.CreateCommand();
+            update.CommandText = "UPDATE LocalResource SET LocalPath = @path WHERE Id = @id";
+            update.Parameters.AddWithValue("@id", id);
+            update.Parameters.AddWithValue("@path", string.Join('/', code, LcmCrdtConfig.ProjectResourcesDirName, file.Replace(Path.DirectorySeparatorChar, '/')));
+            update.ExecuteNonQuery();
         }
 
         if (leftInLegacy > 0)
-            logger.LogWarning("{Count} media files referenced by {StagedDb} are outside the media cache and were not migrated", leftInLegacy, stagedDb);
+            logger.LogWarning("{Count} media files referenced by {StagedDb} are outside the project's media folder and were not migrated", leftInLegacy, stagedDb);
         return leftInLegacy;
+    }
+
+    private static List<(string Id, string LocalPath)> ReadLocalResources(SqliteConnection connection)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT Id, LocalPath FROM LocalResource";
+        using var reader = command.ExecuteReader();
+        var rows = new List<(string, string)>();
+        while (reader.Read()) rows.Add((reader.GetString(0), reader.GetString(1)));
+        return rows;
     }
 
     private static bool TableExists(SqliteConnection connection, string table)

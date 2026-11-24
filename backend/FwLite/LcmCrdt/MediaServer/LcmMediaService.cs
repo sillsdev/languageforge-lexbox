@@ -19,7 +19,7 @@ public class LcmMediaService(
     ResourceService<LcmFileMetadata> resourceService,
     CurrentProjectService currentProjectService,
     HarmonyChangeWriter changeWriter,
-    IOptions<HarmonyConfig> options,
+    IOptions<LcmCrdtConfig> config,
     IRefitHttpServiceFactory refitFactory,
     IServerHttpClientProvider httpClientProvider,
     ILogger<LcmMediaService> logger
@@ -191,12 +191,7 @@ public class LcmMediaService(
         }
     }
 
-    public string ProjectResourceCachePath => ProjectCachePath(currentProjectService.Project, options.Value);
-
-    public static string ProjectCachePath(CrdtProject project, HarmonyConfig options)
-    {
-        return Path.Combine(options.LocalResourceCachePath, project.Name);
-    }
+    public string ProjectResourceCachePath => config.Value.ProjectResourceCachePath(currentProjectService.Project.Name);
 
     async Task<UploadResult<LcmFileMetadata>> IRemoteResourceService<LcmFileMetadata>.UploadResource(Guid resourceId, string localPath, LcmFileMetadata? metadata)
     {

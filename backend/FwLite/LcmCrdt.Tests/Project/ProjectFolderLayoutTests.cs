@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
+using MiniLcm.Media;
 
 namespace LcmCrdt.Tests.Project;
 
@@ -106,8 +107,9 @@ public class ProjectFolderLayoutTests : IAsyncLifetime
         await using (var scope = _services!.CreateAsyncScope())
         {
             var api = await scope.ServiceProvider.OpenCrdtProject(project);
-            await api.GetWritingSystems();
+            await api.SaveFile(new MemoryStream([1]), new LcmFileMetadata("recording.wav", "audio/wav"));
         }
+        Directory.EnumerateFiles(LcmCrdtConfig.ProjectFolderResourcesPath(_projectPath, "to-delete")).Should().ContainSingle();
 
         await service.DeleteProject("to-delete");
 

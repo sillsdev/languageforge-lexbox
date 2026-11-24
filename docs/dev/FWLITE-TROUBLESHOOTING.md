@@ -82,7 +82,7 @@ The data directory can only be moved with the `FwLiteMaui__BaseDataDir` environm
 in the default (or env-var) directory before it is read, so a `BaseDataDir` inside the file is ignored.
 
 On an installed Windows app (MSIX, not the portable zip) projects are not in the data directory: they are in
-`C:\ProgramData\SIL\FieldWorks Lite\<profile folder name>\projects\` (the user's folder name under `C:\Users`), so they survive uninstalling the app. The
+`C:\ProgramData\SIL\FieldWorks Lite\<profile folder name>\projects\` (the user's folder name under `C:\Users`), so they survive uninstalling the app. Each project has its own folder there, holding its database and its media (`resources\`). The
 **Data Directory** field in the Troubleshoot dialog shows `C:\ProgramData\SIL\FieldWorks Lite\<profile folder name>`
 (or the app data directory if moving the projects failed); logs and the settings file stay in the app data directory.
 If it shows the app data directory, the projects are still there and uninstalling deletes them: sync them to
