@@ -758,7 +758,6 @@ msgstr ""
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
-#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/plugins/studio/StudioNotice.svelte
 msgid "Back to plugins"
@@ -1919,6 +1918,11 @@ msgstr "FieldWorks Lite recopila datos de uso para ayudarnos a mejorarlos."
 msgid "FieldWorks Lite has been updated. Restart to finish installing."
 msgstr "FieldWorks Lite ha sido actualizado. Reinicie para terminar de instalar."
 
+#: src/home/HomeView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+msgid "FieldWorks Lite logo"
+msgstr ""
+
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
@@ -1935,7 +1939,6 @@ msgstr "Versión de FieldWorks Lite"
 #: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
-#: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "Logo de FieldWorks"
@@ -2406,11 +2409,6 @@ msgstr "Longitud:"
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Let this version use the internet?"
 msgstr ""
-
-#. Alt text for the Lexbox logo image shown in the home screen app bar. "Lexbox" is a product name — do not translate.
-#: src/home/HomeView.svelte
-msgid "Lexbox logo"
-msgstr "Logotipo de Lexbox"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"

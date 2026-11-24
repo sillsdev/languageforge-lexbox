@@ -56,6 +56,6 @@
 		</dict>
 	</dict>
 	<key>XSAppIconAssets</key>
-	<string>Assets.xcassets/logo_background.appiconset</string>
+	<string>Assets.xcassets/appicon.appiconset</string>
 </dict>
 </plist>

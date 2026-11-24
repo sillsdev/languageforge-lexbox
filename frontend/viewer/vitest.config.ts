@@ -24,6 +24,7 @@ const browserInstances = () =>
 const sharedAlias = [
   {find: '$lib', replacement: '/src/lib'},
   {find: '$project', replacement: '/src/project'},
+  {find: '$logos', replacement: path.resolve(import.meta.dirname, '../../logos')},
 ];
 
 export default defineConfig({
