@@ -67,17 +67,17 @@ test.describe('New entry morph type', () => {
     await expect(morphTypeSelect(dialog)).toHaveText('root');
 
     await lexemeInput(dialog).fill('*zed-');
-    await expect(dialog.getByText(`"*zed-" doesn't fit any morph type. Did you mean "*zed", "zed-", or "-zed-"?`)).toBeVisible();
+    await expect(dialog.getByText(`Check the markers in "*zed-". Did you mean "*zed", "zed-", or "-zed-"?`)).toBeVisible();
     await expect(lexemeInput(dialog)).toHaveAttribute('aria-invalid', 'true');
 
     await test.step('an error stays put while the form is edited into another error', async () => {
       await lexemeInput(dialog).fill('--zed~');
-      await expect(dialog.getByText(`"--zed~" doesn't fit any morph type.`, {exact: false})).toBeVisible();
+      await expect(dialog.getByText(`Check the markers in "--zed~".`, {exact: false})).toBeVisible();
       await lexemeInput(dialog).press('Home');
       await lexemeInput(dialog).press('Delete');
       // shorter than the pause new notes wait for
       await expect(lexemeInput(dialog)).toHaveAttribute('aria-invalid', 'true', {timeout: 300});
-      await expect(dialog.getByText(`"-zed~" doesn't fit any morph type.`, {exact: false})).toBeVisible();
+      await expect(dialog.getByText(`Check the markers in "-zed~".`, {exact: false})).toBeVisible();
     });
 
     await lexemeInput(dialog).fill('--zed');
@@ -87,7 +87,7 @@ test.describe('New entry morph type', () => {
     await lexemeInput(dialog).fill('-zed');
     await lexemeInput(dialog, 1).fill('zed');
     await dialog.getByRole('button', {name: /create entry/i}).click();
-    await expect(dialog.getByText(`"zed" doesn't match the morph type suffix. Type "-zed" instead.`)).toBeVisible();
+    await expect(dialog.getByText(`For morph type suffix, type "-zed".`)).toBeVisible();
     await expect(lexemeInput(dialog, 1)).toBeFocused();
 
     await lexemeInput(dialog, 1).fill('');

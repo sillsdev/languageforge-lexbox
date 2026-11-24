@@ -111,22 +111,22 @@
       case undefined:
         return undefined;
       case 'unsupportedMorphType':
-        return {message: $t`The markers in "${form}" belong to a morph type FieldWorks Lite can't create yet.`, severity: 'error'};
+        return {message: $t`The markers in "${form}" are for a custom morph type. FieldWorks Lite can't create those yet.`, severity: 'error'};
       case 'unmatchedMarkers': {
         const options = new Intl.ListFormat($locale, {type: 'disjunction'}).format(problem.suggestions.map(s => `"${s}"`));
         const message = problem.suggestions.length
-          ? $t`"${form}" doesn't fit any morph type. Did you mean ${options}?`
-          : $t`"${form}" doesn't fit any morph type.`;
+          ? $t`Check the markers in "${form}". Did you mean ${options}?`
+          : $t`The markers in "${form}" can't be used this way.`;
         return {message, severity: 'error'};
       }
       case 'mismatch': {
         const morphType = morphTypes.byKind(entry.morphType);
         const label = morphType ? morphTypeLabel(morphType, writingSystemService) : entry.morphType;
         const expected = morphTypes.decorate(stored, entry.morphType) ?? stored;
-        return {message: $t`"${form}" doesn't match the morph type ${label}. Type "${expected}" instead.`, severity: 'error'};
+        return {message: $t`For morph type ${label}, type "${expected}".`, severity: 'error'};
       }
       case 'incompleteCircumfix':
-        return {message: $t`A circumfix needs a left and a right part, separated by a space, like "a- -b".`, severity: 'error'};
+        return {message: $t`A circumfix has two parts with a space between them, like "a- -b".`, severity: 'error'};
       case 'leftoverMarker':
         return {message: $t`"${form}" will be saved as "${stored}". Is there an extra "${problem.marker}"?`, severity: 'warning'};
     }

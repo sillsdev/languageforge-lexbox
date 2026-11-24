@@ -41,18 +41,6 @@ msgstr ""
 msgid "“{0}” changed an entry"
 msgstr ""
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "\"{0}\" doesn't fit any morph type."
-msgstr ""
-
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "\"{0}\" doesn't fit any morph type. Did you mean {1}?"
-msgstr ""
-
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "\"{0}\" doesn't match the morph type {1}. Type \"{2}\" instead."
-msgstr ""
-
 #: src/lib/plugins/PluginSandbox.svelte
 msgid "“{0}” kept asking to change your dictionary after you said no. Reload it to try again."
 msgstr ""
@@ -272,7 +260,7 @@ msgid "3. Try it here"
 msgstr ""
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "A circumfix needs a left and a right part, separated by a space, like \"a- -b\"."
+msgid "A circumfix has two parts with a space between them, like \"a- -b\"."
 msgstr ""
 
 #. Update notification
@@ -860,6 +848,10 @@ msgstr ""
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Mengubah medan yang sama dua kali, sebagai contoh, boleh menghasilkan dua komit tetapi hanya satu perubahan yang perlu digunakan pada FieldWorks Classic. Komit juga boleh terdiri daripada berbilang perubahan."
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Check the markers in \"{0}\". Did you mean {1}?"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Checking for similar words…"
@@ -2050,6 +2042,10 @@ msgstr ""
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "Untuk sebarang pertanyaan lain, jangan ragu untuk menghantar kami e-mel."
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "For morph type {0}, type \"{1}\"."
+msgstr ""
 
 #: src/home/OpenFromFolderItem.svelte
 msgid "From a USB drive or shared folder"
@@ -4362,7 +4358,11 @@ msgid "The copy of {0} in this folder didn't come from the same original as the 
 msgstr ""
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "The markers in \"{0}\" belong to a morph type FieldWorks Lite can't create yet."
+msgid "The markers in \"{0}\" are for a custom morph type. FieldWorks Lite can't create those yet."
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "The markers in \"{0}\" can't be used this way."
 msgstr ""
 
 #: src/lib/plugins/studio/panels/VersionReview.svelte
