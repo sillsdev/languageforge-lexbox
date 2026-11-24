@@ -107,6 +107,10 @@
   <PropertyGroup>
     <FwLiteLogos>$(MSBuildThisFileDirectory)..\..\..\logos\fieldworks-lite\</FwLiteLogos>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetPlatform)' == 'windows'">
+    <!-- The logo's drawing for each size (micro, tiny, small, full); MauiIcon's .ico scales one drawing to every size, which blurs at 16-32 px -->
+    <ApplicationIcon>$(FwLiteLogos)png\fieldworks-lite-reversed.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <!-- App Icon, drawn from the shipped set in logos/fieldworks-lite (see its README for which file goes where).
          Link names the generated icon "appicon", which AndroidManifest.xml and the Info.plist XSAppIconAssets refer to. -->
@@ -114,12 +118,12 @@
     <MauiIcon Condition="'$(TargetPlatform)' == 'maccatalyst'" Include="$(FwLiteLogos)fieldworks-lite-appicon-macos.svg" Link="appicon.svg" />
     <!-- The logo guide (index.html) sizes the book at 85% of the visible 72dp icon: 0.85 * 72/108.
          Resizetizer doesn't notice a ForegroundScale change: clean obj before checking a new value. -->
-    <MauiIcon Condition="'$(TargetPlatform)' == 'android'" Include="Resources\AppIcon\launcher.svg" Link="appicon.svg" Color="#ffffff" ForegroundScale="0.57" />
-    <!-- Reversed because the .ico (portable app, window) has one drawing for both themes, and the light one nearly vanishes on a dark taskbar.
-         The MSIX taskbar icons are swapped per theme and size by FwLiteMsixTaskbarIcons below. -->
+    <MauiIcon Condition="'$(TargetPlatform)' == 'android'" Include="$(FwLiteLogos)fieldworks-lite-circle.svg" Link="appicon.svg" Color="#ffffff" ForegroundScale="0.57" />
+    <!-- Windows: tiles and store logo come from this; the taskbar icons from ApplicationIcon above and FwLiteMsixTaskbarIcons below.
+         Reversed because those can't all follow the taskbar theme, and the light drawing nearly vanishes on a dark taskbar. -->
     <MauiIcon Condition="'$(TargetPlatform)' != 'ios' And '$(TargetPlatform)' != 'maccatalyst' And '$(TargetPlatform)' != 'android'" Include="$(FwLiteLogos)fieldworks-lite-small-reversed.svg" Link="appicon.svg" />
     <!-- Splash Screen -->
-    <MauiSplashScreen Include="Resources\AppIcon\splash.svg" Color="#1f2a44" BaseSize="288,288" />
+    <MauiSplashScreen Include="$(FwLiteLogos)fieldworks-lite-splash.svg" Link="splash.svg" Color="#1f2a44" BaseSize="288,288" />
     <!-- Images -->
     <MauiImage Include="Resources\Images\*" />
     <!-- Custom Fonts -->

@@ -1,4 +1,4 @@
-// Rebuilds png/ (not committed) and the favicons from the SVGs. After editing a drawing: cd logos && pnpm install && node fieldworks-lite/render.mjs
+// Rebuilds png/, the favicons and the copies elsewhere in the repo from the SVGs. After editing a drawing: cd logos && pnpm install && node fieldworks-lite/render.mjs
 import { render } from '../render-logos.mjs'
 
 render(import.meta.dirname, {
@@ -22,6 +22,7 @@ render(import.meta.dirname, {
 
     'fieldworks-lite-circle-512.png': ['fieldworks-lite-circle.svg', 512],
     'fieldworks-lite-reversed-circle-512.png': ['fieldworks-lite-reversed-circle.svg', 512],
+    'fieldworks-lite-splash-512.png': ['fieldworks-lite-splash.svg', 512],
 
     // Platform.Bible tab icon: shown at 16 px, so the micro drawing, at 4x for high-density screens.
     'fieldworks-lite-micro-reversed-64.png': ['fieldworks-lite-micro-reversed.svg', 64],
@@ -33,7 +34,19 @@ render(import.meta.dirname, {
     // App Store Connect rejects an icon with an alpha channel.
     'fieldworks-lite-appicon-square-1024.png': ['fieldworks-lite-appicon-square.svg', 1024, 'opaque'],
   },
-  ico: ['fieldworks-lite-16.png', 'fieldworks-lite-32.png', 'fieldworks-lite-48.png'],
+  icos: {
+    'favicon.ico': ['fieldworks-lite-16.png', 'fieldworks-lite-32.png', 'fieldworks-lite-48.png'],
+    // The Windows app icon (exe, window, portable app's taskbar): reversed, since it can't follow the taskbar theme.
+    'png/fieldworks-lite-reversed.ico': ['fieldworks-lite-reversed-16.png', 'fieldworks-lite-reversed-24.png', 'fieldworks-lite-reversed-32.png', 'fieldworks-lite-reversed-48.png', 'fieldworks-lite-reversed-256.png'],
+  },
+  // Files other folders need at a fixed path.
+  copies: {
+    '../../frontend/viewer/public/icon.svg': 'favicon.svg',
+    '../../docs/site/static/img/favicon.svg': 'favicon.svg',
+    '../../docs/site/static/img/favicon.ico': 'favicon.ico',
+    '../../docs/site/static/img/logo.svg': 'fieldworks-lite-tiny.svg',
+    '../../docs/site/static/img/logo-dark.svg': 'fieldworks-lite-tiny-reversed.svg',
+  },
   faviconSvg: {
     title: 'FieldWorks Lite, favicon (reversed in dark mode)',
     light: 'fieldworks-lite-micro.svg',
