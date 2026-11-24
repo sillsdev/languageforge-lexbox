@@ -42,6 +42,7 @@ test.describe('New entry morph type', () => {
     await expect(morphTypeSelect(dialog)).toHaveText('prefix');
 
     await morphTypeSelect(dialog).click();
+    await expect(page.getByText('Affixes', {exact: true})).toBeVisible();
     await page.getByRole('option', {name: 'infix', exact: true}).click();
     await expect(lexemeInput(dialog)).toHaveValue('-zed-');
 
@@ -66,8 +67,18 @@ test.describe('New entry morph type', () => {
     await expect(morphTypeSelect(dialog)).toHaveText('root');
 
     await lexemeInput(dialog).fill('*zed-');
-    await expect(dialog.getByText(`"*zed-" can't both start with "*" and end with "-".`, {exact: false})).toBeVisible();
+    await expect(dialog.getByText(`"*zed-" doesn't fit any morph type. Did you mean "*zed", "zed-", or "-zed-"?`)).toBeVisible();
     await expect(lexemeInput(dialog)).toHaveAttribute('aria-invalid', 'true');
+
+    await test.step('an error stays put while the form is edited into another error', async () => {
+      await lexemeInput(dialog).fill('--zed~');
+      await expect(dialog.getByText(`"--zed~" doesn't fit any morph type.`, {exact: false})).toBeVisible();
+      await lexemeInput(dialog).press('Home');
+      await lexemeInput(dialog).press('Delete');
+      // shorter than the pause new notes wait for
+      await expect(lexemeInput(dialog)).toHaveAttribute('aria-invalid', 'true', {timeout: 300});
+      await expect(dialog.getByText(`"-zed~" doesn't fit any morph type.`, {exact: false})).toBeVisible();
+    });
 
     await lexemeInput(dialog).fill('--zed');
     await expect(morphTypeSelect(dialog)).toHaveText('suffix');
@@ -99,6 +110,10 @@ test.describe('New entry morph type', () => {
     await expect(morphTypeSelect(dialog)).toHaveText('suffix');
     await lexemeInput(dialog).fill('zed');
     await expect(morphTypeSelect(dialog)).toHaveText('stem');
+    await lexemeInput(dialog).fill('a- -b');
+    await expect(morphTypeSelect(dialog)).toHaveText('circumfix');
+    await morphTypeSelect(dialog).click();
+    await page.getByRole('option', {name: 'stem', exact: true}).click();
     await lexemeInput(dialog).fill('-zed');
 
     await dialog.getByRole('button', {name: /add word/i}).click();

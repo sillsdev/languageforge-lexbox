@@ -13,7 +13,6 @@ const ambiguousToDefault: Partial<Record<MorphTypeKind, MorphTypeKind>> = {
   [MorphTypeKind.InfixingInterfix]: MorphTypeKind.Infix,
   [MorphTypeKind.BoundRoot]: MorphTypeKind.BoundStem,
   [MorphTypeKind.Particle]: MorphTypeKind.Stem,
-  [MorphTypeKind.Circumfix]: MorphTypeKind.Stem,
   [MorphTypeKind.Root]: MorphTypeKind.Stem,
   [MorphTypeKind.DiscontiguousPhrase]: MorphTypeKind.Stem,
   [MorphTypeKind.Phrase]: MorphTypeKind.Stem,
@@ -65,8 +64,24 @@ export function findMorphType(form: string, morphTypes: MarkerSource[]): MorphTy
   // A project's own morph types have no kind FW Lite can create entries with
   if (match?.kind === MorphTypeKind.Unknown) return {valid: false, leading, trailing, unsupported: true};
   let kind = match ? detectedKind(match, morphTypes) : MorphTypeKind.Stem;
-  if (kind === MorphTypeKind.Stem && trimmed.includes(' ')) kind = MorphTypeKind.Phrase;
+  if (kind === MorphTypeKind.Stem && looksLikeCircumfix(trimmed, morphTypes)) kind = MorphTypeKind.Circumfix;
+  else if (kind === MorphTypeKind.Stem && trimmed.includes(' ')) kind = MorphTypeKind.Phrase;
   return {valid: true, kind, leading, trailing};
+}
+
+// liblcm StringServices.GetCircumfixLeftAndRightParts: "a- -b" or "a-.-b"
+function circumfixParts(form: string): [left: string, right: string] | undefined {
+  const leftEnd = form.search(/[ .]/);
+  if (leftEnd < 0) return undefined;
+  return [form.slice(0, leftEnd), form.slice(Math.max(form.lastIndexOf(' '), form.lastIndexOf('.')) + 1)];
+}
+
+// Not in FLEx, which reads "a- -b" as a phrase
+function looksLikeCircumfix(form: string, morphTypes: MarkerSource[]): boolean {
+  const parts = circumfixParts(form);
+  if (!parts || !morphTypes.some(mt => mt.kind === MorphTypeKind.Circumfix)) return false;
+  const [left, right] = parts.map(part => findMorphType(part, morphTypes));
+  return left.valid && !!left.trailing && right.valid && !!right.leading;
 }
 
 export function stripMarkers(form: string, match: Pick<MorphTypeMatch, 'leading' | 'trailing'>): string {
@@ -82,7 +97,7 @@ export function fitsMorphType(chosen: MorphTypeKind, detected: MorphTypeKind): b
 }
 
 export type LexemeFormProblem =
-  | {kind: 'unmatchedMarkers', leading: string, trailing: string}
+  | {kind: 'unmatchedMarkers', suggestions: string[]}
   | {kind: 'unsupportedMorphType'}
   | {kind: 'incompleteCircumfix'}
   | {kind: 'mismatch'}
@@ -100,11 +115,12 @@ export function checkLexemeForm(form: string, chosen: MorphTypeKind, morphTypes:
   const stored = stripMarkers(form, match);
   if (!match.valid) {
     return {stored, problem: match.unsupported ? {kind: 'unsupportedMorphType'}
-      : {kind: 'unmatchedMarkers', leading: match.leading, trailing: match.trailing}};
+      : {kind: 'unmatchedMarkers', suggestions: markerSuggestions(stored, match, morphTypes)}};
   }
-  if (!fitsMorphType(chosen, match.kind)) return {stored, problem: {kind: 'mismatch'}};
-  if (chosen === MorphTypeKind.Circumfix && !isCompleteCircumfix(stored, morphTypes)) {
-    return {stored, problem: {kind: 'incompleteCircumfix'}};
+  if (chosen === MorphTypeKind.Circumfix) {
+    if (!isCompleteCircumfix(stored, morphTypes)) return {stored, problem: {kind: 'incompleteCircumfix'}};
+  } else if (!fitsMorphType(chosen, match.kind)) {
+    return {stored, problem: {kind: 'mismatch'}};
   }
   const leftover = stored.trim() ? findMorphType(stored, morphTypes) : undefined;
   const marker = leftover && (leftover.leading || leftover.trailing);
@@ -112,11 +128,14 @@ export function checkLexemeForm(form: string, chosen: MorphTypeKind, morphTypes:
   return {stored};
 }
 
-// liblcm StringServices.GetCircumfixLeftAndRightParts: "a- -b" or "a-.-b", each side a valid form
 function isCompleteCircumfix(form: string, morphTypes: MarkerSource[]): boolean {
-  const leftEnd = form.search(/[ .]/);
-  if (leftEnd < 0) return false;
-  const left = form.slice(0, leftEnd);
-  const right = form.slice(Math.max(form.lastIndexOf(' '), form.lastIndexOf('.')) + 1);
-  return [left, right].every(part => part.trim() && findMorphType(part, morphTypes).valid);
+  return circumfixParts(form)?.every(part => part.trim() && findMorphType(part, morphTypes).valid) ?? false;
+}
+
+// Forms that keep one of the typed markers, e.g. "~a~" for "a~"
+function markerSuggestions(bare: string, {leading, trailing}: Pick<MorphTypeMatch, 'leading' | 'trailing'>, morphTypes: MarkerSource[]): string[] {
+  const forms = morphTypes
+    .filter(mt => mt.kind !== MorphTypeKind.Unknown && ((leading && mt.prefix === leading) || (trailing && mt.postfix === trailing)))
+    .map(mt => `${mt.prefix ?? ''}${bare}${mt.postfix ?? ''}`);
+  return [...new Set(forms)].sort((a, b) => a.length - b.length || a.localeCompare(b)).slice(0, 3);
 }

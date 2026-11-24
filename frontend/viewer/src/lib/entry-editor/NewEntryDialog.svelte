@@ -9,7 +9,7 @@
   import {createEntryOptions} from '$lib/create-entry-options';
   import {tick, untrack} from 'svelte';
   import {Debounced} from 'runed';
-  import {t} from 'svelte-i18n-lingui';
+  import {locale, t} from 'svelte-i18n-lingui';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
@@ -113,12 +113,10 @@
       case 'unsupportedMorphType':
         return {message: $t`The markers in "${form}" belong to a morph type FieldWorks Lite can't create yet.`, severity: 'error'};
       case 'unmatchedMarkers': {
-        const {leading, trailing} = problem;
-        const message = leading && trailing
-          ? $t`"${form}" can't both start with "${leading}" and end with "${trailing}". Remove one of them.`
-          : leading
-            ? $t`"${form}" starts with "${leading}" but doesn't end with a matching marker.`
-            : $t`"${form}" ends with "${trailing}" but doesn't start with a matching marker.`;
+        const options = new Intl.ListFormat($locale, {type: 'disjunction'}).format(problem.suggestions.map(s => `"${s}"`));
+        const message = problem.suggestions.length
+          ? $t`"${form}" doesn't fit any morph type. Did you mean ${options}?`
+          : $t`"${form}" doesn't fit any morph type.`;
         return {message, severity: 'error'};
       }
       case 'mismatch': {
@@ -138,11 +136,12 @@
       const note = toNote(entry.lexemeForm[wsId], check);
       return note ? [[wsId, note] as const] : [];
     })));
-  // Notes wait for a pause in typing, so "~a" doesn't flash an error before the closing "~" is typed
-  const allNotesKey = $derived(JSON.stringify(allNotes));
-  const settledNotesKey = new Debounced(() => allNotesKey, 600);
+  // Notes wait for a pause in typing, so "~a" doesn't flash an error before the closing "~" is typed.
+  // A shown note stays while typing, unless its problem is fixed.
+  const settledNotes = new Debounced(() => allNotes, 600);
   let submitted = $state(false);
-  const lexemeFormNotes = $derived(submitted || settledNotesKey.current === allNotesKey ? allNotes : {});
+  const lexemeFormNotes = $derived(submitted ? allNotes
+    : Object.fromEntries(Object.entries(settledNotes.current).filter(([wsId]) => allNotes[wsId])));
 
   // The entry as it will be stored: markers stripped from the lexeme form
   const storedEntry = $derived.by(() => {

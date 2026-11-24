@@ -5,7 +5,7 @@
   import {MorphTypeKind} from '$lib/dotnet-types';
   import {useWritingSystemService} from '$project/data';
   import {useMorphTypesService} from '$project/data/morph-types.svelte';
-  import {AFFIXES, CLITICS, WORDS_AND_PHRASES} from '$project/data/morph-type-groups';
+  import {MORPH_TYPE_GROUPS, OTHER_MORPH_TYPES} from '$project/data/morph-type-groups';
   import {checkState, selectedKinds, toggleAll, toggleGroup, toggleKind, type CheckState, type MorphTypeFilter} from './morph-type-filter';
 
   const ALL = '__all__';
@@ -23,15 +23,10 @@
   const listed = $derived(options.map(o => o.kind));
 
   const groups = $derived.by(() => {
-    const defined = [
-      {key: '__words__', label: $t`Words and phrases`, kinds: WORDS_AND_PHRASES},
-      {key: '__affixes__', label: $t`Affixes`, kinds: AFFIXES},
-      {key: '__clitics__', label: $t`Clitics`, kinds: CLITICS},
-    ];
-    const grouped = new Set(defined.flatMap(g => g.kinds));
-    const other = {key: '__other__', label: $t`Other`, kinds: listed.filter(k => !grouped.has(k))};
-    return [...defined, other]
-      .map(g => ({...g, options: options.filter(o => g.kinds.includes(o.kind))}))
+    const grouped = new Set(MORPH_TYPE_GROUPS.flatMap(g => g.kinds));
+    const other = {...OTHER_MORPH_TYPES, kinds: listed.filter(k => !grouped.has(k))};
+    return [...MORPH_TYPE_GROUPS, other]
+      .map(g => ({...g, label: $t(g.label), options: options.filter(o => g.kinds.includes(o.kind))}))
       .filter(g => g.options.length > 0);
   });
 

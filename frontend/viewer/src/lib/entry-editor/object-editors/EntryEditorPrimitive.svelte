@@ -15,6 +15,8 @@
   import type {Snippet} from 'svelte';
   import {tvt} from '$lib/views/view-text';
   import {morphTypeLabel, useMorphTypesService} from '$project/data/morph-types.svelte';
+  import {morphTypeGroup, morphTypeGroupIndex} from '$project/data/morph-type-groups';
+  import {t} from 'svelte-i18n-lingui';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     entry: IEntry;
@@ -55,7 +57,9 @@
   const fields = $derived(fieldRecord(entryFields));
   const morphTypeOptions = $derived(morphTypes.current
     .filter(mt => mt.kind !== MorphTypeKind.Unknown)
-    .toSorted((a, b) => morphTypeLabel(a, writingSystemService).localeCompare(morphTypeLabel(b, writingSystemService))));
+    .map(mt => ({mt, group: morphTypeGroupIndex(mt.kind), label: morphTypeLabel(mt, writingSystemService)}))
+    .toSorted((a, b) => a.group - b.group || a.label.localeCompare(b.label))
+    .map(({mt}) => mt));
 </script>
 
 <Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas(entryFields) } })}>
@@ -80,6 +84,7 @@
         options={morphTypeOptions}
         labelSelector={(mt) => morphTypeLabel(mt, writingSystemService)}
         idSelector="id"
+        groupSelector={(mt) => $t(morphTypeGroup(mt.kind).label)}
         readonly={readonly || !newEntry}
         onchange={(mt) => {
           if (!mt) return;

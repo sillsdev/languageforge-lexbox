@@ -30,6 +30,10 @@ describe('morph type markers', () => {
     ['walk', K.Stem, 'walk'],
     ['  walk ', K.Stem, 'walk'],
     ['kick the bucket', K.Phrase, 'kick the bucket'],
+    ['a- -b', K.Circumfix, 'a- -b'],
+    ['a-.-b', K.Circumfix, 'a-.-b'],
+    ['a- b', K.Phrase, 'a- b'],
+    ['a -b', K.Phrase, 'a -b'],
     ['-ed', K.Suffix, 'ed'],
     ['re-', K.Prefix, 're'],
     ['-a-', K.Infix, 'a'],
@@ -64,6 +68,7 @@ describe('morph type markers', () => {
     [K.SuffixingInterfix, K.Suffix, true],
     [K.Suffix, K.Stem, false],
     [K.Root, K.BoundStem, false],
+    [K.Stem, K.Circumfix, false],
   ])('%s fits a form detected as %s: %s', (chosen, detected, fits) => {
     expect(fitsMorphType(chosen, detected)).toBe(fits);
   });
@@ -73,12 +78,13 @@ describe('morph type markers', () => {
     ['walk', K.Root, {stored: 'walk'}],
     ['-ed', K.Suffix, {stored: 'ed'}],
     ['--ed', K.Suffix, {stored: '-ed', problem: {kind: 'leftoverMarker', marker: '-'}}],
-    ['*ed-', K.Suffix, {stored: 'ed', problem: {kind: 'unmatchedMarkers', leading: '*', trailing: '-'}}],
+    ['*ed-', K.Suffix, {stored: 'ed', problem: {kind: 'unmatchedMarkers', suggestions: ['*ed', 'ed-', '-ed-']}}],
+    ['ed~', K.Stem, {stored: 'ed', problem: {kind: 'unmatchedMarkers', suggestions: ['~ed~']}}],
     ['ed', K.Suffix, {stored: 'ed', problem: {kind: 'mismatch'}}],
     ['a- -b', K.Circumfix, {stored: 'a- -b'}],
     ['a-.-b', K.Circumfix, {stored: 'a-.-b'}],
     ['ab', K.Circumfix, {stored: 'ab', problem: {kind: 'incompleteCircumfix'}}],
-    [' -b', K.Circumfix, {stored: 'b', problem: {kind: 'mismatch'}}],
+    [' -b', K.Circumfix, {stored: 'b', problem: {kind: 'incompleteCircumfix'}}],
     ['a- ~b', K.Circumfix, {stored: 'a- ~b', problem: {kind: 'incompleteCircumfix'}}],
   ])('%j as %s is checked as %j', (form, chosen, check) => {
     expect(checkLexemeForm(form, chosen, morphTypes)).toEqual(check);

@@ -32,21 +32,21 @@ msgstr "“{0}” added an entry"
 msgid "“{0}” can now make changes without asking. You can change this from the plugin toolbar or its card."
 msgstr "“{0}” can now make changes without asking. You can change this from the plugin toolbar or its card."
 
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "\"{0}\" can't both start with \"{1}\" and end with \"{2}\". Remove one of them."
-msgstr "\"{0}\" can't both start with \"{1}\" and end with \"{2}\". Remove one of them."
-
 #: src/lib/plugins/PluginSandbox.svelte
 msgid "“{0}” changed an entry"
 msgstr "“{0}” changed an entry"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "\"{0}\" doesn't match the morph type {1}. Type \"{2}\" instead."
-msgstr "\"{0}\" doesn't match the morph type {1}. Type \"{2}\" instead."
+msgid "\"{0}\" doesn't fit any morph type."
+msgstr "\"{0}\" doesn't fit any morph type."
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "\"{0}\" ends with \"{1}\" but doesn't start with a matching marker."
-msgstr "\"{0}\" ends with \"{1}\" but doesn't start with a matching marker."
+msgid "\"{0}\" doesn't fit any morph type. Did you mean {1}?"
+msgstr "\"{0}\" doesn't fit any morph type. Did you mean {1}?"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" doesn't match the morph type {1}. Type \"{2}\" instead."
+msgstr "\"{0}\" doesn't match the morph type {1}. Type \"{2}\" instead."
 
 #: src/lib/plugins/PluginSandbox.svelte
 msgid "“{0}” kept asking to change your dictionary after you said no. Reload it to try again."
@@ -55,10 +55,6 @@ msgstr "“{0}” kept asking to change your dictionary after you said no. Reloa
 #: src/lib/plugins/PluginSandbox.svelte
 msgid "“{0}” made {1}"
 msgstr "“{0}” made {1}"
-
-#: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "\"{0}\" starts with \"{1}\" but doesn't end with a matching marker."
-msgstr "\"{0}\" starts with \"{1}\" but doesn't end with a matching marker."
 
 #: src/lib/plugins/PluginSandbox.svelte
 msgid "“{0}” tried to leave its sandbox page, which plugins are not allowed to do. It may be broken — or trying to send data somewhere. Be careful with this plugin."
@@ -504,8 +500,8 @@ msgstr "Added to {0}"
 msgid "Advanced: settings file"
 msgstr "Advanced: settings file"
 
-#. Group header in the morph type filter list. Affixes are bound morphemes added to a stem (prefix, suffix, infix...).
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists. Affixes are bound morphemes added to a stem (prefix, suffix, infix...).
+#: src/project/data/morph-type-groups.ts
 msgid "Affixes"
 msgstr "Affixes"
 
@@ -915,8 +911,8 @@ msgstr "clear"
 msgid "Cleared {0}"
 msgstr "Cleared {0}"
 
-#. Group header in the morph type filter list. Clitics are bound forms that act like words but attach phonologically to a neighbor (proclitic, enclitic).
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists. Clitics are bound forms that act like words but attach phonologically to a neighbor (proclitic, enclitic).
+#: src/project/data/morph-type-groups.ts
 msgid "Clitics"
 msgstr "Clitics"
 
@@ -3146,8 +3142,8 @@ msgstr "Opt out of analytics"
 msgid "orange"
 msgstr "orange"
 
-#. Group header in the morph type filter list for morph types that are not words and phrases, affixes, or clitics.
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists for morph types that are not words and phrases, affixes, or clitics.
+#: src/project/data/morph-type-groups.ts
 msgid "Other"
 msgstr "Other"
 
@@ -5023,8 +5019,8 @@ msgstr "Word or meaning:"
 msgid "words"
 msgstr "words"
 
-#. Group header in the morph type filter list: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
+#: src/project/data/morph-type-groups.ts
 msgid "Words and phrases"
 msgstr "Words and phrases"
 
