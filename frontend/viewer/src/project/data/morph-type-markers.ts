@@ -85,7 +85,7 @@ export function stripMarkers(form: string, match: Pick<MorphTypeMatch, 'leading'
   let result = form.trim();
   if (match.leading && result.startsWith(match.leading)) result = result.slice(match.leading.length);
   if (match.trailing && result.endsWith(match.trailing)) result = result.slice(0, result.length - match.trailing.length);
-  return result;
+  return result.trim();
 }
 
 /** FLEx's CheckMorphType: e.g. a form detected as a stem is fine for a root, particle or phrase */
