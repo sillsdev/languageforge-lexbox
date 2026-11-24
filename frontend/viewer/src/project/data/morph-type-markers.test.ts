@@ -71,7 +71,9 @@ describe('morph type markers', () => {
     [K.SuffixingInterfix, K.Suffix, true],
     [K.Suffix, K.Stem, false],
     [K.Root, K.BoundStem, false],
-    [K.Stem, K.Circumfix, false],
+    [K.Stem, K.Circumfix, true],
+    [K.Phrase, K.Circumfix, true],
+    [K.Suffix, K.Circumfix, false],
   ])('%s fits a form detected as %s: %s', (chosen, detected, fits) => {
     expect(fitsMorphType(chosen, detected)).toBe(fits);
   });

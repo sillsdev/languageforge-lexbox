@@ -67,6 +67,10 @@ test.describe('New entry morph type', () => {
     await page.getByRole('option', {name: 'root', exact: true}).click();
     await lexemeInput(dialog).fill('zed');
     await expect(morphTypeSelect(dialog)).toHaveText('root');
+    await lexemeInput(dialog).fill('zed-');
+    await expect(morphTypeSelect(dialog)).toHaveText('prefix');
+    await lexemeInput(dialog).fill('zed');
+    await expect(morphTypeSelect(dialog)).toHaveText('root');
 
     await lexemeInput(dialog).fill('*zed-');
     await expect(dialog.getByText(`Check the markers in "*zed-". Did you mean "*zed", "zed-", or "-zed-"?`)).toBeVisible();
@@ -120,6 +124,19 @@ test.describe('New entry morph type', () => {
     await expect(morphTypeSelect(dialog)).toHaveText('phrase');
     await lexemeInput(dialog).fill('-zed');
 
+    await dialog.getByRole('button', {name: /add word/i}).click();
+    await expect(dialog).toBeHidden();
+    expect(await createdMorphTypes(page, 'zed')).toEqual(['Suffix']);
+  });
+
+  test('lite view stops a quick create once to show the morph type it picked', async ({page}) => {
+    await new DemoProjectPage(page).goto();
+    await useView(page, /FieldWorks Lite/);
+
+    const dialog = await openNewEntryDialog(page);
+    await lexemeInput(dialog).fill('-zed');
+    await dialog.getByRole('button', {name: /add word/i}).click();
+    await expect(morphTypeSelect(dialog)).toHaveText('suffix');
     await dialog.getByRole('button', {name: /add word/i}).click();
     await expect(dialog).toBeHidden();
     expect(await createdMorphTypes(page, 'zed')).toEqual(['Suffix']);

@@ -173,7 +173,7 @@
       {/if}
       {#each renderedGroups as group, g (group.heading ?? '')}
         <CommandGroup heading={group.heading}>
-          {#each group.options as option, i (getId(option))}
+          {#each group.options as option (getId(option))}
             {@const label = getLabel(option)}
             {@const id = getId(option)}
             {@const selected = value && getId(value) === id}
@@ -182,7 +182,7 @@
               value={label.toLocaleLowerCase() + String(id)}
               onSelect={() => selectValue(option)}
               class={cn('group h-12 md:h-9', label || 'text-muted-foreground')}
-              data-value-index={i}
+              data-value-index={renderedOptions.indexOf(option)}
               aria-label={label}
             >
               <Icon icon="i-mdi-check" class={cn('md:hidden', selected || 'invisible')} />

@@ -90,6 +90,8 @@ export function stripMarkers(form: string, match: Pick<MorphTypeMatch, 'leading'
 
 /** FLEx's CheckMorphType: e.g. a form detected as a stem is fine for a root, particle or phrase */
 export function fitsMorphType(chosen: MorphTypeKind, detected: MorphTypeKind): boolean {
+  // A circumfix is only guessed from its shape ("up- and -down" can be a phrase)
+  if (detected === MorphTypeKind.Circumfix) return chosen === detected || normalize(chosen) === MorphTypeKind.Stem;
   return normalize(chosen) === normalize(detected);
 }
 

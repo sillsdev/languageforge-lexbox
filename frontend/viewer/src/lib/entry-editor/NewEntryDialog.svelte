@@ -74,26 +74,33 @@
   const detectedKind = $derived(detected.valid ? detected.kind : undefined);
   const settledKind = new Debounced(() => detectedKind, 600);
   $effect(() => {
-    if (settledKind.current && settledKind.current !== MorphTypeKind.Stem && settledKind.current !== MorphTypeKind.Phrase) {
-      unusualMorphType = true;
-    }
+    const kind = settledKind.current;
+    // Lite users can't fix a type mismatch in another writing system without the picker
+    const mismatch = Object.keys(settledNotes.current).some(wsId => lexemeFormChecks[wsId]?.problem?.kind === 'mismatch');
+    if (untrack(() => unusualMorphType) || !(mismatch || (kind && kind !== MorphTypeKind.Stem && kind !== MorphTypeKind.Phrase))) return;
+    unusualMorphType = true;
+    announceMorphType(untrack(() => entry.morphType));
   });
 
-  // The morph type follows the markers until the user picks one. A picked type only gives way to markers that
-  // contradict it, so a picked root survives typing but "-ed" makes a suffix. A picked circumfix stays regardless:
-  // typing its left part ("a-") reads as a prefix.
+  // The morph type follows the form until the user picks one. A pick holds unless the markers contradict it, so a
+  // picked root survives "zed", "-zed" makes a suffix, and deleting the "-" brings the root back.
+  // A picked circumfix always holds: typing its left part ("a-") reads as a prefix.
   let morphTypeAnnouncement = $state('');
   let picked = $state<MorphTypeKind>();
   $effect(() => {
-    if (!detectedKind) return;
-    const chosen = untrack(() => picked);
-    if (chosen && (chosen === MorphTypeKind.Circumfix || fitsMorphType(chosen, detectedKind))) return;
-    picked = undefined;
-    if (untrack(() => entry.morphType) === detectedKind) return;
-    entry.morphType = detectedKind;
-    const morphType = morphTypes.byKind(detectedKind);
-    morphTypeAnnouncement = $t`Morph type: ${morphType ? morphTypeLabel(morphType, writingSystemService) : detectedKind}`;
+    if (!detected.valid) return;
+    const unmarked = !detected.leading && !detected.trailing;
+    const kind = picked && (picked === MorphTypeKind.Circumfix || unmarked || fitsMorphType(picked, detected.kind))
+      ? picked : detected.kind;
+    if (untrack(() => entry.morphType) === kind) return;
+    entry.morphType = kind;
+    if (untrack(() => showMorphType)) announceMorphType(kind);
   });
+
+  function announceMorphType(kind: MorphTypeKind) {
+    const morphType = morphTypes.byKind(kind);
+    morphTypeAnnouncement = $t`Morph type: ${morphType ? morphTypeLabel(morphType, writingSystemService) : kind}`;
+  }
 
   function onEntryFieldChanged(_entry: IEntry, field: EntryFieldId) {
     if (field !== 'morphType') return;
@@ -102,8 +109,9 @@
     if (picked === MorphTypeKind.Circumfix) return;
     for (const ws of writingSystemService.vernacularNoAudio) {
       const form = entry.lexemeForm[ws.wsId];
-      if (!form?.trim()) continue;
-      const bare = stripMarkers(form, findMorphType(form, morphTypes.current));
+      const match = findMorphType(form ?? '', morphTypes.current);
+      if (!form?.trim() || (match.valid && match.kind === MorphTypeKind.Circumfix)) continue;
+      const bare = stripMarkers(form, match);
       entry.lexemeForm[ws.wsId] = morphTypes.decorate(bare, entry.morphType) ?? bare;
     }
   }
@@ -144,11 +152,9 @@
       return note ? [[wsId, note] as const] : [];
     })));
   // Notes wait for a pause in typing, so "~a" doesn't flash an error before the closing "~" is typed.
-  // A shown note stays while typing, unless its problem is fixed.
+  // A shown note stays up while typing, kept current, until its problem is fixed.
   const settledNotes = new Debounced(() => allNotes, 600);
-  let submitted = $state(false);
-  const lexemeFormNotes = $derived(submitted ? allNotes
-    : Object.fromEntries(Object.entries(settledNotes.current).filter(([wsId]) => allNotes[wsId])));
+  const lexemeFormNotes = $derived(Object.fromEntries(Object.entries(allNotes).filter(([wsId]) => settledNotes.current[wsId])));
 
   // The entry as it will be stored: markers stripped from the lexeme form
   const storedEntry = $derived.by(() => {
@@ -170,6 +176,12 @@
       await addMainPublicationPromise; // make sure the main publication landed before we snapshot the entry
       if (!morphTypes.current.length) await morphTypes.refetch(); // markers can't be checked without them
       entry.senses = sense ? [sense] : [];
+      // Show what the pause would have, and stop once if that's news (a warning, or the picker in Lite)
+      const shownBefore = {morphType: showMorphType, notes: Object.keys(lexemeFormNotes)};
+      await Promise.all([settledKind.updateImmediately(), settledNotes.updateImmediately()]);
+      await tick();
+      const news = showMorphType !== shownBefore.morphType || Object.keys(lexemeFormNotes).some(wsId => !shownBefore.notes.includes(wsId));
+      if (news && !blocked) return;
       if (!validateEntry()) {
         await tick();
         dialogContent?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
@@ -190,7 +202,6 @@
   let errors: string[] = $state([]);
   function validateEntry(): boolean {
     errors = [];
-    submitted = true;
     if (blocked) return false; // shown under the lexeme form
     // Allow entries with only an audio lexeme-form or citation-form to be created
     if (!(writingSystemService.first(storedEntry.lexemeForm) ?? writingSystemService.first(entry.citationForm))) {
@@ -235,7 +246,8 @@
       entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
       unusualMorphType = false;
       picked = undefined;
-      submitted = false;
+      settledKind.setImmediately(undefined);
+      settledNotes.setImmediately({});
       morphTypeAnnouncement = '';
       addMainPublicationPromise = addMainPublication(entry.id);
       addSense();
