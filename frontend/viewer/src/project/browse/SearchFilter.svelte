@@ -53,6 +53,7 @@
   } = $props();
 
   let inputRef = $state<HTMLInputElement | null>(null);
+  let morphTypeTrigger = $state<HTMLElement | null>(null);
   let missingField = $state<MissingOption | null>(null);
   let selectedField = $state<SelectedField | null>(null);
   let selectedWs = $state<string[]>(wsService.vernacularNoAudio.map(ws => ws.wsId));
@@ -218,13 +219,13 @@
         <div class="space-y-4">
           <div class="flex flex-col">
             <Label id="{uid}-morph-type-label" class="p-2">{$t`Morph type`}</Label>
-            <MorphTypeSelect bind:value={morphTypes} labelledBy="{uid}-morph-type-label"
+            <MorphTypeSelect bind:value={morphTypes} bind:triggerRef={morphTypeTrigger} labelledBy="{uid}-morph-type-label"
               describedBy={showLiteMorphHint ? `${uid}-lite-morph-hint` : undefined} />
             {#if showLiteMorphHint}
               <p id="{uid}-lite-morph-hint" class="flex items-center gap-1 text-xs text-muted-foreground mt-1 px-1">
                 <Icon icon="i-mdi-information-outline" class="size-3.5 shrink-0" />
                 {$t`This view shows only whole words and phrases.`}
-                <button type="button" class="underline hover:text-foreground" onclick={() => morphTypes = 'all'}>{$t`Show all`}</button>
+                <button type="button" class="underline hover:text-foreground" onclick={() => { morphTypes = 'all'; morphTypeTrigger?.focus(); }}>{$t`Show all`}</button>
               </p>
             {/if}
           </div>
