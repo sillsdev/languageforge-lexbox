@@ -18,7 +18,7 @@
   import {pt} from '$lib/views/view-text';
   import {untrack} from 'svelte';
   import {useViewService} from '$lib/views/view-service.svelte';
-  import {useWritingSystemService} from '$project/data';
+  import {asString, useWritingSystemService} from '$project/data';
 
   let {
     entry = $bindable(),
@@ -43,8 +43,7 @@
     if (!task.subjectWritingSystemId) return {};
     const ws = {wsId: task.subjectWritingSystemId};
     if (task.subjectWritingSystemType === WritingSystemType.Analysis) {
-      // the sentence being translated, in every language so audio and out-of-view sentences show too
-      if (task.optionalFields?.length) return {analysis: [ws], vernacular: writingSystemService.vernacular.map(({wsId}) => ({wsId}))};
+      if (task.optionalFields?.length) return {analysis: [ws], vernacular: sentenceWritingSystems};
       return {
         analysis: [ws],
         vernacular: [],
@@ -62,6 +61,17 @@
   let subjects = $derived(TasksService.subjects(task, $state.snapshot(entry)));
   let subjectIndex = $state(0);
   let subject = $derived(subjects.at(subjectIndex));
+  // The sentence being translated: the view's languages plus any other that has text, so audio and
+  // out-of-view sentences still show. Read once per example so a field doesn't vanish while it's cleared.
+  const sentenceWritingSystems = $derived.by(() => {
+    const example = subject?.exampleSentence;
+    return untrack(() => {
+      const inView = new Set(writingSystemService.viewVernacular(viewService.currentView).map(ws => ws.wsId));
+      return writingSystemService.vernacular
+        .filter(ws => inView.has(ws.wsId) || !!asString(example?.sentence[ws.wsId]))
+        .map(({wsId}) => ({wsId}));
+    });
+  });
   $effect(() => {
     if (entry && subjects.length === 0) {
       onNextEntry();
