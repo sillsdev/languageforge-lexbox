@@ -79,6 +79,7 @@ export class DashboardStats {
   #api!: IMiniLcmJsInvokable;
   #loading?: Promise<void>;
   #reload = false;
+  #attempt = 0;
 
   constructor(writingSystemService: WritingSystemService) {
     this.#writingSystemService = writingSystemService;
@@ -128,12 +129,16 @@ export class DashboardStats {
   }
 
   async #loadOnce(api: IMiniLcmJsInvokable): Promise<void> {
+    // a failed attempt ends while its other counts are still running; they must not land on a later attempt's numbers
+    const attempt = ++this.#attempt;
+    const current = () => attempt === this.#attempt;
+
     const totalEntries = await api.countEntries(undefined, undefined);
     this.totalEntries = totalEntries;
 
     async function filledField(gridifyFilter: string, assign: (field: FieldCompletion) => void): Promise<void> {
       const missing = await api.countEntries(undefined, {filter: {gridifyFilter}});
-      assign(completion(totalEntries, totalEntries - missing));
+      if (current()) assign(completion(totalEntries, totalEntries - missing));
     }
 
     const primary = Promise.all([

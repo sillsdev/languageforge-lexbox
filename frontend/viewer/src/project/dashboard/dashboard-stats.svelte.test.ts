@@ -10,6 +10,10 @@ class FakeApi {
   total = 100;
   calls: string[] = [];
   fail = false;
+  /** Filters whose next count fails, or waits for releaseHeld. */
+  failNext = new Set<string>();
+  holdNext = new Set<string>();
+  #held: Array<() => void> = [];
   maxInFlightPerFilter = 0;
   #inFlight: Record<string, number> = {};
   #releaseTotal?: () => void;
@@ -22,7 +26,8 @@ class FakeApi {
       this.maxInFlightPerFilter = Math.max(this.maxInFlightPerFilter, this.#inFlight[filter]);
       // read before waiting, like a query that started before a later change
       const result = filter === TOTAL ? this.total : 0;
-      const fail = this.fail;
+      const fail = this.fail || this.failNext.delete(filter);
+      if (this.holdNext.delete(filter)) await new Promise<void>(resolve => this.#held.push(resolve));
       if (filter === TOTAL && this.holdNextTotal) {
         this.holdNextTotal = false;
         await new Promise<void>(resolve => this.#releaseTotal = resolve);
@@ -38,6 +43,10 @@ class FakeApi {
 
   release() {
     this.#releaseTotal?.();
+  }
+
+  releaseHeld() {
+    this.#held.forEach(resolve => resolve());
   }
 }
 
@@ -79,6 +88,21 @@ describe('DashboardStats', () => {
 
     await done;
     expect(stats.totalEntries).toBe(100);
+  });
+
+  it('keeps a slow count from a failed load off the numbers of the reload after it', async () => {
+    const {fake, stats, api} = setup();
+    fake.holdNext.add('Senses=null');
+    fake.failNext.add('Senses.ExampleSentences=null');
+    const done = stats.load(api);
+    fake.total = 90;
+    void stats.load(api);
+
+    await done;
+    expect(stats.entriesWithSenses).toEqual({filled: 90, percent: 100});
+    fake.releaseHeld();
+    await new Promise(resolve => setTimeout(resolve));
+    expect(stats.entriesWithSenses).toEqual({filled: 90, percent: 100});
   });
 
   it('loads again after a failed load', async () => {

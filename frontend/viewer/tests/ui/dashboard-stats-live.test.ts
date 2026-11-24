@@ -12,7 +12,7 @@ test.describe('Dashboard stats', () => {
 
     const dashboardNav = page.getByRole('button', {name: 'Dashboard'});
     const browseNav = page.getByRole('button', {name: 'Browse'});
-    const totalEntries = page.locator('[class*="bg-primary/5"] [data-slot="card-title"]');
+    const totalEntries = page.getByTestId('total-entries');
 
     async function readTotal() {
       return parseInt((await totalEntries.innerText()).replace(/\D/g, ''), 10);
