@@ -4,6 +4,7 @@
   import {useViewService} from '$lib/views/view-service.svelte';
   import {plural, t} from 'svelte-i18n-lingui';
   import {watch} from 'runed';
+  import {onDestroy} from 'svelte';
   import {QueryParamState} from '$lib/utils/url.svelte';
   import {useWritingSystemService} from '$project/data';
   import {type IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
@@ -20,11 +21,13 @@
   const tasksService = useTasksService();
   const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
-  // Kept mounted here so the counts keep refreshing while a task is open, not just on the list.
   const statsResource = useTasksStats();
-  watch(() => tasksService.listTasks().map(task => task.id).join(), () => void statsResource.refetch());
-
   const selectedTask = $derived(tasksService.listTasks().find(task => task.id === openTask.current));
+  watch([() => tasksService.listTasks().map(task => task.id).join(), () => selectedTask?.id], ([, taskId]) => {
+    statsResource.current.showing = taskId ?? 'all';
+    void statsResource.refetch();
+  });
+  onDestroy(() => statsResource.current.showing = undefined);
 
   function selectTask(taskId: string) {
     openTask.current = taskId;

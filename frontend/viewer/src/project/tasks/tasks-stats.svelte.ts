@@ -14,28 +14,62 @@ export type TaskProgress = {
 /**
  * Entry counts, not sense or example counts: an entry with three senses missing a gloss
  * counts once. Don't present the number as anything else.
+ *
+ * Each count scans every entry, so only what's on screen ({@link showing}) is recounted,
+ * one pass at a time. Everything else stays out of date until it's shown.
  */
 export class TasksStats {
   totalEntries = $state<number>();
   progress = $state<Record<string, TaskProgress>>({});
-  #loadVersion = 0;
+  /** A task id, 'all' for the task list, or undefined when no count is visible. Refresh after changing it. */
+  showing: string | undefined;
   #tasks: () => Task[];
+  #invalidations = 0;
+  /** The invalidation each task's count started in; an older one means it's out of date. */
+  #countedIn: Record<string, number> = {};
+  #api?: IMiniLcmJsInvokable;
+  #running?: Promise<void>;
+  #rerun = false;
 
   constructor(tasks: () => Task[]) {
     this.#tasks = tasks;
   }
 
-  async load(api: IMiniLcmJsInvokable): Promise<void> {
-    const version = ++this.#loadVersion;
-    const fresh = () => version === this.#loadVersion;
+  invalidate(): void {
+    this.#invalidations++;
+  }
+
+  /** Counts whatever is showing and out of date. A call during a pass queues a single follow-up pass. */
+  refresh(api: IMiniLcmJsInvokable): Promise<void> {
+    if (this.#api !== api) this.invalidate();
+    this.#api = api;
+    if (this.#running) {
+      this.#rerun = true;
+      return this.#running;
+    }
+    this.#running = this.#runPasses().finally(() => this.#running = undefined);
+    return this.#running;
+  }
+
+  async #runPasses(): Promise<void> {
+    do {
+      this.#rerun = false;
+      await this.#countOutOfDate(this.#api!);
+    } while (this.#rerun);
+  }
+
+  async #countOutOfDate(api: IMiniLcmJsInvokable): Promise<void> {
+    const showing = this.showing;
+    const tasks = this.#tasks().filter(task =>
+      (showing === 'all' || task.id === showing) && this.#countedIn[task.id] !== this.#invalidations);
+    if (!tasks.length) return;
+    const invalidations = this.#invalidations;
 
     const totalEntries = await api.countEntries(undefined, undefined);
-    if (!fresh()) return;
     this.totalEntries = totalEntries;
 
-    await Promise.all(this.#tasks().map(async task => {
+    const results = await Promise.allSettled(tasks.map(async task => {
       const remaining = await api.countEntries(undefined, {filter: {gridifyFilter: task.gridifyFilter}});
-      if (!fresh()) return;
       this.progress = {
         ...this.progress,
         [task.id]: {
@@ -43,7 +77,11 @@ export class TasksStats {
           percentDone: totalEntries === 0 ? 0 : Math.round(((totalEntries - remaining) / totalEntries) * 100),
         },
       };
+      // not the current one: a count that raced an entry change may already be wrong
+      this.#countedIn[task.id] = invalidations;
     }));
+    const failed = results.find(result => result.status === 'rejected');
+    if (failed) throw failed.reason;
   }
 }
 
@@ -55,12 +93,14 @@ export function useTasksStats() {
   return projectContext.getOrAdd(tasksStatsSymbol, () => {
     const stats = new TasksStats(() => tasksService.listTasks());
     const resource = projectContext.apiResource(stats, async (api) => {
-      await stats.load(api);
+      await stats.refresh(api);
       return stats;
     });
     const debouncedRefetch = useDebounce(() => void resource.refetch(), 500);
-    projectEventBus.onEntryDeleted(() => void debouncedRefetch());
-    projectEventBus.onEntryUpdated(() => void debouncedRefetch());
+    projectEventBus.onEntriesChanged(() => {
+      stats.invalidate();
+      void debouncedRefetch();
+    });
     return resource;
   });
 }
