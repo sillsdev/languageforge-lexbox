@@ -10,7 +10,7 @@
 
   const ALL = '__all__';
 
-  let {value = $bindable(), labelledBy, describedBy}: {value: MorphTypeFilter, labelledBy?: string, describedBy?: string} = $props();
+  let {value = $bindable(), triggerRef = $bindable(null), labelledBy, describedBy}: {value: MorphTypeFilter, triggerRef?: HTMLElement | null, labelledBy?: string, describedBy?: string} = $props();
   const triggerId = $props.id();
 
   const morphTypesService = useMorphTypesService();
@@ -69,7 +69,7 @@
 
 <Select.Root type="multiple" value={selectValue} {onValueChange}>
   <!-- Labelled by the label plus itself, so the selection stays part of the name -->
-  <Select.Trigger id={triggerId} class="flex-1" aria-labelledby={labelledBy ? `${labelledBy} ${triggerId}` : undefined} aria-describedby={describedBy}>
+  <Select.Trigger bind:ref={triggerRef} id={triggerId} class="flex-1" aria-labelledby={labelledBy ? `${labelledBy} ${triggerId}` : undefined} aria-describedby={describedBy}>
     {#if allCheck === 'all' || selected.length === 0}
       <span class="text-muted-foreground">{$t`Any morph type`}</span>
     {:else if selectedGroup}
