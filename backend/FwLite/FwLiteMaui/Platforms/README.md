@@ -10,6 +10,13 @@ Each line was checked against the code it names. Read the cited file before chan
 - `-p:FwLiteFlavor=Dev` changes only the Android `ApplicationId` and title. The MSIX identity stays `FwLiteDesktop` (`Windows/Package.appxmanifest`); the update test harness uses its own identity (`backend/FwLite/testing/README.md`).
 - Debug builds are unpackaged (`WindowsPackageType=None`), so `Package.Current` throws and the app runs as portable (`FwLiteMauiKernel.IsPortableApp`); MSIX-only code paths need an installed package to test.
 
+## Windows startup splash (`Windows/StartupSplash.cs`, `Windows/SplashHandOff.cs`)
+
+- MAUI's splash screen is Android/iOS only and the manifest `uap:SplashScreen` is ignored for WinUI 3 desktop apps, hence the native window started from `Windows/Program.cs`.
+- The main window waits off screen, not hidden: the page loads and paints there (checked: first paint is recorded before the reveal), so the window arrives finished.
+- The viewer reports its first screen through `lexbox.WhenFirstScreenReady` (`frontend/viewer/src/lib/first-screen.ts`) two animation frames after the data is in. Revealing as soon as the data arrives shows a white window for 200 to 350 ms.
+- Portable (single-file) builds show nothing for 10 to 20 s on the first run of a new exe: that wait is before .NET starts, so the splash can't cover it.
+
 ## Android (`Android/AndroidInAppUpdateService.cs`)
 
 - Play in-app update bindings live in `Xamarin.Google.Android.Play.Core.AppUpdate*` (package `Xamarin.Google.Android.Play.App.Update`).

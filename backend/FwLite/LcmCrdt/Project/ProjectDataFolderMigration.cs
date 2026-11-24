@@ -63,14 +63,15 @@ public static class ProjectDataFolderMigration
         public Exception? Error { get; init; }
     }
 
-    public static MigrationResult TryMigrate(string legacyRoot, string targetRoot, ILogger logger)
+    /// <param name="onCopyStarting">called when data is about to be copied, which can take minutes</param>
+    public static MigrationResult TryMigrate(string legacyRoot, string targetRoot, ILogger logger, Action? onCopyStarting = null)
     {
         var stopwatch = Stopwatch.StartNew();
-        var result = TryMigrateCore(legacyRoot, targetRoot, logger);
+        var result = TryMigrateCore(legacyRoot, targetRoot, logger, onCopyStarting);
         return result with { Duration = stopwatch.Elapsed };
     }
 
-    private static MigrationResult TryMigrateCore(string legacyRoot, string targetRoot, ILogger logger)
+    private static MigrationResult TryMigrateCore(string legacyRoot, string targetRoot, ILogger logger, Action? onCopyStarting)
     {
         legacyRoot = Path.GetFullPath(legacyRoot);
         targetRoot = Path.TrimEndingDirectorySeparator(Path.GetFullPath(targetRoot));
@@ -95,7 +96,7 @@ public static class ProjectDataFolderMigration
         {
             try
             {
-                return MigrateWhileLocked(legacyRoot, targetRoot, parent, targetName, logger);
+                return MigrateWhileLocked(legacyRoot, targetRoot, parent, targetName, logger, onCopyStarting);
             }
             catch (Exception e)
             {
@@ -105,7 +106,7 @@ public static class ProjectDataFolderMigration
         }
     }
 
-    private static MigrationResult MigrateWhileLocked(string legacyRoot, string targetRoot, string parent, string targetName, ILogger logger)
+    private static MigrationResult MigrateWhileLocked(string legacyRoot, string targetRoot, string parent, string targetName, ILogger logger, Action? onCopyStarting)
     {
         // another process may have finished while we waited for the lock
         if (IsMigrated(targetRoot, legacyRoot, logger)) return new(MigrationOutcome.AlreadyMigrated);
@@ -130,6 +131,7 @@ public static class ProjectDataFolderMigration
             try
             {
                 Directory.CreateDirectory(staging);
+                onCopyStarting?.Invoke();
                 copied = CopyAndVerify(legacyRoot, staging, targetRoot, logger);
                 WriteMarker(staging, new Marker(legacyRoot, DateTimeOffset.UtcNow, copied.Projects));
                 MoveIntoPlace(staging, targetRoot);

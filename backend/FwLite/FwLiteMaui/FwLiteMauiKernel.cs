@@ -149,8 +149,13 @@ public static class FwLiteMauiKernel
         logging.AddConfiguration(configuration.GetSection("Logging"));
         Directory.CreateDirectory(fwLiteMauiConfig.BaseDataDir);
         // runs the one-time data migration when IOptions<LcmCrdtConfig> is first constructed, during MauiApp.Build()
+        Action? onMigrationCopyStarting = null;
+#if WINDOWS
+        onMigrationCopyStarting = () => WinUI.StartupSplash.SetStatus("Finishing the update. This can take a few minutes.");
+#endif
         services.AddSingleton(sp => ProjectDataLocation.Resolve(fwLiteMauiConfig,
-            sp.GetRequiredService<IAnalyticsService>(), sp.GetRequiredService<ILogger<ProjectDataLocation>>()));
+            sp.GetRequiredService<IAnalyticsService>(), sp.GetRequiredService<ILogger<ProjectDataLocation>>(),
+            onMigrationCopyStarting));
         services.AddOptions<LcmCrdtConfig>().Configure((LcmCrdtConfig config, ProjectDataLocation location) =>
         {
             config.ProjectPath = location.Root;

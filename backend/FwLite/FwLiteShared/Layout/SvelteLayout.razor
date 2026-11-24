@@ -9,6 +9,7 @@
 @inject IOptions<FwLiteConfig> Config;
 @inject ProjectServicesProvider ProjectServicesProvider;
 @inject NavigationManager NavigationManager;
+@inject ViewerLoadState ViewerLoadState;
 @implements IAsyncDisposable
 @if (useDevAssets)
 {
@@ -85,6 +86,7 @@ else
               }
               // CI's packaged-app launch checks (fw-lite.yaml) wait for this line.
               Logger.LogInformation("Viewer loaded");
+              await WaitForFirstScreen();
             }
             catch (Exception e)
             {
@@ -95,6 +97,25 @@ else
                 StateHasChanged();
                 throw;
             }
+            finally
+            {
+                ViewerLoadState.MarkFinished();
+            }
+        }
+    }
+
+    /// <summary>
+    /// So a host's splash isn't swapped for a page that still says "loading...". Capped: pages that never
+    /// report in (and any failure here) must not hold the window back.
+    /// </summary>
+    private async Task WaitForFirstScreen()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("lexbox.WhenFirstScreenReady").AsTask().WaitAsync(TimeSpan.FromSeconds(2));
+        }
+        catch (Exception e) when (e is TimeoutException or JSException)
+        {
         }
     }
 
