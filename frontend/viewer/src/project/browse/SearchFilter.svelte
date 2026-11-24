@@ -16,9 +16,12 @@
   import SemanticDomainSelect from './filter/SemanticDomainSelect.svelte';
   import PartOfSpeechSelect from './filter/PartOfSpeechSelect.svelte';
   import PublicationSelect from './filter/PublicationSelect.svelte';
+  import MorphTypeSelect from './filter/MorphTypeSelect.svelte';
+  import {sameFilter, toGridify, viewDefaultMorphTypeFilter, type MorphTypeFilter} from './filter/morph-type-filter';
+  import {watch} from 'runed';
+  import {Icon} from '$lib/components/ui/icon';
   import Label from '$lib/components/ui/label/label.svelte';
   import type {ISemanticDomain, IPartOfSpeech, IPublication} from '$lib/dotnet-types';
-  import {MorphTypeKind} from '$lib/dotnet-types';
   import {Switch} from '$lib/components/ui/switch';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
@@ -26,6 +29,7 @@
   import Hotkey from '$lib/components/hotkey/hotkey.svelte';
   import {useFeatures} from '$lib/services/feature-service';
 
+  const uid = $props.id();
   const features = useFeatures();
   const stats = useProjectStats();
   const viewService = useViewService();
@@ -48,6 +52,7 @@
   } = $props();
 
   let inputRef = $state<HTMLInputElement | null>(null);
+  let morphTypeTrigger = $state<HTMLElement | null>(null);
   let missingField = $state<MissingOption | null>(null);
   let selectedField = $state<SelectedField | null>(null);
   let selectedWs = $state<string[]>(wsService.vernacularNoAudio.map(ws => ws.wsId));
@@ -55,6 +60,7 @@
   let filterOp = $state<Op>('contains')
   let includeSubDomains = $state(false);
   let userFilterActive = $state(false);
+  let filterActive = $state(false);
   let hasComments = $state(false);
   let openComments = $state(false);
 
@@ -63,12 +69,18 @@
     inputRef?.select();
   }
 
-  const LITE_MORPHEME_TYPES = new Set([
-    MorphTypeKind.Root, MorphTypeKind.BoundRoot,
-    MorphTypeKind.Stem, MorphTypeKind.BoundStem,
-    MorphTypeKind.Particle,
-    MorphTypeKind.Phrase, MorphTypeKind.DiscontiguousPhrase,
-  ]);
+  function viewDefaultMorphTypes(): MorphTypeFilter {
+    return viewDefaultMorphTypeFilter(viewService.currentView.base);
+  }
+
+  // Views act as presets: switching view base replaces the morph type filter, even one the user cleared
+  let morphTypes = $state<MorphTypeFilter>(viewDefaultMorphTypes());
+  watch(() => viewService.currentView.base, () => {
+    morphTypes = viewDefaultMorphTypes();
+  }, {lazy: true});
+
+  const morphTypesAtDefault = $derived(sameFilter(morphTypes, viewDefaultMorphTypes()));
+  const showLiteMorphHint = $derived(morphTypesAtDefault && viewService.currentView.base === ViewBase.FwLite);
 
   $effect(() => {
     let newFilter: string[] = [];
@@ -126,11 +138,10 @@
     // all user selected filters should be before this line!
     userFilterActive = newFilter.length > 0;
 
-    if (viewService.currentView.base === ViewBase.FwLite) {
-      const morphTypeFilters = Array.from(LITE_MORPHEME_TYPES).map(mt => `MorphType=${mt}`);
-      newFilter.push('(' + morphTypeFilters.join('|') + ')');
-    }
+    const morphTypeFilter = toGridify(morphTypes);
+    if (morphTypeFilter) newFilter.push(morphTypeFilter);
 
+    filterActive = newFilter.length > 0;
     gridifyFilter = newFilter.join(', ');
   });
 
@@ -140,7 +151,7 @@
     return v.replace(/([(),|\\]|\/i)/g, '\\$1');
   }
 
-  const canReset = $derived(userFilterActive || !!search || fieldFilterValue !== '');
+  const canReset = $derived(userFilterActive || !!search || fieldFilterValue !== '' || !morphTypesAtDefault);
 
   function resetFilters() {
     search = '';
@@ -158,6 +169,7 @@
     hasComments = false;
     unreadComments = false;
     openComments = false;
+    morphTypes = viewDefaultMorphTypes();
   }
 
   let filtersExpanded = $state(false);
@@ -193,17 +205,29 @@
         }}
       >
         {#snippet titleActions()}
-          <Button variant="ghost" size="sm" icon="i-mdi-filter-remove-outline" onclick={resetFilters} disabled={!canReset}>
+          <Button variant="ghost" size="sm" icon="i-mdi-filter-remove-outline" onclick={resetFilters} disabled={!canReset} title={$t`Reset to view defaults`}>
             {$t`Reset`}
           </Button>
         {/snippet}
         {#snippet trigger({ props })}
           <Button {...props} variant="ghost"
             size={IsMobile.value ? 'icon-sm' : 'icon-xs'}
-            icon={userFilterActive ? 'i-mdi-filter' : 'i-mdi-filter-outline'}
+            icon={filterActive ? 'i-mdi-filter' : 'i-mdi-filter-outline'}
             aria-label={$t`Toggle filters`} />
         {/snippet}
         <div class="space-y-4">
+          <div class="flex flex-col">
+            <Label id="{uid}-morph-type-label" class="p-2">{$t`Morph type`}</Label>
+            <MorphTypeSelect bind:value={morphTypes} bind:triggerRef={morphTypeTrigger} labelledBy="{uid}-morph-type-label"
+              describedBy={showLiteMorphHint ? `${uid}-lite-morph-hint` : undefined} />
+            {#if showLiteMorphHint}
+              <p id="{uid}-lite-morph-hint" class="flex items-center gap-1 text-xs text-muted-foreground mt-1 px-1">
+                <Icon icon="i-mdi-information-outline" class="size-3.5 shrink-0" />
+                {$t`This view shows only whole words and phrases.`}
+                <button type="button" class="underline hover:text-foreground" onclick={() => { morphTypes = 'all'; morphTypeTrigger?.focus(); }}>{$t`Show all`}</button>
+              </p>
+            {/if}
+          </div>
           <div class="flex flex-col">
             <Label class="p-2">{$t`Specific field`}</Label>
             <div class="flex flex-col gap-2 items-stretch">
