@@ -89,7 +89,11 @@ describe('morph type markers', () => {
     ['a- -b', K.Circumfix, {stored: 'a- -b'}],
     ['a-.-b', K.Circumfix, {stored: 'a-.-b'}],
     ['ab', K.Circumfix, {stored: 'ab', problem: {kind: 'incompleteCircumfix'}}],
-    [' -b', K.Circumfix, {stored: 'b', problem: {kind: 'incompleteCircumfix'}}],
+    [' -b', K.Circumfix, {stored: '-b', problem: {kind: 'incompleteCircumfix'}}],
+    ['-a- -b', K.Circumfix, {stored: '-a- -b', problem: {kind: 'incompleteCircumfix'}}],
+    ['a- -b-', K.Circumfix, {stored: 'a- -b-', problem: {kind: 'incompleteCircumfix'}}],
+    ['a- *', K.Circumfix, {stored: 'a- *', problem: {kind: 'incompleteCircumfix'}}],
+    ['a- -', K.Circumfix, {stored: 'a- -', problem: {kind: 'incompleteCircumfix'}}],
     ['a- ~b', K.Circumfix, {stored: 'a- ~b', problem: {kind: 'incompleteCircumfix'}}],
     ['asd- asd', K.Circumfix, {stored: 'asd- asd', problem: {kind: 'incompleteCircumfix'}}],
   ])('%j as %s is checked as %j', (form, chosen, check) => {

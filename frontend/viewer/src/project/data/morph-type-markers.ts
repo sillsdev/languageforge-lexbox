@@ -110,29 +110,31 @@ export type LexemeFormCheck = {stored: string, problem?: LexemeFormProblem};
  * Only leftoverMarker is a warning; the rest block creating the entry.
  */
 export function checkLexemeForm(form: string, chosen: MorphTypeKind, morphTypes: MarkerSource[]): LexemeFormCheck {
+  if (chosen === MorphTypeKind.Circumfix) {
+    // Its markers belong to its parts, so none are stripped
+    const stored = form.trim();
+    return isCompleteCircumfix(stored, morphTypes) ? {stored} : {stored, problem: {kind: 'incompleteCircumfix'}};
+  }
   const match = findMorphType(form, morphTypes);
   const stored = stripMarkers(form, match);
   if (!match.valid) {
     return {stored, problem: match.unsupported ? {kind: 'unsupportedMorphType'}
       : {kind: 'unmatchedMarkers', suggestions: markerSuggestions(stored, match, morphTypes)}};
   }
-  if (chosen === MorphTypeKind.Circumfix) {
-    if (!isCompleteCircumfix(stored, morphTypes)) return {stored, problem: {kind: 'incompleteCircumfix'}};
-  } else if (!fitsMorphType(chosen, match.kind)) {
-    return {stored, problem: {kind: 'mismatch'}};
-  }
+  if (!fitsMorphType(chosen, match.kind)) return {stored, problem: {kind: 'mismatch'}};
   const leftover = stored.trim() ? findMorphType(stored, morphTypes) : undefined;
   const marker = leftover && (leftover.leading || leftover.trailing);
   if (marker) return {stored, problem: {kind: 'leftoverMarker', marker}};
   return {stored};
 }
 
-// Stricter than FLEx, which only needs both parts to be valid forms
+// Stricter than FLEx, which only needs both parts to be valid forms: here they're a prefix-like and a suffix-like part
 function isCompleteCircumfix(form: string, morphTypes: MarkerSource[]): boolean {
   const parts = circumfixParts(form);
   if (!parts) return false;
-  const [left, right] = parts.map(part => findMorphType(part, morphTypes));
-  return left.valid && !!left.trailing && right.valid && !!right.leading;
+  const [left, right] = parts.map(part => ({part, match: findMorphType(part, morphTypes)}));
+  return left.match.valid && !left.match.leading && !!left.match.trailing && !!stripMarkers(left.part, left.match)
+    && right.match.valid && !!right.match.leading && !right.match.trailing && !!stripMarkers(right.part, right.match);
 }
 
 // Forms that keep one of the typed markers, e.g. "~a~" for "a~"
