@@ -138,7 +138,7 @@ public class FolderSyncService(
             return changes;
         }
 
-        public async Task AddRangeFromSync(IEnumerable<Commit> commits) => await folder.AddRangeFromSync(commits);
+        public async Task<Commit[]> AddRangeFromSync(IEnumerable<Commit> commits) => await folder.AddRangeFromSync(commits);
         public async Task<SyncState> GetSyncState() => await folder.GetSyncState();
         public async Task<SyncResults> SyncWith(ISyncable remoteModel) => await remoteModel.SyncWith(this);
         public Task SyncMany(ISyncable[] remotes) => throw new NotSupportedException();

@@ -93,9 +93,12 @@ internal class CrdtProjectSync(ISyncHttp restSyncClient, Guid projectId, Guid cl
         return httpSyncService.ShouldSync(restSyncClient, authority);
     }
 
-    async Task ISyncable.AddRangeFromSync(IEnumerable<Commit> commits)
+    //the server reports nothing back, so all of them count as added
+    async Task<Commit[]> ISyncable.AddRangeFromSync(IEnumerable<Commit> commitsEnumerable)
     {
+        var commits = commitsEnumerable.ToArray();
         await restSyncClient.AddRange(projectId, commits, clientId);
+        return commits;
     }
 
     async Task<ChangesResult<Commit>> ISyncable.GetChanges(SyncState otherHeads)
