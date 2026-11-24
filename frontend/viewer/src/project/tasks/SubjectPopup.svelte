@@ -64,7 +64,19 @@
 
   let editor = $state<Editor.Root>();
 
+  // Enter or Next again while a save is in flight would complete the same subject twice.
+  let saving = false;
   async function onNext(skip: boolean = false) {
+    if (saving) return;
+    saving = true;
+    try {
+      await advance(skip);
+    } finally {
+      saving = false;
+    }
+  }
+
+  async function advance(skip: boolean) {
     if (!skip) {
       if (!subject || !isSubjectComplete()) return;
 

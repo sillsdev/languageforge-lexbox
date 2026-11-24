@@ -188,6 +188,7 @@ msgstr ""
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, other {# mabadiliko}}"
 
+#: src/project/tasks/DoneView.svelte
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
@@ -213,6 +214,7 @@ msgstr "{num, plural, one {# kumbuka mpya ya FieldWorks Lite} other {# kumbukas 
 msgid "{num, plural, one {# unread comment} other {# unread comments}}"
 msgstr "{num, plural, one {# maoni yasiyosomewa} other {# maoni yasiyosomewa}}"
 
+#: src/project/tasks/DoneView.svelte
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# word to go} other {# words to go}}"
@@ -222,6 +224,20 @@ msgstr "{num, plural, one {# neno limebaki} other {# maneno yaliyobaki}}"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
 msgstr "{num, plural, one {Onyesha # zaidi...} other {Onyesha # zaidi...}}"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "You filled in # word"
+#. Summary on the task-done screen. # is how many entries the user completed.
+#: src/project/tasks/DoneView.svelte
+msgid "{num, plural, one {You filled in # entry} other {You filled in # entries}}"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "You filled in # entry"
+#. Summary on the task-done screen. # is how many words the user completed.
+#: src/project/tasks/DoneView.svelte
+msgid "{num, plural, one {You filled in # word} other {You filled in # words}}"
+msgstr ""
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -263,6 +279,20 @@ msgstr ""
 msgid "A circumfix is two parts with their markers and a space between them, like \"a- -b\"."
 msgstr ""
 
+#. Relevant view: Lite
+#. Classic view equivalent: "A full explanation of the sense"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A full explanation of the meaning"
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "A full explanation of the meaning"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A full explanation of the sense"
+msgstr ""
+
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
@@ -290,8 +320,36 @@ msgstr ""
 msgid "A project manager can add plugins for the team."
 msgstr ""
 
+#. Relevant view: Classic
+#. Lite view equivalent: "A sentence that uses the word"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A sentence that uses the entry"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "A sentence that uses the entry"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A sentence that uses the word"
+msgstr ""
+
 #: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "A short summary shown on the plugin's card."
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "A short translation of the sense"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A short translation of the meaning"
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "A short translation of the meaning"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A short translation of the sense"
 msgstr ""
 
 #. Relevant view: Classic
@@ -527,6 +585,10 @@ msgstr "Waandishi wote"
 msgid "All morph types"
 msgstr ""
 
+#: src/project/tasks/TaskList.svelte
+msgid "All tasks"
+msgstr ""
+
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Allow and run it"
 msgstr ""
@@ -640,7 +702,9 @@ msgid "audio"
 msgstr ""
 
 #. Field label in the activity change-preview diff for a writing system. Shows whether it's an audio writing system (Yes/No).
+#. Also in the Tasks list: group heading and screen-reader label (on a microphone icon) for tasks on recorded audio languages. Opposite of "Written".
 #: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Audio"
@@ -694,6 +758,11 @@ msgstr ""
 msgid "Back"
 msgstr "Rudi nyuma"
 
+#. aria-label (screen readers only) of the back arrow on phones; returns from the language list to the list of all tasks.
+#: src/project/tasks/TaskList.svelte
+msgid "Back to all tasks"
+msgstr ""
+
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
@@ -703,6 +772,7 @@ msgstr "Rudi nyuma"
 msgid "Back to plugins"
 msgstr ""
 
+#: src/project/tasks/DoneView.svelte
 #: src/project/tasks/TaskView.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Back to tasks"
@@ -980,10 +1050,6 @@ msgstr ""
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Compares the version right after this change with the last version before deletion."
 msgstr ""
-
-#: src/project/tasks/TaskList.svelte
-msgid "Complete"
-msgstr "Kamilika"
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Complex form"
@@ -1361,11 +1427,6 @@ msgstr "Kataa mabadiliko"
 msgid "Display as"
 msgstr "Onyesha kama"
 
-#. Prompt text
-#: src/project/tasks/DoneView.svelte
-msgid "Do you want to:"
-msgstr "Je, unataka:"
-
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "Don't allow"
 msgstr ""
@@ -1380,6 +1441,8 @@ msgid "Don't run it"
 msgstr ""
 
 #. Tab label
+#. Also in the Tasks list: status label on a field whose task is complete.
+#: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TaskView.svelte
 msgid "Done"
 msgstr "Imekamilika"
@@ -1587,10 +1650,6 @@ msgstr ""
 #: src/lib/activity/ChangeSummary.svelte
 msgid "entries"
 msgstr ""
-
-#: src/project/tasks/tasks-service.ts
-msgid "Entries missing both Lexeme form and Citation form"
-msgstr "Maingizo yanayokosa fomu ya leksemu na fomu ya rejeleo"
 
 #. Filter option label
 #. Dropdown to filter entries by missing fields
@@ -1937,6 +1996,11 @@ msgstr ""
 msgid "Fill in Display as"
 msgstr "Jaza Onyesha kama"
 
+#. Intro line of the help card at the top of the Tasks list.
+#: src/project/tasks/TaskList.svelte
+msgid "Fill in what's missing, a few at a time."
+msgstr ""
+
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
 msgstr "Jaza Neno au Onyesha kama"
@@ -2140,6 +2204,11 @@ msgstr "Nenda kwenye neno"
 msgid "Go to Word"
 msgstr ""
 
+#. Button that closes the "How tasks work" help card in the Tasks list.
+#: src/project/tasks/TaskList.svelte
+msgid "Got it"
+msgstr ""
+
 #. Filter option label
 #. Relevant view: Classic
 #. Lite view equivalent: "Part of speech"
@@ -2205,6 +2274,25 @@ msgstr "Shika ili kurekodi au#bonyeza na kutoleza kuanza kurekodi."
 msgid "Homograph number"
 msgstr ""
 
+#. Title of a collapsible help card at the top of the Tasks list.
+#: src/project/tasks/TaskList.svelte
+msgid "How tasks work"
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "How the word is shown in the dictionary"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "How the entry is shown in the dictionary"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "How the entry is shown in the dictionary"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "How the word is shown in the dictionary"
+msgstr ""
+
 #. External link button text for help
 #: src/home/Server.svelte
 msgid "I don't see my project"
@@ -2219,6 +2307,11 @@ msgstr "Ninaelewa kuwa hii haiwezi kurudishwa nyuma"
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "ID"
 msgstr "Kitambulisho"
+
+#. Step in the "How tasks work" help card of the Tasks list. "Language" means a writing system (written or audio).
+#: src/project/tasks/TaskList.svelte
+msgid "If there's more than one language, pick one."
+msgstr ""
 
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "If you add it"
@@ -2941,6 +3034,7 @@ msgstr "Hakuna neno liliyopatikana"
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
 msgid "None"
 msgstr "Hamna"
 
@@ -2982,6 +3076,11 @@ msgstr "Tanbihi"
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Nothing to copy"
 msgstr "Hakuna kitu cha kunakili"
+
+#. Short description under the field name in the Tasks list. Same in both views. Describes Part of speech (Lite) / Grammatical info. (Classic).
+#: src/project/tasks/tasks-service.ts
+msgid "Noun, verb and so on"
+msgstr ""
 
 #. Under a change's headword in the activity view. # is the entry's current headword; shown when a later change renamed it
 #: src/lib/activity/ActivityChangeHeader.svelte
@@ -3233,6 +3332,16 @@ msgstr "Chagua taarifa za kisarufi."
 msgid "Pick one or more Semantic domains"
 msgstr "Chagua kimoja au zaidi ya maeneo ya semantiki"
 
+#. Placeholder beside the Tasks list until the user picks a field. Some fields then show their languages here, others start straight away.
+#: src/project/tasks/TaskList.svelte
+msgid "Pick what's missing to get started."
+msgstr ""
+
+#. Step in the "How tasks work" help card. "Gloss" and "Example sentence" are field names.
+#: src/project/tasks/TaskList.svelte
+msgid "Pick what's missing, like a Gloss or an Example sentence."
+msgstr ""
+
 #. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
@@ -3463,6 +3572,11 @@ msgstr ""
 
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Reads the dictionary, never changes it"
+msgstr ""
+
+#. Heading above the tiles of recently opened tasks in the Tasks list.
+#: src/project/tasks/TaskList.svelte
+msgid "Recent"
 msgstr ""
 
 #: src/lib/plugins/PluginsView.svelte
@@ -3726,13 +3840,13 @@ msgstr "Anza upya"
 msgid "Restore"
 msgstr "Rejesha"
 
-#. Button option
-#: src/project/tasks/DoneView.svelte
-msgid "Review"
-msgstr "Tathmini"
-
 #: src/lib/plugins/PluginsView.svelte
 msgid "Review & history"
+msgstr ""
+
+#. Button on the task-done screen; shows the entries the user just filled in.
+#: src/project/tasks/DoneView.svelte
+msgid "Review what you filled in"
 msgstr ""
 
 #. Color theme option
@@ -4173,6 +4287,11 @@ msgstr "Anza mazungumzo"
 msgid "Start a conversation…"
 msgstr "Anza mazungumzo…"
 
+#. Screen-reader-only hint on Tasks list rows that open a task straight away (instead of showing a language list).
+#: src/project/tasks/TaskList.svelte
+msgid "Starts the task"
+msgstr ""
+
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
 #. Related operators: "Contains", "Ends with", "Equals"
@@ -4342,8 +4461,29 @@ msgstr "Muonekano wa *FieldWorks Classic*, kwa upande mwingine, umeuundwa kwa wa
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "Muonekano wa *FieldWorks Lite* umeuundwa kwa watu ambao si wafahamu wa lugha na hutofautiana na muonekano wa *FieldWorks Classic* kwa njia zifuatazo:"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "The base form of the word"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "The base form of the entry"
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "The base form of the entry"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "The base form of the word"
+msgstr ""
+
 #: src/project/sync/folder-sync-messages.ts
 msgid "The copy of {0} in this folder didn't come from the same original as the copy on this device, so the two can't be combined. Choose another folder."
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "The word's main form, for words that have none yet"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "The entry's main form, for entries that have none yet"
 msgstr ""
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
@@ -4400,6 +4540,13 @@ msgstr ""
 
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "The version before it worked offline. Online, a plugin can send this project's data to any website."
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "The entry's main form, for entries that have none yet"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "The word's main form, for words that have none yet"
 msgstr ""
 
 #. Error message when changes are pending upload
@@ -4524,6 +4671,7 @@ msgid "This removes the plugin for everyone on this project."
 msgstr ""
 
 #. Status message
+#: src/project/tasks/DoneView.svelte
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "Jukumu hili limekamilika"
@@ -4559,6 +4707,20 @@ msgstr "Geuza kichujio"
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
 msgstr "Geuza iliyobandikwa"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Topics the sense belongs to"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "Topics the meaning belongs to"
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Topics the meaning belongs to"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "Topics the sense belongs to"
+msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
@@ -4764,6 +4926,7 @@ msgstr ""
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/diff-view/DiffAnchor.svelte
@@ -5038,10 +5201,6 @@ msgstr ""
 msgid "Words and phrases"
 msgstr ""
 
-#: src/project/tasks/tasks-service.ts
-msgid "Words missing both Word and Display as"
-msgstr "Maneno yanayokosa Neno na Onyesha kama"
-
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Works on phones"
 msgstr ""
@@ -5088,6 +5247,11 @@ msgstr "Mifumo ya uandishi"
 msgid "Writing Systems"
 msgstr "Mifumo ya Kuandika"
 
+#. Group heading in the Tasks list: tasks for typed (text) languages. Opposite of "Audio" (recorded languages).
+#: src/project/tasks/TaskList.svelte
+msgid "Written"
+msgstr ""
+
 #: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 msgid "Yes"
 msgstr ""
@@ -5101,11 +5265,6 @@ msgstr "Inaonekana uko nje ya mtandao. Je, unaweza kuunganisha na {0}?"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "You are running the latest version."
 msgstr "Unatumia toleo la hivi karibuni."
-
-#. Success message with task and count
-#: src/project/tasks/DoneView.svelte
-msgid "You completed {0} {1}"
-msgstr "Ulikamilisha {0} {1}"
 
 #. Permission error
 #: src/home/Server.svelte
@@ -5121,6 +5280,20 @@ msgstr "Umeshapakua mradi wa {0}"
 #. Small note under the list item "Open entries and show you short messages": the entry opens in the normal FieldWorks Lite entry view or editor, so the user does the editing, not the plugin.
 #: src/lib/plugins/PluginsView.svelte
 msgid "You view or edit the entry in FieldWorks Lite as usual"
+msgstr ""
+
+#. Relevant view: Classic
+#. Lite view equivalent: "You'll see the words that need it, a few at a time. Fill them in or skip them."
+#. Step in the "How tasks work" help card.
+#: src/project/tasks/TaskList.svelte
+msgid "You'll see the entries that need it, a few at a time. Fill them in or skip them."
+msgstr ""
+
+#. Relevant view: Lite
+#. Classic view equivalent: "You'll see the entries that need it, a few at a time. Fill them in or skip them."
+#. Step in the "How tasks work" help card.
+#: src/project/tasks/TaskList.svelte
+msgid "You'll see the words that need it, a few at a time. Fill them in or skip them."
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte

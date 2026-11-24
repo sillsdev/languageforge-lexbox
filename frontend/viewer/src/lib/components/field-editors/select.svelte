@@ -11,8 +11,12 @@
   import {watch} from 'runed';
   import {computeCommandScore} from 'bits-ui';
   import CommandSeparator from '../ui/command/command-separator.svelte';
+  import {Input} from '../ui/input';
+  import {tryUseFieldBody} from '../editor/field/field-root.svelte';
 
   type Value = ReadonlyDeep<MutableValue>;
+
+  const labelledBy = tryUseFieldBody()?.labelId;
 
   let {
     value = $bindable(),
@@ -110,16 +114,12 @@
 {#snippet trigger({props}: {props: Record<string, unknown>})}
   <div class="relative w-full">
     <Button
-      disabled={readonly}
       bind:ref={triggerRef}
       variant="outline"
       {...props}
       role="combobox"
       aria-expanded={open}
-      class={cn(
-        'w-full h-auto min-h-10 px-2 justify-between disabled:opacity-100 disabled:border-transparent',
-        className,
-      )}
+      class={cn('w-full h-auto min-h-10 px-2 justify-between', className)}
     >
       {#if value}
         <span class="x-ellipsis mr-4">
@@ -133,18 +133,16 @@
         </span>
       {/if}
     </Button>
-    {#if !readonly}
-      <div class="absolute right-0 z-10 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none">
-        {#if clearable === true || clearable === 'button'}
-          <XButton
-            onclick={() => selectValue(undefined)}
-            aria-label={$t`clear`}
-            class={cn('pointer-events-auto bg-transparent', value || 'invisible')}
-          />
-        {/if}
-        <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
-      </div>
-    {/if}
+    <div class="absolute right-0 z-10 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none">
+      {#if clearable === true || clearable === 'button'}
+        <XButton
+          onclick={() => selectValue(undefined)}
+          aria-label={$t`clear`}
+          class={cn('pointer-events-auto bg-transparent', value || 'invisible')}
+        />
+      {/if}
+      <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
+    </div>
   </div>
 {/snippet}
 
@@ -200,7 +198,15 @@
   </Command>
 {/snippet}
 
-{#if IsMobile.value}
+{#if readonly}
+  <Input
+    readonly
+    value={value ? getLabel(value) || $t`Untitled` : ''}
+    placeholder={placeholder ?? $t`None`}
+    aria-labelledby={labelledBy}
+    class={className}
+  />
+{:else if IsMobile.value}
   <Drawer bind:open>
     <DrawerTrigger child={trigger} />
     <DrawerContent handle={true} class="overflow-hidden">
