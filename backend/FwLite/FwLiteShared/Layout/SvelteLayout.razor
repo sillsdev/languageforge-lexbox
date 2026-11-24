@@ -37,7 +37,11 @@ else
 
 </script>
 <div id="svelte-app" class="contents">
-  @error
+  @if (error is not null)
+  {
+    @* an element, so the host page's loading spinner goes away (FwLiteMaui/wwwroot/index.html) *@
+    <p>@error</p>
+  }
 </div>
 
 @Body
