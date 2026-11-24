@@ -37,11 +37,7 @@ else
 
 </script>
 <div id="svelte-app" class="contents">
-  @if (error is not null)
-  {
-    @* an element, so the host page's loading spinner goes away (FwLiteMaui/wwwroot/index.html) *@
-    <p>@error</p>
-  }
+  @error
 </div>
 
 @Body
@@ -118,8 +114,9 @@ else
         {
             await JS.InvokeVoidAsync("lexbox.WhenFirstScreenReady").AsTask().WaitAsync(TimeSpan.FromSeconds(2));
         }
-        catch (Exception e) when (e is TimeoutException or JSException)
+        catch (Exception e)
         {
+            Logger.LogDebug(e, "The viewer didn't report its first screen");
         }
     }
 

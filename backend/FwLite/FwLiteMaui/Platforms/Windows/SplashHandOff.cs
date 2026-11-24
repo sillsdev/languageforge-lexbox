@@ -1,12 +1,16 @@
 using System.Runtime.InteropServices;
 using FwLiteShared.Services;
 using Microsoft.Maui.Platform;
+using static FwLiteMaui.WinUI.NativeMethods;
 
 namespace FwLiteMaui.WinUI;
 
 /// <summary>
 /// Keeps the first main window off screen until the viewer has loaded, then swaps it in for the
 /// <see cref="StartupSplash"/>, so the splash is the only loading state the user sees.
+/// <para>
+/// Whatever fails here, the app must still open: the window comes back on screen and the splash closes.
+/// </para>
 /// </summary>
 internal static class SplashHandOff
 {
@@ -14,47 +18,65 @@ internal static class SplashHandOff
     private static readonly TimeSpan RevealTimeout = TimeSpan.FromSeconds(20);
     private static bool _started;
 
-    public static void HoldUntilViewerLoaded(Microsoft.UI.Xaml.Window window, ViewerLoadState viewerLoadState)
+    public static void HoldUntilViewerLoaded(Microsoft.UI.Xaml.Window window, ViewerLoadState? viewerLoadState)
     {
-        if (_started || !StartupSplash.IsShowing) return;
+        if (_started) return;
         _started = true;
-        var hwnd = window.GetWindowHandle();
-        //off screen, not hidden: the page loads and paints there, so the window arrives finished
-        StartupSplash.MoveToMonitorOf(hwnd);
-        if (!GetWindowRect(hwnd, out var placement) || !MoveTo(hwnd, placement.Left, OffScreenTop()))
+        var held = false;
+        try
         {
-            StartupSplash.Close();
-            return;
+            held = viewerLoadState is not null && TryHold(window.GetWindowHandle(), viewerLoadState);
+            if (held) window.Activated += RemoveSplashFromTaskbar;
         }
+        catch
+        {
+            //shown the normal way, without the hand-off
+        }
+        if (!held) StartupSplash.Close();
+    }
+
+    private static void RemoveSplashFromTaskbar(object sender, Microsoft.UI.Xaml.WindowActivatedEventArgs args)
+    {
+        ((Microsoft.UI.Xaml.Window)sender).Activated -= RemoveSplashFromTaskbar;
+        StartupSplash.RemoveFromTaskbar();
+    }
+
+    private static bool TryHold(nint hwnd, ViewerLoadState viewerLoadState)
+    {
+        if (!StartupSplash.WaitUntilShowing() || !GetWindowRect(hwnd, out var onScreen)) return false;
+        StartupSplash.MoveToMonitorOf(hwnd);
+        var belowScreens = GetSystemMetrics(SM_YVIRTUALSCREEN) + GetSystemMetrics(SM_CYVIRTUALSCREEN) + 100;
+        //off screen, not hidden: the page loads and paints there, so the window arrives finished
+        if (!MoveTo(hwnd, onScreen.Left, belowScreens)) return false;
         _ = RevealWhenLoaded();
+        return true;
 
         async Task RevealWhenLoaded()
         {
-            await Task.WhenAny(viewerLoadState.Finished, Task.Delay(RevealTimeout));
-            MoveTo(hwnd, placement.Left, placement.Top);
-            StartupSplash.Close();
+            try
+            {
+                await Task.WhenAny(viewerLoadState.Finished, Task.Delay(RevealTimeout));
+            }
+            finally
+            {
+                if (!MoveNormalPosition(hwnd, onScreen.Top - belowScreens)) MoveTo(hwnd, onScreen.Left, onScreen.Top);
+                StartupSplash.Close();
+            }
         }
-    }
-
-    private static int OffScreenTop()
-    {
-        const int SM_YVIRTUALSCREEN = 77, SM_CYVIRTUALSCREEN = 79;
-        return GetSystemMetrics(SM_YVIRTUALSCREEN) + GetSystemMetrics(SM_CYVIRTUALSCREEN) + 100;
     }
 
     private static bool MoveTo(nint hwnd, int x, int y)
     {
-        const uint SWP_NOSIZE = 0x0001, SWP_NOZORDER = 0x0004, SWP_NOACTIVATE = 0x0010;
         return SetWindowPos(hwnd, 0, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    private struct RECT
+    /// <summary>Unlike SetWindowPos, this also moves a window that was minimized or maximized while it waited.</summary>
+    private static bool MoveNormalPosition(nint hwnd, int down)
     {
-        public int Left, Top, Right, Bottom;
+        var placement = new WINDOWPLACEMENT { length = Marshal.SizeOf<WINDOWPLACEMENT>() };
+        if (!GetWindowPlacement(hwnd, ref placement)) return false;
+        placement.rcNormalPosition.Top += down;
+        placement.rcNormalPosition.Bottom += down;
+        return SetWindowPlacement(hwnd, ref placement);
     }
-
-    [DllImport("user32.dll")] private static extern bool GetWindowRect(nint hwnd, out RECT rect);
-    [DllImport("user32.dll")] private static extern bool SetWindowPos(nint hwnd, nint insertAfter, int x, int y, int width, int height, uint flags);
-    [DllImport("user32.dll")] private static extern int GetSystemMetrics(int index);
 }

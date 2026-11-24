@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using static FwLiteMaui.WinUI.NativeMethods;
 
 namespace FwLiteMaui.WinUI;
 
@@ -11,7 +12,7 @@ namespace FwLiteMaui.WinUI;
 /// thread builds the host.
 /// </para>
 /// </summary>
-internal static partial class StartupSplash
+internal static class StartupSplash
 {
     private const string ClassName = "FwLiteStartupSplash";
     private const string LogoResource = "splash-logo.png";
@@ -20,13 +21,12 @@ internal static partial class StartupSplash
     private const int BackgroundColor = 0x442a1f, TrackColor = 0x69554c, StatusColor = 0xe6d6c8, White = 0xffffff;
     private static readonly WndProcDelegate WndProcKeepAlive = WndProc;
     private static readonly ManualResetEventSlim WindowCreated = new();
-    private static nint _hwnd;
+    private static volatile nint _hwnd;
+    private static volatile bool _closeRequested;
     private static int _dpi = 96;
     private static nint _logo, _titleFont, _statusFont;
     private static volatile string _status = "";
     private static bool _requested;
-
-    public static bool IsShowing => _hwnd != 0;
 
     public static void Show(string[] args)
     {
@@ -36,26 +36,53 @@ internal static partial class StartupSplash
         new Thread(Run) { IsBackground = true, Name = "Startup splash" }.Start();
     }
 
-    public static void SetStatus(string status)
+    /// <summary>False when there is no splash: never requested, failed, or closed already.</summary>
+    public static bool WaitUntilShowing()
     {
-        if (!_requested) return;
-        _status = status;
+        if (!_requested) return false;
         //the splash thread may still be creating the window
         WindowCreated.Wait(TimeSpan.FromSeconds(1));
-        if (IsShowing) InvalidateRect(_hwnd, 0, false);
+        return _hwnd != 0;
+    }
+
+    public static void SetStatus(string status)
+    {
+        _status = status;
+        if (WaitUntilShowing()) InvalidateRect(_hwnd, 0, false);
     }
 
     /// <summary>Windows opens the main window on the monitor the app was launched from, which may not be the primary one.</summary>
     public static void MoveToMonitorOf(nint window)
     {
-        if (!IsShowing) return;
+        var splash = _hwnd;
+        if (splash == 0) return;
         var monitor = MonitorFromWindow(window, MONITOR_DEFAULTTONEAREST);
-        if (monitor != MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST)) CenterOn(_hwnd, monitor);
+        if (monitor != MonitorFromWindow(splash, MONITOR_DEFAULTTONEAREST)) CenterOn(splash, monitor);
+    }
+
+    /// <summary>Once the main window has a taskbar button, so the app doesn't show as two windows there.</summary>
+    public static void RemoveFromTaskbar()
+    {
+        var splash = _hwnd;
+        if (splash == 0) return;
+        try
+        {
+            var taskbar = (ITaskbarList)new TaskbarList();
+            taskbar.HrInit();
+            taskbar.DeleteTab(splash);
+        }
+        catch
+        {
+            //two taskbar buttons for a moment is all that's lost
+        }
     }
 
     public static void Close()
     {
-        if (IsShowing) PostMessageW(_hwnd, WM_CLOSE, 0, 0);
+        //the flag covers a close that comes before the splash thread has made the window
+        _closeRequested = true;
+        var splash = _hwnd;
+        if (splash != 0) PostMessageW(splash, WM_CLOSE, 0, 0);
     }
 
     private static void Run()
@@ -73,7 +100,7 @@ internal static partial class StartupSplash
                 lpszClassName = ClassName,
             };
             if (RegisterClassExW(ref windowClass) == 0) return;
-            //WS_EX_APPWINDOW: a taskbar button, the main window is off screen for now
+            //WS_EX_APPWINDOW: a taskbar button, until the main window has one (RemoveFromTaskbar)
             var hwnd = CreateWindowExW(WS_EX_APPWINDOW, ClassName, "FieldWorks Lite", WS_POPUP, 0, 0, 0, 0, 0, 0, hInstance, 0);
             if (hwnd == 0) return;
 
@@ -88,6 +115,7 @@ internal static partial class StartupSplash
 
             _hwnd = hwnd;
             WindowCreated.Set();
+            if (_closeRequested) return;
             ShowWindow(hwnd, SW_SHOW);
             SetTimer(hwnd, 1, 16, 0);
             while (GetMessageW(out var msg, 0, 0, 0) > 0)
@@ -145,6 +173,20 @@ internal static partial class StartupSplash
 
     private static nint WndProc(nint hwnd, uint msg, nint wParam, nint lParam)
     {
+        try
+        {
+            return HandleMessage(hwnd, msg, wParam, lParam);
+        }
+        catch
+        {
+            //an exception that escapes into Windows ends the process; lose the splash instead
+            DestroyWindow(hwnd);
+            return 0;
+        }
+    }
+
+    private static nint HandleMessage(nint hwnd, uint msg, nint wParam, nint lParam)
+    {
         switch (msg)
         {
             case WM_PAINT:
@@ -159,7 +201,6 @@ internal static partial class StartupSplash
                 InvalidateRect(hwnd, ref bar, false);
                 return 0;
             case WM_DPICHANGED:
-                //moved to a monitor with another scale
                 _dpi = (int)(wParam & 0xFFFF);
                 CreateFonts();
                 CenterOn(hwnd, MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST));

@@ -18,15 +18,22 @@ public record ProjectDataLocation(string Root, bool UseProjectFolders, IDisposab
     /// the <see cref="ErrorReporting.ErrorEvent"/> logged with it.</summary>
     public const string MigrationEvent = "data_folder_migration";
 
-    public static ProjectDataLocation Resolve(FwLiteMauiConfig config, IAnalyticsService analytics, ILogger logger, Action? onMigrationCopyStarting = null)
+    public static ProjectDataLocation Resolve(FwLiteMauiConfig config, IAnalyticsService analytics, ILogger logger)
     {
         var projectDataDir = config.ResolveProjectDataDir();
         if (projectDataDir == config.BaseDataDir) return new(config.BaseDataDir, UseProjectFolders: false);
-        var result = TryMigrate(config.BaseDataDir, projectDataDir, logger, onMigrationCopyStarting);
+        var result = TryMigrate(config.BaseDataDir, projectDataDir, logger, OnMigrationCopyStarting);
         if (result.Outcome != MigrationOutcome.AlreadyMigrated) analytics.Track(MigrationEvent, MigrationProperties(result));
         return result.Migrated
             ? new(projectDataDir, UseProjectFolders: true)
             : new(config.BaseDataDir, UseProjectFolders: false, result.LegacyLease);
+    }
+
+    private static void OnMigrationCopyStarting()
+    {
+#if WINDOWS
+        WinUI.StartupSplash.SetStatus("Finishing the update. This can take a few minutes.");
+#endif
     }
 
     internal static Dictionary<string, object?> MigrationProperties(MigrationResult result)
