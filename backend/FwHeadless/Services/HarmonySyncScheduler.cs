@@ -12,6 +12,8 @@ namespace FwHeadless.Services;
 /// project once a day, spread over the day. While a merge is queued or running for a project its syncs are dropped,
 /// the merge syncs on its own; a project that dropped one is synced again on the first scan after the merge.
 /// Like the merge, it never syncs a project that is blocked from syncing or whose first merge hasn't finished.
+/// A failed sync is retried with backoff until <see cref="FwHeadlessConfig.HarmonySyncMaxConsecutiveFailures"/>
+/// syncs in a row have failed; then it waits for the next change notification or sweep, which starts a fresh run of retries.
 /// </summary>
 public class HarmonySyncScheduler(
     IServiceProvider services,
@@ -81,6 +83,12 @@ public class HarmonySyncScheduler(
         var backoff = Debounce * Math.Pow(2, Math.Min(consecutiveFailures, 16));
         return backoff < MaxBackoff ? backoff : MaxBackoff;
     }
+
+    /// <summary>
+    /// The delay before retrying after <paramref name="consecutiveFailures"/> failed syncs, or null to give up.
+    /// </summary>
+    internal static TimeSpan? RetryDelay(int consecutiveFailures, int maxConsecutiveFailures) =>
+        consecutiveFailures >= maxConsecutiveFailures ? null : Delay(consecutiveFailures);
 
     private void OnProjectUpdated(Guid projectId, Guid? clientId)
     {
@@ -154,10 +162,25 @@ public class HarmonySyncScheduler(
         catch (Exception e) when (!_shutdown.IsCancellationRequested)
         {
             int failures;
-            lock (state.Lock) failures = ++state.ConsecutiveFailures;
-            logger.LogError(e, "Harmony sync of project {ProjectId} failed ({Failures} in a row), retrying in {Delay}",
-                projectId, failures, Delay(failures));
-            retry = true;
+            TimeSpan? retryDelay;
+            lock (state.Lock)
+            {
+                failures = ++state.ConsecutiveFailures;
+                retryDelay = RetryDelay(failures, config.Value.HarmonySyncMaxConsecutiveFailures);
+                // the next change notification or sweep starts a fresh run of retries
+                if (retryDelay is null) state.ConsecutiveFailures = 0;
+            }
+            if (retryDelay is null)
+            {
+                logger.LogError(e, "Harmony sync of project {ProjectId} failed ({Failures} in a row), giving up until its next change notification or daily sweep",
+                    projectId, failures);
+            }
+            else
+            {
+                logger.LogError(e, "Harmony sync of project {ProjectId} failed ({Failures} in a row), retrying in {Delay}",
+                    projectId, failures, retryDelay);
+                retry = true;
+            }
         }
         finally
         {
