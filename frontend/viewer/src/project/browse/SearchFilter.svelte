@@ -17,6 +17,7 @@
   import PartOfSpeechSelect from './filter/PartOfSpeechSelect.svelte';
   import PublicationSelect from './filter/PublicationSelect.svelte';
   import MorphTypeSelect from './filter/MorphTypeSelect.svelte';
+  import CommentSelect, {type CommentFilter} from './filter/CommentSelect.svelte';
   import {sameFilter, toGridify, viewDefaultMorphTypeFilter, type MorphTypeFilter} from './filter/morph-type-filter';
   import {watch} from 'runed';
   import {Icon} from '$lib/components/ui/icon';
@@ -61,8 +62,16 @@
   let includeSubDomains = $state(false);
   let userFilterActive = $state(false);
   let filterActive = $state(false);
-  let hasComments = $state(false);
-  let openComments = $state(false);
+  // unreadComments is shared with the toolbar's unread badge, so it holds the 'unread' choice
+  let otherCommentFilter = $state<Exclude<CommentFilter, 'unread'> | null>(null);
+  const commentFilter = $derived<CommentFilter | null>(unreadComments ? 'unread' : otherCommentFilter);
+  function setCommentFilter(value: CommentFilter | null) {
+    unreadComments = value === 'unread';
+    otherCommentFilter = value === 'unread' ? null : value;
+  }
+  watch(() => unreadComments, (unread) => {
+    if (unread) otherCommentFilter = null;
+  });
 
   function focusSearch() {
     inputRef?.focus();
@@ -123,16 +132,10 @@
       newFilter.push(`PublishIn.Id=${publication.id}`);
     }
 
-    if (hasComments) {
-      newFilter.push('CommentThreads!=null');
-    }
-
-    if (unreadComments) {
-      newFilter.push('UnreadComments!=null');
-    }
-
-    if (openComments) {
-      newFilter.push('OpenCommentThreads!=null');
+    switch (commentFilter) {
+      case 'any': newFilter.push('CommentThreads!=null'); break;
+      case 'unread': newFilter.push('UnreadComments!=null'); break;
+      case 'unresolved': newFilter.push('OpenCommentThreads!=null'); break;
     }
 
     // all user selected filters should be before this line!
@@ -166,9 +169,7 @@
     semanticDomain = undefined;
     partOfSpeech = undefined;
     publication = undefined;
-    hasComments = false;
-    unreadComments = false;
-    openComments = false;
+    setCommentFilter(null);
     morphTypes = viewDefaultMorphTypes();
   }
 
@@ -229,25 +230,6 @@
             {/if}
           </div>
           <div class="flex flex-col">
-            <Label class="p-2">{$t`Specific field`}</Label>
-            <div class="flex flex-col gap-2 items-stretch">
-              <div class="flex flex-row gap-2 flex-1">
-                <!-- Field Picker -->
-                <FieldSelect bind:value={selectedField} />
-                <!-- Writing System Picker -->
-                <WsSelect bind:value={selectedWs} wsType={selectedField?.ws} />
-              </div>
-              <div class="flex flex-row gap-2 flex-1">
-                <OpFilter bind:value={filterOp} />
-                <Input
-                  bind:value={fieldFilterValue}
-                  placeholder={$t`Filter for...`}
-                  class="flex-1"
-                />
-              </div>
-            </div>
-          </div>
-          <div class="flex flex-col">
             <Label class="p-2">{$t`Semantic domain`}</Label>
             <SemanticDomainSelect bind:value={semanticDomain} />
             <Switch
@@ -271,11 +253,29 @@
           </div>
           {#if features.comments}
             <div class="flex flex-col">
-              <Switch bind:checked={hasComments} label={$t`Has comments`} />
-              <Switch class="mt-1.5" bind:checked={unreadComments} label={$t`Has unread comments`} />
-              <Switch class="mt-1.5" bind:checked={openComments} label={$t`Has unresolved comments`} />
+              <Label id="{uid}-comments-label" class="p-2">{$t`Comments`}</Label>
+              <CommentSelect bind:value={() => commentFilter, setCommentFilter} labelledBy="{uid}-comments-label" />
             </div>
           {/if}
+          <div class="flex flex-col">
+            <Label class="p-2">{$t`Specific field`}</Label>
+            <div class="flex flex-col gap-2 items-stretch">
+              <div class="flex flex-row gap-2 flex-1">
+                <!-- Field Picker -->
+                <FieldSelect bind:value={selectedField} />
+                <!-- Writing System Picker -->
+                <WsSelect bind:value={selectedWs} wsType={selectedField?.ws} />
+              </div>
+              <div class="flex flex-row gap-2 flex-1">
+                <OpFilter bind:value={filterOp} />
+                <Input
+                  bind:value={fieldFilterValue}
+                  placeholder={$t`Filter for...`}
+                  class="flex-1"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </ResponsivePopup>
     {/snippet}
