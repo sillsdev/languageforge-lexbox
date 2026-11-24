@@ -75,11 +75,12 @@
   <div class="flex grow flex-col md:justify-center">
     <div class="flex flex-col items-center gap-2 p-4 text-center">
       <Icon icon="i-mdi-check-circle-outline" class="text-primary size-12" />
+      <!-- Focus the heading, not a button: the Enter that saved the last item would otherwise press it. -->
       {#if taskComplete}
-        <h2 class="text-xl font-semibold">{$t`This task is complete`}</h2>
+        <h2 tabindex="-1" {@attach el => el.focus()} class="text-xl font-semibold outline-none">{$t`This task is complete`}</h2>
         <p class="text-muted-foreground">{filledText(filledEntries)}</p>
       {:else}
-        <h2 class="text-xl font-semibold">{filledText(filledEntries)}</h2>
+        <h2 tabindex="-1" {@attach el => el.focus()} class="text-xl font-semibold outline-none">{filledText(filledEntries)}</h2>
         {#if remaining}
           <p class="text-muted-foreground tabular-nums">{remainingText(remaining)}</p>
         {/if}
@@ -96,9 +97,9 @@
     <div class="grow md:hidden"></div>
     <div class="px-4 pt-4 pb-2 flex flex-col gap-2 self-stretch md:self-center md:w-full md:max-w-sm">
       {#if !taskComplete}
-        <Button autofocus onclick={onContinue}>{$t`Keep going`}</Button>
+        <Button onclick={onContinue}>{$t`Keep going`}</Button>
       {/if}
-      <Button variant={taskComplete ? 'default' : 'outline'} autofocus={taskComplete} icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}} onclick={onClose}>{$t`Back to tasks`}</Button>
+      <Button variant={taskComplete ? 'default' : 'outline'} icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}} onclick={onClose}>{$t`Back to tasks`}</Button>
       <Button variant="ghost" onclick={() => review = true}>{$t`Review what you filled in`}</Button>
     </div>
   </div>
