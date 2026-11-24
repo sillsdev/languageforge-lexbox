@@ -11,9 +11,9 @@ test('task counts follow entry changes in the open task, on the list afterwards 
   function toGo(text: string | null): number {
     return Number(/(\d+) (entries|words) to go/.exec(text ?? '')?.[1]);
   }
-  // The demo api only emulates this task's filter; the per-language tasks get the entry total.
-  const partOfSpeechTask = page.getByRole('button', {name: /^(Part of speech|Grammatical info\.),/});
-  const otherTask = page.getByRole('button', {name: /^Gloss,/}).first();
+  // The demo api only emulates this task's filter; the other task gets the entry total.
+  const partOfSpeechTask = page.locator('[data-task-id="missing-part-of-speech"]');
+  const otherTask = page.locator('[data-task-id="missing-semantic-domain"]');
   async function partOfSpeechCount() {
     return toGo(await partOfSpeechTask.textContent());
   }
@@ -63,7 +63,7 @@ test('task counts follow entry changes in the open task, on the list afterwards 
   await addEntryMissingPartOfSpeech({announce: true});
   await expect(header).toContainText(`${partOfSpeechBefore + 1} `);
 
-  await page.getByRole('button', {name: 'Back to tasks'}).click();
+  await page.getByRole('button', {name: 'Back to tasks'}).first().click();
   await expect.poll(partOfSpeechCount).toBe(partOfSpeechBefore + 1);
   await expect.poll(otherCount).toBe(otherBefore + 1);
 
