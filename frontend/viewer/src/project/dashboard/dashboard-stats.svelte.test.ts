@@ -22,12 +22,13 @@ class FakeApi {
       this.maxInFlightPerFilter = Math.max(this.maxInFlightPerFilter, this.#inFlight[filter]);
       // read before waiting, like a query that started before a later change
       const result = filter === TOTAL ? this.total : 0;
+      const fail = this.fail;
       if (filter === TOTAL && this.holdNextTotal) {
         this.holdNextTotal = false;
         await new Promise<void>(resolve => this.#releaseTotal = resolve);
       }
       this.#inFlight[filter]--;
-      if (this.fail) throw new Error('count failed');
+      if (fail) throw new Error('count failed');
       return result;
     },
     getWritingSystems: () => Promise.resolve({vernacular: [{wsId: 'seh', abbreviation: 'seh'}], analysis: []}),
@@ -64,6 +65,20 @@ describe('DashboardStats', () => {
     expect(fake.maxInFlightPerFilter).toBe(1);
     expect(stats.totalEntries).toBe(97);
     expect(stats.entriesWithSenses).toEqual({filled: 97, percent: 100});
+  });
+
+  it('still runs a queued reload when the running load fails', async () => {
+    const {fake, stats, api} = setup();
+    fake.fail = true;
+    fake.holdNextTotal = true;
+    const done = stats.load(api);
+    await Promise.resolve();
+    void stats.load(api);
+    fake.fail = false;
+    fake.release();
+
+    await done;
+    expect(stats.totalEntries).toBe(100);
   });
 
   it('loads again after a failed load', async () => {

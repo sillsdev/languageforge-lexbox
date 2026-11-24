@@ -107,15 +107,24 @@ export class DashboardStats {
       this.#reload = true;
       return this.#loading;
     }
-    this.#loading = this.#loadUntilCurrent().finally(() => this.#loading = undefined);
+    this.#loading = this.#loadUntilCurrent();
     return this.#loading;
   }
 
   async #loadUntilCurrent(): Promise<void> {
+    let failure: {error: unknown} | undefined;
     do {
       this.#reload = false;
-      await this.#loadOnce(this.#api);
+      try {
+        await this.#loadOnce(this.#api);
+        failure = undefined;
+      } catch (error) {
+        failure = {error};
+      }
     } while (this.#reload);
+    // cleared in the same tick the loop ends, or a load arriving in between would queue behind nothing
+    this.#loading = undefined;
+    if (failure) throw failure.error;
   }
 
   async #loadOnce(api: IMiniLcmJsInvokable): Promise<void> {
