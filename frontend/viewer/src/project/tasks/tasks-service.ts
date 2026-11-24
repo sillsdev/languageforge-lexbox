@@ -7,6 +7,7 @@ import type {IEntry, IExampleSentence, IRichString, ISense, IWritingSystem, Writ
 import {defaultExampleSentence, defaultSense, defaultTranslation, firstTruthy, isEntry, isSense} from '$lib/utils';
 import {TaskSubject} from './subject.svelte';
 import {subscribeLanguageChange} from '$lib/i18n';
+import type {Overrides} from '$lib/views/view-data';
 
 const symbol = Symbol.for('fw-lite-tasks');
 
@@ -30,6 +31,8 @@ export interface Task {
   optionalFields?: FieldId[];
   subjectWritingSystemId?: string;
   subjectWritingSystemType?: WritingSystemType;
+  /** The form's writing systems, read once per subject. Defaults to only the subject's. */
+  overrides?: (subject: TaskSubject) => Overrides;
   /** Already translated, see subject. */
   prompt: ViewText;
   taskKind: 'provide-missing';
@@ -202,7 +205,7 @@ export class TasksService {
     subscribeLanguageChange();
     return [
       ...TasksService.makeExampleSentenceTasks(this.writingSystemService.vernacular),
-      ...TasksService.makeTranslationTasks(this.writingSystemService.analysis),
+      ...TasksService.makeTranslationTasks(this.writingSystemService.analysis, this.writingSystemService.vernacular),
     ];
   }
 
@@ -219,6 +222,8 @@ export class TasksService {
         optionalFields: ['translations'],
         subjectWritingSystemId: writingSystem.wsId,
         subjectWritingSystemType: writingSystem.type,
+        // translations stay in the view's analysis writing systems
+        overrides: () => ({vernacular: [{wsId: writingSystem.wsId}]}),
         prompt: writingSystem.isAudio
           ? gt`Record an example sentence, and type a translation if you can`
           : gt`Type an example sentence, and a translation if you can`,
@@ -231,7 +236,7 @@ export class TasksService {
     }
   }
 
-  public static *makeTranslationTasks(analysis: IWritingSystem[]) {
+  public static *makeTranslationTasks(analysis: IWritingSystem[], vernacular: IWritingSystem[]) {
     for (const writingSystem of analysis) {
       const taskTranslation: Task = {
         id: `example-translation-${writingSystem.wsId}`,
@@ -243,6 +248,10 @@ export class TasksService {
         optionalFields: ['sentence'],
         subjectWritingSystemId: writingSystem.wsId,
         subjectWritingSystemType: writingSystem.type,
+        overrides: s => ({
+          analysis: [{wsId: writingSystem.wsId}],
+          ...TasksService.sentenceWritingSystems(s.exampleSentence, vernacular),
+        }),
         prompt: writingSystem.isAudio ? gt`Record a translation of the example sentence` : gt`Translate the example sentence`,
         taskKind: 'provide-missing',
         gridifyFilter: `Senses.ExampleSentences.Translations.Text[${writingSystem.wsId}]=`,
@@ -251,6 +260,13 @@ export class TasksService {
       };
       yield taskTranslation;
     }
+  }
+
+  // The preview hides audio and out-of-view writing systems, so the form shows the sentence in every one it has
+  // text in, and only those so empty boxes don't push the translation down. With no sentence, the view's, to add one.
+  private static sentenceWritingSystems(example: IExampleSentence | undefined, vernacular: IWritingSystem[]): Overrides {
+    const withText = vernacular.filter(ws => asString(example?.sentence[ws.wsId]));
+    return withText.length ? {vernacular: withText.map(({wsId}) => ({wsId}))} : {};
   }
 
   private static getTranslationValue(example: IExampleSentence, wsId: string): string | undefined {
@@ -331,9 +347,9 @@ export class TasksService {
         subjects.push(new TaskSubject(entry, sense, undefined, s => task.getSubjectValue(s.sense!)));
       }
     } else if (task.subjectType === 'example-sentence') {
+      const translating = task.subjectFields.includes('translations');
       for (const sense of entry.senses) {
         let examples = sense.exampleSentences;
-        const translating = task.subjectFields.includes('translations');
         // there's nothing to translate in a new example
         if (examples.length === 0 && !translating) examples = [defaultExampleSentence(sense.id)];
         for (let example of examples) {

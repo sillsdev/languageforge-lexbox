@@ -61,7 +61,7 @@ const analysisWs = ws(WritingSystemType.Analysis);
 
 //find tasks by id rather than positional index so the fixtures survive reordering of the generators
 const exampleTask = [...TasksService.makeExampleSentenceTasks([vernacularWs])].find(t => t.id === 'example-sentence-en')!;
-const translationTask = [...TasksService.makeTranslationTasks([analysisWs])].find(t => t.id === 'example-translation-en')!;
+const translationTask = [...TasksService.makeTranslationTasks([analysisWs], [vernacularWs])].find(t => t.id === 'example-translation-en')!;
 const senseTask = [...TasksService.makeSenseTasks([analysisWs])].find(t => t.id === 'sense-no-gloss-en')!;
 const semanticDomainTask = [...TasksService.makeSenseTasks([analysisWs])].find(t => t.id === 'missing-semantic-domain')!;
 const headwordTask = [...TasksService.makeEntryTasks([vernacularWs])].find(t => t.id === 'entry-no-headword-en')!;
@@ -181,6 +181,17 @@ describe('tasks service', () => {
       it('should not create an example when none exist', () => {
         const entry = newEntry({senses: [newSense({exampleSentences: []})]});
         expect(TasksService.subjects(translationTask, entry)).toStrictEqual([]);
+      });
+
+      it('shows the sentence only in the languages it has text in, else the view languages', () => {
+        const fr = {...vernacularWs, id: 'fr', wsId: 'fr'};
+        const [task] = [...TasksService.makeTranslationTasks([analysisWs], [vernacularWs, fr])];
+        function overridesFor(example: IExampleSentence) {
+          return task.overrides!(TasksService.subjects(task, newEntry({senses: [newSense({exampleSentences: [example]})]}))[0]);
+        }
+        expect(overridesFor(newExample({sentence: {fr: {spans: [{text: 'bonjour', ws: 'fr'}]}}})))
+          .toStrictEqual({analysis: [{wsId: 'en'}], vernacular: [{wsId: 'fr'}]});
+        expect(overridesFor(newExample({}))).toStrictEqual({analysis: [{wsId: 'en'}]});
       });
 
       it('filters on the translation text in the writing system', () => {
@@ -353,7 +364,7 @@ describe('tasks service', () => {
       });
 
       it('translation task says "Record" for an audio analysis writing system', () => {
-        const [task] = [...TasksService.makeTranslationTasks([{...analysisWs, isAudio: true}])];
+        const [task] = [...TasksService.makeTranslationTasks([{...analysisWs, isAudio: true}], [vernacularWs])];
         expect(task.prompt).toStrictEqual('Record a translation of the example sentence');
       });
     });

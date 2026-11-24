@@ -18,7 +18,6 @@
   import {pt} from '$lib/views/view-text';
   import {untrack} from 'svelte';
   import {useViewService} from '$lib/views/view-service.svelte';
-  import {asString, useWritingSystemService} from '$project/data';
 
   let {
     entry = $bindable(),
@@ -37,40 +36,21 @@
     onCompletedSubject?: (subject: TaskSubject) => void,
   } = $props();
   const viewService = useViewService();
-  const writingSystemService = useWritingSystemService();
   const shownFields = $derived([...task.subjectFields, ...task.optionalFields ?? []]);
-  const overrides = $derived.by((): Overrides => {
-    if (!task.subjectWritingSystemId) return {};
-    const ws = {wsId: task.subjectWritingSystemId};
-    if (task.subjectWritingSystemType === WritingSystemType.Analysis) {
-      if (task.optionalFields?.length) return {analysis: [ws], vernacular: sentenceWritingSystems};
-      return {
-        analysis: [ws],
-        vernacular: [],
-      };
-    }
-    // optional fields (example translations) keep the view's analysis writing systems
-    if (task.optionalFields?.length) return {vernacular: [ws]};
-    return {
-      analysis: [],
-      vernacular: [ws],
-    };
-  });
   const entryPersistence = new EntryPersistence(() => entry);
   //need to create a snapshot, otherwise changes to the subjects will trigger this derived and it will skip to the next subject
   let subjects = $derived(TasksService.subjects(task, $state.snapshot(entry)));
   let subjectIndex = $state(0);
   let subject = $derived(subjects.at(subjectIndex));
-  // The sentence being translated, in the languages it has text in (audio and out-of-view ones too), so
-  // empty boxes don't push the translation down. With no sentence yet, the view's languages so one can be added.
-  // Read once per example so a field doesn't vanish while it's cleared.
-  const sentenceWritingSystems = $derived.by(() => {
-    const example = subject?.exampleSentence;
-    return untrack(() => {
-      const withText = writingSystemService.vernacular.filter(ws => !!asString(example?.sentence[ws.wsId]));
-      const shown = withText.length ? withText : writingSystemService.viewVernacular(viewService.currentView);
-      return shown.map(({wsId}) => ({wsId}));
-    });
+  const overrides = $derived.by((): Overrides => {
+    const current = subject;
+    // untracked so a field doesn't vanish while it's being cleared
+    if (current && task.overrides) return untrack(() => task.overrides!(current));
+    if (!task.subjectWritingSystemId) return {};
+    const ws = [{wsId: task.subjectWritingSystemId}];
+    return task.subjectWritingSystemType === WritingSystemType.Analysis
+      ? {analysis: ws, vernacular: []}
+      : {analysis: [], vernacular: ws};
   });
   $effect(() => {
     if (entry && subjects.length === 0) {
@@ -142,8 +122,9 @@
     // focusing reads editor state, which would re-run this and pull the caret back from any other field
     untrack(() => {
       const visible = [...inputs].filter(input => input.checkVisibility());
-      // multi-ws inputs are id'd `${rootId}-${wsId}`; the task's empty field beats context fields like the sentence being translated
-      const own = visible.filter(input => input.id.endsWith(`-${task.subjectWritingSystemId}`));
+      // the task's empty field beats context fields like the sentence being translated
+      const wsId = task.subjectWritingSystemId;
+      const own = wsId ? visible.filter(input => input.closest<HTMLElement>('[data-ws]')?.dataset.ws === wsId) : [];
       const candidates = own.length ? own : visible;
       const target = candidates.find(input => !(input instanceof HTMLInputElement ? input.value : input.textContent)) ?? candidates[0];
       target?.focus();
