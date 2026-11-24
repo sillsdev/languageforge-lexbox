@@ -4933,18 +4933,22 @@ msgstr "Where are my projects?"
 msgid "Why is that?"
 msgstr "Why is that?"
 
+#. Option in the entry-list "Comments" filter: entries that have any comment threads.
 #: src/project/browse/filter/CommentSelect.svelte
 msgid "With comments"
 msgstr "With comments"
 
+#. Placeholder of the entry-list "Comments" filter when no option is chosen, i.e. comments do not filter the list.
 #: src/project/browse/filter/CommentSelect.svelte
 msgid "With or without comments"
 msgstr "With or without comments"
 
+#. Option in the entry-list "Comments" filter: entries with comments the user has not read.
 #: src/project/browse/filter/CommentSelect.svelte
 msgid "With unread comments"
 msgstr "With unread comments"
 
+#. Option in the entry-list "Comments" filter: entries with comment threads not yet marked resolved.
 #: src/project/browse/filter/CommentSelect.svelte
 msgid "With unresolved comments"
 msgstr "With unresolved comments"
