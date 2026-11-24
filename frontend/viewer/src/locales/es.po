@@ -224,6 +224,12 @@ msgstr "{num, plural, one {Falta # entrada} other {Faltan # entradas}}"
 msgid "{num, plural, one {# filter applied} other {# filters applied}}"
 msgstr ""
 
+#. Text on the morph type filter dropdown trigger, summarizing the selection. # is the number of selected morph types.
+#. Morph type: linguistic category of an entry (e.g. stem, prefix, clitic).
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "{num, plural, one {# morph type} other {# morph types}}"
+msgstr ""
+
 #. Commit count display
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "{num, plural, one {# new FieldWorks Classic commit} other {# new FieldWorks Classic commits}}"
@@ -520,6 +526,11 @@ msgstr ""
 msgid "Advanced: settings file"
 msgstr "Avanzado: archivo de configuración"
 
+#. Group header in the morph type filter list. Affixes are bound morphemes added to a stem (prefix, suffix, infix...).
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "Affixes"
+msgstr ""
+
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
@@ -542,6 +553,12 @@ msgstr "Todos los tipos de actividad"
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
 msgstr "Todos los autores"
+
+#. Option in the morph type filter list that selects or clears every morph type at once.
+#: src/project/browse/filter/MorphTypeSelect.svelte
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "All morph types"
+msgstr ""
 
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Allow and run it"
@@ -589,6 +606,11 @@ msgstr "Los análisis están desactivados."
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any grammatical info."
 msgstr "Cualquier información gramatical."
+
+#. Text on the morph type filter dropdown trigger when no morph type filter is applied.
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "Any morph type"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Any grammatical info."
@@ -919,6 +941,11 @@ msgstr ""
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Cleared {0}"
+msgstr ""
+
+#. Group header in the morph type filter list. Clitics are bound forms that act like words but attach phonologically to a neighbor (proclitic, enclitic).
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "Clitics"
 msgstr ""
 
 #. Button to close popup
@@ -2672,6 +2699,7 @@ msgstr ""
 
 #: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
 #: src/lib/plugins/plugin-api-adapter.ts
+#: src/project/browse/SearchFilter.svelte
 msgid "Morph type"
 msgstr ""
 
@@ -3151,6 +3179,11 @@ msgstr "Desactivar los análisis"
 #: src/lib/components/ThemePicker.svelte
 msgid "orange"
 msgstr "naranja"
+
+#. Group header in the morph type filter list for morph types that are not words and phrases, affixes, or clitics.
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "Other"
+msgstr ""
 
 #: src/project/SyncDialog.svelte
 msgid "Other FieldWorks Lite users"
@@ -3736,6 +3769,11 @@ msgstr ""
 msgid "Reset"
 msgstr "Reset"
 
+#. Tooltip of the Reset button in the entry-list filter popover. Restores the filters the current view applies by default.
+#: src/project/browse/SearchFilter.svelte
+msgid "Reset to view defaults"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
@@ -4074,6 +4112,11 @@ msgstr "Mostrar"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Show {0} more..."
 msgstr "Mostrar {0} más..."
+
+#. Link-style button after the hint "This view shows only whole words and phrases." Removes the morph type filter.
+#: src/project/browse/SearchFilter.svelte
+msgid "Show all"
+msgstr ""
 
 #: src/lib/plugins/PluginsView.svelte
 msgid "Show fewer examples"
@@ -4555,6 +4598,12 @@ msgstr "Esta tarea está completa"
 msgid "This version"
 msgstr ""
 
+#. Relevant view: Lite
+#. Hint under the morph type filter in the entry-list filter popover; a "Show all" button follows it.
+#: src/project/browse/SearchFilter.svelte
+msgid "This view shows only whole words and phrases."
+msgstr ""
+
 #. Description of sync operation
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "This will synchronize the FieldWorks Lite and FieldWorks Classic copies of your project in Lexbox."
@@ -5028,6 +5077,11 @@ msgstr "Palabra o significado:"
 #. Lowercase plural noun interpolated into activity-log lines (e.g. "Created 5 words"). Paired with "words" / "entries" terminology across the app.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "words"
+msgstr ""
+
+#. Group header in the morph type filter list: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "Words and phrases"
 msgstr ""
 
 #: src/project/tasks/tasks-service.ts
