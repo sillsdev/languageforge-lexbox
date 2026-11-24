@@ -1,6 +1,7 @@
 <script lang="ts">
+  import ChoiceRow from '$lib/components/ChoiceRow.svelte';
   import * as Card from '$lib/components/ui/card';
-  import {CircularProgress} from '$lib/components/ui/circular-progress';
+  import * as Collapsible from '$lib/components/ui/collapsible';
   import {Icon} from '$lib/components/ui/icon';
   import {Button} from '$lib/components/ui/button';
   import {Skeleton} from '$lib/components/ui/skeleton';
@@ -10,21 +11,36 @@
   import {plural, t} from 'svelte-i18n-lingui';
   import {navigate, useRouter} from 'svelte-routing';
   import {taskLabel, useTasksService, type Task} from './tasks-service';
-  import {getEntityConfig, type EntityType} from '$lib/views/entity-config';
-  import {pt, tvt} from '$lib/views/view-text';
+  import {getEntityConfig} from '$lib/views/entity-config';
+  import {pt, tvt, type ViewText} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
+  import {QueryParamState} from '$lib/utils/url.svelte';
+  import {useProjectStorage} from '$lib/storage';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {useTasksStats} from './tasks-stats.svelte';
+  import {tick} from 'svelte';
+  import {watch} from 'runed';
 
-  let {onSelect}: {onSelect: (taskId: string) => void} = $props();
+  type TaskOrigin = 'recent' | 'list';
+  let {onSelect, lastTask}: {
+    onSelect: (taskId: string, origin: TaskOrigin) => void,
+    lastTask?: {id: string, origin: TaskOrigin},
+  } = $props();
 
   const tasksService = useTasksService();
   const writingSystemService = useWritingSystemService();
   const features = useFeatures();
   const viewService = useViewService();
+  const projectStorage = useProjectStorage();
   const {base} = useRouter();
 
-  type Target = {task: Task, ws?: IWritingSystem};
-  type Field = {key: string, label: string, description?: string, entity: EntityType, targets: Target[]};
+  type Field = {key: string, entity: 'entry' | 'sense' | 'example', label: string, description?: string, tasks: Task[]};
+
+  const fieldParam = new QueryParamState({key: 'field', allowBack: true, replaceOnDefaultValue: true});
+
+  function text(value: ViewText): string {
+    return pt($tvt(value), viewService.currentView);
+  }
 
   function writingSystemOf(task: Task): IWritingSystem | undefined {
     if (!task.subjectWritingSystemId) return undefined;
@@ -34,98 +50,180 @@
     return writingSystems.find(ws => ws.wsId === task.subjectWritingSystemId);
   }
 
-  // Grouped by field so the chip count grows with the writing systems, not the row count.
+  function fieldKey(task: Task): string {
+    return `${task.subjectType}:${task.subjectFields.join()}`;
+  }
+
   const fields = $derived.by(() => {
     const groups: Field[] = [];
     for (const task of tasksService.listTasks()) {
-      const ws = writingSystemOf(task);
-      // The editors hide audio writing systems when the feature is off, so there'd be nothing to fill in.
-      if (ws?.isAudio && !features.audio) continue;
-      const entity = task.subjectType === 'example-sentence' ? 'example' : task.subjectType;
-      const key = `${entity}:${task.subjectFields.join()}`;
-      let group = groups.find(g => g.key === key);
-      if (!group) {
-        group = {key, label: pt($tvt(taskLabel(task)), viewService.currentView), description: task.description && pt($tvt(task.description), viewService.currentView), entity, targets: []};
-        groups.push(group);
+      // The editors hide audio writing systems when the feature is off.
+      if (writingSystemOf(task)?.isAudio && !features.audio) continue;
+      const key = fieldKey(task);
+      let field = groups.find(f => f.key === key);
+      if (!field) {
+        field = {
+          key,
+          entity: task.subjectType === 'example-sentence' ? 'example' : task.subjectType,
+          label: text(taskLabel(task)),
+          description: task.description && text(task.description),
+          tasks: [],
+        };
+        groups.push(field);
       }
-      group.targets.push({task, ws});
+      field.tasks.push(task);
     }
-    for (const group of groups) {
-      group.targets.sort((a, b) => Number(a.ws?.isAudio ?? false) - Number(b.ws?.isAudio ?? false));
-    }
-    return groups.filter(group => group.targets.length > 0);
+    return groups;
   });
 
-  const entities = $derived((['entry', 'sense', 'example'] as const)
-    .map(entity => ({
-      entity,
-      label: pt($tvt(getEntityConfig(entity).$label), viewService.currentView),
-      fields: fields.filter(field => field.entity === entity),
-    }))
+  // Meanings first: they hold the most common tasks.
+  const entities = $derived((['sense', 'example', 'entry'] as const)
+    .map(entity => ({entity, label: text(getEntityConfig(entity).$label), fields: fields.filter(f => f.entity === entity)}))
     .filter(group => group.fields.length > 0));
 
   const stats = $derived(useTasksStats().current);
-
-  function remainingText(remaining: number): string {
-    return pt(
-      $plural(remaining, {one: '# entry to go', other: '# entries to go'}),
-      $plural(remaining, {one: '# word to go', other: '# words to go'}),
-      viewService.currentView);
+  function remaining(task: Task): number | undefined {
+    return stats.progress[task.id]?.remaining;
+  }
+  function isDone(task: Task): boolean {
+    return remaining(task) === 0;
   }
 
-  function wsColor(ws: IWritingSystem): string {
-    return writingSystemService.wsColor(ws.wsId, ws.type === WritingSystemType.Vernacular ? 'vernacular' : 'analysis');
+  // With one language there's nothing to choose, so the field's row starts the task.
+  function directTask(field: Field): Task | undefined {
+    return field.tasks.length === 1 ? field.tasks[0] : undefined;
+  }
+  const pickedField = $derived(fields.find(f => f.key === fieldParam.current && !directTask(f)));
+  const hasLanguageStep = $derived(fields.some(f => !directTask(f)));
+  const drilledIn = $derived(IsMobile.value && !!pickedField);
+  $effect(() => {
+    // Drop a stale ?field=. Only unknown keys: a field can look single-language while features load.
+    if (fields.length && fieldParam.current && !fields.some(f => f.key === fieldParam.current)) fieldParam.set('', {replace: true});
+  });
+  const languageGroups = $derived.by(() => {
+    const tasks = pickedField?.tasks ?? [];
+    const written = tasks.filter(task => !writingSystemOf(task)?.isAudio);
+    const audio = tasks.filter(task => writingSystemOf(task)?.isAudio);
+    if (!written.length || !audio.length) return [{label: '', tasks}];
+    return [{label: $t`Written`, tasks: written}, {label: $t`Audio`, tasks: audio}];
+  });
+
+  const allTasks = $derived(fields.flatMap(f => f.tasks));
+  const recentIds = $derived(projectStorage.recentTasks.current.split(',').filter(Boolean));
+  const recentTasks = $derived(recentIds
+    .map(id => allTasks.find(task => task.id === id))
+    // Waiting for the count keeps finished tasks from flashing up while stats load.
+    .filter((task): task is Task => !!task && remaining(task) !== undefined && !isDone(task))
+    .slice(0, 3));
+
+  let helpOpen = $state(false);
+  // Not when it first appears after storage loads.
+  let animateHelp = $state(false);
+  const showHelp = $derived(helpOpen || (!projectStorage.tasksHelpDismissed.loading && !projectStorage.tasksHelpDismissed.current));
+  function dismissHelp() {
+    helpOpen = false;
+    animateHelp = true;
+    void projectStorage.tasksHelpDismissed.set('true');
+  }
+
+  function closeHelp() {
+    dismissHelp();
+    void tick().then(() => focusFirst('#tasks-help-link'));
+  }
+
+  function openTask(task: Task, origin: TaskOrigin) {
+    // The card has done its job, and would push Recent down.
+    if (!projectStorage.tasksHelpDismissed.current) dismissHelp();
+    onSelect(task.id, origin);
+  }
+
+  function pickField(field: Field, event: MouseEvent) {
+    // Desktop just swaps the panel, so Back shouldn't step through every field viewed.
+    fieldParam.set(field.key, {replace: !IsMobile.value});
+    // event.detail is 0 for keyboard activation; spare keyboard users tabbing past every field.
+    if (!IsMobile.value && event.detail === 0) void tick().then(() => focusFirst('#task-languages-heading'));
+  }
+
+  let container = $state<HTMLElement>();
+  function focusFirst(...selectors: string[]) {
+    for (const selector of selectors) {
+      const el = [...container?.querySelectorAll<HTMLElement>(selector) ?? []].find(el => el.checkVisibility());
+      if (el) return el.focus();
+    }
+  }
+  watch(() => lastTask, () => {
+    if (!lastTask) return;
+    const recent = `[data-recent-task-id="${lastTask.id}"]`;
+    const row = `[data-task-id="${lastTask.id}"]`;
+    const task = allTasks.find(t => t.id === lastTask.id);
+    const fallback = task ? `[data-field-key="${fieldKey(task)}"]` : '#task-list-heading';
+    void tick().then(() => focusFirst(...(lastTask.origin === 'recent' ? [recent, row] : [row, recent]), fallback));
+  });
+  watch(() => pickedField?.key, (key, previousKey) => {
+    if (!IsMobile.value) return;
+    void tick().then(() => focusFirst(key ? '#task-languages-heading' : `[data-field-key="${previousKey}"]`));
+  }, {lazy: true});
+
+  // Level with the selected row, but never past the list's end (that would stretch the page).
+  let fieldColumn = $state<HTMLElement>();
+  let panel = $state<HTMLElement>();
+  let listHeight = $state(0);
+  let panelHeight = $state(0);
+  let panelOffset = $state(0);
+  // Heights are read directly: the bindings lag a frame behind a newly picked field.
+  watch([() => pickedField?.key, () => listHeight, () => panelHeight], () => {
+    const row = pickedField && fieldColumn?.querySelector(`[data-field-key="${pickedField.key}"]`);
+    if (!row || !fieldColumn || !panel) return;
+    const rowTop = row.getBoundingClientRect().top - fieldColumn.getBoundingClientRect().top;
+    panelOffset = Math.max(0, Math.min(rowTop, fieldColumn.offsetHeight - panel.offsetHeight));
+  });
+
+  function remainingText(count: number): string {
+    return pt(
+      $plural(count, {one: '# entry to go', other: '# entries to go'}),
+      $plural(count, {one: '# word to go', other: '# words to go'}),
+      viewService.currentView);
   }
 </script>
 
-{#snippet progressAndName({task, ws}: Target, fieldLabel: string)}
-  {@const progress = stats.progress[task.id]}
-  {@const remaining = progress ? remainingText(progress.remaining) : ''}
-  <span class="sr-only">{fieldLabel},</span>
-  {#if !progress}
-    <Skeleton class="size-4 shrink-0 rounded-full" />
-  {:else if progress.remaining === 0}
-    <Icon icon="i-mdi-check-circle-outline" class="size-5" />
-    <span class="sr-only">{$t`Complete`},</span>
+{#snippet wsName(ws: IWritingSystem)}
+  {@const color = writingSystemService.wsColor(ws.wsId, ws.type === WritingSystemType.Vernacular ? 'vernacular' : 'analysis')}
+  <span class="inline-flex items-baseline gap-1.5 {color}">
+    {ws.name}
+    {#if ws.isAudio}
+      <Icon icon="i-mdi-microphone" class="size-4 self-center" /><span class="sr-only">{$t`Audio`}</span>
+    {:else if ws.abbreviation}
+      <span class="text-muted-foreground text-xs">{ws.abbreviation}</span>
+    {/if}
+  </span>
+{/snippet}
+
+{#snippet progress(task: Task)}
+  {@const count = remaining(task)}
+  {#if count === undefined}
+    <Skeleton class="my-0.5 h-4 w-24" />
   {:else}
-    <CircularProgress value={progress.percentDone} size={16} strokeWidth={2.5} />
-  {/if}
-  {#if ws}
-    <span class="flex items-baseline gap-1.5">
-      {ws.name}
-      {#if ws.abbreviation}<span class="text-muted-foreground text-xs">{ws.abbreviation}</span>{/if}
-    </span>
-    <!-- Audio marker trails the language, matching the task header. -->
-    {#if ws.isAudio}<Icon icon="i-mdi-microphone" class="size-4" /><span class="sr-only">{$t`Audio`},</span>{/if}
-    {#if progress}<span class="sr-only">, {remaining}</span>{/if}
-  {:else if progress}
-    <!-- No language to name it by, so show the count instead. -->
-    <span class="text-muted-foreground tabular-nums">{remaining}</span>
+    {remainingText(count)}
   {/if}
 {/snippet}
 
-{#snippet field({label, description, targets}: Field)}
-  <div class="flex flex-col gap-x-3 gap-y-2">
-    <span class="flex flex-wrap items-baseline gap-x-2">
-      <span class="text-sm font-medium">{label}</span>
-      {#if description}<span class="text-muted-foreground text-sm">{description}</span>{/if}
-    </span>
-    <span class="flex flex-wrap items-center gap-2">
-      {#each targets as target (target.task.id)}
-        {@const progress = stats.progress[target.task.id]}
-        {@const name = target.ws && `${target.ws.name} (${target.ws.wsId})`}
-        {@const title = name && (progress ? `${name}: ${remainingText(progress.remaining)}` : name)}
-        <button
-          type="button"
-          class="bg-secondary hover:bg-secondary/80 focus-visible:ring-ring/50 inline-flex min-h-8 items-center gap-1.5 rounded-full px-3 text-sm font-medium shadow-sm transition-colors outline-hidden focus-visible:ring-[3px] {progress?.remaining === 0 ? 'opacity-60' : ''} {target.ws ? wsColor(target.ws) : ''}"
-          {title}
-          onclick={() => onSelect(target.task.id)}
-        >
-          {@render progressAndName(target, label)}
-        </button>
-      {/each}
-    </span>
-  </div>
+{#snippet doneMark()}
+  <span class="text-muted-foreground flex shrink-0 items-center gap-1 text-sm">
+    <Icon icon="i-mdi-check-circle-outline" class="size-4" />{$t`Done`}
+  </span>
+{/snippet}
+
+{#snippet languageRow(task: Task)}
+  {@const ws = writingSystemOf(task)}
+  <li>
+    <ChoiceRow starts data-task-id={task.id} aria-describedby="task-starts-hint" class={isDone(task) ? 'text-muted-foreground' : ''} onclick={() => openTask(task, 'list')}>
+      <span class="font-medium">{#if ws}{@render wsName(ws)}{:else}{pt(task.prompt, viewService.currentView)}{/if}</span>
+      {#if !isDone(task)}<span class="text-muted-foreground text-sm tabular-nums">{@render progress(task)}</span>{/if}
+      {#snippet trailing()}
+        {#if isDone(task)}{@render doneMark()}{/if}
+      {/snippet}
+    </ChoiceRow>
+  </li>
 {/snippet}
 
 {#if stats.totalEntries === 0}
@@ -134,18 +232,142 @@
     <Button variant="outline" icon="i-mdi-book-alphabet" onclick={() => navigate(`${$base.uri}/browse`)}>{$t`Browse`}</Button>
   </div>
 {:else}
-  <div class="flex w-fit flex-col gap-4">
-    {#each entities as {entity, label, fields: rows} (entity)}
-      <Card.Root class="gap-y-3 py-4">
-        <Card.Header>
-          <Card.Title>{label}</Card.Title>
-        </Card.Header>
-        <Card.Content class="flex flex-col gap-3">
-          {#each rows as row (row.key)}
-            {@render field(row)}
-          {/each}
-        </Card.Content>
-      </Card.Root>
-    {/each}
+  <div class="flex max-w-[57.5rem] flex-col gap-8" bind:this={container}>
+    <span id="task-starts-hint" hidden>{$t`Starts the task`}</span>
+    {#if !drilledIn}
+      <Collapsible.Root open={showHelp} onOpenChange={open => open ? (helpOpen = animateHelp = true) : dismissHelp()}>
+        <p class="text-muted-foreground">
+          {$t`Fill in what's missing, a few at a time.`}
+          <!-- Plain primary is too dark to read as text on the dark background. -->
+          <Collapsible.Trigger id="tasks-help-link"
+            class="text-primary inline-flex cursor-pointer items-center gap-1 font-medium whitespace-nowrap hover:underline dark:text-[color-mix(in_oklab,var(--primary)_70%,white)] [&[data-state=open]>.i-mdi-chevron-down]:rotate-180">
+            {$t`How tasks work`}
+            <i class="i-mdi-chevron-down size-4 transition-transform"></i>
+          </Collapsible.Trigger>
+        </p>
+        <!-- The gap (mt-4) is inside so it animates too; the padding keeps the card shadow unclipped. -->
+        <Collapsible.Content id="tasks-help" class="-mx-1 overflow-hidden px-1 pb-1 {animateHelp ? '' : 'data-[state=open]:animate-none'}">
+          <Card.Root class="mt-4 py-4">
+            <Card.Content class="flex flex-col items-start gap-3">
+              <ol class="flex list-decimal flex-col gap-1 ps-5">
+                <li>{$t`Pick what's missing, like a Gloss or an Example sentence.`}</li>
+                <li>{$t`If there's more than one language, pick one.`}</li>
+                <li>{pt($t`You'll see the entries that need it, a few at a time. Fill them in or skip them.`, $t`You'll see the words that need it, a few at a time. Fill them in or skip them.`, viewService.currentView)}</li>
+              </ol>
+              <Button variant="secondary" size="sm" onclick={closeHelp}>{$t`Got it`}</Button>
+            </Card.Content>
+          </Card.Root>
+        </Collapsible.Content>
+      </Collapsible.Root>
+      {#if recentTasks.length}
+        <section class="flex flex-col gap-3">
+          <h2 class="flex items-center gap-1.5 text-base font-semibold">
+            <Icon icon="i-mdi-history" class="text-muted-foreground size-4" />{$t`Recent`}
+          </h2>
+          <ul class="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-3">
+            {#each recentTasks as task (task.id)}
+              {@const ws = writingSystemOf(task)}
+              <li>
+                <button type="button" data-recent-task-id={task.id} aria-describedby="task-starts-hint" onclick={() => openTask(task, 'recent')}
+                  class="bg-card hover:bg-accent focus-visible:ring-ring/50 flex size-full items-center gap-3 rounded-lg border px-4 py-3 text-start focus-visible:ring-[3px] focus-visible:outline-none">
+                  <span class="flex min-w-0 grow flex-col">
+                    <span class="flex flex-wrap items-baseline gap-x-2 md:flex-col md:items-start">
+                      <span class="font-medium">{text(taskLabel(task))}</span>
+                      {#if ws}<span class="text-sm">{@render wsName(ws)}</span>{/if}
+                    </span>
+                    <span class="text-muted-foreground text-sm tabular-nums">{@render progress(task)}</span>
+                  </span>
+                  <Icon icon="i-mdi-play" class="text-primary size-5 shrink-0" aria-hidden="true" />
+                </button>
+              </li>
+            {/each}
+          </ul>
+        </section>
+      {/if}
+    {/if}
+
+    <section class="flex flex-col gap-3">
+      {#if !drilledIn}<h2 id="task-list-heading" tabindex="-1" class="text-base font-semibold outline-none">{$t`All tasks`}</h2>{/if}
+      <div class="grid items-start gap-6 md:grid-cols-[repeat(2,minmax(0,28rem))]">
+        {#if !drilledIn}
+          <div class="flex flex-col gap-5" bind:this={fieldColumn} bind:offsetHeight={listHeight}>
+            {#each entities as {entity, label, fields: entityFields} (entity)}
+              <div class="flex flex-col gap-2">
+                <h3 class="text-muted-foreground text-sm font-medium">{label}</h3>
+                <!-- Not overflow-hidden: it would clip the selected row's pointer. -->
+                <ul class="flex flex-col divide-y rounded-lg border [&>li:first-child>button]:rounded-t-lg [&>li:last-child>button]:rounded-b-lg">
+                  {#each entityFields as field (field.key)}
+                    {@const done = field.tasks.every(isDone)}
+                    {@const direct = directTask(field)}
+                    {@const ws = direct && writingSystemOf(direct)}
+                    {@const selected = field.key === pickedField?.key}
+                    <li class="relative">
+                      <ChoiceRow
+                        data-field-key={field.key}
+                        data-task-id={direct?.id}
+                        aria-describedby={direct ? 'task-starts-hint' : undefined}
+                        {selected}
+                        starts={!!direct}
+                        class={done ? 'text-muted-foreground' : ''}
+                        onclick={(event) => direct ? openTask(direct, 'list') : pickField(field, event)}>
+                        <span class="flex flex-wrap items-baseline gap-x-2">
+                          <span class="font-medium">{field.label}</span>
+                          {#if ws}<span class="text-sm">{@render wsName(ws)}</span>{/if}
+                        </span>
+                        <span class="text-sm {selected ? 'text-foreground/75' : 'text-muted-foreground'}">{field.description}</span>
+                        {#if direct && !done}
+                          <span class="text-muted-foreground text-sm tabular-nums">{@render progress(direct)}</span>
+                        {/if}
+                        {#snippet trailing()}
+                          {#if done}{@render doneMark()}{/if}
+                        {/snippet}
+                      </ChoiceRow>
+                      {#if selected && !IsMobile.value}
+                        <!-- Points at the language panel. An opaque copy of the row's tint, since it overlaps the border. -->
+                        <span aria-hidden="true"
+                          class="absolute -end-2.5 top-1/2 size-5 -translate-y-1/2 rotate-45 border-t border-r bg-[color-mix(in_oklab,var(--primary)_15%,var(--background))] dark:bg-[color-mix(in_oklab,var(--primary)_25%,var(--background))] rtl:border-t-0 rtl:border-r-0 rtl:border-b rtl:border-l"></span>
+                      {/if}
+                    </li>
+                  {/each}
+                </ul>
+              </div>
+            {/each}
+          </div>
+        {/if}
+
+        {#if pickedField}
+          <!-- A spacer rather than a margin: sticky can slide the panel up over a sibling, but not over its own margin. -->
+          <div class="md:self-stretch">
+            <div aria-hidden="true" class="max-md:hidden" style:height="{panelOffset}px"></div>
+            <div bind:this={panel} bind:offsetHeight={panelHeight}
+              class="flex flex-col gap-4 md:sticky md:top-0 md:bottom-0 md:max-h-[calc(100dvh-6rem)] md:overflow-y-auto md:rounded-lg md:border md:border-primary/25 md:bg-primary/5 md:p-4 md:dark:bg-primary/10">
+              <div class="flex items-start gap-1">
+                {#if drilledIn}
+                  <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}} aria-label={$t`Back to all tasks`} onclick={() => fieldParam.current = ''} />
+                {/if}
+                <div class="flex min-w-0 flex-wrap items-baseline gap-x-2 {drilledIn ? 'pt-1.5' : ''}">
+                  <h3 id="task-languages-heading" tabindex="-1" class="text-base font-semibold outline-none">{pickedField.label}</h3>
+                  {#if drilledIn}<p class="text-muted-foreground text-sm">{pickedField.description}</p>{/if}
+                </div>
+              </div>
+              {#each languageGroups as group (group.label)}
+                <div class="flex flex-col gap-2">
+                  {#if group.label}<h4 class="text-muted-foreground text-sm font-medium">{group.label}</h4>{/if}
+                  <ul class="bg-background flex flex-col divide-y overflow-hidden rounded-lg border">
+                    {#each group.tasks as task (task.id)}
+                      {@render languageRow(task)}
+                    {/each}
+                  </ul>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {:else if hasLanguageStep && !IsMobile.value}
+          <p class="text-muted-foreground mt-7 rounded-lg border border-dashed p-4 text-sm">
+            {$t`Pick what's missing to get started.`}
+          </p>
+        {/if}
+      </div>
+    </section>
   </div>
 {/if}

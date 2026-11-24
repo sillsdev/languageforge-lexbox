@@ -48,13 +48,14 @@ export const FW_LITE_VIEW: RootView = {
   ...builtInFieldsToViewFields({
     entry: {
       lexemeForm: {show: true, order: 1},
-      citationForm: {show: true, order: 2},
-      complexForms: {show: true, order: 3},
-      complexFormTypes: {show: false, order: 4},
-      components: {show: true, order: 5},
-      literalMeaning: {show: false, order: 6},
-      note: {show: true, order: 7},
-      publishIn: {show: false, order: 8},
+      morphType: {show: false, order: 2},
+      citationForm: {show: true, order: 3},
+      complexForms: {show: true, order: 4},
+      complexFormTypes: {show: false, order: 5},
+      components: {show: true, order: 6},
+      literalMeaning: {show: false, order: 7},
+      note: {show: true, order: 8},
+      publishIn: {show: false, order: 9},
     },
     sense: {
       gloss: {show: true, order: 1},

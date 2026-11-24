@@ -7,8 +7,7 @@
   import {tvt} from '$lib/views/view-text';
   import {cn} from '$lib/utils';
   import {usePublications, useWritingSystemService} from '$project/data';
-  import {useMorphTypesService} from '$project/data/morph-types.svelte';
-  import {t} from 'svelte-i18n-lingui';
+  import {morphTypeLabel, useMorphTypesService} from '$project/data/morph-types.svelte';
   import DiffMultiString from './DiffMultiString.svelte';
   import DiffRichText from './DiffRichText.svelte';
   import DiffMultiSelect from './DiffMultiSelect.svelte';
@@ -35,23 +34,19 @@
   const viewFields = $derived(showChangedFields(viewService.currentView.entryFields, before, after, entryCompareAs));
   const changed = $derived(changedFieldIds(viewFields, before, after, entryCompareAs));
 
-  // The editor has no morph type field yet. A change to it shows right under the lexeme form, like in FLEx.
-  const morphTypeChanged = $derived(before?.morphType !== after?.morphType);
   // Shown by the anchor, here or in the caller's header
   const homographChanged = $derived((before?.homographNumber ?? 0) !== (after?.homographNumber ?? 0));
-  const anyChange = $derived(changed.size > 0 || morphTypeChanged || homographChanged);
+  const anyChange = $derived(changed.size > 0 || homographChanged);
 
   // Without a visible change there's nothing to focus on, so the whole entry shows.
   const diffFocus = provideDiffFocus(() => mode === 'changes' && anyChange);
   const focus = $derived(changesOnly(viewFields, changed, after, entryCompareAs));
   const entryFields = $derived(diffFocus.collapsed ? focus.fields : viewFields);
   const fields = $derived(fieldRecord(entryFields));
-  const layoutFields = $derived(entryFields.flatMap((field) =>
-    field.fieldId === 'lexemeForm' ? [field, {fieldId: 'morphType', show: morphTypeChanged}] : [field]));
 
-  function morphTypeLabel(kind: MorphTypeKind): string {
-    const morphType = morphTypes.current.find((m) => m.kind === kind);
-    return (morphType && writingSystemService.pickBestAlternative(morphType.name, 'analysis')) || kind;
+  function kindLabel(kind: MorphTypeKind): string {
+    const morphType = morphTypes.byKind(kind);
+    return morphType ? morphTypeLabel(morphType, writingSystemService) : kind;
   }
 </script>
 
@@ -63,7 +58,7 @@
 {/if}
 
 <!-- Hidden when empty, or its grid gap shows -->
-<Editor.SubGrid class={cn('gap-2', layoutFields.some((field) => field.show) || 'hidden')} style="grid-template-areas: {objectTemplateAreas(layoutFields)}">
+<Editor.SubGrid class={cn('gap-2', entryFields.some((field) => field.show) || 'hidden')} style="grid-template-areas: {objectTemplateAreas(entryFields)}">
   <Editor.Field.Root fieldId="lexemeForm" class={cn(fields.lexemeForm?.show || 'hidden')}>
     <Editor.Field.Title name={$tvt(entityConfig.entry.lexemeForm.label)} helpId={entityConfig.entry.lexemeForm.helpId} />
     <Editor.Field.Body subGrid>
@@ -72,10 +67,10 @@
     </Editor.Field.Body>
   </Editor.Field.Root>
 
-  <Editor.Field.Root style="grid-area: morphType" class={cn(morphTypeChanged || 'hidden')}>
-    <Editor.Field.Title name={$t`Morph type`} />
+  <Editor.Field.Root fieldId="morphType" class={cn(fields.morphType?.show || 'hidden')}>
+    <Editor.Field.Title name={$tvt(entityConfig.entry.morphType.label)} helpId={entityConfig.entry.morphType.helpId} />
     <Editor.Field.Body>
-      <DiffSelect before={before?.morphType} after={after?.morphType} idSelector={(kind) => kind} labelSelector={morphTypeLabel} />
+      <DiffSelect before={before?.morphType} after={after?.morphType} idSelector={(kind) => kind} labelSelector={kindLabel} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 

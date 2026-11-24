@@ -24,8 +24,12 @@
   import {slide} from 'svelte/transition';
   import {watch} from 'runed';
   import {computeCommandScore} from 'bits-ui';
+  import {inputVariants} from '../ui/input/input.svelte';
+  import {tryUseFieldBody} from '../editor/field/field-root.svelte';
 
   type Value = ReadonlyDeep<MutableValue>;
+
+  const labelledBy = tryUseFieldBody()?.labelId;
 
   let {
     values = $bindable(),
@@ -234,18 +238,15 @@
 
 {#snippet trigger({props}: {props: Record<string, unknown>})}
   <Button
-    disabled={readonly}
     bind:ref={triggerRef}
     variant="outline"
     {...props}
     role="combobox"
     aria-expanded={open}
-    class="w-full h-auto min-h-10 px-2 justify-between disabled:opacity-100 disabled:border-transparent"
+    class="w-full h-auto min-h-10 px-2 justify-between"
   >
     {@render displayBadges()}
-    {#if !readonly}
-      <Icon icon="i-mdi-chevron-down" class="size-5 shrink-0 opacity-50" />
-    {/if}
+    <Icon icon="i-mdi-chevron-down" class="size-5 shrink-0 opacity-50" />
   </Button>
 {/snippet}
 
@@ -330,7 +331,17 @@
   </CommandItem>
 {/snippet}
 
-{#if IsMobile.value}
+{#if readonly}
+  <div
+    role="textbox"
+    aria-readonly="true"
+    aria-labelledby={labelledBy}
+    tabindex="0"
+    class={cn(inputVariants(), 'h-auto min-h-10 px-2')}
+  >
+    {@render displayBadges()}
+  </div>
+{:else if IsMobile.value}
   <Drawer bind:open dismissible={!dirty}>
     <DrawerTrigger child={trigger} />
     <DrawerContent handle={true} class="overflow-hidden">

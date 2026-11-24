@@ -1,7 +1,13 @@
 import type {MorphTypeKind, IMorphType} from '$lib/dotnet-types';
+import type {ReadonlyDeep} from 'type-fest';
+import type {WritingSystemService} from './writing-system-service.svelte';
 
 import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 import {type ResourceReturn} from 'runed';
+
+export function morphTypeLabel(morphType: ReadonlyDeep<Pick<IMorphType, 'name' | 'kind'>>, writingSystemService: WritingSystemService): string {
+  return writingSystemService.pickBestAlternative(morphType.name, 'analysis') || morphType.kind;
+}
 
 const morphTypesSymbol = Symbol.for('fw-lite-morph-types');
 export function useMorphTypesService(): MorphTypesService {
@@ -42,6 +48,10 @@ export class MorphTypesService {
     });
     return result;
   });
+
+  byKind(kind: MorphTypeKind): IMorphType | undefined {
+    return this.current.find(morphType => morphType.kind === kind);
+  }
 
   getPrefix(kind: MorphTypeKind): string|undefined {
     return this.prefixes[kind];

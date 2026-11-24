@@ -11,10 +11,11 @@
       "inputs": [
         "default",
         "{workspaceRoot}/frontend/tests/envVars.ts",
-        "{workspaceRoot}/frontend/tests/pages/**/*"
+        "{workspaceRoot}/frontend/tests/pages/**/*",
+        "{workspaceRoot}/logos/fieldworks-lite/**/*"
       ],
       "metadata": {
-        "description": "Never run. Its `default` input (which includes nx.json's sharedGlobals) makes a shared-file change mark this project affected; the frontend/tests files are imported by the viewer's Playwright tests."
+        "description": "Never run. Its `default` input (which includes nx.json's sharedGlobals) makes a shared-file change mark this project affected; the frontend/tests files are imported by the viewer's Playwright tests, and the viewer imports logos from logos/fieldworks-lite."
       }
     }
   }
