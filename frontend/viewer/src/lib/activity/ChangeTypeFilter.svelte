@@ -108,10 +108,6 @@
     apply(next);
   }
 
-  function only(keys: string[]) {
-    apply(new Set(keys));
-  }
-
   function reset() {
     apply(new Set());
   }
@@ -136,7 +132,7 @@
   {@const types = visibleTypes(section)}
   {@const count = selectedCount(types)}
   {#if types.length}
-    <div class="group/header flex items-center gap-2 rounded-sm px-2 py-1.5 hover:bg-accent">
+    <div class="flex items-center gap-2 rounded-sm px-2 py-1.5 hover:bg-accent">
       <Checkbox
         checked={count === types.length}
         indeterminate={count > 0 && count < types.length}
@@ -155,23 +151,13 @@
         onclick={() => expanded.has(section.id) ? expanded.delete(section.id) : expanded.add(section.id)}>
         <Icon icon={isExpanded(section) ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'} class="size-4" />
       </button>
-      <button type="button"
-        class="text-xs text-muted-foreground hover:text-foreground [@media(hover:hover)]:opacity-0 [@media(hover:none)]:hidden group-hover/header:opacity-100 group-focus-within/header:opacity-100"
-        onclick={() => only(types.map((ct) => ct.key))}>
-        {$t`Only`}
-      </button>
     </div>
     {#if isExpanded(section)}
       {#each types as ct (ct.key)}
-        <div class="group/row flex items-center gap-2 rounded-sm py-1.5 pe-2 ps-7 hover:bg-accent">
+        <div class="flex items-center gap-2 rounded-sm py-1.5 pe-2 ps-7 hover:bg-accent">
           <Checkbox checked={selectedSet.has(ct.key)} onCheckedChange={() => toggleType(ct.key)} aria-label={typeLabel(ct)} />
           <button type="button" class="grow text-start text-sm" onclick={() => toggleType(ct.key)}>
             {typeLabel(ct)}
-          </button>
-          <button type="button"
-            class="text-xs text-muted-foreground hover:text-foreground [@media(hover:hover)]:opacity-0 [@media(hover:none)]:hidden group-hover/row:opacity-100 group-focus-within/row:opacity-100"
-            onclick={() => only([ct.key])}>
-            {$t`Only`}
           </button>
         </div>
       {/each}

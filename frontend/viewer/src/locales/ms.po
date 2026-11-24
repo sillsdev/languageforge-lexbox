@@ -3196,12 +3196,6 @@ msgstr "Satu komit FieldWorks Classic mungkin terdiri daripada perubahan pada be
 msgid "Online, a plugin can send this project's data to any website."
 msgstr ""
 
-#. Short hover button on a filter row: select only this row and clear the others.
-#: src/lib/activity/ChangeTypeFilter.svelte
-#: src/lib/activity/ChangeTypeFilter.svelte
-msgid "Only"
-msgstr ""
-
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
 msgstr ""

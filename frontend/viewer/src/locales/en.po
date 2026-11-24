@@ -3191,12 +3191,6 @@ msgstr "One FieldWorks Classic commit may consist of changes to multiple entries
 msgid "Online, a plugin can send this project's data to any website."
 msgstr "Online, a plugin can send this project's data to any website."
 
-#. Short hover button on a filter row: select only this row and clear the others.
-#: src/lib/activity/ChangeTypeFilter.svelte
-#: src/lib/activity/ChangeTypeFilter.svelte
-msgid "Only"
-msgstr "Only"
-
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
 msgstr "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
