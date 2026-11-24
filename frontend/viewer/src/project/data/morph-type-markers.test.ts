@@ -86,6 +86,7 @@ describe('morph type markers', () => {
     ['ab', K.Circumfix, {stored: 'ab', problem: {kind: 'incompleteCircumfix'}}],
     [' -b', K.Circumfix, {stored: 'b', problem: {kind: 'incompleteCircumfix'}}],
     ['a- ~b', K.Circumfix, {stored: 'a- ~b', problem: {kind: 'incompleteCircumfix'}}],
+    ['asd- asd', K.Circumfix, {stored: 'asd- asd', problem: {kind: 'incompleteCircumfix'}}],
   ])('%j as %s is checked as %j', (form, chosen, check) => {
     expect(checkLexemeForm(form, chosen, morphTypes)).toEqual(check);
   });

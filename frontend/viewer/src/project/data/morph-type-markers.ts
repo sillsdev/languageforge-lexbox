@@ -78,10 +78,7 @@ function circumfixParts(form: string): [left: string, right: string] | undefined
 
 // Not in FLEx, which reads "a- -b" as a phrase
 function looksLikeCircumfix(form: string, morphTypes: MarkerSource[]): boolean {
-  const parts = circumfixParts(form);
-  if (!parts || !morphTypes.some(mt => mt.kind === MorphTypeKind.Circumfix)) return false;
-  const [left, right] = parts.map(part => findMorphType(part, morphTypes));
-  return left.valid && !!left.trailing && right.valid && !!right.leading;
+  return morphTypes.some(mt => mt.kind === MorphTypeKind.Circumfix) && isCompleteCircumfix(form, morphTypes);
 }
 
 export function stripMarkers(form: string, match: Pick<MorphTypeMatch, 'leading' | 'trailing'>): string {
@@ -128,8 +125,12 @@ export function checkLexemeForm(form: string, chosen: MorphTypeKind, morphTypes:
   return {stored};
 }
 
+// Stricter than FLEx, which only needs both parts to be valid forms
 function isCompleteCircumfix(form: string, morphTypes: MarkerSource[]): boolean {
-  return circumfixParts(form)?.every(part => part.trim() && findMorphType(part, morphTypes).valid) ?? false;
+  const parts = circumfixParts(form);
+  if (!parts) return false;
+  const [left, right] = parts.map(part => findMorphType(part, morphTypes));
+  return left.valid && !!left.trailing && right.valid && !!right.leading;
 }
 
 // Forms that keep one of the typed markers, e.g. "~a~" for "a~"

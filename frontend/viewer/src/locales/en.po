@@ -255,8 +255,8 @@ msgid "3. Try it here"
 msgstr "3. Try it here"
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
-msgid "A circumfix has two parts with a space between them, like \"a- -b\"."
-msgstr "A circumfix has two parts with a space between them, like \"a- -b\"."
+msgid "A circumfix is two parts with their markers and a space between them, like \"a- -b\"."
+msgstr "A circumfix is two parts with their markers and a space between them, like \"a- -b\"."
 
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte

@@ -112,8 +112,8 @@ test.describe('New entry morph type', () => {
     await expect(morphTypeSelect(dialog)).toHaveText('stem');
     await lexemeInput(dialog).fill('a- -b');
     await expect(morphTypeSelect(dialog)).toHaveText('circumfix');
-    await morphTypeSelect(dialog).click();
-    await page.getByRole('option', {name: 'stem', exact: true}).click();
+    await lexemeInput(dialog).fill('a- b');
+    await expect(morphTypeSelect(dialog)).toHaveText('phrase');
     await lexemeInput(dialog).fill('-zed');
 
     await dialog.getByRole('button', {name: /add word/i}).click();

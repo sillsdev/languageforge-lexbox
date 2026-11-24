@@ -81,18 +81,21 @@
   // The markers only override a picked type they contradict, so a picked root survives typing but "-ed" makes a suffix.
   // A picked circumfix stays too: typing its left part ("a-") reads as a prefix.
   let morphTypeAnnouncement = $state('');
+  let circumfixPicked = $state(false);
   $effect(() => {
     if (!detectedKind) return;
     const chosen = untrack(() => entry.morphType);
-    if (chosen === MorphTypeKind.Circumfix || fitsMorphType(chosen, detectedKind)) return;
+    if (untrack(() => circumfixPicked) || fitsMorphType(chosen, detectedKind)) return;
     entry.morphType = detectedKind;
     const morphType = morphTypes.byKind(detectedKind);
     morphTypeAnnouncement = $t`Morph type: ${morphType ? morphTypeLabel(morphType, writingSystemService) : detectedKind}`;
   });
 
   function onEntryFieldChanged(_entry: IEntry, field: EntryFieldId) {
+    if (field !== 'morphType') return;
+    circumfixPicked = entry.morphType === MorphTypeKind.Circumfix;
     // FLEx leaves circumfix forms alone: their markers vary
-    if (field !== 'morphType' || entry.morphType === MorphTypeKind.Circumfix) return;
+    if (circumfixPicked) return;
     for (const ws of writingSystemService.vernacularNoAudio) {
       const form = entry.lexemeForm[ws.wsId];
       if (!form?.trim()) continue;
@@ -126,7 +129,7 @@
         return {message: $t`For morph type ${label}, type "${expected}".`, severity: 'error'};
       }
       case 'incompleteCircumfix':
-        return {message: $t`A circumfix has two parts with a space between them, like "a- -b".`, severity: 'error'};
+        return {message: $t`A circumfix is two parts with their markers and a space between them, like "a- -b".`, severity: 'error'};
       case 'leftoverMarker':
         return {message: $t`"${form}" will be saved as "${stored}". Is there an extra "${problem.marker}"?`, severity: 'warning'};
     }
@@ -227,6 +230,7 @@
       publishInIsFromTemplate = undefined;
       entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
       affixTyped = false;
+      circumfixPicked = false;
       submitted = false;
       morphTypeAnnouncement = '';
       addMainPublicationPromise = addMainPublication(entry.id);
