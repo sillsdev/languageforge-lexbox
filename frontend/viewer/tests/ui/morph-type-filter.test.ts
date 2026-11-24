@@ -31,6 +31,18 @@ test('Lite morph type preset follows the view and Reset', async ({page}) => {
     await expect(resetButton).toBeDisabled();
   });
 
+  await test.step('Picking a kind or a group header updates the selection', async () => {
+    await page.getByRole('button', {name: 'Show all'}).click();
+    await morphTypeTrigger('Any morph type').click();
+    await page.getByRole('option', {name: 'stem', exact: true}).click();
+    await expect(morphTypeTrigger('Affixes')).toBeVisible();
+
+    await page.getByRole('option', {name: 'Words and phrases'}).click();
+    await expect(morphTypeTrigger('Any morph type')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('option', {name: 'Words and phrases'})).toBeHidden();
+  });
+
   await test.step('Classic has no morph type filter', async () => {
     await page.keyboard.press('Escape');
     await page.getByRole('button').filter({has: page.locator('.i-mdi-layers')}).click();

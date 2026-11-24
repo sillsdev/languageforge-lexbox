@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import {MorphTypeKind, ViewBase} from '$lib/dotnet-types';
 import {AFFIXES, CLITICS, WORDS_AND_PHRASES} from '$project/data/morph-type-groups';
-import {sameFilter, toggleAll, toggleGroup, toggleKind, toGridify, viewDefaultMorphTypeFilter} from './morph-type-filter';
+import {checkState, sameFilter, toggleAll, toggleGroup, toggleKind, toGridify, viewDefaultMorphTypeFilter} from './morph-type-filter';
 
 const {Prefix: prefix, Stem: stem, Suffix: suffix, Root: root} = MorphTypeKind;
 // Like the demo project: lists only a few kinds
@@ -44,6 +44,19 @@ describe('morph type filter', () => {
 
   it('toggling a kind off from all keeps the other listed kinds', () => {
     expect(toggleKind('all', stem, listed)).toEqual([prefix, suffix]);
+  });
+
+  it('toggling a kind on adds just that kind', () => {
+    expect(toggleKind([], stem, listed)).toEqual([stem]);
+  });
+
+  it('toggling a partly selected group selects the whole group', () => {
+    expect(checkState([prefix], AFFIXES.filter(k => listed.includes(k)))).toBe('some');
+    expect(toggleGroup([prefix], AFFIXES, [prefix, suffix, root])).toEqual(AFFIXES);
+  });
+
+  it('toggling a group off from all keeps the other listed kinds', () => {
+    expect(toggleGroup('all', AFFIXES, listed)).toEqual([stem]);
   });
 
   it('toggles all on and off', () => {
