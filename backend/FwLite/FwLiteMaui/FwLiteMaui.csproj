@@ -112,9 +112,9 @@
          Link names the generated icon "appicon", which AndroidManifest.xml and the Info.plist XSAppIconAssets refer to. -->
     <MauiIcon Condition="'$(TargetPlatform)' == 'ios'" Include="$(FwLiteLogos)fieldworks-lite-appicon-square.svg" Link="appicon.svg" />
     <MauiIcon Condition="'$(TargetPlatform)' == 'maccatalyst'" Include="$(FwLiteLogos)fieldworks-lite-appicon-macos.svg" Link="appicon.svg" />
-    <!-- The logo guide (index.html) sizes the book at 75% of the visible 72dp icon: 0.75 * 72/108.
+    <!-- The logo guide (index.html) sizes the book at 85% of the visible 72dp icon: 0.85 * 72/108.
          Resizetizer doesn't notice a ForegroundScale change: clean obj before checking a new value. -->
-    <MauiIcon Condition="'$(TargetPlatform)' == 'android'" Include="$(FwLiteLogos)fieldworks-lite-circle.svg" Link="appicon.svg" Color="#ffffff" ForegroundScale="0.5" />
+    <MauiIcon Condition="'$(TargetPlatform)' == 'android'" Include="Resources\AppIcon\launcher.svg" Link="appicon.svg" Color="#ffffff" ForegroundScale="0.57" />
     <!-- Reversed because the .ico (portable app, window) has one drawing for both themes, and the light one nearly vanishes on a dark taskbar.
          The MSIX taskbar icons are swapped per theme and size by FwLiteMsixTaskbarIcons below. -->
     <MauiIcon Condition="'$(TargetPlatform)' != 'ios' And '$(TargetPlatform)' != 'maccatalyst' And '$(TargetPlatform)' != 'android'" Include="$(FwLiteLogos)fieldworks-lite-small-reversed.svg" Link="appicon.svg" />

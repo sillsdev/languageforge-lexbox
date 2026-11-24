@@ -23,7 +23,7 @@ drawing wherever it works; the `-reversed` file is the fallback for grounds it c
 | App stores and iOS | `fieldworks-lite-appicon-square.svg` (a full square with no transparency; the platform rounds the corners) |
 | macOS | `fieldworks-lite-appicon-macos.svg` (Apple's icon grid, margin included) |
 | An app icon shown as it is (web pages, documents) | `fieldworks-lite-appicon.svg` |
-| Anything cropped to a circle (Android launcher layers, profile pictures) | `fieldworks-lite-circle.svg`; `fieldworks-lite-onecolor-circle.svg` for Android themed icons; `fieldworks-lite-reversed-circle.svg` only where the circle must be dark. As an Android launcher layer, put the book on white at about 75% of the visible icon, the room other apps leave |
+| Anything cropped to a circle (Android launcher layers, profile pictures) | `fieldworks-lite-circle.svg`; `fieldworks-lite-onecolor-circle.svg` for Android themed icons; `fieldworks-lite-reversed-circle.svg` only where the circle must be dark. As an Android launcher layer, put the book on white at 85% of the visible icon, moved halfway from the circle centring to the book's box centre (viewBox `2.875 1.8125 256 256`) |
 | Windows and Linux taskbars | the drawing for the size, no box: `-tiny` at 24 to 32 px, `-small` at 48, the full drawing at 256; `-reversed` on a dark taskbar |
 | Print in one ink | `fieldworks-lite-onecolor.svg` (any single colour; inline in a web page it takes the text colour) |
 | Vinyl, embroidery, engraving, stamps | `fieldworks-lite-mono.svg` (black lines on white). Its lines are 1% of its width, so use it large: at 25 mm wide they are 0.26 mm |

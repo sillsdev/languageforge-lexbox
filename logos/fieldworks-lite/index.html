@@ -198,7 +198,7 @@ footer { border-top:1px solid var(--line); padding-top:16px; font-size:13px; col
     </div>
     <div class="use wide">
       <div class="phone android" id="phone-android"></div>
-      <div class="cap">Android at 60 px. The phone or launcher picks the shape, so the app gives Android two layers, a white background and the book (<code>-circle.svg</code>), scaled to 75% so it has the same room as the other apps on a Pixel home screen. The icon looks the same in light and dark mode: Android has no dark app icon. Themed icons (Android 13 and later) swap our colours for a one-colour layer tinted to the wallpaper; the one-colour drawing stands in for it here. The navy fallback (<code>-reversed-circle.svg</code> on navy) is only for a store or launcher that needs a dark icon.</div>
+      <div class="cap">Android at 60 px. The phone or launcher picks the shape, so the app gives Android two layers, a white background and the book (<code>-circle.svg</code>), at 85% of the icon and nudged slightly up and left of the file's circle centring, so it fills the plate without crowding the edge and reads as centred. The icon looks the same in light and dark mode: Android has no dark app icon. Themed icons (Android 13 and later) swap our colours for a one-colour layer tinted to the wallpaper; the one-colour drawing stands in for it here. The navy fallback (<code>-reversed-circle.svg</code> on navy) is only for a store or launcher that needs a dark icon.</div>
     </div>
     <div class="use wide">
       <div class="phone ios" id="phone-ios"></div>
@@ -291,7 +291,7 @@ const PICK = [
   ["App icon, rounded", "Web pages, documents, anywhere the icon is shown as it is", `${N}-appicon.svg`, "bare", [[`${N}-appicon.svg`, "SVG"]]],
   ["App icon without a box", "Windows and Linux: the drawing for each size (tiny at 24 to 32, small at 48, full at 256); reversed on dark taskbars", `${N}-tiny.svg`, false, [[`${N}-tiny.svg`, "SVG 24-47"], [`${N}-tiny-reversed.svg`, "SVG dark"], [`${N}-small.svg`, "SVG 48-95"], [`${N}.svg`, "SVG 96+"]]],
   ["Website favicon", "The browser tab icon: link both, the ICO first so browsers that take SVG pick the SVG", "favicon.svg", false, [["favicon.svg", "SVG (dark-aware)"], ["favicon.ico", "ICO 16/32/48"]]],
-  ["Cropped to a circle", "Android launcher layer (on white, book at 75%), profile pictures: the book centred in the circle, not the square", `${N}-circle.svg`, false, [[`${N}-circle.svg`, "SVG light"], [`${N}-reversed-circle.svg`, "SVG dark"], [`${N}-onecolor-circle.svg`, "SVG one colour"]]],
+  ["Cropped to a circle", "Android launcher layer (on white, book at 85%), profile pictures: the book centred in the circle, not the square", `${N}-circle.svg`, false, [[`${N}-circle.svg`, "SVG light"], [`${N}-reversed-circle.svg`, "SVG dark"], [`${N}-onecolor-circle.svg`, "SVG one colour"]]],
   ["Large: 96 px and up", "Slides, documents, About screen, web pages", `${N}.svg`, false, [[`${N}.svg`, "SVG"]]],
   ["Large on navy or dark", "Same, on dark grounds", `${N}-reversed.svg`, true, [[`${N}-reversed.svg`, "SVG"]]],
   ["Small: 48 to 95 px", "Cards, project lists, splash screens", `${N}-small.svg`, false, [[`${N}-small.svg`, "SVG"], [`${N}-small-reversed.svg`, "SVG dark"]]],
@@ -333,8 +333,8 @@ const SHAPES = {
   ios: '<rect width="256" height="256" rx="57"/>',
 };
 let uid = 0;
-const icon = ({ shape, bg, f, k = 1, tint, appicon = false }) => {
-  const id = `ic${uid++}`, place = `transform="translate(128 128) scale(${k}) translate(-128 -128)"`;
+const icon = ({ shape, bg, f, k = 1, tint, appicon = false, nudge = [0, 0] }) => {
+  const id = `ic${uid++}`, place = `transform="translate(128 128) scale(${k}) translate(${-128 - nudge[0]} ${-128 - nudge[1]})"`;
   const fg = tint
     ? `<mask id="${id}m" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="256" height="256"><image href="${F[f][0]}" width="256" height="256" ${place}/></mask><rect width="256" height="256" fill="${tint}" mask="url(#${id}m)"/>`
     : `<image href="${F[f][0]}" width="256" height="256" ${appicon ? "" : place}/>`;
@@ -345,14 +345,16 @@ const icon = ({ shape, bg, f, k = 1, tint, appicon = false }) => {
 const app = (svg, label, bad = false) => `<div class="app${bad ? " bad" : ""}">${svg}<span>${label}</span></div>`;
 const REV = `${N}-reversed.svg`, ONE = `${N}-onecolor.svg`, CIRC = `${N}-circle.svg`, REVC = `${N}-reversed-circle.svg`, ONEC = `${N}-onecolor-circle.svg`;
 const ICON_K = 0.817;   // the app icons' book size against the full drawing's (which fills 96% of its box)
+// Android launcher: the -circle cut at 85% of the visible icon, moved halfway from its circle centring to the book's box centre.
+const DROID = { k: 0.85, nudge: [2.875, 1.8125] };
 $("#phone-android").innerHTML = [
-  app(icon({ shape: "circle", bg: "#ffffff", f: CIRC, k: 0.75 }), "Circle (Pixel)"),
-  app(icon({ shape: "squircle", bg: "#ffffff", f: CIRC, k: 0.75 }), "Squircle"),
-  app(icon({ shape: "teardrop", bg: "#ffffff", f: CIRC, k: 0.75 }), "Teardrop"),
-  app(icon({ shape: "rounded", bg: "#ffffff", f: CIRC, k: 0.75 }), "Rounded square"),
-  app(icon({ shape: "circle", bg: "#d3e3fd", f: ONEC, k: 0.75, tint: "#0b2c5c" }), "Themed, light"),
-  app(icon({ shape: "circle", bg: "#20304a", f: ONEC, k: 0.75, tint: "#bcd3f7" }), "Themed, dark"),
-  app(icon({ shape: "circle", bg: "#1f2a44", f: REVC, k: 0.75 }), "Navy fallback"),
+  app(icon({ shape: "circle", bg: "#ffffff", f: CIRC, ...DROID }), "Circle (Pixel)"),
+  app(icon({ shape: "squircle", bg: "#ffffff", f: CIRC, ...DROID }), "Squircle"),
+  app(icon({ shape: "teardrop", bg: "#ffffff", f: CIRC, ...DROID }), "Teardrop"),
+  app(icon({ shape: "rounded", bg: "#ffffff", f: CIRC, ...DROID }), "Rounded square"),
+  app(icon({ shape: "circle", bg: "#d3e3fd", f: ONEC, ...DROID, tint: "#0b2c5c" }), "Themed, light"),
+  app(icon({ shape: "circle", bg: "#20304a", f: ONEC, ...DROID, tint: "#bcd3f7" }), "Themed, dark"),
+  app(icon({ shape: "circle", bg: "#1f2a44", f: REVC, ...DROID }), "Navy fallback"),
 ].join("");
 $("#phone-ios").innerHTML = [
   app(icon({ shape: "ios", bg: "#1f2a44", f: `${N}-appicon-square.svg`, appicon: true }), "Default"),
