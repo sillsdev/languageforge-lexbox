@@ -30,7 +30,7 @@ const cases: {entity: 'entry' | 'sense' | 'example'; model: string; file: string
 
 // Model keys a primitive shows outside the view's fields, so their changes count as visible.
 const SHOWN_OUTSIDE_VIEW: Partial<Record<EntityType, string[]>> = {
-  entry: ['morphType', 'homographNumber'],
+  entry: ['homographNumber'],
 };
 
 // Model keys whose changes a primitive doesn't show: a change to only these reads "No visible changes".

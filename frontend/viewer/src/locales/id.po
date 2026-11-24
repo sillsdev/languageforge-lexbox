@@ -62,6 +62,10 @@ msgstr ""
 msgid "“{0}” will ask before making changes again."
 msgstr ""
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" will be saved as \"{1}\". Is there an extra \"{2}\"?"
+msgstr ""
+
 #. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
 #. Shown in place of the sense's number and gloss; "sense" is "meaning" in the Lite view
 #: src/lib/activity/ActivityItemChangePreview.svelte
@@ -269,6 +273,10 @@ msgstr ""
 
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "3. Try it here"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "A circumfix is two parts with their markers and a space between them, like \"a- -b\"."
 msgstr ""
 
 #. Relevant view: Lite
@@ -543,8 +551,8 @@ msgstr ""
 msgid "Advanced: settings file"
 msgstr "Tingkat Lanjut: berkas pengaturan"
 
-#. Group header in the morph type filter list. Affixes are bound morphemes added to a stem (prefix, suffix, infix...).
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists. Affixes are bound morphemes added to a stem (prefix, suffix, infix...).
+#: src/project/data/morph-type-groups.ts
 msgid "Affixes"
 msgstr ""
 
@@ -910,6 +918,10 @@ msgstr ""
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Mengubah bidang yang sama dua kali, misalnya, dapat menghasilkan dua komit namun hanya satu perubahan yang perlu diterapkan ke FieldWorks Classic. Commit juga dapat terdiri dari beberapa perubahan."
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Check the markers in \"{0}\". Did you mean {1}?"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Checking for similar words…"
 #. Status line in the New Entry dialog while searching for possible duplicate entries
@@ -965,8 +977,8 @@ msgstr "jelas"
 msgid "Cleared {0}"
 msgstr ""
 
-#. Group header in the morph type filter list. Clitics are bound forms that act like words but attach phonologically to a neighbor (proclitic, enclitic).
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists. Clitics are bound forms that act like words but attach phonologically to a neighbor (proclitic, enclitic).
+#: src/project/data/morph-type-groups.ts
 msgid "Clitics"
 msgstr ""
 
@@ -2099,6 +2111,10 @@ msgstr ""
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "Untuk pertanyaan lainnya, silakan kirimkan email kepada kami."
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "For morph type {0}, type \"{1}\"."
+msgstr ""
+
 #: src/home/OpenFromFolderItem.svelte
 msgid "From a USB drive or shared folder"
 msgstr ""
@@ -2720,10 +2736,14 @@ msgstr ""
 msgid "morph type"
 msgstr ""
 
-#: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
 #: src/lib/plugins/plugin-api-adapter.ts
+#: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Morph type"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Morph type: {0}"
 msgstr ""
 
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Morph types classify the morphological status of entries (e.g. "root", "stem", "bound stem").
@@ -3012,6 +3032,7 @@ msgstr "Tidak ada kata yang ditemukan"
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
 msgid "None"
 msgstr "Tidak ada"
 
@@ -3208,8 +3229,8 @@ msgstr "Menonaktifkan fitur analitik"
 msgid "orange"
 msgstr "oranye"
 
-#. Group header in the morph type filter list for morph types that are not words and phrases, affixes, or clitics.
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists for morph types that are not words and phrases, affixes, or clitics.
+#: src/project/data/morph-type-groups.ts
 msgid "Other"
 msgstr ""
 
@@ -4463,6 +4484,14 @@ msgstr ""
 msgid "The entry's main form, for entries that have none yet"
 msgstr ""
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "The markers in \"{0}\" are for a custom morph type. FieldWorks Lite can't create those yet."
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "The markers in \"{0}\" can't be used this way."
+msgstr ""
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to change the dictionary"
 msgstr ""
@@ -4897,6 +4926,7 @@ msgstr ""
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/diff-view/DiffAnchor.svelte
 #: src/lib/entry-editor/diff-view/DiffMultiSelect.svelte
 #: src/lib/entry-editor/diff-view/DiffSelect.svelte
@@ -5164,8 +5194,8 @@ msgstr "Kata atau makna:"
 msgid "words"
 msgstr ""
 
-#. Group header in the morph type filter list: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
+#: src/project/data/morph-type-groups.ts
 msgid "Words and phrases"
 msgstr ""
 

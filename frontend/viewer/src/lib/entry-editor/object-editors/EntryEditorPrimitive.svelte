@@ -1,12 +1,12 @@
 <script lang="ts">
   import * as Editor from '$lib/components/editor';
-  import type {IEntry} from '$lib/dotnet-types';
+  import {MorphTypeKind, type IEntry} from '$lib/dotnet-types';
   import {objectTemplateAreas, useViewService} from '$lib/views/view-service.svelte';
   import {fieldRecord} from '$lib/views/view-data';
   import {entityConfig, type EntryFieldId} from '../../views/entity-config';
   import {cn} from '$lib/utils';
   import {useComplexFormTypes, usePublications, useWritingSystemService} from '$project/data';
-  import {MultiSelect, MultiWsInput, RichMultiWsInput} from '$lib/components/field-editors';
+  import {MultiSelect, MultiWsInput, RichMultiWsInput, Select, type WsInputNote} from '$lib/components/field-editors';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
   import ComplexForms from '../field-editors/ComplexForms.svelte';
   import type {EditorSubGridProps} from '$lib/components/editor/editor-sub-grid.svelte';
@@ -14,6 +14,9 @@
   import {initSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
   import type {Snippet} from 'svelte';
   import {tvt} from '$lib/views/view-text';
+  import {morphTypeLabel, useMorphTypesService} from '$project/data/morph-types.svelte';
+  import {morphTypeGroup, morphTypeGroupIndex} from '$project/data/morph-type-groups';
+  import {t} from 'svelte-i18n-lingui';
 
   interface Props extends Omit<EditorSubGridProps, 'onchange'> {
     entry: IEntry;
@@ -22,6 +25,9 @@
     modalMode?: boolean;
     onchange?: (entry: IEntry, field: EntryFieldId) => void;
     publishInDescription?: Snippet;
+    /** Changing the morph type later can leave the lexeme form's markers inconsistent, so only a new entry may set it */
+    newEntry?: boolean;
+    lexemeFormNotes?: Partial<Record<string, WsInputNote>>;
   }
 
   const {
@@ -31,6 +37,8 @@
     autofocus = false,
     modalMode = false,
     publishInDescription,
+    newEntry = false,
+    lexemeFormNotes,
     ...rest
   }: Props = $props();
 
@@ -38,6 +46,7 @@
   const complexFormTypes = useComplexFormTypes();
   const publications = usePublications();
   const viewService = useViewService();
+  const morphTypes = useMorphTypesService();
   initSubjectContext(() => entry);
 
   function onFieldChanged(field: EntryFieldId) {
@@ -46,6 +55,11 @@
 
   const entryFields = $derived(viewService.currentView.entryFields);
   const fields = $derived(fieldRecord(entryFields));
+  const morphTypeOptions = $derived(morphTypes.current
+    .filter(mt => mt.kind !== MorphTypeKind.Unknown)
+    .map(mt => ({mt, group: morphTypeGroupIndex(mt.kind), label: morphTypeLabel(mt, writingSystemService)}))
+    .toSorted((a, b) => a.group - b.group || a.label.localeCompare(b.label))
+    .map(({mt}) => mt));
 </script>
 
 <Editor.SubGrid {...mergeProps(rest, { class: 'gap-2', style: { gridTemplateAreas: objectTemplateAreas(entryFields) } })}>
@@ -57,7 +71,26 @@
           bind:value={entry.lexemeForm}
           {readonly}
           {autofocus}
+          notes={lexemeFormNotes}
           writingSystems={writingSystemService.viewVernacular(viewService.currentView)} />
+    </Editor.Field.Body>
+  </Editor.Field.Root>
+
+  <Editor.Field.Root fieldId="morphType" class={cn(fields.morphType?.show || 'hidden')}>
+    <Editor.Field.Title name={$tvt(entityConfig.entry.morphType.label)} helpId={entityConfig.entry.morphType.helpId} />
+    <Editor.Field.Body>
+      <Select
+        value={morphTypes.byKind(entry.morphType)}
+        options={morphTypeOptions}
+        labelSelector={(mt) => morphTypeLabel(mt, writingSystemService)}
+        idSelector="id"
+        groupSelector={(mt) => $t(morphTypeGroup(mt.kind).label)}
+        readonly={readonly || !newEntry}
+        onchange={(mt) => {
+          if (!mt) return;
+          entry.morphType = mt.kind;
+          onFieldChanged('morphType');
+        }} />
     </Editor.Field.Body>
   </Editor.Field.Root>
 

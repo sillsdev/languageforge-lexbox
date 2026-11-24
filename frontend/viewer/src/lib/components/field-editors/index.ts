@@ -6,3 +6,4 @@ import RichMultiWsInput from './rich-multi-ws-input.svelte';
 import RichWsInput from './rich-ws-input.svelte';
 
 export {MultiSelect, Select, WsInput, RichWsInput, MultiWsInput, RichMultiWsInput};
+export type {WsInputNote} from './multi-ws-input.svelte';
