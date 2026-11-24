@@ -32,7 +32,6 @@
   import type {WsInputNote} from '$lib/components/field-editors';
   import type {EntryFieldId} from '$lib/views/entity-config';
   import {morphTypeLabel, useMorphTypesService} from '$project/data/morph-types.svelte';
-  import {WORDS_AND_PHRASES} from '$project/data/morph-type-groups';
   import {checkLexemeForm, findMorphType, fitsMorphType, stripMarkers, type LexemeFormCheck} from '$project/data/morph-type-markers';
 
   let open = $state(false);
@@ -66,16 +65,18 @@
   let dialogContent = $state<HTMLElement | null>(null);
 
   // Like FLEx, affix markers typed in the lexeme form pick the morph type and are stripped on create.
-  // Lite shows the picker only once an affix is typed, which is rare. Waiting for a pause keeps "well-known" from
-  // showing it on the way through "well-".
-  let affixTyped = $state(false);
-  const showMorphType = $derived(viewService.currentView.base === ViewBase.FieldWorks || affixTyped);
+  // Lite shows the picker only once the form reads as something other than a stem or phrase, which is rare.
+  // Waiting for a pause keeps "well-known" from showing it on the way through "well-".
+  let unusualMorphType = $state(false);
+  const showMorphType = $derived(viewService.currentView.base === ViewBase.FieldWorks || unusualMorphType);
   const firstForm = $derived(writingSystemService.vernacularNoAudio.map(ws => entry.lexemeForm[ws.wsId]).find(form => form?.trim()) ?? '');
   const detected = $derived(findMorphType(firstForm, morphTypes.current));
   const detectedKind = $derived(detected.valid ? detected.kind : undefined);
   const settledKind = new Debounced(() => detectedKind, 600);
   $effect(() => {
-    if (settledKind.current && !WORDS_AND_PHRASES.includes(settledKind.current)) affixTyped = true;
+    if (settledKind.current && settledKind.current !== MorphTypeKind.Stem && settledKind.current !== MorphTypeKind.Phrase) {
+      unusualMorphType = true;
+    }
   });
 
   // The morph type follows the markers until the user picks one. A picked type only gives way to markers that
@@ -232,7 +233,7 @@
       const tmpEntry = defaultEntry();
       publishInIsFromTemplate = undefined;
       entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
-      affixTyped = false;
+      unusualMorphType = false;
       picked = undefined;
       submitted = false;
       morphTypeAnnouncement = '';

@@ -100,7 +100,7 @@ test.describe('New entry morph type', () => {
     await expect(morphTypeSelect(dialog)).toHaveText('circumfix');
   });
 
-  test('lite view shows the morph type picker only once an affix is typed', async ({page}) => {
+  test('lite view shows the morph type picker only for forms that are not a stem or phrase', async ({page}) => {
     await new DemoProjectPage(page).goto();
     await useView(page, /FieldWorks Lite/);
 
@@ -108,6 +108,8 @@ test.describe('New entry morph type', () => {
     await lexemeInput(dialog).fill('well-known');
     await lexemeInput(dialog).fill('zed zed');
     await expect(morphTypeSelect(dialog)).toHaveCount(0);
+    await lexemeInput(dialog).fill('*zed');
+    await expect(morphTypeSelect(dialog)).toHaveText('bound stem');
     await lexemeInput(dialog).fill('-zed');
     await expect(morphTypeSelect(dialog)).toHaveText('suffix');
     await lexemeInput(dialog).fill('zed');
