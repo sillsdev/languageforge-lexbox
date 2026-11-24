@@ -157,6 +157,13 @@ msgstr ""
 msgid "{0} MB"
 msgstr "{0} MB"
 
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#: src/project/tasks/SubjectPopup.svelte
+#: src/project/tasks/SubjectPopup.svelte
+msgid "{0} of {1} done"
+msgstr ""
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
 msgstr "{0} Majibu"
@@ -2987,11 +2994,6 @@ msgstr "Hakuna maingizo yanayofanana yaliyopatikana"
 msgid "No similar words found"
 msgstr "Hakuna maneno yanayofanana yaliyopatikana"
 
-#. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
-#: src/project/tasks/SubjectPopup.svelte
-msgid "No subject, unable to create a new {0}"
-msgstr "Hakuna kigezo, haiwezi kutengeneza {0} mpya"
-
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
 msgstr "Hakuna mifumo ya maandishi ya kienyeji iliyosanidiwa."
@@ -3474,6 +3476,10 @@ msgstr "Picha ya awali"
 #: src/project/ProjectSidebar.svelte
 msgid "Privacy"
 msgstr "Faragha"
+
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Progress"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -4287,11 +4293,6 @@ msgstr ""
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
 msgstr "jiwe"
-
-#. Error message
-#: src/project/tasks/SubjectPopup.svelte
-msgid "Subject does not have suitable object of type: {0}"
-msgstr "Kigezo hakina kitu kinachofaa cha aina: {0}"
 
 #. Button to confirm selection
 #: src/lib/components/SubmitOrCancel.svelte

@@ -152,6 +152,13 @@ msgstr "{0} KB to {1} KB, no new permissions"
 msgid "{0} MB"
 msgstr "{0} MB"
 
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#: src/project/tasks/SubjectPopup.svelte
+#: src/project/tasks/SubjectPopup.svelte
+msgid "{0} of {1} done"
+msgstr "{0} of {1} done"
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
 msgstr "{0} replies"
@@ -2982,11 +2989,6 @@ msgstr "No similar entries found"
 msgid "No similar words found"
 msgstr "No similar words found"
 
-#. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
-#: src/project/tasks/SubjectPopup.svelte
-msgid "No subject, unable to create a new {0}"
-msgstr "No subject, unable to create a new {0}"
-
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
 msgstr "No vernacular writing systems configured."
@@ -3469,6 +3471,10 @@ msgstr "Previous picture"
 #: src/project/ProjectSidebar.svelte
 msgid "Privacy"
 msgstr "Privacy"
+
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Progress"
+msgstr "Progress"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -4282,11 +4288,6 @@ msgstr "Still opening the project..."
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
 msgstr "stone"
-
-#. Error message
-#: src/project/tasks/SubjectPopup.svelte
-msgid "Subject does not have suitable object of type: {0}"
-msgstr "Subject does not have suitable object of type: {0}"
 
 #. Button to confirm selection
 #: src/lib/components/SubmitOrCancel.svelte

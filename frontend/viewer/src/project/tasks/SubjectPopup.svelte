@@ -20,7 +20,8 @@
 
   let {
     entry = $bindable(),
-    progress = 0,
+    completed,
+    total,
     task,
     onNextEntry = () => {
     },
@@ -28,8 +29,8 @@
     }
   }: {
     entry?: IEntry,
-    //from 0 - 1
-    progress?: number,
+    completed: number,
+    total: number,
     task: Task,
     onNextEntry?: () => void,
     onCompletedSubject?: (subject: TaskSubject) => void,
@@ -136,8 +137,9 @@
 <Drawer.Root bind:open={() => !!entry, open => {if (!open) entry = undefined;}}>
   <Drawer.Content class="mx-auto max-w-4xl">
     <XButton onclick={() => entry = undefined} class="absolute right-2 top-2 z-10" />
-    <Drawer.Header class="flex flex-nowrap items-center">
-      <Progress value={progress * 100} class="h-8" />
+    <Drawer.Header class="flex-row flex-nowrap items-center gap-3 pe-10">
+      <Progress value={completed} max={total} class="h-2 flex-1" aria-label={$t`Progress`} aria-valuetext={$t`${completed} of ${total} done`} />
+      <span class="text-sm text-muted-foreground tabular-nums whitespace-nowrap" aria-hidden="true">{$t`${completed} of ${total} done`}</span>
 <!--      <Drawer.Title class="text-3xl text-center">{entry ? writingSystemService.headword(entry) : ''}</Drawer.Title>-->
     </Drawer.Header>
     <div class="mx-2 md:mx-4 shadow-inner rounded-md p-4">
@@ -164,16 +166,12 @@
                     <SenseEditorPrimitive bind:sense={subject.sense}/>
                   {:else if task.subjectType === 'example-sentence' && subject.exampleSentence}
                     <ExampleEditorPrimitive bind:example={subject.exampleSentence}/>
-                  {:else}
-                    <p>{$t`Subject does not have suitable object of type: ${task.subjectType}`}</p>
                   {/if}
                 </OverrideFields>
               </Editor.Grid>
             </Editor.Root>
           </form>
         {/key}
-      {:else}
-        <p>{$t`No subject, unable to create a new ${task.subjectType}`}</p>
       {/if}
       <div class="flex flex-row gap-2 justify-end">
         <Drawer.Close>
