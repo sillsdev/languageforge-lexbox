@@ -118,9 +118,12 @@
     .slice(0, 3));
 
   let helpOpen = $state(false);
+  // Only animate the help card for the user's own toggles, not when it first appears once storage loads.
+  let helpToggled = $state(false);
   const showHelp = $derived(helpOpen || (!projectStorage.tasksHelpDismissed.loading && !projectStorage.tasksHelpDismissed.current));
   function dismissHelp() {
     helpOpen = false;
+    helpToggled = true;
     void projectStorage.tasksHelpDismissed.set('true');
   }
 
@@ -233,7 +236,7 @@
   <div class="flex max-w-[57.5rem] flex-col gap-8" bind:this={container}>
     <span id="task-starts-hint" hidden>{$t`Starts the task`}</span>
     {#if !drilledIn}
-      <Collapsible.Root open={showHelp} onOpenChange={open => open ? helpOpen = true : dismissHelp()}>
+      <Collapsible.Root open={showHelp} onOpenChange={open => open ? (helpOpen = helpToggled = true) : dismissHelp()}>
         <p class="text-muted-foreground">
           {$t`Fill in what's missing, a few at a time.`}
           <!-- Plain primary is too dark to read as text on the dark background. -->
@@ -244,7 +247,7 @@
           </Collapsible.Trigger>
         </p>
         <!-- The gap lives inside the content so it animates with it; the padding keeps the card shadow from being clipped. -->
-        <Collapsible.Content id="tasks-help" class="-mx-1 overflow-hidden px-1 pb-1">
+        <Collapsible.Content id="tasks-help" class="-mx-1 overflow-hidden px-1 pb-1 {helpToggled ? '' : 'data-[state=open]:animate-none'}">
           <Card.Root class="mt-4 py-4">
             <Card.Content class="flex flex-col items-start gap-3">
               <ol class="flex list-decimal flex-col gap-1 ps-5">
