@@ -138,7 +138,7 @@
   <Drawer.Content class="mx-auto max-w-4xl">
     <XButton onclick={() => entry = undefined} class="absolute right-2 top-2 z-10" />
     <Drawer.Header class="flex-row flex-nowrap items-center gap-3 pe-10">
-      <Progress value={completed} max={total} class="h-2 flex-1" aria-label={$t`Progress`} aria-valuetext={$t`${completed} of ${total} done`} />
+      <Progress value={completed} max={total} class="h-3 flex-1" aria-label={$t`Progress`} aria-valuetext={$t`${completed} of ${total} done`} />
       <span class="text-sm text-muted-foreground tabular-nums whitespace-nowrap" aria-hidden="true">{$t`${completed} of ${total} done`}</span>
 <!--      <Drawer.Title class="text-3xl text-center">{entry ? writingSystemService.headword(entry) : ''}</Drawer.Title>-->
     </Drawer.Header>
