@@ -1,2 +1,14 @@
 node_modules/
 */png/*
+!fieldworks-lite/png/fieldworks-lite-micro-reversed-64.png
+# Windows taskbar icons, per size and theme (FwLiteMaui.csproj)
+!fieldworks-lite/png/fieldworks-lite-16.png
+!fieldworks-lite/png/fieldworks-lite-24.png
+!fieldworks-lite/png/fieldworks-lite-32.png
+!fieldworks-lite/png/fieldworks-lite-48.png
+!fieldworks-lite/png/fieldworks-lite-256.png
+!fieldworks-lite/png/fieldworks-lite-reversed-16.png
+!fieldworks-lite/png/fieldworks-lite-reversed-24.png
+!fieldworks-lite/png/fieldworks-lite-reversed-32.png
+!fieldworks-lite/png/fieldworks-lite-reversed-48.png
+!fieldworks-lite/png/fieldworks-lite-reversed-256.png

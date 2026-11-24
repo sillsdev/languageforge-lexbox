@@ -28,6 +28,7 @@
     <Content Include="*.md" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="install-launcher.sh" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="fwlite.desktop.template" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="..\..\..\logos\fieldworks-lite\fieldworks-lite-small-reversed.svg" Link="fieldworks-lite.svg" CopyToPublishDirectory="PreserveNewest" />
     <None Include="$(Pkgicu_net)\contentFiles\any\any\icu.net.dll.config">
       <Link>icu.net.dll.config</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
