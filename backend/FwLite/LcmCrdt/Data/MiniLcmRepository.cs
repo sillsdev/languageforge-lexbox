@@ -87,6 +87,7 @@ public class MiniLcmRepository(
     public IQueryable<PartOfSpeech> PartsOfSpeech => dbContext.PartsOfSpeech;
     public IQueryable<Publication> Publications => dbContext.Publications;
     public IQueryable<CustomView> CustomViews => dbContext.CustomViews;
+    public IQueryable<Plugin> Plugins => dbContext.Plugins;
     public IQueryable<CommentThread> CommentThreads => dbContext.CommentThreads;
     public IQueryable<UserComment> UserComments => dbContext.UserComments;
 
@@ -281,6 +282,15 @@ public class MiniLcmRepository(
         return sense;
     }
 
+    // pictures live in the sense's jsonb column, so finding the owner means searching every sense's pictures
+    public async Task<Guid?> GetPictureSenseId(Guid pictureId)
+    {
+        var id = pictureId.ToString();
+        return await AsyncExtensions.FirstOrDefaultAsync(dbContext.Senses.ToLinqToDB()
+            .Where(s => Json.Query(s.Pictures).Any(p => Json.Value(p, p => p.Id.ToString()) == id))
+            .Select(s => (Guid?)s.Id));
+    }
+
     public async Task<ExampleSentence?> GetExampleSentence(Guid id)
     {
         var exampleSentence = await AsyncExtensions.SingleOrDefaultAsync(ExampleSentences
@@ -329,6 +339,11 @@ public class MiniLcmRepository(
         var customView = await AsyncExtensions.SingleOrDefaultAsync(CustomViews
             .AsQueryable(), cv => cv.Id == customViewId);
         return customView;
+    }
+
+    public async Task<Plugin?> GetPlugin(Guid pluginId)
+    {
+        return await AsyncExtensions.SingleOrDefaultAsync(Plugins, p => p.Id == pluginId);
     }
 
     public async Task<CommentThread?> GetCommentThread(Guid threadId)

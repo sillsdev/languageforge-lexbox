@@ -1,0 +1,6 @@
+# explicitly prevent using packages that are too new
+minimumReleaseAge: 1440
+
+allowBuilds:
+  '@swc/core': false
+  core-js: false

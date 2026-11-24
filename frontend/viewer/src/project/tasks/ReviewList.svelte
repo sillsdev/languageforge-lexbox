@@ -6,6 +6,7 @@
   import {useWritingSystemService} from '$project/data';
   import {t} from 'svelte-i18n-lingui';
   import {useViewService} from '$lib/views/view-service.svelte';
+  import HomographNumber from '$lib/components/dictionary/HomographNumber.svelte';
 
   const writingSystemService = useWritingSystemService();
   const viewService = useViewService();
@@ -27,7 +28,7 @@
 <div class="flex flex-col">
   {#each subjects as subject (subject)}
     <ListItem class="my-2" onclick={() => editSubject(subject)} icon="i-mdi-book-open-page-variant">
-      <p>{writingSystemService.viewBestHeadword(subject.entry, viewService.currentView)}</p>
+      <p>{writingSystemService.viewBestHeadword(subject.entry, viewService.currentView)}<HomographNumber homographNumber={subject.entry.homographNumber} /></p>
       <p>{subject.subject}</p>
     </ListItem>
   {/each}

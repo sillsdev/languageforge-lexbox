@@ -1,3 +1,4 @@
+using LexCore.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http.Features;
 
@@ -19,6 +20,9 @@ public class AddExceptionFeatureDevExceptionFilter : IDeveloperPageExceptionFilt
                 RouteValues = features.Get<IRouteValuesFeature>()?.RouteValues
             });
         }
+        // the developer page always answers 500, so apply the FwHeadless status mapping here too, as in production
+        if (errorContext.Exception is FwHeadlessException)
+            httpContext.Response.StatusCode = ExceptionStatusCodes.Select(errorContext.Exception);
         await next(errorContext);
     }
 }

@@ -44,6 +44,10 @@
     TypeDiscriminator: CreatePartOfSpeechChange
   },
   {
+    DerivedType: CreatePluginChange,
+    TypeDiscriminator: CreatePluginChange
+  },
+  {
     DerivedType: CreatePublicationChange,
     TypeDiscriminator: CreatePublicationChange
   },
@@ -70,6 +74,10 @@
   {
     DerivedType: EditCustomViewChange,
     TypeDiscriminator: EditCustomViewChange
+  },
+  {
+    DerivedType: EditPluginChange,
+    TypeDiscriminator: EditPluginChange
   },
   {
     DerivedType: AddComplexFormTypeChange,
@@ -222,6 +230,10 @@
   {
     DerivedType: DeleteChange<PartOfSpeech>,
     TypeDiscriminator: delete:PartOfSpeech
+  },
+  {
+    DerivedType: DeleteChange<Plugin>,
+    TypeDiscriminator: delete:Plugin
   },
   {
     DerivedType: DeleteChange<Publication>,

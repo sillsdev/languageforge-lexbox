@@ -188,6 +188,21 @@ public interface IMiniLcmWriteApi
     }
     #endregion
 
+    #region Plugin
+    Task<Plugin> CreatePlugin(Plugin plugin)
+    {
+        throw new NotSupportedException("Plugins are only supported by CRDT projects");
+    }
+    Task<Plugin> UpdatePlugin(Plugin plugin)
+    {
+        throw new NotSupportedException("Plugins are only supported by CRDT projects");
+    }
+    Task DeletePlugin(Guid id)
+    {
+        throw new NotSupportedException("Plugins are only supported by CRDT projects");
+    }
+    #endregion
+
     #region Comments
     Task<CommentThread> CreateCommentThread(CommentThread thread, UserComment firstComment)
     {
@@ -262,6 +277,9 @@ public interface IMiniLcmWriteApi
 
     /// <summary>
     /// Saves a media file using the provided data stream and metadata.
+    /// If a file with the same name and the same content is already saved, returns
+    /// <see cref="UploadFileResult.AlreadyExists"/> with that file's MediaUri. A different file with
+    /// the same name is saved as a separate file.
     /// </summary>
     /// <param name="stream">The stream containing the media file data to be saved.</param>
     /// <param name="metadata">Metadata associated with the media file, including details like filename and upload information.</param>
@@ -269,6 +287,15 @@ public interface IMiniLcmWriteApi
     Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
         return Task.FromResult(new UploadFileResponse(UploadFileResult.NotSupported));
+    }
+
+    /// <summary>
+    /// Forgets a media file: the resource is deleted from the project and the local copy removed.
+    /// The server copy stays until Harmony can delete remote resources (sillsdev/harmony#168).
+    /// </summary>
+    Task DeleteFile(MediaUri mediaUri)
+    {
+        throw new NotSupportedException("Deleting files is only supported by CRDT projects");
     }
 }
 

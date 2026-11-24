@@ -8,8 +8,8 @@ using Refit;
 using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Resource;
+using LcmCrdt.Harmony;
 using LcmCrdt.RemoteSync;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MiniLcm.Media;
 
@@ -18,10 +18,10 @@ namespace LcmCrdt.MediaServer;
 public class LcmMediaService(
     ResourceService<LcmFileMetadata> resourceService,
     CurrentProjectService currentProjectService,
+    HarmonyChangeWriter changeWriter,
     IOptions<HarmonyConfig> options,
     IRefitHttpServiceFactory refitFactory,
     IServerHttpClientProvider httpClientProvider,
-    IDbContextFactory<LcmCrdtDbContext> dbContextFactory,
     ILogger<LcmMediaService> logger
 ) : IRemoteResourceService<LcmFileMetadata>
 {
@@ -44,18 +44,19 @@ public class LcmMediaService(
             currentProjectService.ProjectData.ClientId,
             fileId,
             fileId.ToString("N"),
-            metadata);
+            metadata,
+            changeWriter.NewMetadata());
     }
 
     public async ValueTask AddMissingMetadata(HarmonyResource<LcmFileMetadata> resource, LcmFileMetadata metadata)
     {
         if (resource.Metadata is not null) return;
-        await resourceService.SetResourceMetadata(resource.Id, currentProjectService.ProjectData.ClientId, metadata);
+        await resourceService.SetResourceMetadata(resource.Id, currentProjectService.ProjectData.ClientId, metadata, changeWriter.NewMetadata());
     }
 
     public async Task DeleteResource(Guid fileId)
     {
-        await resourceService.DeleteResource(currentProjectService.ProjectData.ClientId, fileId);
+        await resourceService.DeleteResource(currentProjectService.ProjectData.ClientId, fileId, changeWriter.NewMetadata());
     }
 
     /// <summary>
@@ -176,7 +177,7 @@ public class LcmMediaService(
                 var filename = response.Content.Headers.ContentDisposition?.FileName?.Replace("\"", "");
                 filename = Path.GetFileName(filename);
                 var localPath = Path.Combine(projectResourceCachePath, filename ?? remoteId);
-                localPath = EnsureUnique(localPath);
+                localPath = LocalMediaFiles.EnsureUnique(localPath);
                 await using var localFile = File.Create(localPath);
                 await stream.CopyToAsync(localFile);
                 return new DownloadResult(localPath);
@@ -205,6 +206,7 @@ public class LcmMediaService(
         var mediaClient = await MediaServerClient();
         var fileName = metadata?.Filename ?? Path.GetFileName(localPath);
         var response = await mediaClient.UploadFile(
+            // No content type: the server types the upload from the filename's extension.
             new FileInfoPart(new FileInfo(localPath), fileName),
             projectId: currentProjectService.ProjectData.Id,
             fileId: resourceId.ToString("D"),
@@ -221,13 +223,25 @@ public class LcmMediaService(
     {
         var projectResourceCachePath = ProjectResourceCachePath;
         Directory.CreateDirectory(projectResourceCachePath);
-        var localPath = Path.Combine(projectResourceCachePath, Path.GetFileName(metadata.Filename));
-        if (File.Exists(localPath)) return ((await resourceService.AllResources()).First(r => r.LocalPath == localPath), newResource: false);
-        //must scope just to the copy, otherwise we can't upload the file to the server
-        await using (var localFile = File.Create(localPath))
+        var targetPath = Path.Combine(projectResourceCachePath, Path.GetFileName(metadata.Filename));
+        // A file with the same name is only the same file if the bytes match; otherwise (two phones'
+        // IMG_0001.jpg) save this one under a free name. metadata.Filename keeps the user's name.
+        var tempPath = await LocalMediaFiles.CopyToTempFile(stream);
+        string localPath;
+        try
         {
-            await stream.CopyToAsync(localFile);
-            if (metadata.SizeInBytes is null && localFile.SafeLength() is { } length) metadata = metadata with { SizeInBytes = length };
+            var copies = LocalMediaFiles.ExistingCopies(tempPath, targetPath).ToArray();
+            if (copies.Length > 0)
+            {
+                // no row means the file was left behind (failed save, or a stale LocalPath, see #2693): don't reuse it
+                var existing = (await resourceService.AllResources()).FirstOrDefault(r => copies.Contains(r.LocalPath));
+                if (existing is not null) return (existing, newResource: false);
+            }
+            localPath = LocalMediaFiles.MoveToFreePath(tempPath, targetPath);
+        }
+        finally
+        {
+            LocalMediaFiles.DeleteIfExists(tempPath);
         }
 
         if (metadata.SizeInBytes is null) metadata = metadata with { SizeInBytes = new FileInfo(localPath).Length };
@@ -240,7 +254,8 @@ public class LcmMediaService(
                 localPath,
                 currentProjectService.ProjectData.ClientId,
                 resourceService: remoteResourceService,
-                metadata: metadata
+                metadata: metadata,
+                commitMetadata: changeWriter.NewMetadata()
             ), newResource: true);
         }
         catch (Exception e)
@@ -290,13 +305,10 @@ public class LcmMediaService(
                 await content.CopyToAsync(localFile);
             }
             localPath = MoveToUniqueName(tempPath, Path.Combine(projectResourceCachePath, name));
-            await RecordLocalCopy(resourceId, localPath);
-            return true;
-        }
-        catch (DbUpdateException e)
-        {
-            // another copy (e.g. a download) recorded one first
-            logger.LogInformation(e, "Resource {ResourceId} was cached concurrently, discarding this copy", resourceId);
+            var recorded = await resourceService.AddLocalCopy(resourceId, localPath);
+            if (Path.GetFullPath(recorded.LocalPath) == Path.GetFullPath(localPath)) return true;
+            // another copy (e.g. a download) was recorded first and still has its file
+            logger.LogInformation("Resource {ResourceId} was cached concurrently, discarding this copy", resourceId);
             DeleteIfExists(localPath);
             return false;
         }
@@ -316,7 +328,7 @@ public class LcmMediaService(
     {
         for (var attempt = 1; ; attempt++)
         {
-            var localPath = EnsureUnique(preferredPath);
+            var localPath = LocalMediaFiles.EnsureUnique(preferredPath);
             try
             {
                 File.Move(fromPath, localPath);
@@ -333,36 +345,10 @@ public class LcmMediaService(
         if (path is not null && File.Exists(path)) File.Delete(path);
     }
 
-    // Workaround until Harmony has a public way to record a local copy without a commit (planned
-    // ResourceService.AddLocalCopy): ResourceService.DownloadResource does this internally, but needs a RemoteId,
-    // which a resource still waiting to upload doesn't have.
-    private async Task RecordLocalCopy(Guid resourceId, string localPath)
-    {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
-        dbContext.Set<LocalResource>().Add(new LocalResource { Id = resourceId, LocalPath = Path.GetFullPath(localPath) });
-        await dbContext.SaveChangesAsync();
-    }
-
-    private string EnsureUnique(string filePath)
-    {
-        if (!File.Exists(filePath)) return filePath;
-        var directory = Path.GetDirectoryName(filePath);
-        ArgumentException.ThrowIfNullOrEmpty(directory);
-        var filename = Path.GetFileNameWithoutExtension(filePath);
-        var extension = Path.GetExtension(filePath);
-        var counter = 1;
-        while (File.Exists(filePath))
-        {
-            filePath = Path.Combine(directory, $"{filename}-{counter}{extension}");
-            counter++;
-        }
-        return filePath;
-    }
-
     public async Task<bool> UploadPendingResources()
     {
         if (await httpClientProvider.ConnectionStatus() != ConnectionStatus.Online) return false;
-        await resourceService.UploadPendingResources(currentProjectService.ProjectData.ClientId, this);
+        await resourceService.UploadPendingResources(currentProjectService.ProjectData.ClientId, this, changeWriter.NewMetadata());
         return true;
     }
 

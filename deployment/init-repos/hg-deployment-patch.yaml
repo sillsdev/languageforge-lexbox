@@ -7,6 +7,8 @@ spec:
   template:
     spec:
       initContainers:
+        # listed only to keep it first: populate runs as www-data and needs the volume root chowned
+        - name: set-repo-structure-owner-to-www-data
         - name: populate-test-repos
           securityContext:
             runAsUser: 33

@@ -61,6 +61,26 @@ public class PermissionService(
         return await ManagesOrgThatOwnsProject(projectId);
     }
 
+    /// <summary>
+    /// Push FieldWorks Lite (CRDT) commits. Unlike <see cref="CanSyncProject(Guid)"/> this includes Editor Lites and
+    /// Commenters (whose commits FW Lite limits to comments); it does not grant hg send/receive, media upload or FieldWorks sync.
+    /// </summary>
+    public async ValueTask<bool> CanPushCrdtChanges(Guid projectId)
+    {
+        if (User is not null && User.IsProjectMember(projectId, ProjectRole.EditorLite, ProjectRole.Commenter)) return true;
+        return await CanSyncProject(projectId);
+    }
+
+    /// <summary>
+    /// Upload, replace or delete media files. Like <see cref="CanPushCrdtChanges"/> this includes Editor Lites (FW Lite records audio),
+    /// but not Commenters.
+    /// </summary>
+    public async ValueTask<bool> CanEditMediaFiles(Guid projectId)
+    {
+        if (User is not null && User.IsProjectMember(projectId, ProjectRole.EditorLite)) return true;
+        return await CanSyncProject(projectId);
+    }
+
     public async ValueTask<bool> CanDownloadProject(Guid projectId)
     {
         if (User is null) return false;
@@ -78,6 +98,11 @@ public class PermissionService(
     public async ValueTask AssertCanSyncProject(Guid projectId)
     {
         if (!await CanSyncProject(projectId)) throw new UnauthorizedAccessException();
+    }
+
+    public async ValueTask AssertCanPushCrdtChanges(Guid projectId)
+    {
+        if (!await CanPushCrdtChanges(projectId)) throw new UnauthorizedAccessException();
     }
 
     public async ValueTask AssertCanDownloadProject(Guid projectId)

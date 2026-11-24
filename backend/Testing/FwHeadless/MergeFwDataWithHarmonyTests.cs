@@ -1,8 +1,5 @@
-using System.Net.Http.Json;
-using System.Text.Json;
 using FluentAssertions;
 using LexCore.Sync;
-using SIL.Harmony.Core;
 using Testing.ApiTests;
 using Testing.Services;
 
@@ -12,46 +9,6 @@ namespace Testing.FwHeadless;
 [Collection("FwHeadless Sync")]
 public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
 {
-    private async Task AddTestCommit(Guid projectId)
-    {
-        var entryId = Guid.NewGuid();
-        ServerCommit[] serverCommits =
-        [
-            new ServerCommit(Guid.NewGuid())
-            {
-                ChangeEntities =
-                [
-                    new ChangeEntity<ServerJsonChange>()
-                    {
-                        Change = JsonSerializer.Deserialize<ServerJsonChange>(
-                            $$"""
-                              {
-                                "$type": "CreateEntryChange",
-                                "LexemeForm": {
-                                  "en": "Apple"
-                                },
-                                "CitationForm": {
-                                  "en": "Apple"
-                                },
-                                "Note": {},
-                                "EntityId": "{{entryId}}"
-                              }
-                              """
-                        ) ?? throw new JsonException("unable to deserialize"),
-                        Index = 0,
-                        CommitId = Guid.NewGuid(),
-                        EntityId = entryId
-                    }
-                ],
-                ClientId = Guid.NewGuid(),
-                ProjectId = projectId,
-                HybridDateTime = new HybridDateTime(DateTime.UtcNow, 0)
-            }
-        ];
-        var result = await HttpClient.PostAsJsonAsync($"api/crdt/{projectId}/add", serverCommits);
-        result.EnsureSuccessStatusCode();
-    }
-
     private Guid _projectId;
 
     public async Task InitializeAsync()
@@ -88,7 +45,7 @@ public class MergeFwDataWithHarmonyTests : ApiTestBase, IAsyncLifetime
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
         await FwHeadlessTestHelpers.AwaitSyncSuccess(HttpClient, _projectId);
 
-        await AddTestCommit(_projectId);
+        await FwHeadlessTestHelpers.AddCreateEntryCommit(HttpClient, _projectId);
         await FwHeadlessTestHelpers.TriggerSync(HttpClient, _projectId);
         var result = await FwHeadlessTestHelpers.AwaitSyncSuccess(HttpClient, _projectId);
         result.Should().NotBeNull();

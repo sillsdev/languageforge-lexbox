@@ -189,13 +189,15 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(PendingCommits),
             typeof(LexboxServer),
             typeof(CrdtProject),
-            typeof(ProjectData),
             typeof(IProjectIdentifier),
             typeof(FwLiteConfig),
             typeof(HistoryLineItem),
             typeof(ProjectActivity),
             typeof(ActivityChange),
             typeof(ActivityChangeInfo),
+            typeof(ActivityEntryName),
+            typeof(ActivitySenseName),
+            typeof(ActivityTarget),
             typeof(ActivityAuthor),
             typeof(ActivityChangeType),
             typeof(ActivityQuery),
@@ -210,7 +212,7 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(HarmonyResource<LcmFileMetadata>),
             typeof(CameraResult),
             typeof(FolderSyncSummary),
-            typeof(OpenFromFolderSummary),
+            typeof(OpenFromFolderResult),
             typeof(HostingView),
             typeof(PeerView),
             typeof(NearbyDeviceView),
@@ -220,6 +222,11 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(NearbyHostView),
             typeof(JoinSessionView),
         ], exportBuilder => exportBuilder.WithPublicProperties());
+        builder.ExportAsInterface<ProjectData>().WithPublicProperties(propertyBuilder =>
+        {
+            if (propertyBuilder.Member.GetCustomAttribute<JsonIgnoreAttribute>() is { Condition: JsonIgnoreCondition.Always })
+                propertyBuilder.Ignore();
+        });
 
         builder.ExportAsClass<ChangeType>().WithCodeGenerator<ChangeTypesCodeGenerator>();
         builder.ExportAsInterface<ActivityChangeType>()

@@ -18,10 +18,32 @@ public partial class MainPage
         {
             e.WebView.Inspectable = true;
         }
+#if IOS
+        _platformWebView = e.WebView;
+#endif
     }
+
+#if IOS
+    private WebKit.WKWebView? _platformWebView;
+
+    // BlazorWebView assigns its own UIDelegate after BlazorWebViewInitialized (when its WebViewManager starts),
+    // so wrap it once navigation begins instead, and again if it is ever replaced.
+    private void EnsureMediaCapturePermissionDelegate()
+    {
+        if (_platformWebView is null || !OperatingSystem.IsIOSVersionAtLeast(15)) return;
+        if (_platformWebView.UIDelegate is WebKit.WKUIDelegate blazorUiDelegate
+            and not Platforms.iOS.MediaCapturePermissionUIDelegate)
+        {
+            _platformWebView.UIDelegate = new Platforms.iOS.MediaCapturePermissionUIDelegate(blazorUiDelegate);
+        }
+    }
+#endif
 
     private partial void BlazorWebViewOnUrlLoading(object? sender, UrlLoadingEventArgs e)
     {
+#if IOS
+        EnsureMediaCapturePermissionDelegate();
+#endif
         // The app is served from the app:// scheme, so any real web/mail/tel link is external and
         // should open in the system browser or mail client rather than loading inside the WebView
         // (where the user would be stuck with no chrome to navigate back).

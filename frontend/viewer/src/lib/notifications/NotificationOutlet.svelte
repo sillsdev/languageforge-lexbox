@@ -29,8 +29,19 @@
 
   const eventBus = useEventBus();
 
+  // Only a background download we announced needs a failure toast; the update dialog reports its own
+  let backgroundDownloadStarted = false;
+
   eventBus.onEventType<IAppUpdateEvent>(FwEventType.AppUpdate, event => {
-    if (event.result == UpdateResult.ManualUpdateRequired) {
+    if (event.result == UpdateResult.Started) {
+      backgroundDownloadStarted = true;
+      AppNotification.display($t`Downloading update in the background. We'll let you know when it's ready.`, {
+        type: 'info',
+        timeout: 'long',
+      });
+    } else if (event.result == UpdateResult.Failed && backgroundDownloadStarted) {
+      AppNotification.display($t`Update failed to install.`, 'error');
+    } else if (event.result == UpdateResult.ManualUpdateRequired) {
       AppNotification.displayAction($t`A new version of FieldWorks Lite is available.`, {
         callback: () => {
           void openReleaseUrl(event.release);

@@ -56,6 +56,8 @@ continuation_indent_size = 4
 # In-repo analyzers (backend/Analyzers/LexboxAnalyzers). See backend/Analyzers/README.md.
 # LX0001: CRDT change types must declare a `Guid entityId` constructor (required for JSON deserialization).
 dotnet_diagnostic.LX0001.severity = error
+# LX0002: CRDT change types must not call non-deterministic APIs (Guid.NewGuid, DateTime.Now, Random, ...) outside their constructors; changes are replayed on every client.
+dotnet_diagnostic.LX0002.severity = error
 
 # Verify settings
 [*.{received,verified}.{json,txt,xml}]

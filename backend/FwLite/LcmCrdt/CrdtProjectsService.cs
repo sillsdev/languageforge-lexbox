@@ -85,33 +85,60 @@ public partial class CrdtProjectsService(
         await Task.WhenAll(tasks);
     }
 
-    public async ValueTask UpdateProjectServerInfo(CrdtProject project,
+    /// <returns>true if the role changed</returns>
+    public async ValueTask<bool> UpdateProjectServerInfo(CrdtProject project,
         string? userName,
         string? userId,
         UserProjectRole role)
     {
-        if (project.Data?.LastUserName == userName && project.Data?.LastUserId == userId && project.Data?.Role == role) return;
+        if (project.Data?.LastUserName == userName && project.Data?.LastUserId == userId && project.Data?.Role == role) return false;
+        var roleChanged = false;
         await ExecInProject(project, async (scopedServices, currentProjectService) =>
         {
             await currentProjectService.UpdateLastUser(userName, userId);
-            await currentProjectService.UpdateUserRole(role);
+            roleChanged = await currentProjectService.UpdateUserRole(role);
         });
+        return roleChanged;
     }
 
     public IEnumerable<CrdtProject> ListProjects()
     {
-        return Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite").Select(file =>
-        {
-            var code = Path.GetFileNameWithoutExtension(file);
-            return new CrdtProject(code, file, projectDataCache);
-        });
+        return EnumerateProjectDbFiles().Select(p => new CrdtProject(p.code, p.dbPath, projectDataCache));
     }
 
     public CrdtProject? GetProject(string code)
     {
-        var file = Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite")
-            .FirstOrDefault(file => Path.GetFileNameWithoutExtension(file) == code);
-        return file is null ? null : new CrdtProject(code, file, projectDataCache);
+        var match = EnumerateProjectDbFiles().FirstOrDefault(p => p.code == code);
+        return match.dbPath is null ? null : new CrdtProject(code, match.dbPath, projectDataCache);
+    }
+
+    /// <summary>
+    /// Finds projects in both layouts: <c>projects/{code}/{code}.sqlite</c> and the legacy flat <c>{code}.sqlite</c>.
+    /// When a code exists in both, the project folder wins.
+    /// </summary>
+    private IEnumerable<(string code, string dbPath)> EnumerateProjectDbFiles()
+    {
+        var projectPath = config.Value.ProjectPath;
+        var seenCodes = new HashSet<string>();
+        var projectFoldersDir = Path.Combine(projectPath, LcmCrdtConfig.ProjectFoldersDirName);
+        if (Directory.Exists(projectFoldersDir))
+        {
+            foreach (var dir in Directory.EnumerateDirectories(projectFoldersDir))
+            {
+                var code = Path.GetFileName(dir);
+                var dbPath = LcmCrdtConfig.ProjectFolderDbPath(projectPath, code);
+                if (File.Exists(dbPath) && seenCodes.Add(code)) yield return (code, dbPath);
+            }
+        }
+
+        foreach (var file in Directory.EnumerateFiles(projectPath, "*.sqlite"))
+        {
+            var code = Path.GetFileNameWithoutExtension(file);
+            if (seenCodes.Add(code))
+                yield return (code, file);
+            else
+                logger.LogWarning("Ignoring {DbPath}, project {Code} also exists in a project folder", SanitizeForLog(file), code);
+        }
     }
 
     public CrdtProject? GetProject(Guid id)
@@ -249,13 +276,24 @@ public partial class CrdtProjectsService(
 
         //poor man's sanitation
         var code = Path.GetFileName(request.Code);
-        var sqliteFile = request.DbPath ?? Path.Combine(request.Path ?? config.Value.ProjectPath, $"{code}.sqlite");
-        if (File.Exists(sqliteFile))
+        var sqliteFile = request switch
+        {
+            { DbPath: not null } => request.DbPath,
+            { Path: not null } => Path.Combine(request.Path, $"{code}.sqlite"),
+            _ when config.Value.UseProjectFolders => LcmCrdtConfig.ProjectFolderDbPath(config.Value.ProjectPath, code),
+            _ => Path.Combine(config.Value.ProjectPath, $"{code}.sqlite")
+        };
+        // the default location must also check the other layout, otherwise the same code could exist twice
+        var existsInOtherLayout = request is { DbPath: null, Path: null } && ProjectExists(code);
+        if (File.Exists(sqliteFile) || existsInOtherLayout)
         {
             var alreadyExists = $"Project already exists at '{sqliteFile}'";
             activity?.SetStatus(ActivityStatusCode.Error, alreadyExists);
             throw new InvalidOperationException(alreadyExists);
         }
+
+        if (request is { DbPath: null, Path: null } && config.Value.UseProjectFolders)
+            Directory.CreateDirectory(Path.GetDirectoryName(sqliteFile)!);
 
         var crdtProject = new CrdtProject(code, sqliteFile);
         await using var serviceScope = provider.CreateAsyncScope();
@@ -271,6 +309,8 @@ public partial class CrdtProjectsService(
                 Guid.NewGuid(), request.FwProjectId, request.AuthenticatedUser, request.AuthenticatedUserId, request.Role ?? UserProjectRole.Editor);
             crdtProject.Data = projectData;
             await InitProjectDb(db, projectData);
+            // Stores the current model versions while the db is empty, or the reconcile after AfterCreate rebuilds every snapshot it wrote
+            await serviceScope.ServiceProvider.GetRequiredService<DataModel>().ReconcileModelVersions();
             await currentProjectService.RefreshProjectData();
             await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
             // Run EF migrate + FTS regenerate-if-missing (same path as opening an existing project).
@@ -340,8 +380,7 @@ public partial class CrdtProjectsService(
             var shmFile = sqliteFile + "-shm";
             try
             {
-                var connStr = new SqliteConnectionStringBuilder { DataSource = sqliteFile }.ConnectionString;
-                using var clearConn = new SqliteConnection(connStr);
+                using var clearConn = new SqliteConnection(LcmCrdtKernel.DbConnectionString(sqliteFile));
                 SqliteConnection.ClearPool(clearConn);
             }
             catch
@@ -390,9 +429,27 @@ public partial class CrdtProjectsService(
     public async Task DeleteProject(string code)
     {
         var project = GetProject(code) ?? throw new InvalidOperationException($"Project '{code}' not found");
+        // db first: if it can't be deleted, the project stays usable with its not-yet-uploaded media
+        await EnsureDeleteProject(project.DbPath);
         var projectResourceCachePath = LcmMediaService.ProjectCachePath(project, provider.GetRequiredService<IOptions<HarmonyConfig>>().Value);
         if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
-        await EnsureDeleteProject(project.DbPath);
+        DeleteProjectFolderIfEmpty(project);
+    }
+
+    private void DeleteProjectFolderIfEmpty(CrdtProject project)
+    {
+        var projectFolder = Path.GetDirectoryName(LcmCrdtConfig.ProjectFolderDbPath(config.Value.ProjectPath, project.Name))!;
+        // only the folder this layout owns, never the directory of a legacy flat project
+        if (!string.Equals(Path.GetDirectoryName(Path.GetFullPath(project.DbPath)), Path.GetFullPath(projectFolder), StringComparison.OrdinalIgnoreCase)) return;
+        if (!Directory.Exists(projectFolder) || Directory.EnumerateFileSystemEntries(projectFolder).Any()) return;
+        try
+        {
+            Directory.Delete(projectFolder);
+        }
+        catch (IOException e)
+        {
+            logger.LogWarning(e, "Failed to delete empty project folder {ProjectFolder}", SanitizeForLog(projectFolder));
+        }
     }
 
     private static async Task InitProjectDb(LcmCrdtDbContext db, ProjectData data)

@@ -110,7 +110,7 @@
 
   async function syncNow() {
     busy = 'sync';
-    syncing = 'wifi';
+    syncing = 'nearby';
     try {
       join = await api.syncWithHostNow();
       onSynced();
@@ -129,12 +129,7 @@
   }
 </script>
 
-<div class="mt-6 pt-4 border-t flex flex-col items-center gap-3">
-  <p class="text-foreground/80 text-center flex items-center gap-2">
-    <Icon icon="i-mdi-wifi" class="size-5" />
-    {$t`Sync with nearby devices over Wi-Fi`}
-  </p>
-
+<div class="flex flex-col items-center gap-3">
   {#if hosting}
     <!-- hosting panel -->
     <div class="w-full border rounded p-3 flex flex-col items-center gap-3">
@@ -222,7 +217,7 @@
           variant="outline"
           icon="i-mdi-sync"
           loading={busy === 'sync'}
-          disabled={!!syncing && syncing !== 'wifi'}
+          disabled={!!syncing && syncing !== 'nearby'}
           onclick={() => void syncNow()}>
           {$t`Sync now`}
         </Button>

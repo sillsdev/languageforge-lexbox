@@ -19,6 +19,10 @@ cover the changes.
 - **New enum values** (e.g. `RegressionVersion`) need parallel
   `[InlineData]` rows.
 - **Reproduce sync bugs with a dry-run sync (`SyncDryRun`/`ImportDryRun`) before fixing** (PR #2252).
+- **Hidden test values.** A literal written on one side of a test/helper
+  boundary and checked on the other (test writes `"test"`, helper asserts
+  `"test"`) → ⚠️ important; pass it in or name a shared constant
+  (`CODING_STANDARDS.md` § Tests). Helpers themselves are fine.
 - **Test cleanup.** Unique filenames derived from `code` variable so
   reruns don't trip on prior state (PR #2219).
 - **`[Skip]` / `[SkipWhen]`** new additions: ask for justification.

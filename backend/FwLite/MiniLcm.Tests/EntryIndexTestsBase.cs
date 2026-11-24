@@ -79,6 +79,7 @@ public abstract class EntryIndexTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    [Trait("Category", "Slow")] // ~90 s on the CRDT side; PR tier skips Category=Slow
     public async Task GetEntryIndex_LargeList_ReturnsCorrectIndex()
     {
         var entryIds = new List<Guid>();

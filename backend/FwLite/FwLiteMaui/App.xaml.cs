@@ -19,7 +19,11 @@ public partial class App : Application
         _lexboxProjectChangeListener = lexboxProjectChangeListener;
         _logger = logger;
         var lastUrl = preferences.Get(nameof(PreferenceKey.AppLastUrl));
-        if (lastUrl?.StartsWith('/') == true)
+        if (OverrideStartupUrl is not null)
+        {
+            mainPage.StartPath = OverrideStartupUrl;
+        }
+        else if (lastUrl?.StartsWith('/') == true)
         {
             mainPage.StartPath = lastUrl;
         }

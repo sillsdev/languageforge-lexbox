@@ -1,6 +1,6 @@
 import {createContext} from 'svelte';
 
-import {IsMobile} from '$lib/hooks/is-mobile.svelte';
+import {IsMobileOrTablet} from '$lib/hooks/is-mobile-or-tablet.svelte';
 import {SIDEBAR_KEYBOARD_SHORTCUT} from './constants';
 
 type Getter<T> = () => T;
@@ -24,7 +24,7 @@ export type SidebarStateProps = {
 class SidebarState {
   readonly props: SidebarStateProps;
   open = $derived.by(() => this.props.open());
-  openMobile = $state(false);
+  openOverlay = $state(false);
   setOpen: SidebarStateProps['setOpen'];
   state = $derived.by(() => (this.open ? 'expanded' : 'collapsed'));
 
@@ -33,10 +33,10 @@ class SidebarState {
     this.props = props;
   }
 
-  // Convenience getter for checking if the sidebar is mobile
-  // without this, we would need to use `sidebar.isMobile.current` everywhere
-  get isMobile() {
-    return IsMobile.value;
+  // Whether the sidebar pops over the content as a sheet (phones and tablets) instead of docking beside it
+  // without this, callers would need to know which media query the sidebar uses
+  get isOverlay() {
+    return IsMobileOrTablet.value;
   }
 
   // Event handler to apply to the `<svelte:window>`
@@ -47,12 +47,12 @@ class SidebarState {
     }
   };
 
-  setOpenMobile = (value: boolean) => {
-    this.openMobile = value;
+  setOpenOverlay = (value: boolean) => {
+    this.openOverlay = value;
   };
 
   toggle = () => {
-    return this.isMobile ? (this.openMobile = !this.openMobile) : this.setOpen(!this.open);
+    return this.isOverlay ? (this.openOverlay = !this.openOverlay) : this.setOpen(!this.open);
   };
 }
 

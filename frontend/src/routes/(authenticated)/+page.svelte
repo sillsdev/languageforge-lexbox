@@ -12,6 +12,8 @@
     type Confidentiality,
     type ProjectFilters,
     type ProjectItemWithDraftStatus,
+    type ProjectSort,
+    sortProjects,
   } from '$lib/components/Projects';
   import ProjectTable from '$lib/components/Projects/ProjectTable.svelte';
   import {Button} from '$lib/forms';
@@ -44,8 +46,11 @@
     })),
     ...$projects.map((p) => ({ ...p, isDraft: false as const })),
   ]);
+  let sort: ProjectSort = $state({column: 'code', dir: 'asc'});
   const filteredProjects: ProjectItemWithDraftStatus[] = $derived(filterProjects(allProjects, filters));
-  const shownProjects = $derived(limitResults ? limit(filteredProjects) : filteredProjects);
+  // Sort before limiting, so the first rows are the top of the whole list. The grid view uses the same order.
+  const sortedProjects = $derived(sortProjects(filteredProjects, sort));
+  const shownProjects = $derived(limitResults ? limit(sortedProjects) : sortedProjects);
 
   let defaultMode: ViewMode = $derived(allProjects.length < 10 ? 'grid' : 'table');
   let mode: ViewMode = $derived(data.projectViewMode ?? defaultMode);
@@ -100,7 +105,12 @@
     {#if mode === 'grid'}
       <ProjectList projects={shownProjects} />
     {:else}
-      <ProjectTable projects={shownProjects} columns={['name', 'code', 'users', 'type', 'lastChange']} />
+      <ProjectTable
+        projects={shownProjects}
+        columns={['name', 'code', 'users', 'type', 'lastChange']}
+        {sort}
+        onSortChange={(newSort) => (sort = newSort)}
+      />
     {/if}
 
     {#if shownProjects.length < filteredProjects.length}

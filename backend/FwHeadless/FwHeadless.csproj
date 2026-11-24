@@ -7,24 +7,24 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
     <PackageReference Include="MimeMapping" />
     <PackageReference Include="Npgsql.OpenTelemetry" />
     <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" />
     <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" />
-    <!-- ExcludeAssets="native" drops the runtimes/<rid>/native/Mercurial tree from publish. The
-         package's build targets (SIL.Chorus.Mercurial.targets, CopyFiles) already stage that tree
-         into this project's Mercurial/ folder, which ships via the Content Include below and is the
-         copy the app actually uses. Without this exclude, publish ALSO copies it under runtimes/ —
-         ~108MB of duplicate Mercurial. (build assets still import, so CopyFiles still runs.) -->
-    <PackageReference Include="SIL.Chorus.Mercurial" ExcludeAssets="native" />
+    <PackageReference Include="SIL.Chorus.Mercurial" />
     <PackageReference Include="SIL.Chorus.ChorusMerge" GeneratePathProperty="true" />
+    <!-- GeneratePathProperty so we can copy the NewLangProj template out of the package (below).
+         SIL.LCModel is otherwise a transitive dependency via FwDataMiniLcmBridge. -->
+    <PackageReference Include="SIL.LCModel" GeneratePathProperty="true" />
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\Harmony.App.References.props" />
   <ItemGroup>
     <ProjectReference Include="../FwLite/FwDataMiniLcmBridge/FwDataMiniLcmBridge.csproj" />
     <ProjectReference Include="../FwLite/LcmCrdt/LcmCrdt.csproj" />
     <ProjectReference Include="../FwLite/FwLiteProjectSync/FwLiteProjectSync.csproj" />
+    <ProjectReference Include="../FwLite/MiniLcmWeb/MiniLcmWeb.csproj" />
     <!-- FixFwData: co-publish only (no compile-time reference). ReferenceOutputAssembly=false
          keeps the web app from linking FixFwData; PublishFixFwData (below) publishes it beside
          FwHeadless. Without that, dotnet publish for this web project omits FixFwData's standalone
@@ -43,13 +43,18 @@
     <Content Remove="Mercurial\contrib\vs2022-settings.json" />
     <Content Include="Mercurial\**" CopyToOutputDirectory="Always" Watch="false" />
     <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" Watch="false" />
+    <!-- Ship the LCM project templates (NewLangProj.fwdata etc.) so ProjectCreationService can build a
+         new project from them. TemplatesFolder is pointed at this output folder in FwHeadlessKernel. -->
+    <Content Include="$(PkgSIL_LCModel)/contentFiles/Templates/*.*"
+      Link="Templates/%(Filename)%(Extension)"
+      CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
     <None Include="chorusmerge">
       <Link>chorusmerge</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <!-- Do not update this net8.0 path when we change frameworks; instead, this should be updated if/when Chorus acquires a net10.0 build -->
+    <!-- Do not update this net8.0 path when we change frameworks; instead, this should be updated if/when Chorus acquires a net11.0 build -->
     <None Include="$(PkgSIL_Chorus_ChorusMerge)\lib\net8.0\ChorusMerge.runtimeconfig.json">
       <Link>ChorusMerge.runtimeconfig.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

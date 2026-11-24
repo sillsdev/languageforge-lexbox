@@ -37,6 +37,15 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
     }
 
     [Fact]
+    public async Task UploadFile_PutIdenticalContent_Succeeds()
+    {
+        var (guid, result) = await Fixture.PostFile(TestRepoZipPath);
+        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        result = await Fixture.PutFile(TestRepoZipPath, guid);
+        result.ShouldBeSuccessful();
+    }
+
+    [Fact]
     public async Task UploadFile_FailsForNonMembers()
     {
         var (guid, result) = await Fixture.PostFile(TestRepoZipPath, loginAs: "user");
@@ -193,75 +202,24 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
     }
 
     [Fact]
-    public async Task UploadFile_OverridingLinkedPathSubfolder_Works()
+    public async Task UploadFile_SecondUploadsDoNotMoveFile()
     {
-        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideSubfolder: "Pictures");
+        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, contentType: "image/png");
         result.StatusCode.Should().Be(HttpStatusCode.Created);
         var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
         listResult.ShouldBeSuccessful();
         var files = fileListing?.Files ?? [];
         files.Should().Contain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
-        files.Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
-        files.Should().NotContain(Path.Join(fileId.ToString(), TestRepoZipFilename));
-        // LinkedFiles subfolder must NOT be part of filename returned by metadata endpoint
         var (metadata, mResult) = await Fixture.GetFileMetadata(fileId);
         mResult.ShouldBeSuccessful();
-        metadata.Should().NotBeNull();
-        metadata.Filename.Should().Be(TestRepoZipFilename);
-    }
-
-    [Fact]
-    public async Task UploadFile_OverridingLinkedPathSubfolder_SecondTimeDifferent_Fails()
-    {
-        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideSubfolder: "Pictures");
-        result.StatusCode.Should().Be(HttpStatusCode.Created);
-        result = await Fixture.PutFile(TestRepoZipPath, fileId, overrideSubfolder: "AudioVisual");
-        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
-        listResult.ShouldBeSuccessful();
-        var files = fileListing?.Files ?? [];
-        files.Should().Contain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
-        files.Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
-        files.Should().NotContain(Path.Join(fileId.ToString(), TestRepoZipFilename));
-    }
-
-    [Fact]
-    public async Task UploadFile_OverridingLinkedPathSubfolder_SecondUploadsDoNotMoveFile()
-    {
-        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath, overrideSubfolder: "Pictures");
-        result.StatusCode.Should().Be(HttpStatusCode.Created);
+        metadata!.Filename.Should().Be(TestRepoZipFilename);
         var secondPath = TestRepoZipPath + ".bak";
         await File.WriteAllTextAsync(secondPath, "test");
         result = await Fixture.PutFile(secondPath, fileId);
         result.ShouldBeSuccessful();
-        var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
-        listResult.ShouldBeSuccessful();
-        var files = fileListing?.Files ?? [];
-        files.Should().Contain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
-        files.Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
-        files.Should().NotContain(Path.Join(fileId.ToString(), TestRepoZipFilename));
-    }
-
-    [Fact]
-    public async Task UploadFile_WithoutSubfolder_ThenTryingToOverride_Fails()
-    {
-        var (fileId, result) = await Fixture.PostFile(TestRepoZipPath); // MIME type "application/zip" will go into LinkedFiles, no subfolder
-        result.StatusCode.Should().Be(HttpStatusCode.Created);
-        var (fileListing, listResult) = await Fixture.ListFiles(Fixture.ProjectId);
-        listResult.ShouldBeSuccessful();
-        var files = fileListing?.Files ?? [];
-        files.Should().Contain(Path.Join(fileId.ToString(), TestRepoZipFilename));
-        files.Should().NotContain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
-        files.Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
-        result = await Fixture.PutFile(TestRepoZipPath, fileId, overrideSubfolder: "Pictures");
-        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         var (fileListing2, listResult2) = await Fixture.ListFiles(Fixture.ProjectId);
         listResult2.ShouldBeSuccessful();
-        var files2 = fileListing2?.Files ?? [];
-        files2.Should().Contain(Path.Join(fileId.ToString(), TestRepoZipFilename));
-        files2.Should().NotContain(Path.Join("Pictures", fileId.ToString(), TestRepoZipFilename));
-        files2.Should().NotContain(Path.Join("AudioVisual", fileId.ToString(), TestRepoZipFilename));
-        files2.Should().BeEquivalentTo(files);
+        (fileListing2?.Files ?? []).Should().BeEquivalentTo(files);
     }
 
     [Theory]
@@ -273,6 +231,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
     [InlineData(".jpeg", "Pictures")]
     [InlineData(".gif", "Pictures")]
     [InlineData(".png", "Pictures")]
+    [InlineData(".html", "Plugins")]
     public async Task UploadFile_WithoutContentType_GuessesFromFilename(string extension, string expectedFolder)
     {
         var otherPath = TestRepoZipPath.Replace(".zip", extension);
@@ -351,7 +310,7 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
             var (guid, result) = await Fixture.PostFile(dummyPath, deleteContentLengthHeader: true);
             if (result.StatusCode == HttpStatusCode.RequestEntityTooLarge)
             {
-                // GitHub Actions runner forces Content-Length header to be present even if we omit it, so this test becomes meaningless on GHA
+                // ingress-nginx buffers the request body and adds a Content-Length header even if we omit it, so this test becomes meaningless behind nginx
                 // We would skip it, but the ability to skip tests at runtime was only added in xUnit 3 and we're currently on xUnit 2.9.2
             }
             else
@@ -397,12 +356,12 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
             var (guid, result) = await Fixture.PostFile(dummyPath, deleteContentLengthHeader: true);
             if (result.StatusCode == HttpStatusCode.RequestEntityTooLarge)
             {
-                // GitHub Actions runner forces Content-Length header to be present even if we omit it, so this test becomes meaningless on GHA
+                // ingress-nginx buffers the request body and adds a Content-Length header even if we omit it, so this test becomes meaningless behind nginx
                 // We would skip it, but the ability to skip tests at runtime was only added in xUnit 3 and we're currently on xUnit 2.9.2
             }
             else
             {
-                // Running locally, so this test can proceed
+                // No Content-Length header reached the server, so this test can proceed
                 result.StatusCode.Should().Be(HttpStatusCode.Created);
                 guid.Should().NotBeEmpty();
                 if (File.Exists(dummyPath)) File.Delete(dummyPath);
@@ -568,5 +527,14 @@ public class MediaFileTests : IClassFixture<MediaFileTestFixture>
         if (!hash.StartsWith('"')) hash = "\"" + hash;
         if (!hash.EndsWith('"')) hash = hash + "\"";
         return hash;
+    }
+
+    [Theory]
+    [InlineData("../escape.zip")]
+    [InlineData("dir/file.zip")]
+    public async Task UploadFile_WithPathInFilename_IsRejected(string filename)
+    {
+        var (_, result) = await Fixture.PostFile(TestRepoZipPath, overrideFilename: filename);
+        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }

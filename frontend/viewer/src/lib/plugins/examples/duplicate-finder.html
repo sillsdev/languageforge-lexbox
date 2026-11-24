@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Duplicate Finder</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-alt: #f0f1f4;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --good: #059669;
+    --good-soft: #e3f7ee;
+    --warn: #b45309;
+    --warn-soft: #fef3e0;
+    --info: #0369a1;
+    --info-soft: #e0f2fe;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+    --radius: 14px;
+    --vern-font: inherit;
+    --connector: color-mix(in srgb, var(--accent) 32%, var(--border));
+  }
+  html[data-theme="dark"] {
+    --bg: #16171b;
+    --surface: #1f2126;
+    --surface-alt: #26282e;
+    --border: #33353c;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --accent-soft: #2a2b5e;
+    --good: #34d399;
+    --good-soft: #123528;
+    --warn: #fbbf24;
+    --warn-soft: #3a2f12;
+    --info: #38bdf8;
+    --info-soft: #0b2c3d;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 20px 16px 48px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 2px; }
+  .subtitle { color: var(--text-muted); margin: 0 0 18px; font-size: 0.9rem; }
+
+  /* Toolbar */
+  .toolbar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); font-weight: 600; }
+  select {
+    font: inherit; font-size: 0.9rem; padding: 8px 11px;
+    border-radius: 9px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); font-family: inherit;
+    min-width: 150px;
+  }
+  select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+  /* Summary line */
+  .summary {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0 0 14px;
+    line-height: 1.4;
+  }
+  .summary b { color: var(--text); }
+  .cap-note {
+    display: inline-block; font-size: 0.78rem; color: var(--warn);
+    background: var(--warn-soft); padding: 4px 12px; border-radius: 999px; margin: 0 0 16px;
+  }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .tab {
+    appearance: none; background: none; border: none; font: inherit; cursor: pointer;
+    padding: 10px 4px; margin-bottom: -1px;
+    color: var(--text-muted); font-weight: 600; font-size: 0.9rem;
+    border-bottom: 2px solid transparent;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab .badge {
+    font-size: 0.72rem; font-weight: 700; line-height: 1;
+    background: var(--surface-alt); color: var(--text-muted);
+    border-radius: 999px; padding: 3px 8px; min-width: 20px; text-align: center;
+  }
+  .tab[aria-selected="true"] .badge { background: var(--accent-soft); color: var(--accent); }
+  .tab-hint { color: var(--text-muted); font-size: 0.85rem; margin: 0 0 16px; }
+
+  /* Cluster cards */
+  .clusters { display: flex; flex-direction: column; gap: 14px; }
+  .cluster {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px 16px;
+  }
+  .cluster-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .cluster-title { font-weight: 700; font-size: 1rem; font-family: var(--vern-font); word-break: break-word; }
+  .cluster-title.plain { font-family: inherit; }
+  .cluster-meta { color: var(--text-muted); font-size: 0.82rem; margin-left: auto; white-space: nowrap; }
+  .tag {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.01em;
+    border-radius: 999px; padding: 3px 10px; white-space: nowrap;
+  }
+  .tag.exact { color: var(--text-muted); background: var(--surface-alt); }
+  .tag.accent { color: var(--warn); background: var(--warn-soft); }
+  .tag.spelling { color: var(--info); background: var(--info-soft); }
+  .tag.gloss { color: var(--good); background: var(--good-soft); }
+
+  /* Members with a subtle connecting rail */
+  .members { display: flex; flex-direction: column; gap: 8px; border-left: 2px solid var(--connector); padding-left: 14px; margin-left: 4px; }
+  .member {
+    position: relative; text-align: left; font: inherit; cursor: pointer; width: 100%;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex; flex-direction: column; gap: 4px;
+    transition: border-color 0.12s ease, transform 0.12s ease;
+  }
+  .member::before {
+    content: ""; position: absolute; left: -15px; top: 50%; width: 12px; height: 2px;
+    background: var(--connector); transform: translateY(-50%);
+  }
+  .member:hover { border-color: var(--accent); transform: translateX(2px); }
+  .member:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .member-top { display: flex; align-items: baseline; gap: 8px; justify-content: space-between; }
+  .member .hw { font-weight: 700; font-family: var(--vern-font); word-break: break-word; }
+  .member .open { color: var(--accent); font-size: 0.78rem; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+  .member:hover .open { text-decoration: underline; }
+  .member .meta { color: var(--text-muted); font-size: 0.84rem; word-break: break-word; }
+  .member .meta .sep { opacity: 0.5; margin: 0 6px; }
+  .member .meta .pos { font-style: italic; }
+  .member .meta .muted { font-style: italic; opacity: 0.8; }
+
+  /* States */
+  .center-state { text-align: center; padding: 56px 20px; color: var(--text-muted); }
+  .celebrate { text-align: center; padding: 44px 20px; }
+  .celebrate .big { font-size: 2.6rem; }
+  .celebrate .msg { font-weight: 600; color: var(--good); margin-top: 10px; }
+  .celebrate .sub { color: var(--text-muted); font-size: 0.86rem; margin-top: 6px; }
+  .spinner { width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; margin: 0 auto 16px; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .scan-bar { max-width: 320px; margin: 16px auto 0; background: var(--surface-alt); border-radius: 999px; height: 10px; overflow: hidden; }
+  .scan-bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.35s ease; }
+  .error-box { border: 1px solid #f5b5b5; background: color-mix(in srgb, #f5b5b5 20%, var(--surface)); color: var(--text); padding: 14px 18px; border-radius: var(--radius); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Duplicate Finder</h1>
+  <p class="subtitle" id="subtitle">Spotting entries that may be duplicates, so you can review them.</p>
+
+  <div id="loading" class="center-state">
+    <div class="spinner"></div>
+    <div id="loading-text">Loading entries&hellip;</div>
+    <div class="scan-bar"><i id="scan-fill" style="width:0%"></i></div>
+  </div>
+
+  <div id="empty" class="center-state" hidden>
+    This project has no entries yet. Add some words, then come back to check for duplicates.
+  </div>
+
+  <div id="error" class="error-box" hidden></div>
+
+  <div id="app" hidden>
+    <div class="toolbar">
+      <div class="field">
+        <label for="vern-ws">Compare headwords in</label>
+        <select id="vern-ws"></select>
+      </div>
+      <div class="field" id="anal-ws-field" hidden>
+        <label for="anal-ws">Compare glosses in</label>
+        <select id="anal-ws"></select>
+      </div>
+      <div class="field">
+        <label for="sensitivity">Near-match sensitivity</label>
+        <select id="sensitivity">
+          <option value="exact">Exact only (off)</option>
+          <option value="fold">Include accents / case</option>
+          <option value="distance">Include close spelling (&le;1 edit)</option>
+        </select>
+      </div>
+    </div>
+
+    <p class="summary" id="summary"></p>
+    <div id="cap-note" class="cap-note" hidden></div>
+
+    <div class="tabs" role="tablist" id="tabs">
+      <button class="tab" role="tab" data-tab="exact" aria-selected="true">
+        <span>Exact headwords</span><span class="badge" id="badge-exact">0</span>
+      </button>
+      <button class="tab" role="tab" data-tab="near" aria-selected="false">
+        <span>Near-identical</span><span class="badge" id="badge-near">0</span>
+      </button>
+      <button class="tab" role="tab" data-tab="gloss" aria-selected="false">
+        <span>Identical glosses</span><span class="badge" id="badge-gloss">0</span>
+      </button>
+    </div>
+
+    <p class="tab-hint" id="tab-hint"></p>
+    <div class="clusters" id="clusters"></div>
+
+    <div id="all-clear" class="celebrate" hidden>
+      <div class="big">&#9989;</div>
+      <div class="msg" id="all-clear-msg"></div>
+      <div class="sub" id="all-clear-sub"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PAGE = 1000;              // API max per call
+  var CAP = 5000;               // safety cap on entries scanned
+  var MAX_COMPARISONS = 3000000; // guard for the distance-1 near-match scan
+  var MAX_KEY_LEN = 45;         // skip deletion-variant indexing of very long headwords
+  var PREFS_KEY = 'duplicate-finder-prefs';
+
+  var state = {
+    entries: [],
+    vernacular: [],   // [{wsId, name, font}]
+    analysis: [],     // [{wsId, name}]
+    analysisIds: [],
+    vernWs: null,
+    analWs: null,
+    sensitivity: 'distance',
+    activeTab: 'exact',
+    capped: false,
+    nearCapped: false,
+    results: {exact: [], near: [], gloss: []},
+  };
+
+  function $(id) { return document.getElementById(id); }
+  var F = window.fwlite;
+
+  function applyTheme(theme) {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (dark ? 'dark' : 'light'));
+  }
+  function showError(msg) {
+    $('loading').hidden = true;
+    $('app').hidden = true;
+    var b = $('error'); b.hidden = false; b.textContent = msg;
+  }
+  function notify(msg) { try { F.notify(msg); } catch (e) { /* toast is best-effort */ } }
+  function errMsg(err) { return err && err.message ? err.message : String(err); }
+
+  // --- Text helpers ---------------------------------------------------------
+  function textVal(multi, ws) {
+    if (!ws || !multi || multi[ws] == null) return '';
+    return F.asText(multi[ws]).trim();
+  }
+  function hasText(multi) {
+    return !!multi && Object.keys(multi).some(function (ws) { return !!multi[ws]; });
+  }
+  // headword = citationForm || lexemeForm, read in the chosen vernacular WS.
+  function headwordOf(entry) {
+    var field = hasText(entry.citationForm) ? entry.citationForm : (entry.lexemeForm || {});
+    return textVal(field, state.vernWs);
+  }
+  function firstGlossOf(entry) {
+    var senses = entry.senses || [];
+    for (var i = 0; i < senses.length; i++) {
+      if (state.analWs) { var g = textVal(senses[i].gloss, state.analWs); if (g) return g; }
+      var any = F.firstValue(senses[i].gloss || {}, state.analysisIds);
+      if (any) return any;
+    }
+    return '';
+  }
+  function posOf(entry) {
+    var senses = entry.senses || [];
+    for (var i = 0; i < senses.length; i++) {
+      var pos = senses[i].partOfSpeech;
+      if (pos && pos.name) {
+        var n = F.firstValue(pos.name, state.analysisIds) || Object.values(pos.name)[0];
+        if (n) return n;
+      }
+    }
+    return '';
+  }
+
+  // --- Normalization --------------------------------------------------------
+  // Exact key: NFC, trimmed, whitespace-collapsed, case-folded (keeps diacritics).
+  function exactKey(s) {
+    return s.normalize('NFC').trim().replace(/\s+/g, ' ').toLowerCase();
+  }
+  // Fold key: exact key with combining diacritics stripped.
+  function foldKey(exact) {
+    return exact.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
+  // --- Loading --------------------------------------------------------------
+  function fetchAll(total) {
+    var target = Math.min(total, CAP);
+    var out = [];
+    function loadNext() {
+      if (out.length >= target) return Promise.resolve(out);
+      var limit = Math.min(PAGE, target - out.length);
+      return F.getEntries({limit: limit, offset: out.length}).then(function (page) {
+        out = out.concat(page);
+        var pct = target ? Math.round(out.length / target * 100) : 100;
+        $('scan-fill').style.width = pct + '%';
+        $('loading-text').textContent = 'Loaded ' + out.length.toLocaleString() + ' of ' + target.toLocaleString() + ' entries…';
+        if (!page.length || out.length >= target) return out;
+        return loadNext();
+      });
+    }
+    return loadNext();
+  }
+
+  // --- Union-find -----------------------------------------------------------
+  function makeDSU(n) {
+    var parent = new Array(n);
+    for (var i = 0; i < n; i++) parent[i] = i;
+    function find(x) { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
+    function union(a, b) { var ra = find(a), rb = find(b); if (ra !== rb) parent[ra] = rb; }
+    return {find: find, union: union};
+  }
+
+  // Bounded edit-distance check: true iff Levenshtein(a, b) <= 1. No full DP.
+  function within1(a, b) {
+    if (a === b) return true;
+    var la = a.length, lb = b.length;
+    if (Math.abs(la - lb) > 1) return false;
+    if (la === lb) {
+      var diff = 0;
+      for (var i = 0; i < la; i++) { if (a[i] !== b[i] && ++diff > 1) return false; }
+      return true;
+    }
+    var s = la < lb ? a : b, l = la < lb ? b : a;   // s shorter, l longer by 1
+    var si = 0, li = 0, edits = 0;
+    while (si < s.length && li < l.length) {
+      if (s[si] === l[li]) { si++; li++; }
+      else { if (++edits > 1) return false; li++; }
+    }
+    return true;
+  }
+  function deletionVariants(k) {
+    var out = [];
+    for (var i = 0; i < k.length; i++) out.push(k.slice(0, i) + k.slice(i + 1));
+    return out;
+  }
+
+  // --- Compute clusters -----------------------------------------------------
+  // Build the eligible-headword list once for the chosen vernacular WS.
+  function eligibleHeadwords() {
+    var list = [];
+    state.entries.forEach(function (entry) {
+      var hw = headwordOf(entry);
+      if (!hw) return;
+      var ex = exactKey(hw);
+      list.push({entry: entry, hw: hw, ex: ex, fold: foldKey(ex)});
+    });
+    return list;
+  }
+
+  function computeExact(list) {
+    var groups = {};
+    list.forEach(function (item) {
+      (groups[item.ex] || (groups[item.ex] = [])).push(item);
+    });
+    var out = [];
+    Object.keys(groups).forEach(function (key) {
+      var members = groups[key];
+      if (members.length < 2) return;
+      out.push({
+        members: members,
+        title: members[0].hw,
+        titlePlain: false,
+        tag: {cls: 'exact', label: 'Identical headword'},
+      });
+    });
+    return out;
+  }
+
+  function computeNear(list, sensitivity) {
+    state.nearCapped = false;
+    if (sensitivity === 'exact' || list.length < 2) return [];
+
+    var dsu = makeDSU(list.length);
+
+    // Level 1: union headwords equal after accent/case folding.
+    var byFold = {};
+    list.forEach(function (item, idx) {
+      var f = item.fold;
+      if (byFold[f] === undefined) byFold[f] = idx;
+      else dsu.union(byFold[f], idx);
+    });
+
+    // Level 2: union headwords within edit distance 1, via a deletion-neighbour index.
+    if (sensitivity === 'distance') {
+      var index = {};
+      function addKey(key, idx) { (index[key] || (index[key] = [])).push(idx); }
+      list.forEach(function (item, idx) {
+        addKey(item.fold, idx);
+        if (item.fold.length <= MAX_KEY_LEN) {
+          deletionVariants(item.fold).forEach(function (v) { addKey(v, idx); });
+        }
+      });
+      var comparisons = 0;
+      var keys = Object.keys(index);
+      for (var k = 0; k < keys.length && !state.nearCapped; k++) {
+        var bucket = index[keys[k]];
+        if (bucket.length < 2) continue;
+        for (var i = 0; i < bucket.length && !state.nearCapped; i++) {
+          for (var j = i + 1; j < bucket.length; j++) {
+            if (dsu.find(bucket[i]) === dsu.find(bucket[j])) continue;
+            if (++comparisons > MAX_COMPARISONS) { state.nearCapped = true; break; }
+            if (within1(list[bucket[i]].fold, list[bucket[j]].fold)) dsu.union(bucket[i], bucket[j]);
+          }
+        }
+      }
+    }
+
+    // Gather clusters; drop those that are purely exact duplicates (all same exact key).
+    var groups = {};
+    list.forEach(function (item, idx) {
+      var root = dsu.find(idx);
+      (groups[root] || (groups[root] = [])).push(item);
+    });
+    var out = [];
+    Object.keys(groups).forEach(function (root) {
+      var members = groups[root];
+      if (members.length < 2) return;
+      var firstEx = members[0].ex;
+      if (members.every(function (m) { return m.ex === firstEx; })) return; // exact-only, shown elsewhere
+      var firstFold = members[0].fold;
+      var sameFold = members.every(function (m) { return m.fold === firstFold; });
+      out.push({
+        members: members,
+        title: members[0].hw,
+        titlePlain: false,
+        tag: sameFold
+          ? {cls: 'accent', label: 'Differ by accents / case'}
+          : {cls: 'spelling', label: 'Close spelling (≤1 edit)'},
+      });
+    });
+    return out;
+  }
+
+  function computeGloss() {
+    if (!state.analWs) return [];
+    var groups = {};   // glossKey -> {gloss, entries:[], ids:{}}
+    state.entries.forEach(function (entry) {
+      var seen = {};
+      (entry.senses || []).forEach(function (sense) {
+        var g = textVal(sense.gloss, state.analWs);
+        if (!g) return;
+        var key = exactKey(g);
+        if (seen[key]) return;      // count each entry once per gloss
+        seen[key] = true;
+        var grp = groups[key] || (groups[key] = {gloss: g, members: [], ids: {}});
+        if (!grp.ids[entry.id]) { grp.ids[entry.id] = true; grp.members.push({entry: entry, hw: headwordOf(entry)}); }
+      });
+    });
+    var out = [];
+    Object.keys(groups).forEach(function (key) {
+      var grp = groups[key];
+      if (grp.members.length < 2) return;
+      out.push({
+        members: grp.members,
+        title: '“' + grp.gloss + '”',
+        titlePlain: true,
+        tag: {cls: 'gloss', label: 'Shared gloss'},
+      });
+    });
+    return out;
+  }
+
+  // Sort: most members first, then alphabetically by title.
+  function sortClusters(clusters) {
+    clusters.sort(function (a, b) {
+      if (b.members.length !== a.members.length) return b.members.length - a.members.length;
+      return a.title.localeCompare(b.title);
+    });
+    return clusters;
+  }
+
+  function computeAll() {
+    var list = eligibleHeadwords();
+    state.results.exact = sortClusters(computeExact(list));
+    state.results.near = sortClusters(computeNear(list, state.sensitivity));
+    state.results.gloss = sortClusters(computeGloss());
+  }
+
+  // --- Rendering ------------------------------------------------------------
+  function countEntries(clusters) {
+    var seen = {}, n = 0;
+    clusters.forEach(function (c) {
+      c.members.forEach(function (m) { if (!seen[m.entry.id]) { seen[m.entry.id] = true; n++; } });
+    });
+    return n;
+  }
+  function pluralGroups(n) { return n.toLocaleString() + ' group' + (n === 1 ? '' : 's'); }
+  function pluralEntries(n) { return n.toLocaleString() + ' entr' + (n === 1 ? 'y' : 'ies'); }
+
+  function renderMember(m) {
+    var btn = document.createElement('button');
+    btn.className = 'member';
+    btn.type = 'button';
+
+    var top = document.createElement('div');
+    top.className = 'member-top';
+    var hw = document.createElement('span');
+    hw.className = 'hw';
+    hw.textContent = m.hw || '(no headword)';
+    top.appendChild(hw);
+    var open = document.createElement('span');
+    open.className = 'open';
+    open.textContent = 'Open ↗';
+    top.appendChild(open);
+    btn.appendChild(top);
+
+    var meta = document.createElement('div');
+    meta.className = 'meta';
+    var gloss = firstGlossOf(m.entry);
+    if (gloss) { var g = document.createElement('span'); g.textContent = gloss; meta.appendChild(g); }
+    else { var ng = document.createElement('span'); ng.className = 'muted'; ng.textContent = 'no gloss'; meta.appendChild(ng); }
+
+    var pos = posOf(m.entry);
+    if (pos) {
+      meta.appendChild(sep());
+      var p = document.createElement('span'); p.className = 'pos'; p.textContent = pos; meta.appendChild(p);
+    }
+    var nSenses = (m.entry.senses || []).length;
+    meta.appendChild(sep());
+    var sc = document.createElement('span');
+    sc.textContent = nSenses + ' sense' + (nSenses === 1 ? '' : 's');
+    meta.appendChild(sc);
+    btn.appendChild(meta);
+
+    btn.addEventListener('click', function () {
+      try { F.openEntry(m.entry.id); } catch (e) { notify('Could not open that entry: ' + errMsg(e)); }
+    });
+    return btn;
+  }
+  function sep() { var s = document.createElement('span'); s.className = 'sep'; s.textContent = '·'; return s; }
+
+  function renderCluster(cluster) {
+    var card = document.createElement('div');
+    card.className = 'cluster';
+
+    var head = document.createElement('div');
+    head.className = 'cluster-head';
+    var tag = document.createElement('span');
+    tag.className = 'tag ' + cluster.tag.cls;
+    tag.textContent = cluster.tag.label;
+    head.appendChild(tag);
+    var title = document.createElement('span');
+    title.className = 'cluster-title' + (cluster.titlePlain ? ' plain' : '');
+    title.textContent = cluster.title;
+    head.appendChild(title);
+    var meta = document.createElement('span');
+    meta.className = 'cluster-meta';
+    meta.textContent = pluralEntries(cluster.members.length);
+    head.appendChild(meta);
+    card.appendChild(head);
+
+    var members = document.createElement('div');
+    members.className = 'members';
+    cluster.members.forEach(function (m) { members.appendChild(renderMember(m)); });
+    card.appendChild(members);
+    return card;
+  }
+
+  var TAB_HINTS = {
+    exact: 'Entries whose headword is identical (ignoring spacing and letter case).',
+    near: 'Headwords that are nearly the same — differing only by accents, case, or a single-character typo.',
+    gloss: 'Different entries that share the same gloss — possible synonyms or duplicate concepts worth a look.',
+  };
+  var ALL_CLEAR = {
+    exact: {msg: 'No exact-duplicate headwords.', sub: 'Every headword in this writing system is unique.'},
+    near: {msg: 'No near-identical headwords.', sub: 'Nothing matched at the current sensitivity.'},
+    gloss: {msg: 'No shared glosses.', sub: 'No two entries share the same gloss in this language.'},
+  };
+
+  function renderActiveTab() {
+    var tab = state.activeTab;
+    $('tab-hint').textContent = TAB_HINTS[tab];
+    var clusters = state.results[tab];
+    var host = $('clusters');
+    host.innerHTML = '';
+
+    if (tab === 'near' && state.sensitivity === 'exact') {
+      host.hidden = true;
+      $('all-clear').hidden = false;
+      $('all-clear-msg').textContent = 'Near-match scanning is off.';
+      $('all-clear-sub').textContent = 'Choose a sensitivity above to include accent/case or close-spelling matches.';
+      return;
+    }
+    if (!clusters.length) {
+      host.hidden = true;
+      $('all-clear').hidden = false;
+      $('all-clear-msg').textContent = ALL_CLEAR[tab].msg;
+      $('all-clear-sub').textContent = ALL_CLEAR[tab].sub;
+      return;
+    }
+    $('all-clear').hidden = true;
+    host.hidden = false;
+    var frag = document.createDocumentFragment();
+    clusters.forEach(function (c) { frag.appendChild(renderCluster(c)); });
+    host.appendChild(frag);
+
+    if (tab === 'near' && state.nearCapped) {
+      var note = document.createElement('p');
+      note.className = 'tab-hint';
+      note.textContent = 'Near-match scanning was limited on this large dataset — some matches may be missing.';
+      host.appendChild(note);
+    }
+  }
+
+  function updateBadges() {
+    $('badge-exact').textContent = state.results.exact.length.toLocaleString();
+    $('badge-near').textContent = state.results.near.length.toLocaleString();
+    $('badge-gloss').textContent = state.results.gloss.length.toLocaleString();
+  }
+
+  function updateSummary() {
+    var ex = state.results.exact, near = state.results.near, gl = state.results.gloss;
+    var totalGroups = ex.length + near.length + gl.length;
+    if (totalGroups === 0) {
+      $('summary').innerHTML = '';
+      $('summary').textContent = 'No possible duplicates found — your lexicon looks clean.';
+      return;
+    }
+    var parts = [];
+    if (ex.length) parts.push(pluralGroups(ex.length) + ' of exact-duplicate headwords covering ' + pluralEntries(countEntries(ex)));
+    if (near.length) parts.push(pluralGroups(near.length) + ' of near-identical headwords');
+    if (gl.length) parts.push(pluralGroups(gl.length) + ' of shared glosses');
+    var s = $('summary');
+    s.innerHTML = '';
+    s.appendChild(document.createTextNode('Found '));
+    parts.forEach(function (p, i) {
+      var b = document.createElement('b');
+      // Bold only the leading count of each part for scannability.
+      var m = p.match(/^(\S+\s\S+)([\s\S]*)$/);
+      if (m) { b.textContent = m[1]; s.appendChild(b); s.appendChild(document.createTextNode(m[2])); }
+      else { s.appendChild(document.createTextNode(p)); }
+      if (i < parts.length - 1) s.appendChild(document.createTextNode(i === parts.length - 2 ? ', and ' : ', '));
+    });
+    s.appendChild(document.createTextNode('. These are review aids — open each to compare, then merge or edit manually.'));
+  }
+
+  function refresh() {
+    computeAll();
+    updateBadges();
+    updateSummary();
+    renderActiveTab();
+  }
+
+  function savePrefs() {
+    F.storage.set(PREFS_KEY, {
+      vernWs: state.vernWs, analWs: state.analWs,
+      sensitivity: state.sensitivity, activeTab: state.activeTab,
+    }).catch(function () {});
+  }
+
+  function selectTab(tab) {
+    state.activeTab = tab;
+    Array.prototype.forEach.call($('tabs').querySelectorAll('.tab'), function (btn) {
+      btn.setAttribute('aria-selected', btn.getAttribute('data-tab') === tab ? 'true' : 'false');
+    });
+    savePrefs();
+    renderActiveTab();
+  }
+
+  function setVernFont() {
+    var ws = state.vernacular.filter(function (w) { return w.wsId === state.vernWs; })[0];
+    var font = ws && ws.font;
+    document.documentElement.style.setProperty('--vern-font', (font ? '"' + font + '", ' : '') + 'inherit');
+  }
+
+  function fillSelect(select, list, chosen) {
+    select.innerHTML = '';
+    list.forEach(function (w) {
+      var opt = document.createElement('option');
+      opt.value = w.wsId;
+      opt.textContent = w.name || w.wsId;
+      if (w.wsId === chosen) opt.selected = true;
+      select.appendChild(opt);
+    });
+    select.disabled = list.length <= 1;
+  }
+
+  // --- Init -----------------------------------------------------------------
+  function init(context) {
+    applyTheme(context.theme);
+    $('subtitle').textContent = 'Reviewing ' + context.project.projectName + ' for entries that may be duplicates.';
+
+    Promise.all([
+      F.getWritingSystems(),
+      F.countEntries({}),
+      F.storage.get(PREFS_KEY),
+    ]).then(function (res) {
+      var ws = res[0], total = res[1], prefs = res[2] || {};
+
+      state.vernacular = (ws.vernacular || []).filter(function (w) { return !w.isAudio; })
+        .map(function (w) { return {wsId: w.wsId, name: w.name || w.wsId, font: w.font}; });
+      state.analysis = (ws.analysis || []).filter(function (w) { return !w.isAudio; })
+        .map(function (w) { return {wsId: w.wsId, name: w.name || w.wsId}; });
+      state.analysisIds = state.analysis.map(function (w) { return w.wsId; });
+
+      var vernIds = state.vernacular.map(function (w) { return w.wsId; });
+      state.vernWs = (prefs.vernWs && vernIds.indexOf(prefs.vernWs) >= 0) ? prefs.vernWs : (vernIds[0] || null);
+      state.analWs = (prefs.analWs && state.analysisIds.indexOf(prefs.analWs) >= 0) ? prefs.analWs : (state.analysisIds[0] || null);
+      if (prefs.sensitivity && ['exact', 'fold', 'distance'].indexOf(prefs.sensitivity) >= 0) state.sensitivity = prefs.sensitivity;
+      if (prefs.activeTab && ['exact', 'near', 'gloss'].indexOf(prefs.activeTab) >= 0) state.activeTab = prefs.activeTab;
+
+      if (total === 0) {
+        $('loading').hidden = true;
+        $('empty').hidden = false;
+        return;
+      }
+      if (!state.vernWs) {
+        showError('This project has no text vernacular writing system to compare headwords on.');
+        return;
+      }
+      state.capped = total > CAP;
+
+      return fetchAll(total).then(function (entries) {
+        state.entries = entries;
+        setVernFont();
+
+        fillSelect($('vern-ws'), state.vernacular, state.vernWs);
+        if (state.analysis.length > 1) {
+          $('anal-ws-field').hidden = false;
+          fillSelect($('anal-ws'), state.analysis, state.analWs);
+        }
+        $('sensitivity').value = state.sensitivity;
+
+        $('vern-ws').addEventListener('change', function () {
+          state.vernWs = this.value; setVernFont(); savePrefs(); refresh();
+        });
+        $('anal-ws').addEventListener('change', function () {
+          state.analWs = this.value; savePrefs(); refresh();
+        });
+        $('sensitivity').addEventListener('change', function () {
+          state.sensitivity = this.value; savePrefs(); refresh();
+        });
+        Array.prototype.forEach.call($('tabs').querySelectorAll('.tab'), function (btn) {
+          btn.addEventListener('click', function () { selectTab(btn.getAttribute('data-tab')); });
+        });
+
+        if (state.capped) {
+          $('cap-note').hidden = false;
+          $('cap-note').textContent = 'Scanned the first ' + CAP.toLocaleString() +
+            ' entries only. Duplicates beyond that are not shown.';
+        }
+
+        selectTab(state.activeTab);   // sets aria state
+        refresh();
+        $('loading').hidden = true;
+        $('app').hidden = false;
+      });
+    }).catch(function (err) {
+      showError('Could not scan for duplicates: ' + errMsg(err));
+    });
+  }
+
+  F.ready.then(init);
+})();
+</script>
+</body>
+</html>

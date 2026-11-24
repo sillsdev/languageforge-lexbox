@@ -1,0 +1,337 @@
+using System.Diagnostics;
+using Chorus.VcsDrivers.Mercurial;
+using LexCore.Auth;
+using FluentAssertions;
+using SIL.Progress;
+using System.Net.Http.Json;
+using System.Text.Json.Nodes;
+using Testing.ApiTests;
+using Testing.Fixtures;
+using Testing.Services;
+using Xunit.Abstractions;
+using static Testing.Services.Constants;
+using static HgClientTests.SendReceiveService;
+using static Testing.Services.Utils;
+
+namespace HgClientTests;
+
+[Trait("Category", "HgIntegration")]
+public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>, IClassFixture<HgClientFixture>
+{
+    private readonly ITestOutputHelper _output;
+    private readonly IntegrationFixture _srFixture;
+    private readonly ApiTestBase _adminApiTester;
+
+    private readonly SendReceiveService _sendReceiveService;
+
+    public SendReceiveServiceTests(ITestOutputHelper output, IntegrationFixture sendReceiveSrFixture)
+    {
+        _output = output;
+        _sendReceiveService = new SendReceiveService(_output);
+        _srFixture = sendReceiveSrFixture;
+        _adminApiTester = _srFixture.AdminApiTester;
+    }
+
+    private static string? VersionOf(Type type) =>
+        FileVersionInfo.GetVersionInfo(type.Assembly.Location).ProductVersion?.Split('+')[0];
+
+    [Fact]
+    public async Task VerifyHgWorking()
+    {
+        var version = await SendReceiveService.GetHgVersion();
+        _output.WriteLine("Hg version: " + version);
+        _output.WriteLine($"LibChorus {VersionOf(typeof(HgRepository))}, LfMergeBridge {VersionOf(typeof(LfMergeBridge.LfMergeBridge))}");
+        HgRunner.Run("hg version", Environment.CurrentDirectory, 5, new XunitStringBuilderProgress(_output) { ShowVerbose = true });
+        HgRepository.GetEnvironmentReadinessMessage("en").Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(HgProtocol.Hgweb, "manager")]
+    [InlineData(HgProtocol.Resumable, "manager")]
+    public async Task CanCloneSendReceiveWithJwtOverBasicAuth(HgProtocol hgProtocol, string user)
+    {
+        var projectCode = TestingEnvironmentVariables.ProjectCode;
+        var jwt = await JwtHelper.GetProjectJwtForUser(new SendReceiveAuth(user, TestingEnvironmentVariables.DefaultPassword), projectCode);
+        var sendReceiveParams = GetParams(hgProtocol, projectCode);
+        _sendReceiveService.RunCloneSendReceive(sendReceiveParams,
+            new SendReceiveAuth(LexAuthConstants.JwtOverBasicAuthUsername, jwt));
+    }
+
+    [Theory]
+    [InlineData(HgProtocol.Hgweb)]
+    [InlineData(HgProtocol.Resumable)]
+    public async Task ModifyProjectData(HgProtocol protocol)
+    {
+        // Create a fresh project
+        var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
+        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester, true);
+        var stateBeforePush = await _adminApiTester.GetProjectRepoState(projectConfig.Code);
+        stateBeforePush.LastCommit.Should().BeNull();
+        stateBeforePush.RepoSizeInKb.Should().BeNull();
+        stateBeforePush.LexEntryCount.Should().BeNull();
+
+        // Push the project to the server
+        var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
+        _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
+
+        // Verify pushed and store last commit. The push queues UpdateProjectMetadataJob, which updates the last commit,
+        // repo size and entry count
+        var stateAfterPush = await _adminApiTester.WaitForProjectRepoState(projectConfig.Code,
+            s => s.LastCommit is not null && s.RepoSizeInKb > 0 && s.LexEntryCount is not null);
+        var lastCommitDate = stateAfterPush.LastCommit;
+        lastCommitDate.Should().NotBeNull();
+        stateAfterPush.RepoSizeInKb.Should().BeGreaterThan(0);
+        stateAfterPush.LexEntryCount.Should().Be(1, "the template project contains a single entry");
+        stateAfterPush.HasAbandonedTransactions.Should().BeFalse();
+
+        // Modify
+        var fwDataFileInfo = new FileInfo(sendReceiveParams.FwDataFile);
+        fwDataFileInfo.Length.Should().BeGreaterThan(0);
+        ModifyProjectHelper.ModifyProject(sendReceiveParams.FwDataFile);
+
+        // Push changes
+        _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth, "Modify project data automated test");
+
+        // Verify the push updated the last commit date
+        var lastCommitDateAfter = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
+        lastCommitDateAfter.Should().BeAfter(lastCommitDate!.Value);
+    }
+
+    [Theory]
+    [InlineData(HgProtocol.Resumable, HgProtocol.Hgweb)]
+    [InlineData(HgProtocol.Hgweb, HgProtocol.Resumable)]
+    public async Task CanSendReceiveInterleavingHgwebAndResumable(HgProtocol firstProtocol, HgProtocol secondProtocol)
+    {
+        // Interop smoke test: a single project sent/received through both the hgweb and
+        // hgresume servers, alternating protocols so each server pulls and appends to
+        // store files the other last wrote. Verifies the two front the same repo
+        // consistently across protocols.
+        //
+        // Note: this does NOT guard the hgweb/hgresume file-ownership issue behind PR #2590.
+        // Freshly-created repos get setgid, group-shared (660) store files owned by the
+        // shared www-data group, so it doesn't matter whether hgresume runs as root or
+        // www-data — either server can write the other's files. Reproducing that bug needs
+        // a repo without group-shared perms, which a new project never has.
+
+        // Create a fresh project and push it to the server via the first protocol.
+        var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
+        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester, true);
+
+        var firstParams = new SendReceiveParams(firstProtocol, projectConfig);
+        _sendReceiveService.SendReceiveProject(firstParams, AdminAuth);
+
+        var lastCommit = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
+        lastCommit.Should().NotBeNull();
+
+        // Modify locally and push via the second protocol, which pulls the first protocol's
+        // commit and appends to the store files it wrote.
+        ModifyProjectHelper.ModifyProject(projectConfig.FwDataFile);
+        var secondParams = new SendReceiveParams(secondProtocol, projectConfig);
+        _sendReceiveService.SendReceiveProject(secondParams, AdminAuth, $"Modify via {secondProtocol}");
+
+        var lastCommitAfterSecond = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
+        lastCommitAfterSecond.Should().BeAfter(lastCommit!.Value);
+
+        // Modify again and push via the first protocol, so it in turn appends to the files
+        // the second protocol just wrote — completing the round trip.
+        ModifyProjectHelper.ModifyProject(projectConfig.FwDataFile);
+        _sendReceiveService.SendReceiveProject(firstParams, AdminAuth, $"Modify via {firstProtocol}");
+
+        var lastCommitAfterThird = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
+        lastCommitAfterThird.Should().BeAfter(lastCommitAfterSecond!.Value);
+    }
+
+    [Theory]
+    [InlineData(HgProtocol.Hgweb)]
+    [InlineData(HgProtocol.Resumable)]
+    public async Task SendReceiveAfterProjectReset(HgProtocol protocol)
+    {
+        // Create a fresh project
+        var projectConfig = _srFixture.InitLocalFlexProjectWithRepo(protocol, isConfidential: false, null, "SR_AfterReset");
+        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester, true);
+
+        var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
+        var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
+
+        // First, save the current value of `hg tip` from the original project
+        var tipUri = $"/hg/{projectConfig.Code}/tags?style=json";
+        var response = await _adminApiTester.HttpClient.GetAsync(tipUri);
+        var jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
+        var originalTip = jsonResult?["node"]?.AsValue()?.ToString();
+        originalTip.Should().NotBeNull();
+
+        // /api/project/resetProject/{code}
+        // /api/project/finishResetProject/{code}  // leave project empty
+        // /api/project/backupProject/{code}  // download zip file
+        // /api/project/upload-zip/{code}  // upload zip file
+
+        // Step 1: reset project
+        await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/resetProject/{projectConfig.Code}", null);
+        await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/finishResetProject/{projectConfig.Code}", null);
+
+        // Step 2: verify project is now empty, i.e. tip is "0000000..."
+        response = await _adminApiTester.HttpClient.GetAsync(tipUri);
+        jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
+        var emptyTip = jsonResult?["node"]?.AsValue()?.ToString();
+        emptyTip.Should().NotBeNullOrEmpty();
+        emptyTip.Replace("0", "").Should().BeEmpty();
+
+        // Step 3: do Send/Receive
+        if (protocol == HgProtocol.Resumable)
+        {
+            // Delete the Chorus revision cache of resumable, otherwise Chorus will send the wrong data during S/R
+            var chorusStorageFolder = Path.Join(sendReceiveParams.Dir, "Chorus", "ChorusStorage");
+            var revisionCache = new FileInfo(Path.Join(chorusStorageFolder, "revisioncache.json"));
+            if (revisionCache.Exists)
+            {
+                revisionCache.Delete();
+            }
+        }
+
+        var srResultStep3 = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
+        _output.WriteLine(srResultStep3);
+
+        // Step 4: verify project tip is same hash as original project tip
+        response = await _adminApiTester.HttpClient.GetAsync(tipUri);
+        jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
+        var postSRTip = jsonResult?["node"]?.AsValue()?.ToString();
+        postSRTip.Should().NotBeNull();
+        postSRTip.Should().Be(originalTip);
+    }
+
+    [Fact]
+    public async Task SendNewProject_Big()
+    {
+        await SendNewProject(180, 10);
+    }
+
+    private async Task SendNewProject(int totalSizeMb, int fileCount)
+    {
+        var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
+        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester, true);
+
+        await WaitForHgRefreshIntervalAsync();
+
+        var sendReceiveParams = new SendReceiveParams(HgProtocol.Hgweb, projectConfig);
+
+        //add a bunch of small files, must be in separate commits otherwise hg runs out of memory. But we want the push to be large
+        var progress = new NullProgress();
+        for (var i = 1; i <= fileCount; i++)
+        {
+            var fileName = $"test-file{i}.bin";
+            WriteFile(Path.Combine(sendReceiveParams.Dir, fileName), totalSizeMb / fileCount);
+            HgRunner.Run($"hg add {fileName}", sendReceiveParams.Dir, 5, progress);
+            HgRunner.Run($"""hg commit -m "large file commit {i}" """, sendReceiveParams.Dir, 5, progress).ExitCode.Should().Be(0);
+        }
+
+        var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
+        _output.WriteLine(srResult);
+    }
+
+    private static void WriteFile(string path, int sizeMb)
+    {
+        var random = new Random();
+        using var file = File.Open(path, FileMode.Create);
+
+        Span<byte> buffer = stackalloc byte[1024 * 1024];
+        for (var i = 0; i < (sizeMb * 1024 * 1024 / buffer.Length); i++)
+        {
+            random.NextBytes(buffer);
+            file.Write(buffer);
+        }
+        file.Flush(true);
+    }
+
+
+    [Fact]
+    public void InvalidPassOnCloneHgWeb()
+    {
+        var sendReceiveParams = GetParams(HgProtocol.Hgweb);
+        var act = () => _sendReceiveService.CloneProject(sendReceiveParams, InvalidPass);
+
+        act.Should().Throw<RepositoryAuthorizationException>();
+    }
+
+    [Fact]
+    public void InvalidPassOnCloneHgResumable()
+    {
+        var sendReceiveParams = GetParams(HgProtocol.Resumable);
+        var act = () => _sendReceiveService.CloneProject(sendReceiveParams, InvalidPass);
+
+        act.Should().Throw<UnauthorizedAccessException>();
+    }
+
+    [Fact(Skip = "Low value test for it's runtime")]
+    public void InvalidPassOnSendReceiveHgWeb()
+    {
+        var sendReceiveParams = GetParams(HgProtocol.Hgweb);
+        _sendReceiveService.CloneProject(sendReceiveParams, ManagerAuth);
+
+        var act = () => _sendReceiveService.SendReceiveProject(sendReceiveParams, InvalidPass);
+        act.Should().Throw<RepositoryAuthorizationException>();
+    }
+
+    [Fact(Skip = "Low value test for it's runtime")]
+    public void InvalidPassOnSendReceiveHgResumable()
+    {
+        var sendReceiveParams = GetParams(HgProtocol.Resumable);
+        _sendReceiveService.CloneProject(sendReceiveParams, ManagerAuth);
+
+        var act = () => _sendReceiveService.SendReceiveProject(sendReceiveParams, InvalidPass);
+        act.Should().Throw<UnauthorizedAccessException>();
+    }
+
+    [Fact]
+    public void InvalidUserCloneHgWeb()
+    {
+        var sendReceiveParams = GetParams(HgProtocol.Hgweb);
+        var act = () => _sendReceiveService.CloneProject(sendReceiveParams, InvalidUser);
+        act.Should().Throw<RepositoryAuthorizationException>();
+    }
+
+    [Fact]
+    public void InvalidUserCloneHgResumable()
+    {
+        var sendReceiveParams = GetParams(HgProtocol.Resumable);
+        var act = () => _sendReceiveService.CloneProject(sendReceiveParams, InvalidUser);
+        act.Should().Throw<UnauthorizedAccessException>();
+    }
+
+    [Fact]
+    public void InvalidProjectAdminLogin()
+    {
+        var sendReceiveParams = GetParams(HgProtocol.Hgweb, "non-existent-project");
+        var act = () => _sendReceiveService.CloneProject(sendReceiveParams, AdminAuth);
+
+        act.Should().Throw<ProjectLabelErrorException>();
+        Directory.GetFiles(sendReceiveParams.Dir).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void InvalidProjectManagerLogin()
+    {
+        var sendReceiveParams = GetParams(HgProtocol.Hgweb, "non-existent-project");
+        var act = () => _sendReceiveService.CloneProject(sendReceiveParams, ManagerAuth);
+
+        act.Should().Throw<RepositoryAuthorizationException>();
+        Directory.GetFiles(sendReceiveParams.Dir).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void UnauthorizedUserCloneHgWeb()
+    {
+        var sendReceiveParams = GetParams(HgProtocol.Hgweb);
+
+        var act = () => _sendReceiveService.CloneProject(sendReceiveParams, UnauthorizedUser);
+        act.Should().Throw<RepositoryAuthorizationException>();
+    }
+
+    [Fact]
+    public void UnauthorizedUserCloneHgResumable()
+    {
+        var sendReceiveParams = GetParams(HgProtocol.Resumable);
+
+        var act = () => _sendReceiveService.CloneProject(sendReceiveParams, UnauthorizedUser);
+        act.Should().Throw<UnauthorizedAccessException>();
+    }
+}

@@ -1,0 +1,42 @@
+name: Set up Playwright browsers
+description: Restore cached Playwright browsers and install them (with system deps) on a miss, or only their system deps on a hit.
+inputs:
+  browsers:
+    description: 'Space-separated browsers to install, e.g. "chromium webkit"'
+    required: false
+    default: 'chromium'
+  working-directory:
+    description: 'Where to run `pnpm exec playwright` (frontend and frontend/viewer resolve the same catalog version)'
+    required: false
+    default: 'frontend'
+
+runs:
+  using: composite
+  steps:
+    - name: Playwright cache key
+      id: key
+      shell: bash
+      env:
+        BROWSERS: ${{ inputs.browsers }}
+      # "chromium webkit" -> "chromium-webkit", the key segment the workflows used before this action.
+      run: echo "browsers=$(echo $BROWSERS | tr ' ' '-')" >> "$GITHUB_OUTPUT"
+    - name: Cache Playwright browsers
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      id: playwright-cache
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ steps.key.outputs.browsers }}-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+    - name: Install Playwright browsers
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        BROWSERS: ${{ inputs.browsers }}
+      run: pnpm exec playwright install --with-deps $BROWSERS
+    - name: Install Playwright system deps
+      if: steps.playwright-cache.outputs.cache-hit == 'true'
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        BROWSERS: ${{ inputs.browsers }}
+      run: pnpm exec playwright install-deps $BROWSERS

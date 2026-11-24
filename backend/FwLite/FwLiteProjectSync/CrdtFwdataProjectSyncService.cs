@@ -92,16 +92,13 @@ public class CrdtFwdataProjectSyncService(MiniLcmImport miniLcmImport,
             // Repair any missing translation IDs before doing the full sync, so the sync doesn't have to deal with them
             await CrdtRepairs.SyncMissingTranslationIds(projectSnapshot.Entries, fwdata, crdt);
 
-            // Patch legacy snapshots that were created before morph-type support.
-            // After seeding, the CRDT has morph-types but the snapshot still has [].
-            // Without this patch, the diff would see all morph-types as "new" and try to re-add them.
+            // Patch legacy snapshots that were created before morph-type support (MorphTypes is null or []).
+            // If the CRDT has morph-types, the diff would otherwise see them all as "new" and try to re-add them.
+            // If it has none, this still replaces null with [] so the morph-type sync doesn't crash.
             if (projectSnapshot.MorphTypes is null or [])
             {
                 var currentCrdtMorphTypes = await crdt.GetMorphTypes().ToArrayAsync();
-                if (currentCrdtMorphTypes.Length > 0)
-                {
-                    projectSnapshot = projectSnapshot with { MorphTypes = currentCrdtMorphTypes };
-                }
+                projectSnapshot = projectSnapshot with { MorphTypes = currentCrdtMorphTypes };
             }
         }
 

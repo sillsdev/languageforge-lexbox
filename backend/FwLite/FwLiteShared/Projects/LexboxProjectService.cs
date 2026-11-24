@@ -1,4 +1,6 @@
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using LcmCrdt;
@@ -54,6 +56,26 @@ public class LexboxProjectService : IDisposable
         return Servers().FirstOrDefault(s => s.Id == projectData.ServerId);
     }
 
+    // A role added to the server after this release is read as Unknown (read-only),
+    // instead of failing the whole list and hiding all of the user's server projects.
+    internal static readonly JsonSerializerOptions ListProjectsJsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        TypeInfoResolver = new DefaultJsonTypeInfoResolver
+        {
+            Modifiers =
+            {
+                typeInfo =>
+                {
+                    foreach (var property in typeInfo.Properties)
+                    {
+                        if (property.PropertyType == typeof(ProjectRole))
+                            property.CustomConverter = new TolerantStringEnumConverter<ProjectRole>();
+                    }
+                }
+            }
+        }
+    };
+
     public async Task<ListProjectsResult> GetLexboxProjects(LexboxServer server)
     {
         return await cache.GetOrCreateAsync(ProjectListCacheKey(server),
@@ -64,7 +86,7 @@ public class LexboxProjectService : IDisposable
                 if (httpClient is null) return new([], false);
                 try
                 {
-                    return await httpClient.GetFromJsonAsync<ListProjectsResult>("api/crdt/listProjectsV2") ?? new([], false);
+                    return await httpClient.GetFromJsonAsync<ListProjectsResult>("api/crdt/listProjectsV2", ListProjectsJsonOptions) ?? new([], false);
                 }
                 catch (Exception e)
                 {

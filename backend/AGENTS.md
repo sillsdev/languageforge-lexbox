@@ -1,6 +1,6 @@
 # Backend
 
-.NET 10 backend for LexBox and FwLite applications.
+.NET 11 backend for LexBox and FwLite applications.
 
 ## Build & Test
 
@@ -21,6 +21,8 @@ dotnet test Testing/Testing.csproj --filter "FullyQualifiedName~MyTestClass"
 | `FwLite/` | FwLite apps (MAUI, Web) and MiniLcm API |
 | `FwHeadless/` | Headless service for hg sync, FwData processing |
 | `Testing/` | Integration and API tests |
+| `Testing.Utils/` | API test helpers shared by `Testing` and `HgClientTests`; LexCore only |
+| `HgClientTests/` | hg client send/receive tests against a LexBox server, built per hg version with the Chorus FLEx Bridge shipped with it (`task test:hg-integration HG=3`). References only LexCore and Testing.Utils, so old Chorus can load |
 | `Ycs/` | Yjs CRDT implementation in C# |
 
 ## Harmony (SIL.Harmony)
@@ -34,7 +36,7 @@ To build against local Harmony source (e.g. when developing the CRDT substrate),
 
 - **Nullable**: Enabled globally, `Nullable` warnings are errors
 - **Implicit usings**: Enabled
-- **Target framework**: net10.0 (unless platform-specific)
+- **Target framework**: net11.0 (unless platform-specific)
 - **Async**: Use `async/await`, not `.Result` or `.Wait()`. Prefer `return await Foo()` over returning the task directly — awaiting keeps this method on the stack trace when the inner call throws. Only drop the `await` (return the task) as a hot-path micro-optimization ([#2435](https://github.com/sillsdev/languageforge-lexbox/pull/2435#discussion_r3584331713))
 - **Records**: Prefer for DTOs and immutable data
 
@@ -56,6 +58,10 @@ To build against local Harmony source (e.g. when developing the CRDT substrate),
 
 - Register services in `*Kernel.cs` files (e.g., `LexBoxKernel.cs`)
 - Use `AddScoped` for request-scoped, `AddSingleton` for app-wide
+
+### Options classes
+
+🚨 Never compute a value in a property that has a setter on a class bound from configuration (`BindConfiguration`/`Bind`). When the section has any key, the binder reads every settable property and writes the value back, freezing whatever it computed from defaults before later `Configure` calls run. `FwLiteConfig.UpdateUrl` froze `appVersion=Unknown` this way, so clients were told to reinstall their current version. Keep settable properties plain; derive values in a getter-only property or a method (`FwLiteConfig.ResolveUpdateUrl()`).
 
 ## Important Files
 

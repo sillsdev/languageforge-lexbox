@@ -13,18 +13,31 @@
   type Props = ComponentProps<typeof Drawer.Root> & {
     open?: boolean;
     title: string;
+    /** For content that already says what it is: the title stays for screen readers, but takes no space in the drawer */
+    hideTitleOnMobile?: boolean;
+    /** For content that shows its own heading in the title's place: the title stays for screen readers */
+    hideTitle?: boolean;
     trigger?: TriggerSnippet;
     contentProps?: ContentProps;
   };
 
-  let {open = $bindable(false), children, title, trigger, contentProps, ...rest}: WithChildren<Props> = $props();
+  let {
+    open = $bindable(false),
+    children,
+    title,
+    hideTitleOnMobile = false,
+    hideTitle = false,
+    trigger,
+    contentProps,
+    ...rest
+  }: WithChildren<Props> = $props();
 </script>
 
 {#if !IsMobile.value}
   <Dialog.Root bind:open {...rest}>
     {#if trigger}<Dialog.Trigger child={trigger} />{/if}
     <Dialog.Content {...contentProps} class={cn('min-h-auto', contentProps?.class)}>
-      <Dialog.Header>
+      <Dialog.Header class={cn(hideTitle && 'sr-only')}>
         <Dialog.Title>{title}</Dialog.Title>
       </Dialog.Header>
       {@render children?.()}
@@ -38,7 +51,7 @@
         <Icon icon="i-mdi-close" />
       </Drawer.Close>
       <div class="mx-auto w-full p-4 overflow-auto overscroll-contain">
-        <Drawer.Header>
+        <Drawer.Header class={cn((hideTitleOnMobile || hideTitle) && 'sr-only')}>
           <Drawer.Title>{title}</Drawer.Title>
         </Drawer.Header>
         {@render children?.()}

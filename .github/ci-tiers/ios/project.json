@@ -1,0 +1,12 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "name": "tier-ios",
+  "tags": ["ci-tier"],
+  "_comment": "Escalation: iOS simulator build + launch smoke test. Label (ci:ios), or a change to its smoke script. Always runs on develop (fw-lite.yaml launch-ios).",
+  "targets": {
+    "ci-affected": {
+      "executor": "nx:noop",
+      "inputs": ["{workspaceRoot}/.github/scripts/smoke-ios.sh"]
+    }
+  }
+}

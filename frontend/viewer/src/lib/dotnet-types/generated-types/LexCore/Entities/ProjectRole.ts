@@ -7,6 +7,8 @@ export enum ProjectRole {
 	Unknown = "Unknown",
 	Manager = "Manager",
 	Editor = "Editor",
-	Observer = "Observer"
+	Observer = "Observer",
+	Commenter = "Commenter",
+	EditorLite = "EditorLite"
 }
 /* eslint-enable */

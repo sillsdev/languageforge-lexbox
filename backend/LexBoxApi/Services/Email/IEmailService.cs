@@ -58,5 +58,5 @@ public interface IEmailService
     public Task SendApproveProjectRequestEmail(User user, CreateProjectInput projectInput);
     public Task SendUserAddedEmail(User user, string projectName, string projectCode);
     public Task SendJoinFwLiteBetaEmail(User user);
-    public Task SendEmailAsync(MimeMessage message);
+    public Task SendEmailAsync(MimeMessage message, CancellationToken cancellationToken = default);
 }

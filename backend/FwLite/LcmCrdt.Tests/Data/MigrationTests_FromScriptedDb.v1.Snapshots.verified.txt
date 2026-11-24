@@ -1,6 +1,6 @@
 ﻿[
   {
-    "Id": "c72418fd-3344-493b-b1b5-3bd5846f368d",
+    "Id": "Guid_Scrubbed",
     "TypeName": "ComplexFormType",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -21,7 +21,7 @@
     "IsRoot": true
   },
   {
-    "Id": "f0a3cfe7-7f4b-4b34-9d3e-24c89ed202eb",
+    "Id": "Guid_Scrubbed",
     "TypeName": "ComplexFormType",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -42,7 +42,7 @@
     "IsRoot": true
   },
   {
-    "Id": "55ec97c3-a7d7-416b-b30a-6a242a71cdaf",
+    "Id": "Guid_Scrubbed",
     "TypeName": "Entry",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -84,7 +84,7 @@
     "IsRoot": true
   },
   {
-    "Id": "5bc2c0b3-a1c8-4d81-bfef-fbe2153cf1c9",
+    "Id": "Guid_Scrubbed",
     "TypeName": "ExampleSentence",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -118,7 +118,7 @@
     "IsRoot": true
   },
   {
-    "Id": "5f0470e1-16e3-4a0a-8565-b0077b6f4ac4",
+    "Id": "Guid_Scrubbed",
     "TypeName": "PartOfSpeech",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -140,7 +140,7 @@
     "IsRoot": true
   },
   {
-    "Id": "6ccb66b0-9670-4235-8270-0a1df297c10a",
+    "Id": "Guid_Scrubbed",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -167,7 +167,7 @@
     "IsRoot": true
   },
   {
-    "Id": "82b1727d-516f-46f3-8c02-6e26044f8835",
+    "Id": "Guid_Scrubbed",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -194,7 +194,7 @@
     "IsRoot": true
   },
   {
-    "Id": "99df0598-795d-4efb-b4e6-2117c0eb82ba",
+    "Id": "Guid_Scrubbed",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -221,7 +221,7 @@
     "IsRoot": true
   },
   {
-    "Id": "7be5bed0-d04c-461d-b788-65a40d73d091",
+    "Id": "Guid_Scrubbed",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -248,7 +248,7 @@
     "IsRoot": true
   },
   {
-    "Id": "b42bd81f-29d0-483a-94a4-c5acc27d10d4",
+    "Id": "Guid_Scrubbed",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -275,7 +275,7 @@
     "IsRoot": true
   },
   {
-    "Id": "624480d1-941c-458f-bdd2-704500605784",
+    "Id": "Guid_Scrubbed",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -302,7 +302,7 @@
     "IsRoot": true
   },
   {
-    "Id": "845dcd67-8d87-42a2-9d70-465e2d53dd98",
+    "Id": "Guid_Scrubbed",
     "TypeName": "SemanticDomain",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -329,7 +329,7 @@
     "IsRoot": true
   },
   {
-    "Id": "2ebe5828-d6f6-4000-82e2-8b127e06c5e7",
+    "Id": "Guid_Scrubbed",
     "TypeName": "Sense",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -369,7 +369,7 @@
     "IsRoot": true
   },
   {
-    "Id": "799bc576-e362-4dda-ad07-75ebcc9ff71a",
+    "Id": "Guid_Scrubbed",
     "TypeName": "WritingSystem",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",
@@ -425,7 +425,7 @@
     "IsRoot": true
   },
   {
-    "Id": "33d349fa-d518-4875-916d-edfa17fa5f22",
+    "Id": "Guid_Scrubbed",
     "TypeName": "WritingSystem",
     "Entity": {
       "$type": "MiniLcmCrdtAdapter",

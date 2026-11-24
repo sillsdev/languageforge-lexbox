@@ -1,35 +1,35 @@
 using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
+using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.Sync;
-using Microsoft.AspNetCore.Mvc;
 
 namespace LexBoxApi.Services;
 
 public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> logger)
 {
-    public async Task<(bool success, HttpStatusCode statusCode, string? error)> SyncMercurialAndHarmony(Guid projectId)
+    public async Task SyncMercurialAndHarmony(Guid projectId)
     {
         var response = await httpClient.PostAsync($"/api/merge/execute?projectId={projectId}", null);
-        string? error = null;
         if (!response.IsSuccessStatusCode)
         {
             logger.LogError("Failed to sync Mercurial and Harmony: {StatusCode} {StatusDescription}, projectId: {ProjectId}",
                 response.StatusCode,
                 response.ReasonPhrase,
                 projectId);
-            try
-            {
-                var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(await response.Content.ReadAsStringAsync());
-                error = problemDetails?.Detail ?? problemDetails?.Title;
-            }
-            catch
-            {
-                error = response.ReasonPhrase;
-            }
+            throw await FailedResponse(response);
         }
+    }
 
-        return (response.IsSuccessStatusCode, response.StatusCode, error);
+    /// <summary>
+    /// Which of the projects have a headless harmony project, so the lexicon API can serve them.
+    /// </summary>
+    public async Task<Guid[]> ReadyLexiconProjects(Guid[] projectIds)
+    {
+        var response = await httpClient.PostAsJsonAsync("/api/lexicon/projects/ready", projectIds);
+        if (!response.IsSuccessStatusCode) throw await FailedResponse(response);
+        return await response.Content.ReadFromJsonAsync<Guid[]>() ?? [];
     }
 
     public async Task<SyncJobResult> AwaitStatus(Guid projectId, CancellationToken cancellationToken = default)
@@ -55,17 +55,18 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
         return jobResult;
     }
 
-    public async Task<ProjectSyncStatus?> CrdtSyncStatus(Guid projectId)
+    public async Task<ProjectSyncStatus> CrdtSyncStatus(Guid projectId)
     {
         var response = await httpClient.GetAsync($"/api/merge/status?projectId={projectId}");
         if (response.IsSuccessStatusCode)
-            return await response.Content.ReadFromJsonAsync<ProjectSyncStatus>();
+            return await response.Content.ReadFromJsonAsync<ProjectSyncStatus>()
+                ?? throw new FwHeadlessException(HttpStatusCode.BadGateway, "FwHeadless returned no sync status");
         logger.LogError("Failed to get CRDT sync status: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
             response.StatusCode,
             response.ReasonPhrase,
             projectId,
             await response.Content.ReadAsStringAsync());
-        return null;
+        throw await FailedResponse(response);
     }
 
     public async Task DeleteRepo(Guid projectId, CancellationToken cancellationToken = default)
@@ -80,7 +81,7 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             response.ReasonPhrase,
             projectId,
             await response.Content.ReadAsStringAsync(cancellationToken));
-        throw new InvalidOperationException($"Failed to delete repo {projectId}: {response.StatusCode} {response.ReasonPhrase}");
+        throw await FailedResponse(response, cancellationToken);
     }
 
     public async Task DeleteProject(Guid projectId, CancellationToken cancellationToken = default)
@@ -95,18 +96,14 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
             response.ReasonPhrase,
             projectId,
             await response.Content.ReadAsStringAsync(cancellationToken));
-        throw new InvalidOperationException($"Failed to delete project {projectId}: {response.StatusCode} {response.ReasonPhrase}");
+        throw await FailedResponse(response, cancellationToken);
     }
 
-    public async Task<string?> RegenerateProjectSnapshot(Guid projectId, Guid? commitId = null, bool preserveAllFieldWorksCommits = false)
+    public async Task RegenerateProjectSnapshot(Guid projectId, Guid commitId, bool preserveAllFieldWorksCommits = false)
     {
-        var url = $"/api/merge/regenerate-snapshot?projectId={projectId}";
-        if (commitId.HasValue)
-        {
-            url += $"&commitId={commitId.Value}";
-            if (preserveAllFieldWorksCommits)
-                url += "&preserveAllFieldWorksCommits=true";
-        }
+        var url = $"/api/merge/regenerate-snapshot?projectId={projectId}&commitId={commitId}";
+        if (preserveAllFieldWorksCommits)
+            url += "&preserveAllFieldWorksCommits=true";
         var response = await httpClient.PostAsync(url, null);
         if (!response.IsSuccessStatusCode)
         {
@@ -116,13 +113,11 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
                 response.ReasonPhrase,
                 projectId,
                 responseBody);
-            return responseBody;
+            throw await FailedResponse(response);
         }
-
-        return null;
     }
 
-    internal async Task<string?> SyncHarmony(Guid projectId)
+    internal async Task SyncHarmony(Guid projectId)
     {
         var response = await httpClient.PostAsync($"/api/merge/sync-harmony?projectId={projectId}", null);
         if (!response.IsSuccessStatusCode)
@@ -133,10 +128,8 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
                 response.ReasonPhrase,
                 projectId,
                 responseBody);
-            return responseBody;
+            throw await FailedResponse(response);
         }
-
-        return null;
     }
 
     public async Task BlockProject(Guid projectId, string? reason = null)
@@ -154,11 +147,7 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
                 response.ReasonPhrase,
                 projectId,
                 responseBody);
-
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                throw new NotFoundException($"Project not found in FwHeadless: {projectId}", "Project");
-
-            throw new InvalidOperationException($"Failed to block project: {response.StatusCode} {response.ReasonPhrase}");
+            throw await FailedResponse(response);
         }
     }
 
@@ -174,27 +163,142 @@ public class FwHeadlessClient(HttpClient httpClient, ILogger<FwHeadlessClient> l
                 response.ReasonPhrase,
                 projectId,
                 responseBody);
-
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                throw new NotFoundException($"Project not found in FwHeadless: {projectId}", "Project");
-
-            throw new InvalidOperationException($"Failed to unblock project: {response.StatusCode} {response.ReasonPhrase}");
+            throw await FailedResponse(response);
         }
     }
 
-    public async Task<SyncBlockStatus?> GetBlockStatus(Guid projectId)
+    public async Task<SyncBlockStatus> GetBlockStatus(Guid projectId)
     {
         var url = $"/api/merge/block-status?projectId={projectId}";
         var response = await httpClient.GetAsync(url);
         if (response.IsSuccessStatusCode)
-            return await response.Content.ReadFromJsonAsync<SyncBlockStatus>();
+            return await response.Content.ReadFromJsonAsync<SyncBlockStatus>()
+                ?? throw new FwHeadlessException(HttpStatusCode.BadGateway, "FwHeadless returned no block status");
 
         logger.LogError("Failed to get block status: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
             response.StatusCode,
             response.ReasonPhrase,
             projectId,
             await response.Content.ReadAsStringAsync());
+        throw await FailedResponse(response);
+    }
+
+    private static async Task<FwHeadlessException> FailedResponse(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    {
+        return new FwHeadlessException(response.StatusCode, ReadDetail(await response.Content.ReadAsStringAsync(cancellationToken)));
+    }
+
+    /// <summary>
+    /// The message in a FwHeadless error body: a problem+json detail (or title), a JSON string such as a NotFound&lt;string&gt;, or plain text.
+    /// </summary>
+    private static string? ReadDetail(string body)
+    {
+        if (string.IsNullOrWhiteSpace(body)) return null;
+        try
+        {
+            using var json = JsonDocument.Parse(body);
+            var root = json.RootElement;
+            if (root.ValueKind == JsonValueKind.String) return root.GetString();
+            if (root.ValueKind == JsonValueKind.Object)
+            {
+                if (root.TryGetProperty("detail", out var detail) && detail.ValueKind == JsonValueKind.String) return detail.GetString();
+                if (root.TryGetProperty("title", out var title) && title.ValueKind == JsonValueKind.String) return title.GetString();
+            }
+        }
+        catch (JsonException)
+        {
+            // plain text
+        }
+        return body;
+    }
+
+    /// <summary>
+    /// Initializes a newly-created (empty) project's repo with a new .fwdata configured for the
+    /// given writing systems. Runs inline (a new empty project is small). Returns a null Error on
+    /// success; on failure returns the FwHeadless status code and error body so the caller can
+    /// propagate the right status (e.g. surface a 400 rather than flattening it to 500).
+    /// </summary>
+    public async Task<(HttpStatusCode StatusCode, string? Error)> InitFwDataProject(Guid projectId,
+        IReadOnlyList<string> wsVernacular,
+        IReadOnlyList<string> wsAnalysis,
+        string wsUi,
+        CancellationToken cancellationToken = default)
+    {
+        var input = new InitFwDataProjectInput(wsVernacular, wsAnalysis, wsUi);
+        var response = await httpClient.PostAsJsonAsync($"/api/project/initFwDataProject?projectId={projectId}",
+            input,
+            cancellationToken);
+        if (response.IsSuccessStatusCode) return (response.StatusCode, null);
+        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+        logger.LogError("Failed to init fwdata project: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+            response.StatusCode,
+            response.ReasonPhrase,
+            projectId,
+            responseBody);
+        // Never null on failure: AttemptInit reads a null Error as success, and a failure body can be empty
+        return (response.StatusCode, string.IsNullOrWhiteSpace(responseBody)
+            ? $"FwHeadless returned HTTP {(int)response.StatusCode}"
+            : responseBody);
+    }
+
+    /// <summary>
+    /// Current creation status for a project, or null if FwHeadless doesn't know the project or the
+    /// call failed (both are logged). Cheap and safe to poll.
+    /// </summary>
+    /// <remarks>
+    /// Unlike <see cref="InitFwDataProject"/>, this one does take a cancellation token, and callers may
+    /// safely pass HttpContext.RequestAborted. Abandoning a status read costs nothing: it starts no
+    /// durable work and tells the caller nothing it has to act on. Abandoning the creation call is what
+    /// is dangerous, because the creation keeps running on the FwHeadless side either way.
+    /// </remarks>
+    public async Task<ProjectCreationStatus?> CreationStatus(Guid projectId, CancellationToken cancellationToken = default)
+    {
+        var response = await httpClient.GetAsync($"/api/project/creation-status?projectId={projectId}", cancellationToken);
+        if (response.IsSuccessStatusCode)
+            return await response.Content.ReadFromJsonAsync<ProjectCreationStatus>(cancellationToken);
+        // 404 is an ordinary answer ("no such project"), not a fault worth an error log.
+        if (response.StatusCode != HttpStatusCode.NotFound)
+        {
+            logger.LogError("Failed to get project creation status: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+                response.StatusCode,
+                response.ReasonPhrase,
+                projectId,
+                await response.Content.ReadAsStringAsync(cancellationToken));
+        }
         return null;
     }
 
+    /// <summary>
+    /// Waits for an in-flight creation to finish and returns how it ended, or null if FwHeadless doesn't
+    /// know the project or the call failed. Returns TimedOutAwaitingCreation if the wait is given up on
+    /// -- by either side -- which means "still running, ask again", never "creation failed".
+    /// </summary>
+    public async Task<ProjectCreationStatus?> AwaitCreationFinished(Guid projectId, CancellationToken cancellationToken = default)
+    {
+        HttpResponseMessage response;
+        try
+        {
+            response = await httpClient.GetAsync($"/api/project/await-creation-finished?projectId={projectId}", cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            // We gave up first, so FwHeadless's own TimedOutAwaitingCreation response is on a connection
+            // we already dropped. Report the same thing ourselves, so a caller sees one contract no
+            // matter which side stopped waiting. The creation itself is untouched and still running.
+            logger.LogInformation("Gave up awaiting creation of project {ProjectId}; it is still running", projectId);
+            return ProjectCreationStatus.TimedOutAwaitingCreation;
+        }
+
+        if (response.IsSuccessStatusCode)
+            return await response.Content.ReadFromJsonAsync<ProjectCreationStatus>(cancellationToken);
+        if (response.StatusCode != HttpStatusCode.NotFound)
+        {
+            logger.LogError("Failed to await project creation: {StatusCode} {StatusDescription}, projectId: {ProjectId}, response: {Response}",
+                response.StatusCode,
+                response.ReasonPhrase,
+                projectId,
+                await response.Content.ReadAsStringAsync(cancellationToken));
+        }
+        return null;
+    }
 }

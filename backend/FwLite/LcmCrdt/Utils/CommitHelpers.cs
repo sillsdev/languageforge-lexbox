@@ -8,6 +8,8 @@ public static class CommitHelpers
     // Mirrored by SYSTEM_AUTHOR_KEY in frontend/viewer/src/lib/activity/utils.ts
     public const string SystemAuthorId = "00000000-0000-0000-0000-000000000001";
     public const string TemplateProp = "Template";
+    // Author of the commits FwHeadless's merge writes. Mirrored by FIELDWORKS_AUTHOR_KEY in frontend/viewer/src/lib/activity/utils.ts
+    public const string FieldWorksAuthorName = "FieldWorks";
 
     public static DateTimeOffset? SyncDate(this CommitBase commit)
     {

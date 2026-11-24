@@ -17,8 +17,8 @@ public interface IPlatformFeaturesService
     [JSInvokable]
     Task CopyToClipboard(string text);
 
-    //The Apple WebViews (iOS/Mac Catalyst) ignore <a download> links, so file downloads go through
-    //the native share sheet instead (Save Image, Save to Files, AirDrop...).
+    //The MAUI WebViews (iOS/Mac Catalyst, and Android without a download listener) ignore <a download> links,
+    //so file downloads go through the native share sheet instead (Save to Files, Save Image, AirDrop...).
     [JSInvokable]
     Task<bool> SupportsShareFile();
 
@@ -32,13 +32,24 @@ public interface IPlatformFeaturesService
     [JSInvokable]
     Task<bool> HasHardwareKeyboard();
 
-    //Sync folders need a real path; only hosts with a native folder picker can supply one (a browser can't).
+    //Sync folders need a real path on this machine: from a native folder picker, or typed in where the viewer
+    //runs on the same machine as this host (FwLiteWeb, e.g. on Linux). A phone's app sandbox has no such path yet.
     [JSInvokable]
     Task<bool> SupportsFolderSync();
+
+    //Without one, the viewer asks for the path in a text box instead of calling PickFolder.
+    [JSInvokable]
+    Task<bool> HasFolderPicker();
 
     //Null when the user cancels.
     [JSInvokable]
     Task<string?> PickFolder();
+
+    [JSInvokable]
+    Task<bool> FolderExists(string path);
+
+    [JSInvokable]
+    Task<string?> SuggestedAuthorName();
 
     //Joining a nearby device's sync session over Wi-Fi
     [JSInvokable]
@@ -75,13 +86,21 @@ internal class DummyPlatformFeaturesService : IPlatformFeaturesService
     public Task<bool> HasHardwareKeyboard() => Task.FromResult(true);
 
     [JSInvokable]
-    public Task<bool> SupportsFolderSync() => Task.FromResult(false);
+    public Task<bool> SupportsFolderSync() => Task.FromResult(true);
+
+    [JSInvokable]
+    public Task<bool> HasFolderPicker() => Task.FromResult(false);
 
     [JSInvokable]
     public Task<string?> PickFolder() =>
         throw new NotSupportedException("Folder picking is only available in the Windows MAUI host");
 
     [JSInvokable]
+    public Task<bool> FolderExists(string path) => Task.FromResult(Directory.Exists(path));
+
+    [JSInvokable]
+    public Task<string?> SuggestedAuthorName() => Task.FromResult(OsUserName.Suggest());
+
     public Task<bool> SupportsWifiSync() => Task.FromResult(false);
 
     [JSInvokable]

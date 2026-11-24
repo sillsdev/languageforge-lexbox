@@ -81,8 +81,17 @@ spec:
                       | awk '{print $1}'
                   }
 
+                  # Only NotFound means missing; other errors (e.g. Forbidden) must surface.
                   secret_exists() {
-                    kubectl get secret "$1" >/dev/null 2>&1
+                    local err
+                    if err="$(kubectl get secret "$1" 2>&1 >/dev/null)"; then
+                      return 0
+                    fi
+                    if [[ "$err" == *NotFound* ]]; then
+                      return 1
+                    fi
+                    echo "error: checking secret $1: $err" >&2
+                    exit 1
                   }
 
                   # Copy full keypair (and ca.crt when present) to a companion Secret.

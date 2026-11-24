@@ -81,6 +81,7 @@
     });
     switch (response.result) {
       case UploadFileResult.SavedLocally:
+      case UploadFileResult.AlreadyExists: // this exact audio is already saved, so reuse it
         AppNotification.display($t`Audio saved locally`, {type: 'success', timeout: 'short'});
         break;
       case UploadFileResult.SavedToLexbox:
@@ -90,8 +91,6 @@
         throw new Error($t`File too big`);
       case UploadFileResult.NotSupported:
         throw new Error($t`File saving not supported`);
-      case UploadFileResult.AlreadyExists:
-        throw new Error($t`File already exists`);
       case UploadFileResult.Error:
         throw new Error(response.errorMessage ?? $t`Unknown error`);
     }

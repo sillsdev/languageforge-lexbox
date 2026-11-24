@@ -1,4 +1,6 @@
 using FwLiteMaui.Services;
+using LcmCrdt;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -28,7 +30,9 @@ public class MauiTroubleshootingServiceTests
 
         _service = new MauiTroubleshootingService(
             _configMock.Object,
+            Options.Create(new LcmCrdtConfig { ProjectPath = "test_project_dir" }),
             Mock.Of<ILogger<MauiTroubleshootingService>>(),
+            new ConfigurationBuilder().Build(),
             null!, // passing null for CrdtProjectsService as we aren't testing ShareCrdtProject yet
             _launcherMock.Object,
             _browserMock.Object,
@@ -42,8 +46,36 @@ public class MauiTroubleshootingServiceTests
         var result = await _service.TryOpenDataDirectory();
 
         result.Should().BeTrue();
-        var expectedUri = "file://" + _configMock.Object.Value.BaseDataDir;
+        var expectedUri = "file://test_project_dir";
         _browserMock.Verify(b => b.OpenAsync(It.Is<Uri>(u => u.OriginalString == expectedUri), It.IsAny<BrowserLaunchOptions>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task SetVerboseLogging_WritesSettingsFileAndReloadsConfiguration()
+    {
+        var dataDir = Path.Combine(Path.GetTempPath(), "fwlite-troubleshoot-tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dataDir);
+        try
+        {
+            var config = new FwLiteMauiConfig { BaseDataDir = dataDir };
+            var builder = new ConfigurationBuilder();
+            builder.AddFwLiteMauiConfiguration(config.SettingsFilePath, reloadOnChange: false);
+            var service = new MauiTroubleshootingService(Options.Create(config),
+                Options.Create(new LcmCrdtConfig { ProjectPath = dataDir }),
+                Mock.Of<ILogger<MauiTroubleshootingService>>(), builder.Build(), null!,
+                _launcherMock.Object, _browserMock.Object, _shareMock.Object);
+
+            (await service.GetVerboseLogging()).Should().BeFalse();
+            await service.SetVerboseLogging(true);
+            (await service.GetVerboseLogging()).Should().BeTrue();
+            File.ReadAllText(config.SettingsFilePath).Should().Contain("\"Default\": \"Debug\"");
+            await service.SetVerboseLogging(false);
+            (await service.GetVerboseLogging()).Should().BeFalse();
+        }
+        finally
+        {
+            Directory.Delete(dataDir, recursive: true);
+        }
     }
 
     [Fact]

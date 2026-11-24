@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwLiteShared;
@@ -67,7 +68,8 @@ public static class FwLiteWebServer
 
         configure?.Invoke(builder);
         var app = builder.Build();
-        app.Logger.LogInformation("FwLite FwLiteWeb startup");
+        app.Logger.LogInformation("FwLite FwLiteWeb startup, {Version}, {Runtime}, {OS}, MSAL {MsalVersion}",
+            VersionHelper.DisplayVersion(typeof(FwLiteWebServer).Assembly), RuntimeInformation.FrameworkDescription, RuntimeInformation.OSDescription, OAuthClient.MsalVersion);
         IcuInit.TryInitialize(app.Logger);
         EnsureDataDirectoriesExist(app);
 // Configure the HTTP request pipeline.
@@ -111,7 +113,7 @@ public static class FwLiteWebServer
         app.MapTest();
         app.MapImport();
         app.MapAuthRoutes();
-        app.MapMiniLcmRoutes("/api/mini-lcm");
+        app.MapLocalMiniLcmRoutes("/api/mini-lcm");
         app.MapHealthChecks("/health");
 
         app.MapOpenApi();
@@ -121,7 +123,8 @@ public static class FwLiteWebServer
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode(endpointOptions =>
             {
-                endpointOptions.ContentSecurityFrameAncestorsPolicy = "self http://localhost:*";
+                // file: lets packaged Platform.Bible (loaded from file://) frame this UI
+                endpointOptions.ContentSecurityFrameAncestorsPolicy = "'self' http://localhost:* file:";
             })
             .AddAdditionalAssemblies(typeof(FwLiteShared._Imports).Assembly);
         return app;

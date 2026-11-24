@@ -17,6 +17,12 @@ spec:
             # breaks the FwLite OAuth flow over the HTTPS port-forward used in CI.
             - name: ForwardedHeadersOptions__KnownNetworks__0
               value: "0.0.0.0/0"
+            # Exercise the production exception handler (status mapping, ProblemDetails) instead of the developer exception page
+            - name: ErrorHandling__UseProductionExceptionHandler
+              value: "true"
+            # local-dev turns analytics on; CI must never send events to Mixpanel
+            - name: Analytics__Enabled
+              value: "false"
           volumeMounts:
             - mountPath: /frontend
               name: gql-schema

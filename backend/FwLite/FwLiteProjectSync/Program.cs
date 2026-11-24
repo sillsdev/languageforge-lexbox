@@ -13,77 +13,73 @@ public class Program
     public static Task<int> Main(string[] args)
     {
         var rootCommand = new RootCommand("CRDT to FwData sync tool");
-        var crdtOption = new Option<string>("--crdt", "CRDT sqlite file") { IsRequired = true };
-        rootCommand.AddGlobalOption(crdtOption);
-        var fwDataOption = new Option<string>("--fwdata", "FwData file") { IsRequired = true };
-        rootCommand.AddGlobalOption(fwDataOption);
+        var crdtOption = new Option<string>("--crdt") { Description = "CRDT sqlite file", Required = true, Recursive = true };
+        rootCommand.Options.Add(crdtOption);
+        var fwDataOption = new Option<string>("--fwdata") { Description = "FwData file", Required = true, Recursive = true };
+        rootCommand.Options.Add(fwDataOption);
         var beforeSyncCommand = new Command("before-sync", "Run before sync");
-        beforeSyncCommand.SetHandler((crdtFile, fwDataFile) =>
-            {
-                Console.WriteLine($"crdtFile: {crdtFile}");
-                Console.WriteLine($"fwDataFile: {fwDataFile}");
-            },
-            crdtOption,
-            fwDataOption);
-        rootCommand.Add(beforeSyncCommand);
+        beforeSyncCommand.SetAction(parseResult =>
+        {
+            Console.WriteLine($"crdtFile: {parseResult.GetRequiredValue(crdtOption)}");
+            Console.WriteLine($"fwDataFile: {parseResult.GetRequiredValue(fwDataOption)}");
+        });
+        rootCommand.Subcommands.Add(beforeSyncCommand);
         var afterSyncCommand = new Command("after-sync", "Run after sync");
-        afterSyncCommand.SetHandler((crdtFile, fwDataFile) =>
-            {
-                Console.WriteLine($"crdtFile: {crdtFile}");
-                Console.WriteLine($"fwDataFile: {fwDataFile}");
-            },
-            crdtOption,
-            fwDataOption);
-        rootCommand.Add(afterSyncCommand);
+        afterSyncCommand.SetAction(parseResult =>
+        {
+            Console.WriteLine($"crdtFile: {parseResult.GetRequiredValue(crdtOption)}");
+            Console.WriteLine($"fwDataFile: {parseResult.GetRequiredValue(fwDataOption)}");
+        });
+        rootCommand.Subcommands.Add(afterSyncCommand);
         var syncCommand = new Command("sync", "Synchronize CRDT with FwData");
-        var createCrdtDirOption = new Option<bool>("--create-crdt-dir", "Create CRDT directory");
-        var dryRunOption = new Option<bool>("--dry-run", () => false, "Dry run");
-        syncCommand.Add(createCrdtDirOption);
-        syncCommand.Add(dryRunOption);
-        syncCommand.SetHandler(async (crdtFile, fwDataFile, createCrdtDir, dryRun) =>
+        var createCrdtDirOption = new Option<bool>("--create-crdt-dir") { Description = "Create CRDT directory" };
+        var dryRunOption = new Option<bool>("--dry-run") { Description = "Dry run" };
+        syncCommand.Options.Add(createCrdtDirOption);
+        syncCommand.Options.Add(dryRunOption);
+        syncCommand.SetAction(async (parseResult, _) =>
+        {
+            var crdtFile = parseResult.GetRequiredValue(crdtOption);
+            var fwDataFile = parseResult.GetRequiredValue(fwDataOption);
+            var createCrdtDir = parseResult.GetValue(createCrdtDirOption);
+            var dryRun = parseResult.GetValue(dryRunOption);
+            Console.WriteLine($"crdtFile: {crdtFile}");
+            Console.WriteLine($"fwDataFile: {fwDataFile}");
+            var fwProjectName = Path.GetFileNameWithoutExtension(fwDataFile);
+            var crdtProjectCode = CrdtProjectsService.SanitizeProjectCode(Path.GetFileNameWithoutExtension(crdtFile));
+
+            await using var serviceRoot = SyncServices(crdtFile, fwDataFile, createCrdtDir);
+            await using var scope = serviceRoot.CreateAsyncScope();
+            var services = scope.ServiceProvider;
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            var fieldWorksProjectList = services.GetRequiredService<FieldWorksProjectList>();
+            var fwProject = fieldWorksProjectList.GetProject(fwProjectName);
+            if (fwProject is null)
             {
-                Console.WriteLine($"crdtFile: {crdtFile}");
-                Console.WriteLine($"fwDataFile: {fwDataFile}");
-                var fwProjectName = Path.GetFileNameWithoutExtension(fwDataFile);
-                var crdtProjectCode = CrdtProjectsService.SanitizeProjectCode(Path.GetFileNameWithoutExtension(crdtFile));
+                throw new InvalidOperationException("Could not find fwdata project " + fwProjectName);
+            }
+            var fwdataApi = (FwDataMiniLcmApi) fieldWorksProjectList.OpenProject(fwProject);
+            var projectsService = services.GetRequiredService<CrdtProjectsService>();
+            var crdtProject = projectsService.GetProject(crdtProjectCode);
+            if (crdtProject is null)
+            {
+                crdtProject = await projectsService.CreateProject(new(crdtProjectCode, crdtProjectCode, FwProjectId:fwdataApi.ProjectId));
+            }
+            var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
+            var crdtApi = await services.OpenCrdtProject(crdtProject);
+            var snapshotService = services.GetRequiredService<ProjectSnapshotService>();
+            var projectSnapshot = await snapshotService.GetProjectSnapshot(fwdataApi.Project);
 
-                await using var serviceRoot = SyncServices(crdtFile, fwDataFile, createCrdtDir);
-                await using var scope = serviceRoot.CreateAsyncScope();
-                var services = scope.ServiceProvider;
-                var logger = services.GetRequiredService<ILogger<Program>>();
-                var fieldWorksProjectList = services.GetRequiredService<FieldWorksProjectList>();
-                var fwProject = fieldWorksProjectList.GetProject(fwProjectName);
-                if (fwProject is null)
-                {
-                    throw new InvalidOperationException("Could not find fwdata project " + fwProjectName);
-                }
-                var fwdataApi = (FwDataMiniLcmApi) fieldWorksProjectList.OpenProject(fwProject);
-                var projectsService = services.GetRequiredService<CrdtProjectsService>();
-                var crdtProject = projectsService.GetProject(crdtProjectCode);
-                if (crdtProject is null)
-                {
-                    crdtProject = await projectsService.CreateProject(new(crdtProjectCode, crdtProjectCode, FwProjectId:fwdataApi.ProjectId));
-                }
-                var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
-                var crdtApi = await services.OpenCrdtProject(crdtProject);
-                var snapshotService = services.GetRequiredService<ProjectSnapshotService>();
-                var projectSnapshot = await snapshotService.GetProjectSnapshot(fwdataApi.Project);
-
-                var result = projectSnapshot is null
-                    ? await syncService.Import(crdtApi, fwdataApi, dryRun)
-                    : await syncService.Sync(crdtApi, fwdataApi, projectSnapshot, dryRun);
-                logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
-                if (!dryRun)
-                {
-                    await snapshotService.RegenerateProjectSnapshot(crdtApi, fwdataApi.Project, keepBackup: false);
-                }
-            },
-            crdtOption,
-            fwDataOption,
-            createCrdtDirOption,
-            dryRunOption);
-        rootCommand.Add(syncCommand);
-        return rootCommand.InvokeAsync(args);
+            var result = projectSnapshot is null
+                ? await syncService.Import(crdtApi, fwdataApi, dryRun)
+                : await syncService.Sync(crdtApi, fwdataApi, projectSnapshot, dryRun);
+            logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
+            if (!dryRun)
+            {
+                await snapshotService.RegenerateProjectSnapshot(crdtApi, fwdataApi.Project, keepBackup: false);
+            }
+        });
+        rootCommand.Subcommands.Add(syncCommand);
+        return rootCommand.Parse(args).InvokeAsync();
 
         static ServiceProvider SyncServices(string crdtFile, string fwDataFile, bool createCrdtDir)
         {

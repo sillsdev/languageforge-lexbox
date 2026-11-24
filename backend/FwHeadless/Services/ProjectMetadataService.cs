@@ -118,7 +118,17 @@ public class ProjectMetadataService(IOptions<FwHeadlessConfig> config, ILogger<P
             }
             var options = new JsonSerializerOptions { WriteIndented = true };
             var json = JsonSerializer.Serialize(metadata, options);
-            File.WriteAllText(metadataPath, json);
+            // Write to a temp file and move it into place, so readers never see a truncated or partial file
+            var tempPath = $"{metadataPath}.{Guid.NewGuid():N}.tmp";
+            try
+            {
+                File.WriteAllText(tempPath, json);
+                File.Move(tempPath, metadataPath, overwrite: true);
+            }
+            finally
+            {
+                if (File.Exists(tempPath)) File.Delete(tempPath);
+            }
         }
 
         private string? GetMetadataPath(Guid projectId)

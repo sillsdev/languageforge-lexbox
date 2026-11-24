@@ -99,8 +99,9 @@ public class MainActivity : MauiAppCompatActivity
         base.OnActivityResult(requestCode, resultCode, data);
         if (requestCode == AndroidInAppUpdateService.UpdateRequestCode)
         {
-            //Play's update flow result. Nothing to do: if the user declined, Play offers again later;
-            //if they accepted, the download proceeds in the background. Don't forward to MSAL.
+            //Play's update flow result. If the user declined, Play offers again later; if they accepted,
+            //the download proceeds in the background and the service shows progress. Don't forward to MSAL.
+            _inAppUpdateService?.OnUpdateFlowResult(resultCode);
             return;
         }
         AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(requestCode, resultCode, data);

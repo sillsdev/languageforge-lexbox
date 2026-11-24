@@ -1,4 +1,7 @@
+using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using SIL.Harmony.Core;
 using LexCore.Sync;
 using Testing.Fixtures;
 using Testing.Services;
@@ -17,9 +20,59 @@ public static class FwHeadlessTestHelpers
         return await result.Content.ReadFromJsonAsync<Guid>();
     }
 
+    public static async Task AddCreateEntryCommit(HttpClient httpClient, Guid projectId)
+    {
+        var entryId = Guid.NewGuid();
+        ServerCommit[] serverCommits =
+        [
+            new ServerCommit(Guid.NewGuid())
+            {
+                ChangeEntities =
+                [
+                    new ChangeEntity<ServerJsonChange>()
+                    {
+                        Change = JsonSerializer.Deserialize<ServerJsonChange>(
+                            $$"""
+                              {
+                                "$type": "CreateEntryChange",
+                                "LexemeForm": {
+                                  "en": "Apple"
+                                },
+                                "CitationForm": {
+                                  "en": "Apple"
+                                },
+                                "Note": {},
+                                "EntityId": "{{entryId}}"
+                              }
+                              """
+                        ) ?? throw new JsonException("unable to deserialize"),
+                        Index = 0,
+                        CommitId = Guid.NewGuid(),
+                        EntityId = entryId
+                    }
+                ],
+                ClientId = Guid.NewGuid(),
+                ProjectId = projectId,
+                HybridDateTime = new HybridDateTime(DateTime.UtcNow, 0)
+            }
+        ];
+        var result = await httpClient.PostAsJsonAsync($"api/crdt/{projectId}/add", serverCommits);
+        result.EnsureSuccessStatusCode();
+    }
+
     public static async Task TriggerSync(HttpClient httpClient, Guid projectId)
     {
         var result = await httpClient.PostAsync($"api/fw-lite/sync/trigger/{projectId}", null);
+        result.ShouldBeSuccessful();
+    }
+
+    /// <summary>
+    /// Like <see cref="TriggerSync"/>, but also accepts the 429 FwHeadless returns when a sync is already running.
+    /// </summary>
+    public static async Task EnsureSyncRunningOrQueued(HttpClient httpClient, Guid projectId)
+    {
+        var result = await httpClient.PostAsync($"api/fw-lite/sync/trigger/{projectId}", null);
+        if (result.StatusCode == HttpStatusCode.TooManyRequests) return;
         result.ShouldBeSuccessful();
     }
 

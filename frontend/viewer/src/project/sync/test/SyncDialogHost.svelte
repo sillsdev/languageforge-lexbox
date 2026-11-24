@@ -6,10 +6,13 @@
   import SyncDialog from '../../SyncDialog.svelte';
   import {untrack} from 'svelte';
 
-  const {syncService}: {syncService: ISyncServiceJsInvokable} = $props();
+  const {syncService, supportedFeatures}: {
+    syncService: ISyncServiceJsInvokable,
+    supportedFeatures: IMiniLcmJsInvokable['supportedFeatures'],
+  } = $props();
 
   initProjectContext({
-    api: {supportedFeatures: () => Promise.resolve({sync: true, write: true})} as unknown as IMiniLcmJsInvokable,
+    api: {supportedFeatures: untrack(() => supportedFeatures)} as unknown as IMiniLcmJsInvokable,
     projectName: 'test-project',
     projectCode: 'test-project',
     server: {id: 'test-server', displayName: 'Lexbox', authority: 'https://test-server.com'},

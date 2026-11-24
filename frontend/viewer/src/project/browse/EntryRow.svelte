@@ -1,5 +1,6 @@
 <script lang="ts">
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
+  import HomographNumber from '$lib/components/dictionary/HomographNumber.svelte';
   import ListItem, {type ListItemProps} from '$lib/components/ListItem.svelte';
   import Badge from '$lib/components/ui/badge/badge.svelte';
   import type {IEntry} from '$lib/dotnet-types';
@@ -70,7 +71,7 @@
         {#if fallbackWs}
           <span class="-mr-1 relative -bottom-px text-xs font-normal text-foreground/80" title={fallbackWs.name}>{fallbackWs.abbreviation || fallbackWs.wsId}</span>
         {/if}
-        {best?.value || $t`Untitled`}
+        {#if best?.value}{best.value}<HomographNumber homographNumber={entry.homographNumber} />{:else}{$t`Untitled`}{/if}
       </span>
       {@render badge?.()}
     </h2>

@@ -24,13 +24,15 @@ no per-developer setup. Distribution is via `ProjectReference`, not a published 
 | ID | Category | Description |
 |---|---|---|
 | `LX0001` | `LcmCrdt.Reliability` | Concrete Harmony change types (`SIL.Harmony.Changes.IChange`) must declare a `Guid entityId` constructor. Configured as **error**. |
+| `LX0002` | `LcmCrdt.Reliability` | Code in a Harmony change type must not call non-deterministic APIs (`Guid.NewGuid`, `DateTime.Now`/`UtcNow`, `Random`, `Stopwatch`, `Environment`, ...) anywhere but its instance constructors, because changes are replayed on every client. Suppress a deliberate exception with `#pragma warning disable LX0002` plus a justification. Configured as **error**. |
 
 ## Adding a rule
 
 1. Allocate an ID in `DiagnosticIds.cs` (`LX` + four digits; never reuse or renumber).
 2. Add a `Rules/*.cs` analyzer — prefer `IOperation`/symbol comparison over syntax matching; resolve
    symbols in `RegisterCompilationStartAction`; include `ConfigureGeneratedCodeAnalysis(None)` and
-   `EnableConcurrentExecution()`.
+   `EnableConcurrentExecution()`. Detect Harmony change types through `HarmonyChangeTypes`, not a
+   local copy of the `IChange` metadata name.
 3. Add positive, negative near-miss, and generated-code tests.
 4. Set the `.editorconfig` severity (start at `suggestion`/`warning` for retroactive rules).
 

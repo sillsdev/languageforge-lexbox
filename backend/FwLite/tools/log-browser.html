@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FW Lite log browser</title>
+<!--
+  Standalone viewer for FW Lite logs (app.log, app1.log, fw-lite-web.log).
+  Open this file in a browser and pick or drop the log files. Nothing leaves the machine.
+  Line format (NReco.Logging.File default): timestamp \t LEVEL \t [category] \t [eventId] \t message
+  A message may span many lines; a line that doesn't start with that header belongs to the entry above.
+-->
+<style>
+  :root {
+    --bg: #fff; --panel: #f5f6f8; --border: #dde1e6; --text: #1c2127; --muted: #66707b;
+    --accent: #2563eb; --sel: #dbeafe; --hover: #eef1f5;
+    --TRCE: #9aa3ad; --DBUG: #7c8a99; --INFO: #3b82f6; --WARN: #d97706; --FAIL: #dc2626; --CRIT: #c026d3;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171a; --panel: #1b1f24; --border: #2c333a; --text: #e3e7eb; --muted: #8a949e;
+      --accent: #6ea8fe; --sel: #1e3352; --hover: #22272e;
+      --INFO: #60a5fa; --WARN: #f59e0b; --FAIL: #f87171; --CRIT: #e879f9;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { display: flex; flex-direction: column; background: var(--bg); color: var(--text);
+    font: 13px/1.4 system-ui, "Segoe UI", sans-serif; }
+  button, input { font: inherit; color: inherit; }
+  button { background: var(--bg); border: 1px solid var(--border); border-radius: 5px; padding: 3px 10px; cursor: pointer; }
+  button:hover { background: var(--hover); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  input[type=text], input[type=search] { background: var(--bg); border: 1px solid var(--border); border-radius: 5px; padding: 3px 8px; }
+  header { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--panel); }
+  header h1 { font-size: 14px; margin: 0 8px 0 0; }
+  #fileinfo { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  #empty { flex: 1; display: grid; place-items: center; padding: 24px; }
+  #empty .drop { border: 2px dashed var(--border); border-radius: 12px; padding: 40px 56px; text-align: center; max-width: 640px; }
+  #empty code { font-family: var(--mono); font-size: 12px; background: var(--panel); padding: 1px 5px; border-radius: 4px; }
+  #empty p { color: var(--muted); margin: 8px 0; }
+  #empty .err { color: var(--FAIL); }
+  body.dragging #empty .drop, body.dragging #app { outline: 2px solid var(--accent); outline-offset: -4px; }
+
+  #app { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px 1fr; }
+  aside { border-right: 1px solid var(--border); background: var(--panel); overflow: auto; padding: 10px; }
+  aside h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 14px 0 6px;
+    display: flex; align-items: center; gap: 6px; }
+  aside h2:first-child { margin-top: 0; }
+  aside h2 .sp { flex: 1; }
+  aside h2 button { font-size: 11px; padding: 0 6px; text-transform: none; letter-spacing: 0; }
+  #catfilter { width: 100%; margin-bottom: 6px; }
+  .facet { display: flex; align-items: flex-start; gap: 6px; padding: 2px 4px; border-radius: 4px; cursor: pointer; }
+  .facet:hover { background: var(--hover); }
+  .facet.zero { opacity: .45; }
+  .facet input { margin: 2px 0 0; }
+  .facet .dot { width: 9px; height: 9px; border-radius: 50%; margin-top: 4px; flex: none; }
+  .facet .fname { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 12px; }
+  .facet .fcount { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; }
+  .facet .only { visibility: hidden; font-size: 11px; padding: 0 5px; }
+  .facet:hover .only { visibility: visible; }
+
+  main { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+  #summary { border-bottom: 1px solid var(--border); max-height: 38%; overflow: auto; flex: none; }
+  #summary summary { padding: 6px 12px; cursor: pointer; font-weight: 600; position: sticky; top: 0; background: var(--bg); z-index: 1; }
+  #summary summary small { font-weight: 400; color: var(--muted); margin-left: 8px; }
+  #summary table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  #summary th { text-align: right; font-size: 11px; color: var(--muted); font-weight: 600; padding: 2px 10px; white-space: nowrap; }
+  #summary th.l, #summary td.l { text-align: left; }
+  #summary td { text-align: right; padding: 3px 10px; white-space: nowrap; border-top: 1px solid var(--border); }
+  #summary tbody tr { cursor: pointer; }
+  #summary tbody tr:hover { background: var(--hover); }
+  #summary tbody tr.sel { background: var(--sel); }
+  #summary tfoot td { color: var(--muted); font-weight: 600; }
+  #summary td.zero { color: var(--muted); opacity: .5; }
+  #summary td.barcell { width: 30%; min-width: 120px; }
+  .bar { display: flex; height: 10px; border-radius: 2px; overflow: hidden; }
+  .bar i { display: block; height: 100%; }
+  .hours { display: inline-flex; gap: 1px; vertical-align: middle; }
+  .hours i { display: block; width: 5px; height: 14px; background: var(--accent); border-radius: 1px; }
+
+  #toolbar { display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-bottom: 1px solid var(--border); flex: none; }
+  #q { flex: 1; max-width: 420px; }
+  #q.bad { border-color: var(--FAIL); }
+  #status { color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+
+  #list { flex: 1; min-height: 0; overflow: auto; font-family: var(--mono); font-size: 12px; outline: none; position: relative; }
+  #rows { position: absolute; left: 0; right: 0; top: 0; }
+  .row { height: 22px; line-height: 22px; display: flex; gap: 10px; padding: 0 12px 0 9px; white-space: nowrap; cursor: default;
+    border-left: 3px solid transparent; }
+  .row:hover { background: var(--hover); }
+  .row.sel { background: var(--sel); }
+  .row .t { color: var(--muted); flex: none; }
+  .row .lv { flex: none; width: 34px; font-weight: 600; }
+  .row .c { flex: none; width: 230px; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+  .row .m { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .row .more { color: var(--muted); }
+  .row.WARN { border-left-color: var(--WARN); } .row.FAIL { border-left-color: var(--FAIL); } .row.CRIT { border-left-color: var(--CRIT); }
+  .row.DBUG .m, .row.TRCE .m { color: var(--muted); }
+  .none { padding: 24px; color: var(--muted); font-family: system-ui, sans-serif; }
+
+  #detail { flex: none; height: 40%; border-top: 2px solid var(--border); display: flex; flex-direction: column; min-height: 0; }
+  #detail .dh { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel); flex-wrap: wrap; }
+  #detail .dh .meta { font-family: var(--mono); font-size: 12px; overflow-wrap: anywhere; }
+  #detail .dh .sp { flex: 1; }
+  #detail pre { flex: 1; margin: 0; padding: 10px 12px; overflow: auto; font-family: var(--mono); font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; tab-size: 4; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>FW Lite log browser</h1>
+  <button id="open" class="primary">Open log files…</button>
+  <button id="reload" hidden title="Read the same files again">Reload</button>
+  <span id="fileinfo"></span>
+  <input type="file" id="fileinput" multiple hidden accept=".log,.txt">
+</header>
+
+<div id="empty">
+  <div class="drop">
+    <h2>Drop log files here</h2>
+    <p>or use <b>Open log files…</b> above. Pick several (<code>app.log</code> + <code>app1.log</code>) to merge them by time.</p>
+    <p>Installed FW Lite on Windows: <code>%LOCALAPPDATA%\Packages\FwLiteDesktop_…\LocalState\app.log</code><br>
+       FwLiteWeb: <code>fw-lite-web.log</code> in its working directory</p>
+    <p>Files are read in this browser tab only.</p>
+    <p id="emptymsg" class="err"></p>
+  </div>
+</div>
+
+<div id="app" hidden>
+  <aside>
+    <h2>Level</h2>
+    <div id="levels"></div>
+    <h2>Category <span class="sp"></span><button id="catall">all</button><button id="catnone">none</button></h2>
+    <input type="search" id="catfilter" placeholder="Find category…">
+    <div id="cats"></div>
+  </aside>
+  <main>
+    <details id="summary" open>
+      <summary>Per day <small>counts follow the level, category and text filters; click a day to show only that day</small></summary>
+      <table><thead id="sumhead"></thead><tbody id="sumbody"></tbody><tfoot id="sumfoot"></tfoot></table>
+    </details>
+    <div id="toolbar">
+      <input type="search" id="q" placeholder="Search message text…">
+      <label><input type="checkbox" id="qre"> regex</label>
+      <button id="reset">Reset filters</button>
+      <span id="status"></span>
+    </div>
+    <div id="list" tabindex="0"><div id="spacer"><div id="rows"></div></div></div>
+    <section id="detail" hidden>
+      <div class="dh">
+        <span class="meta" id="dmeta"></span><span class="sp"></span>
+        <button id="donly" title="Show only this category">Only this category</button>
+        <button id="dhide" title="Hide this category">Hide category</button>
+        <button id="dctx" title="Clear all filters and jump to this entry">Show in context</button>
+        <button id="dcopy">Copy</button>
+        <button id="dclose" title="Esc">✕</button>
+      </div>
+      <pre id="dbody"></pre>
+    </section>
+  </main>
+</div>
+
+<script>
+'use strict';
+//#parse-start
+const LEVEL_RANK = ['TRCE', 'DBUG', 'INFO', 'WARN', 'FAIL', 'CRIT'];
+const HEAD = /^(\d{4}-\d\d-\d\d)T(\d\d:\d\d:\d\d)(\.\d+)?(Z|[+-]\d\d:\d\d)?\t([A-Z]+)\t\[([^\t]*)\]\t\[([^\t]*)\]\t/gm;
+
+function newAcc() {
+  return { file: [], line: [], msg: [], end: [], ts: [], date: [], hour: [], lvl: [], cat: [],
+    levels: [], lvlMap: new Map(), cats: [], catMap: new Map(), dates: [], dateMap: new Map() };
+}
+function intern(names, map, name) {
+  let i = map.get(name);
+  if (i === undefined) { i = names.length; names.push(name); map.set(name, i); }
+  return i;
+}
+function trimEnd(text, end) {
+  while (end > 0) { const c = text.charCodeAt(end - 1); if (c === 10 || c === 13 || c === 32) end--; else break; }
+  return end;
+}
+// Appends every entry of one file's text to acc. An entry runs from its header line to the next header.
+function parseInto(acc, text, fileIdx) {
+  HEAD.lastIndex = 0;
+  let m, prev = -1;
+  while ((m = HEAD.exec(text))) {
+    if (prev >= 0) acc.end[prev] = trimEnd(text, m.index);
+    prev = acc.line.length;
+    acc.file.push(fileIdx);
+    acc.line.push(m.index);
+    acc.msg.push(HEAD.lastIndex);
+    acc.end.push(0);
+    acc.ts.push(Date.parse(m[1] + 'T' + m[2] + (m[3] ? m[3].slice(0, 4) : '') + (m[4] || '')));
+    acc.date.push(intern(acc.dates, acc.dateMap, m[1]));
+    acc.hour.push(+m[2].slice(0, 2));
+    acc.lvl.push(intern(acc.levels, acc.lvlMap, m[5]));
+    acc.cat.push(intern(acc.cats, acc.catMap, m[6]));
+  }
+  if (prev >= 0) acc.end[prev] = Math.max(acc.msg[prev], trimEnd(text, text.length));
+}
+//#parse-end
+
+const $ = id => document.getElementById(id);
+const fmt = n => n.toLocaleString();
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+// ---- data ----
+let sources = [];      // [{name, read}]
+let files = [];        // [{name, text}]
+let N = 0, eFile, eLine, eMsg, eEnd, eTs, eDate, eHour, eLvl, eCat;
+let levels = [], cats = [], dates = [], fileRange = [];
+let order = new Uint32Array(0);       // entry ids sorted by time
+let levelDisplay = [], catDisplay = [];  // display order of level / category indexes
+// ---- filters (by name, so they survive a reload) ----
+const F = { levelsOff: new Set(), catsOff: new Set(), date: null, q: '', regex: false };
+let textMatch = null;  // Uint8Array per entry, or null when no text filter
+// ---- derived ----
+let visible = new Uint32Array(0), lvlCount, catCount, dayStats;
+let selEntry = -1;
+const ROW = 22;
+
+async function load(newSources, reloadable) {
+  sources = newSources;
+  $('reload').hidden = !reloadable;
+  $('fileinfo').textContent = 'Reading…';
+  $('emptymsg').textContent = '';
+  try {
+    const texts = await Promise.all(sources.map(s => s.read()));
+    await new Promise(r => setTimeout(r));
+    files = texts.map((t, i) => ({ name: sources[i].name, text: t.charCodeAt(0) === 0xFEFF ? t.slice(1) : t }));
+    build();
+  } catch (err) {
+    console.error(err);
+    fail('Could not read the file: ' + err.message);
+    return;
+  }
+  if (!N) { fail('No log entries recognised in ' + files.map(f => f.name).join(', ') + '.'); return; }
+  $('empty').hidden = true;
+  $('app').hidden = false;
+  const size = files.reduce((a, f) => a + f.text.length, 0);
+  $('fileinfo').textContent = files.map(f => f.name).join(' + ') + ' · ' + fmt(N) + ' entries · ' + (size / 1048576).toFixed(1) + ' MB';
+  selEntry = -1; $('detail').hidden = true;
+  computeTextMatch();
+  refresh();
+}
+function fail(msg) {
+  $('app').hidden = true; $('empty').hidden = false;
+  $('fileinfo').textContent = ''; $('emptymsg').textContent = msg;
+}
+
+function build() {
+  const acc = newAcc();
+  fileRange = [];
+  files.forEach((f, i) => { const a = acc.line.length; parseInto(acc, f.text, i); fileRange.push([a, acc.line.length]); });
+  N = acc.line.length;
+  // dates in calendar order
+  dates = acc.dates.slice().sort();
+  const remap = acc.dates.map(d => dates.indexOf(d));
+  eFile = Uint8Array.from(acc.file); eLine = Uint32Array.from(acc.line); eMsg = Uint32Array.from(acc.msg);
+  eEnd = Uint32Array.from(acc.end); eTs = Float64Array.from(acc.ts); eHour = Uint8Array.from(acc.hour);
+  eLvl = Uint8Array.from(acc.lvl); eCat = Uint16Array.from(acc.cat);
+  eDate = Uint16Array.from(acc.date, d => remap[d]);
+  levels = acc.levels; cats = acc.cats;
+  order = new Uint32Array(N);
+  for (let i = 0; i < N; i++) order[i] = i;
+  if (files.length > 1) order.sort((a, b) => (eTs[a] - eTs[b]) || (a - b));
+  const rank = n => { const r = LEVEL_RANK.indexOf(n); return r < 0 ? 99 : r; };
+  levelDisplay = levels.map((_, i) => i).sort((a, b) => rank(levels[a]) - rank(levels[b]));
+  const catTotal = new Uint32Array(cats.length);
+  for (let i = 0; i < N; i++) catTotal[eCat[i]]++;
+  catDisplay = cats.map((_, i) => i).sort((a, b) => catTotal[b] - catTotal[a] || cats[a].localeCompare(cats[b]));
+}
+
+function computeTextMatch() {
+  textMatch = null;
+  $('q').classList.remove('bad');
+  if (!F.q) return;
+  let re;
+  try { re = new RegExp(F.regex ? F.q : F.q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'); }
+  catch { $('q').classList.add('bad'); return; }
+  const tm = new Uint8Array(N);
+  files.forEach((f, fi) => {
+    const [a, b] = fileRange[fi];
+    let e = a, m;
+    re.lastIndex = 0;
+    while (e < b && (m = re.exec(f.text))) {
+      while (e < b && eEnd[e] <= m.index) e++;
+      if (e >= b) break;
+      if (m.index >= eLine[e]) { tm[e] = 1; re.lastIndex = Math.max(eEnd[e], m.index + 1); e++; }
+      else if (m[0].length === 0) re.lastIndex = m.index + 1;
+    }
+  });
+  textMatch = tm;
+}
+
+function recompute() {
+  const lOn = levels.map(n => !F.levelsOff.has(n)), cOn = cats.map(n => !F.catsOff.has(n));
+  let dSel = F.date == null ? -1 : dates.indexOf(F.date);
+  if (dSel < 0) F.date = null;
+  const tm = textMatch;
+  lvlCount = new Uint32Array(levels.length);
+  catCount = new Uint32Array(cats.length);
+  dayStats = dates.map(() => ({ total: 0, byLvl: new Uint32Array(levels.length), hours: new Uint32Array(24), first: -1, last: -1 }));
+  const vis = new Uint32Array(N);
+  let n = 0;
+  for (let k = 0; k < N; k++) {
+    const e = order[k];
+    if (tm && !tm[e]) continue;
+    const l = eLvl[e], c = eCat[e], d = eDate[e];
+    const L = lOn[l], C = cOn[c], D = dSel < 0 || d === dSel;
+    // each facet counts what its options would show given the *other* filters
+    if (C && D) lvlCount[l]++;
+    if (L && D) catCount[c]++;
+    if (L && C) {
+      const s = dayStats[d];
+      s.total++; s.byLvl[l]++; s.hours[eHour[e]]++;
+      if (s.first < 0) s.first = e;
+      s.last = e;
+      if (D) vis[n++] = e;
+    }
+  }
+  visible = vis.subarray(0, n);
+}
+
+function refresh() {
+  recompute();
+  renderFacets();
+  renderSummary();
+  const active = F.levelsOff.size || F.catsOff.size || F.date != null || F.q;
+  $('reset').disabled = !active;
+  $('status').textContent = fmt(visible.length) + ' of ' + fmt(N) + ' entries' + (F.date ? ' · ' + F.date : '');
+  $('spacer').style.height = (visible.length * ROW) + 'px';
+  const i = selEntry < 0 ? -1 : visible.indexOf(selEntry);
+  $('list').scrollTop = i < 0 ? 0 : Math.max(0, i * ROW - $('list').clientHeight / 2);
+  renderRows();
+}
+
+function facetRow(name, count, on, color, onToggle, onOnly) {
+  const row = el('label', 'facet' + (count ? '' : ' zero'));
+  const cb = el('input'); cb.type = 'checkbox'; cb.checked = on;
+  cb.onchange = () => onToggle(cb.checked);
+  row.append(cb);
+  if (color) { const d = el('span', 'dot'); d.style.background = color; row.append(d); }
+  const nm = el('span', 'fname', name); nm.title = name;
+  const only = el('button', 'only', 'only'); only.type = 'button';
+  only.onclick = ev => { ev.preventDefault(); onOnly(); };
+  row.append(nm, only, el('span', 'fcount', fmt(count)));
+  return row;
+}
+const levelColor = n => LEVEL_RANK.includes(n) ? `var(--${n})` : 'var(--muted)';
+function toggle(set, name, on) { if (on) set.delete(name); else set.add(name); refresh(); }
+function only(set, all, name) { set.clear(); for (const n of all) if (n !== name) set.add(n); refresh(); }
+
+function renderFacets() {
+  $('levels').replaceChildren(...levelDisplay.map(i => facetRow(levels[i], lvlCount[i], !F.levelsOff.has(levels[i]), levelColor(levels[i]),
+    on => toggle(F.levelsOff, levels[i], on), () => only(F.levelsOff, levels, levels[i]))));
+  const f = $('catfilter').value.trim().toLowerCase();
+  $('cats').replaceChildren(...catDisplay.filter(i => !f || cats[i].toLowerCase().includes(f)).map(i =>
+    facetRow(cats[i], catCount[i], !F.catsOff.has(cats[i]), null,
+      on => toggle(F.catsOff, cats[i], on), () => only(F.catsOff, cats, cats[i]))));
+}
+
+const timeOf = e => files[eFile[e]].text.substr(eLine[e] + 11, 8);
+
+function renderSummary() {
+  const lv = levelDisplay;
+  const head = el('tr');
+  head.append(el('th', 'l', 'Date'), el('th', '', 'Entries'), el('th'));
+  for (const i of lv) head.append(el('th', '', levels[i]));
+  head.append(el('th', '', 'First – last'), el('th', 'l', 'By hour (0–23)'));
+  $('sumhead').replaceChildren(head);
+
+  const max = Math.max(1, ...dayStats.map(s => s.total));
+  const tot = new Uint32Array(levels.length);
+  let grand = 0;
+  const rows = dates.map((date, d) => {
+    const s = dayStats[d];
+    const tr = el('tr', F.date === date ? 'sel' : '');
+    tr.onclick = () => { F.date = F.date === date ? null : date; refresh(); };
+    const wd = new Date(date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'short' });
+    tr.append(el('td', 'l', date + ' ' + wd), el('td', s.total ? '' : 'zero', fmt(s.total)));
+    const bc = el('td', 'barcell'), bar = el('div', 'bar');
+    for (const i of lv) if (s.byLvl[i]) {
+      const seg = el('i'); seg.style.width = (s.byLvl[i] / max * 100) + '%'; seg.style.background = levelColor(levels[i]);
+      seg.title = levels[i] + ': ' + fmt(s.byLvl[i]); bar.append(seg);
+    }
+    bc.append(bar); tr.append(bc);
+    for (const i of lv) { tr.append(el('td', s.byLvl[i] ? '' : 'zero', fmt(s.byLvl[i]))); tot[i] += s.byLvl[i]; }
+    grand += s.total;
+    tr.append(el('td', '', s.first < 0 ? '' : timeOf(s.first) + ' – ' + timeOf(s.last)));
+    const hc = el('td', 'l'), hours = el('span', 'hours');
+    const hmax = Math.max(1, ...s.hours);
+    for (let h = 0; h < 24; h++) {
+      const c = el('i'); c.style.opacity = s.hours[h] ? 0.2 + 0.8 * Math.sqrt(s.hours[h] / hmax) : 0.07;
+      c.title = String(h).padStart(2, '0') + ':00 — ' + fmt(s.hours[h]); hours.append(c);
+    }
+    hc.append(hours); tr.append(hc);
+    return tr;
+  });
+  $('sumbody').replaceChildren(...rows);
+  const foot = el('tr');
+  foot.append(el('td', 'l', dates.length + (dates.length === 1 ? ' day' : ' days')), el('td', '', fmt(grand)), el('td'));
+  for (const i of lv) foot.append(el('td', '', fmt(tot[i])));
+  foot.append(el('td'), el('td'));
+  $('sumfoot').replaceChildren(foot);
+}
+
+// ---- virtual list ----
+// Logs from builds before LoggerAdapter stripped it: every MSAL line starts with version, runtime, OS and a second timestamp.
+// Hidden in the list only; the detail pane and Copy keep the raw line.
+const MSAL_PREFIX = /^(?:True|False) MSAL .*? \[\d{4}-\d\d-\d\d \d\d:\d\d:\d\dZ(?: - ([0-9a-fA-F]{8})[0-9a-fA-F-]{28})?\](?: \(FwLite(?:: [^)]*)?\))? ?/;
+function shortCat(c) { const p = c.split('.'); return p.length > 2 ? p.slice(-2).join('.') : c; }
+function rowEl(e, i) {
+  const t = files[eFile[e]].text, lvl = levels[eLvl[e]], cat = cats[eCat[e]];
+  const row = el('div', 'row ' + lvl + (e === selEntry ? ' sel' : ''));
+  row.dataset.i = i;
+  const lv = el('span', 'lv', lvl); lv.style.color = levelColor(lvl);
+  const c = el('span', 'c', shortCat(cat)); c.title = cat;
+  let nl = t.indexOf('\n', eMsg[e]);
+  const multi = nl >= 0 && nl < eEnd[e];
+  if (!multi) nl = eEnd[e];
+  const m = el('span', 'm', t.slice(eMsg[e], Math.min(nl, eMsg[e] + 500)).replace(MSAL_PREFIX, (_, id) => id ? `[${id}] ` : '').trimEnd());
+  if (multi) m.append(el('span', 'more', '  ⏎ …'));
+  row.append(el('span', 't', t.substr(eLine[e] + 5, 18).replace('T', ' ')), lv, c, m);
+  return row;
+}
+function renderRows() {
+  const list = $('list'), rows = $('rows');
+  if (!visible.length) { rows.style.transform = ''; rows.replaceChildren(el('div', 'none', 'No entries match the filters.')); return; }
+  const a = Math.max(0, Math.floor(list.scrollTop / ROW) - 10);
+  const b = Math.min(visible.length, Math.ceil((list.scrollTop + list.clientHeight) / ROW) + 10);
+  rows.style.transform = `translateY(${a * ROW}px)`;
+  const frag = document.createDocumentFragment();
+  for (let i = a; i < b; i++) frag.append(rowEl(visible[i], i));
+  rows.replaceChildren(frag);
+}
+let raf = 0;
+$('list').addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; renderRows(); }); });
+new ResizeObserver(renderRows).observe($('list'));
+
+function select(i, scroll) {
+  if (i < 0 || i >= visible.length) return;
+  selEntry = visible[i];
+  showDetail(selEntry);
+  if (scroll) {
+    const list = $('list'), top = i * ROW;
+    if (top < list.scrollTop) list.scrollTop = top;
+    else if (top + ROW > list.scrollTop + list.clientHeight) list.scrollTop = top + ROW - list.clientHeight;
+  }
+  renderRows();
+}
+$('rows').addEventListener('click', ev => {
+  const r = ev.target.closest('.row');
+  if (r) select(+r.dataset.i, false);
+});
+$('list').addEventListener('keydown', ev => {
+  const page = Math.max(1, Math.floor($('list').clientHeight / ROW) - 1);
+  const cur = selEntry < 0 ? -1 : visible.indexOf(selEntry);
+  const step = { ArrowDown: 1, ArrowUp: -1, PageDown: page, PageUp: -page }[ev.key];
+  let i;
+  if (step) i = cur < 0 ? Math.floor($('list').scrollTop / ROW) : cur + step;
+  else if (ev.key === 'Home') i = 0;
+  else if (ev.key === 'End') i = visible.length - 1;
+  else if (ev.key === 'Escape') { closeDetail(); return; }
+  else return;
+  ev.preventDefault();
+  select(Math.min(visible.length - 1, Math.max(0, i)), true);
+});
+
+// ---- detail ----
+function showDetail(e) {
+  const t = files[eFile[e]].text;
+  const head = t.slice(eLine[e], eMsg[e] - 1).split('\t');
+  const parts = [head[0], head[1], head[2].slice(1, -1)];
+  const ev = head[3].slice(1, -1);
+  if (ev && ev !== '0') parts.push('event ' + ev);
+  if (files.length > 1) parts.push(files[eFile[e]].name);
+  $('dmeta').textContent = parts.join('  ·  ');
+  const body = t.slice(eMsg[e], eEnd[e]);
+  $('dbody').textContent = body.length > 500000 ? body.slice(0, 500000) + '\n… (truncated)' : body;
+  $('dbody').scrollTop = 0;
+  const wasHidden = $('detail').hidden;
+  $('detail').hidden = false;
+  if (wasHidden) renderRows();
+}
+function closeDetail() { selEntry = -1; $('detail').hidden = true; renderRows(); }
+$('dclose').onclick = closeDetail;
+$('dcopy').onclick = () => {
+  if (selEntry < 0) return;
+  navigator.clipboard.writeText(files[eFile[selEntry]].text.slice(eLine[selEntry], eEnd[selEntry]));
+};
+$('donly').onclick = () => { if (selEntry >= 0) only(F.catsOff, cats, cats[eCat[selEntry]]); };
+$('dhide').onclick = () => { if (selEntry >= 0) toggle(F.catsOff, cats[eCat[selEntry]], false); };
+$('dctx').onclick = () => { resetFilters(); };
+
+// ---- filter controls ----
+function resetFilters() {
+  F.levelsOff.clear(); F.catsOff.clear(); F.date = null; F.q = ''; $('q').value = '';
+  computeTextMatch(); refresh();
+}
+$('reset').onclick = resetFilters;
+$('catall').onclick = () => { F.catsOff.clear(); refresh(); };
+$('catnone').onclick = () => { F.catsOff = new Set(cats); refresh(); };
+$('catfilter').oninput = renderFacets;
+let qTimer = 0;
+function queryChanged() {
+  clearTimeout(qTimer);
+  qTimer = setTimeout(() => { F.q = $('q').value; F.regex = $('qre').checked; computeTextMatch(); refresh(); }, 200);
+}
+$('q').oninput = queryChanged;
+$('qre').onchange = queryChanged;
+
+// ---- opening files ----
+const fromFiles = list => [...list].map(f => ({ name: f.name, read: () => f.text() }));
+$('open').onclick = async () => {
+  if (window.showOpenFilePicker) {
+    try {
+      const hs = await showOpenFilePicker({ multiple: true, types: [{ description: 'Log files', accept: { 'text/plain': ['.log', '.txt'] } }] });
+      // a handle re-reads the file from disk each time, so Reload picks up new lines
+      await load(hs.map(h => ({ name: h.name, read: async () => (await h.getFile()).text() })), true);
+      return;
+    } catch (err) { if (err.name === 'AbortError') return; }
+  }
+  $('fileinput').click();
+};
+$('fileinput').onchange = ev => { if (ev.target.files.length) load(fromFiles(ev.target.files), false); ev.target.value = ''; };
+$('reload').onclick = () => load(sources, true);
+addEventListener('dragover', ev => { ev.preventDefault(); document.body.classList.add('dragging'); });
+addEventListener('dragleave', ev => { if (!ev.relatedTarget) document.body.classList.remove('dragging'); });
+addEventListener('drop', ev => {
+  ev.preventDefault();
+  document.body.classList.remove('dragging');
+  if (ev.dataTransfer.files.length) load(fromFiles(ev.dataTransfer.files), false);
+});
+</script>
+</body>
+</html>

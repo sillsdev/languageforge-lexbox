@@ -37,6 +37,9 @@ public static class ScheduledTasksKernel
             q.AddJob<DeleteTempDirectoryJob>(DeleteTempDirectoryJob.Key, j => j.StoreDurably());
             q.AddJob<UpdateProjectMetadataJob>(UpdateProjectMetadataJob.Key, j => j.StoreDurably());
             q.AddJob<RetryEmailJob>(RetryEmailJob.Key, j => j.StoreDurably());
+            // RequestRecovery: rerun a creation that was interrupted by LexBox stopping, rather than leave the
+            // project marked as being initialised forever. The job is written to be safe to rerun.
+            q.AddJob<InitFwDataProjectJob>(InitFwDataProjectJob.Key, j => j.StoreDurably().RequestRecovery());
             q.AddTrigger(opts => opts.ForJob(CleanupResetBackupJob.Key)
                 .WithIdentity("WeeklyCleanupTrigger")
                 //every sunday at 2am

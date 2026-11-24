@@ -15,6 +15,12 @@ public class CrdtMediaApi(
         return await lcmMediaService.GetFileStream(mediaUri.FileId, downloadIfMissing);
     }
 
+    public async Task DeleteFile(MediaUri mediaUri)
+    {
+        if (mediaUri == MediaUri.NotFound) return;
+        await lcmMediaService.DeleteResource(mediaUri.FileId);
+    }
+
     public async Task<UploadFileResponse> SaveFile(Stream stream, LcmFileMetadata metadata)
     {
         try

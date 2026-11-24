@@ -250,8 +250,9 @@ public class SnapshotAtCommitServiceTests(MiniLcmApiFixture fixture) : IClassFix
         snapshotPreserved.Entries.FirstOrDefault(e => e.Id == entry2.Id).Should().NotBeNull();
         snapshotPreserved.Entries.FirstOrDefault(e => e.Id == entry3.Id).Should().BeNull();
 
-        // Verify: The snapshots should be different
-        snapshotDefault.Should().NotBeEquivalentTo(snapshotPreserved);
+        // Verify: The snapshots should be different. Compare entry ids only: NotBeEquivalentTo on
+        // whole snapshots explores every mismatch path and takes minutes under FluentAssertions 8.
+        snapshotPreserved.Entries.Select(e => e.Id).Should().NotBeEquivalentTo(snapshotDefault.Entries.Select(e => e.Id));
     }
 }
 

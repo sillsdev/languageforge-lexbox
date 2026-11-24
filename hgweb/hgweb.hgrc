@@ -16,6 +16,10 @@ bundle1.pull=True
 [experimental]
 bundle2-advertise=false
 
+# refuses diff pages whose files are too big to render within the pod's memory, see diffguard.py
+[extensions]
+diffguard = /usr/local/www/hgext/diffguard.py
+
 [paths]
 /a/ = /var/hg/repos/a/*
 /b/ = /var/hg/repos/b/*

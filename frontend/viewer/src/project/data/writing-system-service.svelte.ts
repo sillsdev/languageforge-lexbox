@@ -15,6 +15,7 @@ import {type ResourceReturn} from 'runed';
 import type {View} from '$lib/views/view-data';
 import type {ReadonlyDeep} from 'type-fest';
 import {type MorphTypesService, useMorphTypesService} from './morph-types.svelte';
+import {homographSubscript} from '$lib/components/dictionary/homograph-subscript';
 
 export type WritingSystemSelection =
   | 'vernacular'
@@ -158,6 +159,12 @@ export class WritingSystemService {
     return this.viewBestHeadwordIn(entry, view, ws)?.value ?? '';
   }
 
+  /** {@link viewBestHeadword} with the homograph number as a subscript, for display only. Empty without a headword. */
+  viewBestHeadwordWithHomograph(entry: ReadonlyDeep<IEntry>, view: View): string {
+    const headword = this.viewBestHeadword(entry, view);
+    return headword && headword + homographSubscript(entry.homographNumber);
+  }
+
   /** {@link viewBestHeadword} plus the writing system the headword came from, so a fallback can be labelled. */
   viewBestHeadwordIn(entry: ReadonlyDeep<IEntry>, view: View, wsId?: string): {ws: IWritingSystem, value: string} | undefined {
     const viewWs = this.viewVernacularNoAudio(view);
@@ -201,11 +208,11 @@ export class WritingSystemService {
     return writingSystems.find(ws => ws.wsId === wsId);
   }
 
-  firstGloss(sense: ISense): string {
+  firstGloss(sense: ReadonlyDeep<ISense>): string {
     return this.first(sense.gloss, this.analysis) || '';
   }
 
-  firstDef(sense: ISense): string {
+  firstDef(sense: ReadonlyDeep<ISense>): string {
     return this.first(sense.definition, this.analysis) || '';
   }
 
@@ -228,6 +235,15 @@ export class WritingSystemService {
       || this.firstDefOrGlossVal(sense);
   }
 
+  /** Gloss before definition, preferring the view's analysis writing systems. */
+  viewFirstGlossOrDef(sense: ReadonlyDeep<ISense>, view: View): string {
+    const viewAnalysis = this.viewAnalysis(view).filter(ws => !ws.isAudio);
+    return this.first(sense.gloss, viewAnalysis)
+      || this.first(sense.definition, viewAnalysis)
+      || this.firstGloss(sense)
+      || this.firstDef(sense);
+  }
+
   firstSentenceOrTranslationVal(example: IExampleSentence | undefined): string {
     if (!example) return '';
     return this.first(example.sentence, this.vernacular) || this.firstTranslationVal(example);
@@ -247,12 +263,12 @@ export class WritingSystemService {
     return colors[ws];
   }
 
-  first(value: IMultiString | IRichMultiString, writingSystems: IWritingSystem[] = this.allWritingSystems()): string | undefined {
+  first(value: ReadonlyDeep<IMultiString | IRichMultiString>, writingSystems: IWritingSystem[] = this.allWritingSystems()): string | undefined {
     return firstTruthy(writingSystems, ws => asString(value[ws.wsId]));
   }
 }
 
-export function asString(value: IRichString | string | undefined): string | undefined {
+export function asString(value: ReadonlyDeep<IRichString> | string | undefined): string | undefined {
   if (!value || typeof value === 'string') return value;
   return value.spans.map(s => s.text).join('');
 }

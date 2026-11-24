@@ -27,7 +27,9 @@ public record FolderSyncSummary(
     string? FolderProjectName = null,
     int MediaSent = 0,
     int MediaReceived = 0,
-    int MediaFailed = 0)
+    int MediaFailed = 0,
+    string[]? LocalWritingSystemIds = null,
+    string[]? FolderWritingSystemIds = null)
 {
     public static FolderSyncSummary From(FolderSyncResult result)
     {
@@ -45,16 +47,12 @@ public record FolderSyncSummary(
             IdentityComparison.DifferentWritingSystems => FolderSyncStatus.NoWritingSystemInCommon,
             _ => FolderSyncStatus.DifferentHistory,
         };
+        if (status == FolderSyncStatus.NoWritingSystemInCommon)
+        {
+            return new(status, folderProjectName,
+                LocalWritingSystemIds: [.. result.LocalWritingSystemIds ?? []],
+                FolderWritingSystemIds: (result.FolderState as SyncFolderState.HoldsProject)?.Manifest.WritingSystemIds);
+        }
         return new(status, folderProjectName, result.MediaSent, result.MediaReceived, result.MediaFailed);
     }
-}
-
-/// <summary>
-/// What the viewer needs to report "Open from folder", flattened from <see cref="OpenFromFolderResult"/>.
-/// </summary>
-/// <param name="ProjectCode">The local project to open, when there is one.</param>
-public record OpenFromFolderSummary(OpenFromFolderOutcome Outcome, string? ProjectCode, FolderSyncSummary? Sync)
-{
-    public static OpenFromFolderSummary From(OpenFromFolderResult result) =>
-        new(result.Outcome, result.ProjectCode, result.Sync is null ? null : FolderSyncSummary.From(result.Sync));
 }

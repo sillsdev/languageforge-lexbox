@@ -16,6 +16,7 @@ export type ChangeType =
   | 'CreateExampleSentenceChange'
   | 'CreateMorphTypeChange'
   | 'CreatePartOfSpeechChange'
+  | 'CreatePluginChange'
   | 'CreatePublicationChange'
   | 'CreateSemanticDomainChange'
   | 'CreateSenseChange'
@@ -23,6 +24,7 @@ export type ChangeType =
   | 'CreateUserCommentChange'
   | 'CreateWritingSystemChange'
   | 'EditCustomViewChange'
+  | 'EditPluginChange'
   | 'EditUserCommentChange'
   | 'MoveExampleSentenceToSenseChange'
   | 'MoveSenseToEntryChange'
@@ -53,6 +55,7 @@ export type ChangeType =
   | 'delete:Entry'
   | 'delete:ExampleSentence'
   | 'delete:PartOfSpeech'
+  | 'delete:Plugin'
   | 'delete:Publication'
   | 'delete:RemoteResource'
   | 'delete:SemanticDomain'
@@ -84,6 +87,7 @@ export const knownChangeTypes = [
   'CreateExampleSentenceChange',
   'CreateMorphTypeChange',
   'CreatePartOfSpeechChange',
+  'CreatePluginChange',
   'CreatePublicationChange',
   'CreateSemanticDomainChange',
   'CreateSenseChange',
@@ -91,6 +95,7 @@ export const knownChangeTypes = [
   'CreateUserCommentChange',
   'CreateWritingSystemChange',
   'EditCustomViewChange',
+  'EditPluginChange',
   'EditUserCommentChange',
   'MoveExampleSentenceToSenseChange',
   'MoveSenseToEntryChange',
@@ -121,6 +126,7 @@ export const knownChangeTypes = [
   'delete:Entry',
   'delete:ExampleSentence',
   'delete:PartOfSpeech',
+  'delete:Plugin',
   'delete:Publication',
   'delete:RemoteResource',
   'delete:SemanticDomain',

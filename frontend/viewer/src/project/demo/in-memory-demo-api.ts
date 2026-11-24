@@ -24,9 +24,12 @@ import {
   type IWritingSystems,
   type WritingSystemType,
   type ICustomView,
+  type IPlugin,
   ViewBase,
   MorphTypeKind,
 } from '$lib/dotnet-types';
+import {examplePlugins} from '$lib/plugins/examples';
+import {parsePluginManifest} from '$lib/plugins/plugin-manifest';
 import {demoPictureSvgs, entries, morphTypes, partsOfSpeech, projectName, writingSystems} from './demo-entry-data';
 
 import {WritingSystemService} from '../data/writing-system-service.svelte';
@@ -42,12 +45,14 @@ import type {ILcmFileMetadata} from '$lib/dotnet-types/generated-types/MiniLcm/M
 import type {IUploadFileResponse} from '$lib/dotnet-types/generated-types/MiniLcm/Media/IUploadFileResponse';
 import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
 import {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
-import type {IOpenFromFolderSummary} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IOpenFromFolderSummary';
+import type {IOpenFromFolderResult} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IOpenFromFolderResult';
+import type {IFolderSyncSummary} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IFolderSyncSummary';
 import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IUpdateService';
 import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
 import {type EventBus, useEventBus, ProjectEventBus} from '$lib/services/event-bus';
 import type {IJsEventListener} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IJsEventListener';
 import {initProjectStorage} from '$lib/storage';
+import type {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
 import {MorphTypesService} from '$project/data/morph-types.svelte';
 import {useCustomViewService} from '$project/data/custom-view-service.svelte';
 import type {ICommentThread} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ICommentThread';
@@ -86,7 +91,6 @@ export const mockFwLiteConfig: IFwLiteConfig = {
   edition: 0,
   updateCheckCondition: 0,
   updateCheckInterval: 0,
-  updateUrl: ''
 };
 
 export const mockUpdateService: IUpdateService = {
@@ -109,7 +113,7 @@ export const mockUpdateService: IUpdateService = {
 };
 
 const mockJsEventListener: IJsEventListener = {
-  nextEventAsync: () => Promise.resolve(undefined!),
+  nextEventsAsync: () => Promise.resolve([]),
   lastEvent: () => Promise.resolve(undefined)
 };
 
@@ -156,6 +160,15 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
         refreshPlatformFeatures();
       },
       addCustomView: (customView: ICustomView) => customViewService.add(customView),
+      setProjectRole(role: UserProjectRole) {
+        // The demo has no project data (so it counts as local and manageable) until a test sets a role.
+        projectContext.setup({
+          api: inMemoryLexboxApi,
+          projectName: inMemoryLexboxApi.projectName,
+          projectCode: inMemoryLexboxApi.projectName,
+          projectData: {name: inMemoryLexboxApi.projectName, code: inMemoryLexboxApi.projectName, id: 'demo', clientId: 'demo', role},
+        });
+      },
     };
 
     window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
@@ -191,8 +204,11 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       deleteProject: function (_code: string): Promise<void> {
         return Promise.resolve();
       },
-      openFromFolder: function (_path: string): Promise<IOpenFromFolderSummary> {
+      openFromFolder: function (_path: string): Promise<IOpenFromFolderResult> {
         return Promise.reject(new Error('Opening from a folder is not available in the demo'));
+      },
+      syncProjectWithFolder: function (_projectCode: string, _path: string): Promise<IFolderSyncSummary> {
+        return Promise.reject(new Error('Folder sync is not available in the demo'));
       }
     });
     return inMemoryLexboxApi;
@@ -269,6 +285,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       write: this.#write,
       audio: true,
       customViews: true,
+      plugins: true,
     } satisfies IMiniLcmFeatures);
   }
 
@@ -733,6 +750,73 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return Promise.resolve();
   }
 
+  private _plugins: IPlugin[] = [];
+  // Plugin HTML lives in "media files" (mediaUri -> bytes), mirroring how real projects store it.
+  private _files = new Map<string, Uint8Array>();
+  private _seedPlugins?: Promise<void>;
+
+  private storeFile(bytes: Uint8Array): string {
+    const mediaUri = `sil-media://demo/${crypto.randomUUID()}`;
+    this._files.set(mediaUri, bytes);
+    return mediaUri;
+  }
+
+  private seedPlugins(): Promise<void> {
+    return this._seedPlugins ??= (async () => {
+      const seeds: {id: string; key: string}[] = [
+        {id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479', key: 'dictionary-stats'},
+        {id: 'b3d4e5f6-a7b8-4c9d-8e1f-2a3b4c5d6e7f', key: 'lexicon-galaxy'},
+      ];
+      for (const seed of seeds) {
+        const example = examplePlugins.find(p => p.key === seed.key);
+        if (!example) continue;
+        const html = await example.loadHtml();
+        const bytes = new TextEncoder().encode(html);
+        const manifest = parsePluginManifest(html);
+        this._plugins.push({
+          id: seed.id,
+          name: example.name,
+          description: example.description,
+          mediaUri: this.storeFile(bytes),
+          fileSize: bytes.byteLength,
+          permissions: manifest.permissions,
+          contexts: manifest.contexts,
+          requires: manifest.requires,
+        });
+      }
+    })();
+  }
+
+  async getPlugins(): Promise<IPlugin[]> {
+    await this.seedPlugins();
+    return this._plugins.map(plugin => ({...plugin}));
+  }
+
+  async getPlugin(id: string): Promise<IPlugin | null> {
+    await this.seedPlugins();
+    const found = this._plugins.find(plugin => plugin.id === id) ?? null;
+    return found ? {...found} : null;
+  }
+
+  createPlugin(plugin: IPlugin): Promise<IPlugin> {
+    const created = {...plugin, id: plugin.id || crypto.randomUUID()};
+    this._plugins = [...this._plugins, created];
+    return Promise.resolve({...created});
+  }
+
+  updatePlugin(plugin: IPlugin): Promise<IPlugin> {
+    const index = this._plugins.findIndex(existing => existing.id === plugin.id);
+    if (index === -1) throw new Error(`Plugin ${plugin.id} not found`);
+    const updated = {...plugin};
+    this._plugins = this._plugins.map((existing, i) => i === index ? updated : existing);
+    return Promise.resolve({...updated});
+  }
+
+  deletePlugin(id: string): Promise<void> {
+    this._plugins = this._plugins.filter(plugin => plugin.id !== id);
+    return Promise.resolve();
+  }
+
   createComplexFormComponent(_complexFormComponent: IComplexFormComponent): Promise<IComplexFormComponent> {
     throw new Error('Method not implemented.');
   }
@@ -793,15 +877,27 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   // Files uploaded during the demo session (e.g. via the "+ Picture" button), keyed by the
   // mediaUri handed back from saveFile. Lets the demo round-trip an upload without a backend.
   #uploadedFiles = new Map<string, Blob>();
-  // Maps an already-uploaded filename to its mediaUri, mirroring how the real server dedups by
-  // filename (LcmMediaService keys by the file name within the project's resource cache).
+  // Maps an already-uploaded filename to its mediaUri. Like the real backend, a re-upload is only
+  // treated as the same file when both the name and the content match.
   #uploadedFilenames = new Map<string, string>();
   // Pre-seeded demo pictures that have been "downloaded" from the (simulated) remote media service,
   // so a later local-only request returns them instead of NotFound — mirroring how a synced project
   // fetches images on demand.
   #downloadedRemoteFiles = new Set<string>();
 
-  getFileStream(mediaUri: string, downloadIfMissing: boolean): Promise<IReadFileResponseJs> {
+  async getFileStream(mediaUri: string, downloadIfMissing: boolean): Promise<IReadFileResponseJs> {
+    // Seeded plugin HTML is stored here, not in the upload maps.
+    await this.seedPlugins();
+    const pluginBytes = this._files.get(mediaUri);
+    if (pluginBytes) {
+      return {
+        result: ReadFileResult.Success,
+        stream: {
+          stream: () => Promise.resolve(new Response(pluginBytes.slice() as BodyInit).body!),
+          arrayBuffer: () => Promise.resolve(pluginBytes.slice().buffer),
+        },
+      };
+    }
     const uploaded = this.#uploadedFiles.get(mediaUri);
     if (uploaded) {
       return Promise.resolve({
@@ -830,24 +926,32 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     });
   }
 
-  saveFile(streamReference: Blob | ArrayBuffer | Uint8Array, metadata: ILcmFileMetadata): Promise<IUploadFileResponse> {
+  async saveFile(streamReference: Blob | ArrayBuffer | Uint8Array, metadata: ILcmFileMetadata): Promise<IUploadFileResponse> {
     const blob = streamReference instanceof Blob
       ? streamReference
       : new Blob([streamReference as BlobPart], {type: metadata.mimeType});
     // The demo stands in for the server, so it enforces the same 10 MB limit the real
     // backend does — exercising the client's TooBig handling without a backend.
     if (blob.size > DEMO_FILE_SIZE_LIMIT) {
-      return Promise.resolve({result: UploadFileResult.TooBig});
+      return {result: UploadFileResult.TooBig};
     }
-    // Same filename as an earlier upload: report AlreadyExists and hand back the existing
-    // mediaUri (as the real server does) so the caller can point a new Picture at that file.
+    // Same filename and content as an earlier upload: report AlreadyExists and hand back the
+    // existing mediaUri (as the real backend does) so the caller can point a new Picture at it.
     const existing = this.#uploadedFilenames.get(metadata.filename);
-    if (existing) {
-      return Promise.resolve({result: UploadFileResult.AlreadyExists, mediaUri: existing});
+    const existingBlob = existing ? this.#uploadedFiles.get(existing) : undefined;
+    if (existing && existingBlob && await blobsEqual(existingBlob, blob)) {
+      return {result: UploadFileResult.AlreadyExists, mediaUri: existing};
     }
     const mediaUri = `demo-upload/${randomId()}`;
     this.#uploadedFiles.set(mediaUri, blob);
     this.#uploadedFilenames.set(metadata.filename, mediaUri);
-    return Promise.resolve({result: UploadFileResult.SavedLocally, mediaUri});
+    return {result: UploadFileResult.SavedLocally, mediaUri};
   }
+}
+
+async function blobsEqual(a: Blob, b: Blob): Promise<boolean> {
+  if (a.size !== b.size) return false;
+  const bytesA = new Uint8Array(await a.arrayBuffer());
+  const bytesB = new Uint8Array(await b.arrayBuffer());
+  return bytesA.every((byte, i) => byte === bytesB[i]);
 }

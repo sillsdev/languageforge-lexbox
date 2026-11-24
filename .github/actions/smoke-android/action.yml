@@ -1,0 +1,41 @@
+name: Android smoke test
+description: Boot an Android emulator, install the FW Lite APK found under apk-dir, launch it and wait for it to log "Viewer loaded" (.github/scripts/smoke-android.sh). Linux runners only; needs the repo checked out.
+inputs:
+  apk-dir:
+    description: 'Folder holding the dotnet publish output; its *-Signed.apk (debug-signed when unsigned) is installed'
+    required: true
+# Logcat and a screenshot land in $RUNNER_TEMP/smoke for the caller to upload on failure.
+
+runs:
+  using: composite
+  steps:
+    - name: Find the APK
+      id: apk
+      shell: bash
+      env:
+        APK_DIR: ${{ inputs.apk-dir }}
+      run: |
+        set -euo pipefail
+        apk="$(find "$APK_DIR" -iname '*-signed.apk' | head -n 1)"
+        [ -n "$apk" ] || { echo "::error::No *-Signed.apk under $APK_DIR"; find "$APK_DIR"; exit 1; }
+        echo "APK: $apk"
+        echo "path=$apk" >> "$GITHUB_OUTPUT"
+
+    # The emulator needs hardware acceleration; GitHub's Linux runners have KVM but the device isn't world-accessible.
+    - name: Enable KVM
+      shell: bash
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+
+    - name: Launch the app on an emulator and wait for the viewer to load
+      uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+      with:
+        api-level: 35
+        target: google_apis
+        arch: x86_64
+        ram-size: 4096M
+        disk-size: 6000M
+        # `script` runs each line as its own `sh -c`, so keep the logic in the script file.
+        script: bash "$GITHUB_WORKSPACE/.github/scripts/smoke-android.sh" "${{ steps.apk.outputs.path }}"

@@ -76,6 +76,7 @@ public static class SendReceiveHelpers
         var combinedProgress = new CombiningProgress(sbProgress, progress);
         var lfMergeBridgeOutputForClient = await Task.Run(() =>
         {
+            FlexBridgeMetadataCache.Reset();
             LfMergeBridge.LfMergeBridge.Execute(method, combinedProgress, flexBridgeOptions.ToDictionary(), out var output);
             return output;
         });
@@ -151,13 +152,59 @@ public static class SendReceiveHelpers
         using var activity = FwHeadlessActivitySource.Value.StartActivity();
         activity?.SetTag("app.file_path", filePath);
         progress ??= new NullProgress();
-        if (!File.Exists(filePath)) throw new FileNotFoundException($"File not found: {filePath}");
         var fileDir = Path.GetDirectoryName(filePath);
         ArgumentNullException.ThrowIfNull(fileDir);
 
-        //we need to track the file, otherwise hg will not commit it
-        await ExecuteHgSuccess($"hg add --config ui.username={EscapeShellArg(HgUsername)} {EscapeShellArg(filePath)}", fileDir, progress);
-        await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)}", fileDir, progress);
+        //nothing to commit if the parent revision doesn't have the file: hg never tracked it, or its removal is already committed
+        if (!File.Exists(filePath) &&
+            (await Task.Run(() => HgRunner.Run($"hg files -r . {EscapeShellArg(filePath)}", fileDir, 5, progress))).ExitCode == 1)
+            return;
+
+        //records the file as added if it exists, or as removed if it was deleted; hg won't commit an untracked file or a deletion it hasn't recorded
+        await ExecuteHgSuccess($"hg addremove --config ui.username={EscapeShellArg(HgUsername)} {EscapeShellArg(filePath)}", fileDir, progress);
+        //only commit this file, other pending changes in the working copy (e.g. from a Send/Receive in progress) must not be swept into it
+        //hg commit exits with 1 when nothing changed, e.g. the same content was uploaded again
+        await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)} {EscapeShellArg(filePath)}", fileDir, progress, allowedExitCodes: [0, 1]);
+    }
+
+    public static async Task InitRepo(string folder, IProgress? progress = null)
+    {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.folder", folder);
+        progress ??= new NullProgress();
+        Directory.CreateDirectory(folder);
+        // Use Chorus rather than a bare `hg init`: CreateOrUseExisting also wires up the custom hg
+        // extensions FwHeadless relies on (e.g. fixutf8) so later send/receive works correctly.
+        await Task.Run(() => HgRepository.CreateOrUseExisting(folder, progress));
+    }
+
+    public static async Task SwitchBranch(string folder, string branchName, bool createBranch = true, string commitMessage = "", IProgress? progress = null)
+    {
+        using var activity = FwHeadlessActivitySource.Value.StartActivity();
+        activity?.SetTag("app.folder", folder);
+        activity?.SetTag("app.branch", branchName);
+        progress ??= new NullProgress();
+        // FLEx repos keep their data on a branch named after the FLExBridge data + FDO model version
+        // (e.g. 7500002.7000072); the initial commit of a repo needs to be on the 'default' branch
+        // so that Chorus can use rev 0 to compare project origin, but then we need to switch branches
+        // to the numbered branch. The `hg branch` command records the branch that will be used for
+        // the next commit, but we need to add an empty commit in order to actually create the branch,
+        // otherwise LfMergeBridge will refuse to create a new branch (since in the Language Forge code
+        // that LfMergeBridge targets, creating a new branch would be an error). This results in a new
+        // project being created by this process having three initial commits, rather than the two
+        // initial commits that it would have if created by FieldWorks Classic, but that's an acceptable
+        // price to pay for such a simple workaround. If LfMergeBridge is updated to be okay with creating
+        // new branches on its own, then this method can be passed "createBranch: false" to skip running
+        // the `hg commit` step that creates that empty commit.
+        //
+        // Commit message defaults to "Switching to branch {branchName}", pass `commitMessage` param to change
+        await ExecuteHgSuccess($"hg branch --force {EscapeShellArg(branchName)}", folder, progress);
+        if (createBranch)
+        {
+            // Could run "hg log -r . --template {desc}" to reuse previous commit message if we wanted to
+            if (string.IsNullOrEmpty(commitMessage)) commitMessage = $"Switching to branch {branchName}";
+            await ExecuteHgSuccess($"hg commit --config ui.username={EscapeShellArg(HgUsername)} --message {EscapeShellArg(commitMessage)}", folder, progress);
+        }
     }
 
     private static string EscapeShellArg(string arg)
@@ -173,11 +220,11 @@ public static class SendReceiveHelpers
         return $"{quote}{escaped}{quote}";
     }
 
-    private static async Task ExecuteHgSuccess(string cmd, string folder, IProgress? progress = null)
+    private static async Task ExecuteHgSuccess(string cmd, string folder, IProgress? progress = null, int[]? allowedExitCodes = null)
     {
         var result = await Task.Run(() => HgRunner.Run(cmd, folder, 5, progress));
         //not using HgRepository because it does not fail when exit code is 1 because that means not added.
-        if (result.ExitCode != 0)
+        if (!(allowedExitCodes ?? [0]).Contains(result.ExitCode))
         {
             throw new Exception($"""
                                  Failed to execute command {cmd}, with exit code {result.ExitCode},

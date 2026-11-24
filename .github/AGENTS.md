@@ -16,7 +16,8 @@ GitHub Actions workflows and deployment. Full runs take 30-60+ min across Linux,
 
 | Workflow | Triggers | What it does | Time |
 |----------|----------|--------------|------|
-| `fw-lite.yaml` | FwLite code changes | Build .NET, run tests, build viewer, publish apps | ~40 min |
+| `pr.yaml` (`PR CI`) | Every PR, whatever its base branch, so stacked PRs too (also `labeled`/`unlabeled`) | The **PR tier**: detects affected projects with nx, then runs only the affected Linux jobs (.NET build + affected tests, viewer checks, viewer Playwright on Chromium, extension lint); escalation tiers add full-tier jobs. See [PR tier](#pr-tier-pryaml) | target < 10 min |
+| `fw-lite.yaml` | FwLite code changes | Build .NET, run tests, build viewer, publish apps (the **full tier**, develop only; pull requests run `pr.yaml`) | ~40 min |
 | `lexbox-api.yaml` | Called by others | Build API, run unit tests, build Docker image | ~15 min |
 | `lexbox-ui.yaml` | Called by others | Build SvelteKit UI, build Docker image | ~10 min |
 | `lexbox-fw-headless.yaml` | Called by others | Build FwHeadless Docker image | ~10 min |
@@ -26,7 +27,8 @@ GitHub Actions workflows and deployment. Full runs take 30-60+ min across Linux,
 
 | Workflow | Triggers | What it does |
 |----------|----------|--------------|
-| `integration-test.yaml` | Called by others | Run integration tests against environment |
+| `integration-test.yaml` | Called by others | Run integration tests (except hg client tests) against an environment |
+| `hg-client-test.yaml` | Called by `release-pipeline.yaml` | Run the hg client tests (`Category=HgIntegration`) from `backend/HgClientTests` with one hg version (3, 6 or 7) and the LibChorus FLEx Bridge shipped with it, against an environment |
 | `integration-test-gha.yaml` | API/UI changes | Spin up K8s in GHA, run integration tests |
 | `deploy.yaml` | Called by others | Deploy to K8s environment via fleet repo |
 | `deploy-branch.yaml` | Manual | Deploy feature branch to develop |
@@ -37,7 +39,7 @@ GitHub Actions workflows and deployment. Full runs take 30-60+ min across Linux,
 | Workflow | Purpose |
 |----------|---------|
 | `develop-api.yaml` | Quick API build for PRs |
-| `develop-ui.yaml` | Quick UI build for PRs |
+| `develop-ui.yaml` | Quick UI build for PRs (`frontend/**` except the viewer, which `pr.yaml` covers) |
 | `develop-fw-headless.yaml` | Quick FwHeadless build for PRs |
 
 ---
@@ -100,12 +102,23 @@ flowchart TD
 
 ### FwLite
 
-`fw-lite.yaml` runs on its own for CI (develop pushes, PRs, manual dispatch). Releases call it from `release-pipeline.yaml` with `release: true` and the shared `version`/`semver-version`; that's the only way to publish the GitHub/Play Store release. Its own manual dispatch can't release (it declares no inputs). The LexBox and FW Lite releases run in parallel; neither blocks the other.
+`fw-lite.yaml` runs on its own for CI (develop pushes and manual dispatch; pull requests run `pr.yaml` instead). Releases call it from `release-pipeline.yaml` with `release: true` and the shared `version`/`semver-version`; that's the only way to publish the GitHub/Play Store release. Its own manual dispatch can't release (it declares no inputs). The LexBox and FW Lite releases run in parallel; neither blocks the other.
 
 - Core .NET build/tests run on Linux (`FwLiteCore.slnf`); MAUI build/tests on Windows only
 - Has its own test suite
 - Publishes standalone apps, not Docker images
 - Does NOT deploy to K8s
+
+### PR tier (`pr.yaml`)
+
+`PR CI` is the trimmed, Linux-only job set every pull request runs; `fw-lite.yaml` and `platform.bible-extension.yaml` are the full tier, on develop pushes only. Its summary job `PR CI result` is the check to require on develop: a job skipped as "not affected" counts as passed.
+
+- **Affected detection** is the nx graph (`nx` + `@nx/dotnet` at the repo root, graph-only: nothing builds or caches through nx). `.github/scripts/affected.sh` prints one JSON object (`projects`, `viewer`, `extension`, `everything`, `tiers`, `fallback`); `task ci:affected` runs the same script locally against `origin/develop` (`AFFECTED_BASE=<ref>` to override) and must give the same answer as the `detect` job. Any detector failure falls back to everything affected with a warning annotation. Rules live in the graph: `nx.json` `sharedGlobals` lists the shared files (props, `global.json`, solution files, lockfiles, nx config) that mark everything affected; `frontend/viewer/project.json` and `platform.bible-extension/project.json` register the two npm projects.
+- **.NET**: `dotnet` builds `FwLiteCore.slnf` whole (EF-model and generated-TS drift checks stay unconditional) and tests only the affected test projects through a generated `FwLiteAffectedTests.slnf` (`.github/scripts/write-test-slnf.mjs`) with `--filter "Category!=Slow&Category!=Benchmark"`. `Slow` marks tests over ~20 s (`Sena3SyncTests`, `CanSyncRandomEntries`, `BulkCreateEntriesPerformance`, `GetEntryIndex_LargeList_ReturnsCorrectIndex`); the `slow-tests` tier runs them in a parallel job.
+- **Viewer**: two jobs so wall clock is max, not sum: `viewer-checks` (i18n extract drift, viewer-only svelte-check and eslint, prettier, vitest on Chromium only via `VITEST_CHROMIUM_ONLY`, vite build) and `viewer-ui-tests` (Playwright, Chromium; `ci:webkit` adds WebKit). Firefox vitest stays on develop.
+- **Escalation tiers** (`.github/ci-tiers/<name>/project.json`, README there): `slow-tests`, `maui-windows`, `e2e` fire by path rule; `webkit` by label only; the app smoke tiers `ios`, `mac`, `android` (build, launch, wait for "Viewer loaded"; the PR's Mac build is unsigned) by label or a change to their own `.github/scripts/smoke-<tier>.sh`; `web-linux` (publish FwLiteWeb linux-x64, launch under headless Chrome, `smoke-linux.sh`) the same way, plus whenever the viewer or `FwLiteWeb` is affected, shared files included; `full` on `pr.yaml` itself or the setup composites it shares with `fw-lite.yaml` (`.github/actions/setup-{frontend,playwright,dotnet-build}`). A `ci:<tier>` label does the same (`ci:full` = all) and re-triggers the run; shared-file changes run the whole PR tier but never escalate. When develop goes red on something the PR tier skipped, the fix is a one-line rule edit.
+- **CI calls the script directly**, not `task ci:affected` (Taskfile prefixes output with the task name).
+- History: dotnet-affected was prototyped against nx for this role (branch `claude/proto-affected-dotnet-affected-febda6`, commit `978a92bb7`) and lost: it is three files and ~3 s, but it missed a `Directory.Packages.props` bump entirely and cannot see the viewer; nx's MSBuild evaluation inputs attribute shared props to every project and the viewer is a real graph node. Delete that branch once `pr.yaml` is merged.
 
 ---
 
@@ -220,8 +233,10 @@ This is the most complex workflow because it:
 | `frontend` | ubuntu-latest | Build viewer, Playwright snapshots |
 | `frontend-component-unit-tests` | ubuntu-latest | Vitest unit tests |
 | `build-apple` | macos-latest | MAUI Release builds for iOS simulator + Mac Catalyst; signs Mac Catalyst with the SIL Developer ID and notarizes a DMG when the signing secret is present (upstream), else unsigned compile check (fork PRs) |
-| `launch-mac` | macos-latest + macos-15-intel | Checks Gatekeeper accepts the notarized DMG, then launches the app on each CPU and waits for its "Viewer loaded" log line (upstream only; gates `create-release`) |
-| `publish-linux` | ubuntu-latest | Linux binaries; launches linux-x64 under headless Chrome and waits for its "Viewer loaded" log line |
+| `launch-mac` | macos-latest + macos-15-intel | Checks Gatekeeper accepts the notarized DMG, then launches the app on each CPU and waits for its "Viewer loaded" log line (`.github/scripts/smoke-mac.sh`; upstream only; gates `create-release`) |
+| `launch-ios` | macos-latest | Boots an iPhone simulator, installs the simulator build and waits for "Viewer loaded" (`.github/scripts/smoke-ios.sh`) |
+| `launch-android` | ubuntu-latest | Boots an x86_64 emulator (API 35), installs the published APK and waits for "Viewer loaded" in logcat (`.github/actions/smoke-android`) |
+| `publish-linux` | ubuntu-latest | Linux binaries; launches linux-x64 under headless Chrome and waits for its "Viewer loaded" log line (`.github/scripts/smoke-linux.sh`) |
 | `publish-win` | windows-latest | MAUI tests, Windows MAUI publish + MSIX; launches the portable exe and waits for its "Viewer loaded" log line |
 | `publish-win-web` | windows-latest | Windows FwLiteWeb (win-x64), signed; launches it under headless Chrome and waits for its "Viewer loaded" log line |
 | `package-extension` | ubuntu-latest | Platform.Bible extension zip: bundles the `publish-win-web` and `publish-linux` outputs, stamps the build's version into `package.json` and `manifest.json`, packages with the extension's npm tooling |

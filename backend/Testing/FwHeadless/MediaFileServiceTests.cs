@@ -271,6 +271,60 @@ public class MediaFileServiceTests : IDisposable
         return int.Parse(_hgRepository.GetHeads().Single().Number.LocalRevisionNumber);
     }
 
+    private string RunHg(string args)
+    {
+        var result = HgRunner.Run($"hg {args}", _cache.ProjectId.ProjectFolder, 5, new NullProgress());
+        result.ExitCode.Should().Be(0, $"hg {args} failed: {result.StandardError}");
+        return result.StandardOutput.Trim();
+    }
+
+    [Fact]
+    public async Task DeleteMediaFile_CommitsTheRemoval()
+    {
+        var mediaFile = new MediaFile { Filename = "test.txt", ProjectId = _projectId };
+        await _service.SaveMediaFile(mediaFile, SimpleStream("test"));
+        var filePath = _service.FilePath(mediaFile);
+        var repoRelativePath = Path.GetRelativePath(_cache.ProjectId.ProjectFolder, filePath).Replace('\\', '/');
+        RunHg("manifest -r tip").Should().Contain(repoRelativePath);
+
+        await _service.DeleteMediaFile(mediaFile);
+
+        File.Exists(filePath).Should().BeFalse();
+        await AssertDbFileDoesNotExist("test.txt");
+        RunHg($"status \"{filePath}\"").Should().BeEmpty("the removal should be committed");
+        RunHg("manifest -r tip").Should().NotContain(repoRelativePath);
+        CurrentRev().Should().Be(1, "rev 0 adds the file, rev 1 removes it");
+    }
+
+    [Fact]
+    public async Task DeleteMediaFile_FileNotTrackedByHg_Succeeds()
+    {
+        await _service.SaveMediaFile(new MediaFile { Filename = "tracked.txt", ProjectId = _projectId }, SimpleStream("test"));
+        //e.g. a file from before media files were committed to hg
+        var untrackedFile = await AddFile("untracked.txt");
+        RunHg($"status \"{FullFilePath(untrackedFile)}\"").Should().StartWith("? ", "the file should not be tracked by hg");
+
+        await _service.DeleteMediaFile(untrackedFile);
+
+        File.Exists(FullFilePath(untrackedFile)).Should().BeFalse();
+        await AssertDbFileDoesNotExist("untracked.txt");
+        RunHg($"status \"{FullFilePath(untrackedFile)}\"").Should().BeEmpty();
+        CurrentRev().Should().Be(0, "there is no removal to commit for a file hg never tracked");
+    }
+
+    [Fact]
+    public async Task SaveMediaFile_DoesNotCommitOtherPendingChanges()
+    {
+        var pendingFile = Path.Join(_cache.LangProject.LinkedFilesRootDir, "pending.txt");
+        await File.WriteAllTextAsync(pendingFile, "pending");
+        RunHg($"add \"{pendingFile}\"");
+
+        await _service.SaveMediaFile(new MediaFile { Filename = "test.txt", ProjectId = _projectId }, SimpleStream("test"));
+
+        RunHg("manifest -r tip").Should().Contain("test.txt").And.NotContain("pending.txt");
+        RunHg($"status \"{pendingFile}\"").Should().StartWith("A ", "the pending change should be left for whoever made it");
+    }
+
 
     [Fact]
     public async Task SaveMediaFile_CanUpdateExistingFile()
@@ -286,6 +340,22 @@ public class MediaFileServiceTests : IDisposable
         await _service.SaveMediaFile(actualFile, SimpleStream("updated"));
 
         (await File.ReadAllTextAsync(_service.FilePath(actualFile))).Should().Be("updated");
+    }
+
+    [Fact]
+    public async Task SaveMediaFile_SameContentTwice_Succeeds()
+    {
+        var mediaFile = new MediaFile { Filename = "test.txt", ProjectId = _projectId };
+        await _service.SaveMediaFile(mediaFile, SimpleStream("test"));
+        _lexBoxDbContext.ChangeTracker.Clear();
+        var actualFile = await _service.FindMediaFileAsync(mediaFile.Id);
+        actualFile.Should().NotBeNull();
+
+        //hg commit exits with 1 when nothing changed, which must not fail the save
+        await _service.SaveMediaFile(actualFile, SimpleStream("test"));
+
+        (await File.ReadAllTextAsync(_service.FilePath(actualFile))).Should().Be("test");
+        CurrentRev().Should().Be(0, "re-saving identical content should not create a new commit");
     }
 
     [Fact]

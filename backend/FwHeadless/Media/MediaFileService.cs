@@ -160,8 +160,8 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
             if (!lcmResource.Remote)
             {
                 var metadata = lcmResource.Metadata;
-                // Without a filename we can't reserve a path, so map the file to a not found when mapping to FLEx
-                if (string.IsNullOrEmpty(metadata?.Filename)) continue;
+                // Without a safe filename we can't reserve a path, so map the file to a not found when mapping to FLEx
+                if (!MediaFilename.IsValid(metadata?.Filename)) continue;
 
                 var subfolder = MediaFileController.GuessSubfolderFromMimeType(metadata.MimeType) ?? "";
                 var pendingRow = new MediaFile
@@ -269,13 +269,15 @@ public class MediaFileService(LexBoxDbContext dbContext, IOptions<FwHeadlessConf
         var filePath = FilePath(mediaFile);
         var fileExisted = File.Exists(filePath);
         SafeDelete(filePath);
+        //SafeDelete swallows errors, a file that's still there must not be committed as a deletion
+        if (fileExisted && commitDelete && !File.Exists(filePath))
+        {
+            //commit before removing the directory, hg runs from the file's directory
+            await sendReceiveService.CommitFile(filePath, $"Deleted file {mediaFile.Filename}");
+        }
         var dirPath = Path.GetDirectoryName(filePath);
         if (dirPath?.EndsWith(mediaFile.Id.ToString()) == true)
             SafeDeleteDirectory(dirPath); // Will not delete dir if not empty, but that's OK
-        if (fileExisted && commitDelete)
-        {
-            await sendReceiveService.CommitFile(filePath, $"Deleted file {mediaFile.Filename}");
-        }
         dbContext.Files.Remove(mediaFile);
         await dbContext.SaveChangesAsync();
     }

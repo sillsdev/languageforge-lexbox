@@ -9,7 +9,7 @@ public interface IMediaAdapter
     /// <summary>
     /// get the MediaUri representing a file, can be used later to get the path back
     /// </summary>
-    /// <param name="path">the full file path must be inside the project LinkedFiles directory</param>
+    /// <param name="path">the absolute file path, which may be outside the project LinkedFiles directory</param>
     /// <param name="cache">the current project</param>
     /// <returns>a media uri which can later be used to get the path</returns>
     MediaUri MediaUriFromPath(string path, LcmCache cache);

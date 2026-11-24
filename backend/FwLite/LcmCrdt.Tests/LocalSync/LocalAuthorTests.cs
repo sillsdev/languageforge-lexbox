@@ -31,6 +31,12 @@ public class LocalAuthorTests : IAsyncLifetime
             new CommentThread { Id = Guid.NewGuid(), SubjectType = SubjectType.Entry, SubjectId = Guid.NewGuid() },
             new UserComment { Id = Guid.NewGuid(), Text = text });
 
+    private async Task<CommitMetadata> LatestCommitMetadata()
+    {
+        var commits = (await _fixture.DataModel.GetChanges(new SyncState(new Dictionary<Guid, long>()))).MissingFromClient;
+        return commits.MaxBy(c => c.HybridDateTime)!.Metadata;
+    }
+
     [Fact]
     public async Task WithoutALexboxUser_CommentThreadsAreAuthoredByTheAnonymousLocalAuthor()
     {
@@ -39,7 +45,22 @@ public class LocalAuthorTests : IAsyncLifetime
 
         first.AuthorId.Should().StartWith("anonymous:");
         second.AuthorId.Should().Be(first.AuthorId, "the local author id is stable for this device");
-        first.AuthorName.Should().Be(Environment.MachineName);
+        first.AuthorName.Should().BeNull("the user hasn't entered a name, and the device name must not leak");
+    }
+
+    [Fact]
+    public async Task WithoutALexboxUser_TheNameTheUserEnteredIsUsed_EvenAfterAChange()
+    {
+        var preferences = _fixture.GetService<IPreferencesService>();
+        preferences.Set(nameof(PreferenceKey.LocalAuthorName), "Ana");
+        var first = await CreateThread();
+        preferences.Set(nameof(PreferenceKey.LocalAuthorName), "Ana B.");
+        var second = await CreateThread();
+
+        first.AuthorName.Should().Be("Ana");
+        second.AuthorName.Should().Be("Ana B.");
+        second.AuthorId.Should().Be(first.AuthorId);
+        (await LatestCommitMetadata()).AuthorName.Should().Be("Ana B.");
     }
 
     [Fact]
@@ -71,11 +92,10 @@ public class LocalAuthorTests : IAsyncLifetime
         var thread = await CreateThread();
         await _fixture.Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "apple" } });
 
-        var commits = (await _fixture.DataModel.GetChanges(new SyncState([]))).MissingFromClient;
-        var latest = commits.MaxBy(c => c.HybridDateTime)!;
+        var latest = await LatestCommitMetadata();
 
-        latest.Metadata.AuthorId.Should().Be(thread.AuthorId);
-        latest.Metadata.AuthorName.Should().Be(Environment.MachineName);
+        latest.AuthorId.Should().Be(thread.AuthorId);
+        latest.AuthorName.Should().BeNull();
     }
 
     [Fact]
@@ -87,5 +107,8 @@ public class LocalAuthorTests : IAsyncLifetime
 
         thread.AuthorId.Should().Be("lexbox-user-1");
         thread.AuthorName.Should().Be("Real Person");
+        var commit = await LatestCommitMetadata();
+        commit.AuthorId.Should().Be("lexbox-user-1");
+        commit.AuthorName.Should().Be("Real Person");
     }
 }

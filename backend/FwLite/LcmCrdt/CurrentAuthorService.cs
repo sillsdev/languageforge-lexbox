@@ -5,8 +5,8 @@ namespace LcmCrdt;
 /// e.g. on a device that has only ever synced offline.
 /// </summary>
 /// <param name="Id">Stable for the device and prefixed with <see cref="AnonymousIdPrefix"/>, so it can't be mistaken for a Lexbox user id.</param>
-/// <param name="Name">The display name the user chose.</param>
-public record LocalAuthor(string Id, string Name)
+/// <param name="Name">The name the user entered, if any.</param>
+public record LocalAuthor(string Id, string? Name)
 {
     public const string AnonymousIdPrefix = "anonymous:";
 }
@@ -17,7 +17,7 @@ public interface ILocalAuthorProvider
 }
 
 /// <summary>
-/// Default for hosts with no device identity (e.g. FwHeadless): commits keep today's attribution.
+/// Default for hosts with no device identity (e.g. FwHeadless): commits are attributed to the last Lexbox user only.
 /// </summary>
 public class NoLocalAuthorProvider : ILocalAuthorProvider
 {

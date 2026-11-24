@@ -334,7 +334,6 @@ export const allWsEntry: IEntry = {
     pictures: [
       {
         id: 'ce4a3b1e-6d2f-4f1a-8c0d-1f2e3a4b5c6d',
-        order: 1,
         mediaUri: demoPictureMediaUris.house1,
         caption: {
           en: { spans: [{ text: 'A traditional house', ws: 'en' }] },
@@ -343,7 +342,6 @@ export const allWsEntry: IEntry = {
       },
       {
         id: 'a1b2c3d4-7e8f-4a0b-9c1d-2e3f4a5b6c7d',
-        order: 2,
         mediaUri: demoPictureMediaUris.house2,
         caption: {
           en: { spans: [{ text: 'A modern house', ws: 'en' }] },

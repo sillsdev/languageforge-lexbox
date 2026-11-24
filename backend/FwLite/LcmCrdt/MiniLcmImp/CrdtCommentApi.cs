@@ -84,7 +84,7 @@ public class CrdtCommentApi(
         firstComment.CommentThreadId = thread.Id;
         StampCommentAuthor(firstComment, now);
 
-        await harmonyChangeWriter.AddChanges((IEnumerable<IChange>)[
+        await harmonyChangeWriter.AddCommentChanges((IEnumerable<IChange>)[
             new CreateCommentThreadChange(thread),
             new CreateUserCommentChange(firstComment)
         ]);
@@ -98,7 +98,7 @@ public class CrdtCommentApi(
         comment.CommentThreadId = threadId;
         StampCommentAuthor(comment, DateTimeOffset.UtcNow);
 
-        await harmonyChangeWriter.AddChange(new CreateUserCommentChange(comment));
+        await harmonyChangeWriter.AddCommentChange(new CreateUserCommentChange(comment));
         return await repo.GetUserComment(comment.Id) ?? throw NotFoundException.ForType<UserComment>(comment.Id);
     }
 
@@ -107,10 +107,11 @@ public class CrdtCommentApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         var comment = await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
         AssertCurrentUserCanChangeComment(comment);
-        await harmonyChangeWriter.AddChange(new EditUserCommentChange(commentId, text, DateTimeOffset.UtcNow));
+        await harmonyChangeWriter.AddCommentChange(new EditUserCommentChange(commentId, text, DateTimeOffset.UtcNow));
         return await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
     }
 
+    // Resolving/reopening and deleting threads need edit access (not available to Commenters)
     public async Task<CommentThread> SetCommentThreadStatus(Guid threadId, ThreadStatus status)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
@@ -124,7 +125,7 @@ public class CrdtCommentApi(
         await using var repo = await repoFactory.CreateRepoAsync();
         var comment = await repo.GetUserComment(commentId) ?? throw NotFoundException.ForType<UserComment>(commentId);
         AssertCurrentUserCanChangeComment(comment);
-        await harmonyChangeWriter.AddChange(new DeleteChange<UserComment>(commentId));
+        await harmonyChangeWriter.AddCommentChange(new DeleteChange<UserComment>(commentId));
         await commentReadStatusService.RemoveUnreadComments([commentId]);
     }
 

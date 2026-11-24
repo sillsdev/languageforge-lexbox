@@ -18,6 +18,7 @@
   let {
     threadView,
     canComment,
+    canResolve,
     saving,
     currentUserId,
     editingCommentId,
@@ -34,6 +35,7 @@
   }: {
     threadView: ThreadView;
     canComment: boolean;
+    canResolve: boolean;
     saving: boolean;
     currentUserId?: string;
     editingCommentId?: string;
@@ -123,6 +125,7 @@
         icon="i-mdi-chevron-down"
         class="size-4 shrink-0 text-muted-foreground transition-transform"
       />
+      {#if canResolve}
       <Tooltip.Root>
         <Tooltip.Trigger>
           {#snippet child({props})}
@@ -151,6 +154,7 @@
           {resolved ? $t`Reopen` : $t`Resolve`}
         </Tooltip.Content>
       </Tooltip.Root>
+      {/if}
     </Collapsible.Trigger>
 
     <Collapsible.Content class="overflow-hidden">

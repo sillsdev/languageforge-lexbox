@@ -160,6 +160,18 @@ describe('headwords', () => {
     });
   });
 
+  describe('viewBestHeadwordWithHomograph', () => {
+    it('appends the homograph number as a subscript', () => {
+      const entry = {...entryWith({lexemeForm: {seh: 'casa'}}), homographNumber: 12};
+
+      expect(service.viewBestHeadwordWithHomograph(entry, viewWith())).toBe('casa₁₂');
+    });
+
+    it('is empty when the entry has no form anywhere, even with a homograph number', () => {
+      expect(service.viewBestHeadwordWithHomograph({...entryWith({}), homographNumber: 2}, viewWith())).toBe('');
+    });
+  });
+
   describe('viewBestHeadwordIn (viewBestHeadword plus the writing system it came from)', () => {
     it('names the writing system the headword came from', () => {
       const entry = entryWith({lexemeForm: {seh: 'casa'}});
@@ -189,5 +201,20 @@ describe('viewFirstDefOrGlossVal', () => {
     const sense = senseWith({gloss: {en: 'house'}});
 
     expect(service.viewFirstDefOrGlossVal(sense, viewWith({analysis: ['pt']}))).toBe('house');
+  });
+});
+
+describe('viewFirstGlossOrDef', () => {
+  const service = serviceWith([], [ws('en'), ws('pt')]);
+  const view = viewWith({analysis: ['pt']});
+
+  it("prefers the view's gloss, then the view's definition", () => {
+    expect(service.viewFirstGlossOrDef(senseWith({gloss: {en: 'house', pt: 'casa'}}), view)).toBe('casa');
+    expect(service.viewFirstGlossOrDef(senseWith({gloss: {en: 'house'}, definition: {pt: 'uma casa'}}), view)).toBe('uma casa');
+  });
+
+  it('falls back to any gloss, then any definition', () => {
+    expect(service.viewFirstGlossOrDef(senseWith({gloss: {en: 'house'}, definition: {en: 'a house'}}), view)).toBe('house');
+    expect(service.viewFirstGlossOrDef(senseWith({definition: {en: 'a house'}}), view)).toBe('a house');
   });
 });

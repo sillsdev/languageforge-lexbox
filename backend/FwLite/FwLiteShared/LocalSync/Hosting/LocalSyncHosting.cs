@@ -131,7 +131,7 @@ public class LocalSyncHosting(
     {
         var port = preferredPort != 0 && IsFree(address, preferredPort) ? preferredPort : FreePort(address);
         var server = new LocalSyncHttpServer(session, project, services,
-            harmonyConfig.Value.MakeLcmCrdtExternalJsonOptions(), logger, address, port);
+            harmonyConfig.Value.MakeLcmCrdtSyncJsonOptions(), logger, address, port);
         server.Start();
         try
         {

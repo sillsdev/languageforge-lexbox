@@ -307,6 +307,30 @@ public class RichMultiStringTests
         ms["fr"].Should().BeEquivalentTo(new RichString("test", "fr"));
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void JsonPatchAddWithBlankStringAddsNothing(string value)
+    {
+        var ms = new RichMultiString() { { "en", new RichString("existing", "en") } };
+        var patch = new JsonPatchDocument<RichMultiString>();
+        patch.Operations.Add(new Operation<RichMultiString>("add", "/fr", null, value));
+        patch.ApplyTo(ms);
+        ms.Should().ContainSingle().Which.Key.Should().Be((WritingSystemId)"en");
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void JsonPatchAddWithBlankStringOnEntityAddsNothing(string value)
+    {
+        var example = new ExampleSentence();
+        var patch = new JsonPatchDocument<ExampleSentence>();
+        patch.Operations.Add(new Operation<ExampleSentence>("add", "/Sentence/en", null, value));
+        patch.ApplyTo(example);
+        example.Sentence.Should().BeEmpty();
+    }
+
     //same as above but patching via the parent Entry, so the patch goes through PocoAdapter /
     //DictionaryPropertyProxy and hits RichMultiString's IDictionary.Add instead of the typed Add.
     [Fact]

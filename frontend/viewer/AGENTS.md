@@ -17,6 +17,8 @@ pnpm run dev
 
 **Before saying done or committing**, run `task verify` from the repo root once (svelte-check, eslint, vitest unit, i18n extract; 3 to 7 min for both apps). `src/project/demo/demo-project-view.test.ts` mounts the whole demo app there, so a component that breaks the demo fails fast instead of in 60+ Playwright tests.
 
+**User docs** (`docs/site/fw-lite/`, `docs/site/src/components/SyncExplainer/syncScenarios.ts`) quote UI labels verbatim. Renamed a label or changed a flow? `git grep` the old text under `docs/site/` and update it in the same PR; rules in `docs/site/AGENTS.md`.
+
 ### Dev server: one per worktree
 
 Vite and Playwright default to port 5173, and Playwright **reuses whatever already listens there**: another checkout's server gives stale code and a false pass. Per worktree, set `FwLite__DevAssetsPort` to a free port before `pnpm run dev` or `task test:ui-standalone`; `vite.config.ts`, the Playwright config and FwLiteWeb all follow it. Check first with `netstat -ano | findstr :5173` and stop stray vite processes. EACCES on a port means Windows reserved it (`netsh interface ipv4 show excludedportrange protocol=tcp`); pick another.
@@ -50,6 +52,7 @@ The generated files are located in `src/lib/dotnet-types/generated-types/`.
 | E2E | `tests/e2e/` | ❌ Needs a Lexbox kind cluster + published FwLiteWeb binary |
 | Launcher | `tests/launcher/` | ❌ Needs a published FwLiteWeb binary |
 | Manual | `**/*.manual.test.ts` | ⚠️ Opt-in — `pnpm test:manual`. Hits the network, so it is excluded from `pnpm test` and CI |
+| Docs screenshots | `tests/docs-screenshots/` | ✅ Not tests: `task docs:screenshots` regenerates the PNGs the docs site embeds (`docs/site/static/img/fw-lite/`) from the demo project and Storybook; see its README |
 
 **Don't run E2E or Launcher tests unless you've explicitly set up that infrastructure** — they fail loudly without it and the setup isn't part of normal dev.
 
@@ -65,7 +68,7 @@ UI tests run under `chromium` and `webkit` (Safari's engine, on Linux); unfilter
 WebKit snapshots use `-webkit`-suffixed Argos baselines; chromium keeps the bare names.
 
 - **Selectors**: locate by role, `data-testid`, or `data-field-id`. Selectors on serialized styles (`[style*="grid-area:"]`) broke 38 WebKit tests.
-- **Demo knobs** (`window.__PLAYWRIGHT_UTILS__`, set in `src/project/demo/in-memory-demo-api.ts`): `demoApi`, `setWrite(bool)`, `setHasHardwareKeyboard(bool)`. TODO: no knob yet for the comments feature, unread counts, or the user's role; add one to the demo instead of patching components.
+- **Demo knobs** (`window.__PLAYWRIGHT_UTILS__`, set in `src/project/demo/in-memory-demo-api.ts`): `demoApi`, `setWrite(bool)`, `setHasHardwareKeyboard(bool)`, `setProjectRole(role)`. TODO: no knob yet for the comments feature or unread counts; add one to the demo instead of patching components.
 
 ### Known noise (pre-existing)
 
@@ -129,7 +132,8 @@ failures (offline, not-found, retry) with plain, translated messages.
 ## Feature flags
 
 Frontend-only release channels live in `src/lib/feature-flags/`. Users type a
-channel in Troubleshoot (empty = production). Gate preview UI with
+channel in Troubleshoot (empty = production), or flag names to turn on just
+those flags (several names: commas or spaces). Gate preview UI with
 `hasFlag('flag-name')` or `<FlagContent flag="flag-name">`. Flag names are typed
 from `CHANNEL_FLAGS`. Map flags onto preview channels only; when a feature
 ships, delete the flag — production has none. The `dev` channel is special:

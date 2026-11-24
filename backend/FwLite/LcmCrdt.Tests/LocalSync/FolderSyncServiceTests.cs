@@ -1,7 +1,6 @@
 using FwLiteShared.LocalSync;
 using LcmCrdt.Data;
 using LcmCrdt.LocalSync;
-using Microsoft.Extensions.Logging.Abstractions;
 using SIL.Harmony.Core;
 using static LcmCrdt.Tests.LocalSync.LocalSyncTestHelpers;
 
@@ -37,20 +36,33 @@ public class FolderSyncServiceTests : IAsyncLifetime
     private SyncFolderManifest ManifestForA() =>
         new(ProjectId, "sena-3", "Sena 3", null, ["en"]);
 
-    private string[] FolderFiles() =>
-        [.. Directory.EnumerateFiles(_folder.Path).Select(Path.GetFileName).OfType<string>()];
+    private string ProjectFolder => Path.Combine(_folder.Path, "sena-3");
+
+    private static string[] FilesIn(string path) =>
+        [.. Directory.EnumerateFiles(path).Select(Path.GetFileName).OfType<string>()];
 
     [Fact]
-    public async Task SyncingWithAnEmptyFolder_WritesTheProjectIntoIt()
+    public async Task SyncingWithAFolder_WritesTheProjectIntoASubfolderNamedByItsCode()
     {
         var result = await SyncWithFolder(_a, _folder.Path);
 
         result.Synced.Should().BeTrue();
-        var manifest = SyncFolder.Inspect(_folder.Path).Should().BeOfType<SyncFolderState.HoldsProject>().Which.Manifest;
+        var manifest = SyncFolder.Inspect(ProjectFolder).Should().BeOfType<SyncFolderState.HoldsProject>().Which.Manifest;
         manifest.ProjectId.Should().Be(ProjectId);
         manifest.ProjectCode.Should().Be("sena-3");
         manifest.WritingSystemIds.Should().BeEquivalentTo(["en"]);
-        FolderFiles().Should().Contain(f => f.StartsWith("client_") && f.EndsWith(".jsonl"));
+        FilesIn(ProjectFolder).Should().Contain(f => f.StartsWith("client_") && f.EndsWith(".jsonl"));
+        FilesIn(_folder.Path).Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task PickingTheProjectFolderItself_SyncsInPlace()
+    {
+        await SyncWithFolder(_a, _folder.Path);
+
+        (await SyncWithFolder(_b, ProjectFolder)).Synced.Should().BeTrue();
+
+        Directory.Exists(Path.Combine(ProjectFolder, "sena-3")).Should().BeFalse();
     }
 
     [Fact]
@@ -78,19 +90,33 @@ public class FolderSyncServiceTests : IAsyncLifetime
         result.Synced.Should().BeFalse();
         result.Sync!.Comparison.Should().Be(IdentityComparison.DifferentProject);
         result.FolderState.Should().BeOfType<SyncFolderState.HoldsProject>().Which.Manifest.ProjectName.Should().Be("Malango");
-        FolderFiles().Should().BeEquivalentTo(["manifest.json"]);
+        FilesIn(_folder.Path).Should().BeEquivalentTo(["manifest.json"]);
     }
 
     [Fact]
-    public async Task AFolderOfUnrelatedFiles_IsLeftAlone()
+    public async Task AFolderWithOtherFiles_GetsTheProjectBesideThem()
     {
+        // e.g. a USB drive's root, which Windows fills with hidden system folders
         File.WriteAllText(Path.Combine(_folder.Path, "notes.txt"), "not a project");
+
+        var result = await SyncWithFolder(_a, _folder.Path);
+
+        result.Synced.Should().BeTrue();
+        FilesIn(_folder.Path).Should().BeEquivalentTo(["notes.txt"]);
+        SyncFolder.Inspect(ProjectFolder).Should().BeOfType<SyncFolderState.HoldsProject>();
+    }
+
+    [Fact]
+    public async Task ASubfolderNamedByTheCodeHoldingUnrelatedFiles_IsLeftAlone()
+    {
+        Directory.CreateDirectory(ProjectFolder);
+        File.WriteAllText(Path.Combine(ProjectFolder, "notes.txt"), "not a project");
 
         var result = await SyncWithFolder(_a, _folder.Path);
 
         result.Synced.Should().BeFalse();
         result.FolderState.Should().BeOfType<SyncFolderState.NotASyncFolder>();
-        FolderFiles().Should().BeEquivalentTo(["notes.txt"]);
+        FilesIn(ProjectFolder).Should().BeEquivalentTo(["notes.txt"]);
     }
 
     [Fact]
@@ -118,7 +144,7 @@ public class FolderSyncServiceTests : IAsyncLifetime
 
         await service.SyncWithFolder(_folder.Path);
 
-        service.GetRememberedFolder().Should().Be(_folder.Path);
+        service.GetRememberedFolder().Should().Be(ProjectFolder);
     }
 
     [Fact]
@@ -133,18 +159,49 @@ public class FolderSyncServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task AFolderWithNoWritingSystemInCommon_ReportsBothSets()
+    {
+        SyncFolder.WriteManifest(_folder.Path, ManifestForA() with { WritingSystemIds = ["fr"] });
+
+        var summary = FolderSyncSummary.From(await SyncWithFolder(_a, _folder.Path));
+
+        summary.Status.Should().Be(FolderSyncStatus.NoWritingSystemInCommon);
+        summary.LocalWritingSystemIds.Should().BeEquivalentTo(["en"]);
+        summary.FolderWritingSystemIds.Should().BeEquivalentTo(["fr"]);
+    }
+
+    [Fact]
     public async Task AFolderWithAPartlyWrittenCommitLog_CanBeSynced()
     {
         // an export interrupted part way: some of our commits made it to the drive, but not the root commit
         var options = JsonOptions(_a);
-        var ours = (await _a.DataModel.GetChanges(new SyncState([]))).MissingFromClient.DefaultOrder().ToArray();
+        var ours = (await _a.DataModel.GetChanges(new SyncState(new Dictionary<Guid, long>()))).MissingFromClient.DefaultOrder().ToArray();
         SyncFolder.WriteManifest(_folder.Path, ManifestForA());
-        await new JsonSyncable(new DirectoryInfo(_folder.Path), options, NullLogger.Instance)
+        await _a.GetService<IJsonSyncableFactory>().Create(new DirectoryInfo(_folder.Path))
             .AddRangeFromSync(JsonRoundTrip(ours[1..], options));
 
         var result = await SyncWithFolder(_a, _folder.Path);
 
         result.Synced.Should().BeTrue();
+        // the folder must end up with the root commit too, or a device opening it gets a project with no root
+        var inFolder = (await _a.GetService<IJsonSyncableFactory>().Create(new DirectoryInfo(_folder.Path))
+            .GetChanges(new SyncState(new Dictionary<Guid, long>()))).MissingFromClient.Select(c => c.Id);
+        inFolder.Should().BeEquivalentTo(ours.Select(c => c.Id));
+    }
+
+    [Fact]
+    public async Task AFolderWhoseLastCommitWasCutOffMidWrite_CanStillBeSynced()
+    {
+        // the drive was pulled out while a commit was being appended
+        await SyncWithFolder(_a, _folder.Path);
+        var commitLog = Directory.EnumerateFiles(ProjectFolder, "client_*.jsonl").First();
+        await File.AppendAllTextAsync(commitLog, """{"Id":"8f2c""");
+        var apple = await _a.Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "apple" } });
+
+        (await SyncWithFolder(_a, _folder.Path)).Synced.Should().BeTrue();
+        (await SyncWithFolder(_b, _folder.Path)).Synced.Should().BeTrue();
+
+        (await _b.Api.GetEntry(apple.Id)).Should().NotBeNull();
     }
 
     [Fact]

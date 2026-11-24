@@ -26,8 +26,8 @@ task fw-lite-web   # from repo root
 # Fast inner loop: FwLiteShared builds in seconds and regenerates the viewer's TS types
 dotnet build backend/FwLite/FwLiteShared/FwLiteShared.csproj
 # One MAUI head (~40 s Windows, ~80 s Android). BuildAndroid=false skips restoring the Android TFM.
-dotnet build backend/FwLite/FwLiteMaui/FwLiteMaui.csproj -f net10.0-windows10.0.19041.0 -p:BuildAndroid=false -clp:ErrorsOnly
-dotnet build backend/FwLite/FwLiteMaui/FwLiteMaui.csproj -f net10.0-android -clp:ErrorsOnly
+dotnet build backend/FwLite/FwLiteMaui/FwLiteMaui.csproj -f net11.0-windows10.0.19041.0 -p:BuildAndroid=false -clp:ErrorsOnly
+dotnet build backend/FwLite/FwLiteMaui/FwLiteMaui.csproj -f net11.0-android -clp:ErrorsOnly
 ```
 
 Batch edits before a head build. `dotnet build` takes one project: build the csproj, never the folder.
@@ -57,6 +57,12 @@ Observed in agent sessions; plan around them.
 | FwLiteWeb | `./fw-lite-web.log` in its working directory (`FwLiteWeb:LogFileName`) |
 | Android | `adb logcat -d -t 200 \| grep DOTNET` (console logging lands under the `DOTNET` tag) |
 
+To read a log file, open `tools/log-browser.html` in a browser and drop the file(s) on it: filter by level and category, per-day summary, text search.
+
+Two MAUI data folders (`FwLiteMauiConfig.cs`): `BaseDataDir` holds app-local state only (logs, auth cache, settings file) and is deleted when an MSIX install is uninstalled. Projects, media and failed syncs live in the folder `FwLiteMauiConfig.ResolveProjectDataDir()` returns (override with env `FwLiteMaui__OverrideProjectDataDir`), which is `C:\ProgramData\SIL\FieldWorks Lite\<profile folder>\` on MSIX (the `C:\Users\<name>` folder name, which survives account renames) and `BaseDataDir` elsewhere. In code, read the folder in use from `LcmCrdtConfig.ProjectPath`, not `ResolveProjectDataDir()`: a failed migration falls back to `BaseDataDir`.
+
+Isolated Windows launch (scripted QA, no real data): `FwLiteMaui.exe --start-url /` skips the saved last page; env `FwDataBridge__ProjectsFolder` replaces the registry FieldWorks projects folder.
+
 ## Testing on Android (agents)
 
 No emulator running? Start one yourself — don't ask. `emulator -list-avds` (try `$ANDROID_HOME/emulator/`, `$LOCALAPPDATA/Android/Sdk/emulator/`, etc.) → pick an `fwlite_*` image → launch in background with `-no-snapshot-load -no-boot-anim` → wait until `adb -e get-state` is `device` and `sys.boot_completed` is `1` → `task android-emulator-dev`. Physical device fallback: `task android-dev`. Drive UI with `adb -e shell input tap/swipe` + `adb -e exec-out screencap -p > path.png`.
@@ -74,6 +80,8 @@ task fw-lite:has-stale-generated-types
 ```
 
 The configuration for this lives in `FwLiteShared/TypeGen/ReinforcedFwLiteTypingConfig.cs` and `FwLiteShared/Reinforced.Typings.settings.xml`. The `index.ts` barrels under `generated-types/` are hand-maintained: add an export when you add an event or service. A new `[JSInvokable]` method on `MiniLcmJsInvokable` also needs a stub in `frontend/viewer/src/project/demo/in-memory-demo-api.ts`, or svelte-check fails late.
+
+> **.NET 11 preview note:** Reinforced.Typings 1.6.7 has no net11 tool, so `FwLiteShared.csproj` forces its net10 `rtcli` and patches the tool's runtimeconfig to run on the net11 runtime (`_RtPatchToolRuntimeConfig` target). It's self-contained — no env vars needed. Delete `RtForceTargetFramework` + that target once the package ships a net11 tool.
 
 ⚠️ **`[JSInvokable]` methods must not have optional/defaulted parameters (nor a `CancellationToken`).** The generated TS marks them optional (`arg?`), but that's a lie: Blazor JSInterop requires JS to pass every parameter, and can't marshal a `CancellationToken` — so JS callers break at runtime. If a server-side (REST) caller needs cancellation or an extra arg, add a separate **non-`[JSInvokable]`** overload for it (see `AuthService.SignInWebView`).
 
@@ -185,6 +193,10 @@ flowchart LR
 ```
 
 ---
+
+**User docs promise:** device ↔ Lexbox sync runs by itself (after each edit, on project open, on server push), and a field edited on both sides keeps the FieldWorks Classic value. Change either? Update `docs/site/fw-lite/how-sync-works.mdx`, `docs/site/src/components/SyncExplainer/syncScenarios.ts`, `docs/site/lexbox/fw-lite.md` and `docs/site/technical/sync/` in the same PR.
+
+Sync triggers: local edit (`MiniLcmJsInvokable.OnDataChanged`), project open (`ProjectServicesProvider`), `OnProjectUpdated` push and listener (re)connect (`LexboxHubConnection`), listener restart after a successful sync (`SyncService.ExecuteSync`), 5-minute `PushListenerRecoveryService`. `BackgroundSyncService` runs them one at a time with no dedup. `SafeExecuteSync` swallows exceptions; statuses are `NoServer`, `NotLoggedIn` (reported before `Offline`), `Offline`, `UnknownError`.
 
 ## 🔴 CRITICAL AREA: FwData ↔ CRDT Sync
 
@@ -346,6 +358,5 @@ Tests tagged `Category=Verified` (`task fw-lite:test-verified`) compare against 
 ## Further reading
 
 - `FwLiteMaui/Platforms/README.md`: verified Windows (MSIX, restart) and Android (Play in-app update) API gotchas.
-- `docs/research/msix-appinstaller-fwlite.md`: MSIX / App Installer update research.
 - `backend/FwLite/testing/README.md`: end-to-end Windows auto-update test harness (`task fw-lite:test-update`).
 

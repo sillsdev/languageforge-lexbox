@@ -83,13 +83,12 @@ public static class MediaFileController
         [FromForm] string? filename,
         [FromForm] IFormFile file,
         [FromForm] FileMetadata? metadata,
-        [FromForm] string? linkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         MediaFileService mediaFileService,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, linkedFilesSubfolderOverride, httpContext, config, lexBoxDb, mediaFileService, newFilesAllowed: false);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, httpContext, config, lexBoxDb, mediaFileService, newFilesAllowed: false);
         return result;
     }
 
@@ -99,13 +98,12 @@ public static class MediaFileController
         [FromForm] string? filename,
         [FromForm] IFormFile file,
         [FromForm] FileMetadata? metadata,
-        [FromForm] string? linkedFilesSubfolderOverride,
         HttpContext httpContext,
         IOptions<FwHeadlessConfig> config,
         MediaFileService mediaFileService,
         LexBoxDbContext lexBoxDb)
     {
-        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, linkedFilesSubfolderOverride, httpContext, config, lexBoxDb, mediaFileService, newFilesAllowed: true);
+        var result = await HandleFileUpload(fileId, projectId, filename, file, metadata, httpContext, config, lexBoxDb, mediaFileService, newFilesAllowed: true);
         return result;
     }
 
@@ -116,7 +114,6 @@ public static class MediaFileController
             string? filename,
             IFormFile file,
             FileMetadata? metadata,
-            string? linkedFilesSubfolderOverride,
             HttpContext httpContext,
             IOptions<FwHeadlessConfig> config,
             LexBoxDbContext lexBoxDb,
@@ -134,15 +131,14 @@ public static class MediaFileController
                 filename,
                 file,
                 metadata,
-                linkedFilesSubfolderOverride,
                 newFilesAllowed,
                 httpContext,
                 mediaFileService);
         }
         catch (NotFoundException) { return TypedResults.NotFound(); }
         catch (UploadedFilesCannotBeMovedToNewProjects) { return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeMovedToNewProjects); }
-        catch (UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders) { return TypedResults.BadRequest(FileUploadErrorMessage.UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders); }
         catch (ProjectFolderNotFoundInFwHeadless) { return TypedResults.BadRequest(FileUploadErrorMessage.ProjectFolderNotFoundInFwHeadless); }
+        catch (InvalidFilename) { return TypedResults.BadRequest(FileUploadErrorMessage.InvalidFilename); }
         catch (FileTooLarge)
         {
             var detail = $"Max upload size is {config.Value.MaxUploadFileSizeBytes.ToString(NumberFormatInfo.InvariantInfo)} bytes, try reducing image quality or downsampling audio";
@@ -234,7 +230,6 @@ public static class MediaFileController
         string? filename,
         IFormFile file,
         FileMetadata? metadata,
-        string? subfolderOverride,
         bool newFilesAllowed,
         HttpContext httpContext,
         MediaFileService mediaFileService)
@@ -253,10 +248,11 @@ public static class MediaFileController
 
         // If no filename specified in form, get it from uploaded file
         if (string.IsNullOrEmpty(filename)) filename = file.FileName;
+        if (!MiniLcm.Media.MediaFilename.IsValid(filename)) throw new InvalidFilename();
         metadata = await InitMetadata(metadata, file, filename, httpContext.Request);
         if (mediaFile is null)
         {
-            var subfolder = subfolderOverride ?? GuessSubfolderFromMimeType(metadata.MimeType) ?? "";
+            var subfolder = GuessSubfolderFromMimeType(metadata.MimeType) ?? "";
             mediaFile = new MediaFile()
             {
                 Id = fileId.Value,
@@ -271,10 +267,6 @@ public static class MediaFileController
             if (projectId != mediaFile.ProjectId)
             {
                 throw new UploadedFilesCannotBeMovedToNewProjects();
-            }
-            if (subfolderOverride is not null && !MediaFilePath.Normalize(mediaFile.Filename).StartsWith(MediaFilePath.Normalize(Path.Join(LinkedFiles, subfolderOverride))))
-            {
-                throw new UploadedFilesCannotBeMovedToDifferentLinkedFilesSubfolders();
             }
             if (mediaFile.Metadata is null) mediaFile.Metadata = metadata;
             else mediaFile.Metadata.Merge(metadata);
@@ -300,6 +292,8 @@ public static class MediaFileController
         if (mimeType.StartsWith("image/")) return "Pictures";
         if (mimeType.StartsWith("audio/")) return "AudioVisual";
         if (mimeType.StartsWith("video/")) return "AudioVisual";
+        // FW Lite plugins
+        if (mimeType.StartsWith("text/html")) return "Plugins";
         // Special cases
         if (mimeType == "application/mp4") return "AudioVisual"; // Some apps don't want to commit to audio/ or video/, but we don't care which it is
         return null;

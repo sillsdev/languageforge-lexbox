@@ -8,14 +8,30 @@ public class HistoryServiceActivityTests : HistoryServiceActivityTestsBase
     [Fact]
     public async Task ListActivityAuthors_ReturnsDistinctAuthorsWithCounts()
     {
+        var aliceFirst = await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
+        var bobFirst = await AddEntryCommit(new CommitMetadata { AuthorName = "Bob", AuthorId = "bob-id" });
         await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
-        await AddEntryCommit(new CommitMetadata { AuthorName = "Alice", AuthorId = "alice-id" });
-        await AddEntryCommit(new CommitMetadata { AuthorName = "Bob", AuthorId = "bob-id" });
 
         var authors = await Service.ListActivityAuthors();
 
-        authors.Should().Contain(a => a.AuthorId == "alice-id" && a.AuthorName == "Alice" && a.CommitCount == 2);
-        authors.Should().Contain(a => a.AuthorId == "bob-id" && a.AuthorName == "Bob" && a.CommitCount == 1);
+        authors.Should().Contain(a => a.AuthorId == "alice-id" && a.AuthorName == "Alice" && a.CommitCount == 2
+            && a.FirstCommitDate == aliceFirst.HybridDateTime.DateTime);
+        authors.Should().Contain(a => a.AuthorId == "bob-id" && a.AuthorName == "Bob" && a.CommitCount == 1
+            && a.FirstCommitDate == bobFirst.HybridDateTime.DateTime);
+    }
+
+    [Fact]
+    public async Task LoadChangeContext_LinksACommentOnASenseToItsEntry()
+    {
+        var entryId = await CreateEntry("apple");
+        var senseId = await CreateSense(entryId, "fruit", 1);
+        var threadId = await AddCommentThread(senseId, SubjectType.Sense);
+        await AddComment(threadId, "looks wrong");
+        var commit = (await Service.ProjectActivity()).Single(a => a.ChangeName == "Create user comment").CommitId;
+
+        var context = await Service.LoadChangeContext(commit, 0);
+
+        context.AffectedEntries.Should().ContainSingle().Which.Id.Should().Be(entryId);
     }
 
     [Fact]

@@ -26,31 +26,21 @@ on:
       - 'platform.bible-extension/**'
       - '.github/workflows/fw-lite.yaml'
       - '.github/actions/setup-k8s/**'
+      - '.github/actions/setup-frontend/**'
+      - '.github/actions/setup-playwright/**'
+      - '.github/actions/setup-dotnet-build/**'
+      - '.github/actions/smoke-android/**'
+      - '.github/scripts/smoke-*.sh'
       - 'FwLiteCore.slnf'
       - 'FwLiteOnly.slnf'
       - 'global.json'
     branches:
       - develop
-  pull_request:
-    paths:
-      - 'backend/FwLite/**'
-      - 'backend/Directory.Packages.props'
-      - 'backend/Harmony*.props'
-      - 'frontend/viewer/**'
-      - 'platform.bible-extension/**'
-      - '.github/workflows/fw-lite.yaml'
-      - '.github/actions/setup-k8s/**'
-      - 'FwLiteCore.slnf'
-      - 'FwLiteOnly.slnf'
-      - 'global.json'
-    branches:
-      - develop
-      - feat/sync-morph-types #just for now ensure PRs to this branch have checks run
 
-# Only cancel superseded PR runs; never cancel develop or release builds.
+# Never cancel develop or release builds. Pull requests run pr.yaml (the PR tier), not this workflow.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -58,7 +48,7 @@ permissions:
 env:
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
   # Pinned so a new workload set (e.g. a new default Apple SDK pack) cannot silently break the MAUI builds.
-  MAUI_WORKLOAD_VERSION: 10.0.401
+  MAUI_WORKLOAD_VERSION: 11.0.100.1
 jobs:
   build-and-test:
     name: Build FW Lite and run tests
@@ -75,20 +65,9 @@ jobs:
           # full commit history (no file contents) for the app version's commit count
           fetch-depth: 0
           filter: tree:0
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - uses: ./.github/actions/setup-dotnet-build
         with:
-          dotnet-version: '10.x'
-      - name: Cache NuGet packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.nuget/packages
-          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
-          restore-keys: |
-            nuget-${{ runner.os }}-
-      - name: Install Task
-        uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          install-task: 'true'
 
       - name: Set Version
         id: setVersion
@@ -163,7 +142,7 @@ jobs:
           submodules: true
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
 
       - name: Dotnet build (Release)
         run: dotnet build backend/FwLite/FwLiteProjectSync.Tests/FwLiteProjectSync.Tests.csproj -c Release
@@ -186,22 +165,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: ./.github/actions/setup-frontend
         with:
-          package_json_file: 'frontend/package.json'
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: './frontend/package.json'
-          cache: 'pnpm'
-          cache-dependency-path: './frontend/pnpm-lock.yaml'
-      - name: Install Task
-        uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Prepare frontend
-        working-directory: frontend
-        run: |
-          pnpm install
+          install-task: 'true'
+      - name: svelte-check (viewer)
+        working-directory: frontend/viewer
+        run: pnpm run check
+      - name: eslint (viewer)
+        working-directory: frontend/viewer
+        run: pnpm run lint
       - name: Ensure all i18n strings have been extracted
         working-directory: frontend/viewer
         shell: bash
@@ -224,23 +196,13 @@ jobs:
             exit 1
           fi
           rm -f src/locales/en.po.old
-      - name: Cache Playwright browsers
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        id: playwright-cache
+      - uses: ./.github/actions/setup-playwright
         with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-webkit-${{ hashFiles('frontend/pnpm-lock.yaml') }}
-      - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        working-directory: frontend
-        run: pnpm exec playwright install --with-deps chromium webkit
-      - name: Install Playwright system deps
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        working-directory: frontend
-        run: pnpm exec playwright install-deps chromium webkit
+          browsers: 'chromium webkit'
       - name: Run UI tests
         working-directory: frontend/viewer
-        run: task test:ui-standalone
+        # interleaved: the prefixed output would hide ::warning/::error workflow commands from GitHub.
+        run: task --output interleaved test:ui-standalone
       - name: Publish test results to TestHistory
         if: always() # run even when the UI tests above failed
         continue-on-error: true # telemetry only — a TestHistory outage must not fail the build
@@ -276,38 +238,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: ./.github/actions/setup-frontend
+      # vitest is configured to use playwright for stories and other browser-based tests
+      - uses: ./.github/actions/setup-playwright
         with:
-          package_json_file: 'frontend/package.json'
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: './frontend/package.json'
-          cache: 'pnpm'
-          cache-dependency-path: './frontend/pnpm-lock.yaml'
-      - name: Prepare frontend
-        working-directory: frontend
-        run: |
-          pnpm install
-        # vitest is configured to use playwright for stories and other browser-based tests
-      - name: Cache Playwright browsers
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-firefox-${{ hashFiles('frontend/pnpm-lock.yaml') }}
-      - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        working-directory: frontend/viewer
-        run: pnpm exec playwright install --with-deps chromium firefox
-      - name: Install Playwright system deps
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        working-directory: frontend/viewer
-        run: pnpm exec playwright install-deps chromium firefox
+          browsers: 'chromium firefox'
+          working-directory: frontend/viewer
       - name: vitest
         working-directory: frontend/viewer
         run: pnpm run test --retry=2 --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-results.xml
       - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
+        uses: EnricoMi/publish-unit-test-result-action@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2.25.0
         if: always()
         with:
           check_name: UI unit Tests
@@ -330,7 +271,7 @@ jobs:
     name: Build FW Lite for iOS simulator; notarize Mac Catalyst
     needs: [build-and-test, frontend]
     timeout-minutes: 60
-    runs-on: macos-latest
+    runs-on: xcode-27
     outputs:
       signed: ${{ steps.signing.outputs.signed }}
     env:
@@ -345,7 +286,11 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
+      # .NET 11's iOS/Mac Catalyst packs (27.x) need the iOS 27 SDK; macos-latest only has Xcode 26.
+      # xcode-27 (public preview image) defaults to 27.1, so select the version the packs were built against.
+      - name: Select Xcode 27.2
+        run: sudo xcode-select -s /Applications/Xcode_27.2.app
       - name: Setup Maui
         run: dotnet workload install maui-ios maui-maccatalyst --version ${{ env.MAUI_WORKLOAD_VERSION }}
 
@@ -356,7 +301,7 @@ jobs:
       - name: Build iOS (simulator)
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet build -f net10.0-ios -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=iossimulator-arm64 \
+          dotnet build -f net11.0-ios -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=iossimulator-arm64 \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
             -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
@@ -366,7 +311,7 @@ jobs:
         if: env.HAS_APPLE_SIGNING != 'true'
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64 \
+          dotnet build -f net11.0-maccatalyst -c Release -p:BuildAndroid=false -p:RuntimeIdentifier=maccatalyst-arm64 \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
             -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
@@ -410,7 +355,7 @@ jobs:
         if: env.HAS_APPLE_SIGNING == 'true'
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet build -f net10.0-maccatalyst -c Release -p:BuildAndroid=false \
+          dotnet build -f net11.0-maccatalyst -c Release -p:BuildAndroid=false \
             -p:EnableCodeSigning=true -p:UseHardenedRuntime=true \
             -p:CodesignKey="$CODESIGN_IDENTITY" \
             -p:CodesignEntitlements=Platforms/MacCatalyst/Entitlements.DeveloperId.plist \
@@ -428,7 +373,7 @@ jobs:
         run: |
           set -euo pipefail
           # The SDK merges and signs the universal bundle here; the maccatalyst-*/ bundles are incomplete intermediates.
-          APP="bin/Release/net10.0-maccatalyst/FieldWorks Lite.app"
+          APP="bin/Release/net11.0-maccatalyst/FieldWorks Lite.app"
           codesign --verify --deep --strict --verbose=2 "$APP"
           for f in index.html _content/FwLiteShared/viewer/main.js; do
             [ -f "$APP/Contents/Resources/wwwroot/$f" ] || { echo "Missing wwwroot/$f in $APP" >&2; exit 1; }
@@ -468,9 +413,9 @@ jobs:
         working-directory: backend/FwLite/FwLiteMaui
         run: |
           mkdir -p ../artifacts/apple
-          ditto -c -k --keepParent "bin/Release/net10.0-ios/iossimulator-arm64/FwLiteMaui.app" ../artifacts/apple/fw-lite-ios-simulator.zip
+          ditto -c -k --keepParent "bin/Release/net11.0-ios/iossimulator-arm64/FwLiteMaui.app" ../artifacts/apple/fw-lite-ios-simulator.zip
           if [ "$HAS_APPLE_SIGNING" != 'true' ]; then
-            ditto -c -k --keepParent "bin/Release/net10.0-maccatalyst/maccatalyst-arm64/FieldWorks Lite.app" ../artifacts/apple/fw-lite-maccatalyst.zip
+            ditto -c -k --keepParent "bin/Release/net11.0-maccatalyst/maccatalyst-arm64/FieldWorks Lite.app" ../artifacts/apple/fw-lite-maccatalyst.zip
           fi
 
       - name: Remove temporary signing keychain
@@ -500,6 +445,11 @@ jobs:
             runner: macos-15-intel
     runs-on: ${{ matrix.runner }}
     steps:
+      - name: Checkout smoke scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/scripts
+          path: repo
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: fw-lite-apple
@@ -528,24 +478,34 @@ jobs:
           gatekeeper --type execute "/Volumes/FieldWorksLite/FieldWorks Lite.app"
 
       - name: Launch the app and wait for the viewer to load
-        run: |
-          set -euo pipefail
-          echo "Runner CPU: $(uname -m)"
-          OUT="$RUNNER_TEMP/stdout.log"
-          # The app is sandboxed, so its app.log lands in its container.
-          CONTAINER="$HOME/Library/Containers/org.sil.FwLiteMaui"
-          "/Volumes/FieldWorksLite/FieldWorks Lite.app/Contents/MacOS/FwLiteMaui" > "$OUT" 2>&1 &
-          PID=$!
-          for _ in $(seq 120); do
-            grep -rqs 'Viewer loaded' "$OUT" "$CONTAINER" && break
-            kill -0 "$PID" 2>/dev/null || break
-            sleep 1
-          done
-          kill "$PID" 2>/dev/null || true
-          wait "$PID" 2>/dev/null || true
-          cat "$OUT"
-          find "$CONTAINER" -name 'app*.log' -print -exec cat {} \; 2>/dev/null || true
-          grep -rqs 'Viewer loaded' "$OUT" "$CONTAINER" || { echo "The app never logged 'Viewer loaded'" >&2; exit 1; }
+        run: bash repo/.github/scripts/smoke-mac.sh "/Volumes/FieldWorksLite/FieldWorks Lite.app"
+
+  # Boots an iOS simulator and runs the simulator build until it logs "Viewer loaded".
+  launch-ios:
+    name: Launch the iOS simulator build
+    needs: build-apple
+    timeout-minutes: 30
+    runs-on: macos-latest
+    steps:
+      - name: Checkout smoke scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/scripts
+          path: repo
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: fw-lite-apple
+      - name: Unzip the simulator app
+        run: ditto -x -k fw-lite-ios-simulator.zip ios
+      - name: Launch the app and wait for the viewer to load
+        run: bash repo/.github/scripts/smoke-ios.sh ios/FwLiteMaui.app
+      - name: Upload smoke test output
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fw-lite-ios-smoke
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/smoke
 
   publish-linux:
     name: Publish FW Lite app for Linux
@@ -561,7 +521,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
 
       - name: Publish Linux
         working-directory: backend/FwLite/FwLiteWeb
@@ -571,30 +531,14 @@ jobs:
 
       # Headless Chrome loads the page so the server logs 'Viewer loaded', the line the MAUI checks wait for.
       - name: Launch FwLiteWeb and wait for the viewer to load
-        working-directory: backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64
-        run: |
-          chmod +x ./FwLiteWeb
-          log="$RUNNER_TEMP/fwliteweb.log"
-          # File logging off, or fw-lite-web.log lands in this folder and ships in the artifact.
-          ./FwLiteWeb --urls http://127.0.0.1:5137 --FwLiteWeb:OpenBrowser=false --FwLiteWeb:EnableFileLogging=false --FwLite:UpdateCheckCondition=Never > "$log" 2>&1 &
-          server=$!
-          # Wait for the server to answer, giving up early if it died.
-          for _ in $(seq 60); do
-            curl -fsS -o /dev/null http://127.0.0.1:5137/ && break
-            kill -0 $server 2>/dev/null || break
-            sleep 1
-          done
-          google-chrome --headless=new --disable-gpu --no-sandbox --user-data-dir="$RUNNER_TEMP/chrome" http://127.0.0.1:5137/ > /dev/null 2>&1 &
-          chrome=$!
-          # Wait for the page to finish loading in Chrome, again giving up early if the server died.
-          for _ in $(seq 120); do
-            grep -q 'Viewer loaded' "$log" && break
-            kill -0 $server 2>/dev/null || break
-            sleep 1
-          done
-          kill $chrome $server 2>/dev/null || true
-          cat "$log"
-          grep -q 'Viewer loaded' "$log" || { echo "::error::FwLiteWeb never logged 'Viewer loaded'"; exit 1; }
+        run: bash .github/scripts/smoke-linux.sh backend/FwLite/artifacts/publish/FwLiteWeb/release_linux-x64/FwLiteWeb
+      - name: Upload smoke test output
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fw-lite-web-linux-smoke
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/smoke
 
       - name: Upload FWLite Linux artifacts
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -621,7 +565,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
 
       - name: Setup Maui
         run: dotnet workload install maui-android --version ${{ env.MAUI_WORKLOAD_VERSION }}
@@ -642,7 +586,7 @@ jobs:
           KEYSTORE_PASS: ${{ secrets.FW_LITE_KEYSTORE_PASS }}
           KEYSTORE_ALIAS: ${{ vars.FW_LITE_KEYSTORE_UPLOAD_KEY_ALIAS }}
         run: |
-          dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts \
+          dotnet publish -f net11.0-android -p:BuildApple=false --artifacts-path ../artifacts \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
             -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
@@ -659,7 +603,7 @@ jobs:
         working-directory: backend/FwLite/FwLiteMaui
         run: |
           echo "::warning::Signing key unavailable (likely a fork PR); building an unsigned Android APK."
-          dotnet publish -f net10.0-android -p:BuildApple=false --artifacts-path ../artifacts \
+          dotnet publish -f net11.0-android -p:BuildApple=false --artifacts-path ../artifacts \
             -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} \
             -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }} \
@@ -670,8 +614,32 @@ jobs:
         with:
           name: fw-lite-android
           if-no-files-found: error
-#          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android/org.sil.fwlitemaui-signed.apk
-          path: backend/FwLite/artifacts/publish/FwLiteMaui/release_net10.0-android/*
+#          path looks like this: backend/FwLite/artifacts/publish/FwLiteMaui/release_net11.0-android/org.sil.fwlitemaui-signed.apk
+          path: backend/FwLite/artifacts/publish/FwLiteMaui/release_net11.0-android/*
+
+  # Boots an x86_64 emulator and runs the published APK until it logs "Viewer loaded".
+  launch-android:
+    name: Launch the Android APK on an emulator
+    needs: publish-android
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: fw-lite-android
+          path: ${{ runner.temp }}/android
+      - uses: ./.github/actions/smoke-android
+        with:
+          apk-dir: ${{ runner.temp }}/android
+      - name: Upload smoke test output
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fw-lite-android-smoke
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/smoke
 
   publish-win:
     name: Publish FW Lite app for Windows
@@ -685,17 +653,7 @@ jobs:
         with:
           name: fw-lite-viewer-js
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          dotnet-version: '10.x'
-
-      - name: Cache NuGet packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.nuget/packages
-          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
-          restore-keys: |
-            nuget-${{ runner.os }}-
+      - uses: ./.github/actions/setup-dotnet-build
 
       - name: Setup Maui
         run: dotnet workload install maui-windows --version ${{ env.MAUI_WORKLOAD_VERSION }}
@@ -720,7 +678,7 @@ jobs:
       - name: Publish Windows MAUI portable app
         working-directory: backend/FwLite/FwLiteMaui
         run: |
-          dotnet publish -f net10.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          dotnet publish -f net11.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/sign/portable
           cp -r ../artifacts/publish/FwLiteMaui/* ../artifacts/sign/portable/
 
@@ -730,7 +688,7 @@ jobs:
           # AppxPackageDir is the MSIX-targets equivalent of --artifacts-path: without it
           # MAUI 10 writes AppPackages to $(MSBuildProjectDirectory)/AppPackages, ignoring
           # --artifacts-path. Redirect it under artifacts/ so everything lives in one tree.
-          dotnet publish -f net10.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:AppxPackageDir=../artifacts/AppPackages/ -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
+          dotnet publish -f net11.0-windows10.0.19041.0 -p:BuildAndroid=false --artifacts-path ../artifacts -p:AppxPackageDir=../artifacts/AppPackages/ -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }} -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
           mkdir -p ../artifacts/msix
           cp ../artifacts/AppPackages/*/*.msix ../artifacts/msix/
 
@@ -804,16 +762,7 @@ jobs:
         with:
           name: fw-lite-viewer-js
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-        with:
-          dotnet-version: '10.x'
-      - name: Cache NuGet packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.nuget/packages
-          key: nuget-${{ runner.os }}-${{ hashFiles('backend/Directory.Packages.props', 'backend/Harmony*.props') }}
-          restore-keys: |
-            nuget-${{ runner.os }}-
+      - uses: ./.github/actions/setup-dotnet-build
 
       - name: Publish Windows
         working-directory: backend/FwLite/FwLiteWeb
@@ -1088,7 +1037,7 @@ jobs:
           path: ${{ env.VIEWER_BUILD_OUTPUT_DIR }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
       - name: Publish FwLiteWeb (linux-x64)
         working-directory: backend/FwLite/FwLiteWeb
         run: dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true
@@ -1097,21 +1046,9 @@ jobs:
         shell: bash
         run: chmod +x ${{ env.FW_LITE_BINARY_PATH }}
 
-      - name: Install Task
-        uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
+      - uses: ./.github/actions/setup-frontend
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        with:
-          package_json_file: 'frontend/package.json'
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: './frontend/package.json'
-          cache: 'pnpm'
-          cache-dependency-path: './frontend/pnpm-lock.yaml'
-      - name: Install frontend deps
-        working-directory: frontend
-        run: pnpm install
+          install-task: 'true'
       - name: Test FwLite launcher
         working-directory: frontend/viewer
         # Call vitest directly (not `task test:launcher`) to add the junit reporter for the
@@ -1154,20 +1091,9 @@ jobs:
           cat /tmp/https-port-forward.log
           exit 1
 
-      - name: Cache Playwright browsers
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        id: playwright-cache
+      - uses: ./.github/actions/setup-playwright
         with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('frontend/pnpm-lock.yaml') }}
-      - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        working-directory: frontend/viewer
-        run: pnpm exec playwright install --with-deps chromium
-      - name: Install Playwright system deps
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        working-directory: frontend/viewer
-        run: pnpm exec playwright install-deps chromium
+          working-directory: frontend/viewer
 
       - name: Run E2E tests
         working-directory: frontend/viewer

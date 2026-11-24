@@ -27,7 +27,7 @@ namespace LexBoxApi.Auth;
 public static class AuthKernel
 {
     public const string DefaultScheme = "JwtOrCookie";
-    public const string JwtOverBasicAuthUsername = "bearer";
+    public const string JwtOverBasicAuthUsername = LexAuthConstants.JwtOverBasicAuthUsername;
     public const string AuthCookieName = LexAuthConstants.AuthCookieName;
     public const string OAuthAuthenticationType = "OAuth";
 
@@ -87,6 +87,17 @@ public static class AuthKernel
                             new RequireScopeAttribute(LexboxAuthScope.LexboxApi, LexboxAuthScope.SendAndReceive)
                         );
                 });
+
+            options.AddPolicy(LexiconProxy.ListPolicy,
+                builder => builder.RequireAuthenticatedUser()
+                    .AddRequirements(LexiconReadScope()));
+            options.AddPolicy(LexiconProxy.ReadPolicy,
+                builder => builder.RequireAuthenticatedUser()
+                    .AddRequirements(new LexiconProjectRequirement(false), LexiconReadScope()));
+            options.AddPolicy(LexiconProxy.WritePolicy,
+                builder => builder.RequireAuthenticatedUser()
+                    .AddRequirements(new LexiconProjectRequirement(true),
+                        new RequireScopeAttribute(LexboxAuthScope.LexiconWrite, LexboxAuthScope.LexboxApi)));
 
             options.AddPolicy(AdminRequiredAttribute.PolicyName,
                 builder => builder.RequireDefaultLexboxAuth()
@@ -318,6 +329,10 @@ public static class AuthKernel
         services.AddOptions<OpenIddictValidationOptions>().ValidateOnStart();
         services.AddOptions<OpenIddictServerAspNetCoreOptions>().ValidateOnStart();
     }
+
+    //the general LexboxApi scope (browser sessions, The Combine) also reads, FW Lite's SendAndReceive does not
+    private static RequireScopeAttribute LexiconReadScope() =>
+        new(LexboxAuthScope.LexiconRead, LexboxAuthScope.LexiconWrite, LexboxAuthScope.LexboxApi);
 
     public static AuthorizationPolicyBuilder RequireDefaultLexboxAuth(this AuthorizationPolicyBuilder builder)
     {

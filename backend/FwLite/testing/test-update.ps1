@@ -30,7 +30,7 @@ $RepoRoot     = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
 $MauiCsproj   = Join-Path $RepoRoot 'backend\FwLite\FwLiteMaui\FwLiteMaui.csproj'
 $ViewerDir    = Join-Path $RepoRoot 'frontend\viewer'
 $ServerProj   = Join-Path $PSScriptRoot 'UpdateTestServer\UpdateTestServer.csproj'
-$ServerExe    = Join-Path $PSScriptRoot 'UpdateTestServer\bin\Release\net10.0\UpdateTestServer.exe'
+$ServerExe    = Join-Path $PSScriptRoot 'UpdateTestServer\bin\Release\net11.0\UpdateTestServer.exe'
 # Build output under the repo's gitignored artifacts/ (per-worktree on purpose).
 $ArtifactsDir = Join-Path $RepoRoot 'backend\FwLite\artifacts\harness'
 # Cross-worktree state (cert stays in the Windows cert store; this just holds the exported cer + server pid).
@@ -42,7 +42,7 @@ $BuildsJson   = Join-Path $ArtifactsDir 'builds.json'
 $PackageIdentity = 'FwLiteDesktopTest'   # distinct from prod 'FwLiteDesktop' so the real install is untouched
 $CertSubject     = 'CN=FwLiteTestCert'
 $AppId           = 'App'                  # <Application Id="App"> in the manifest
-$Framework       = 'net10.0-windows10.0.19041.0'
+$Framework       = 'net11.0-windows10.0.19041.0'
 $ServerOutLog    = Join-Path $HarnessHome 'server.out.log'
 $ServerErrLog    = Join-Path $HarnessHome 'server.err.log'
 function Get-UpdateUrl { "http://localhost:$Port/api/fwlite-release/should-update" }
@@ -306,23 +306,23 @@ function Set-UpdateEnv {
     if ([string]::IsNullOrWhiteSpace($mode)) { $mode = 'Never' }
     if ($mode -notin @('Never','Always')) { Warn 'Invalid mode.'; return }
     $url = Get-UpdateUrl
-    [Environment]::SetEnvironmentVariable('FwLite__UpdateUrl', $url, 'User')
+    [Environment]::SetEnvironmentVariable('FwLite__OverrideUpdateUrl', $url, 'User')
     [Environment]::SetEnvironmentVariable('FwLite__UpdateCheckCondition', $mode, 'User')
-    Ok "Set (User scope): FwLite__UpdateUrl=$url ; FwLite__UpdateCheckCondition=$mode"
+    Ok "Set (User scope): FwLite__OverrideUpdateUrl=$url ; FwLite__UpdateCheckCondition=$mode"
     Warn 'Relaunch the app (option 8) so it picks up these env vars.'
 }
 
 function Clear-UpdateEnv {
-    [Environment]::SetEnvironmentVariable('FwLite__UpdateUrl', $null, 'User')
+    [Environment]::SetEnvironmentVariable('FwLite__OverrideUpdateUrl', $null, 'User')
     [Environment]::SetEnvironmentVariable('FwLite__UpdateCheckCondition', $null, 'User')
-    Ok 'Cleared FwLite__UpdateUrl / FwLite__UpdateCheckCondition (User scope).'
+    Ok 'Cleared FwLite__OverrideUpdateUrl / FwLite__UpdateCheckCondition (User scope).'
 }
 
 # ---------------------------------------------------------------------------- menu
 function Show-Status {
     $pkg = Get-InstalledTestPackage
     $state = Read-State
-    $envUrl = [Environment]::GetEnvironmentVariable('FwLite__UpdateUrl', 'User')
+    $envUrl = [Environment]::GetEnvironmentVariable('FwLite__OverrideUpdateUrl', 'User')
     $envMode = [Environment]::GetEnvironmentVariable('FwLite__UpdateCheckCondition', 'User')
     $built = ($Versions.Keys | Where-Object { Test-Path (Join-Path $ArtifactsDir $Versions[$_].Bundle) }) -join ', '
 

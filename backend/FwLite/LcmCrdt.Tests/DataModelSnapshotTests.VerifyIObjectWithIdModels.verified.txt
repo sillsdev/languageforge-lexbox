@@ -32,6 +32,10 @@
     TypeDiscriminator: PartOfSpeech
   },
   {
+    DerivedType: Plugin,
+    TypeDiscriminator: Plugin
+  },
+  {
     DerivedType: Publication,
     TypeDiscriminator: Publication
   },

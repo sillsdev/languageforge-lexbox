@@ -18,7 +18,7 @@ progress proxy) → install → **Restart now** onto the new version.
 
 ## Prerequisites
 - Windows, PowerShell 7 (`pwsh`).
-- .NET 10 SDK; the Windows 10 SDK (provides `MakeAppx.exe` / `SignTool.exe`).
+- .NET 11 SDK; the Windows 10 SDK (provides `MakeAppx.exe` / `SignTool.exe`).
 - `pnpm` (the harness builds the viewer so the MSIX contains the UI).
 - Admin rights **once** to trust the self-signed signing cert (see below).
 
@@ -52,7 +52,7 @@ on launch.
 ## How it fits together
 - The app is redirected with env vars (config section is `FwLite`), set at **User** scope so the
   packaged app inherits them:
-  - `FwLite__UpdateUrl=http://localhost:<port>/api/fwlite-release/should-update`
+  - `FwLite__OverrideUpdateUrl=http://localhost:<port>/api/fwlite-release/should-update`
   - `FwLite__UpdateCheckCondition=Never|Always`
 - The client does no version comparison of its own, so the server decides. Like the real lexbox API,
   the server only offers the update when the **served version is strictly newer** than the running
@@ -87,7 +87,7 @@ on launch.
 - **Port**: the harness auto-picks a bindable loopback port at startup (preferring 5199, overridable
   with `-Port`). Windows reserves ranges (WinNAT/Hyper-V) whose ports fail to bind with socket error
   10013; the harness detects that and falls back to a free port, and the status header shows the port
-  in use. The `FwLite__UpdateUrl` env var is written with that same port, so set it (menu `9`) in the
+  in use. The `FwLite__OverrideUpdateUrl` env var is written with that same port, so set it (menu `9`) in the
   same session you start the server.
 - **Server crashed on start?** Its stdout/stderr are captured to
   `%LOCALAPPDATA%\FwLite\update-test-harness\server.{out,err}.log`, and the menu prints the tail

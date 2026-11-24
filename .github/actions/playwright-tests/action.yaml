@@ -15,15 +15,15 @@ runs:
   using: composite
   steps:
     # First we need to setup Node...
-    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with:
         node-version-file: 'frontend/package.json'
     # Then we can set up pnpm...
-    - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+    - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       with:
         package_json_file: 'frontend/package.json'
     # Then we can have Node set up package caching
-    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with:
         node-version-file: 'frontend/package.json'
         cache: 'pnpm'
@@ -49,7 +49,7 @@ runs:
 
     - name: Upload playwright results
       if: ${{ always() && steps.playwright-tests.outcome != 'skipped' }}
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: playwright-traces
         path: |

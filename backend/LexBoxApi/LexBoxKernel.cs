@@ -69,7 +69,13 @@ public static class LexBoxKernel
                     config.Enabled = false;
             });
         services.AddServiceDiscovery();
-        services.AddHttpClient<FwHeadlessClient>(client => client.BaseAddress = new ("http://fwHeadless"))
+        services.AddHttpClient<FwHeadlessClient>(client =>
+            {
+                client.BaseAddress = new ("http://fwHeadless");
+                // initFwDataProject runs inline (hg init + build the project from the template + push),
+                // which can exceed the default 100s on a cold LCM load; give FwHeadless calls more headroom.
+                client.Timeout = TimeSpan.FromMinutes(5);
+            })
             .AddServiceDiscovery();//service discovery means that we lookup the hostname in Services__fwHeadless__http in config
         services.AddHttpContextAccessor();
         services.AddMemoryCache();
@@ -82,8 +88,9 @@ public static class LexBoxKernel
         services.AddScoped<TusService>();
         services.AddScoped<TurnstileService>();
         services.AddScoped<IHgService, HgService>();
+        // Uploading a reset zip or copying a large repo can far outlast HttpClient's 100s default
+        services.AddHttpClient(HgService.ManageClientName, client => client.Timeout = TimeSpan.FromMinutes(30));
         services.AddSingleton<FwLiteReleaseService>();
-        services.AddHostedService<HgService>();
         services.AddTransient<HgWebHealthCheck>();
         services.AddTransient<FwHeadlessHealthCheck>();
         services.AddScoped<ILexProxyService, LexProxyService>();
@@ -97,6 +104,7 @@ public static class LexBoxKernel
             ;
         services.AddSyncProxy();
         services.AddFileUploadProxy();
+        services.AddLexiconProxy();
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);
     }

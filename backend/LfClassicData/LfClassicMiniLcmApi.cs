@@ -146,6 +146,17 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             throw new NotSupportedException($"Sorting by {options.Order.Field} is not supported");
         }
 
+        var pipeline = BuildQueryPipeline(options, sortWs, search);
+        await foreach (var entry in Entries.Aggregate(pipeline).ToAsyncEnumerable())
+        {
+            yield return await ToEntry(entry);
+        }
+    }
+
+    internal static PipelineDefinition<Entities.Entry, Entities.Entry> BuildQueryPipeline(QueryOptions options,
+        WritingSystemId sortWs,
+        string? search)
+    {
         PipelineDefinition<Entities.Entry, Entities.Entry> pipeline = new EmptyPipelineDefinition<Entities.Entry>();
 
         if (!string.IsNullOrWhiteSpace(search))
@@ -153,22 +164,25 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             pipeline = AppendSearchAndFilter(search, pipeline);
         }
 
-        pipeline = AppendHeadWord(sortWs, pipeline)
-            .Sort(Builders<HeadwordEntry>.Sort
-                .Ascending(entry => entry.headword)
-                .Ascending(entry => entry.MorphologyType)
-                .Ascending(entry => entry.Guid))
-            .Skip(options.Offset)
-            .Limit(options.Count == QueryOptions.QueryAll ? 0 : options.Count)
-            .Project(entry => entry as Entities.Entry);
-
-        await foreach (var entry in Entries.Aggregate(pipeline).ToAsyncEnumerable())
+        var sort = Builders<HeadwordEntry>.Sort;
+        var sortedPipeline = AppendHeadWord(sortWs, pipeline)
+            .Sort(options.Order.Ascending
+                ? sort.Ascending(entry => entry.headword)
+                    .Ascending(entry => entry.MorphologyType)
+                    .Ascending(entry => entry.Guid)
+                : sort.Descending(entry => entry.headword)
+                    .Descending(entry => entry.MorphologyType)
+                    .Descending(entry => entry.Guid))
+            .Skip(options.Offset);
+        // the aggregation $limit stage rejects 0, so omit it entirely to return all entries
+        if (options.Count != QueryOptions.QueryAll)
         {
-            yield return await ToEntry(entry);
+            sortedPipeline = sortedPipeline.Limit(options.Count);
         }
+        return sortedPipeline.Project(entry => entry as Entities.Entry);
     }
 
-    private PipelineDefinition<Entities.Entry, Entities.Entry> AppendSearchAndFilter(string search,
+    private static PipelineDefinition<Entities.Entry, Entities.Entry> AppendSearchAndFilter(string search,
         PipelineDefinition<Entities.Entry, Entities.Entry> pipeline)
     {
         var emptyDoc = new BsonDocument();
@@ -201,7 +215,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
                 ));
     }
 
-    private PipelineDefinition<Entities.Entry, HeadwordEntry> AppendHeadWord(WritingSystemId sortWs,
+    private static PipelineDefinition<Entities.Entry, HeadwordEntry> AppendHeadWord(WritingSystemId sortWs,
         PipelineDefinition<Entities.Entry, Entities.Entry> pipeline)
     {
         //this effectively does:

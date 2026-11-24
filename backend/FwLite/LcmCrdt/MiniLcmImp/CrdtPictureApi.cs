@@ -13,16 +13,33 @@ public class CrdtPictureApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeW
         Picture picture,
         BetweenPosition? between = null)
     {
+        await VerifySenseBelongsToEntry(entryId, senseId);
         var change = new CreateSensePictureChange(picture, senseId, between);
         await harmonyChangeWriter.AddChange(change);
         return await GetPicture(entryId, senseId, change.PictureId) ?? throw NotFoundException.ForType<Picture>(change.PictureId);
     }
 
-    public async Task<Picture?> GetPicture(Guid entryId, Guid senseId, Guid id)
+    private async Task VerifySenseBelongsToEntry(Guid entryId, Guid senseId)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
         var sense = await repo.GetSense(senseId);
-        return sense?.Pictures.FirstOrDefault(pic => pic.Id == id);
+        if (sense is not null) CrdtSenseApi.VerifySenseBelongsToEntry(entryId, sense);
+    }
+
+    public async Task<Picture?> GetPicture(Guid entryId, Guid senseId, Guid id)
+    {
+        await using var repo = await repoFactory.CreateRepoAsync();
+        // sense first: loading it brings its pictures along, so the owner search only runs when the picture isn't there
+        var sense = await repo.GetSense(senseId);
+        if (sense is not null)
+        {
+            CrdtSenseApi.VerifySenseBelongsToEntry(entryId, sense);
+            var owned = sense.Pictures.FirstOrDefault(pic => pic.Id == id);
+            if (owned is not null) return owned;
+        }
+        var actualSenseId = await repo.GetPictureSenseId(id);
+        if (actualSenseId is null) return null;
+        throw ParentMismatchException.ForType<Picture>(id, senseId, actualSenseId.Value);
     }
 
     public async Task SubmitUpdatePicture(Guid entryId,
@@ -40,6 +57,7 @@ public class CrdtPictureApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeW
         Guid pictureId,
         UpdateObjectInput<Picture> update)
     {
+        await VerifySenseBelongsToEntry(entryId, senseId);
         await SubmitUpdatePicture(entryId, senseId, pictureId, update);
         return await GetPicture(entryId, senseId, pictureId) ?? throw NotFoundException.ForType<Picture>(pictureId);
     }
@@ -50,6 +68,7 @@ public class CrdtPictureApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeW
         Picture after,
         IMiniLcmApi api)
     {
+        await VerifySenseBelongsToEntry(entryId, senseId);
         await PictureSync.Sync(entryId, senseId, before, after, api);
         return await GetPicture(entryId, senseId, after.Id) ?? throw NotFoundException.ForType<Picture>(after.Id);
     }

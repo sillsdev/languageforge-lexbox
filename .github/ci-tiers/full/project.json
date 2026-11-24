@@ -1,0 +1,17 @@
+{
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "name": "tier-full",
+  "tags": ["ci-tier"],
+  "_comment": "Escalation: every full-tier job. Path-only rule: fires when the PR workflow itself or one of the setup actions it shares with fw-lite.yaml changes. The target is never run; only its inputs matter.",
+  "targets": {
+    "ci-affected": {
+      "executor": "nx:noop",
+      "inputs": [
+        "{workspaceRoot}/.github/workflows/pr.yaml",
+        "{workspaceRoot}/.github/actions/setup-frontend/**/*",
+        "{workspaceRoot}/.github/actions/setup-playwright/**/*",
+        "{workspaceRoot}/.github/actions/setup-dotnet-build/**/*"
+      ]
+    }
+  }
+}

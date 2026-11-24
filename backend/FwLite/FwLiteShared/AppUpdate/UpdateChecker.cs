@@ -91,14 +91,15 @@ public class UpdateChecker(
     /// <summary>
     /// Whether to check the GitHub release feed now: the shared interval gate
     /// (<see cref="UpdateCheckThrottle.ShouldCheckForUpdate"/>) plus a skip for store-distributed
-    /// platforms. iOS/Mac have no release feed at all, and Android is driven by Google Play's in-app
-    /// updates (AndroidInAppUpdateService) instead of this check. The explicit <c>Always</c> condition
-    /// still forces a feed check for on-device endpoint testing.
+    /// platforms. iOS has no release feed at all, and Android is driven by Google Play's in-app
+    /// updates (AndroidInAppUpdateService) instead of this check. Mac uses the feed like Linux: it can't
+    /// install the update itself, so the user gets a Download prompt for the DMG. The explicit
+    /// <c>Always</c> condition still forces a feed check for on-device endpoint testing.
     /// </summary>
     internal bool ShouldCheckReleaseFeed()
     {
         if (config.Value.UpdateCheckCondition != UpdateCheckCondition.Always &&
-            config.Value.Os is FwLitePlatform.iOS or FwLitePlatform.Mac or FwLitePlatform.Android)
+            config.Value.Os is FwLitePlatform.iOS or FwLitePlatform.Android)
         {
             logger.LogInformation("Update check skipped: {Os} updates are store/Play-driven, not via the release feed",
                 config.Value.Os);
@@ -121,7 +122,7 @@ public class UpdateChecker(
         {
             response = await httpClientFactory
                 .CreateClient(HttpClientName)
-                .SendAsync(new HttpRequestMessage(HttpMethod.Get, config.Value.UpdateUrl)
+                .SendAsync(new HttpRequestMessage(HttpMethod.Get, config.Value.ResolveUpdateUrl())
                 {
                     Headers = { { "User-Agent", $"Fieldworks-Lite-Client/{config.Value.AppVersion}" } }
                 });

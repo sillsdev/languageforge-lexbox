@@ -12,5 +12,7 @@ export interface IFolderSyncSummary
 	mediaSent: number;
 	mediaReceived: number;
 	mediaFailed: number;
+	localWritingSystemIds?: string[];
+	folderWritingSystemIds?: string[];
 }
 /* eslint-enable */

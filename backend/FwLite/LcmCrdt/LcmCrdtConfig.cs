@@ -6,13 +6,36 @@ namespace LcmCrdt;
 public class LcmCrdtConfig
 {
     public string ProjectPath { get; set; } = Path.GetFullPath(".");
-    public string ProjectCacheFileName { get; set; } = "project-cache.json";
+    public const string DefaultProjectCacheFileName = "project-cache.json";
+    public string ProjectCacheFileName { get; set; } = DefaultProjectCacheFileName;
     public bool EnableProjectDataFileCache { get; set; } = true;
+
+    /// <summary>
+    /// When true, new projects are created at <c>{ProjectPath}/projects/{code}/{code}.sqlite</c> instead of
+    /// <c>{ProjectPath}/{code}.sqlite</c>. Projects in either layout are always found.
+    /// </summary>
+    public bool UseProjectFolders { get; set; }
+
+    public const string ProjectFoldersDirName = "projects";
+
+    public static string ProjectFolderDbPath(string projectPath, string code)
+    {
+        return Path.Combine(projectPath, ProjectFoldersDirName, code, $"{code}.sqlite");
+    }
 
     public string ProjectCachePath()
     {
         return Path.GetFullPath(Path.Combine(ProjectPath, ProjectCacheFileName));
     }
-    public string? DefaultAuthorForCommits { get; set; } = null;
+    /// <summary>
+    /// When true a commit with no author (neither name nor id) is refused instead of written. FwHeadless sets it: every writer there
+    /// (the chorus harmony merge, lexicon API requests) names its author through <see cref="CommitMetadataInterceptor"/>.
+    /// </summary>
+    public bool RequireCommitAuthor { get; set; } = false;
+    /// <summary>
+    /// When false a project still opens if reconciling model versions fails, on the snapshots the previous app version wrote,
+    /// and the reconcile is retried on the next app start. FwHeadless sets it so a failed sync job is visible instead.
+    /// </summary>
+    public bool ThrowOnModelVersionReconcileFailure { get; set; } = false;
     public GridifyMapper<Entry> Mapper { get; set; } = EntryFilter.NewMapper(new EntryFilterMapProvider());
 }

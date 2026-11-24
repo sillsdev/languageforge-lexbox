@@ -92,4 +92,19 @@ public class SyncFolderTests
 
         SyncFolder.Inspect(folder.Path).Should().BeOfType<SyncFolderState.NotASyncFolder>();
     }
+
+    [Fact]
+    public void WritingTheManifest_DoesNotFollowALeftoverTempLink()
+    {
+        using var folder = new TempFolder();
+        using var outside = new TempFolder();
+        var victim = System.IO.Path.Combine(outside.Path, "notes.txt");
+        File.WriteAllText(victim, "keep me");
+        File.CreateSymbolicLink(System.IO.Path.Combine(folder.Path, SyncFolder.ManifestFileName + ".tmp"), victim);
+
+        SyncFolder.WriteManifest(folder.Path, Manifest);
+
+        File.ReadAllText(victim).Should().Be("keep me");
+        SyncFolder.Inspect(folder.Path).Should().BeOfType<SyncFolderState.HoldsProject>();
+    }
 }

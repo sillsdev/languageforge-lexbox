@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lexicon Galaxy</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6f8;
+    --surface: rgba(255, 255, 255, 0.9);
+    --surface-solid: #ffffff;
+    --border: #e2e4e9;
+    --text: #1c1e21;
+    --text-muted: #6b7280;
+    --accent: #6366f1;
+    --shadow: 0 2px 10px rgba(16, 24, 40, 0.12);
+    --radius: 14px;
+  }
+  html[data-theme="dark"] {
+    --bg: #0a0b12;
+    --surface: rgba(24, 26, 38, 0.82);
+    --surface-solid: #1a1c28;
+    --border: #2c2f42;
+    --text: #edeef1;
+    --text-muted: #9aa0ab;
+    --accent: #818cf8;
+    --shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  /* The sky is always night, whatever the app theme. */
+  #sky-wrap { position: fixed; inset: 0; background: #05060d; }
+  #sky { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; display: block; }
+  #sky.dragging { cursor: grabbing; }
+
+  .panel {
+    position: absolute;
+    background: var(--surface);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    color: var(--text);
+  }
+
+  #topbar {
+    top: 12px; left: 12px; right: 12px;
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px;
+  }
+  #topbar h1 { font-size: 1.05rem; margin: 0; white-space: nowrap; letter-spacing: 0.2px; }
+  #topbar .sub { color: var(--text-muted); font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #search {
+    flex: 1; min-width: 90px;
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text);
+    padding: 7px 14px;
+    font-size: 0.9rem;
+    outline: none;
+  }
+  #search:focus { border-color: var(--accent); }
+  .cap-note {
+    font-size: 0.72rem; color: var(--text-muted);
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+  }
+
+  #sidebar {
+    top: 70px; left: 12px;
+    width: 216px; max-height: calc(100% - 150px);
+    overflow-y: auto; padding: 12px 12px 8px;
+  }
+  #sidebar h2 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin: 0 0 8px; }
+  .dom-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 7px; border-radius: 8px; cursor: pointer; font-size: 0.85rem;
+  }
+  .dom-row:hover { background: var(--border); }
+  .dom-row .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 6px currentColor; }
+  .dom-row .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dom-row .ct { color: var(--text-muted); font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+
+  #legend { bottom: 12px; left: 12px; padding: 10px 12px; max-width: 210px; }
+  #legend h2 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin: 0 0 8px; }
+  .leg-row { display: flex; align-items: center; gap: 7px; font-size: 0.8rem; margin-bottom: 4px; }
+  .leg-row .dot { width: 9px; height: 9px; border-radius: 50%; box-shadow: 0 0 6px currentColor; }
+
+  #hint { bottom: 12px; right: 12px; padding: 8px 12px; font-size: 0.75rem; color: var(--text-muted); max-width: 220px; }
+
+  #tooltip {
+    position: absolute; pointer-events: none; z-index: 20;
+    background: var(--surface-solid); border: 1px solid var(--border);
+    border-radius: 10px; padding: 7px 11px; box-shadow: var(--shadow);
+    max-width: 240px; font-size: 0.85rem; opacity: 0; transition: opacity 0.12s;
+    transform: translate(-50%, calc(-100% - 12px));
+  }
+  #tooltip.show { opacity: 1; }
+  #tooltip .hw { font-weight: 700; }
+  #tooltip .gl { color: var(--text-muted); font-size: 0.8rem; margin-top: 1px; }
+
+  .center-state {
+    position: fixed; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 30px;
+  }
+  #loading, #empty, #error { color: #c8ccd8; }
+  #empty .poem { font-size: 1.4rem; font-weight: 300; letter-spacing: 0.4px; color: #dfe3ee; }
+  #empty .poem small { display: block; font-size: 0.9rem; color: #8b90a3; margin-top: 8px; letter-spacing: 0; }
+  .spinner {
+    width: 34px; height: 34px; border: 3px solid rgba(255,255,255,0.14);
+    border-top-color: #a5b4fc; border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loading .lt { font-size: 0.9rem; color: #9aa0ab; }
+  #error {
+    max-width: 420px; border: 1px solid #7f3d3d; background: rgba(120, 40, 40, 0.3);
+    padding: 16px 20px; border-radius: var(--radius); color: #f2d6d6;
+  }
+  #empty, #error { display: none; }
+
+  @media (max-width: 640px) {
+    #sidebar { display: none; }
+    #legend { max-width: 150px; }
+    #hint { display: none; }
+    #topbar h1 { font-size: 0.95rem; }
+    #topbar .sub { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="sky-wrap">
+  <canvas id="sky"></canvas>
+</div>
+
+<div id="topbar" class="panel">
+  <h1>Lexicon Galaxy</h1>
+  <span class="sub" id="subtitle"></span>
+  <input id="search" type="search" placeholder="Search the sky…" autocomplete="off" spellcheck="false">
+  <span class="cap-note" id="cap-note" style="display:none"></span>
+</div>
+
+<aside id="sidebar" class="panel">
+  <h2>Constellations</h2>
+  <div id="dom-list"></div>
+</aside>
+
+<div id="legend" class="panel"><h2>Parts of speech</h2><div id="leg-list"></div></div>
+<div id="hint" class="panel">Drag to pan · scroll to zoom · click a star to open its entry</div>
+<div id="tooltip"><div class="hw"></div><div class="gl"></div></div>
+
+<div id="loading" class="center-state">
+  <div class="spinner"></div>
+  <div class="lt" id="loading-text">Mapping the sky…</div>
+</div>
+<div id="empty" class="center-state">
+  <div class="poem">Your sky is waiting for its first star.<small>Add an entry, and this galaxy begins.</small></div>
+</div>
+<div id="error" class="center-state"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var STAR_CAP = 3000, PAGE = 1000;
+  var GOLDEN = 2.399963229728653;
+
+  // ---- deterministic seeding ------------------------------------------------
+  function hashStr(s) {
+    var h = 2166136261 >>> 0;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function hueFor(code) { return (hashStr('d' + code) % 360); }
+
+  // ---- element refs & helpers ----------------------------------------------
+  var canvas = document.getElementById('sky');
+  var ctx = canvas.getContext('2d');
+  var stat = document.createElement('canvas');
+  var sctx = stat.getContext('2d');
+  var tooltip = document.getElementById('tooltip');
+  var tipHw = tooltip.querySelector('.hw');
+  var tipGl = tooltip.querySelector('.gl');
+
+  var W = 0, H = 0, dpr = 1;
+  var cam = { x: 0, y: 0, zoom: 1 };
+  var dirty = true;
+  var stars = [], clusters = [], edges = [];
+  var analWs = [];
+  var hovered = null, selected = null, matched = null;
+  var tween = null;
+
+  function applyTheme(theme) {
+    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', theme || (prefersDark ? 'dark' : 'light'));
+  }
+  function showError(msg) {
+    document.getElementById('loading').style.display = 'none';
+    var e = document.getElementById('error');
+    e.style.display = 'flex'; e.textContent = msg;
+  }
+  function firstVal(ms, prefer) { return (ms && window.fwlite.firstValue(ms, prefer)) || ''; }
+
+  // ---- data loading ---------------------------------------------------------
+  function fetchEntries(target) {
+    var acc = [];
+    function next() {
+      if (acc.length >= target) return Promise.resolve(acc);
+      var limit = Math.min(PAGE, target - acc.length);
+      return window.fwlite.getEntries({ limit: limit, offset: acc.length }).then(function (page) {
+        acc = acc.concat(page);
+        document.getElementById('loading-text').textContent =
+          'Charting ' + acc.length.toLocaleString() + ' of ' + target.toLocaleString() + ' stars…';
+        if (!page.length || acc.length >= target) return acc;
+        return next();
+      });
+    }
+    return next();
+  }
+
+  function topDomain(entry) {
+    var s = entry.senses && entry.senses[0];
+    var d = s && s.semanticDomains && s.semanticDomains[0];
+    if (!d || !d.code) return null;
+    return String(d.code).split('.')[0];
+  }
+  function posOf(entry) {
+    var senses = entry.senses || [];
+    for (var i = 0; i < senses.length; i++) {
+      var p = senses[i].partOfSpeech;
+      var id = (p && p.id) || senses[i].partOfSpeechId;
+      if (id) return id;
+    }
+    return '';
+  }
+
+  // ---- layout (deterministic per project) -----------------------------------
+  function buildGalaxy(entries, domains, posList, projectCode) {
+    var domName = {};
+    domains.forEach(function (d) { domName[String(d.code).split('.')[0]] = domName[String(d.code).split('.')[0]] || firstVal(d.name, analWs); });
+
+    // POS colouring: stable hue per part of speech.
+    var posHue = {}, posName = {}, seenPos = {};
+    posList.forEach(function (p, i) { posHue[p.id] = (i * 67) % 360; posName[p.id] = firstVal(p.name, analWs) || 'part of speech'; });
+
+    // Group entries by top-level semantic-domain code.
+    var groups = {};
+    entries.forEach(function (e) {
+      var code = topDomain(e) || '∅';
+      (groups[code] || (groups[code] = [])).push(e);
+    });
+
+    var codes = Object.keys(groups).sort(function (a, b) {
+      if (a === '∅') return 1; if (b === '∅') return -1;
+      return groups[b].length - groups[a].length;
+    });
+
+    var rot = (hashStr(projectCode || 'galaxy') % 360) * Math.PI / 180;
+    var SPACING = 300;
+    clusters = []; stars = []; edges = [];
+
+    codes.forEach(function (code, ci) {
+      var members = groups[code];
+      var unclassified = code === '∅';
+      var ang = ci * GOLDEN + rot;
+      var dist = SPACING * Math.sqrt(ci + 0.6);
+      var cx = Math.cos(ang) * dist, cy = Math.sin(ang) * dist;
+      var spread = (unclassified ? 150 : 60) + Math.sqrt(members.length) * (unclassified ? 34 : 20);
+      var cluster = {
+        code: code, unclassified: unclassified,
+        name: unclassified ? 'unclassified' : (domName[code] || ('Domain ' + code)),
+        cx: cx, cy: cy, spread: spread, count: members.length,
+        hue: unclassified ? 220 : hueFor(code), first: stars.length
+      };
+
+      members.forEach(function (e, mi) {
+        var rnd = mulberry32(hashStr(e.id || (code + mi)));
+        var a = rnd() * Math.PI * 2;
+        var r = Math.sqrt(rnd()) * spread;
+        var senseCount = (e.senses || []).length;
+        var hw = window.fwlite.headword(e) || '(unnamed)';
+        var pid = posOf(e);
+        if (pid) seenPos[pid] = true;
+        stars.push({
+          id: e.id, wx: cx + Math.cos(a) * r, wy: cy + Math.sin(a) * r,
+          base: 1.1 + Math.sqrt(senseCount) * 0.85,
+          alpha: 0.55 + Math.min(0.4, senseCount * 0.06),
+          hue: pid ? posHue[pid] : null,
+          phase: rnd() * Math.PI * 2, tw: 0.6 + rnd() * 0.9,
+          hw: hw, gl: firstVal(((e.senses && e.senses[0]) || {}).gloss, analWs),
+          cluster: cluster, sx: 0, sy: 0, sr: 0, low: hw.toLowerCase()
+        });
+      });
+      cluster.last = stars.length;
+      clusters.push(cluster);
+
+      // Constellation lines: nearest-neighbour within cluster (capped for cost).
+      var lineN = Math.min(cluster.last - cluster.first, 130);
+      for (var i = 0; i < lineN; i++) {
+        var si = cluster.first + i, best = -1, bd = Infinity;
+        for (var j = 0; j < lineN; j++) {
+          if (i === j) continue;
+          var sj = cluster.first + j;
+          var dx = stars[si].wx - stars[sj].wx, dy = stars[si].wy - stars[sj].wy;
+          var dd = dx * dx + dy * dy;
+          if (dd < bd) { bd = dd; best = sj; }
+        }
+        if (best > si) edges.push([si, best, cluster.hue]);
+      }
+    });
+
+    return { seenPos: seenPos, posName: posName, posHue: posHue };
+  }
+
+  // ---- camera & transforms --------------------------------------------------
+  function screenScale() { return Math.max(0.6, Math.min(3.2, 0.55 + cam.zoom * 0.75)); }
+  function computeScreen() {
+    var sc = screenScale();
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i];
+      s.sx = (s.wx - cam.x) * cam.zoom + W / 2;
+      s.sy = (s.wy - cam.y) * cam.zoom + H / 2;
+      s.sr = s.base * sc;
+    }
+  }
+  function fitAll() {
+    if (!stars.length) return;
+    var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i];
+      if (s.wx < minX) minX = s.wx; if (s.wx > maxX) maxX = s.wx;
+      if (s.wy < minY) minY = s.wy; if (s.wy > maxY) maxY = s.wy;
+    }
+    cam.x = (minX + maxX) / 2; cam.y = (minY + maxY) / 2;
+    var spanX = Math.max(200, maxX - minX), spanY = Math.max(200, maxY - minY);
+    cam.zoom = clampZoom(Math.min(W / (spanX * 1.2), H / (spanY * 1.2)));
+    dirty = true;
+  }
+  function clampZoom(z) { return Math.max(0.12, Math.min(9, z)); }
+  function flyTo(x, y, zoom) {
+    tween = { t: 0, fx: cam.x, fy: cam.y, fz: cam.zoom, tx: x, ty: y, tz: clampZoom(zoom) };
+  }
+
+  // ---- rendering ------------------------------------------------------------
+  function renderStatic() {
+    sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var g = sctx.createRadialGradient(W / 2, H * 0.42, 40, W / 2, H * 0.42, Math.max(W, H) * 0.85);
+    g.addColorStop(0, '#0d1024'); g.addColorStop(0.55, '#080a16'); g.addColorStop(1, '#040509');
+    sctx.fillStyle = g; sctx.fillRect(0, 0, W, H);
+
+    // constellation cluster glow + labels
+    for (var c = 0; c < clusters.length; c++) {
+      var cl = clusters[c];
+      var gx = (cl.cx - cam.x) * cam.zoom + W / 2, gy = (cl.cy - cam.y) * cam.zoom + H / 2;
+      var gr = cl.spread * cam.zoom * 1.4;
+      if (gx < -gr || gx > W + gr || gy < -gr || gy > H + gr) continue;
+      if (!cl.unclassified) {
+        var rg = sctx.createRadialGradient(gx, gy, 0, gx, gy, gr);
+        rg.addColorStop(0, 'hsla(' + cl.hue + ',70%,55%,0.10)');
+        rg.addColorStop(1, 'hsla(' + cl.hue + ',70%,55%,0)');
+        sctx.fillStyle = rg;
+        sctx.beginPath(); sctx.arc(gx, gy, gr, 0, 6.283); sctx.fill();
+      }
+      var fs = Math.max(11, Math.min(26, cl.spread * cam.zoom * 0.16));
+      sctx.font = '600 ' + fs + 'px -apple-system, Segoe UI, sans-serif';
+      sctx.textAlign = 'center';
+      sctx.fillStyle = 'hsla(' + cl.hue + ',60%,80%,' + (cl.unclassified ? 0.16 : 0.28) + ')';
+      sctx.fillText(cl.name, gx, gy - gr * 0.5);
+    }
+
+    // faint constellation lines
+    sctx.lineWidth = 1;
+    for (var e = 0; e < edges.length; e++) {
+      var a = stars[edges[e][0]], b = stars[edges[e][1]];
+      if ((a.sx < 0 && b.sx < 0) || (a.sx > W && b.sx > W)) continue;
+      sctx.strokeStyle = 'hsla(' + edges[e][2] + ',55%,70%,0.07)';
+      sctx.beginPath(); sctx.moveTo(a.sx, a.sy); sctx.lineTo(b.sx, b.sy); sctx.stroke();
+    }
+  }
+
+  function frame(now) {
+    if (tween) {
+      tween.t = Math.min(1, tween.t + 0.045);
+      var k = 1 - Math.pow(1 - tween.t, 3);
+      cam.x = tween.fx + (tween.tx - tween.fx) * k;
+      cam.y = tween.fy + (tween.ty - tween.fy) * k;
+      cam.zoom = tween.fz + (tween.tz - tween.fz) * k;
+      dirty = true;
+      if (tween.t >= 1) tween = null;
+    }
+    if (dirty) { computeScreen(); renderStatic(); dirty = false; }
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.drawImage(stat, 0, 0, W, H);
+
+    var t = now * 0.001;
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i];
+      if (s.sx < -6 || s.sx > W + 6 || s.sy < -6 || s.sy > H + 6) continue;
+      var tw = 0.72 + 0.28 * Math.sin(t * s.tw + s.phase);
+      var r = s.sr, a = s.alpha * tw;
+      var col = s.hue == null ? '210,214,230' : null;
+      if (r > 2.2) {
+        ctx.globalAlpha = a * 0.28;
+        ctx.fillStyle = col ? 'rgb(' + col + ')' : 'hsl(' + s.hue + ',85%,72%)';
+        ctx.beginPath(); ctx.arc(s.sx, s.sy, r * 2.4, 0, 6.283); ctx.fill();
+      }
+      ctx.globalAlpha = a;
+      ctx.fillStyle = col ? 'rgb(' + col + ')' : 'hsl(' + s.hue + ',90%,80%)';
+      ctx.beginPath(); ctx.arc(s.sx, s.sy, r, 0, 6.283); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    if (matched) drawRings(matched, '#fef08a', 1);
+    if (selected) drawRings([selected], 'rgba(255,255,255,0.95)', 1.4);
+    if (hovered && hovered !== selected) drawRings([hovered], 'rgba(255,255,255,0.7)', 1.2);
+
+    requestAnimationFrame(loop);
+  }
+  function drawRings(list, color, w) {
+    ctx.strokeStyle = color; ctx.lineWidth = w;
+    for (var i = 0; i < list.length; i++) {
+      var s = list[i];
+      if (s.sx < -20 || s.sx > W + 20 || s.sy < -20 || s.sy > H + 20) continue;
+      ctx.beginPath(); ctx.arc(s.sx, s.sy, Math.max(4, s.sr + 4), 0, 6.283); ctx.stroke();
+    }
+  }
+
+  var running = true;
+  function loop(now) { if (running) frame(now); }
+
+  // ---- hit testing & tooltip -----------------------------------------------
+  function hitTest(px, py) {
+    var best = null, bd = 256;
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i];
+      var dx = s.sx - px, dy = s.sy - py, dd = dx * dx + dy * dy;
+      var hr = Math.max(9, s.sr + 5); hr *= hr;
+      if (dd < hr && dd < bd) { bd = dd; best = s; }
+    }
+    return best;
+  }
+  function showTip(s, px, py) {
+    tipHw.textContent = s.hw;
+    tipGl.textContent = s.gl || '';
+    tipGl.style.display = s.gl ? '' : 'none';
+    tooltip.style.left = px + 'px'; tooltip.style.top = py + 'px';
+    tooltip.classList.add('show');
+  }
+  function hideTip() { tooltip.classList.remove('show'); }
+
+  function openStar(s) {
+    window.fwlite.openEntry(s.id)
+      .then(function () { return window.fwlite.notify('Flying to “' + s.hw + '”'); })
+      .catch(function () {});
+  }
+
+  // ---- interaction ----------------------------------------------------------
+  var pointers = new Map(), dragMoved = 0, panLast = null, pinch = null;
+  function setupInteraction() {
+    canvas.addEventListener('pointerdown', function (ev) {
+      canvas.setPointerCapture(ev.pointerId);
+      pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+      dragMoved = 0;
+      if (pointers.size === 1) { panLast = { x: ev.clientX, y: ev.clientY }; canvas.classList.add('dragging'); }
+      else if (pointers.size === 2) { pinch = pinchState(); }
+    });
+    canvas.addEventListener('pointermove', function (ev) {
+      var rect = canvas.getBoundingClientRect();
+      var px = ev.clientX - rect.left, py = ev.clientY - rect.top;
+      if (pointers.has(ev.pointerId)) pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+
+      if (pointers.size >= 2 && pinch) { doPinch(rect); return; }
+      if (panLast && pointers.size === 1) {
+        var mdx = ev.clientX - panLast.x, mdy = ev.clientY - panLast.y;
+        dragMoved += Math.abs(mdx) + Math.abs(mdy);
+        cam.x -= mdx / cam.zoom; cam.y -= mdy / cam.zoom;
+        panLast = { x: ev.clientX, y: ev.clientY };
+        dirty = true; hideTip();
+        return;
+      }
+      if (ev.pointerType === 'mouse') {
+        var h = hitTest(px, py);
+        hovered = h;
+        if (h) { showTip(h, h.sx, h.sy); canvas.style.cursor = 'pointer'; }
+        else { hideTip(); canvas.style.cursor = ''; }
+      }
+    });
+    function endPointer(ev) {
+      var rect = canvas.getBoundingClientRect();
+      var px = ev.clientX - rect.left, py = ev.clientY - rect.top;
+      var wasTap = dragMoved < 6 && pointers.size === 1;
+      pointers.delete(ev.pointerId);
+      if (pointers.size < 2) pinch = null;
+      if (pointers.size === 0) { panLast = null; canvas.classList.remove('dragging'); }
+      if (!wasTap) return;
+      var h = hitTest(px, py);
+      if (!h) { selected = null; if (ev.pointerType !== 'mouse') hideTip(); return; }
+      if (ev.pointerType === 'mouse') { openStar(h); return; }
+      if (selected === h) { openStar(h); }      // second tap opens
+      else { selected = h; hovered = h; showTip(h, h.sx, h.sy); }
+    }
+    canvas.addEventListener('pointerup', endPointer);
+    canvas.addEventListener('pointercancel', function (ev) { pointers.delete(ev.pointerId); panLast = null; pinch = null; canvas.classList.remove('dragging'); });
+
+    canvas.addEventListener('wheel', function (ev) {
+      ev.preventDefault();
+      var rect = canvas.getBoundingClientRect();
+      zoomAt(ev.clientX - rect.left, ev.clientY - rect.top, Math.exp(-ev.deltaY * 0.0015));
+    }, { passive: false });
+  }
+  function zoomAt(px, py, factor) {
+    var wx = (px - W / 2) / cam.zoom + cam.x, wy = (py - H / 2) / cam.zoom + cam.y;
+    cam.zoom = clampZoom(cam.zoom * factor);
+    cam.x = wx - (px - W / 2) / cam.zoom; cam.y = wy - (py - H / 2) / cam.zoom;
+    dirty = true; hideTip();
+  }
+  function pinchState() {
+    var p = Array.from(pointers.values());
+    return { d: Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y), z: cam.zoom };
+  }
+  function doPinch(rect) {
+    var p = Array.from(pointers.values());
+    var d = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+    var mx = (p[0].x + p[1].x) / 2 - rect.left, my = (p[0].y + p[1].y) / 2 - rect.top;
+    var target = clampZoom(pinch.z * (d / pinch.d));
+    zoomAt(mx, my, target / cam.zoom);
+  }
+
+  // ---- search ---------------------------------------------------------------
+  function runSearch(qRaw) {
+    var q = qRaw.trim().toLowerCase();
+    if (!q) { matched = null; return; }
+    matched = stars.filter(function (s) { return s.low.indexOf(q) !== -1 || (s.gl && s.gl.toLowerCase().indexOf(q) !== -1); });
+    if (!matched.length) { matched = null; window.fwlite.notify('No stars match “' + qRaw.trim() + '”'); return; }
+    var cx = 0, cy = 0;
+    matched.forEach(function (s) { cx += s.wx; cy += s.wy; });
+    flyTo(cx / matched.length, cy / matched.length, Math.max(cam.zoom, matched.length > 1 ? 1.2 : 2.4));
+  }
+
+  // ---- chrome ---------------------------------------------------------------
+  function buildSidebar() {
+    var list = document.getElementById('dom-list');
+    clusters.slice().sort(function (a, b) { return b.count - a.count; }).forEach(function (cl) {
+      var row = document.createElement('div');
+      row.className = 'dom-row';
+      var dot = document.createElement('span'); dot.className = 'dot';
+      dot.style.background = 'hsl(' + cl.hue + ',70%,62%)'; dot.style.color = 'hsl(' + cl.hue + ',70%,62%)';
+      var nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = cl.name;
+      var ct = document.createElement('span'); ct.className = 'ct'; ct.textContent = cl.count.toLocaleString();
+      row.appendChild(dot); row.appendChild(nm); row.appendChild(ct);
+      row.addEventListener('click', function () { flyTo(cl.cx, cl.cy, cl.unclassified ? 0.9 : 1.9); });
+      list.appendChild(row);
+    });
+  }
+  function buildLegend(meta) {
+    var list = document.getElementById('leg-list'), added = 0;
+    Object.keys(meta.seenPos).forEach(function (id) {
+      if (added >= 10) return;
+      var row = document.createElement('div'); row.className = 'leg-row';
+      var dot = document.createElement('span'); dot.className = 'dot';
+      dot.style.background = 'hsl(' + meta.posHue[id] + ',85%,70%)'; dot.style.color = 'hsl(' + meta.posHue[id] + ',85%,70%)';
+      var nm = document.createElement('span'); nm.textContent = meta.posName[id];
+      row.appendChild(dot); row.appendChild(nm); list.appendChild(row); added++;
+    });
+    var row = document.createElement('div'); row.className = 'leg-row';
+    var dot = document.createElement('span'); dot.className = 'dot';
+    dot.style.background = 'rgb(210,214,230)'; dot.style.color = 'rgb(210,214,230)';
+    var nm = document.createElement('span'); nm.textContent = 'unspecified'; nm.style.color = 'var(--text-muted)';
+    row.appendChild(dot); row.appendChild(nm); list.appendChild(row);
+    if (!added && !Object.keys(meta.seenPos).length) document.getElementById('legend').style.display = 'none';
+  }
+
+  // ---- sizing & lifecycle ---------------------------------------------------
+  function resize() {
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = canvas.clientWidth; H = canvas.clientHeight;
+    canvas.width = stat.width = Math.round(W * dpr);
+    canvas.height = stat.height = Math.round(H * dpr);
+    dirty = true;
+  }
+
+  function init(context) {
+    applyTheme(context.theme);
+    Promise.all([
+      window.fwlite.countEntries({}),
+      window.fwlite.getWritingSystems(),
+      window.fwlite.getPartsOfSpeech(),
+      window.fwlite.getSemanticDomains()
+    ]).then(function (r) {
+      var count = r[0], ws = r[1];
+      analWs = (ws.analysis || []).map(function (w) { return w.wsId; });
+      if (!count) { document.getElementById('loading').style.display = 'none'; document.getElementById('empty').style.display = 'flex'; return; }
+
+      var target = Math.min(count, STAR_CAP);
+      return fetchEntries(target).then(function (entries) {
+        var meta = buildGalaxy(entries, r[3], r[2], context.project.projectCode);
+        buildSidebar(); buildLegend(meta);
+
+        document.getElementById('subtitle').textContent =
+          stars.length.toLocaleString() + ' stars · ' + clusters.length + ' constellations';
+        if (count > STAR_CAP) {
+          var note = document.getElementById('cap-note');
+          note.style.display = ''; note.textContent = 'first ' + STAR_CAP.toLocaleString() + ' of ' + count.toLocaleString();
+        }
+
+        resize();
+        fitAll();
+        setupInteraction();
+        document.getElementById('loading').style.display = 'none';
+        requestAnimationFrame(loop);
+      });
+    }).catch(function (err) {
+      showError('Could not chart the galaxy: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  window.addEventListener('resize', resize);
+  document.addEventListener('visibilitychange', function () {
+    running = !document.hidden;
+    if (running) requestAnimationFrame(loop);
+  });
+  document.getElementById('search').addEventListener('input', function (e) { runSearch(e.target.value); });
+
+  window.fwlite.ready.then(init);
+})();
+</script>
+</body>
+</html>

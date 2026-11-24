@@ -11,7 +11,8 @@ namespace LexBoxApi.Services;
 
 public class CrdtCommitService(LexBoxDbContext dbContext)
 {
-    public async Task AddCommits(Guid projectId, IAsyncEnumerable<ServerCommit> commits, CancellationToken token = default)
+    /// <returns>how many commits were new; commits whose id is already stored are skipped</returns>
+    public async Task<int> AddCommits(Guid projectId, IAsyncEnumerable<ServerCommit> commits, CancellationToken token = default)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync(token);
         var linqToDbContext = dbContext.CreateLinqToDBContext();
@@ -20,10 +21,11 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
         //A projection lambda here would let linq2db v6 wrap our Sql.Expr<...>::jsonb cast in the
         //EF value-converter (JsonSerializer.Serialize) and fail SQL translation.
         var stampedCommits = commits.Select(c => { c.ProjectId = projectId; return c; });
-        await tmpTable.BulkCopyAsync(new BulkCopyOptions{BulkCopyType = BulkCopyType.ProviderSpecific, MaxBatchSize = 10}, stampedCommits, token);
+        //rows stream into COPY either way; a small MaxBatchSize only adds a server round trip per batch
+        await tmpTable.BulkCopyAsync(new BulkCopyOptions{BulkCopyType = BulkCopyType.ProviderSpecific}, stampedCommits, token);
 
         var commitsTable = linqToDbContext.GetTable<ServerCommit>();
-        await commitsTable
+        var inserted = await commitsTable
             .Merge()
             .Using(tmpTable)
             .OnTargetKey()
@@ -31,13 +33,14 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
             .MergeAsync(token);
 
         await transaction.CommitAsync(token);
+        return inserted;
     }
 
     public IAsyncEnumerable<ServerCommit> GetMissingCommits(Guid projectId, SyncState localState, SyncState remoteState)
     {
         return dbContext.CrdtCommits(projectId)
         //don't need to include change entities since they're not owned in lexbox so they will get included automatically
-            .GetMissingCommits<ServerCommit, ServerJsonChange>(localState, remoteState, false);
+            .GetCommitsMissingFromRemote<ServerCommit, ServerJsonChange>(localState, remoteState, false);
     }
 
     public async Task<int> ApproximatelyCountMissingCommits(Guid projectId, SyncState localState, SyncState remoteState)
@@ -45,24 +48,27 @@ public class CrdtCommitService(LexBoxDbContext dbContext)
         var linqToDbContext = dbContext.CreateLinqToDBContext();
         var commits = linqToDbContext.GetTable<ServerCommit>().Where(c => c.ProjectId == projectId);
         var count = 0;
-        foreach (var (clientId, localTimestamp) in localState.ClientHeads)
+        //mirrors the send decision in Harmony's QueryHelpers.GetCommitsMissingFromRemote
+        foreach (var local in localState.ClientStates)
         {
+            var remote = remoteState.GetClientState(local.ClientId);
             //client is new to the other history
-            if (!remoteState.ClientHeads.TryGetValue(clientId, out var otherTimestamp))
+            if (remote is null)
             {
+                count += local.CommitCount;
+            }
+            //client has newer history than the other history, an older peer only reports its timestamp
+            else if (local.MaxTimestamp > remote.MaxTimestamp)
+            {
+                var otherDt = DateTimeOffset.FromUnixTimeMilliseconds(remote.MaxTimestamp);
                 count += await commits
-                    .DefaultOrder()
-                    .Where(c => c.ClientId == clientId)
+                    .Where(c => c.ClientId == local.ClientId && c.HybridDateTime.DateTime > otherDt)
                     .CountAsync();
             }
-            //client has newer history than the other history
-            else if (localTimestamp > otherTimestamp)
+            //same head but different commits, the whole client history is sent
+            else if (!remote.OnlyHasTimestamp && local != remote && local.CommitCount >= remote.CommitCount)
             {
-                var otherDt = DateTimeOffset.FromUnixTimeMilliseconds(otherTimestamp);
-                count += await commits
-                    .DefaultOrder()
-                    .Where(c => c.ClientId == clientId && c.HybridDateTime.DateTime > otherDt)
-                    .CountAsync();
+                count += local.CommitCount;
             }
         }
         return count;

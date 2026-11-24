@@ -59,6 +59,8 @@ public static class SyncFolder
         Directory.CreateDirectory(path);
         var manifestPath = Path.Combine(path, ManifestFileName);
         var tempPath = manifestPath + ".tmp";
+        // a link left on the drive at this name would redirect the write outside the folder; Delete removes only the link
+        File.Delete(tempPath);
         File.WriteAllText(tempPath, JsonSerializer.Serialize(manifest, JsonOptions));
         File.Move(tempPath, manifestPath, overwrite: true);
     }

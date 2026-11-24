@@ -1,6 +1,8 @@
 using System.Text.Json;
 using FluentAssertions.Execution;
+using LcmCrdt.Changes;
 using LcmCrdt.Tests.Data;
+using MiniLcm.Media;
 using SIL.Harmony.Changes;
 
 namespace LcmCrdt.Tests.Changes;
@@ -48,16 +50,37 @@ public class ChangeSerializationTests : BaseSerializationTest
 
     [Theory]
     [MemberData(nameof(Changes))]
-    public void CanRoundTripChangesAsIChangeWithExternalOptions(IChange change)
+    public void CanRoundTripChangesAsIChangeWithSyncOptions(IChange change)
     {
-        // The sync client, web host, and debugger all (de)serialize change fields as the abstract IChange
-        // using the external (Web) options. That relies on Harmony's polymorphic converter, not just the
+        // The sync client and debugger (de)serialize change fields as the abstract IChange
+        // using the sync (Web) options. That relies on Harmony's polymorphic converter, not just the
         // type resolver — regression guard against the "Deserialization of interface or abstract types is
-        // not supported. Type 'IChange'" break when only the resolver was wired onto the external options.
-        var options = TestJsonOptions.External();
+        // not supported. Type 'IChange'" break when only the resolver was wired onto the sync options.
+        var options = TestJsonOptions.Sync();
         var json = JsonSerializer.Serialize(change, options);
         var newChange = JsonSerializer.Deserialize<IChange>(json, options);
         newChange.Should().BeEquivalentTo(change);
+    }
+
+    [Fact]
+    public void CreateSenseChangeKeepsPictureOrderWithSyncOptions()
+    {
+        // The faker zeroes every Order, so the round-trip theory above can't see a dropped Picture.Order
+        var sense = new Sense
+        {
+            Id = Guid.NewGuid(),
+            Pictures =
+            [
+                new Picture { Id = Guid.NewGuid(), Order = 1, MediaUri = MediaUri.NotFound },
+                new Picture { Id = Guid.NewGuid(), Order = 2, MediaUri = MediaUri.NotFound },
+            ]
+        };
+        var change = new CreateSenseChange(sense, Guid.NewGuid());
+        var options = TestJsonOptions.Sync();
+        var json = JsonSerializer.Serialize<IChange>(change, options);
+        var newChange = JsonSerializer.Deserialize<IChange>(json, options);
+        newChange.Should().BeOfType<CreateSenseChange>()
+            .Which.Pictures.Should().BeEquivalentTo(sense.Pictures, o => o.WithStrictOrdering());
     }
 
     [Fact]

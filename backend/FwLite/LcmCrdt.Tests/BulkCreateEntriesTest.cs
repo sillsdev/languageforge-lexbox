@@ -98,6 +98,7 @@ public class BulkCreateEntriesTests(ITestOutputHelper output) : IAsyncLifetime
     }
 
     [Fact]
+    [Trait("Category", "Slow")] // ~150 s; PR tier skips Category=Slow
     public async Task BulkCreateEntriesPerformance()
     {
         var entryCount = 20_000;

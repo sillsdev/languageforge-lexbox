@@ -40,7 +40,7 @@ public class FolderMediaStore(string syncFolderPath) : IMediaStore
 
     public Task<IReadOnlyCollection<Guid>> ResourceIds()
     {
-        if (!Directory.Exists(_mediaPath)) return Task.FromResult<IReadOnlyCollection<Guid>>([]);
+        if (!Directory.Exists(_mediaPath) || IsLink(_mediaPath)) return Task.FromResult<IReadOnlyCollection<Guid>>([]);
         IReadOnlyCollection<Guid> ids = [.. Directory.EnumerateDirectories(_mediaPath)
             .Select(dir => Guid.TryParse(Path.GetFileName(dir), out var id) && FileIn(dir) is not null ? id : (Guid?)null)
             .OfType<Guid>()];
@@ -62,6 +62,7 @@ public class FolderMediaStore(string syncFolderPath) : IMediaStore
     public async Task Put(Guid resourceId, Stream content, string fileName)
     {
         var directory = ResourceDirectory(resourceId);
+        if (IsLink(_mediaPath) || IsLink(directory)) throw new IOException($"'{directory}' is a link, so it's not written to");
         if (FileIn(directory) is not null) return;
         Directory.CreateDirectory(directory);
         var path = Path.Combine(directory, MediaFileNames.MakeSafe(Path.GetFileName(fileName)));
@@ -84,10 +85,14 @@ public class FolderMediaStore(string syncFolderPath) : IMediaStore
 
     /// <summary>The finished file for a resource; a leftover partial file from an interrupted copy doesn't count.</summary>
     private static string? FileIn(string directory) =>
-        Directory.Exists(directory)
+        Directory.Exists(directory) && !IsLink(directory)
             ? Directory.EnumerateFiles(directory)
-                .FirstOrDefault(f => !Path.GetFileName(f).StartsWith(MediaFileNames.PartialPrefix, StringComparison.Ordinal))
+                .FirstOrDefault(f => !Path.GetFileName(f).StartsWith(MediaFileNames.PartialPrefix, StringComparison.Ordinal) && !IsLink(f))
             : null;
+
+    /// <summary>The drive is untrusted, and a link (or junction) on it could point at any file on this machine.</summary>
+    private static bool IsLink(string path) =>
+        (File.Exists(path) || Directory.Exists(path)) && File.GetAttributes(path).HasFlag(FileAttributes.ReparsePoint);
 }
 
 /// <summary>

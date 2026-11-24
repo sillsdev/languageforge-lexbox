@@ -59,7 +59,6 @@
   import {_askToJoinProject} from '../create/+page';
 // TODO: Should we duplicate this function in the project_code/+page.ts file, rather than importing it from elsewhere?
   import {Duration} from '$lib/util/time';
-  import {hasFeatureFlag} from '$lib/user';
   import {resolve} from '$app/paths';
   import {NewTabLinkMarkdown} from '$lib/components/Markdown';
 
@@ -171,8 +170,8 @@
       userIsOrgAdmin,
   );
 
-  // Almost mirrors PermissionService.CanAskToJoinProject() in C#, but admins won't be shown the "ask to join" button
-  let canAskToJoinProject = $derived(!user.isAdmin && !projectRole && orgRoles.some((_) => true));
+  // Almost mirrors PermissionService.CanAskToJoinProject() in C#, but site and org admins, who already have access, aren't shown the "ask to join" button
+  let canAskToJoinProject = $derived(!user.isAdmin && !userIsOrgAdmin && !projectRole && orgRoles.some((_) => true));
   let canSyncProject = $derived(user.isAdmin || projectRole == ProjectRole.Manager || projectRole == ProjectRole.Editor || userIsOrgAdmin);
 
   let resetProjectModal: ResetProjectModal | undefined = $state();
@@ -596,7 +595,6 @@
       </OrgList>
       <MembersList
         projectId={project.id}
-        showObserver={project.type === ProjectType.FlEx && hasFeatureFlag(user, 'FwLiteBeta')}
         {members}
         canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
         canManageList={canManage}

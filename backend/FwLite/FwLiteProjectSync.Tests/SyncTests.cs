@@ -64,9 +64,13 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             await _fixture.FwDataApi.DeleteEntry(entry.Id);
         }
-        foreach (var entry in await _fixture.CrdtApi.GetAllEntries().ToArrayAsync())
+        // GetAllEntries needs a vernacular WS, which the shared CRDT only gets once a test syncs into it
+        if ((await _fixture.CrdtApi.GetWritingSystems()).Vernacular.Length > 0)
         {
-            await _fixture.CrdtApi.DeleteEntry(entry.Id);
+            foreach (var entry in await _fixture.CrdtApi.GetAllEntries().ToArrayAsync())
+            {
+                await _fixture.CrdtApi.DeleteEntry(entry.Id);
+            }
         }
         await foreach (var pos in _fixture.FwDataApi.GetPartsOfSpeech())
         {
@@ -484,6 +488,29 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
 
         AssertSnapshotsAreEquivalent(await fwdataApi.TakeProjectSnapshot(), await crdtApi.TakeProjectSnapshot());
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task LegacySnapshotWithoutMorphTypesAddsThemToEmptyCrdt()
+    {
+        var fixture = SyncFixture.Create("legacy-snapshot", "LegacySnapshotSync");
+        await fixture.InitializeAsync();
+        var crdtApi = fixture.CrdtApi;
+        var fwdataApi = fixture.FwDataApi;
+        (await crdtApi.GetMorphTypes().ToArrayAsync()).Should().BeEmpty();
+        // A snapshot JSON written before morph-type support deserializes MorphTypes as null
+        var legacySnapshot = ProjectSnapshot.Empty with { MorphTypes = null! };
+        await ProjectSnapshotService.SaveProjectSnapshot(fwdataApi.Project, legacySnapshot);
+
+        var syncResult = await fixture.SyncService.Sync(crdtApi, fwdataApi, legacySnapshot);
+
+        var fwdataMorphTypes = await fwdataApi.GetMorphTypes().ToArrayAsync();
+        fwdataMorphTypes.Should().NotBeEmpty();
+        (await crdtApi.GetMorphTypes().ToArrayAsync()).Should().BeEquivalentTo(fwdataMorphTypes);
+        syncResult.FwdataChanges.Should().Be(0);
+        fixture.DeleteSyncSnapshot();
+        await fixture.DisposeAsync();
     }
 
     [Fact]

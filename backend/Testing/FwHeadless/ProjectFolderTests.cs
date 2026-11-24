@@ -33,6 +33,18 @@ public class ProjectFolderTests : IDisposable
     }
 
     [Fact]
+    public void HeadlessHarmonyProjectIdsListsOnlyFoldersWithACrdtFile()
+    {
+        var withCrdt = Guid.NewGuid();
+        Directory.CreateDirectory(_config.GetProjectFolder("with-crdt", withCrdt));
+        File.WriteAllText(_config.GetCrdtFile("with-crdt", withCrdt), "");
+        Directory.CreateDirectory(_config.GetProjectFolder("fwdata-only", Guid.NewGuid()));
+        Directory.CreateDirectory(Path.Combine(_config.ProjectStorageRoot, "not-a-project"));
+
+        _config.HeadlessHarmonyProjectIds().Should().Equal(withCrdt);
+    }
+
+    [Fact]
     public void CanGetProjectFolderFromJustId()
     {
         var id = Guid.NewGuid();

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using FwDataMiniLcmBridge;
+using FwLiteProjectSync;
 using SIL.LCModel;
 
 namespace FwHeadless;
@@ -21,6 +22,22 @@ public class FwHeadlessConfig
     public int MaxUploadFileSizeKb { get; init; } = 10240;
     public long MaxUploadFileSizeBytes => MaxUploadFileSizeKb * 1024;
     public string FdoDataModelVersion { get; init; } = "7000072";
+
+    /// <summary>
+    /// The FLExBridge data version. FieldWorks/LfMergeBridge form the Mercurial branch a project's
+    /// data lives on by joining this and the FDO model version with a dot (see <see cref="SendReceiveBranchName"/>).
+    /// Mirrors FlexBridgeConstants.FlexBridgeDataVersion in FLExBridge, which is internal so we can't
+    /// reference it directly; bump this if FLExBridge bumps its data version.
+    /// </summary>
+    public string FlexBridgeDataVersion { get; init; } = "7500002";
+
+    /// <summary>
+    /// The Mercurial branch FieldWorks/LfMergeBridge keep a project's data on: FlexBridgeDataVersion,
+    /// a dot, then the FDO model version (e.g. "7500002.7000072"). This is exactly the branch name
+    /// LfMergeBridge derives from <see cref="FdoDataModelVersion"/>, so a new project's genesis commit
+    /// must land on this branch for send/receive to find the data.
+    /// </summary>
+    public string SendReceiveBranchName => $"{FlexBridgeDataVersion}.{FdoDataModelVersion}";
 
     /// <summary>
     /// Project directory structure in FwHeadless: (Note that FwDataProject.ProjectsPath is the root of a SINGLE project)
@@ -70,9 +87,35 @@ public class FwHeadlessConfig
     }
     private const string FwDataSubFolder = "fw";
 
+    private const string CrdtFileName = "crdt.sqlite";
+
     public string GetCrdtFile(string projectCode, Guid projectId)
     {
-        return Path.Join(GetProjectFolder(projectCode, projectId), "crdt.sqlite");
+        return Path.Join(GetProjectFolder(projectCode, projectId), CrdtFileName);
+    }
+
+    /// <summary>
+    /// Whether the headless harmony project may be served and synced: it exists and a merge has finished,
+    /// the same condition SyncWorker checks before pushing it.
+    /// Would need revisiting for fwl-only projects.
+    /// </summary>
+    public bool IsHeadlessHarmonyProjectReady(string projectCode, Guid projectId) =>
+        File.Exists(GetCrdtFile(projectCode, projectId))
+        && ProjectSnapshotService.HasSyncedSuccessfully(GetFwDataProject(projectCode, projectId));
+
+    /// <summary>
+    /// Ids of every project with a CRDT copy (headless harmony project) on disk.
+    /// </summary>
+    public IEnumerable<Guid> HeadlessHarmonyProjectIds()
+    {
+        if (!Directory.Exists(ProjectStorageRoot)) yield break;
+        foreach (var projectFolder in Directory.EnumerateDirectories(ProjectStorageRoot))
+        {
+            if (projectFolder.Length < GuidLength
+                || !Guid.TryParse(projectFolder.AsSpan()[^GuidLength..], out var projectId)
+                || !File.Exists(Path.Join(projectFolder, CrdtFileName))) continue;
+            yield return projectId;
+        }
     }
 
     public FwDataProject GetFwDataProject(Guid projectId)

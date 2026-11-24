@@ -2,6 +2,11 @@
   <PropertyGroup>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <RootNamespace>LexSyncReverseProxy</RootNamespace>
+    <!-- .NET 11 RC2+ workaround (https://github.com/dotnet/sdk/issues/56656): a Web SDK project referencing
+         another Web SDK project fails Debug builds ("scoped css bundles do not have matching endpoints") because
+         each one contributes a dotnet-watch browser-tools initializer. LexBoxApi references this project, so opt
+         it out. Remove once the SDK fix ships. -->
+    <EnableHotReloadInRuntimeConfigDevFile>false</EnableHotReloadInRuntimeConfigDevFile>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />

@@ -19,8 +19,12 @@ public class HeaderTests : ApiTestBase
         10,210 failed 7 times
         10,200 failed 1 time
         10,195 failed 0 times
+
+        Retested October 2026 with random headers: 10,195 failed 1 of 140, 10,100 and 10,000 failed 0 of 80.
+        The limit depends on the header's content, not just its length: the 10,195 header that failed got 520 on every resend,
+        but passed once trimmed to 10,175. So stay well below the limit, while keeping headroom over LexAuthUser.MaxJwtLength.
         */
-        var headerSize = 10195;
+        var headerSize = 10000;
         var iterations = 10; // a slightly bigger sample set, so we're more confident that we're in the clear
         var failStatusCodes = new List<HttpStatusCode>();
         for (var i = 0; i < iterations; i++)

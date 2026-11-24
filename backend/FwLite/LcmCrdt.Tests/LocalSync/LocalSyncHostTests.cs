@@ -77,7 +77,7 @@ public class LocalSyncHostTests : IAsyncLifetime
         await _host.Api.MarkAllCommentsRead();
 
         // e.g. a retry after a timeout: the joiner sends commits the host already applied
-        var everything = await _joiner.DataModel.GetChanges(new SyncState([]));
+        var everything = await _joiner.DataModel.GetChanges(new SyncState(new Dictionary<Guid, long>()));
         await Host.AddRange(ProjectId, JsonRoundTrip(everything.MissingFromClient, JsonOptions(_host)));
 
         (await _host.Api.GetUnreadComments().ToArrayAsync()).Should().BeEmpty();

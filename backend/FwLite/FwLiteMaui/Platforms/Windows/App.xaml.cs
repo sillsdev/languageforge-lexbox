@@ -15,6 +15,8 @@ public partial class App : MauiWinUIApplication
     /// </summary>
     public App()
     {
+        //runs before the MAUI App is created, so it sees the override (Android sets it from the app-action intent)
+        FwLiteMaui.App.OverrideStartupUrl = StartupArgs.GetStartUrl(Environment.GetCommandLineArgs());
         this.InitializeComponent();
     }
 

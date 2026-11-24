@@ -14,19 +14,21 @@
   import {onErrorEvent} from '$lib/errors/global-errors';
   import {resource} from 'runed';
   import type {SyncTarget} from './sync-target';
-  import FolderSyncSection from './FolderSyncSection.svelte';
-  import WifiSyncSection from './WifiSyncSection.svelte';
-  import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
+  import * as Popover from '$lib/components/ui/popover';
 
   interface Props {
     syncStatus: SyncStatus;
     server?: ILexboxServer;
     serverId?: string;
     projectCode?: string;
-    /** Which sync is running, shared with the other tab so only one runs at a time */
+    /** Which sync is running, shared across the dialog so only one runs at a time */
     syncing?: SyncTarget;
     /** Bumped by the dialog after each sync; the status reloads when it changes */
     syncCount?: number;
+    /** The user can't sync with FieldWorks Classic, so tell them how its changes still reach them */
+    explainFieldWorksSync?: boolean;
+    /** Off where the dialog already names this view, unless the heading carries the FieldWorks Classic explanation */
+    showHeading?: boolean;
     onLoginStatusChange?: (status: 'logged-in' | 'logged-out') => void;
   }
 
@@ -37,11 +39,12 @@
     projectCode,
     syncing = $bindable(),
     syncCount = 0,
+    explainFieldWorksSync = false,
+    showHeading = true,
     onLoginStatusChange = () => {},
   }: Props = $props();
 
   const service = useSyncStatusService();
-  const platformFeatures = usePlatformFeaturesService();
   const status = resource(() => syncCount, async (_, _prev, {signal}) => {
     const [pendingCommits, latestSyncedCommitDate] = await Promise.all([
       service.getLocalStatus(),
@@ -61,6 +64,7 @@
   let lastLocalSyncDate = $derived(status.current?.latestSyncedCommitDate ? new Date(status.current.latestSyncedCommitDate) : undefined);
   const serverName = $derived(server?.displayName ?? serverId ?? 'unknown');
   const serverProjectUrl = $derived(`${server?.authority}/project/${encodeURIComponent(projectCode ?? '')}`);
+  const heading = $derived($t`Sync your changes with other FieldWorks Lite users`);
   const cloudIcon = $derived(syncStatus === SyncStatus.Offline ? 'i-mdi-cloud-off-outline' : 'i-mdi-cloud-outline');
 
   async function sync() {
@@ -85,9 +89,22 @@
     });
   }
 </script>
-<p class="mb-6 text-lg text-center">
-  {$t`Sync your changes with other FieldWorks Lite users`}
+{#if explainFieldWorksSync || showHeading}
+<p class="mb-4 max-md:px-10 text-sm text-muted-foreground text-center">
+  {#if explainFieldWorksSync}
+    <Popover.Root>
+      <Popover.InfoTrigger>
+        {heading}
+      </Popover.InfoTrigger>
+      <Popover.Content class="max-w-md text-sm">
+        {$t`Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them.`}
+      </Popover.Content>
+    </Popover.Root>
+  {:else}
+    {heading}
+  {/if}
 </p>
+{/if}
 <div class="text-center my-2">
   <span class="text-foreground/80">
     <T msg="Last sync: #">
@@ -131,11 +148,11 @@
             onclick={onSyncClick}
             icon="i-mdi-sync"
             iconProps={{ class: 'size-5' }}>
-            {#if syncing === 'lite'}
-              {$t`Syncing...`}
-            {:else}
-              {$t`Auto syncing`}
-            {/if}
+            <!-- Both labels take space so the button doesn't resize -->
+            <span class="grid">
+              <span class="col-start-1 row-start-1" class:invisible={syncing === 'lite'}>{$t`Auto syncing`}</span>
+              <span class="col-start-1 row-start-1" class:invisible={syncing !== 'lite'}>{$t`Syncing...`}</span>
+            </span>
           </Button>
         {:else if syncStatus === SyncStatus.Offline}
           <span>{$t`Offline`}</span>
@@ -168,9 +185,3 @@
     <p>{$t`Local`}</p>
   </div>
 </div>
-{#if platformFeatures.features.supportsFolderSync}
-  <FolderSyncSection bind:syncing onSynced={() => void status.refetch()} />
-{/if}
-{#if platformFeatures.features.supportsWifiSync}
-  <WifiSyncSection bind:syncing onSynced={() => void status.refetch()} />
-{/if}

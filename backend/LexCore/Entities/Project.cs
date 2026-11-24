@@ -25,6 +25,7 @@ public class Project : EntityBase
     public int? RepoSizeInKb { get; set; }
     public DateTimeOffset? DeletedDate { get; set; }
     public ResetStatus ResetStatus { get; set; } = ResetStatus.None;
+    public FwDataInitStatus FwDataInitStatus { get; set; } = FwDataInitStatus.None;
 
     //historical reference for if this project originated here (migrated), or came from redmine, public or private
     public ProjectMigrationStatus ProjectOrigin { get; set; } = ProjectMigrationStatus.Migrated;
@@ -53,9 +54,9 @@ public class Project : EntityBase
         }
     }
 
-    public bool GetHasAbandonedTransactions(IHgService hgService)
+    public async Task<bool> GetHasAbandonedTransactions(IHgService hgService)
     {
-        return hgService.HasAbandonedTransactions(Code);
+        return await hgService.HasAbandonedTransactions(Code);
     }
 
     public Task<bool> GetIsLanguageForgeProject(IIsLanguageForgeProjectDataLoader loader)
@@ -97,11 +98,19 @@ public enum ProjectMigrationStatus
     Migrating,
     PrivateRedmine,
     PublicRedmine,
+    LanguageForgeNonSR,
 }
 
 public enum ResetStatus
 {
     None = 0,
+    InProgress = 1
+}
+
+public enum FwDataInitStatus
+{
+    None = 0,
+    // Created by InitFwDataProject, and FwHeadless hasn't yet finished populating its repo from the template
     InProgress = 1
 }
 

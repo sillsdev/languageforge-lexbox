@@ -11,5 +11,6 @@ export interface IChangeEntity
 	commitId: string;
 	entityId: string;
 	change: IChange;
+	authoredModelVersion: number;
 }
 /* eslint-enable */

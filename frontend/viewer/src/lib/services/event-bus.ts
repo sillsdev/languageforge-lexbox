@@ -8,7 +8,9 @@ import type {ICommentsChangedEvent} from '$lib/dotnet-types/generated-types/FwLi
 import type {IProjectEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectEvent';
 import {type ProjectContext, useProjectContext} from '$project/project-context.svelte';
 import {onDestroy} from 'svelte';
+import {delay} from '$lib/utils/time';
 import type {ISyncEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/ISyncEvent';
+import type {IProjectRoleChangedEvent} from '$lib/dotnet-types/generated-types/FwLiteShared/Events/IProjectRoleChangedEvent';
 
 export enum CloseReason {
   User = 0,
@@ -37,19 +39,36 @@ export class EventBus {
   }
 
   private async eventLoop(jsEventListener: IJsEventListener) {
-    let event: IFwEvent | undefined;
+    let failures = 0;
     while (true) {
-      event = await jsEventListener.nextEventAsync();
-      if (!event) return;
-      this.notifyEvent(event);
+      let events: IFwEvent[];
+      try {
+        events = await jsEventListener.nextEventsAsync();
+        failures = 0;
+      } catch (error) {
+        // One failed read must not end event delivery for the rest of the session, so keep reading.
+        // Only the first failure in a row goes to the global error handler, so a lasting outage is one toast.
+        if (failures++ === 0) setTimeout(() => { throw error; });
+        await delay(Math.min(1000 * failures, 10_000));
+        continue;
+      }
+      // An empty batch means the listener was disposed.
+      if (!events.length) return;
+      events.forEach(event => this.notifyEvent(event));
     }
   }
 
   public notifyEvent(event: IFwEvent) {
-    //using set timeout to queue processing events outside the event loop, this prevents the event loop from being blocked
-    setTimeout(() => {
-      this._onEvent.forEach(callback => callback(event));
-    });
+    // Deferred so the read loop isn't blocked. Subscribers are read when the task runs, not now: one that
+    // subscribes in between (e.g. onSync, after reading the not-yet-updated cache) must still get this event.
+    setTimeout(() => this._onEvent.forEach(callback => {
+      try {
+        callback(event);
+      } catch (error) {
+        // Let the other callbacks run; the rethrow still reaches the global error handler.
+        setTimeout(() => { throw error; });
+      }
+    }));
   }
 
   public onProjectClosed(callback: (reason: CloseReason) => void): () => void {
@@ -78,6 +97,15 @@ export class EventBus {
         callback(event as T);
       }
     }));
+  }
+
+  /** Not tied to a component's lifecycle: the caller must call the returned unsubscribe. */
+  public onProjectRoleChanged(projectCode: string, callback: (event: IProjectRoleChangedEvent) => void): () => void {
+    return this.onEvent(event => {
+      if (isProjectEvent(event) && event.project.name === projectCode && isProjectRoleChangedEvent(event.event)) {
+        callback(event.event);
+      }
+    });
   }
 
   public getLastEvent<T extends IFwEvent>(projectCode: string, eventType: FwEventType): T | undefined {
@@ -170,10 +198,10 @@ export class ProjectEventBus {
   }
 }
 
-let changeEventBus: EventBus | undefined = undefined;
-
+// Kept on window rather than in a module variable: when Vite HMR re-runs this module, a fresh EventBus
+// would start a second read loop on the same dotnet listener and the two loops would split the events.
 export function useEventBus(): EventBus {
-  return changeEventBus ??= new EventBus();
+  return window.lexbox.EventBus ??= new EventBus();
 }
 
 export function useProjectEventBus() {
@@ -194,4 +222,8 @@ function isProjectEvent(event: IFwEvent): event is IProjectEvent {
 
 function isSyncEvent(event: IFwEvent): event is ISyncEvent {
   return event.type === FwEventType.Sync;
+}
+
+function isProjectRoleChangedEvent(event: IFwEvent): event is IProjectRoleChangedEvent {
+  return event.type === FwEventType.ProjectRoleChanged;
 }

@@ -3,11 +3,15 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 
+import type {IActivityEntryName} from './IActivityEntryName';
+import type {IActivitySenseName} from './IActivitySenseName';
+import type {IActivityTarget} from './IActivityTarget';
+
 export interface IActivityChangeInfo
 {
-	subject?: string;
-	owningEntryId?: string;
-	target?: string;
-	owningEntryHeadword?: string;
+	entry?: IActivityEntryName;
+	sense?: IActivitySenseName;
+	objectName?: string;
+	target?: IActivityTarget;
 }
 /* eslint-enable */

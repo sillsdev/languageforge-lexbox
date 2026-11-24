@@ -16,16 +16,17 @@ curl -X GET http://localhost:49279/api/localProjects
 there should just be one (the project in the `fw-projects` folder).
 
 example:
+
 ```json
-  {
-    "name": "sena-3",
-    "crdt": false,
-    "fwdata": true,
-    "lexbox": false,
-    "server": null,
-    "id": null,
-    "apiEndpoint": "/api/mini-lcm/FwData/sena-3"
-  }
+{
+  "name": "sena-3",
+  "crdt": false,
+  "fwdata": true,
+  "lexbox": false,
+  "server": null,
+  "id": null,
+  "apiEndpoint": "/api/mini-lcm/FwData/sena-3"
+}
 ```
 
 take the `apiEndpoint` and use it in the next API call
@@ -33,10 +34,13 @@ take the `apiEndpoint` and use it in the next API call
 ### get entries in a project
 
 once you've selected a project from the previous API you can query it.
+
 ```bash
 curl -X GET http://localhost:49279{project.apiEndpoint}/entries
 ```
+
 will return the first 1000 entries sorted by headword. Example response:
+
 ```json
 [
   {
@@ -162,4 +166,29 @@ will return the first 1000 entries sorted by headword. Example response:
   }
 ]
 ```
+
 if you want to get all the entries, you can use the `?count=-1` query parameter.
+
+### search entries
+
+```bash
+curl -X GET "http://localhost:49279{project.apiEndpoint}/entries?search=cerveja"
+curl -X GET "http://localhost:49279{project.apiEndpoint}/entries/count?search=cerveja"
+```
+
+### other routes
+
+All relative to `{project.apiEndpoint}`; see `/scalar` for parameters and schemas.
+
+| Method | Path                                                                                       |                                                                                    |
+| ------ | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| GET    | `writing-systems`                                                                          |                                                                                    |
+| GET    | `entries`                                                                                  | `search`, sort, exemplar, `count`, `offset`, `gridifyFilter`                       |
+| GET    | `entries/count`                                                                            | `search`, `gridifyFilter`                                                          |
+| GET    | `entry/{id}`                                                                               | 404 when missing                                                                   |
+| GET    | `entry/{id}/index`                                                                         | `search`, sort, exemplar, `gridifyFilter`                                          |
+| GET    | `sense/{id}`                                                                               | 404 when missing                                                                   |
+| GET    | `parts-of-speech`, `semantic-domains`, `publications`, `complex-form-types`, `morph-types` |                                                                                    |
+| POST   | `entry`                                                                                    | body: `Entry`; adds the main publication                                           |
+| PUT    | `entry/{id}`                                                                               | body: `{ "before": Entry, "after": Entry }`, `before` being the entry as last read |
+| DELETE | `entry/{id}`                                                                               |                                                                                    |

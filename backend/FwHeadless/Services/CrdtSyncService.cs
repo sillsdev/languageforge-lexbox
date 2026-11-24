@@ -17,7 +17,7 @@ public class CrdtSyncService(
         activity?.SetTag("app.project_id", currentProjectService.ProjectData.Id);
         var lexboxRemoteServer = await httpSyncService.CreateProjectSyncable(
             currentProjectService.ProjectData,
-            httpClientFactory.CreateClient(FwHeadlessKernel.LexboxHttpClientName)
+            httpClientFactory.CreateClient(FwHeadlessKernel.LexboxSyncHttpClientName)
         );
         var syncResults = await dataModel.SyncWith(lexboxRemoteServer);
         if (!syncResults.IsSynced) throw new InvalidOperationException("Sync failed");

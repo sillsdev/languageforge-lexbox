@@ -437,7 +437,7 @@ type Project {
   users: [ProjectUsers!]!
   harmonyCommits(skip: Int = 0 take: Int = 100 orderBy: [ServerCommitSortInput!] @cost(weight: "10") where: ServerCommitFilterInput @cost(weight: "10")): [ServerCommit!]
   changesets: [Changeset!]! @cost(weight: "10")
-  hasAbandonedTransactions: Boolean!
+  hasAbandonedTransactions: Boolean! @cost(weight: "10")
   isLanguageForgeProject: Boolean! @cost(weight: "10")
   hasHarmonyCommits: Boolean! @cost(weight: "10")
   parentId: UUID
@@ -451,6 +451,7 @@ type Project {
   repoSizeInKb: Int
   deletedDate: DateTime
   resetStatus: ResetStatus!
+  fwDataInitStatus: FwDataInitStatus!
   projectOrigin: ProjectMigrationStatus!
   migratedDate: DateTime
   userCount: Int!
@@ -778,6 +779,7 @@ input ChangeEntityOfServerJsonChangeFilterInput {
   commitId: UuidOperationFilterInput
   entityId: UuidOperationFilterInput
   change: ServerJsonChangeFilterInput
+  authoredModelVersion: IntOperationFilterInput
 }
 
 input ChangeOrgMemberRoleInput {
@@ -977,6 +979,13 @@ input FlexProjectMetadataSortInput {
   lexEntryCount: SortEnumType @cost(weight: "10")
   langProjectId: SortEnumType @cost(weight: "10")
   flexModelVersion: SortEnumType @cost(weight: "10")
+}
+
+input FwDataInitStatusOperationFilterInput {
+  eq: FwDataInitStatus @cost(weight: "10")
+  neq: FwDataInitStatus @cost(weight: "10")
+  in: [FwDataInitStatus!] @cost(weight: "10")
+  nin: [FwDataInitStatus!] @cost(weight: "10")
 }
 
 input HybridDateTimeFilterInput {
@@ -1227,6 +1236,7 @@ input ProjectFilterInput {
   repoSizeInKb: IntOperationFilterInput
   deletedDate: DateTimeOperationFilterInput
   resetStatus: ResetStatusOperationFilterInput
+  fwDataInitStatus: FwDataInitStatusOperationFilterInput
   projectOrigin: ProjectMigrationStatusOperationFilterInput
   migratedDate: DateTimeOperationFilterInput
   harmonyCommits: ListFilterInputTypeOfServerCommitFilterInput
@@ -1263,6 +1273,7 @@ input ProjectSortInput {
   repoSizeInKb: SortEnumType @cost(weight: "10")
   deletedDate: SortEnumType @cost(weight: "10")
   resetStatus: SortEnumType @cost(weight: "10")
+  fwDataInitStatus: SortEnumType @cost(weight: "10")
   projectOrigin: SortEnumType @cost(weight: "10")
   migratedDate: SortEnumType @cost(weight: "10")
   userCount: SortEnumType @cost(weight: "10")
@@ -1500,6 +1511,11 @@ enum FeatureFlag {
   FW_LITE_BETA
 }
 
+enum FwDataInitStatus {
+  NONE
+  IN_PROGRESS
+}
+
 enum JsonValueKind {
   UNDEFINED
   OBJECT
@@ -1529,6 +1545,8 @@ enum LexboxAuthScope {
   FORGOT_PASSWORD
   SEND_AND_RECEIVE
   SEND_AND_RECEIVE_REFRESH
+  LEXICON_READ
+  LEXICON_WRITE
 }
 
 enum MediaFileLicense {
@@ -1549,6 +1567,7 @@ enum ProjectMigrationStatus {
   MIGRATING
   PRIVATE_REDMINE
   PUBLIC_REDMINE
+  LANGUAGE_FORGE_NON_SR
 }
 
 enum ProjectRole {
@@ -1556,6 +1575,8 @@ enum ProjectRole {
   MANAGER
   EDITOR
   OBSERVER
+  COMMENTER
+  EDITOR_LITE
 }
 
 enum ProjectType {

@@ -3,6 +3,8 @@ on:
   push:
     paths:
       - 'frontend/**'
+      # The viewer (FW Lite) is covered by pr.yaml / fw-lite.yaml and ships via FwLiteShared/wwwroot, not the UI image.
+      - '!frontend/viewer/**'
       - '.github/workflows/develop-ui.yaml'
       - '.github/workflows/lexbox-ui.yaml'
       - '.github/workflows/deploy.yaml'
@@ -11,6 +13,7 @@ on:
   pull_request:
     paths:
       - 'frontend/**'
+      - '!frontend/viewer/**'
       - '.github/workflows/develop-ui.yaml'
       - '.github/workflows/lexbox-ui.yaml'
       - '.github/workflows/deploy.yaml'

@@ -21,8 +21,10 @@ namespace FwLiteMaui;
 /// Downloaded-state detection is done by polling <c>AppUpdateInfo.InstallStatus()</c> on resume rather
 /// than by registering an <c>IInstallStateUpdatedListener</c>: the C# binding's generic
 /// <c>OnStateUpdate(InstallState)</c> has a name-clash that fails to compile without a Java-source
-/// wrapper (dotnet/android-libraries#1006), and polling on resume is a documented alternative for the
-/// flexible flow. The tradeoff is no live in-app progress bar — acceptable since Play shows its own UI.
+/// wrapper (dotnet/android-libraries#1006), and polling is a documented alternative for the flexible
+/// flow. When the user accepts Play's prompt we raise a <see cref="UpdateResult.Started"/> event (the web UI
+/// says the download is running in the background), and while a download is in progress we poll every few
+/// seconds so the restart prompt (or a failure) shows as soon as it's done.
 ///
 /// This only does anything for builds installed from Google Play; for sideloaded/debug builds Play
 /// reports "no update available" and every call here is a harmless no-op.
@@ -37,9 +39,15 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
     private readonly UpdateCheckThrottle _throttle;
     private readonly GlobalEventBus _eventBus;
 
+    private static readonly TimeSpan DownloadPollInterval = TimeSpan.FromSeconds(3);
+    //Stop polling eventually so a download Play never finishes doesn't keep us busy forever; the next
+    //resume picks it up again.
+    private static readonly TimeSpan MaxDownloadPollDuration = TimeSpan.FromMinutes(30);
+
     // Notify about a downloaded update at most once per app run, so tapping "Later"/ignoring the toast
     // doesn't re-prompt on every OnResume.
     private bool _downloadedNotified;
+    private int _polling;
 
     public AndroidInAppUpdateService(
         ILogger<AndroidInAppUpdateService> logger,
@@ -67,6 +75,13 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
                 return;
             }
 
+            //Accepted in an earlier run and Play is still downloading: watch for it to finish instead of prompting again.
+            if (IsDownloading(info))
+            {
+                StartPollingDownload();
+                return;
+            }
+
             if (!_throttle.ShouldCheckForUpdate()) return;
             _throttle.RecordCheck();
 
@@ -80,7 +95,7 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
 
     /// <summary>
     /// Re-check on resume for a flexible update whose download finished while we weren't in the
-    /// foreground, and notify the UI to prompt a restart.
+    /// foreground, and notify the UI to prompt a restart. If it's still downloading, resume polling.
     /// </summary>
     public void CheckForDownloadedUpdateOnResume()
     {
@@ -90,7 +105,92 @@ public sealed class AndroidInAppUpdateService : IPlatformUpdateService, IDisposa
             {
                 NotifyDownloaded(info);
             }
+            else if (IsDownloading(info))
+            {
+                StartPollingDownload();
+            }
         });
+    }
+
+    /// <summary>
+    /// Called from <see cref="MainActivity"/> with the result of Play's update bottom sheet. When the user
+    /// accepted, Play starts downloading in the background.
+    /// </summary>
+    public void OnUpdateFlowResult(Result resultCode)
+    {
+        if (resultCode != Result.Ok)
+        {
+            _logger.LogInformation("Play in-app update flow not accepted ({ResultCode})", resultCode);
+            return;
+        }
+
+        _eventBus.PublishEvent(new AppUpdateEvent(UpdateResult.Started, new FwLiteRelease(string.Empty, string.Empty)));
+        StartPollingDownload();
+    }
+
+    private static bool IsDownloading(AppUpdateInfo info)
+    {
+        var status = info.InstallStatus();
+        return status == InstallStatus.Pending || status == InstallStatus.Downloading;
+    }
+
+    private void StartPollingDownload()
+    {
+        if (_downloadedNotified) return;
+        if (Interlocked.Exchange(ref _polling, 1) == 1) return;
+        _ = Task.Run(PollDownload);
+    }
+
+    private async Task PollDownload()
+    {
+        try
+        {
+            var deadline = DateTime.UtcNow + MaxDownloadPollDuration;
+            while (DateTime.UtcNow < deadline)
+            {
+                await Task.Delay(DownloadPollInterval);
+                var info = await GetAppUpdateInfo();
+                if (info is null) continue;
+                var status = info.InstallStatus();
+                if (status == InstallStatus.Downloaded)
+                {
+                    NotifyDownloaded(info);
+                    break;
+                }
+                if (IsDownloading(info)) continue;
+                if (status == InstallStatus.Failed)
+                {
+                    _logger.LogWarning("Play in-app update download failed");
+                    _eventBus.PublishEvent(new AppUpdateEvent(UpdateResult.Failed, new FwLiteRelease(string.Empty, string.Empty)));
+                }
+                else
+                {
+                    _logger.LogInformation("Play in-app update download stopped with status {Status}", status);
+                }
+                break;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed polling Play in-app update download");
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _polling, 0);
+        }
+    }
+
+    private Task<AppUpdateInfo?> GetAppUpdateInfo()
+    {
+        var tcs = new TaskCompletionSource<AppUpdateInfo?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _ = _appUpdateManager.GetAppUpdateInfo()
+            .AddOnSuccessListener(new OnSuccessListener(result => tcs.TrySetResult(result as AppUpdateInfo)))
+            .AddOnFailureListener(new OnFailureListener(e =>
+            {
+                _logger.LogInformation(e, "Play app-update info unavailable while polling download");
+                tcs.TrySetResult(null);
+            }));
+        return tcs.Task;
     }
 
     private void NotifyDownloaded(AppUpdateInfo info)

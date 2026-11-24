@@ -29,6 +29,9 @@
   import PrivacyDialog from '$lib/about/PrivacyDialog.svelte';
   import DeleteDialog from '$lib/entry-editor/DeleteDialog.svelte';
   import CreateProjectDialog from './CreateProjectDialog.svelte';
+  import NameDialog from '$lib/author/NameDialog.svelte';
+  import {useLocalAuthorName} from '$lib/author/local-author-name.svelte';
+  import {featureFlags} from '$lib/feature-flags/feature-flags.svelte';
   import OpenFromFolderItem from './OpenFromFolderItem.svelte';
   import UpdateDialog from '$lib/updates/UpdateDialog.svelte';
   import {SYNC_DIALOG_QUERY_PARAM} from '../project/SyncDialog.svelte';
@@ -54,6 +57,8 @@
   }
 
   let createProjectDialog = $state<CreateProjectDialog>();
+  let nameDialog = $state<NameDialog>();
+  const authorName = useLocalAuthorName();
 
   let deletingProject = $state<string>();
 
@@ -131,6 +136,12 @@
       <ResponsiveMenu.Root>
         <ResponsiveMenu.Trigger/>
         <ResponsiveMenu.Content>
+          <!-- the name is first asked for where it's needed, so there's nothing to change before that -->
+          {#if authorName.current || featureFlags.isDev}
+            <ResponsiveMenu.Item onSelect={() => void nameDialog?.ask({fromMenu: true})} icon="i-mdi-account-edit">
+              {$t`Your name`}
+            </ResponsiveMenu.Item>
+          {/if}
           <ResponsiveMenu.Item onSelect={() => updateDialogOpen = true} icon="i-mdi-update">
             {$t`Updates`}
           </ResponsiveMenu.Item>
@@ -148,6 +159,7 @@
         </ResponsiveMenu.Content>
       </ResponsiveMenu.Root>
       <UpdateDialog bind:open={updateDialogOpen}/>
+      <NameDialog bind:this={nameDialog}/>
       <FeedbackDialog bind:open={feedbackOpen}/>
       <PrivacyDialog bind:open={privacyOpen}/>
       <TroubleshootDialog bind:this={troubleshootDialog}/>

@@ -17,36 +17,31 @@ public class FwLiteConfig
     };
     public string FeedbackUrl => $"https://docs.google.com/forms/d/e/1FAIpQLSetM5LIjrwZ8ibmxz9gHwYDqTqpEzsr3ILzrf_dW1rOoRf9rw/viewform?usp=pp_url&entry.1159558932={AppVersion}&entry.866582270={Os}";
 
-    private string? _updateUrl;
+    /// <summary>
+    /// Replaces the release-feed URL, e.g. env FwLite__OverrideUpdateUrl pointing at the local update test server.
+    /// Leave unset to ask lexbox.org; use <see cref="ResolveUpdateUrl"/> to get the URL to call.
+    /// </summary>
+    public string? OverrideUpdateUrl { get; set; }
 
-    public string UpdateUrl
+    //a method, not a property: configuration binding reads every settable property and writes the value back,
+    //which froze a computed URL with the default AppVersion ("Unknown") before the host set the real one
+    public string ResolveUpdateUrl()
     {
-        get
-        {
-            if (string.IsNullOrEmpty(_updateUrl))
-            {
-                return $"https://lexbox.org/api/fwlite-release/should-update?appVersion={AppVersion}&edition={Edition}";
-            }
-            return _updateUrl;
-        }
-        set => _updateUrl = value;
+        return string.IsNullOrEmpty(OverrideUpdateUrl)
+            ? $"https://lexbox.org/api/fwlite-release/should-update?appVersion={AppVersion}&edition={Edition}"
+            : OverrideUpdateUrl;
     }
 
-    private FwLiteEdition? _edition;
-
-    public FwLiteEdition Edition
+    //derived on every read, without a setter or cache, for the same reason: binding runs before the host sets Os
+    public FwLiteEdition Edition => Os switch
     {
-        get => _edition ??= Os switch
-        {
-            FwLitePlatform.Android => FwLiteEdition.Android,
-            FwLitePlatform.iOS => FwLiteEdition.iOS,
-            FwLitePlatform.Linux => FwLiteEdition.Linux,
-            FwLitePlatform.Mac => FwLiteEdition.Mac,
-            FwLitePlatform.Windows => FwLiteEdition.Windows,
-            _ => throw new NotSupportedException($"Unsupported platform: {Os}")
-        };
-        set => _edition = value;
-    }
+        FwLitePlatform.Android => FwLiteEdition.Android,
+        FwLitePlatform.iOS => FwLiteEdition.iOS,
+        FwLitePlatform.Linux => FwLiteEdition.Linux,
+        FwLitePlatform.Mac => FwLiteEdition.Mac,
+        FwLitePlatform.Windows => FwLiteEdition.Windows,
+        _ => throw new NotSupportedException($"Unsupported platform: {Os}")
+    };
 
     //can be configured with env FwLite__UpdateCheckCondition
     public UpdateCheckCondition UpdateCheckCondition { get; set; } = UpdateCheckCondition.OnInterval;

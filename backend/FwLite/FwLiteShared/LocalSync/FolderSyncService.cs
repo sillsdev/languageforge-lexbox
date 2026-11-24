@@ -2,10 +2,7 @@ using FwLiteShared.Services;
 using LcmCrdt;
 using LcmCrdt.LocalSync;
 using LcmCrdt.Utils;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using SIL.Harmony;
-using SIL.Harmony.Config;
 using SIL.Harmony.Core;
 
 namespace FwLiteShared.LocalSync;
@@ -15,14 +12,16 @@ namespace FwLiteShared.LocalSync;
 /// <param name="MediaSent">Media files copied to the folder.</param>
 /// <param name="MediaReceived">Media files copied from the folder.</param>
 /// <param name="MediaFailed">Media files that couldn't be copied either way; they're retried on the next sync.</param>
-public record FolderSyncResult(SyncFolderState FolderState, LocalSyncResult? Sync, int MediaSent = 0, int MediaReceived = 0, int MediaFailed = 0)
+/// <param name="LocalWritingSystemIds">This copy's writing systems, to report a refused sync.</param>
+public record FolderSyncResult(SyncFolderState FolderState, LocalSyncResult? Sync, int MediaSent = 0, int MediaReceived = 0, int MediaFailed = 0,
+    IReadOnlyCollection<string>? LocalWritingSystemIds = null)
 {
     public bool Synced => Sync?.Synced == true;
 }
 
 /// <summary>
 /// Syncs the current project with a sync folder (e.g. on a USB drive). The folder's commit log is Harmony's
-/// <see cref="JsonSyncable"/>, so syncing is two-way: the folder accumulates every copy's changes over many trips.
+/// <c>JsonSyncable</c>, so syncing is two-way: the folder accumulates every copy's changes over many trips.
 /// </summary>
 public class FolderSyncService(
     CurrentProjectService currentProjectService,
@@ -30,13 +29,11 @@ public class FolderSyncService(
     LocalSyncService localSyncService,
     MediaCopier mediaCopier,
     IPreferencesService preferences,
-    IOptions<HarmonyConfig> harmonyConfig,
-    ILogger<FolderSyncService> logger)
+    IJsonSyncableFactory jsonSyncableFactory)
 {
-    public async Task<FolderSyncResult> SyncWithFolder(string path)
+    public async Task<FolderSyncResult> SyncWithFolder(string pickedPath)
     {
-        path = Path.GetFullPath(path);
-        var state = SyncFolder.Inspect(path);
+        var (path, state) = ProjectFolder(Path.GetFullPath(pickedPath));
         if (state is SyncFolderState.NotASyncFolder or SyncFolderState.NewerFormat) return new FolderSyncResult(state, null);
 
         var localIdentity = await projectIdentityService.GetIdentity();
@@ -65,7 +62,20 @@ public class FolderSyncService(
             preferences.Set(RememberedFolderKey(localIdentity.ProjectId), path);
             return new FolderSyncResult(state, result, sent.Copied, received.Copied, sent.Failed + received.Failed);
         }
-        return new FolderSyncResult(state, result);
+        return new FolderSyncResult(state, result, LocalWritingSystemIds: localIdentity.WritingSystemIds);
+    }
+
+    /// <summary>
+    /// The picked folder is used as is when it already holds a project. Otherwise it's just a location (a drive, or
+    /// any folder of the user's), and the project goes in a subfolder named by its code, so one location holds
+    /// many projects and whatever else is there doesn't matter.
+    /// </summary>
+    private (string Path, SyncFolderState State) ProjectFolder(string pickedPath)
+    {
+        var state = SyncFolder.Inspect(pickedPath);
+        if (state is SyncFolderState.HoldsProject or SyncFolderState.NewerFormat) return (pickedPath, state);
+        var projectPath = Path.Combine(pickedPath, currentProjectService.ProjectData.Code);
+        return (projectPath, SyncFolder.Inspect(projectPath));
     }
 
     /// <summary>
@@ -76,7 +86,7 @@ public class FolderSyncService(
     /// </summary>
     private async Task<Guid?> FolderLineage(ISyncable folder, ProjectIdentity localIdentity)
     {
-        var folderCommits = (await folder.GetChanges(new SyncState([]))).MissingFromClient;
+        var folderCommits = (await folder.GetChanges(new SyncState(new Dictionary<Guid, long>()))).MissingFromClient;
         var earliest = folderCommits.DefaultOrder().FirstOrDefault();
         if (earliest is null
             || folderCommits.Any(c => c.Id == localIdentity.RootCommitId)
@@ -107,8 +117,7 @@ public class FolderSyncService(
         return syncResults;
     }
 
-    private FolderSyncable OpenFolder(string path) =>
-        new(new JsonSyncable(new DirectoryInfo(path), harmonyConfig.Value.JsonSerializerOptions, logger));
+    private FolderSyncable OpenFolder(string path) => new(jsonSyncableFactory.Create(new DirectoryInfo(path)));
 
     /// <summary>The last folder this project synced with on this device, for a one-click "sync again".</summary>
     public string? GetRememberedFolder() => preferences.Get(RememberedFolderKey(currentProjectService.ProjectData.Id));
@@ -120,7 +129,7 @@ public class FolderSyncService(
     /// another device uploaded it, and keeping it would make this device report a Lexbox sync it never did
     /// (the same as <c>CrdtProjectSync.GetChanges</c> does for commits from a server).
     /// </summary>
-    private class FolderSyncable(JsonSyncable folder) : ISyncable
+    private class FolderSyncable(ISyncable folder) : ISyncable
     {
         public async Task<ChangesResult<Commit>> GetChanges(SyncState otherHeads)
         {

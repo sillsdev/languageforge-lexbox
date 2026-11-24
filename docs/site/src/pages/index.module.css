@@ -1,0 +1,24 @@
+.sectionCard {
+  display: block;
+  height: 100%;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  color: inherit;
+}
+
+.sectionCard:hover {
+  border-color: var(--ifm-color-primary);
+  text-decoration: none;
+  color: inherit;
+}
+
+.sectionCard p {
+  color: var(--ifm-color-emphasis-700);
+}
+
+.secondary {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.secondaryTitle {
+  font-size: 1.25rem;
+}

@@ -8,5 +8,6 @@ export interface IActivityAuthor
 	authorId?: string;
 	authorName?: string;
 	commitCount: number;
+	firstCommitDate: string;
 }
 /* eslint-enable */

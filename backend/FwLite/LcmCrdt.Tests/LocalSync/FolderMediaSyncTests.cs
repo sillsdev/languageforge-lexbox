@@ -2,7 +2,6 @@ using System.Text;
 using FwLiteShared.LocalSync;
 using LcmCrdt.MediaServer;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Abstractions;
 using MiniLcm.Media;
 using SIL.Harmony.Core;
 using static LcmCrdt.Tests.LocalSync.LocalSyncTestHelpers;
@@ -95,9 +94,9 @@ public class FolderMediaSyncTests : IAsyncLifetime
         onB.RemoteId.Should().BeNull("only Lexbox can say it's uploaded; it must still upload from here later");
         onB.Local.Should().BeTrue();
         // every commit b has is also in the folder: copying the file in made no commit of b's own
-        var commitsOnB = (await _b.DataModel.GetChanges(new SyncState([]))).MissingFromClient.Select(c => c.Id);
-        var commitsInFolder = (await new JsonSyncable(new DirectoryInfo(_folder.Path), JsonOptions(_b), NullLogger.Instance)
-            .GetChanges(new SyncState([]))).MissingFromClient.Select(c => c.Id);
+        var commitsOnB = (await _b.DataModel.GetChanges(new SyncState(new Dictionary<Guid, long>()))).MissingFromClient.Select(c => c.Id);
+        var commitsInFolder = (await _b.GetService<IJsonSyncableFactory>().Create(new DirectoryInfo(Path.Combine(_folder.Path, "sena-3")))
+            .GetChanges(new SyncState(new Dictionary<Guid, long>()))).MissingFromClient.Select(c => c.Id);
         commitsOnB.Should().BeEquivalentTo(commitsInFolder);
     }
 
@@ -136,7 +135,7 @@ public class FolderMediaSyncTests : IAsyncLifetime
         var second = await TakePictureOnA("banana.jpg");
         await SyncWithFolder(_a, _folder.Path);
         await _b.DataModel.SyncWith(_a.DataModel);
-        var brokenForFirst = new FailingFor(first, new FolderMediaStore(_folder.Path));
+        var brokenForFirst = new FailingFor(first, new FolderMediaStore(Path.Combine(_folder.Path, "sena-3")));
 
         var copied = await _b.GetService<MediaCopier>().PullAll(brokenForFirst);
 

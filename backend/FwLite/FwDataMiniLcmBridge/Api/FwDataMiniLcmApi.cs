@@ -53,9 +53,9 @@ public class FwDataMiniLcmApi(
 
     private IWritingSystemContainer WritingSystemContainer => Cache.ServiceLocator.WritingSystems;
     internal ILexEntryRepository EntriesRepository => Cache.ServiceLocator.GetInstance<ILexEntryRepository>();
-    internal IRepository<ILexSense> SenseRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexSense>>();
-    private IRepository<ILexExampleSentence> ExampleSentenceRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexExampleSentence>>();
-    private IRepository<ICmPicture> PictureRepository => Cache.ServiceLocator.GetInstance<IRepository<ICmPicture>>();
+    internal ILexSenseRepository SenseRepository => Cache.ServiceLocator.GetInstance<ILexSenseRepository>();
+    private ILexExampleSentenceRepository ExampleSentenceRepository => Cache.ServiceLocator.GetInstance<ILexExampleSentenceRepository>();
+    private ICmPictureRepository PictureRepository => Cache.ServiceLocator.GetInstance<ICmPictureRepository>();
     private ILexEntryFactory LexEntryFactory => Cache.ServiceLocator.GetInstance<ILexEntryFactory>();
     private ILexSenseFactory LexSenseFactory => Cache.ServiceLocator.GetInstance<ILexSenseFactory>();
     private ILexExampleSentenceFactory LexExampleSentenceFactory => Cache.ServiceLocator.GetInstance<ILexExampleSentenceFactory>();
@@ -1553,14 +1553,9 @@ public class FwDataMiniLcmApi(
             CreateExampleSentence(lexSense, exampleSentence);
         }
 
-        if (sense.Pictures.Any())
+        foreach (var picture in sense.Pictures)
         {
-            List<Picture> pictures = [.. sense.Pictures];
-            pictures.Sort(Picture.ComparePictures);
-            foreach (var picture in pictures)
-            {
-                CreatePicture(lexSense, picture);
-            }
+            CreatePicture(lexSense, picture);
         }
     }
 
@@ -1897,6 +1892,7 @@ public class FwDataMiniLcmApi(
         if (lcmPicture.Owner is ILexSense sense)
         {
             if (sense.Guid != senseId) throw ParentMismatchException.ForType<Picture>(lcmPicture.Guid, senseId, sense.Guid);
+            if (sense.Entry.Guid != entryId) throw ParentMismatchException.ForType<Sense>(sense.Guid, entryId, sense.Entry.Guid);
         }
         else
         {
@@ -1961,6 +1957,7 @@ public class FwDataMiniLcmApi(
         if (picture.Id == default) picture.Id = Guid.NewGuid();
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
+        ValidateOwnership(entryId, lexSense);
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create picture",
             "Remove picture",
             Cache.ServiceLocator.ActionHandler,
@@ -2048,9 +2045,6 @@ public class FwDataMiniLcmApi(
     {
         if (stream.SafeLength() > MediaFile.MaxFileSize) return new UploadFileResponse(UploadFileResult.TooBig);
         var fullPath = Path.Combine(Cache.LangProject.LinkedFilesRootDir, TypeToLinkedFolder(metadata.MimeType), Path.GetFileName(metadata.Filename));
-
-        if (File.Exists(fullPath))
-            return new UploadFileResponse(mediaAdapter.MediaUriFromPath(fullPath, Cache), savedToLexbox: false, newResource: false);
         var directory = Path.GetDirectoryName(fullPath);
         if (directory is not null)
         {
@@ -2065,16 +2059,26 @@ public class FwDataMiniLcmApi(
             }
         }
 
+        string? tempPath = null;
         try
         {
-            await using var fileStream = File.Create(fullPath);
-            await stream.CopyToAsync(fileStream);
-            return new UploadFileResponse(mediaAdapter.MediaUriFromPath(fullPath, Cache), savedToLexbox: false, newResource: true);
+            // A file with the same name is only the same file if the bytes match; otherwise (two phones'
+            // IMG_0001.jpg) save this one under a free name.
+            tempPath = await LocalMediaFiles.CopyToTempFile(stream);
+            var copy = LocalMediaFiles.ExistingCopies(tempPath, fullPath).FirstOrDefault();
+            if (copy is not null)
+                return new UploadFileResponse(mediaAdapter.MediaUriFromPath(copy, Cache), savedToLexbox: false, newResource: false);
+            var savedPath = LocalMediaFiles.MoveToFreePath(tempPath, fullPath);
+            return new UploadFileResponse(mediaAdapter.MediaUriFromPath(savedPath, Cache), savedToLexbox: false, newResource: true);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to save file {Filename} to {Path}", metadata.Filename, fullPath);
             return new UploadFileResponse($"Failed to save file: {ex.Message}");
+        }
+        finally
+        {
+            if (tempPath is not null) LocalMediaFiles.DeleteIfExists(tempPath);
         }
     }
 

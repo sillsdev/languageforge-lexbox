@@ -1,11 +1,17 @@
 using System.Text.Json;
 using FluentAssertions;
 using FluentAssertions.Equivalency;
+using LexBoxApi.Controllers;
+using LexBoxApi.Hub;
 using LexBoxApi.Services;
+using LexCore.ServiceInterfaces;
 using LexData;
 using LinqToDB.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using MiniLcm.Push;
+using Moq;
 using SIL.Harmony.Core;
 using Testing.Fixtures;
 
@@ -193,6 +199,33 @@ public class CrdtCommitServiceTests
     }
 
 
+    [Fact]
+    public async Task Add_SameCommitIdUnderAnotherClient_DoesNotNotifyAgain()
+    {
+        var projectId = await _lexBoxDbContext.Projects.Select(p => p.Id).FirstOrDefaultAsync();
+        var hubClient = new Mock<IProjectChangeHubClient>();
+        var hubContext = new Mock<IHubContext<CrdtProjectChangeHub, IProjectChangeHubClient>>();
+        hubContext.Setup(h => h.Clients.Group(CrdtProjectChangeHub.ProjectGroup(projectId))).Returns(hubClient.Object);
+        var controller = new CrdtController(_lexBoxDbContext, hubContext.Object, Mock.Of<IPermissionService>(),
+            null!, null!, _crdtCommitService, null!, null!);
+        var commitId = Guid.NewGuid();
+        var entityId = Guid.NewGuid();
+        var dateTime = DateTime.UtcNow;
+        var headlessClientId = Guid.NewGuid();
+        var fwLiteClientId = Guid.NewGuid();
+
+        // both stores hold the same commit id under their own ClientId, so each sync resends it to the other
+        Task Add(Guid clientId) => controller.Add(projectId,
+            new(AsAsync([CreateCommit(clientId, entityId, dateTime, commitId)])), clientId, CancellationToken.None);
+        await Add(headlessClientId);
+        await Add(fwLiteClientId);
+        await Add(headlessClientId);
+        await Add(fwLiteClientId);
+
+        hubClient.Verify(c => c.OnProjectUpdated(projectId, It.IsAny<Guid?>()), Times.Once);
+        hubClient.Verify(c => c.OnProjectUpdated(projectId, headlessClientId), Times.Once);
+    }
+
     private async Task<ServerCommit> AddTestCommit()
     {
         var projectId = await _lexBoxDbContext.Projects.Select(p => p.Id).FirstOrDefaultAsync();
@@ -216,8 +249,33 @@ public class CrdtCommitServiceTests
         var commit = await AddTestCommit();
         var syncState = await _crdtCommitService.GetSyncState(commit.ProjectId);
 
-        var commits = await _crdtCommitService.GetMissingCommits(commit.ProjectId, syncState, new SyncState([])).ToArrayAsync();
+        var commits = await _crdtCommitService.GetMissingCommits(commit.ProjectId, syncState, new SyncState([], [])).ToArrayAsync();
         commits.Should().Contain(c => c.Id == commit.Id);
+    }
+
+    [Fact]
+    public async Task CountMatchesWhatGetMissingCommitsSends()
+    {
+        var commit = await AddTestCommit();
+        var serverState = await _crdtCommitService.GetSyncState(commit.ProjectId);
+        var server = serverState.GetClientState(commit.ClientId)!;
+        SyncState[] remoteStates =
+        [
+            new([], []),
+            serverState,
+            //an older client that only reports its head
+            new(new Dictionary<Guid, long> { [commit.ClientId] = server.MaxTimestamp }),
+            //same head and count but a different commit, so the whole client history is sent
+            new([server with { Hash = server.Hash ^ 1 }]),
+            new([server with { MaxTimestamp = server.MaxTimestamp - 1 }]),
+        ];
+
+        foreach (var remoteState in remoteStates)
+        {
+            var missing = await _crdtCommitService.GetMissingCommits(commit.ProjectId, serverState, remoteState).ToArrayAsync();
+            var count = await _crdtCommitService.ApproximatelyCountMissingCommits(commit.ProjectId, serverState, remoteState);
+            count.Should().Be(missing.Length, "remote state {0}", JsonSerializer.Serialize(remoteState));
+        }
     }
 
     [Fact]

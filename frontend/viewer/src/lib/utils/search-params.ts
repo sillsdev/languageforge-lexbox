@@ -5,6 +5,11 @@ export enum BrowseParam {
   CommentsOpen = 'commentsOpen',
 }
 
+export enum ActivityParam {
+  CommitId = 'commitId',
+  CommitOpen = 'commitOpen',
+}
+
 /**
  * Returns the query params needed to navigate to a specific entry in the browse view.
  * Always use this instead of constructing entryId params manually — entryOpen=true is

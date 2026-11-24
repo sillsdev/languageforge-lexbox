@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- API test helpers shared by Testing and HgClientTests. Keep it on LexCore only: HgClientTests loads old LibChorus,
+       which can't share a process with LexBoxApi's or LCModel's dependencies. -->
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Testing</RootNamespace>
+    <!-- xunit.core's props mark any project referencing it as a test project, so dotnet test would try to run this one -->
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+    <PackageReference Include="xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LexCore\LexCore.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="FluentAssertions" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="test-template-repo.zip" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

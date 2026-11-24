@@ -1,4 +1,5 @@
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IMiniLcmJsInvokable';
+import type {UserProjectRole} from '$lib/dotnet-types/generated-types/LcmCrdt/UserProjectRole';
 import type {ICustomView} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ICustomView';
 
 export { }; // for some reason this is required in order to make global changes
@@ -13,6 +14,8 @@ declare global {
       setHasHardwareKeyboard: (value: boolean) => void;
       /** Create a custom view and refresh the app's list of views. */
       addCustomView: (customView: ICustomView) => Promise<ICustomView>;
+      /** Gives the demo project data with this role (by default it has none, which counts as a manager). */
+      setProjectRole: (role: UserProjectRole) => void;
     };
   }
 }

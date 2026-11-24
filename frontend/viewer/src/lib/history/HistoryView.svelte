@@ -1,7 +1,8 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
   import {t} from 'svelte-i18n-lingui';
-  import {type HistoryItem, useHistoryService} from '../services/history-service';
+  import {useHistoryService} from '../services/history-service';
+  import type {IHistoryLineItem} from '$lib/dotnet-types';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
   import ListItem from '$lib/components/ListItem.svelte';
   import {VList} from 'virtua/svelte';
@@ -11,13 +12,13 @@
   interface Props {
     id: string;
     open: boolean;
-    selectedCommitId?: string | undefined;
+    selected?: {commitId: string, changeIndex: number};
   }
 
   let {
     id,
     open = $bindable(),
-    selectedCommitId = $bindable(undefined)
+    selected = $bindable(undefined)
   }: Props = $props();
 
   useBackHandler({
@@ -28,7 +29,7 @@
 
   let loading = $state(false);
   const historyService = useHistoryService();
-  let history: HistoryItem[] = $state([]);
+  let history: IHistoryLineItem[] = $state([]);
 
 
   async function load() {
@@ -36,27 +37,18 @@
     try {
       history = [];
       history = await historyService.load(id);
-      if (!selectedCommitId)
-        selectedCommitId = history[0]?.commitId;
+      selected ??= history[0];
     } finally {
       loading = false;
     }
   }
 
-  async function showEntry(row: HistoryItem) {
-    if (!row.entity) {
-      const snapshot = await historyService.fetchSnapshot(row, id);
-      Object.assign(row, snapshot);
-    }
-    selectedCommitId = row.commitId;
-  }
-
   function reset() {
-    selectedCommitId = undefined;
+    selected = undefined;
     history = [];
   }
 
-  let record = $derived(selectedCommitId ? history.find(h => h.commitId == selectedCommitId) : undefined);
+  let record = $derived(history.find(h => h.commitId === selected?.commitId && h.changeIndex === selected.changeIndex));
   $effect(() => {
     if (open && id) {
       void load();
@@ -83,9 +75,9 @@
                    class="h-full p-0.5 md:pr-3 after:h-12 after:block !contain-content">
               {#snippet children(row)}
                 <ListItem
-                  onclick={() => showEntry(row)}
+                  onclick={() => selected = row}
                   class="mb-2"
-                  selected={record?.commitId === row.commitId && record.changeIndex === row.changeIndex}>
+                  selected={record === row}>
                   <span>{row.changeName}</span>
                   <div class="text-sm text-muted-foreground flex flex-wrap gap-x-2 justify-between">
                     <span>
