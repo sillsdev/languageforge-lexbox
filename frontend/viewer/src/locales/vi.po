@@ -424,6 +424,10 @@ msgstr ""
 msgid "Add audio"
 msgstr "Thêm âm thanh"
 
+#: src/lib/activity/change-type-groups.ts
+msgid "Add comment"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Add part of"
 #. Button to add compound entry that this entry is a component of (e.g., "sun" is component of "sunflower")
@@ -1019,11 +1023,6 @@ msgstr "Đóng"
 msgid "Close Dictionary"
 msgstr "Đóng Từ điển"
 
-#. Activity-log line: a user closed (resolved) a discussion thread. Matches the "Closed" status in the comments dialog.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Closed comment thread"
-msgstr ""
-
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/entry-editor/diff-view/diff-fields.ts
@@ -1344,6 +1343,14 @@ msgstr "Xóa"
 msgid "Delete {0}"
 msgstr "Xóa {0}"
 
+#: src/lib/activity/change-type-groups.ts
+msgid "Delete comment"
+msgstr ""
+
+#: src/lib/activity/change-type-groups.ts
+msgid "Delete conversation"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Delete Word"
 #. Menu option: opens confirmation dialog to permanently remove entry
@@ -1386,9 +1393,9 @@ msgstr ""
 msgid "Deleted comment"
 msgstr ""
 
-#. Activity-log line: a user deleted a whole discussion thread with its comments.
+#. Activity-log line: a user deleted a whole comment conversation with its comments.
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Deleted comment thread"
+msgid "Deleted conversation"
 msgstr ""
 
 #. Status on a tab: the item was deleted after this change. Not an instruction to delete it later.
@@ -1579,6 +1586,7 @@ msgstr "ví dụ: th, sw"
 msgid "Edit"
 msgstr "Chỉnh sửa"
 
+#: src/lib/activity/change-type-groups.ts
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit comment"
 msgstr "Chỉnh sửa bình luận"
@@ -3807,9 +3815,9 @@ msgstr ""
 msgid "Reopen"
 msgstr "Mở lại"
 
-#. Activity-log line: a user reopened a previously closed discussion thread.
+#. Activity-log line: a user reopened a resolved comment conversation.
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Reopened comment thread"
+msgid "Reopened conversation"
 msgstr ""
 
 #. Tooltip/aria-label for the "reordered" change-category badge icon on an activity row (paired with "Added", "Removed", "Edited").
@@ -3875,9 +3883,19 @@ msgstr ""
 msgid "Resolve"
 msgstr "Giải quyết"
 
+#. Activity type name in a filter list: a change to whether a comment conversation is resolved.
+#: src/lib/activity/change-type-groups.ts
+msgid "Resolve or reopen conversation"
+msgstr ""
+
 #. Status of a comment conversation in the activity view: someone marked it as done.
 #: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 msgid "Resolved"
+msgstr ""
+
+#. Activity-log line: a user resolved (closed) a comment conversation. Matches "Resolve" in the comments panel.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Resolved conversation"
 msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte
@@ -4345,6 +4363,10 @@ msgstr "Bắt đầu một cuộc trò chuyện"
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Start a conversation…"
 msgstr "Bắt đầu một cuộc trò chuyện…"
+
+#: src/lib/activity/change-type-groups.ts
+msgid "Start conversation"
+msgstr ""
 
 #. Screen-reader-only hint on Tasks list rows that open a task straight away (instead of showing a language list).
 #: src/project/tasks/TaskList.svelte
@@ -5260,12 +5282,12 @@ msgstr "Từ hoặc ý nghĩa:"
 msgid "words"
 msgstr ""
 
-#. Group header in morph type lists: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
 #. Group heading in the activity-type filter: changes to words (simpler wording for "entries").
 #: src/lib/activity/ChangeTypeFilter.svelte
 msgid "Words"
 msgstr ""
 
+#. Group header in morph type lists: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
 #: src/project/data/morph-type-groups.ts
 msgid "Words and phrases"
 msgstr ""

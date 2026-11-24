@@ -242,7 +242,7 @@
 {:else if fact.kind === 'comment'}
   {#if fact.action === 'add'}{$t`Added comment`}{:else if fact.action === 'edit'}{$t`Edited comment`}{:else}{$t`Deleted comment`}{/if}{#if fact.text}{@render chip(fact.text)}{/if}
 {:else if fact.kind === 'commentThread'}
-  {#if fact.action === 'close'}{$t`Closed comment thread`}{:else if fact.action === 'reopen'}{$t`Reopened comment thread`}{:else}{$t`Deleted comment thread`}{/if}
+  {#if fact.action === 'close'}{$t`Resolved conversation`}{:else if fact.action === 'reopen'}{$t`Reopened conversation`}{:else}{$t`Deleted conversation`}{/if}
 {:else}
   {fact.text}
 {/if}

@@ -1,6 +1,6 @@
 import {describe, it, expect} from 'vitest';
 import {knownChangeTypes} from '$lib/dotnet-types/generated-types/LcmCrdt/ChangeType';
-import {changeTypeSection, CHANGE_TYPE_SECTIONS, explicitlyGroupedChangeTypes} from './change-type-groups';
+import {changeLabelOverrides, changeTypeSection, CHANGE_TYPE_SECTIONS, explicitlyGroupedChangeTypes} from './change-type-groups';
 
 describe('change-type filter grouping', () => {
   it('maps every generated change type to a filter section', () => {
@@ -30,5 +30,10 @@ describe('change-type filter grouping', () => {
     expect(changeTypeSection('CreatePublicationChange')).toBe('vocabulary');
     // Component links group under entries from either end.
     expect(changeTypeSection('delete:ComplexFormComponent')).toBe('entry');
+  });
+
+  it('only overrides labels of change types the backend emits', () => {
+    const known = new Set<string>(knownChangeTypes);
+    expect(Object.keys(changeLabelOverrides).filter((key) => !known.has(key))).toEqual([]);
   });
 });

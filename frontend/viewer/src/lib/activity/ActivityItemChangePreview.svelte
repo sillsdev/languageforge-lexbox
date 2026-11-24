@@ -15,6 +15,8 @@
   import {usePartsOfSpeech, useWritingSystemService} from '$project/data';
   import ActivityChangeHeader from './ActivityChangeHeader.svelte';
   import {senseInEntry, senseLabel} from '$lib/entry-editor/sense-ref';
+  import {changeLabelOverrides} from './change-type-groups';
+  import {changeType} from './change-summary';
   import {changeBadge, changeKind, isReorder, parentCrumb} from './change-header';
   import {pt} from '$lib/views/view-text';
   import {existing, type SinceThen} from './since-then';
@@ -53,6 +55,10 @@
   const gone = $derived(!!diffBefore && !diffAfter);
   const fresh = $derived(!diffBefore && !!diffAfter);
 
+  const changeLabel = $derived.by(() => {
+    const override = changeLabelOverrides[changeType(change?.change)];
+    return override ? $t(override) : context.changeName;
+  });
   const kind = $derived(changeKind(context.entityType));
   const reorder = $derived(isReorder(change));
   const showNote = $derived(!since && !reorder);
@@ -172,7 +178,7 @@
 <div class={cn(gone && 'diff-gone', fresh && 'diff-new')}>
   {#if anchor || cfc || kind === 'comment'}
     <div class="mb-3">
-      <ActivityChangeHeader label={context.changeName} {crumbs} {badge} {actions} {now}
+      <ActivityChangeHeader label={changeLabel} {crumbs} {badge} {actions} {now}
                             identity={cfc ? componentIdentity : kind === 'comment' ? commentIdentity : anchorIdentity} />
     </div>
   {/if}

@@ -8,9 +8,10 @@
   import {Icon} from '$lib/components/ui/icon';
   import {SvelteSet} from 'svelte/reactivity';
   import {watch} from 'runed';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
-  import {changeTypeSection, CHANGE_TYPE_SECTIONS, type ChangeTypeSection} from './change-type-groups';
+  import {changeTypeSection, changeLabelOverrides, CHANGE_TYPE_SECTIONS, type ChangeTypeSection} from './change-type-groups';
 
   // Grouped tri-state filter over the generated change types (NN/g filter-hierarchy + PatternFly grouped
   // checkbox select). Selection semantics: empty = no filter (everything shows); a non-empty set narrows
@@ -39,6 +40,11 @@
     return labels[section];
   }
 
+  function typeLabel(ct: IActivityChangeType): string {
+    const override = changeLabelOverrides[ct.key];
+    return override ? $t(override) : ct.label;
+  }
+
   type Section = {id: ChangeTypeSection; label: string; types: IActivityChangeType[]};
   const sections = $derived.by((): Section[] =>
     CHANGE_TYPE_SECTIONS.map((id) => ({
@@ -46,20 +52,20 @@
       label: sectionLabel(id),
       types: changeTypes
         .filter((ct) => changeTypeSection(ct.key) === id)
-        .toSorted((a, b) => a.label.localeCompare(b.label)),
+        .toSorted((a, b) => typeLabel(a).localeCompare(typeLabel(b))),
     })).filter((s) => s.types.length > 0));
 
   const selectedSet = $derived(new Set(selected));
   const query = $derived(search.trim().toLowerCase());
 
   function matches(ct: IActivityChangeType): boolean {
-    return !query || ct.label.toLowerCase().includes(query);
+    return !query || typeLabel(ct).toLowerCase().includes(query);
   }
   function visibleTypes(section: Section): IActivityChangeType[] {
     return query ? section.types.filter(matches) : section.types;
   }
-  function selectedCount(section: Section): number {
-    return section.types.filter((ct) => selectedSet.has(ct.key)).length;
+  function selectedCount(types: IActivityChangeType[]): number {
+    return types.filter((ct) => selectedSet.has(ct.key)).length;
   }
 
   // Collapsed by default so ~6 header rows orient the eye; a group with a PARTIAL selection auto-expands
@@ -69,7 +75,7 @@
     search = '';
     expanded.clear();
     for (const section of sections) {
-      const count = selectedCount(section);
+      const count = selectedCount(section.types);
       if (count > 0 && count < section.types.length) expanded.add(section.id);
     }
   }
@@ -91,11 +97,11 @@
     apply(next);
   }
 
-  function toggleSection(section: Section) {
+  function toggleSection(types: IActivityChangeType[]) {
     // eslint-disable-next-line svelte/prefer-svelte-reactivity -- transient copy, applied and discarded
     const next = new Set(selectedSet);
-    const allSelected = selectedCount(section) === section.types.length;
-    for (const ct of section.types) {
+    const allSelected = selectedCount(types) === types.length;
+    for (const ct of types) {
       if (allSelected) next.delete(ct.key);
       else next.add(ct.key);
     }
@@ -115,7 +121,8 @@
   const triggerLabel = $derived.by(() => {
     if (selected.length === 0) return $t`Activity type`;
     if (selected.length === 1) {
-      return changeTypes.find((ct) => ct.key === selected[0])?.label ?? selected[0];
+      const single = changeTypes.find((ct) => ct.key === selected[0]);
+      return single ? typeLabel(single) : selected[0];
     }
     const fullSection = sections.find(
       (s) => s.types.length === selected.length && s.types.every((ct) => selectedSet.has(ct.key)));
@@ -126,39 +133,43 @@
 </script>
 
 {#snippet sectionRows(section: Section)}
-  {@const count = selectedCount(section)}
   {@const types = visibleTypes(section)}
+  {@const count = selectedCount(types)}
   {#if types.length}
     <div class="group/header flex items-center gap-2 rounded-sm px-2 py-1.5 hover:bg-accent">
       <Checkbox
-        checked={count === section.types.length}
-        indeterminate={count > 0 && count < section.types.length}
-        onCheckedChange={() => toggleSection(section)}
+        checked={count === types.length}
+        indeterminate={count > 0 && count < types.length}
+        onCheckedChange={() => toggleSection(types)}
         aria-label={section.label} />
       <button type="button" class="flex grow items-center gap-1 text-start text-sm font-medium"
+        onclick={() => toggleSection(types)}>
+        <span class="grow">{section.label}</span>
+        {#if count > 0 && count < types.length}
+          <span class="text-xs text-muted-foreground">{count}/{types.length}</span>
+        {/if}
+      </button>
+      <button type="button" class="flex size-8 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
+        aria-label={section.label}
         aria-expanded={isExpanded(section)}
         onclick={() => expanded.has(section.id) ? expanded.delete(section.id) : expanded.add(section.id)}>
-        <span class="grow">{section.label}</span>
-        {#if count > 0 && count < section.types.length}
-          <span class="text-xs text-muted-foreground">{count}/{section.types.length}</span>
-        {/if}
-        <Icon icon={isExpanded(section) ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'} class="size-4 text-muted-foreground" />
+        <Icon icon={isExpanded(section) ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'} class="size-4" />
       </button>
       <button type="button"
-        class="text-xs text-muted-foreground hover:text-foreground md:opacity-0 group-hover/header:opacity-100 group-focus-within/header:opacity-100"
-        onclick={() => only(section.types.map((ct) => ct.key))}>
+        class="text-xs text-muted-foreground hover:text-foreground [@media(hover:hover)]:opacity-0 [@media(hover:none)]:hidden group-hover/header:opacity-100 group-focus-within/header:opacity-100"
+        onclick={() => only(types.map((ct) => ct.key))}>
         {$t`Only`}
       </button>
     </div>
     {#if isExpanded(section)}
       {#each types as ct (ct.key)}
         <div class="group/row flex items-center gap-2 rounded-sm py-1.5 pe-2 ps-7 hover:bg-accent">
-          <Checkbox checked={selectedSet.has(ct.key)} onCheckedChange={() => toggleType(ct.key)} aria-label={ct.label} />
+          <Checkbox checked={selectedSet.has(ct.key)} onCheckedChange={() => toggleType(ct.key)} aria-label={typeLabel(ct)} />
           <button type="button" class="grow text-start text-sm" onclick={() => toggleType(ct.key)}>
-            {ct.label}
+            {typeLabel(ct)}
           </button>
           <button type="button"
-            class="text-xs text-muted-foreground hover:text-foreground md:opacity-0 group-hover/row:opacity-100 group-focus-within/row:opacity-100"
+            class="text-xs text-muted-foreground hover:text-foreground [@media(hover:hover)]:opacity-0 [@media(hover:none)]:hidden group-hover/row:opacity-100 group-focus-within/row:opacity-100"
             onclick={() => only([ct.key])}>
             {$t`Only`}
           </button>
@@ -169,7 +180,9 @@
 {/snippet}
 
 <div class="flex w-44 max-w-full grow items-center">
-  <ResponsivePopup bind:open title={$t`Activity type`} contentProps={{class: 'w-80 p-0', align: 'start'}}>
+  <!-- The popover's trigger already names it; only the full-width drawer needs a title -->
+  <ResponsivePopup bind:open title={IsMobile.value ? $t`Activity type` : undefined}
+    contentProps={IsMobile.value ? undefined : {class: 'w-80 p-0', align: 'start'}}>
     {#snippet trigger({props})}
       <Button {...props} variant="outline"
         class="min-w-0 grow justify-between font-normal {active ? 'border-primary/50 font-medium' : ''} {active ? 'rounded-e-none border-e-0' : ''}">

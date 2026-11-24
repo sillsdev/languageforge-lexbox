@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention -- keys below are backend change-type discriminators and entity-type suffixes; all are intentionally PascalCase */
+import {msg} from 'svelte-i18n-lingui';
 
 /**
  * The subject a change type is about, for grouping the activity-type filter. Users think in terms of
@@ -108,3 +109,13 @@ export function changeTypeSection(key: string): ChangeTypeSection | undefined {
   }
   return TYPED_SECTIONS[key];
 }
+
+/** Frontend labels that replace the backend's English ones, so comments read like the comment panel ("conversation" = thread). Resolve with `$t(...)`. */
+export const changeLabelOverrides: Record<string, ReturnType<typeof msg>> = {
+  CreateCommentThreadChange: msg`Start conversation`,
+  CreateUserCommentChange: msg`Add comment`,
+  EditUserCommentChange: msg`Edit comment`,
+  SetCommentThreadStatusChange: msg`Resolve or reopen conversation`,
+  'delete:UserComment': msg`Delete comment`,
+  'delete:CommentThread': msg`Delete conversation`,
+};
