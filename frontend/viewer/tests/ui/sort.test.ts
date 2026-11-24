@@ -136,19 +136,81 @@ test.describe('Sort by writing system', () => {
     await expect(row.locator('strong')).toHaveText('qtxseh / qtxny');
     await expect(wsTrigger()).toBeVisible();
   });
+});
 
-  test('new entry from the search prefills the writing system the list is showing', async () => {
+test.describe('New entry from a search', () => {
+  let projectPage: DemoProjectPage;
+
+  test.beforeEach(async ({page}) => {
+    projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
+  });
+
+  async function useCustomView(name: string, vernacular: string[], entryFields = ['lexemeForm']) {
     const {page} = projectPage;
+    await page.evaluate(({base, name, vernacular, entryFields}) => window.__PLAYWRIGHT_UTILS__.addCustomView({
+      id: crypto.randomUUID(),
+      name,
+      base,
+      entryFields: entryFields.map(fieldId => ({fieldId})),
+      senseFields: [{fieldId: 'gloss'}],
+      exampleFields: [{fieldId: 'sentence'}],
+      vernacular: vernacular.map(wsId => ({wsId})),
+    }), {base: ViewBase.FwLite, name, vernacular, entryFields});
+    await page.getByRole('button').filter({has: page.locator('.i-mdi-layers')}).click();
+    await page.getByRole('radio', {name: `${name} (Lite)`}).click();
+    await expect(page.getByRole('radio', {name: `${name} (Lite)`})).toBeChecked();
+    await page.keyboard.press('Escape');
+  }
 
-    await wsTrigger().click();
-    await page.getByRole('menuitem', {name: 'Chichewa'}).click();
+  async function sortBy(wsName: string) {
+    await projectPage.page.getByTestId('sort-ws-trigger').click();
+    await projectPage.page.getByRole('menuitem', {name: wsName}).click();
+  }
 
+  async function addFromListSearch() {
     await projectPage.entriesList.filterByText('qtxnothing');
     await projectPage.entriesList.entryRows.filter({hasText: 'Add to dictionary'}).click();
+  }
 
-    const dialog = page.getByRole('dialog');
-    const lexemeForm = dialog.locator('[data-field-id="lexemeForm"]');
-    await expect(lexemeForm.locator('[title$="(ny)"] input')).toHaveValue('qtxnothing');
-    await expect(lexemeForm.locator('[title$="(seh)"] input')).toHaveValue('');
+  function lexemeFormInput(wsId: string) {
+    return projectPage.page.getByRole('dialog').locator(`[data-field-id="lexemeForm"] [title$="(${wsId})"] input`);
+  }
+
+  test('goes in the project default writing system by default', async () => {
+    await addFromListSearch();
+    await expect(lexemeFormInput('seh')).toHaveValue('qtxnothing');
+    await expect(lexemeFormInput('ny')).toHaveValue('');
+  });
+
+  test('goes in the writing system the list is sorted by', async () => {
+    await sortBy('Chichewa');
+    await addFromListSearch();
+    await expect(lexemeFormInput('ny')).toHaveValue('qtxnothing');
+    await expect(lexemeFormInput('seh')).toHaveValue('');
+  });
+
+  test('goes in the first writing system of a custom view that hides the default', async () => {
+    await useCustomView('Chichewa only', ['ny']);
+    await addFromListSearch();
+    await expect(lexemeFormInput('ny')).toHaveValue('qtxnothing');
+  });
+
+  test('ignores a sort pick that the custom view hides', async () => {
+    await sortBy('Chichewa');
+    await useCustomView('Sena only', ['seh']);
+    await addFromListSearch();
+    await expect(lexemeFormInput('seh')).toHaveValue('qtxnothing');
+  });
+
+  test('goes in the custom view’s first writing system from the entry picker', async () => {
+    const {page} = projectPage;
+    await useCustomView('Chichewa components', ['ny'], ['lexemeForm', 'components']);
+    await projectPage.entriesList.entryRows.first().click();
+    await page.getByRole('button', {name: 'Component'}).click();
+    const picker = page.getByRole('dialog');
+    await picker.getByPlaceholder(/Find/).fill('qtxnothing');
+    await picker.getByRole('button', {name: 'Add new word'}).click();
+    await expect(lexemeFormInput('ny')).toHaveValue('qtxnothing');
   });
 });
