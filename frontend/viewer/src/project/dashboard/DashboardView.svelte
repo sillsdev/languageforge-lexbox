@@ -15,10 +15,16 @@
   import {Link} from 'svelte-routing';
   import {useTasksService} from '$project/tasks/tasks-service';
   import type {FieldId} from '$lib/views/entity-config';
+  import {useFeatures} from '$lib/services/feature-service';
 
   const stats = useDashboardStats();
   const writingSystemService = useWritingSystemService();
   const tasksService = useTasksService();
+  const features = useFeatures();
+  // Matches the Tasks list: the editors hide audio writing systems when the feature is off.
+  function canFill(wsId: string): boolean {
+    return features.audio || !writingSystemService.allWritingSystems().find(ws => ws.wsId === wsId)?.isAudio;
+  }
   // Not $derived: the resource's factory always resolves to the same DashboardStats instance,
   // so this reference never changes — reactivity comes from that instance's own $state fields.
   const dashboard = stats.current;
@@ -47,7 +53,7 @@
   ws: {wsId: string, abbreviation: string},
   taskField: FieldId,
 )}
-  {@const task = field && total !== undefined && field.filled < total ? tasksService.findTask(taskField, ws.wsId) : undefined}
+  {@const task = field && total !== undefined && field.filled < total && canFill(ws.wsId) ? tasksService.findTask(taskField, ws.wsId) : undefined}
   {#if task}
     <Link
       to="./tasks?taskId={encodeURIComponent(task.id)}"
