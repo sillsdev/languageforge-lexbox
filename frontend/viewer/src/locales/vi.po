@@ -998,6 +998,7 @@ msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
+#: src/project/browse/SearchFilter.svelte
 msgid "Comments"
 msgstr "Bình luận"
 
@@ -2198,21 +2199,6 @@ msgstr ""
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
 msgstr "Các bản chụp nhanh Harmony đã được tạo lại thành công"
-
-#: src/project/browse/SearchFilter.svelte
-#: src/project/browse/SearchFilter.svelte
-msgid "Has comments"
-msgstr "Có bình luận"
-
-#: src/project/browse/SearchFilter.svelte
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unread comments"
-msgstr "Còn có bình luận chưa đọc"
-
-#: src/project/browse/SearchFilter.svelte
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unresolved comments"
-msgstr "Còn có các bình luận chưa được giải quyết"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -5031,6 +5017,29 @@ msgstr "Dự án của tôi ở đâu?"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "Tại sao vậy?"
+
+#. Option in the entry-list "Comments" filter: entries that have any comment threads.
+#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With comments"
+msgstr ""
+
+#. Placeholder of the entry-list "Comments" filter when no option is chosen, i.e. comments do not filter the list.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With or without comments"
+msgstr ""
+
+#. Option in the entry-list "Comments" filter: entries with comments the user has not read.
+#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unread comments"
+msgstr ""
+
+#. Option in the entry-list "Comments" filter: entries with comment threads not yet marked resolved.
+#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unresolved comments"
+msgstr ""
 
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
 #: src/lib/activity/ChangeSummary.svelte

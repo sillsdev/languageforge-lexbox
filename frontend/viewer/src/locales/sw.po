@@ -998,6 +998,7 @@ msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
+#: src/project/browse/SearchFilter.svelte
 msgid "Comments"
 msgstr "Maoni"
 
@@ -2198,21 +2199,6 @@ msgstr ""
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
 msgstr "Picha za Harmony zimetengenezwa upya kwa mafanikio"
-
-#: src/project/browse/SearchFilter.svelte
-#: src/project/browse/SearchFilter.svelte
-msgid "Has comments"
-msgstr "Ina maoni"
-
-#: src/project/browse/SearchFilter.svelte
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unread comments"
-msgstr "Una maoni ambayo hayajasomwa"
-
-#: src/project/browse/SearchFilter.svelte
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unresolved comments"
-msgstr "Ina maoni ambayo hayajatatuliwa"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -5031,6 +5017,29 @@ msgstr "Miradi yangu iko wapi?"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "Kwa nini hiyo?"
+
+#. Option in the entry-list "Comments" filter: entries that have any comment threads.
+#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With comments"
+msgstr ""
+
+#. Placeholder of the entry-list "Comments" filter when no option is chosen, i.e. comments do not filter the list.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With or without comments"
+msgstr ""
+
+#. Option in the entry-list "Comments" filter: entries with comments the user has not read.
+#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unread comments"
+msgstr ""
+
+#. Option in the entry-list "Comments" filter: entries with comment threads not yet marked resolved.
+#: src/project/browse/SearchFilter.svelte
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unresolved comments"
+msgstr ""
 
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
 #: src/lib/activity/ChangeSummary.svelte
