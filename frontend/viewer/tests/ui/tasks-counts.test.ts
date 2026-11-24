@@ -13,12 +13,12 @@ test('task counts follow entry changes in the open task, on the list afterwards 
   }
   // The demo api only emulates this task's filter; the per-language tasks get the entry total.
   const partOfSpeechTask = page.getByRole('button', {name: /^(Part of speech|Grammatical info\.),/});
-  const otherTask = page.locator('button[title*="to go"]').first();
+  const otherTask = page.getByRole('button', {name: /^Gloss,/}).first();
   async function partOfSpeechCount() {
     return toGo(await partOfSpeechTask.textContent());
   }
   async function otherCount() {
-    return toGo(await otherTask.getAttribute('title'));
+    return toGo(await otherTask.textContent());
   }
   await expect.poll(partOfSpeechCount).toBeGreaterThan(0);
   await expect.poll(otherCount).toBeGreaterThan(0);

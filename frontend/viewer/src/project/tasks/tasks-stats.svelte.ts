@@ -47,15 +47,24 @@ export class TasksStats {
       this.#rerun = true;
       return this.#running;
     }
-    this.#running = this.#runPasses().finally(() => this.#running = undefined);
+    this.#running = this.#runPasses();
     return this.#running;
   }
 
   async #runPasses(): Promise<void> {
+    let failure: {error: unknown} | undefined;
     do {
       this.#rerun = false;
-      await this.#countOutOfDate(this.#api!);
+      try {
+        await this.#countOutOfDate(this.#api!);
+        failure = undefined;
+      } catch (error) {
+        failure = {error};
+      }
     } while (this.#rerun);
+    // cleared in the same tick the loop ends, or a refresh arriving in between would queue behind nothing
+    this.#running = undefined;
+    if (failure) throw failure.error;
   }
 
   async #countOutOfDate(api: IMiniLcmJsInvokable): Promise<void> {

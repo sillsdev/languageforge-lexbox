@@ -177,6 +177,22 @@ describe('TasksStats', () => {
     expect(stats.progress.gloss).toBeDefined();
   });
 
+  it('still runs a queued pass when the running one fails', async () => {
+    const {fake, stats, api} = setup('gloss', 'definition');
+    stats.showing = 'gloss';
+    fake.failing.add('gloss');
+
+    fake.hold();
+    const done = stats.refresh(api);
+    await settle();
+    stats.showing = 'definition';
+    void stats.refresh(api);
+    fake.release();
+
+    await done;
+    expect(stats.progress.definition).toBeDefined();
+  });
+
   it('counts a task added later without recounting the others', async () => {
     const {fake, stats, tasks, api} = setup('gloss');
     stats.showing = 'all';
