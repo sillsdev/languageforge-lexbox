@@ -1,6 +1,7 @@
 <script lang="ts">
   import ChoiceRow from '$lib/components/ChoiceRow.svelte';
   import * as Card from '$lib/components/ui/card';
+  import * as Collapsible from '$lib/components/ui/collapsible';
   import {Icon} from '$lib/components/ui/icon';
   import {Button} from '$lib/components/ui/button';
   import {Skeleton} from '$lib/components/ui/skeleton';
@@ -231,19 +232,19 @@
   <div class="flex max-w-[57.5rem] flex-col gap-8" bind:this={container}>
     <span id="task-starts-hint" hidden>{$t`Starts the task`}</span>
     {#if !drilledIn}
-      <div class="flex flex-col gap-4">
+      <Collapsible.Root open={showHelp} onOpenChange={open => open ? helpOpen = true : dismissHelp()}>
         <p class="text-muted-foreground">
           {$t`Fill in what's missing, a few at a time.`}
           <!-- Plain primary is too dark to read as text on the dark background. -->
-          <button id="tasks-help-link" type="button" aria-expanded={showHelp} aria-controls="tasks-help"
-            onclick={() => showHelp ? closeHelp() : helpOpen = true}
-            class="text-primary inline-flex cursor-pointer items-center gap-1 font-medium whitespace-nowrap hover:underline dark:text-[color-mix(in_oklab,var(--primary)_70%,white)]">
+          <Collapsible.Trigger id="tasks-help-link"
+            class="text-primary inline-flex cursor-pointer items-center gap-1 font-medium whitespace-nowrap hover:underline dark:text-[color-mix(in_oklab,var(--primary)_70%,white)] [&[data-state=open]>.i-mdi-chevron-down]:rotate-180">
             {$t`How tasks work`}
-            <Icon icon="i-mdi-chevron-down" class="size-4 transition-transform {showHelp ? 'rotate-180' : ''}" />
-          </button>
+            <i class="i-mdi-chevron-down size-4 transition-transform"></i>
+          </Collapsible.Trigger>
         </p>
-        {#if showHelp}
-          <Card.Root id="tasks-help" class="py-4">
+        <!-- The gap lives inside the content so it animates with it; the padding keeps the card shadow from being clipped. -->
+        <Collapsible.Content id="tasks-help" class="-mx-1 overflow-hidden px-1 pb-1">
+          <Card.Root class="mt-4 py-4">
             <Card.Content class="flex flex-col items-start gap-3">
               <ol class="flex list-decimal flex-col gap-1 ps-5">
                 <li>{$t`Pick what's missing, like a Gloss or an Example sentence.`}</li>
@@ -253,8 +254,8 @@
               <Button variant="secondary" size="sm" onclick={closeHelp}>{$t`Got it`}</Button>
             </Card.Content>
           </Card.Root>
-        {/if}
-      </div>
+        </Collapsible.Content>
+      </Collapsible.Root>
       {#if recentTasks.length}
         <section class="flex flex-col gap-3">
           <h2 class="flex items-center gap-1.5 text-base font-semibold">
@@ -342,7 +343,8 @@
                 {#if drilledIn}
                   <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}} aria-label={$t`Back to all tasks`} onclick={() => fieldParam.current = ''} />
                 {/if}
-                <div class="flex min-w-0 flex-wrap items-baseline gap-x-2">
+                <!-- pt-1.5 centers the heading's first line on the 36px icon button. -->
+                <div class="flex min-w-0 flex-wrap items-baseline gap-x-2 {drilledIn ? 'pt-1.5' : ''}">
                   <h3 id="task-languages-heading" tabindex="-1" class="text-base font-semibold outline-none">{pickedField.label}</h3>
                   <!-- On desktop the selected row beside the panel already shows this. -->
                   {#if drilledIn}<p class="text-muted-foreground text-sm">{pickedField.description}</p>{/if}
