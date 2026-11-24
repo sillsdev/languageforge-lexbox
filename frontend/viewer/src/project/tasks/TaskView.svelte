@@ -37,11 +37,6 @@
   let entriesList = $state<EntriesList>();
   let entryCount = $state<number | null>(null);
   let completedSubjects = $state<TaskSubject[]>([]);
-  // Fixed at the round's start: filled entries drop out of entryCount, and one entry can hold several subjects.
-  let roundSize = $state(TASK_SUBJECT_COUNT);
-  $effect(() => {
-    if (completedSubjects.length === 0) roundSize = Math.min(entryCount ?? TASK_SUBJECT_COUNT, TASK_SUBJECT_COUNT);
-  });
   let showDone = $state(false);
   let allCompletedSubjects = $state<TaskSubject[]>([]);
 
@@ -90,7 +85,7 @@
             bind:entry
             {task}
             completed={completedSubjects.length}
-            total={Math.max(roundSize, completedSubjects.length)}
+            total={TASK_SUBJECT_COUNT}
             onNextEntry={async () => {
               const next = await entriesList?.selectNextEntry();
               if (!next) await onDone();
