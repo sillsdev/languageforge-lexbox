@@ -57,7 +57,6 @@
     <div
       class="grid gap-y-2 @lg/editor:grid-cols-subgrid col-span-full items-baseline"
       title={`${ws.name} (${ws.wsId})`}
-      data-ws={ws.wsId}
     >
       <Label id={labelId} for={inputId}>{ws.abbreviation}</Label>
       {#if !ws.isAudio}

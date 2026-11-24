@@ -3,13 +3,30 @@ import {useProjectContext} from '$project/project-context.svelte';
 import {getEntityConfig, type FieldId} from '$lib/views/entity-config';
 import {vt, type ViewText} from '$lib/views/view-text';
 import {gt, msg} from 'svelte-i18n-lingui';
-import type {IEntry, IExampleSentence, IRichString, ISense, IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
+import type {IEntry, IExampleSentence, IMultiString, IRichMultiString, IRichString, ISense, IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
 import {defaultExampleSentence, defaultSense, defaultTranslation, firstTruthy, isEntry, isSense} from '$lib/utils';
 import {TaskSubject} from './subject.svelte';
 import {subscribeLanguageChange} from '$lib/i18n';
 import type {Overrides} from '$lib/views/view-data';
 
 const symbol = Symbol.for('fw-lite-tasks');
+
+export interface ContextField {
+  fieldId: FieldId;
+  entity: 'entry' | 'sense' | 'example';
+  rich: boolean;
+  /** The subject's entity, so the field can be bound through its reactive proxy. */
+  owner: Record<string, IMultiString | IRichMultiString>;
+  writingSystems: IWritingSystem[];
+}
+
+const contextTextFields: Partial<Record<FieldId, Pick<ContextField, 'entity' | 'rich'> & {type: 'vernacular' | 'analysis'}>> = {
+  lexemeForm: {entity: 'entry', type: 'vernacular', rich: false},
+  citationForm: {entity: 'entry', type: 'vernacular', rich: false},
+  gloss: {entity: 'sense', type: 'analysis', rich: false},
+  definition: {entity: 'sense', type: 'analysis', rich: true},
+  sentence: {entity: 'example', type: 'vernacular', rich: true},
+};
 
 export function useTasksService() {
   const projectContext = useProjectContext();
@@ -19,6 +36,7 @@ export function useTasksService() {
 
 export interface Task {
   id: string;
+  /** Shown read-only above the subject, if they're on the subject's entity. */
   contextFields: FieldId[];
   /** Already translated, unlike fieldLabel and description: tasks are rebuilt on language change. */
   subject: ViewText;
@@ -31,8 +49,8 @@ export interface Task {
   optionalFields?: FieldId[];
   subjectWritingSystemId?: string;
   subjectWritingSystemType?: WritingSystemType;
-  /** The form's writing systems, read once per subject. Defaults to only the subject's. */
-  overrides?: (subject: TaskSubject) => Overrides;
+  /** The form's writing systems. Defaults to only the subject's. */
+  overrides?: Overrides;
   /** Already translated, see subject. */
   prompt: ViewText;
   taskKind: 'provide-missing';
@@ -223,7 +241,7 @@ export class TasksService {
         subjectWritingSystemId: writingSystem.wsId,
         subjectWritingSystemType: writingSystem.type,
         // translations stay in the view's analysis writing systems
-        overrides: () => ({vernacular: [{wsId: writingSystem.wsId}]}),
+        overrides: {vernacular: [{wsId: writingSystem.wsId}]},
         prompt: writingSystem.isAudio
           ? gt`Record an example sentence, and type a translation if you can`
           : gt`Type an example sentence, and a translation if you can`,
@@ -237,6 +255,9 @@ export class TasksService {
   }
 
   public static *makeTranslationTasks(analysis: IWritingSystem[], vernacular: IWritingSystem[]) {
+    const hasSentence = vernacular.length
+      ? `(${vernacular.map(ws => `Senses.ExampleSentences.Sentence[${ws.wsId}]!=`).join('|')})`
+      : '';
     for (const writingSystem of analysis) {
       const taskTranslation: Task = {
         id: `example-translation-${writingSystem.wsId}`,
@@ -245,16 +266,12 @@ export class TasksService {
         subject: gt`Missing Translation ${writingSystem.abbreviation}`,
         subjectType: 'example-sentence',
         subjectFields: ['translations'],
-        optionalFields: ['sentence'],
         subjectWritingSystemId: writingSystem.wsId,
         subjectWritingSystemType: writingSystem.type,
-        overrides: s => ({
-          analysis: [{wsId: writingSystem.wsId}],
-          ...TasksService.sentenceWritingSystems(s.exampleSentence, vernacular),
-        }),
         prompt: writingSystem.isAudio ? gt`Record a translation of the example sentence` : gt`Translate the example sentence`,
         taskKind: 'provide-missing',
-        gridifyFilter: `Senses.ExampleSentences.Translations.Text[${writingSystem.wsId}]=`,
+        // the two conditions can match different examples of one entry; rare enough to accept
+        gridifyFilter: [hasSentence, `Senses.ExampleSentences.Translations.Text[${writingSystem.wsId}]=`].filter(Boolean).join(', '),
         getSubjectValue: s => TasksService.getTranslationValue(s as IExampleSentence, writingSystem.wsId),
         isComplete: s => !!TasksService.getTranslationValue(s as IExampleSentence, writingSystem.wsId)
       };
@@ -262,11 +279,18 @@ export class TasksService {
     }
   }
 
-  // The preview hides audio and out-of-view writing systems, so the form shows the sentence in every one it has
-  // text in, and only those so empty boxes don't push the translation down. With no sentence, the view's, to add one.
-  private static sentenceWritingSystems(example: IExampleSentence | undefined, vernacular: IWritingSystem[]): Overrides {
-    const withText = vernacular.filter(ws => asString(example?.sentence[ws.wsId]));
-    return withText.length ? {vernacular: withText.map(({wsId}) => ({wsId}))} : {};
+  /** The task's context fields on the subject's entity, each in every writing system it has a value in, ignoring the view. */
+  public static contextFields(task: Task, subject: TaskSubject, writingSystems: Record<'vernacular' | 'analysis', IWritingSystem[]>): ContextField[] {
+    const entity = task.subjectType === 'example-sentence' ? 'example' : task.subjectType;
+    const object = entity === 'entry' ? subject.entry : entity === 'sense' ? subject.sense : subject.exampleSentence;
+    if (!object) return [];
+    return task.contextFields.flatMap(fieldId => {
+      const field = contextTextFields[fieldId];
+      if (field?.entity !== entity) return [];
+      const owner = object as unknown as ContextField['owner'];
+      const withValue = writingSystems[field.type].filter(ws => asString(owner[fieldId][ws.wsId]));
+      return withValue.length ? [{fieldId, entity, rich: field.rich, owner, writingSystems: withValue}] : [];
+    });
   }
 
   private static getTranslationValue(example: IExampleSentence, wsId: string): string | undefined {
@@ -354,6 +378,7 @@ export class TasksService {
         if (examples.length === 0 && !translating) examples = [defaultExampleSentence(sense.id)];
         for (let example of examples) {
           if (task.getSubjectValue(example)) continue;
+          if (translating && !Object.values(example.sentence).some(asString)) continue;
           // a real translation rather than the editor's draft, so isComplete sees what's typed
           if (translating && !example.translations.length) example = {...example, translations: [defaultTranslation()]};
           subjects.push(new TaskSubject(entry, sense, example, (s) => task.getSubjectValue(s.exampleSentence!)));

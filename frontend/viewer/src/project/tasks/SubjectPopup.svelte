@@ -18,6 +18,8 @@
   import {pt} from '$lib/views/view-text';
   import {untrack} from 'svelte';
   import {useViewService} from '$lib/views/view-service.svelte';
+  import {useWritingSystemService} from '$project/data';
+  import TaskContext from './TaskContext.svelte';
 
   let {
     entry = $bindable(),
@@ -36,6 +38,7 @@
     onCompletedSubject?: (subject: TaskSubject) => void,
   } = $props();
   const viewService = useViewService();
+  const writingSystemService = useWritingSystemService();
   const shownFields = $derived([...task.subjectFields, ...task.optionalFields ?? []]);
   const entryPersistence = new EntryPersistence(() => entry);
   //need to create a snapshot, otherwise changes to the subjects will trigger this derived and it will skip to the next subject
@@ -43,14 +46,17 @@
   let subjectIndex = $state(0);
   let subject = $derived(subjects.at(subjectIndex));
   const overrides = $derived.by((): Overrides => {
-    const current = subject;
-    // untracked so a field doesn't vanish while it's being cleared
-    if (current && task.overrides) return untrack(() => task.overrides!(current));
+    if (task.overrides) return task.overrides;
     if (!task.subjectWritingSystemId) return {};
     const ws = [{wsId: task.subjectWritingSystemId}];
     return task.subjectWritingSystemType === WritingSystemType.Analysis
       ? {analysis: ws, vernacular: []}
       : {analysis: [], vernacular: ws};
+  });
+  // once per subject, so what's typed into the subject doesn't show up as context too
+  const contextFields = $derived.by(() => {
+    const current = subject;
+    return current ? untrack(() => TasksService.contextFields(task, current, writingSystemService)) : [];
   });
   $effect(() => {
     if (entry && subjects.length === 0) {
@@ -121,11 +127,8 @@
     let inputs = form.querySelectorAll<HTMLElement>('input, .ProseMirror');
     // focusing reads editor state, which would re-run this and pull the caret back from any other field
     untrack(() => {
-      const visible = [...inputs].filter(input => input.checkVisibility());
-      // the task's empty field beats context fields like the sentence being translated
-      const wsId = task.subjectWritingSystemId;
-      const own = wsId ? visible.filter(input => input.closest<HTMLElement>('[data-ws]')?.dataset.ws === wsId) : [];
-      const candidates = own.length ? own : visible;
+      const candidates = [...inputs].filter(input => input.checkVisibility()
+        && (input instanceof HTMLInputElement ? !input.readOnly : input.isContentEditable));
       const target = candidates.find(input => !(input instanceof HTMLInputElement ? input.value : input.textContent)) ?? candidates[0];
       target?.focus();
     });
@@ -156,6 +159,7 @@
             <input type="submit" style="display: none;"/>
             <Editor.Root bind:this={editor}>
               <Editor.Grid>
+                <TaskContext fields={contextFields}/>
                 <OverrideFields {shownFields} {overrides}>
                   {#if task.subjectType === 'entry' && subject.entry}
                     <EntryEditorPrimitive autofocus modalMode bind:entry={subject.entry}/>
