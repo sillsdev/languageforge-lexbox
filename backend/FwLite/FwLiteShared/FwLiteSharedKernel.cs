@@ -66,17 +66,33 @@ public static class FwLiteSharedKernel
         services.AddScoped<MediaCopier>();
         services.AddSingleton<LocalSyncHosting>();
         services.AddSingleton<INetworkNeighbors, SystemNetworkNeighbors>();
-        if (OperatingSystem.IsLinux())
-        {
-            services.TryAddSingleton<ICommandRunner, ProcessCommandRunner>();
-            services.TryAddSingleton<IAccessPoint, LinuxAccessPoint>();
-        }
-        // MAUI adds the Windows one; elsewhere hosts share over a network they're already on
+        // MAUI adds Windows' ones; elsewhere hosts share over a network they're already on
         services.TryAddSingleton<IAccessPoint, NoAccessPoint>();
+        services.TryAddKeyedSingleton<IKeepAwakePlatform, NoOpKeepAwakePlatform>(LocalSyncHosting.KeepAwakeKey);
         services.AddScoped<LocalSyncJoiner>();
+        // a socket handler of our own also skips Android's handler, which refuses plain http to the host in release builds
+        services.AddHttpClient(LocalSyncJoiner.HttpClientName).ConfigurePrimaryHttpMessageHandler(sp => new SocketsHttpHandler
+        {
+            ConnectCallback = async (context, cancellationToken) =>
+            {
+                var socket = new Socket(SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
+                try
+                {
+                    sp.GetRequiredService<ILocalNetworkAccess>().Bind(socket);
+                    await socket.ConnectAsync(context.DnsEndPoint, cancellationToken);
+                    return new NetworkStream(socket, ownsSocket: true);
+                }
+                catch
+                {
+                    socket.Dispose();
+                    throw;
+                }
+            },
+        });
         services.AddScoped<LocalSyncJoinSession>();
         // MAUI adds Android's; desktops already route local addresses
         services.TryAddSingleton<ILocalNetworkAccess, NoLocalNetworkAccess>();
+        services.TryAddSingleton<IDeviceName, MachineDeviceName>();
         services.AddSingleton<FolderProjectOpener>();
         services.AddSingleton<ILocalAuthorProvider, PreferencesLocalAuthorProvider>();
         services.AddScoped<ProjectServicesProvider>();
@@ -103,10 +119,7 @@ public static class FwLiteSharedKernel
         services.TryAddSingleton<IPlatformUpdateService, CorePlatformUpdateService>();
         services.TryAddSingleton<INetworkStatus, NetworkInterfaceNetworkStatus>();
         services.TryAddSingleton<IPlatformFeaturesService, DummyPlatformFeaturesService>();
-        // desktops pick their own; MAUI replaces this for Android and iOS
-        if (OperatingSystem.IsWindows()) services.TryAddSingleton<IKeepAwakePlatform, WindowsKeepAwakePlatform>();
-        else if (OperatingSystem.IsLinux()) services.TryAddSingleton<IKeepAwakePlatform, LinuxKeepAwakePlatform>();
-        else services.TryAddSingleton<IKeepAwakePlatform, NoOpKeepAwakePlatform>();
+        services.TryAddSingleton<IKeepAwakePlatform, NoOpKeepAwakePlatform>();
         services.TryAddSingleton<IKeepAwake, RefCountedKeepAwake>();
         services.AddSingleton<UpdateService>();
         services.AddSingleton<TestingService>();

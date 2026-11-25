@@ -3,6 +3,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using FwLiteShared.KeepAwake;
 using LcmCrdt;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SIL.Harmony.Config;
@@ -37,10 +38,14 @@ public record HostingInfo(HostSession Session, int Port, JoinInvitation Invitati
 /// server listening only on that network, the mDNS announcement, and keeping the machine awake for as long as it runs.
 /// While it runs it follows the host's address (a network the host was already on can hand it a new one) and lists the
 /// devices on a network it created. At most one project is hosted at a time.
+/// <para>
+/// Keeping awake uses its own <see cref="IKeepAwakePlatform"/> (<see cref="KeepAwakeKey"/>), so only hosting gets the
+/// desktop implementation; the rest of the app keeps the shared <see cref="IKeepAwake"/>.
+/// </para>
 /// </summary>
 public class LocalSyncHosting(
     IServiceProvider services,
-    IKeepAwake keepAwake,
+    [FromKeyedServices(LocalSyncHosting.KeepAwakeKey)] IKeepAwakePlatform keepAwake,
     IAccessPoint accessPoint,
     INetworkNeighbors networkNeighbors,
     IOptions<HarmonyConfig> harmonyConfig,
@@ -48,6 +53,8 @@ public class LocalSyncHosting(
 {
     /// <summary>Tried first, so a joiner typing an address by hand usually sees the same port; any free port otherwise.</summary>
     public const int DefaultPort = 5139;
+
+    public const string KeepAwakeKey = "local-sync-hosting";
 
     /// <summary>The port tried first; 0 to take any free port.</summary>
     public int PreferredPort { get; set; } = DefaultPort;
@@ -67,8 +74,6 @@ public class LocalSyncHosting(
         LocalSyncHttpServer Server,
         LocalSyncAdvertiser Advertiser,
         bool OwnsAccessPoint,
-        TaskCompletionSource Ended,
-        Task KeepAwake,
         CancellationTokenSource StopWatching)
     {
         public IPAddress Address => IPAddress.Parse(Info.Invitation.Host.Host);
@@ -79,13 +84,14 @@ public class LocalSyncHosting(
     /// <summary>Whether this device can try to create its own network (it can still fail; then offer <see cref="AvailableNetworks"/>).</summary>
     public bool CanCreateNetwork => accessPoint.IsSupported;
 
-    /// <exception cref="AccessPointUnavailableException">The device couldn't create its own network; nothing is left running.</exception>
+    /// <exception cref="HostingException">Nothing is left running. An <see cref="AccessPointUnavailableException"/>
+    /// means the device couldn't create its own network.</exception>
     public async Task<HostingInfo> StartHosting(CrdtProject project, HostingNetwork network)
     {
         await _lock.WaitAsync();
         try
         {
-            if (_running is not null) throw new InvalidOperationException("Already hosting a project; stop hosting it first");
+            if (_running is not null) throw new HostingException(HostingProblem.AlreadyHosting, "Already hosting a project; stop hosting it first");
             var hosted = await HostedProjectReader.Read(services, project);
 
             AccessPointInfo? created = null;
@@ -94,13 +100,15 @@ public class LocalSyncHosting(
             try
             {
                 _running = Start(project, hosted, address, created);
-                return _running.Info;
             }
-            catch
+            catch (Exception e)
             {
                 if (created is not null) await accessPoint.Stop();
+                if (e is System.Net.Sockets.SocketException) throw new HostingException(HostingProblem.CantListen, "Couldn't listen on the shared network", e);
                 throw;
             }
+            KeepAwake(hosted.ProjectName);
+            return _running.Info;
         }
         finally
         {
@@ -113,14 +121,11 @@ public class LocalSyncHosting(
         var session = new HostSession(hosted, AppVersion.Version);
         var (server, advertiser, port) = Listen(session, project, hosted, address, PreferredPort);
 
-        var ended = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        var awake = keepAwake.RunAsync(new KeepAwakeWork($"Sharing {hosted.ProjectName} for local sync"),
-            async () => await ended.Task);
         var invitation = new JoinInvitation(new Uri($"http://{address}:{port}"), hosted.ProjectId, hosted.ProjectName, created?.Network);
         logger.LogInformation("Hosting {Project} for local sync on {Address}:{Port}", project.Name, address, port);
         var stopWatching = new CancellationTokenSource();
         var running = new Running(new HostingInfo(session, port, invitation), project, hosted, InterfaceIdOf(address),
-            server, advertiser, created is not null, ended, awake, stopWatching);
+            server, advertiser, created is not null, stopWatching);
         _ = Task.Run(async () => await Watch(stopWatching.Token));
         return running;
     }
@@ -192,16 +197,19 @@ public class LocalSyncHosting(
         await MoveTo(newAddress);
     }
 
-    /// <summary>Moves the server and announcement to <paramref name="address"/>, keeping the session and its joiners.</summary>
+    /// <summary>
+    /// Moves the server and announcement to <paramref name="address"/>, keeping the session and its joiners. The new
+    /// address is set up before the old one is let go, so a failed move leaves hosting as it was, to be retried.
+    /// </summary>
     public async Task MoveTo(IPAddress address)
     {
         await _lock.WaitAsync();
         try
         {
             if (_running is not { } running || running.Address.Equals(address)) return;
+            var (server, advertiser, port) = Listen(running.Info.Session, running.Project, running.Hosted, address, running.Info.Port);
             running.Advertiser.Dispose();
             running.Server.Dispose();
-            var (server, advertiser, port) = Listen(running.Info.Session, running.Project, running.Hosted, address, running.Info.Port);
             var invitation = running.Info.Invitation with { Host = new Uri($"http://{address}:{port}") };
             logger.LogInformation("The local sync host's address changed from {OldAddress} to {Address}:{Port}",
                 running.Address, address, port);
@@ -258,18 +266,54 @@ public class LocalSyncHosting(
         {
             if (_running is not { } running) return;
             _running = null;
-            await running.StopWatching.CancelAsync();
-            running.StopWatching.Dispose();
-            running.Info.Session.End();
-            running.Advertiser.Dispose();
-            running.Server.Dispose();
-            if (running.OwnsAccessPoint) await accessPoint.Stop();
-            running.Ended.TrySetResult();
-            await running.KeepAwake;
+            try
+            {
+                await running.StopWatching.CancelAsync();
+                running.StopWatching.Dispose();
+                running.Info.Session.End();
+                running.Advertiser.Dispose();
+                running.Server.Dispose();
+            }
+            finally
+            {
+                try
+                {
+                    if (running.OwnsAccessPoint) await accessPoint.Stop();
+                }
+                finally
+                {
+                    LetSleep();
+                }
+            }
         }
         finally
         {
             _lock.Release();
+        }
+    }
+
+    // hosting carries on if the machine can't be kept awake; it just may sleep
+    private void KeepAwake(string projectName)
+    {
+        try
+        {
+            keepAwake.Acquire(new KeepAwakeWork($"Sharing {projectName} for local sync"));
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Couldn't keep this computer awake while hosting");
+        }
+    }
+
+    private void LetSleep()
+    {
+        try
+        {
+            keepAwake.Release();
+        }
+        catch (Exception e)
+        {
+            logger.LogWarning(e, "Couldn't let this computer sleep again after hosting");
         }
     }
 

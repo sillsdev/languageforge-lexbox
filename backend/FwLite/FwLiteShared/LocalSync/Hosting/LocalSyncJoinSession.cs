@@ -23,6 +23,8 @@ public enum LocalSyncProblem
 {
     /// <summary>Couldn't reach the host; it keeps retrying.</summary>
     HostUnreachable,
+    /// <summary>Asking to join failed (the host couldn't be reached, or didn't answer in time); nothing retries.</summary>
+    CouldNotJoin,
     /// <summary>The host is sharing a different project.</summary>
     DifferentProject,
     /// <summary>The host has a separate copy of this project that can't be merged.</summary>
@@ -49,6 +51,7 @@ public record JoinSessionView(
 public sealed class LocalSyncJoinSession(
     LocalSyncJoiner joiner,
     CurrentAuthorService currentAuthorService,
+    IDeviceName deviceName,
     ILocalNetworkAccess networkAccess,
     ILogger<LocalSyncJoinSession> logger) : IAsyncDisposable
 {
@@ -107,7 +110,7 @@ public sealed class LocalSyncJoinSession(
         catch (Exception e)
         {
             logger.LogWarning(e, "Couldn't join the local sync host at {Host}", host);
-            EndAttempt(cancellationToken, v => v with { State = JoinSessionState.Ended, Problem = LocalSyncProblem.HostUnreachable });
+            EndAttempt(cancellationToken, v => v with { State = JoinSessionState.Ended, Problem = LocalSyncProblem.CouldNotJoin });
             return;
         }
 
@@ -116,8 +119,22 @@ public sealed class LocalSyncJoinSession(
             EndAttempt(cancellationToken, v => v with { State = JoinSessionState.Rejected, Rejection = status.Rejection });
             return;
         }
-        lock (_lock) _approved = status;
-        Update(v => v with { State = JoinSessionState.Joined, ProjectName = status.Project?.ProjectName });
+        bool left;
+        lock (_lock)
+        {
+            // Leave cancels under this lock, so it can't slip in between
+            left = cancellationToken.IsCancellationRequested;
+            if (!left)
+            {
+                _approved = status;
+                _view = _view with { State = JoinSessionState.Joined, ProjectName = status.Project?.ProjectName };
+            }
+        }
+        if (left)
+        {
+            await joiner.Leave(host, status);
+            return;
+        }
 
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -161,7 +178,7 @@ public sealed class LocalSyncJoinSession(
             if (result.Problem == JoinerSyncProblem.SessionEnded)
             {
                 logger.LogInformation("The local sync host at {Host} ended the session", host);
-                await EndSession(JoinSessionState.Ended, problem: null);
+                EndSession(JoinSessionState.Ended);
             }
             else
             {
@@ -198,6 +215,7 @@ public sealed class LocalSyncJoinSession(
         IReadOnlyList<DiscoveredHost> found;
         try
         {
+            using var _ = networkAccess.AcquireForDiscovery();
             found = await Browse(SearchFor, cancellationToken);
         }
         catch (OperationCanceledException)
@@ -230,14 +248,7 @@ public sealed class LocalSyncJoinSession(
     /// </summary>
     public async Task Leave()
     {
-        Uri? host;
-        JoinStatus? approved;
-        lock (_lock)
-        {
-            host = _host;
-            approved = _approved;
-        }
-        await EndSession(host is null ? JoinSessionState.NotJoined : JoinSessionState.Ended, problem: null);
+        var (host, approved) = EndSession(state: null);
         if (host is not null && approved is not null) await joiner.Leave(host, approved);
     }
 
@@ -248,12 +259,16 @@ public sealed class LocalSyncJoinSession(
         await Task.WhenAll(hosts.Select(host => joiner.SayHello(host, name)));
     }
 
-    private string DisplayName() => currentAuthorService.GetCurrentAuthor().Name ?? Environment.MachineName;
+    private string DisplayName() => currentAuthorService.GetCurrentAuthor().Name ?? deviceName.Name;
 
-    private Task EndSession(JoinSessionState state, LocalSyncProblem? problem)
+    /// <param name="state">Null for Ended if there was a session, NotJoined if not.</param>
+    /// <returns>The host and approval the session had, to tell the host it's left.</returns>
+    private (Uri? Host, JoinStatus? Approved) EndSession(JoinSessionState? state)
     {
         lock (_lock)
         {
+            var ended = (_host, _approved);
+            state ??= _host is null ? JoinSessionState.NotJoined : JoinSessionState.Ended;
             _session?.Cancel();
             _session?.Dispose();
             _session = null;
@@ -262,12 +277,12 @@ public sealed class LocalSyncJoinSession(
             _approved = null;
             _host = null;
             _misses = 0;
-            _view = _view with { State = state, Problem = problem };
+            _view = _view with { State = state.Value, Problem = null };
+            return ended;
         }
-        return Task.CompletedTask;
     }
 
-    // Releases the network (on Android the app is bound to the host's offline Wi-Fi) unless a Leave or a new Join already took over
+    // Releases the network lease unless a Leave or a new Join already took over
     private void EndAttempt(CancellationToken attempt, Func<JoinSessionView, JoinSessionView> change)
     {
         lock (_lock)

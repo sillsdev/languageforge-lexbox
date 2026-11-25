@@ -110,6 +110,7 @@ public static class FwLiteMauiKernel
         services.Replace(ServiceDescriptor.Singleton<IKeepAwakePlatform, IosKeepAwakePlatform>());
 #endif
         services.AddSingleton<IAppLauncher, AppLauncher>();
+        services.Replace(ServiceDescriptor.Singleton<FwLiteShared.LocalSync.Hosting.IDeviceName, MauiDeviceName>());
 
         services.Configure<FwLiteConfig>(config =>
         {

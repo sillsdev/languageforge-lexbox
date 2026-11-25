@@ -4,10 +4,11 @@
 //     the code is regenerated.
 
 import type {IHostingView} from './IHostingView';
+import type {HostingProblem} from './HostingProblem';
 
 export interface IStartHostingResult
 {
 	hosting?: IHostingView;
-	error?: string;
+	problem?: HostingProblem;
 }
 /* eslint-enable */

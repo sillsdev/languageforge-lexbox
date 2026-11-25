@@ -1,5 +1,6 @@
 import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 import type {IJoinSessionView} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/Hosting/IJoinSessionView';
+import {HostingProblem} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/Hosting/HostingProblem';
 import {JoinSessionState} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/Hosting/JoinSessionState';
 
 type WifiSyncMethods = Pick<ISyncServiceJsInvokable,
@@ -12,7 +13,7 @@ const notJoined: IJoinSessionView = {state: JoinSessionState.NotJoined};
 export const idleWifiSync: WifiSyncMethods = {
   getHostingOptions: () => Promise.resolve({canCreateNetwork: false, networks: []}),
   getHosting: () => Promise.resolve(undefined),
-  startHosting: () => Promise.resolve({error: 'Not available here'}),
+  startHosting: () => Promise.resolve({problem: HostingProblem.CantCreateNetwork}),
   stopHosting: () => Promise.resolve(),
   approveJoiner: () => Promise.resolve(),
   declineJoiner: () => Promise.resolve(),

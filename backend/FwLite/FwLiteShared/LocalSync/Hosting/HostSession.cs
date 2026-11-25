@@ -16,8 +16,13 @@ public record NearbyDevice(string Address, string DisplayName, string AppVersion
 /// </summary>
 public class HostSession(HostedProject project, string appVersion, TimeProvider? timeProvider = null)
 {
-    /// <summary>The join route is open to anyone on the network, so a session keeps at most this many requests.</summary>
+    /// <summary>
+    /// The join route is open to anyone on the network, so a session keeps at most this many requests. When it's
+    /// full, declined requests and joiners not heard from for <see cref="AbandonedAfter"/> make room.
+    /// </summary>
     public const int MaxJoinRequests = 50;
+
+    public static readonly TimeSpan AbandonedAfter = TimeSpan.FromMinutes(2);
 
     /// <summary>The same cap for devices that only said hello.</summary>
     public const int MaxNearbyDevices = 50;
@@ -34,6 +39,7 @@ public class HostSession(HostedProject project, string appVersion, TimeProvider?
 
     private record Joiner(Guid RequestId, JoinRequest Request, bool VersionMismatch, string? Address)
     {
+        public DateTimeOffset LastSeen { get; set; }
         public JoinState State { get; set; } = JoinState.Pending;
         public JoinRejection? Rejection { get; set; }
         public string? Token { get; set; }
@@ -41,9 +47,6 @@ public class HostSession(HostedProject project, string appVersion, TimeProvider?
     }
 
     public HostedProject Project => project;
-
-    /// <summary>Raised whenever a joiner arrives, is approved or rejected, syncs or leaves, so the hosting panel can refresh.</summary>
-    public event Action? Changed;
 
     public bool AutoApprove
     {
@@ -58,7 +61,6 @@ public class HostSession(HostedProject project, string appVersion, TimeProvider?
                     foreach (var joiner in _joiners.Values.Where(j => j.State == JoinState.Pending)) ApproveLocked(joiner);
                 }
             }
-            Changed?.Invoke();
         }
     }
 
@@ -86,13 +88,14 @@ public class HostSession(HostedProject project, string appVersion, TimeProvider?
             address);
         lock (_lock)
         {
+            joiner.LastSeen = _time.GetUtcNow();
+            if (_joiners.Count >= MaxJoinRequests) MakeRoom(joiner.LastSeen);
             if (_joiners.Count >= MaxJoinRequests) throw new HostSessionFullException();
             _joiners[joiner.RequestId] = joiner;
             if (_ended) Reject(joiner, JoinRejection.SessionEnded);
             else if (HasDifferentHistory(current ?? project, request.Project)) Reject(joiner, JoinRejection.DifferentHistory);
             else if (_autoApprove) ApproveLocked(joiner);
         }
-        Changed?.Invoke();
         return joiner.RequestId;
     }
 
@@ -112,13 +115,11 @@ public class HostSession(HostedProject project, string appVersion, TimeProvider?
     /// <summary>Records that a device with the app open is nearby; it's listed until it stops saying hello.</summary>
     public void SayHello(string address, Hello hello)
     {
-        bool isNew;
         lock (_lock)
         {
             if (_ended) return;
             var now = _time.GetUtcNow();
-            isNew = !_hellos.ContainsKey(address);
-            if (isNew)
+            if (!_hellos.ContainsKey(address))
             {
                 foreach (var gone in _hellos.Where(h => now - h.Value.SeenAt > NearbyTimeout).Select(h => h.Key).ToList())
                     _hellos.Remove(gone);
@@ -126,7 +127,6 @@ public class HostSession(HostedProject project, string appVersion, TimeProvider?
             }
             _hellos[address] = (hello, now);
         }
-        if (isNew) Changed?.Invoke();
     }
 
     /// <summary>Devices that said hello recently and haven't asked to join (those are listed in <see cref="Peers"/>).</summary>
@@ -151,6 +151,7 @@ public class HostSession(HostedProject project, string appVersion, TimeProvider?
         lock (_lock)
         {
             if (!_joiners.TryGetValue(requestId, out var joiner)) return null;
+            joiner.LastSeen = _time.GetUtcNow();
             return joiner.State switch
             {
                 JoinState.Approved => new JoinStatus(JoinState.Approved, joiner.Token, project, appVersion),
@@ -171,12 +172,16 @@ public class HostSession(HostedProject project, string appVersion, TimeProvider?
             if (_ended || !_joiners.TryGetValue(requestId, out var joiner) || joiner.State != JoinState.Pending) return;
             decision(joiner);
         }
-        Changed?.Invoke();
     }
 
     public bool IsAuthorized(string token)
     {
-        lock (_lock) return FindByToken(token) is not null;
+        lock (_lock)
+        {
+            if (FindByToken(token) is not { } joiner) return false;
+            joiner.LastSeen = _time.GetUtcNow();
+            return true;
+        }
     }
 
     /// <summary>Records that an approved joiner just synced, for the hosting panel's peer list.</summary>
@@ -186,9 +191,8 @@ public class HostSession(HostedProject project, string appVersion, TimeProvider?
         {
             var joiner = FindByToken(token);
             if (joiner is null) return;
-            joiner.LastSync = DateTimeOffset.UtcNow;
+            joiner.LastSync = _time.GetUtcNow();
         }
-        Changed?.Invoke();
     }
 
     public void Leave(string token)
@@ -199,7 +203,22 @@ public class HostSession(HostedProject project, string appVersion, TimeProvider?
             if (joiner is null) return;
             _joiners.Remove(joiner.RequestId);
         }
-        Changed?.Invoke();
+    }
+
+    /// <summary>A joiner that stopped waiting for the host to decide (it left, or gave up).</summary>
+    public void Withdraw(Guid requestId)
+    {
+        lock (_lock)
+        {
+            if (_joiners.TryGetValue(requestId, out var joiner) && joiner.State == JoinState.Pending)
+                _joiners.Remove(requestId);
+        }
+    }
+
+    private void MakeRoom(DateTimeOffset now)
+    {
+        foreach (var gone in _joiners.Values.Where(j => j.State == JoinState.Rejected || now - j.LastSeen > AbandonedAfter).ToList())
+            _joiners.Remove(gone.RequestId);
     }
 
     /// <summary>Revokes every token and turns away anyone still waiting. Nothing about the session is kept.</summary>
@@ -215,7 +234,6 @@ public class HostSession(HostedProject project, string appVersion, TimeProvider?
                 if (joiner.State == JoinState.Pending) Reject(joiner, JoinRejection.SessionEnded);
             }
         }
-        Changed?.Invoke();
     }
 
     private Joiner? FindByToken(string token) =>

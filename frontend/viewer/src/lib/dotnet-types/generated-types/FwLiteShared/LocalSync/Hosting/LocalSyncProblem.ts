@@ -5,6 +5,7 @@
 
 export enum LocalSyncProblem {
 	HostUnreachable = "HostUnreachable",
+	CouldNotJoin = "CouldNotJoin",
 	DifferentProject = "DifferentProject",
 	DifferentHistory = "DifferentHistory",
 	NoWritingSystemInCommon = "NoWritingSystemInCommon",

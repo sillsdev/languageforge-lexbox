@@ -8,8 +8,11 @@
  *
  * Usage: `if (hasFlag('flag-name')) { ... }` or `<FlagContent flag="flag-name">`.
  */
+const BETA_FLAGS = ['plugins', 'folder-sync'] as const;
+
 export const CHANNEL_FLAGS = {
-  beta: ['plugins', 'folder-sync', 'nearby-sync'],
+  beta: BETA_FLAGS,
+  alpha: [...BETA_FLAGS, 'nearby-sync'],
 } as const satisfies Record<string, readonly string[]>;
 
 export type FeatureFlag = (typeof CHANNEL_FLAGS)[keyof typeof CHANNEL_FLAGS][number];

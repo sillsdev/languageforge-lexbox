@@ -37,6 +37,9 @@ public class LocalSyncJoiner(
     LocalSyncService localSyncService,
     IMemoryCache cache)
 {
+    /// <summary>Its sockets go over the local network (<see cref="ILocalNetworkAccess.Bind"/>), whatever the app's default network is.</summary>
+    public const string HttpClientName = "local-sync";
+
     private static readonly JsonSerializerOptions ProtocolJson = new(JsonSerializerDefaults.Web);
     public TimeSpan PollInterval { get; set; } = TimeSpan.FromMilliseconds(500);
 
@@ -83,13 +86,34 @@ public class LocalSyncJoiner(
             join = await response.Content.ReadFromJsonAsync<JoinResponse>(ProtocolJson, requestTimeout.Token)
                    ?? throw new InvalidOperationException("The host sent an empty join response");
         }
-        while (true)
+        try
         {
-            using var requestTimeout = TimeoutAfter(RequestTimeout, cancellationToken);
-            var status = await client.GetFromJsonAsync<JoinStatus>($"{LocalSyncProtocol.JoinPath}/{join.RequestId}", ProtocolJson, requestTimeout.Token)
-                         ?? throw new InvalidOperationException("The host sent an empty join status");
-            if (status.State != JoinState.Pending) return status;
-            await Task.Delay(PollInterval, cancellationToken);
+            while (true)
+            {
+                using var requestTimeout = TimeoutAfter(RequestTimeout, cancellationToken);
+                var status = await client.GetFromJsonAsync<JoinStatus>($"{LocalSyncProtocol.JoinPath}/{join.RequestId}", ProtocolJson, requestTimeout.Token)
+                             ?? throw new InvalidOperationException("The host sent an empty join status");
+                if (status.State != JoinState.Pending) return status;
+                await Task.Delay(PollInterval, cancellationToken);
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            await Withdraw(client, join);
+            throw;
+        }
+    }
+
+    /// <summary>Tells the host to drop a request this device stopped waiting on, so it's no longer listed. Best effort.</summary>
+    private async Task Withdraw(HttpClient client, JoinResponse join)
+    {
+        using var requestTimeout = TimeoutAfter(CourtesyTimeout);
+        try
+        {
+            using var _ = await client.PostAsJsonAsync(LocalSyncProtocol.WithdrawPath, join, ProtocolJson, requestTimeout.Token);
+        }
+        catch (Exception e) when (e is HttpRequestException or OperationCanceledException)
+        {
         }
     }
 
@@ -198,7 +222,7 @@ public class LocalSyncJoiner(
 
     private HttpClient CreateClient(Uri host, string? token)
     {
-        var client = httpClientFactory.CreateClient();
+        var client = httpClientFactory.CreateClient(HttpClientName);
         client.BaseAddress = host;
         if (token is not null) client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         return client;

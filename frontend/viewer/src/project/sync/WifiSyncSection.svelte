@@ -15,7 +15,8 @@
   import type {INearbyHostView} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/Hosting/INearbyHostView';
   import {JoinSessionState} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/Hosting/JoinSessionState';
   import {JoinState} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/Hosting/JoinState';
-  import {joinRejectionMessage, localSyncProblemMessage} from './wifi-sync-messages';
+  import {hostingProblemMessage, joinRejectionMessage, localSyncProblemMessage} from './wifi-sync-messages';
+  import type {HostingProblem} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/Hosting/HostingProblem';
   import type {SyncTarget} from './sync-target';
 
   interface Props {
@@ -36,7 +37,7 @@
   let nearby = $state<INearbyHostView[]>();
   let address = $state('');
   let busy = $state<'start' | 'search' | 'join' | 'sync'>();
-  let hostingError = $state<string>();
+  let hostingProblem = $state<HostingProblem>();
 
   let loaded = $state(false);
   let searching = false;
@@ -63,10 +64,10 @@
 
   async function startHosting(networkAddress: string | undefined) {
     busy = 'start';
-    hostingError = undefined;
+    hostingProblem = undefined;
     try {
       const result = await api.startHosting(networkAddress);
-      if (result.error) hostingError = result.error;
+      hostingProblem = result.problem ?? undefined;
       hosting = result.hosting ?? undefined;
     } finally {
       busy = undefined;
@@ -245,8 +246,8 @@
             {$t`Share on ${network.name} (${network.address})`}
           </Button>
         {/each}
-        {#if hostingError}
-          <p class="text-sm text-warning text-center">{hostingError}</p>
+        {#if hostingProblem}
+          <p class="text-sm text-warning text-center">{hostingProblemMessage(hostingProblem)}</p>
         {/if}
       </div>
     {/if}

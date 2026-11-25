@@ -11,18 +11,20 @@ namespace LcmCrdt.Tests.LocalSync;
 public class FakeAccessPoint : IAccessPoint
 {
     public bool Fail { get; set; }
+    public bool FailToStop { get; set; }
     public AccessPointCredentials? Running { get; private set; }
     public bool IsSupported => true;
 
     public Task<AccessPointInfo> Start(AccessPointCredentials network, CancellationToken cancellationToken = default)
     {
-        if (Fail) throw new AccessPointUnavailableException("The adapter doesn't support this");
+        if (Fail) throw new AccessPointUnavailableException(HostingProblem.CantCreateNetwork, "The adapter doesn't support this");
         Running = network;
         return Task.FromResult(new AccessPointInfo(network, IPAddress.Loopback));
     }
 
     public Task Stop()
     {
+        if (FailToStop) throw new InvalidOperationException("The driver hung");
         Running = null;
         return Task.CompletedTask;
     }
@@ -102,7 +104,7 @@ public class HostingNetworkTests : IAsyncLifetime
 
         await act.Should().ThrowAsync<AccessPointUnavailableException>();
         Hosting.Current.Should().BeNull();
-        ((RecordingKeepAwakePlatform)_host.GetService<IKeepAwakePlatform>()).Awake.Should().BeFalse();
+        HostingKeepAwake(_host).Awake.Should().BeFalse();
         var hosting = await Hosting.StartHosting(Project, new HostingNetwork.Existing(IPAddress.Loopback));
         hosting.Invitation.Network.Should().BeNull();
     }
@@ -160,6 +162,33 @@ public class HostingNetworkTests : IAsyncLifetime
         using var oldAddress = new TcpClient();
         var connectToOld = () => oldAddress.ConnectAsync(IPAddress.Loopback, hosting.Port);
         await connectToOld.Should().ThrowAsync<SocketException>();
+    }
+
+    [Fact]
+    public async Task WhenTheAccessPointFailsToStop_TheMachineMaySleepAgainAndHostingCanRestart()
+    {
+        await Hosting.StartHosting(Project, new HostingNetwork.OwnAccessPoint());
+        AccessPoint.FailToStop = true;
+
+        var stop = () => Hosting.StopHosting();
+
+        await stop.Should().ThrowAsync<InvalidOperationException>();
+        Hosting.Current.Should().BeNull();
+        HostingKeepAwake(_host).Awake.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task AFailedMove_LeavesHostingWhereItWas()
+    {
+        var hosting = await Hosting.StartHosting(Project, new HostingNetwork.Existing(IPAddress.Loopback));
+        // not an address of this machine, so nothing can listen there
+        var move = () => Hosting.MoveTo(IPAddress.Parse("192.0.2.1"));
+
+        await move.Should().ThrowAsync<SocketException>();
+
+        Hosting.Current!.Invitation.Host.Should().Be(hosting.Invitation.Host);
+        using var stillThere = new TcpClient();
+        await stillThere.ConnectAsync(IPAddress.Loopback, hosting.Port);
     }
 
     private static async Task<T> Eventually<T>(Func<T?> get) where T : class

@@ -7,6 +7,7 @@ using LcmCrdt;
 using FwLiteShared.Sync;
 using LcmCrdt.Data;
 using LexCore.Sync;
+using Microsoft.Extensions.Logging;
 using SIL.Harmony;
 using Microsoft.JSInterop;
 
@@ -20,7 +21,9 @@ public class SyncServiceJsInvokable(
     CurrentProjectService currentProjectService,
     LocalSyncHosting localSyncHosting,
     LocalSyncJoinSession joinSession,
-    ILocalNetworkAccess localNetworkAccess)
+    ILocalNetworkAccess localNetworkAccess,
+    IPlatformFeaturesService platformFeatures,
+    ILogger<SyncServiceJsInvokable> logger)
 {
     [JSInvokable]
     public Task<ProjectSyncStatus> GetSyncStatus()
@@ -119,8 +122,6 @@ public class SyncServiceJsInvokable(
         return path is not null && Directory.Exists(path) ? path : null;
     }
 
-    // ---- local sync over Wi-Fi: hosting ----
-
     [JSInvokable]
     public HostingOptions GetHostingOptions() =>
         new(localSyncHosting.CanCreateNetwork,
@@ -136,6 +137,7 @@ public class SyncServiceJsInvokable(
     [JSInvokable]
     public async Task<StartHostingResult> StartHosting(string? networkAddress)
     {
+        if (!await platformFeatures.SupportsWifiSyncHosting()) throw new NotSupportedException("This device can't host Wi-Fi sync");
         HostingNetwork network = networkAddress is null
             ? new HostingNetwork.OwnAccessPoint()
             : new HostingNetwork.Existing(IPAddress.Parse(networkAddress));
@@ -144,9 +146,10 @@ public class SyncServiceJsInvokable(
             var hosting = await Task.Run(async () => await localSyncHosting.StartHosting(currentProjectService.Project, network));
             return new StartHostingResult(HostingView.From(hosting, currentProjectService.ProjectData.Id), null);
         }
-        catch (Exception e) when (e is AccessPointUnavailableException or System.Net.Sockets.SocketException or InvalidOperationException)
+        catch (HostingException e)
         {
-            return new StartHostingResult(null, e.Message);
+            logger.LogWarning(e, "Couldn't start hosting Wi-Fi sync");
+            return new StartHostingResult(null, e.Problem);
         }
     }
 
@@ -165,13 +168,13 @@ public class SyncServiceJsInvokable(
         if (localSyncHosting.Current is { } hosting) hosting.Session.AutoApprove = autoApprove;
     }
 
-    // ---- local sync over Wi-Fi: joining ----
-
     [JSInvokable]
     public async Task<NearbyHostView[]> FindNearbyHosts()
     {
+        await EnsureWifiSync();
         using var _ = localNetworkAccess.Acquire();
-        var found = await LocalSyncDiscovery.Browse(TimeSpan.FromSeconds(4));
+        IReadOnlyList<DiscoveredHost> found;
+        using (localNetworkAccess.AcquireForDiscovery()) found = await LocalSyncDiscovery.Browse(TimeSpan.FromSeconds(4));
         await joinSession.SayHelloTo(found.Select(h => h.Host));
         var projectId = currentProjectService.ProjectData.Id;
         return [.. found.Select(h => new NearbyHostView(h.Host.Authority, h.ProjectName, h.ProjectId == projectId,
@@ -181,6 +184,7 @@ public class SyncServiceJsInvokable(
     [JSInvokable]
     public async Task<JoinSessionView> JoinHost(string address)
     {
+        await EnsureWifiSync();
         await joinSession.Join(address);
         return joinSession.View;
     }
@@ -196,5 +200,10 @@ public class SyncServiceJsInvokable(
     {
         await joinSession.Leave();
         return joinSession.View;
+    }
+
+    private async Task EnsureWifiSync()
+    {
+        if (!await platformFeatures.SupportsWifiSync()) throw new NotSupportedException("This device can't use Wi-Fi sync");
     }
 }

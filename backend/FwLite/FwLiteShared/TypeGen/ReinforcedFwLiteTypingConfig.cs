@@ -170,6 +170,7 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<JoinRejection>().UseString();
         builder.ExportAsEnum<JoinSessionState>().UseString();
         builder.ExportAsEnum<LocalSyncProblem>().UseString();
+        builder.ExportAsEnum<HostingProblem>().UseString();
         builder.ExportAsEnum<ViewBase>().UseString();
         var serviceTypes = Enum.GetValues<DotnetService>()
             //lcm has it's own dedicated export, config is not a service just a object, and testing needs a custom export below

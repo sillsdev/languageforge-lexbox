@@ -27,7 +27,7 @@ public sealed class WindowsAccessPoint(ILogger<WindowsAccessPoint> logger) : IAc
     {
         await Stop();
         // Windows reports a switched-off radio as an aborted start whose error is "Success", so check first
-        if (await IsWifiOff()) throw new AccessPointUnavailableException(WifiOffMessage);
+        if (await IsWifiOff()) throw new AccessPointUnavailableException(HostingProblem.WifiOff, "Wi-Fi is turned off");
         var started = new TaskCompletionSource<WiFiDirectAdvertisementPublisherStatusChangedEventArgs>(TaskCreationOptions.RunContinuationsAsynchronously);
         var publisher = new WiFiDirectAdvertisementPublisher();
         publisher.Advertisement.IsAutonomousGroupOwnerEnabled = true;
@@ -40,7 +40,6 @@ public sealed class WindowsAccessPoint(ILogger<WindowsAccessPoint> logger) : IAc
                 started.TrySetResult(e);
         };
 
-
         try
         {
             publisher.Start();
@@ -48,13 +47,13 @@ public sealed class WindowsAccessPoint(ILogger<WindowsAccessPoint> logger) : IAc
             if (status.Status != WiFiDirectAdvertisementPublisherStatus.Started)
                 throw new AccessPointUnavailableException(status.Error switch
                 {
-                    WiFiDirectError.RadioNotAvailable => WifiOffMessage,
-                    WiFiDirectError.ResourceInUse => "Wi-Fi is busy with something else, such as Mobile hotspot. Turn that off, then try again.",
-                    _ => "Windows couldn't create the Wi-Fi network",
-                });
+                    WiFiDirectError.RadioNotAvailable => HostingProblem.WifiOff,
+                    WiFiDirectError.ResourceInUse => HostingProblem.WifiBusy,
+                    _ => HostingProblem.CantCreateNetwork,
+                }, $"Starting the Wi-Fi Direct network was aborted: {status.Error}");
 
             var address = await WaitForAddress(cancellationToken)
-                          ?? throw new AccessPointUnavailableException("The Wi-Fi network was created but never got an address");
+                          ?? throw new AccessPointUnavailableException(HostingProblem.CantCreateNetwork, "The Wi-Fi network was created but never got an address");
             _publisher = publisher;
             return new AccessPointInfo(network, address);
         }
@@ -64,13 +63,11 @@ public sealed class WindowsAccessPoint(ILogger<WindowsAccessPoint> logger) : IAc
             StopPublisher(publisher);
             if (e is AccessPointUnavailableException or OperationCanceledException) throw;
             // e.g. no Wi-Fi adapter, or a driver without Wi-Fi Direct support
-            throw new AccessPointUnavailableException(e is TimeoutException
+            throw new AccessPointUnavailableException(HostingProblem.CantCreateNetwork, e is TimeoutException
                 ? "Windows didn't start the Wi-Fi network in time"
                 : "This computer can't create a Wi-Fi network", e);
         }
     }
-
-    private const string WifiOffMessage = "Wi-Fi is turned off on this computer. Turn it on, then try again.";
 
     private async Task<bool> IsWifiOff()
     {

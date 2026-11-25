@@ -10,8 +10,23 @@ namespace LcmCrdt.Tests.LocalSync;
 public class RecordingLocalNetworkAccess : RefCountedLocalNetworkAccess
 {
     public bool Active { get; private set; }
-    protected override void Start() => Active = true;
+    public bool FailToStart { get; set; }
+    public int Starts { get; private set; }
+    public bool RoutingApp { get; private set; }
+
+    protected override void Start()
+    {
+        if (FailToStart) throw new InvalidOperationException("No Wi-Fi");
+        Starts++;
+        Active = true;
+    }
+
     protected override void Stop() => Active = false;
+    protected override void RouteApp(bool overLocalNetwork) => RoutingApp = overLocalNetwork;
+
+    public override void Bind(Socket socket)
+    {
+    }
 }
 
 public class LocalSyncJoinSessionTests : IAsyncLifetime
@@ -120,6 +135,71 @@ public class LocalSyncJoinSessionTests : IAsyncLifetime
         Session.View.State.Should().Be(JoinSessionState.Ended);
         _hosting.Session.Peers.Should().BeEmpty();
         Network.Active.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task LeavingWhileWaiting_WithdrawsTheRequestOnTheHost()
+    {
+        await Session.Join(HostAddress);
+        await Eventually(() => _hosting.Session.Peers.FirstOrDefault(p => p.State == JoinState.Pending), "the join request");
+
+        await Session.Leave();
+
+        await Eventually(() => _hosting.Session.Peers.Count == 0 ? "withdrawn" : null, "the request to be withdrawn");
+        Session.View.State.Should().Be(JoinSessionState.Ended);
+    }
+
+    [Fact]
+    public async Task WhenJoiningFails_TheJoinerIsToldItWontRetry()
+    {
+        await _host.GetService<LocalSyncHosting>().StopHosting();
+
+        await Session.Join(HostAddress);
+
+        var ended = await WaitFor(JoinSessionState.Ended);
+        ended.Problem.Should().Be(LocalSyncProblem.CouldNotJoin);
+        Network.Active.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task AJoinerWithNoAuthorName_IsShownByItsDeviceName()
+    {
+        await using var anonymous = CreateFixture(ProjectId, seedWs: false);
+        await anonymous.InitializeAsync();
+        await anonymous.DataModel.SyncWith(_host.DataModel);
+        var session = anonymous.GetService<LocalSyncJoinSession>();
+
+        await session.Join(HostAddress);
+
+        var pending = await Eventually(() => _hosting.Session.Peers.FirstOrDefault(p => p.State == JoinState.Pending), "the join request");
+        pending.DisplayName.Should().Be(new TestDeviceName().Name);
+        await session.Leave();
+    }
+
+    [Fact]
+    public void NetworkAccessThatFailsToStart_StartsOnTheNextTry()
+    {
+        var network = new RecordingLocalNetworkAccess { FailToStart = true };
+        var fail = () => network.Acquire();
+        fail.Should().Throw<InvalidOperationException>();
+
+        network.FailToStart = false;
+        using var lease = network.Acquire();
+
+        network.Active.Should().BeTrue();
+        network.Starts.Should().Be(1);
+    }
+
+    [Fact]
+    public void DiscoveryRoutesTheAppOnlyWhileItsLeaseIsHeld()
+    {
+        var network = new RecordingLocalNetworkAccess();
+        using var joined = network.Acquire();
+
+        using (network.AcquireForDiscovery()) network.RoutingApp.Should().BeTrue();
+
+        network.RoutingApp.Should().BeFalse();
+        network.Active.Should().BeTrue("the joined lease is still held");
     }
 
     [Fact]

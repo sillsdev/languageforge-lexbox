@@ -10,6 +10,8 @@ public static class LocalSyncProtocol
 
     public const string JoinPath = "/api/local-sync/join";
     public const string LeavePath = "/api/local-sync/leave";
+    /// <summary>A joiner stops waiting for the host to decide; the body is its <see cref="JoinResponse"/>.</summary>
+    public const string WithdrawPath = "/api/local-sync/withdraw";
     /// <summary>A device with the app open says it's nearby, so the host can list it before it asks to join.</summary>
     public const string HelloPath = "/api/local-sync/hello";
     /// <summary>The hosted project as it is now, for the joiner's identity check before each sync.</summary>

@@ -25,6 +25,7 @@ public static class LocalSyncTestHelpers
         services.AddSingleton<FolderProjectOpener>();
         services.AddSingleton<IPreferencesService, InMemoryPreferencesService>();
         services.AddSingleton<IKeepAwakePlatform, RecordingKeepAwakePlatform>();
+        services.AddKeyedSingleton<IKeepAwakePlatform, RecordingKeepAwakePlatform>(LocalSyncHosting.KeepAwakeKey);
         services.AddSingleton<IKeepAwake, RefCountedKeepAwake>();
         // any free port: test classes host in parallel, and one taking another's stopped or moved port fakes a reachable host
         services.AddSingleton(sp =>
@@ -38,6 +39,7 @@ public static class LocalSyncTestHelpers
         services.AddScoped<LocalSyncJoiner>();
         services.AddScoped<LocalSyncJoinSession>();
         services.AddSingleton<ILocalNetworkAccess, RecordingLocalNetworkAccess>();
+        services.AddSingleton<IDeviceName, TestDeviceName>();
     }
 
     public static MiniLcmApiFixture CreateFixture(Guid projectId, bool seedWs = true) =>
@@ -49,6 +51,9 @@ public static class LocalSyncTestHelpers
         await projectService.UpdateLastUser(userId, userId);
         await projectService.UpdateUserRole(UserProjectRole.Editor);
     }
+
+    public static RecordingKeepAwakePlatform HostingKeepAwake(MiniLcmApiFixture fixture) =>
+        (RecordingKeepAwakePlatform)fixture.GetService<IServiceProvider>().GetRequiredKeyedService<IKeepAwakePlatform>(LocalSyncHosting.KeepAwakeKey);
 
     public static JsonSerializerOptions JsonOptions(MiniLcmApiFixture fixture) =>
         fixture.GetService<IOptions<SIL.Harmony.Config.HarmonyConfig>>().Value.JsonSerializerOptions;
@@ -74,6 +79,11 @@ public class OverJson(ISyncable inner, JsonSerializerOptions options) : ISyncabl
     public Task<SyncResults> SyncWith(ISyncable remoteModel) => remoteModel.SyncWith(this);
     public Task SyncMany(ISyncable[] remotes) => throw new NotSupportedException();
     public ValueTask<bool> ShouldSync() => ValueTask.FromResult(true);
+}
+
+public class TestDeviceName : IDeviceName
+{
+    public string Name => "Test device";
 }
 
 public class InMemoryPreferencesService : IPreferencesService

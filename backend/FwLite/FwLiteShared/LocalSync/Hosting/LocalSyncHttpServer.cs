@@ -45,6 +45,7 @@ internal sealed class LocalSyncHttpServer : IDisposable
         routes.Static.Add(WatsonMethod.POST, LocalSyncProtocol.JoinPath, Guarded(Join));
         routes.Parameter.Add(WatsonMethod.GET, LocalSyncProtocol.JoinPath + "/{requestId}", Guarded(JoinStatus));
         routes.Static.Add(WatsonMethod.POST, LocalSyncProtocol.LeavePath, Guarded(Leave));
+        routes.Static.Add(WatsonMethod.POST, LocalSyncProtocol.WithdrawPath, Guarded(Withdraw));
         routes.Static.Add(WatsonMethod.GET, LocalSyncProtocol.ProjectPath, Guarded(ctx => Authorized(ctx, async _ =>
             await SendJson(ctx, await HostedProjectReader.Read(_services, _project), ProtocolJson))));
         routes.Parameter.Add(WatsonMethod.GET, "/api/crdt/{id}/get", Guarded(ctx => Sync(ctx, async host =>
@@ -102,6 +103,13 @@ internal sealed class LocalSyncHttpServer : IDisposable
     private async Task Leave(HttpContextBase ctx)
     {
         if (Token(ctx) is { } token) _session.Leave(token);
+        await ctx.Response.Send();
+    }
+
+    // the request id is only ever sent to the device that asked, so it's proof enough
+    private async Task Withdraw(HttpContextBase ctx)
+    {
+        _session.Withdraw(Deserialize<JoinResponse>(ctx, ProtocolJson).RequestId);
         await ctx.Response.Send();
     }
 

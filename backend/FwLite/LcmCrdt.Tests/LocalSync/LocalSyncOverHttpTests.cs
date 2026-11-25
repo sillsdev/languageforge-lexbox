@@ -182,7 +182,7 @@ public class LocalSyncOverHttpTests : IAsyncLifetime
     [Fact]
     public async Task TheHostStaysAwakeOnlyWhileHosting()
     {
-        var platform = (RecordingKeepAwakePlatform)_host.GetService<IKeepAwakePlatform>();
+        var platform = HostingKeepAwake(_host);
         platform.Awake.Should().BeTrue();
 
         await _host.GetService<LocalSyncHosting>().StopHosting();

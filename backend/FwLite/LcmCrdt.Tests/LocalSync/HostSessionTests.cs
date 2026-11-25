@@ -207,4 +207,48 @@ public class HostSessionTests
         act.Should().Throw<HostSessionFullException>();
         session.Peers.Should().HaveCount(HostSession.MaxJoinRequests);
     }
+
+    [Fact]
+    public void AFullSession_MakesRoomByDroppingDeclinedAndAbandonedRequests()
+    {
+        var time = new FakeTimeProvider();
+        var session = NewSession(time);
+        var abandoned = session.RequestJoin(Request("gave up"));
+        time.Advance(HostSession.AbandonedAfter + TimeSpan.FromSeconds(1));
+        var declined = session.RequestJoin(Request("declined"));
+        session.Decline(declined);
+        var stillWaiting = new List<Guid>();
+        for (var i = 2; i < HostSession.MaxJoinRequests; i++) stillWaiting.Add(session.RequestJoin(Request($"device {i}")));
+
+        var newcomer = session.RequestJoin(Request("newcomer"));
+
+        session.GetJoinStatus(newcomer)!.State.Should().Be(JoinState.Pending);
+        session.GetJoinStatus(abandoned).Should().BeNull();
+        session.GetJoinStatus(declined).Should().BeNull();
+        stillWaiting.Should().AllSatisfy(id => session.GetJoinStatus(id).Should().NotBeNull());
+    }
+
+    [Fact]
+    public void AWithdrawnRequest_IsNoLongerListed()
+    {
+        var session = NewSession();
+        var requestId = session.RequestJoin(Request());
+
+        session.Withdraw(requestId);
+
+        session.Peers.Should().BeEmpty();
+        session.GetJoinStatus(requestId).Should().BeNull();
+    }
+
+    [Fact]
+    public void AnApprovedJoiner_CantBeWithdrawnByRequestId()
+    {
+        var session = NewSession();
+        var requestId = session.RequestJoin(Request());
+        session.Approve(requestId);
+
+        session.Withdraw(requestId);
+
+        session.GetJoinStatus(requestId)!.State.Should().Be(JoinState.Approved);
+    }
 }

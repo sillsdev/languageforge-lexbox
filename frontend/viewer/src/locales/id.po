@@ -656,6 +656,10 @@ msgstr "Sistem penulisan analisis"
 msgid "Analytics are turned off."
 msgstr "Fitur analitik dinonaktifkan."
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Another FieldWorks Lite window is already sharing a project. Stop sharing it there first."
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
 #. Filter option: clear grammatical info filter
@@ -1213,6 +1217,14 @@ msgstr ""
 
 #: src/lib/plugins/PluginRunView.svelte
 msgid "Couldn't load this plugin"
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Couldn't reach the other device. Check that you're on its Wi-Fi network, then try again."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Couldn't share on that network. Try another one."
 msgstr ""
 
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
@@ -4709,6 +4721,10 @@ msgstr "{0} ini telah dihapus"
 msgid "This change"
 msgstr ""
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "This computer couldn't create a Wi-Fi network. Share on a network it's already on instead."
+msgstr ""
+
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
@@ -5276,6 +5292,14 @@ msgstr "Di mana proyek saya?"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "Mengapa demikian?"
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Wi-Fi is busy with something else, such as Mobile hotspot. Turn that off, then try again."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Wi-Fi is turned off on this computer. Turn it on, then try again."
+msgstr ""
 
 #: src/project/sync/WifiSyncSection.svelte
 msgid "Wi-Fi QR code"
