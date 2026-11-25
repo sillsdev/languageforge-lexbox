@@ -191,6 +191,8 @@ jobs:
   docs:
     name: Publish docs
     needs: [ fw-lite ]
+    # fw-lite fails if a check that doesn't gate the release (e.g. E2E) fails, so key off the release itself.
+    if: ${{ !cancelled() && needs.fw-lite.outputs.release-url != '' }}
     uses: ./.github/workflows/docs.yaml
     permissions:
       contents: read
