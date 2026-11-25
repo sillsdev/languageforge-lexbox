@@ -64,7 +64,8 @@ prefix: FieldWorks Lite sets its morph type and saves the word without the marke
 
 If you are a **Viewer** or **Commenter** on the project, it opens read-only: there is a lock
 next to its name and a **Read-only** label above each word, and you can't add or change
-words. A Commenter can still add comments. Ask your project manager to make you an Editor.
+words (so there is no **Tasks** page). A Commenter can still add comments. Ask your project
+manager to make you an Editor.
 
 :::tip[Used FieldWorks Classic before?]
 FieldWorks Lite says *word* and *meaning* where FieldWorks Classic says *entry* and
