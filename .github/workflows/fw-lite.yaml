@@ -17,6 +17,10 @@ on:
         description: 'Sign and publish the GitHub and Play Store release'
         type: boolean
         default: false
+    outputs:
+      release-url:
+        description: 'URL of the GitHub release; empty if none was published'
+        value: ${{ jobs.create-release.outputs.release-url }}
   push:
     paths:
       - 'backend/FwLite/**'
@@ -907,6 +911,8 @@ jobs:
     name: Create Release
     needs: [ build-and-test, publish-win, publish-win-web, publish-linux, build-apple, launch-mac, publish-android, package-extension]
     runs-on: ubuntu-latest
+    outputs:
+      release-url: ${{ steps.release.outputs.url }}
     permissions:
       contents: write
     env:
@@ -972,6 +978,7 @@ jobs:
         run: printf '\n\nPlatform.Bible extension built against paranext-core `%s`.\n' "$REVISION" >> "$NOTES_FILE"
 
       - name: Create Release
+        id: release
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           fail_on_unmatched_files: true
