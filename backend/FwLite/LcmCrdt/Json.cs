@@ -224,7 +224,8 @@ public static class Json
         return guid?.ToString() ?? "";
     }
 
-    [Sql.Expression("coalesce((select group_concat(tsp.value->>'Text', '') from json_each({0}) as tr, json_each(tr.value->'Text'->{1}->'Spans') as tsp), '')", ServerSideOnly = true)]
+    //see EntryFilterMapProvider.TranslationSeparator; char(31) is the same character
+    [Sql.Expression("coalesce((select group_concat(t, char(31)) from (select (select group_concat(tsp.value->>'Text', '') from json_each(tr.value->'Text'->{1}->'Spans') as tsp) as t from json_each({0}) as tr) where t <> ''), '')", ServerSideOnly = true)]
     public static string TranslationsPlainText(IEnumerable<Translation>? translations, string ws)
     {
         throw new NotImplementedException("only supported server side");

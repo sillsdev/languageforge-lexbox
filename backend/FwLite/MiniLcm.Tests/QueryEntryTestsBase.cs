@@ -306,6 +306,22 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CanFilterToMissingTranslationText_TwoBlankTranslationsMatch()
+    {
+        await CreateEntryWithExamples("TwoBlankTranslations", ExampleWith("", ""));
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations.Text[en]=" })).ToArrayAsync();
+        results.Select(e => e.LexemeForm["en"]).Should().BeEquivalentTo(Banana, "TwoBlankTranslations");
+    }
+
+    [Fact]
+    public async Task CanFilterTranslationText_ContainsDoesNotMatchAcrossTranslations()
+    {
+        await CreateEntryWithExamples("TwoTranslations", ExampleWith("first", "second"));
+        var results = await Api.GetEntries(new(Filter: new() { GridifyFilter = "Senses.ExampleSentences.Translations.Text[en]=*tsec" })).ToArrayAsync();
+        results.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task CanFilterTranslationText_WithTwoTranslationsOnOneExample()
     {
         await CreateEntryWithExamples("TwoTranslations", ExampleWith("first", "second"));

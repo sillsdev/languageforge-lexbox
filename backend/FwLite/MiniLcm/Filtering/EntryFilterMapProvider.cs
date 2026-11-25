@@ -12,7 +12,9 @@ public abstract class EntryFilterMapProvider<T>
     public abstract Expression<Func<T, string, object>> EntrySensesExampleSentencesSentence { get; }
     public abstract Expression<Func<T, object?>> EntrySensesExampleSentencesTranslations { get; }
     public virtual Func<string, object>? EntrySensesExampleSentencesTranslationsConverter { get; } = null;
-    //one value per example sentence: the text of all its translations in the writing system, joined
+    //one value per example sentence: its non-empty translations in the writing system, joined with TranslationSeparator,
+    //so "=" means none has text and "contains" can't match across two translations
+    public const string TranslationSeparator = "";
     public abstract Expression<Func<T, string, object>> EntrySensesExampleSentencesTranslationsText { get; }
     public abstract Expression<Func<T, object?>> EntrySensesPartOfSpeechId { get; }
     public abstract Expression<Func<T, object?>> EntrySenses { get; }
