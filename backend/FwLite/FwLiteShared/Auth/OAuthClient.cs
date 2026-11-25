@@ -329,6 +329,16 @@ public class OAuthClient
         return auth?.Account.Username is null ? null : new LexboxUser(auth.Account.Username, auth.Account.HomeAccountId.ObjectId);
     }
 
+    /// <summary>
+    /// The signed-in account from the token cache. Needs no usable token, so it still works offline after the token expires.
+    /// </summary>
+    public async Task<LexboxUser?> GetCachedUser()
+    {
+        await ConfigureCache();
+        var account = (await _application.GetAccountsAsync()).FirstOrDefault();
+        return account?.HomeAccountId?.ObjectId is { } id ? new LexboxUser(account.Username, id) : null;
+    }
+
     public async ValueTask<string?> GetCurrentToken()
     {
         var auth = await GetAuth();

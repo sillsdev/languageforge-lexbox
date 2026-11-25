@@ -103,6 +103,10 @@ msgstr "(Haijulikani)"
 msgid "{0}"
 msgstr "{0}"
 
+#: src/home/CreateProjectDialog.svelte
+msgid "{0} ({1})"
+msgstr ""
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "{0} (copy)"
 msgstr ""
@@ -766,6 +770,7 @@ msgstr "Sauti ilihifadhiwa na kupakilizwa kwenye Lexbox"
 msgid "Audio saved locally"
 msgstr "Sauti ilihifadhiwa mahallini"
 
+#: src/home/CreateProjectDialog.svelte
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"

@@ -103,6 +103,10 @@ msgstr "(không rõ)"
 msgid "{0}"
 msgstr "{0}"
 
+#: src/home/CreateProjectDialog.svelte
+msgid "{0} ({1})"
+msgstr ""
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "{0} (copy)"
 msgstr ""
@@ -766,6 +770,7 @@ msgstr "Âm thanh đã được lưu và tải lên Lexbox"
 msgid "Audio saved locally"
 msgstr "Âm thanh đã được lưu cục bộ"
 
+#: src/home/CreateProjectDialog.svelte
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"

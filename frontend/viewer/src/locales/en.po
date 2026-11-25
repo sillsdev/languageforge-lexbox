@@ -98,6 +98,10 @@ msgstr "(unknown)"
 msgid "{0}"
 msgstr "{0}"
 
+#: src/home/CreateProjectDialog.svelte
+msgid "{0} ({1})"
+msgstr "{0} ({1})"
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "{0} (copy)"
 msgstr "{0} (copy)"
@@ -761,6 +765,7 @@ msgstr "Audio saved and uploaded to Lexbox"
 msgid "Audio saved locally"
 msgstr "Audio saved locally"
 
+#: src/home/CreateProjectDialog.svelte
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"

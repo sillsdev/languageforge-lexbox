@@ -40,7 +40,17 @@
     <OpenCreateProjectDialog />
   </StoryState>
 </Story>
-<Story name="New project: Lexbox account known">
+<Story name="New project: logged in to Lexbox">
+  <StoryState channel="dev" authorName="">
+    <OpenCreateProjectDialog loggedInAs={['pat.example']} />
+  </StoryState>
+</Story>
+<Story name="New project: logged in to two servers">
+  <StoryState channel="dev" authorName="">
+    <OpenCreateProjectDialog loggedInAs={['pat.example', 'pat.staging']} />
+  </StoryState>
+</Story>
+<Story name="New project: Lexbox account from a project">
   <StoryState channel="dev" authorName="">
     <OpenCreateProjectDialog lexboxUserName="pat.example" />
   </StoryState>

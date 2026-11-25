@@ -103,6 +103,10 @@ msgstr "(알 수 없음)"
 msgid "{0}"
 msgstr "{0}"
 
+#: src/home/CreateProjectDialog.svelte
+msgid "{0} ({1})"
+msgstr ""
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "{0} (copy)"
 msgstr ""
@@ -766,6 +770,7 @@ msgstr "렉스박스에 오디오 저장 및 업로드"
 msgid "Audio saved locally"
 msgstr "로컬에 저장된 오디오"
 
+#: src/home/CreateProjectDialog.svelte
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"

@@ -217,12 +217,15 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         return FolderSyncSummary.From(result);
     }
 
+    /// <param name="authorServer">Credit edits to the account logged in to this server, else to the known Lexbox account</param>
     [JSInvokable]
-    public Task CreateProject(string name, string code, WritingSystemId vernacularWs, WritingSystemId? analysisWs = null)
+    public Task CreateProject(string name, string code, WritingSystemId vernacularWs, LexboxServer? authorServer, WritingSystemId? analysisWs = null)
     {
         return Task.Run(async () =>
         {
-            var author = await KnownLexboxUser();
+            var author = authorServer is null ? await KnownLexboxUser()
+                : await oAuthClientFactory.GetClient(authorServer).GetCachedUser()
+                    ?? throw new InvalidOperationException($"Not logged in to {authorServer.DisplayName}");
             await crdtProjectsService.CreateProjectFromTemplate(new(name, code, Role: UserProjectRole.Manager,
                 AuthenticatedUser: author?.Name, AuthenticatedUserId: author?.Id), vernacularWs, analysisWs);
         });
@@ -243,7 +246,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     {
         foreach (var server in lexboxProjectService.Servers())
         {
-            if (await oAuthClientFactory.GetClient(server).GetCurrentUser() is { } user) return user;
+            if (await oAuthClientFactory.GetClient(server).GetCachedUser() is { } user) return user;
         }
         return crdtProjectsService.ListProjects()
             .Select(p => p.Data)

@@ -10,6 +10,8 @@
   import {useProjectsService} from '$lib/services/service-provider';
   import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
   import NameDialog from '$lib/author/NameDialog.svelte';
+  import Select from '$lib/components/field-editors/select.svelte';
+  import {DotnetService, type IServerStatus} from '$lib/dotnet-types';
   import {useLocalAuthorName} from '$lib/author/local-author-name.svelte';
 
   let {refreshProjects}: {refreshProjects: () => Promise<void>} = $props();
@@ -32,6 +34,8 @@
   let authorName = $state('');
   // undefined while loading; null when we don't know their Lexbox account, so they're credited by a local name
   let lexboxUserName = $state<string | null>();
+  let accounts = $state<IServerStatus[]>([]);
+  let account = $state<IServerStatus>();
 
   function slugify(value: string): string {
     return value.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+/, '');
@@ -56,9 +60,20 @@
     askForAuthorName = !localAuthorName.current;
     authorName = '';
     lexboxUserName = undefined;
-    void projectsService.knownLexboxUserName().then(userName => lexboxUserName = userName ?? null);
+    accounts = [];
+    account = undefined;
+    void loadLexboxAccounts();
     if (askForAuthorName) void platformFeatures.service.suggestedAuthorName().then(suggested => { if (!authorName && suggested) authorName = suggested; });
     open = true;
+  }
+
+  async function loadLexboxAccounts() {
+    // Hosts without Lexbox login (e.g. Storybook) have no auth service
+    const authService = window.lexbox.ServiceProvider.tryGetService(DotnetService.AuthService);
+    const servers = await authService?.servers() ?? [];
+    accounts = servers.filter(s => s.loggedIn);
+    account = accounts[0];
+    lexboxUserName = account?.loggedInAs ?? await projectsService.knownLexboxUserName() ?? null;
   }
 
   async function createProject(e: Event) {
@@ -70,7 +85,7 @@
     error = undefined;
     try {
       if (lexboxUserName === null && askForAuthorName) await localAuthorName.set(authorName.trim());
-      await projectsService.createProject(name.trim(), code.trim(), vernacularWs.trim(), analysisWs.trim() || undefined);
+      await projectsService.createProject(name.trim(), code.trim(), vernacularWs.trim(), account?.server, analysisWs.trim() || undefined);
       await refreshProjects();
       open = false;
     } catch (e) {
@@ -79,6 +94,10 @@
     } finally {
       loading = false;
     }
+  }
+
+  function accountLabel(account: IServerStatus): string {
+    return $t`${account.loggedInAs ?? ''} (${account.displayName})`;
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -116,7 +135,12 @@
         <Input bind:value={analysisWs} placeholder="en" />
       </Label>
       <!-- waits for the Lexbox account, so the row can't turn from an input into plain text while the user types -->
-      {#if lexboxUserName}
+      {#if accounts.length > 1}
+        <Label class="contents">
+          {$t`Author`}
+          <Select options={accounts} bind:value={account} idSelector={a => a.server.id} labelSelector={accountLabel} />
+        </Label>
+      {:else if lexboxUserName}
         <span class="text-sm leading-none font-medium">{$t`Author`}</span>
         <span class="text-sm">{$t`${lexboxUserName} (Lexbox account)`}</span>
       {:else if lexboxUserName === null && askForAuthorName}
