@@ -3,9 +3,7 @@
   import {Button, XButton} from '$lib/components/ui/button';
   import {Popover, PopoverContent, PopoverTrigger} from '$lib/components/ui/popover';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
-  import {tick} from 'svelte';
   import {t} from 'svelte-i18n-lingui';
-  import {Checkbox} from '../ui/checkbox';
   import {
     Command,
     CommandEmpty,
@@ -17,15 +15,17 @@
   } from '../ui/command';
   import {Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger} from '../ui/drawer';
   import {Icon} from '../ui/icon';
-  import SubmitOrCancel from '../SubmitOrCancel.svelte';
   import type {ConditionalKeys, Primitive, ReadonlyDeep} from 'type-fest';
   import {cn} from '$lib/utils';
   import DrawerFooter from '../ui/drawer/drawer-footer.svelte';
-  import {slide} from 'svelte/transition';
   import {watch} from 'runed';
   import {computeCommandScore} from 'bits-ui';
   import {inputVariants} from '../ui/input/input.svelte';
   import {tryUseFieldBody} from '../editor/field/field-root.svelte';
+  import OptionIndicator from '../ui/select/option-indicator.svelte';
+  import {LONG_LIST, OPTION_ROW, trackActiveDescendant} from '../ui/select/select-list';
+  import {onDestroy, tick} from 'svelte';
+  import {SvelteMap, SvelteSet} from 'svelte/reactivity';
 
   type Value = ReadonlyDeep<MutableValue>;
 
@@ -82,32 +82,57 @@
   };
 
   let open = $state(false);
-  let dirty = $state(false);
   let filterValue = $state('');
   let decoratedValues = $derived(decorateAndSort([...values]));
-  let pendingValues = $state<DecoratedValue[]>([]);
   // Frozen at open so newly selected items stay in place until the picker is reopened.
   let selectedGroupSnapshot = $state<DecoratedValue[]>([]);
-  let displayValues = $derived(dirty ? pendingValues : decoratedValues);
+  // The user's toggles collect here and save as one change when the picker closes, however it closes.
+  // Only the toggles are applied, on top of the current values, so changes synced in meanwhile survive.
+  let added = new SvelteMap<Primitive, Value>();
+  let removed = new SvelteSet<Primitive>();
+  let pendingValues = $derived(
+    added.size || removed.size
+      ? decorateAndSort([...values.filter((v) => !removed.has(getId(v)) && !added.has(getId(v))), ...added.values()])
+      : decoratedValues,
+  );
   let triggerRef = $state<HTMLButtonElement | null>(null);
+  const hintId = $props.id();
   let commandRef = $state<HTMLElement | null>(null);
+  let listRef = $state<HTMLElement | null>(null);
+  $effect(() => {
+    if (listRef && !isLong) return trackActiveDescendant(listRef);
+  });
 
   watch(
     () => open,
-    () => {
-      dirty = false;
+    (isOpen, wasOpen) => {
       filterValue = '';
-      if (open) {
+      if (isOpen) {
         selectedGroupSnapshot = decorateAndSort([...values]);
+      } else if (wasOpen) {
+        save();
       }
     },
   );
 
-  watch([() => open, () => decoratedValues], () => {
-    if (open && !dirty) {
-      pendingValues = [...decoratedValues];
-    }
+  watch(
+    () => readonly,
+    () => {
+      if (readonly) open = false;
+    },
+  );
+
+  onDestroy(() => {
+    if (open) save();
   });
+
+  function save() {
+    if (!added.size && !removed.size) return;
+    values = pendingValues.map((v) => v.value);
+    added.clear();
+    removed.clear();
+    onchange?.(values);
+  }
 
   function decorateAndSort(values: Value[]): DecoratedValue[] {
     var decoratedValues = values.map(decorateValue);
@@ -134,33 +159,33 @@
 
   function dismiss() {
     open = false;
+    void tick().then(() => triggerRef?.focus());
   }
 
-  function submit() {
-    open = false;
-    values = pendingValues.map((p) => p.value);
-    onchange?.(values);
-    void tick().then(() => {
-      triggerRef?.focus();
-    });
-  }
-
-  function toggleSelected(value: Value, triggerSubmit: boolean = true) {
+  function toggleSelected(value: Value) {
     const id = getId(value);
-    const isSelected = pendingValues.some((v) => v.id === id);
+    const wasSelected = values.some((v) => getId(v) === id);
+    if (added.has(id)) added.delete(id);
+    else if (removed.has(id)) removed.delete(id);
+    else if (wasSelected) removed.add(id);
+    else added.set(id, value);
+  }
 
-    if (!isSelected) {
-      // add
-      pendingValues = [...pendingValues, decorateValue(value)];
-      sortValues(pendingValues);
-    } else {
-      // remove
-      const index = pendingValues.findIndex((v) => v.id === id);
-      if (index !== -1) pendingValues.splice(index, 1);
-    }
+  function itemValue(value: Value): string {
+    return getLabel(value).toLocaleLowerCase() + String(getId(value));
+  }
 
-    if (triggerSubmit) submit();
-    else dirty = true;
+  // Space toggles like Enter unless there's a filter box to type into; Ctrl+Enter toggles, saves and closes.
+  function onkeydown(e: KeyboardEvent) {
+    const saveAndClose = e.key === 'Enter' && (e.ctrlKey || e.metaKey);
+    if (!saveAndClose && !(e.key === ' ' && !isLong)) return;
+    const highlighted = commandRef?.querySelector('[data-command-item][data-selected]')?.getAttribute('data-value');
+    const value = options.find((option) => itemValue(option) === highlighted);
+    if (!value) return;
+    e.preventDefault();
+    e.stopPropagation();
+    toggleSelected(value);
+    if (saveAndClose) dismiss();
   }
 
   const filteredOptions = $derived.by(() => {
@@ -172,7 +197,9 @@
       .map((result) => result.option);
   });
 
-  const pinSelectedAtTop = $derived(showSelectedGroup && !filterValue && selectedGroupSnapshot.length > 0);
+  const isLong = $derived(options.length >= LONG_LIST);
+  const useDrawer = $derived(IsMobile.value && isLong);
+  const pinSelectedAtTop = $derived(isLong && showSelectedGroup && !filterValue && selectedGroupSnapshot.length > 0);
 
   const orderedOptions = $derived.by(() => {
     if (!pinSelectedAtTop) return filteredOptions;
@@ -187,39 +214,11 @@
   const RENDER_LIMIT = 100;
   const renderedOptions = $derived(orderedOptions.slice(0, RENDER_LIMIT));
   const showSelectedDivider = $derived(pinSelectedAtTop && pinnedCount > 0 && pinnedCount < renderedOptions.length);
-
-  function onkeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter' && dirty && (e.metaKey || e.ctrlKey)) {
-      submit();
-      e.stopPropagation();
-      e.preventDefault();
-    } else if (e.key === ' ' && (e.metaKey || e.ctrlKey)) {
-      tryToggleHighlightedValue();
-      e.stopPropagation();
-      e.preventDefault();
-    }
-  }
-
-  function tryToggleHighlightedValue() {
-    const value = getHighlightedValue();
-    if (value) {
-      toggleSelected(value, false);
-    }
-  }
-
-  function getHighlightedValue(): Value | undefined {
-    const selectedItem = commandRef?.querySelector('[data-command-item][data-selected]');
-    const index = selectedItem?.getAttribute('data-value-index');
-    if (index == null || index === '') return;
-    const i = Number(index);
-    if (Number.isNaN(i) || i < 0) return;
-    return orderedOptions[i];
-  }
 </script>
 
 {#snippet displayBadges()}
   <div class="flex flex-wrap justify-start gap-2 overflow-hidden">
-    {#each displayValues as value (value.id)}
+    {#each pendingValues as value (value.id)}
       <Badge>
         {value.label || $t`Untitled`}
       </Badge>
@@ -251,44 +250,52 @@
 {/snippet}
 
 {#snippet command()}
-  <Command shouldFilter={false} bind:ref={commandRef}>
-    <CommandInput bind:value={filterValue} autofocus placeholder={filterPlaceholder ?? $t`Filter...`} {onkeydown}>
-      <div class="flex items-center gap-2 flex-nowrap">
-        {#if IsMobile.value}
-          {#if filterValue}
-            <XButton onclick={() => (filterValue = '')} aria-label={$t`clear`} />
+  <Command shouldFilter={false} bind:ref={commandRef} class="outline-none" onkeydowncapture={onkeydown}>
+    {#if isLong}
+      <CommandInput
+        bind:value={filterValue}
+        autofocus
+        aria-describedby={hintId}
+        placeholder={filterPlaceholder ?? $t`Filter...`}
+      >
+        <div class="flex items-center gap-2 flex-nowrap">
+          {#if IsMobile.value}
+            {#if filterValue}
+              <XButton onclick={() => (filterValue = '')} aria-label={$t`clear`} />
+            {/if}
+          {:else}
+            <XButton onclick={dismiss} aria-label={$t`Close`} />
           {/if}
-        {:else}
-          {#if dirty}
-            <div in:slide={{axis: 'x', duration: 200}}>
-              <Button variant="default" size="xs" onclick={submit} aria-label={$t`Submit`}>
-                {$t`Submit`}
-              </Button>
-            </div>
-          {/if}
-          <XButton variant={dirty ? 'secondary' : 'ghost'} onclick={dismiss} aria-label={$t`Close`} />
-        {/if}
-      </div>
-    </CommandInput>
-    <CommandList class="max-md:h-75 md:max-h-[40vh]">
+        </div>
+      </CommandInput>
+    {/if}
+    <span id={hintId} class="sr-only"
+      >{$t`Ctrl+Enter or Cmd+Enter toggles the highlighted item and closes the list`}</span
+    >
+    <CommandList
+      bind:ref={listRef}
+      tabindex={-1}
+      class={cn(useDrawer ? 'h-75' : 'max-h-72', 'outline-none')}
+      aria-multiselectable="true"
+      aria-describedby={hintId}
+    >
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
-      <CommandGroup>
-        {#if pinSelectedAtTop}
-          <div class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
-            {$t`Selected`}
-          </div>
-        {/if}
-        {#each renderedOptions as value, i (getId(value))}
-          {#if showSelectedDivider && i === pinnedCount}
-            <CommandSeparator class="my-1" />
-            <div class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
-              {$t`All`}
-            </div>
-          {/if}
-          {@render optionItem(value, i)}
+      {#if pinnedCount > 0}
+        <CommandGroup heading={$t`Selected`}>
+          {#each renderedOptions.slice(0, pinnedCount) as value (getId(value))}
+            {@render optionItem(value)}
+          {/each}
+        </CommandGroup>
+      {/if}
+      {#if showSelectedDivider}
+        <CommandSeparator />
+      {/if}
+      <CommandGroup heading={showSelectedDivider ? $t`All` : undefined}>
+        {#each renderedOptions.slice(pinnedCount) as value (getId(value))}
+          {@render optionItem(value)}
         {/each}
         {#if renderedOptions.length < orderedOptions.length}
-          <div class="text-muted-foreground text-sm px-2 py-1">
+          <div class="text-muted-foreground text-sm px-2 py-1.5">
             {$t`Refine your filter to see more...`}
           </div>
         {/if}
@@ -297,37 +304,20 @@
   </Command>
 {/snippet}
 
-{#snippet optionItem(value: Value, index: number)}
+{#snippet optionItem(value: Value)}
   {@const label = getLabel(value)}
   {@const id = getId(value)}
   {@const selected = pendingValues.some((v) => v.id === id)}
   <CommandItem
     keywords={[label.toLocaleLowerCase()]}
-    value={label.toLocaleLowerCase() + String(id)}
-    onSelect={() => toggleSelected(value, !dirty && !IsMobile.value)}
-    class={cn('group h-12 md:h-9', label || 'text-muted-foreground')}
-    data-value-index={index}
+    value={itemValue(value)}
+    onSelect={() => toggleSelected(value)}
+    class={cn(OPTION_ROW, label || 'text-muted-foreground')}
     aria-label={label}
+    aria-checked={selected}
   >
-    <Icon icon="i-mdi-check" class={cn('md:hidden', selected || 'invisible')} />
-    <Checkbox
-      checked={selected}
-      tabindex={-1}
-      class={cn(
-        'max-md:hidden mr-2 size-5 border-muted-foreground text-foreground! bg-transparent! group-[&:not([data-selected])]:border-transparent',
-        selected || 'not-[&:hover]:opacity-50',
-      )}
-      onclick={(e) => {
-        // prevents command item selection
-        e.stopPropagation();
-      }}
-      onpointerdown={(e) => {
-        // prevents moving focus to the checkbox when clicking on it
-        e.preventDefault();
-      }}
-      onCheckedChange={() => toggleSelected(value, false)}
-    />
-    {label || $t`Untitled`}
+    <span class="min-w-0 flex-1 break-words">{label || $t`Untitled`}</span>
+    <OptionIndicator state={selected} />
   </CommandItem>
 {/snippet}
 
@@ -341,8 +331,8 @@
   >
     {@render displayBadges()}
   </div>
-{:else if IsMobile.value}
-  <Drawer bind:open dismissible={!dirty}>
+{:else if useDrawer}
+  <Drawer bind:open>
     <DrawerTrigger child={trigger} />
     <DrawerContent handle={true} class="overflow-hidden">
       <DrawerHeader class="text-left py-2">
@@ -355,7 +345,7 @@
       </DrawerHeader>
       {@render command()}
       <DrawerFooter>
-        <SubmitOrCancel canSubmit={dirty} onCancel={dismiss} onSubmit={submit} />
+        <Button onclick={dismiss}>{$t`Done`}</Button>
       </DrawerFooter>
     </DrawerContent>
   </Drawer>
@@ -363,12 +353,16 @@
   <Popover bind:open>
     <PopoverTrigger child={trigger} />
     <PopoverContent
-      class="p-0 w-96 max-w-[50vw]"
+      class="p-0 w-(--bits-popover-anchor-width) min-w-64 max-w-[min(28rem,calc(100vw-1rem))]"
       align="start"
       sticky="always"
       side="bottom"
       avoidCollisions
-      interactOutsideBehavior={dirty ? 'ignore' : 'close'}
+      onOpenAutoFocus={(e) => {
+        if (isLong) return;
+        e.preventDefault();
+        listRef?.focus();
+      }}
     >
       {@render command()}
     </PopoverContent>

@@ -9,10 +9,13 @@
   import type {ConditionalKeys, Primitive, ReadonlyDeep} from 'type-fest';
   import {cn} from '$lib/utils';
   import {watch} from 'runed';
+  import {tick} from 'svelte';
   import {computeCommandScore} from 'bits-ui';
   import CommandSeparator from '../ui/command/command-separator.svelte';
   import {Input} from '../ui/input';
   import {tryUseFieldBody} from '../editor/field/field-root.svelte';
+  import OptionIndicator from '../ui/select/option-indicator.svelte';
+  import {LONG_LIST, OPTION_ROW, trackActiveDescendant} from '../ui/select/select-list';
 
   type Value = ReadonlyDeep<MutableValue>;
 
@@ -66,19 +69,47 @@
   let filterValue = $state('');
   let triggerRef = $state<HTMLButtonElement | null>(null);
   let commandRef = $state<HTMLElement | null>(null);
+  let listRef = $state<HTMLElement | null>(null);
+  $effect(() => {
+    if (listRef && !isLong) return trackActiveDescendant(listRef);
+  });
+
+  let highlighted = $state('');
 
   watch(
     () => open,
     () => {
       filterValue = '';
+      if (open && value) {
+        const current = itemValue(value);
+        // After mount: the command list highlights its first item once the items register
+        requestAnimationFrame(() => {
+          highlighted = current;
+          void tick().then(() =>
+            commandRef?.querySelector('[data-command-item][data-selected]')?.scrollIntoView({block: 'nearest'}),
+          );
+        });
+      }
     },
   );
+
+  function itemValue(option: Value): string {
+    return getLabel(option).toLocaleLowerCase() + String(getId(option));
+  }
+
+  const isLong = $derived(options.length >= LONG_LIST);
+  const useDrawer = $derived(IsMobile.value && isLong);
+  const showNoneRow = $derived(clearable === true || clearable === 'row');
 
   function dismiss() {
     open = false;
   }
 
   function selectValue(newValue: Value | undefined) {
+    if ((newValue && getId(newValue)) === (value && getId(value))) {
+      open = false;
+      return;
+    }
     value = newValue;
     onchange?.(newValue);
     open = false;
@@ -147,48 +178,57 @@
 {/snippet}
 
 {#snippet command()}
-  <Command shouldFilter={false} bind:ref={commandRef}>
-    <CommandInput bind:value={filterValue} autofocus placeholder={filterPlaceholder ?? $t`Filter...`}>
-      <div class="flex items-center gap-2 flex-nowrap">
-        {#if IsMobile.value}
-          {#if filterValue}
-            <XButton onclick={() => (filterValue = '')} aria-label={$t`clear`} />
+  <Command shouldFilter={false} bind:ref={commandRef} bind:value={highlighted} class="outline-none">
+    {#if isLong}
+      <CommandInput bind:value={filterValue} autofocus placeholder={filterPlaceholder ?? $t`Filter...`}>
+        <div class="flex items-center gap-2 flex-nowrap">
+          {#if IsMobile.value}
+            {#if filterValue}
+              <XButton onclick={() => (filterValue = '')} aria-label={$t`clear`} />
+            {/if}
+          {:else}
+            <XButton onclick={dismiss} />
           {/if}
-        {:else}
-          <XButton onclick={dismiss} />
-        {/if}
-      </div>
-    </CommandInput>
-    <CommandList class="max-md:h-75 md:max-h-[40vh]">
+        </div>
+      </CommandInput>
+    {/if}
+    <CommandList bind:ref={listRef} tabindex={-1} class={cn(useDrawer ? 'h-75' : 'max-h-72', 'outline-none')}>
       <CommandEmpty>{emptyResultsPlaceholder ?? $t`No items found`}</CommandEmpty>
-      {#if (clearable === true || clearable === 'row') && value}
+      {#if showNoneRow && !filterValue}
         <CommandGroup>
-          <CommandItem onSelect={() => selectValue(undefined)}>
-            {$t`None`}
+          <CommandItem
+            onSelect={() => selectValue(undefined)}
+            aria-checked={!value}
+            class={cn(OPTION_ROW, 'text-muted-foreground')}
+          >
+            <span class="min-w-0 flex-1">{placeholder ?? $t`None`}</span>
+            <OptionIndicator state={!value} />
           </CommandItem>
         </CommandGroup>
         <CommandSeparator />
       {/if}
       {#each renderedGroups as group, g (group.heading ?? '')}
+        {#if g > 0}
+          <CommandSeparator forceMount />
+        {/if}
         <CommandGroup heading={group.heading}>
           {#each group.options as option (getId(option))}
             {@const label = getLabel(option)}
-            {@const id = getId(option)}
-            {@const selected = value && getId(value) === id}
+            {@const selected = !!value && getId(value) === getId(option)}
             <CommandItem
               keywords={[label.toLocaleLowerCase()]}
-              value={label.toLocaleLowerCase() + String(id)}
+              value={itemValue(option)}
               onSelect={() => selectValue(option)}
-              class={cn('group h-12 md:h-9', label || 'text-muted-foreground')}
-              data-value-index={renderedOptions.indexOf(option)}
+              class={cn(OPTION_ROW, label || 'text-muted-foreground')}
               aria-label={label}
+              aria-checked={selected}
             >
-              <Icon icon="i-mdi-check" class={cn('md:hidden', selected || 'invisible')} />
-              {label || $t`Untitled`}
+              <span class="min-w-0 flex-1 break-words">{label || $t`Untitled`}</span>
+              <OptionIndicator state={selected} />
             </CommandItem>
           {/each}
           {#if g === renderedGroups.length - 1 && renderedOptions.length < filteredOptions.length}
-            <div class="text-muted-foreground text-sm px-2 py-1">
+            <div class="text-muted-foreground text-sm px-2 py-1.5">
               {$t`Refine your filter to see more...`}
             </div>
           {/if}
@@ -206,7 +246,7 @@
     aria-labelledby={labelledBy}
     class={className}
   />
-{:else if IsMobile.value}
+{:else if useDrawer}
   <Drawer bind:open>
     <DrawerTrigger child={trigger} />
     <DrawerContent handle={true} class="overflow-hidden">
@@ -226,7 +266,18 @@
 {:else}
   <Popover bind:open>
     <PopoverTrigger child={trigger} />
-    <PopoverContent class="p-0 w-96 max-w-[50vw]" align="start" sticky="always" side="bottom" avoidCollisions>
+    <PopoverContent
+      class="p-0 w-(--bits-popover-anchor-width) min-w-64 max-w-[min(28rem,calc(100vw-1rem))]"
+      align="start"
+      sticky="always"
+      side="bottom"
+      avoidCollisions
+      onOpenAutoFocus={(e) => {
+        if (isLong) return;
+        e.preventDefault();
+        listRef?.focus();
+      }}
+    >
       {@render command()}
     </PopoverContent>
   </Popover>

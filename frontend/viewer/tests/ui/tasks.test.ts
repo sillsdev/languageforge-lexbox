@@ -118,7 +118,7 @@ test('task drawer: Next again while moving to the next entry does not save the s
   const progress = dialog.getByRole('progressbar', {name: 'Progress'});
   await expect(progress).toHaveAttribute('aria-valuetext', '0 of 10 done');
   await dialog.getByRole('combobox').first().click();
-  await page.getByRole('option').first().click();
+  await page.getByRole('option', {checked: false}).first().click();
   await page.evaluate(() => {
     const w = window as unknown as DoubleSaveWindow;
     w.holdIndexLookups = new Promise(resolve => w.releaseIndexLookups = resolve);

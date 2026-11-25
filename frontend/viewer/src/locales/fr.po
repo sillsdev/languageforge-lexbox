@@ -773,6 +773,7 @@ msgstr ""
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/plugins/studio/StudioNotice.svelte
 msgid "Back to plugins"
@@ -1241,6 +1242,10 @@ msgstr ""
 msgid "Created {0} {1}"
 msgstr ""
 
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "Ctrl+Enter or Cmd+Enter toggles the highlighted item and closes the list"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Current Word"
 #. Label in picker: marks the entry that is currently being edited
@@ -1448,6 +1453,7 @@ msgstr ""
 
 #. Tab label
 #. Also in the Tasks list: status label on a field whose task is complete.
+#: src/lib/components/field-editors/multi-select.svelte
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TaskView.svelte
 msgid "Done"
@@ -4315,8 +4321,6 @@ msgstr "pierre"
 
 #. Button to confirm selection
 #: src/lib/components/SubmitOrCancel.svelte
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Submit"
 msgstr "Soumettre"
