@@ -24,6 +24,8 @@ public class EntryFilterMapProvider : EntryFilterMapProvider<Entry>
         e => e.Senses.SelectMany(s => s.ExampleSentences).Select(example => Sql.Property<IList<Translation>>(example, nameof(ExampleSentence.Translations)));
     public override Func<string, object>? EntrySensesExampleSentencesTranslationsConverter =>
         EntryFilter.NormalizeEmptyToEmptyList<Translation>;
+    public override Expression<Func<Entry, string, object>> EntrySensesExampleSentencesTranslationsText =>
+        (e, ws) => e.Senses.SelectMany(s => s.ExampleSentences).Select(example => Json.TranslationsPlainText(Sql.Property<IList<Translation>>(example, nameof(ExampleSentence.Translations)), ws));
     public override Expression<Func<Entry, object?>> EntrySensesPartOfSpeechId => e => e.Senses.Select(s => s.PartOfSpeechId);
     public override Expression<Func<Entry, object?>> EntrySenses => e => e.Senses;
 

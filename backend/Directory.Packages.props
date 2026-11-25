@@ -36,6 +36,7 @@
     <PackageVersion Include="L10NSharp" Version="11.0.1" />
     <PackageVersion Include="L10NSharp.Windows.Forms" Version="11.0.1" />
     <PackageVersion Include="MailKit" Version="4.18.2" />
+    <PackageVersion Include="Makaretu.Dns.Multicast.New" Version="0.38.0" />
     <PackageVersion Include="Meziantou.Extensions.Logging.Xunit" Version="2.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.14" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.14" />
@@ -140,6 +141,7 @@
     <PackageVersion Include="UUIDNext" Version="4.2.4" />
     <PackageVersion Include="Verify.SystemJson" Version="1.4.1" />
     <PackageVersion Include="Verify.Xunit" Version="31.12.5" />
+    <PackageVersion Include="Watson.Lite" Version="6.6.0" />
     <!-- Keep AndroidX Fragment and its Ktx companion on the same version. The Play app-update binding's
          transitive AndroidX deps otherwise leave Fragment.Ktx at 1.8.8.1 while Fragment resolves to 1.9.0,
          and since 1.9.0 merged FragmentKt into the main artifact that mismatch causes an R8 "defined

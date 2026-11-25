@@ -80,3 +80,55 @@ test('tasks page: Back skips field picks on desktop but steps out of a field on 
     await expect(page.getByRole('heading', {name: 'All tasks'})).toBeVisible();
   });
 });
+
+type DoubleSaveWindow = {senseSaves: number, holdIndexLookups?: Promise<void>, releaseIndexLookups?: () => void};
+
+test('task drawer: Next again while moving to the next entry does not save the subject twice', async ({page}) => {
+  await page.goto(`${tasksUrl}?taskId=missing-part-of-speech`);
+  await page.waitForFunction(() => window.__PLAYWRIGHT_UTILS__?.demoApi);
+  await page.evaluate(async () => {
+    const api = window.__PLAYWRIGHT_UTILS__.demoApi;
+    const w = window as unknown as DoubleSaveWindow;
+    w.senseSaves = 0;
+    const updateSense = api.updateSense.bind(api);
+    api.updateSense = async (...args) => {
+      w.senseSaves++;
+      const result = await updateSense(...args);
+      // Like a slow real save: the list drops the saved entry first, so finding the next one asks the api.
+      while ([...document.querySelectorAll('[role=row]')].some(row => row.textContent?.includes('doublesave'))) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+      return result;
+    };
+    const getEntryIndex = api.getEntryIndex.bind(api);
+    api.getEntryIndex = async (...args) => {
+      await w.holdIndexLookups;
+      return getEntryIndex(...args);
+    };
+    const id = crypto.randomUUID();
+    await api.createEntry({
+      id, lexemeForm: {seh: '!!doublesave'}, citationForm: {}, note: {}, literalMeaning: {},
+      senses: [{id: crypto.randomUUID(), entryId: id, gloss: {en: 'gloss'}, definition: {}, semanticDomains: [], exampleSentences: [], pictures: []}],
+      components: [], complexForms: [], complexFormTypes: [], publishIn: [],
+    } as unknown as Parameters<typeof api.createEntry>[0], {includeComplexFormsAndComponents: true, autoAddMainPublication: false});
+  });
+
+  await page.getByRole('row', {name: /doublesave/}).click();
+  const dialog = page.getByRole('dialog');
+  const progress = dialog.getByRole('progressbar', {name: 'Progress'});
+  await expect(progress).toHaveAttribute('aria-valuetext', '0 of 10 done');
+  await dialog.getByRole('combobox').first().click();
+  await page.getByRole('option').first().click();
+  await page.evaluate(() => {
+    const w = window as unknown as DoubleSaveWindow;
+    w.holdIndexLookups = new Promise(resolve => w.releaseIndexLookups = resolve);
+  });
+  const next = dialog.getByRole('button', {name: 'Next'});
+  await next.click();
+  await expect(progress).toHaveAttribute('aria-valuetext', '1 of 10 done');
+  await next.click();
+  await page.evaluate(() => (window as unknown as DoubleSaveWindow).releaseIndexLookups!());
+
+  await expect(dialog.getByText('!!doublesave')).toBeHidden();
+  expect(await page.evaluate(() => (window as unknown as DoubleSaveWindow).senseSaves)).toBe(1);
+});

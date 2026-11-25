@@ -64,6 +64,8 @@
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
     <DeviceCapability Name="microphone"/>
+    <!-- Wi-Fi sync: WindowsAccessPoint creates a Wi-Fi Direct network -->
+    <DeviceCapability Name="wiFiControl"/>
   </Capabilities>
 
 </Package>

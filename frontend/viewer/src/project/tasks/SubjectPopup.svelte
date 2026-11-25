@@ -16,6 +16,7 @@
   import type {Overrides} from '$lib/views/view-data';
   import DictionaryEntry from '$lib/components/dictionary/DictionaryEntry.svelte';
   import {pt} from '$lib/views/view-text';
+  import {untrack} from 'svelte';
   import {useViewService} from '$lib/views/view-service.svelte';
 
   let {
@@ -32,40 +33,34 @@
     completed: number,
     total: number,
     task: Task,
-    onNextEntry?: () => void,
+    onNextEntry?: () => void | Promise<void>,
     onCompletedSubject?: (subject: TaskSubject) => void,
   } = $props();
   const viewService = useViewService();
-  const overrides = $derived.by((): Overrides => {
-    if (!task.subjectWritingSystemId) return {};
-    const ws = {wsId: task.subjectWritingSystemId};
-    if (task.subjectWritingSystemType === WritingSystemType.Analysis) {
-      return {
-        analysis: [ws],
-        vernacular: [],
-      };
-    } else {
-      return {
-        analysis: [],
-        vernacular: [ws],
-      };
-    }
-  });
+  const shownFields = $derived([...task.subjectFields, ...task.optionalFields ?? []]);
   const entryPersistence = new EntryPersistence(() => entry);
   //need to create a snapshot, otherwise changes to the subjects will trigger this derived and it will skip to the next subject
   let subjects = $derived(TasksService.subjects(task, $state.snapshot(entry)));
   let subjectIndex = $state(0);
   let subject = $derived(subjects.at(subjectIndex));
+  const overrides = $derived.by((): Overrides => {
+    if (task.overrides) return task.overrides;
+    if (!task.subjectWritingSystemId) return {};
+    const ws = [{wsId: task.subjectWritingSystemId}];
+    return task.subjectWritingSystemType === WritingSystemType.Analysis
+      ? {analysis: ws, vernacular: []}
+      : {analysis: [], vernacular: ws};
+  });
   $effect(() => {
     if (entry && subjects.length === 0) {
-      onNextEntry();
+      void onNextEntry();
     }
     subjectIndex = 0;
   });
 
   let editor = $state<Editor.Root>();
 
-  // Enter or Next again while a save is in flight would complete the same subject twice.
+  // Enter or Next again before the next subject shows would complete the same subject twice.
   let saving = false;
   async function onNext(skip: boolean = false) {
     if (saving) return;
@@ -101,7 +96,7 @@
     }
 
     if (subjectIndex + 1 >= subjects.length) {
-      onNextEntry();
+      await onNextEntry();
     } else {
       subjectIndex++;
     }
@@ -122,15 +117,14 @@
   let form = $state<HTMLFormElement>();
   $effect(() => {
     if (!form) return;
-    let inputs = form?.querySelectorAll<HTMLElement>('input, .ProseMirror');
-
-    if (!inputs || inputs.length < 0) return;
-    for (let input of inputs) {
-      if (input.checkVisibility()) {
-        input.focus();
-        return;
-      }
-    }
+    let inputs = form.querySelectorAll<HTMLElement>('input, .ProseMirror');
+    // focusing reads editor state, which would re-run this and pull the caret back from any other field
+    untrack(() => {
+      const candidates = [...inputs].filter(input => input.checkVisibility()
+        && (input instanceof HTMLInputElement ? !input.readOnly : input.isContentEditable));
+      const target = candidates.find(input => !(input instanceof HTMLInputElement ? input.value : input.textContent)) ?? candidates[0];
+      target?.focus();
+    });
   });
 </script>
 
@@ -144,7 +138,7 @@
     </Drawer.Header>
     <div class="mx-2 md:mx-4 shadow-inner rounded-md p-4">
       {#if entry}
-        <DictionaryEntry {entry} headwordClass="text-2xl" highlightSenseId={subject?.sense?.id} hideExamples={task.subjectType !== 'example-sentence'}/>
+        <DictionaryEntry {entry} headwordClass="text-2xl" highlightSenseId={subject?.sense?.id} highlightExampleId={subject?.exampleSentence?.id} hideExamples={task.subjectType !== 'example-sentence'}/>
       {/if}
     </div>
     <Drawer.Footer class="gap-4">
@@ -159,7 +153,7 @@
             <input type="submit" style="display: none;"/>
             <Editor.Root bind:this={editor}>
               <Editor.Grid>
-                <OverrideFields shownFields={task.subjectFields} {overrides}>
+                <OverrideFields {shownFields} {overrides}>
                   {#if task.subjectType === 'entry' && subject.entry}
                     <EntryEditorPrimitive autofocus modalMode bind:entry={subject.entry}/>
                   {:else if task.subjectType === 'sense' && subject.sense}
