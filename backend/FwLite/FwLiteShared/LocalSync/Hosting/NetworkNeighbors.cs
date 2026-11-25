@@ -68,7 +68,25 @@ internal sealed class SystemNetworkNeighbors(ILogger<SystemNetworkNeighbors> log
         }
     }
 
-    private static IEnumerable<IPAddress> NeighborTable() => OperatingSystem.IsWindows() ? WindowsNeighborTable() : [];
+    private static IEnumerable<IPAddress> NeighborTable()
+    {
+        if (OperatingSystem.IsWindows()) return WindowsNeighborTable();
+        if (OperatingSystem.IsLinux() && File.Exists(ProcNetArp)) return ParseProcNetArp(File.ReadAllText(ProcNetArp));
+        return [];
+    }
+
+    private const string ProcNetArp = "/proc/net/arp";
+    private const int ArpComplete = 0x2;
+
+    /// <summary>Reads Linux's <c>/proc/net/arp</c>: one row per neighbor, complete ones flagged 0x2.</summary>
+    internal static IEnumerable<IPAddress> ParseProcNetArp(string table) =>
+        table.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Skip(1)
+            .Select(line => line.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .Where(columns => columns.Length >= 4
+                              && (Convert.ToInt32(columns[2], 16) & ArpComplete) != 0
+                              && IPAddress.TryParse(columns[0], out _))
+            .Select(columns => IPAddress.Parse(columns[0]));
 
     /// <summary>
     /// Windows' DHCP server for a network the host created records the name each device gave in <c>hosts.ics</c>,

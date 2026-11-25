@@ -14,6 +14,7 @@ export interface IHostingView
 	networkName?: string;
 	networkPassword?: string;
 	wifiQr?: string;
+	invitation: string;
 	autoApprove: boolean;
 	peers: IPeerView[];
 	nearbyDevices: INearbyDeviceView[];

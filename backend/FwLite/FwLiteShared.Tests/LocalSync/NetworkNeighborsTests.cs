@@ -6,6 +6,19 @@ namespace FwLiteShared.Tests.LocalSync;
 public class NetworkNeighborsTests
 {
     [Fact]
+    public void LinuxsArpTable_ListsOnlyCompleteEntries()
+    {
+        const string table = """
+            IP address       HW type     Flags       HW address            Mask     Device
+            10.42.0.12       0x1         0x2         3a:1f:9c:40:22:7e     *        wlp2s0
+            10.42.0.13       0x1         0x0         00:00:00:00:00:00     *        wlp2s0
+            192.168.1.1      0x1         0x6         b4:fb:e4:12:9a:01     *        enp3s0
+            """;
+
+        SystemNetworkNeighbors.ParseProcNetArp(table).Should().Equal(IPAddress.Parse("10.42.0.12"), IPAddress.Parse("192.168.1.1"));
+    }
+
+    [Fact]
     public void WindowsDhcpNames_AreReadFromTheHostsFile()
     {
         const string hosts = "# Copyright (c) Microsoft Corp.\r\n"

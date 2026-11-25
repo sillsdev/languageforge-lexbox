@@ -66,6 +66,13 @@ public static class FwLiteSharedKernel
         services.AddScoped<MediaCopier>();
         services.AddSingleton<LocalSyncHosting>();
         services.AddSingleton<INetworkNeighbors, SystemNetworkNeighbors>();
+        // Linux hosting isn't offered yet (SupportsWifiSyncHosting); these are ready for it
+        if (OperatingSystem.IsLinux())
+        {
+            services.TryAddSingleton<ICommandRunner, ProcessCommandRunner>();
+            services.TryAddSingleton<IAccessPoint, LinuxAccessPoint>();
+            services.TryAddKeyedSingleton<IKeepAwakePlatform, LinuxKeepAwakePlatform>(LocalSyncHosting.KeepAwakeKey);
+        }
         // MAUI adds Windows' ones; elsewhere hosts share over a network they're already on
         services.TryAddSingleton<IAccessPoint, NoAccessPoint>();
         services.TryAddKeyedSingleton<IKeepAwakePlatform, NoOpKeepAwakePlatform>(LocalSyncHosting.KeepAwakeKey);
