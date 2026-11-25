@@ -75,7 +75,8 @@
     switch(downloadResult)
     {
       case DownloadProjectByCodeResult.Success:
-        await refreshAll();
+        // the download worked, so a failed refresh mustn't show as a download error in the dialog
+        void refreshAll();
         return;
       case DownloadProjectByCodeResult.Forbidden:
         return $t`You don't have permission to download project ${projectCode} from ${server?.displayName ?? ''}`;

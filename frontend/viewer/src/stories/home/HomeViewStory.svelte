@@ -1,6 +1,6 @@
 <script module lang="ts">
   /** Fake service calls still running, so a play function can wait until the screen has settled. */
-  export const fakeCalls = {pending: 0};
+  export const fakeCalls = {pending: 0, serverProjects: 0};
 </script>
 
 <script lang="ts">
@@ -80,7 +80,10 @@
     supportsFwData: () => Promise.resolve(false),
     localProjects: () => respond(() => copy(downloaded)),
     remoteProjects: () => respond(() => statuses.map(serverProjects)),
-    serverProjects: (id) => respond(() => serverProjects(statuses.find(s => s.server.id === id)!)),
+    serverProjects: (id) => respond(() => {
+      fakeCalls.serverProjects++;
+      return serverProjects(statuses.find(s => s.server.id === id)!);
+    }),
     downloadProject: (project) => respond(() => {
       downloaded = [...downloaded, project];
     }, 200),

@@ -63,9 +63,10 @@
 </Story>
 
 <Story name="Server refresh keeps rows" play={async ({canvasElement}) => {
+  const refreshes = fakeCalls.serverProjects;
   await expectRowsStay(canvasElement, ['Sena 3', 'Example Dictionary', 'Training Project', 'Login to see projects'],
     () => userEvent.click(lexbox(canvasElement).getByRole('button', {name: 'Refresh Projects'})),
-    () => Promise.resolve());
+    () => expect(fakeCalls.serverProjects).toBe(refreshes + 1));
 }}>
   <HomeViewStory loggedIn otherServer />
 </Story>
