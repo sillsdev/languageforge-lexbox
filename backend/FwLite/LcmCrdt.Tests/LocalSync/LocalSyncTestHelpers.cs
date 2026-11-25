@@ -67,7 +67,7 @@ public static class LocalSyncTestHelpers
 /// </summary>
 public class OverJson(ISyncable inner, JsonSerializerOptions options) : ISyncable
 {
-    public async Task AddRangeFromSync(IEnumerable<Commit> commits) =>
+    public async Task<Commit[]> AddRangeFromSync(IEnumerable<Commit> commits) =>
         await inner.AddRangeFromSync(LocalSyncTestHelpers.JsonRoundTrip(commits.ToArray(), options));
 
     public async Task<SyncState> GetSyncState() =>
