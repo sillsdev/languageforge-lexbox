@@ -81,4 +81,16 @@ public class FwHeadlessClientTests
 
         await act.Should().ThrowAsync<ProjectSyncInProgressException>();
     }
+
+    [Fact]
+    public async Task InitFwDataProject_ReturnsAnError_ForAFailureWithAnEmptyBody()
+    {
+        // e.g. a FwHeadless that doesn't have the route yet. A null error would read as success.
+        var client = ClientReturning(HttpStatusCode.NotFound, "", "text/plain");
+
+        var (statusCode, error) = await client.InitFwDataProject(Guid.NewGuid(), ["fr"], ["en"], "en");
+
+        statusCode.Should().Be(HttpStatusCode.NotFound);
+        error.Should().Be("FwHeadless returned HTTP 404");
+    }
 }

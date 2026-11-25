@@ -12,19 +12,16 @@ public class HeaderTests : ApiTestBase
     }
 
     [Fact]
-    public async Task CheckCloudflareHeaderSizeLimit()
+    public async Task CheckHeaderSizeLimit()
     {
         /*
-        From testing done in November 2023, for 300 iterations a header size of:
-        10,210 failed 7 times
-        10,200 failed 1 time
-        10,195 failed 0 times
-
-        Retested October 2026 with random headers: 10,195 failed 1 of 140, 10,100 and 10,000 failed 0 of 80.
-        The limit depends on the header's content, not just its length: the 10,195 header that failed got 520 on every resend,
-        but passed once trimmed to 10,175. So stay well below the limit, while keeping headroom over LexAuthUser.MaxJwtLength.
+        Since 2026-11-20 our nginx ingress (staging and production) rejects any header line over 8 KB with
+        "400 Request Header Or Cookie Too Large": 8,100 chars passed and 8,192 failed every time. That matches
+        nginx's default large_client_header_buffers (4 8k); local dev sets 4 16k.
+        Before that, Cloudflare was the tighter limit: around 10,200 chars, varying with the header's content (520s).
+        Keep this above LexAuthUser.MaxJwtLength plus the cookie name and any other cookies.
         */
-        var headerSize = 10000;
+        var headerSize = 8000;
         var iterations = 10; // a slightly bigger sample set, so we're more confident that we're in the clear
         var failStatusCodes = new List<HttpStatusCode>();
         for (var i = 0; i < iterations; i++)

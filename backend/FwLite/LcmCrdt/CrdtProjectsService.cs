@@ -431,7 +431,7 @@ public partial class CrdtProjectsService(
         var project = GetProject(code) ?? throw new InvalidOperationException($"Project '{code}' not found");
         // db first: if it can't be deleted, the project stays usable with its not-yet-uploaded media
         await EnsureDeleteProject(project.DbPath);
-        var projectResourceCachePath = LcmMediaService.ProjectCachePath(project, provider.GetRequiredService<IOptions<HarmonyConfig>>().Value);
+        var projectResourceCachePath = config.Value.ProjectResourceCachePath(project.Name);
         if (Directory.Exists(projectResourceCachePath)) Directory.Delete(projectResourceCachePath, true);
         DeleteProjectFolderIfEmpty(project);
     }

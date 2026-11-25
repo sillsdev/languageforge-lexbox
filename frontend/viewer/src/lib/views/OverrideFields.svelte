@@ -34,7 +34,7 @@
   });
 
   function overrideEntityFields<T extends FieldId>(entityFields: TypedViewField<T>[], shownFields: FieldId[], respectOrder: boolean): TypedViewField<T>[] {
-    const filteredFields = entityFields.filter(f => shownFields.includes(f.fieldId));
+    const filteredFields = entityFields.filter(f => shownFields.includes(f.fieldId)).map(f => ({...f, show: true}));
     if (respectOrder) {
       filteredFields.sort((a, b) => shownFields.indexOf(a.fieldId) - shownFields.indexOf(b.fieldId));
     }

@@ -44,7 +44,7 @@ public class FwLiteReleaseService(IHttpClientFactory factory, HybridCache cache,
         var editionConfig = config.Value.Editions.GetValueOrDefault(edition);
         if (editionConfig is null)
         {
-            //Editions with no release-asset config (e.g. store-distributed iOS/Mac) have no GitHub
+            //Editions with no release-asset config (e.g. store-distributed iOS) have no GitHub
             //feed to check. Return null ("no update") rather than throwing, which the endpoint would
             //otherwise surface as a 500 on every client launch.
             return null;

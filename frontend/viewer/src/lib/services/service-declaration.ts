@@ -14,6 +14,7 @@ declare global {
     EventBus?: EventBus;
     // Expose svelte-routing navigate for native hosts (MAUI) and other integrations
     SvelteNavigate?: (url: string, options?: { replace?: boolean }) => void;
+    WhenFirstScreenReady?: () => Promise<void>;
     /* eslint-enable @typescript-eslint/naming-convention */
   }
 

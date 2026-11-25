@@ -33,6 +33,7 @@ public class FwLiteReleaseServiceTests
             {
                 config.Editions.Add(FwLiteEdition.Windows, new FwLiteEditionConfig() { FileNameRegex = "(?i)\\.msixbundle$" });
                 config.Editions.Add(FwLiteEdition.Linux, new FwLiteEditionConfig() { FileNameRegex = "(?i)linux\\.zip$" });
+                config.Editions.Add(FwLiteEdition.Mac, new FwLiteEditionConfig() { FileNameRegex = "(?i)\\.dmg$" });
             })
             .Services
             .AddHybridCache()
@@ -44,6 +45,7 @@ public class FwLiteReleaseServiceTests
     [Theory]
     [InlineData(FwLiteEdition.Windows)]
     [InlineData(FwLiteEdition.Linux)]
+    [InlineData(FwLiteEdition.Mac)]
     public async Task CanGetLatestRelease(FwLiteEdition edition)
     {
         var latestRelease = await _fwLiteReleaseService.GetLatestRelease(edition);
@@ -54,11 +56,10 @@ public class FwLiteReleaseServiceTests
 
     [Theory]
     [InlineData(FwLiteEdition.iOS)]
-    [InlineData(FwLiteEdition.Mac)]
     [InlineData(FwLiteEdition.Android)]
     public async Task UnconfiguredEditionReturnsNullInsteadOfThrowing(FwLiteEdition edition)
     {
-        //Editions with no release-asset config (only Windows + Linux are configured in this fixture)
+        //Editions with no release-asset config (only Windows, Linux and Mac are configured in this fixture)
         //must not throw: the should-update endpoint would otherwise 500 on every such client launch.
         var latestRelease = await _fwLiteReleaseService.GetLatestRelease(edition);
         latestRelease.Should().BeNull();

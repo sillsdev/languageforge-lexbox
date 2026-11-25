@@ -1,4 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {idleWifiSync} from './test/idle-wifi-sync';
 import {flushSync, mount, unmount} from 'svelte';
 import type {ISyncServiceJsInvokable} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ISyncServiceJsInvokable';
 import {DotnetService, SyncJobStatusEnum} from '$lib/dotnet-types';
@@ -24,6 +25,7 @@ function fakeSyncService() {
     getCurrentServer: vi.fn(() => Promise.resolve({id: 'test-server', displayName: 'Lexbox', authority: 'https://test-server.com'})),
     syncWithFolder: vi.fn(() => Promise.resolve({status: FolderSyncStatus.Synced, mediaSent: 0, mediaReceived: 0, mediaFailed: 0})),
     getRememberedSyncFolder: vi.fn(() => Promise.resolve<string | undefined>(undefined)),
+    ...idleWifiSync,
   } satisfies ISyncServiceJsInvokable;
 }
 
@@ -79,15 +81,15 @@ describe('SyncDialog', () => {
 
     await vi.waitFor(() => expect(visibleLabel(button)).toBe('Auto syncing'));
     expect(syncService.executeSync).toHaveBeenCalledOnce();
-    // Only loaded once FieldWorks Send/Receive is chosen
+    // Only loaded once FieldWorks Classic is chosen
     expect(syncService.getSyncStatus).not.toHaveBeenCalled();
     expect([...document.querySelectorAll('button')].some(b => b.textContent?.includes('Sync your changes'))).toBe(false);
   }, 60_000); // first import transforms the dialog's dependencies
 
-  type SyncMethod = 'Other FieldWorks Lite users' | 'FieldWorks Send/Receive (on Lexbox)' | 'USB Drive / Folder';
+  type SyncMethod = 'Other FieldWorks Lite users' | 'FieldWorks Classic (in Lexbox)' | 'USB Drive / Folder';
 
   function methodButtons(): string[] {
-    return [...document.querySelectorAll('button')].map(b => b.textContent?.trim() ?? '').filter(text => /^(Other FieldWorks Lite users|FieldWorks Send\/Receive|USB Drive)/.test(text));
+    return [...document.querySelectorAll('button')].map(b => b.textContent?.trim() ?? '').filter(text => /^(Other FieldWorks Lite users|FieldWorks Classic|USB Drive)/.test(text));
   }
 
   // The methods show once the project's features have loaded
@@ -121,7 +123,7 @@ describe('SyncDialog', () => {
   it('goes back to the method list on system back, then closes', async () => {
     await openDialog(fakeSyncService());
     await vi.waitFor(() => expect(dialogOpen()).toBe(true));
-    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    await chooseMethod('FieldWorks Classic (in Lexbox)');
     await new Promise(resolve => setTimeout(resolve, 50));
 
     await systemBack();
@@ -135,7 +137,7 @@ describe('SyncDialog', () => {
   it('leaves no history entry behind after the back arrow', async () => {
     await openDialog(fakeSyncService());
     await vi.waitFor(() => expect(dialogOpen()).toBe(true));
-    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    await chooseMethod('FieldWorks Classic (in Lexbox)');
     await new Promise(resolve => setTimeout(resolve, 50));
     back();
     await vi.waitFor(() => expect(methodButtons()).toHaveLength(2));
@@ -150,7 +152,7 @@ describe('SyncDialog', () => {
     await openDialog(fakeSyncService());
     await vi.waitFor(() => expect(dialogOpen()).toBe(true));
     const startLength = history.length;
-    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    await chooseMethod('FieldWorks Classic (in Lexbox)');
     await vi.waitFor(() => expect(history.length).toBe(startLength + 1));
 
     document.querySelector<HTMLButtonElement>('[data-dialog-close]')!.click();
@@ -162,10 +164,10 @@ describe('SyncDialog', () => {
 
   it('focuses the back button on opening a method, and that method on going back', async () => {
     await openDialog(fakeSyncService());
-    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    await chooseMethod('FieldWorks Classic (in Lexbox)');
     expect(document.activeElement?.getAttribute('title')).toBe('Back');
     back();
-    await vi.waitFor(() => expect(document.activeElement?.textContent?.trim()).toMatch(/^FieldWorks Send\/Receive/));
+    await vi.waitFor(() => expect(document.activeElement?.textContent?.trim()).toMatch(/^FieldWorks Classic/));
   }, 60_000);
 
   function visibleLabel(button: HTMLButtonElement) {
@@ -177,7 +179,7 @@ describe('SyncDialog', () => {
     await openDialog(syncService);
     await vi.waitFor(() => expect(methodButtons()).toHaveLength(2));
     expect(syncService.getSyncStatus).not.toHaveBeenCalled();
-    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    await chooseMethod('FieldWorks Classic (in Lexbox)');
     await vi.waitFor(() => expect(syncService.getSyncStatus).toHaveBeenCalledOnce());
   }, 60_000);
 
@@ -185,7 +187,7 @@ describe('SyncDialog', () => {
     const syncService = fakeSyncService();
     syncService.getSyncStatus.mockImplementation(() => Promise.reject(new Error('Lexbox unreachable')));
     await openDialog(syncService);
-    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    await chooseMethod('FieldWorks Classic (in Lexbox)');
     await vi.waitFor(() => expect(document.body.textContent).toContain(`Couldn't get the FieldWorks Classic status from Lexbox.`));
   }, 60_000);
 
@@ -197,12 +199,12 @@ describe('SyncDialog', () => {
       pendingMercurialChanges: 5,
     }));
     await openDialog(syncService);
-    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    await chooseMethod('FieldWorks Classic (in Lexbox)');
     await vi.waitFor(() => expect(document.body.textContent).toContain('New data'));
     back();
     await chooseMethod('Other FieldWorks Lite users');
     back();
-    await chooseMethod('FieldWorks Send/Receive (on Lexbox)');
+    await chooseMethod('FieldWorks Classic (in Lexbox)');
     expect(document.body.textContent).toContain('New data');
     expect(syncService.getSyncStatus).toHaveBeenCalledOnce();
   }, 60_000);

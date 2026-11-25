@@ -13,7 +13,7 @@ render(import.meta.dirname, {
     'lexbox-appicon-512.png': ['lexbox-appicon.svg', 512],
     'lexbox-appicon-1024.png': ['lexbox-appicon.svg', 1024],
   },
-  ico: ['lexbox-16.png', 'lexbox-32.png', 'lexbox-48.png'],
+  icos: { 'favicon.ico': ['lexbox-16.png', 'lexbox-32.png', 'lexbox-48.png'] },
   // No dark drawing: the light ones read on dark grounds too.
   faviconSvg: { title: 'Lexbox', light: 'lexbox-tiny.svg' },
 })

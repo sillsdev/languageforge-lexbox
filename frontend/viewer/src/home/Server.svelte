@@ -20,12 +20,13 @@
 
   interface Props {
     status: IServerStatus | undefined;
-    projects: IProjectModel[];
+    /** undefined until the server's projects first load */
+    projects: IProjectModel[] | undefined;
     localProjects: IProjectModel[];
     loading?: boolean;
     canDownloadByCode?: boolean;
     refreshProjects?: () => void;
-    refreshAll?: () => void;
+    refreshAll?: () => Promise<void>;
   }
 
   let {
@@ -36,16 +37,16 @@
     canDownloadByCode,
     refreshProjects = () => {
     },
-    refreshAll = () => {
-    }
+    refreshAll = () => Promise.resolve()
   }: Props = $props();
 
-  const undownloadedProjects = $derived(projects.filter(project => !matchesProject(localProjects, project)?.crdt));
+  const undownloadedProjects = $derived((projects ?? []).filter(project => !matchesProject(localProjects, project)?.crdt));
 
   let downloading = $state('');
 
   async function downloadCrdtProject(project: IProjectModel) {
-    if (matchesProject(localProjects, project)) return;
+    // rows stay visible while reloading, but may be stale (e.g. just logged out)
+    if (loading || downloading === project.code) return;
 
     downloading = project.code;
     try {
@@ -63,9 +64,7 @@
         }
       });
       await downloadPromise;
-      refreshAll();
-      // Getting an updated list of localProjects will take a moment. For the time being, we do it manually.
-      localProjects.push(project);
+      await refreshAll();
     } finally {
       downloading = '';
     }
@@ -76,7 +75,8 @@
     switch(downloadResult)
     {
       case DownloadProjectByCodeResult.Success:
-        refreshAll();
+        // the download worked, so a failed refresh mustn't show as a download error in the dialog
+        void refreshAll();
         return;
       case DownloadProjectByCodeResult.Forbidden:
         return $t`You don't have permission to download project ${projectCode} from ${server?.displayName ?? ''}`;
@@ -126,7 +126,7 @@
     {#if status?.loggedIn}
       <Button icon="i-mdi-refresh"
               title={$t`Refresh Projects`}
-              disabled={loading}
+              {loading}
               class="mr-2"
               variant="ghost"
               size="icon"
@@ -134,7 +134,8 @@
       <LoginButton {status} statusChange={() => refreshAll()}/>
     {/if}
   </div>
-  {#if !status || loading}
+  <!-- skeleton only for the first load: during a reload it would take every row off the page -->
+  {#if !status || (loading && !projects)}
     <!--override the defaults from App.svelte-->
     <!-- eslint-disable-next-line @typescript-eslint/naming-convention -->
     <ProjectListItem icon="i-mdi-cloud" skeleton/>
@@ -154,7 +155,8 @@
     <div>
       {#each undownloadedProjects as project (project.id)}
         {@const loading = downloading === project.code}
-        <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
+        <!-- global: also crossfade when the section swaps to or from its empty state -->
+        <div out:send|global={{key: 'project-' + project.code}} in:receive|global={{key: 'project-' + project.code}}>
           <ProjectListItem onclick={() => downloadCrdtProject(project)} icon="i-mdi-cloud" {project} {loading}>
             {#snippet actions()}
               <div class="pointer-events-none shrink-0">

@@ -3,6 +3,8 @@ using FwLiteMaui.Services;
 using FwLiteShared;
 using FwLiteShared.AppUpdate;
 using FwLiteShared.Auth;
+using FwLiteShared.KeepAwake;
+using FwLiteShared.LocalSync.Hosting;
 using FwLiteShared.Services;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -21,6 +23,8 @@ public static class WindowsKernel
         services.AddSingleton<IMauiInitializeService>(s => s.GetRequiredService<AppUpdateService>());
         services.AddSingleton<IPlatformUpdateService>(s => s.GetRequiredService<AppUpdateService>());
         services.AddSingleton<IMultiWindowService, WindowsMultiWindowService>();
+        services.Replace(ServiceDescriptor.Singleton<IAccessPoint, WindowsAccessPoint>());
+        services.AddKeyedSingleton<IKeepAwakePlatform, WindowsKeepAwakePlatform>(LocalSyncHosting.KeepAwakeKey);
         if (!FwLiteMauiKernel.IsPortableApp)
         {
             services.AddSingleton<IMauiInitializeService, WindowsShortcutService>();

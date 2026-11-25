@@ -17,6 +17,7 @@
   import FwLiteSyncView from './sync/FwLiteSyncView.svelte';
   import FwClassicSyncView from './sync/FwClassicSyncView.svelte';
   import FolderSyncSection from './sync/FolderSyncSection.svelte';
+  import WifiSyncSection from './sync/WifiSyncSection.svelte';
   import SyncMethodList from './sync/SyncMethodList.svelte';
   import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
   import type {SyncMethod, SyncTarget} from './sync/sync-target';
@@ -35,7 +36,7 @@
   const showClassic = $derived(!!server && !!features.fieldWorksSync);
   const platformFeatures = usePlatformFeaturesService();
   const showFolder = $derived(platformFeatures.features.supportsFolderSync && hasFlag('folder-sync'));
-  const showNearby = $derived(hasFlag('nearby-sync'));
+  const showNearby = $derived(platformFeatures.features.supportsWifiSync && hasFlag('nearby-sync'));
   const openQueryParam = new QueryParamStateBool(
     { key: SYNC_DIALOG_QUERY_PARAM, replaceOnDefaultValue: true, allowBack: true },
     false,
@@ -58,7 +59,7 @@
 
   const methodTitles = $derived<Record<SyncMethod, string>>({
     lite: $t`Other FieldWorks Lite users`,
-    classic: $t`FieldWorks Send/Receive (on Lexbox)`,
+    classic: $t`FieldWorks Classic (in Lexbox)`,
     folder: $t`USB Drive / Folder`,
     nearby: 'Nearby devices',
   });
@@ -134,7 +135,7 @@
     {/if}
     {#if showNearby}
       <IfOnce show={shown === 'nearby'}>
-        <p class="py-6 text-center text-sm text-muted-foreground">Coming soon</p>
+        <WifiSyncSection bind:syncing onSynced={() => syncCount++} />
       </IfOnce>
     {/if}
   </div>

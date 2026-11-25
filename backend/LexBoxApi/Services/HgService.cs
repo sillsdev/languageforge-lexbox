@@ -20,7 +20,7 @@ public partial class HgService : IHgService
 {
     public const string ManageClientName = "HgResumeManage";
     private const string ManageSecretHeader = "X-Manage-Secret";
-    private const string AllZeroHash = "0000000000000000000000000000000000000000";
+    public const string AllZeroHash = "0000000000000000000000000000000000000000";
 
     private readonly IOptions<HgConfig> _options;
     private readonly Lazy<HttpClient> _hgClient;

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Options;
 using SIL.LCModel;
+using SIL.LCModel.Infrastructure;
 using SIL.LCModel.Core.WritingSystems;
 using SIL.LCModel.Utils;
 using SIL.WritingSystems;
@@ -96,28 +97,99 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         var progress = new LcmThreadedProgress();
         var analysisDefinitions = analysisWss.Select(CreateWritingSystemDefinition).ToList();
         var vernacularDefinitions = vernacularWss.Select(CreateWritingSystemDefinition).ToList();
+        // A liblcm bug: when no anthropology list file is passed (FLEx passes one unless the user picks an
+        // empty list), CreateNewLangProj names the empty list in the default analysis WS, which it looks up
+        // with GetWsFromStr(IcuLocale). GetWsFromStr expects a language tag, so this only works when the
+        // two match: "pt-BR" is "pt_BR" in ICU, the lookup returns 0, and creation throws with the project
+        // already on disk. Remove this workaround once https://github.com/sillsdev/liblcm/issues/416 is fixed and released.
+        // Until then hand liblcm "en" as the default
+        // and pass every requested analysis WS as additional; SetRequestedWritingSystems fixes the default.
+        var substituteDefaultAnalysis = !IcuLocaleMatchesTag(analysisDefinitions[0]);
+        var defaultAnalysis = substituteDefaultAnalysis ? CreateWritingSystemDefinition("en") : analysisDefinitions[0];
         NewProject(progress,
             project.Name,
             lcmDirectories,
             progress.SynchronizeInvoke,
-            analysisDefinitions[0],
+            defaultAnalysis,
             vernacularDefinitions[0],
             uiWs,
-            AdditionalWritingSystems(analysisDefinitions),
-            AdditionalWritingSystems(vernacularDefinitions));
-        return LoadCache(project);
+            AdditionalWritingSystems(analysisDefinitions, defaultAnalysis),
+            AdditionalWritingSystems(vernacularDefinitions, vernacularDefinitions[0]));
+        var cache = LoadCache(project);
+        try
+        {
+            SetRequestedWritingSystems(cache, analysisWss, vernacularWss, substituteDefaultAnalysis);
+        }
+        catch
+        {
+            cache.Dispose();
+            throw;
+        }
+        return cache;
     }
 
     private static CoreWritingSystemDefinition CreateWritingSystemDefinition(string ws) => new(ws) { Id = ws };
 
-    // The default writing system (the first of the list) is passed to CreateNewLangProj on its own, so
-    // the "additional" set is the whole list as a hash set with that default removed. The new project
-    // ends up with them in list order (NewProjectWritingSystemsTests checks this).
-    private static HashSet<CoreWritingSystemDefinition> AdditionalWritingSystems(List<CoreWritingSystemDefinition> definitions)
+    private static bool IcuLocaleMatchesTag(CoreWritingSystemDefinition definition) =>
+        string.Equals(definition.IcuLocale, definition.Id, StringComparison.OrdinalIgnoreCase);
+
+    // Everything except the default, which CreateNewLangProj takes on its own
+    private static HashSet<CoreWritingSystemDefinition> AdditionalWritingSystems(
+        List<CoreWritingSystemDefinition> definitions,
+        CoreWritingSystemDefinition defaultDefinition) =>
+        definitions.Where(d => !string.Equals(d.Id, defaultDefinition.Id, StringComparison.OrdinalIgnoreCase)).ToHashSet();
+
+    /// <summary>
+    /// Makes the current analysis and vernacular lists exactly the requested writing systems, in the
+    /// requested order. CreateNewLangProj doesn't on its own: it adds "en" as a current analysis WS
+    /// whenever another one is the default, appends the "additional" sets without checking for one that's
+    /// already there (so "en" listed later, or "fr" plus "fr-Latn", end up twice), and takes them as
+    /// unordered sets. Writing systems it added that weren't asked for stay in the full lists, unselected.
+    /// </summary>
+    private static void SetRequestedWritingSystems(LcmCache cache,
+        IReadOnlyList<string> analysisWss,
+        IReadOnlyList<string> vernacularWss,
+        bool substitutedDefaultAnalysis)
     {
-        var additional = definitions.ToHashSet();
-        additional.Remove(definitions[0]);
-        return additional;
+        var container = cache.ServiceLocator.WritingSystems;
+        var wsManager = cache.ServiceLocator.WritingSystemManager;
+        // GetOrSet resolves a tag to the WS liblcm already created for it, also when liblcm stored it under
+        // an equivalent tag (e.g. "fr" for "fr-Latn")
+        List<CoreWritingSystemDefinition> Resolve(IReadOnlyList<string> tags) => tags.Select(tag =>
+        {
+            wsManager.GetOrSet(tag, out var ws);
+            return ws;
+        }).Distinct().ToList();
+
+        NonUndoableUnitOfWorkHelper.Do(cache.ActionHandlerAccessor, () =>
+        {
+            var analysis = Resolve(analysisWss);
+            var vernacular = Resolve(vernacularWss);
+            // liblcm doesn't keep the full lists in the same order as the current lists, so set both
+            SetList(container.AnalysisWritingSystems, [.. analysis, .. container.AnalysisWritingSystems.Except(analysis)]);
+            SetList(container.VernacularWritingSystems, [.. vernacular, .. container.VernacularWritingSystems.Except(vernacular)]);
+            SetList(container.CurrentAnalysisWritingSystems, analysis);
+            SetList(container.CurrentVernacularWritingSystems, vernacular);
+            if (substitutedDefaultAnalysis) MoveReversalIndexToDefaultAnalysis(cache, analysis[0]);
+        });
+        cache.ActionHandlerAccessor.Commit();
+    }
+
+    private static void SetList(ICollection<CoreWritingSystemDefinition> list, List<CoreWritingSystemDefinition> wanted)
+    {
+        if (list.SequenceEqual(wanted)) return;
+        list.Clear();
+        foreach (var ws in wanted) list.Add(ws);
+    }
+
+    // CreateNewLangProj creates a reversal index for the default analysis WS, which was "en" only because
+    // the requested default couldn't be passed in. Give the requested default the index instead.
+    private static void MoveReversalIndexToDefaultAnalysis(LcmCache cache, CoreWritingSystemDefinition defaultAnalysis)
+    {
+        cache.ServiceLocator.GetInstance<IReversalIndexRepository>().FindOrCreateIndexForWs(defaultAnalysis.Handle);
+        if (cache.ServiceLocator.WritingSystems.CurrentAnalysisWritingSystems.Any(ws => ws.Id == "en")) return;
+        var englishIndex = cache.LangProject.LexDbOA.ReversalIndexesOC.FirstOrDefault(ri => ri.WritingSystem == "en");
+        if (englishIndex is not null) cache.LangProject.LexDbOA.ReversalIndexesOC.Remove(englishIndex);
     }
 
     private static void NewProject(IThreadedProgress progress,

@@ -39,10 +39,13 @@ Windows and Linux computers, and Android phones and tablets (from Google Play). 
 same app on every device. There is no iPhone or iPad version yet.
 
 :::warning[Mac: early testers only]
-A Mac version is available for people who want to try it early. It doesn't update itself
-yet, and it is less tested than the other versions. To try it, download
-`FieldWorksLite.dmg` from the **Assets** of the
+A Mac version is available for people who want to try it early. It is less tested than the
+other versions. To try it, download `FieldWorksLite.dmg` from the **Assets** of the
 [latest FieldWorks Lite release on GitHub](https://github.com/sillsdev/languageforge-lexbox/releases/latest).
+
+It doesn't install updates by itself. When a new version is out, it tells you and offers a
+**Download** button. Open the downloaded file and drag FieldWorks Lite into Applications,
+replacing the old one. Your projects stay on your Mac.
 :::
 
 ## Is my work safe if my phone or computer breaks?

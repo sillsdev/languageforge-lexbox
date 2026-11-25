@@ -13,7 +13,7 @@ public record LocalSyncResult(IdentityComparison Comparison, SyncResults? SyncRe
 }
 
 /// <summary>
-/// Syncs the current project with another copy of it without Lexbox, such as a sync folder.
+/// Syncs the current project with another copy of it without Lexbox: a local sync host or a sync folder.
 /// Unlike <see cref="SyncService"/> it needs no sign-in, and it never updates the Lexbox sync date, because
 /// commits exchanged locally still have to reach Lexbox.
 /// </summary>
@@ -23,7 +23,7 @@ public class LocalSyncService(
     SyncResultsProcessor syncResultsProcessor)
 {
     /// <param name="remote">The other copy.</param>
-    /// <param name="remoteIdentity">The other copy's identity, as it reported it (for a sync folder, its manifest).</param>
+    /// <param name="remoteIdentity">The other copy's identity, as it reported it (from the host, or a sync folder's manifest).</param>
     public async Task<LocalSyncResult> SyncWith(ISyncable remote, ProjectIdentity remoteIdentity)
     {
         var comparison = ProjectIdentity.Compare(await projectIdentityService.GetIdentity(), remoteIdentity);

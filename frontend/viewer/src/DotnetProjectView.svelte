@@ -1,5 +1,6 @@
 <script lang="ts">
   import ProjectView from './ProjectView.svelte';
+  import {markFirstScreenReady} from '$lib/first-screen';
   import {onDestroy, onMount, untrack} from 'svelte';
   import {DotnetService} from '$lib/dotnet-types';
   import {useProjectServicesProvider} from '$lib/services/service-provider';
@@ -42,6 +43,8 @@
   let endOpeningNotice: (() => void) | undefined;
   onMount(async () => {
     console.debug('ProjectView mounted');
+    //the project view has its own loading UI
+    markFirstScreenReady();
     projectContext.projectCode = code;
     projectContext.projectType = projectType;
     if (projectType === 'crdt') {
