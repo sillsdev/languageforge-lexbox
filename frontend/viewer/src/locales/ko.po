@@ -773,6 +773,7 @@ msgstr ""
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/plugins/studio/StudioNotice.svelte
 msgid "Back to plugins"
@@ -1239,6 +1240,10 @@ msgstr ""
 #. Example: "Created 100 semantic domains". Order and inflection of {0} and {1} may vary by language.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Created {0} {1}"
+msgstr ""
+
+#: src/project/ProjectDropdown.svelte
+msgid "Current"
 msgstr ""
 
 #. Relevant view: Classic
