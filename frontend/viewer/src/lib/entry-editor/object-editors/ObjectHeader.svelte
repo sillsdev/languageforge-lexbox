@@ -19,7 +19,7 @@
 
 {#if type === 'sense'}
   <div class={cn('col-span-full flex items-center py-2 mb-1', className)} {...restProps}>
-    <h2 class="text-lg text-muted-foreground">
+    <h2 class="text-lg font-semibold">
       <span>{pt($t`Sense`, $t`Meaning`, viewService.currentView)}</span>
       {#if index}<span>{index}</span>{/if}
     </h2>
@@ -28,7 +28,7 @@
   </div>
 {:else if type === 'example'}
   <div class={cn('col-span-full flex items-center mb-2', className)} {...restProps}>
-    <h3 class="text-muted-foreground">
+    <h3 class="font-semibold">
       <span>{$t`Example`}</span>
       {#if index}<span>{index}</span>{/if}
     </h3>
