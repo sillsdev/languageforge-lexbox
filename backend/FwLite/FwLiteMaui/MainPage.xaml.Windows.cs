@@ -1,13 +1,19 @@
 #if WINDOWS
 using Microsoft.AspNetCore.Components.WebView;
+using Microsoft.Maui.Platform;
 using Microsoft.Web.WebView2.Core;
 
 namespace FwLiteMaui;
 
 public partial class MainPage
 {
+    //what a new window shows until WebView2 has painted; index.html continues in the same colours
+    private static Color LoadingBackground =>
+        Application.Current?.RequestedTheme == AppTheme.Dark ? Color.FromArgb("#09090b") : Colors.White;
+
     private partial void BlazorWebViewInitializing(object? sender, BlazorWebViewInitializingEventArgs e)
     {
+        BackgroundColor = LoadingBackground;
     }
 
     private partial void BlazorWebViewInitialized(object? sender, BlazorWebViewInitializedEventArgs e)
@@ -39,6 +45,7 @@ public partial class MainPage
         }
 #pragma warning restore VSTHRD110, CS4014
         e.WebView.CoreWebView2.Settings.IsGeneralAutofillEnabled = false;
+        e.WebView.DefaultBackgroundColor = LoadingBackground.ToWindowsColor();
     }
 }
 

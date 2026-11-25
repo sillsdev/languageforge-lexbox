@@ -5,13 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>FwLiteMaui</title>
     <base href="/" />
+    <style>
+        /* the viewer's --background (frontend/viewer/src/theme.css), so the page doesn't change colour when it mounts */
+        html { background: #fff; }
+        html.dark { background: #09090b; }
+
+        .app-loading {
+            position: fixed;
+            inset: 0;
+            display: grid;
+            place-items: center;
+        }
+        .app-loading > div {
+            width: 28px;
+            height: 28px;
+            border: 3px solid #8884;
+            border-top-color: #888;
+            border-radius: 50%;
+            opacity: 0;
+            /* only shows when loading takes a while */
+            animation: app-loading-spin 0.8s linear infinite, app-loading-show 0.2s 0.6s forwards;
+        }
+        @keyframes app-loading-spin { to { transform: rotate(360deg); } }
+        @keyframes app-loading-show { to { opacity: 1; } }
+    </style>
+    <script>
+        // same choice the viewer's mode-watcher makes once it has loaded
+        var mode = localStorage.getItem('mode-watcher-mode');
+        if (mode === 'dark' || (mode !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches))
+            document.documentElement.classList.add('dark');
+    </script>
 </head>
 
 <body>
 
     <div class="status-bar-safe-area"></div>
 
-    <div id="app">Loading...</div>
+    <div id="app">
+        <div class="app-loading" role="status" aria-label="Loading"><div></div></div>
+    </div>
 
     <script src="_framework/blazor.webview.js" autostart="false"></script>
 
