@@ -70,7 +70,7 @@
         isDangerous: true,
         details: $t`Make sure your [changes are synced](${syncDialogUrl}) to Lexbox.`,
       })) return;
-      deletingProject = project.id;
+      deletingProject = project.code;
       await projectsService.deleteProject(project.code);
       await refreshProjects();
     } finally {
@@ -186,9 +186,9 @@
                     onclick={() => refreshProjects()}/>
           </div>
           <div>
-            {#each projects.filter((p) => p.crdt) as project (project)}
+            {#each projects.filter((p) => p.crdt) as project (project.code)}
               {@const server = project.server}
-              {@const loading = deletingProject === project.id}
+              {@const loading = deletingProject === project.code}
               <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
                 <ResponsiveMenu.Root contextMenu>
                   <ResponsiveMenu.Trigger>
@@ -250,9 +250,7 @@
           <div>
             <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
             <div>
-              <!-- project.name (and maybe code as well) can have duplicates
-              if there are 2 fwdata projects whose names are the name and code of a crdt project -->
-              {#each projects.filter((p) => p.fwdata) as project (project)}
+              {#each projects.filter((p) => p.fwdata) as project (project.code)}
                 <Anchor href={`/fwdata/${project.code}`}>
                   <ProjectListItem {project}>
                     {#snippet icon()}
