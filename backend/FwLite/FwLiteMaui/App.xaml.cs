@@ -27,7 +27,9 @@ public partial class App : Application
         {
             mainPage.StartPath = lastUrl;
         }
-        serviceProvider.GetRequiredService<StartupProjectWarmup>().Start(mainPage.StartPath);
+        //Windows only: Android sets the start page from a home screen shortcut after this runs, and mobile wasn't measured
+        if (OperatingSystem.IsWindows())
+            serviceProvider.GetRequiredService<StartupProjectWarmup>().Start(mainPage.StartPath);
         InitializeComponent();
     }
 
