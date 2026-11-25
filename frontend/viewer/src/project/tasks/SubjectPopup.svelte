@@ -32,7 +32,7 @@
     completed: number,
     total: number,
     task: Task,
-    onNextEntry?: () => void,
+    onNextEntry?: () => void | Promise<void>,
     onCompletedSubject?: (subject: TaskSubject) => void,
   } = $props();
   const viewService = useViewService();
@@ -58,14 +58,14 @@
   let subject = $derived(subjects.at(subjectIndex));
   $effect(() => {
     if (entry && subjects.length === 0) {
-      onNextEntry();
+      void onNextEntry();
     }
     subjectIndex = 0;
   });
 
   let editor = $state<Editor.Root>();
 
-  // Enter or Next again while a save is in flight would complete the same subject twice.
+  // Enter or Next again before the next subject shows would complete the same subject twice.
   let saving = false;
   async function onNext(skip: boolean = false) {
     if (saving) return;
@@ -101,7 +101,7 @@
     }
 
     if (subjectIndex + 1 >= subjects.length) {
-      onNextEntry();
+      await onNextEntry();
     } else {
       subjectIndex++;
     }
