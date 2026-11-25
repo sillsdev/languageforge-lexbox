@@ -11,12 +11,9 @@
   import {watch} from 'runed';
   import {computeCommandScore} from 'bits-ui';
   import CommandSeparator from '../ui/command/command-separator.svelte';
-  import {Input} from '../ui/input';
-  import {tryUseFieldBody} from '../editor/field/field-root.svelte';
+  import ReadonlyField from './readonly-field.svelte';
 
   type Value = ReadonlyDeep<MutableValue>;
-
-  const labelledBy = tryUseFieldBody()?.labelId;
 
   let {
     value = $bindable(),
@@ -119,7 +116,7 @@
       {...props}
       role="combobox"
       aria-expanded={open}
-      class={cn('w-full h-auto min-h-10 px-2 justify-between', className)}
+      class={cn('w-full h-auto min-h-10 px-3 justify-between', className)}
     >
       {#if value}
         <span class="x-ellipsis mr-4">
@@ -141,7 +138,7 @@
           class={cn('pointer-events-auto bg-transparent', value || 'invisible')}
         />
       {/if}
-      <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
+      <Icon icon="i-mdi-chevron-down" class="mr-3 size-5 shrink-0 opacity-50" />
     </div>
   </div>
 {/snippet}
@@ -199,13 +196,7 @@
 {/snippet}
 
 {#if readonly}
-  <Input
-    readonly
-    value={value ? getLabel(value) || $t`Untitled` : ''}
-    placeholder={placeholder ?? $t`None`}
-    aria-labelledby={labelledBy}
-    class={className}
-  />
+  <ReadonlyField items={value ? [{id: getId(value), label: getLabel(value)}] : []} {placeholder} />
 {:else if IsMobile.value}
   <Drawer bind:open>
     <DrawerTrigger child={trigger} />

@@ -689,6 +689,10 @@ msgstr ""
 msgid "Are you sure you want to delete {0}?"
 msgstr "Apakah Anda yakin ingin menghapus {0}?"
 
+#: src/project/browse/ReadonlyChip.svelte
+msgid "Ask a project manager if you need edit access."
+msgstr ""
+
 #: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Ask AI"
 msgstr ""
@@ -770,6 +774,7 @@ msgstr "Kembali"
 msgid "Back to all tasks"
 msgstr ""
 
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
@@ -3031,8 +3036,7 @@ msgstr "Tidak ada kata yang ditemukan"
 
 #. Selection option for optional fields
 #. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/badge-list.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "None"
@@ -3567,6 +3571,8 @@ msgstr ""
 #: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
+#: src/project/browse/ReadonlyChip.svelte
+#: src/project/browse/ReadonlyChip.svelte
 msgid "Read-only"
 msgstr "Hanya Baca"
 
@@ -4923,9 +4929,8 @@ msgstr ""
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/components/field-editors/badge-list.svelte
 #: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/diff-view/DiffAnchor.svelte
@@ -5264,6 +5269,14 @@ msgstr "Sepertinya Anda sedang offline. Bisakah Anda mengakses {0}?"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "You are running the latest version."
 msgstr "Anda menjalankan versi terbaru."
+
+#: src/project/browse/ReadonlyChip.svelte
+msgid "You can read and comment on this project, but not change it."
+msgstr ""
+
+#: src/project/browse/ReadonlyChip.svelte
+msgid "You can read this project, but not change it."
+msgstr ""
 
 #. Permission error
 #: src/home/Server.svelte

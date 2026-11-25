@@ -20,7 +20,7 @@
   }>();
   const projectContext = useProjectContext();
   const features = useFeatures();
-  const readonly = $derived(!features.write);
+  const readonly = $derived(projectContext.featuresLoaded && !features.write);
   const projectName = $derived(projectContext.projectName);
   const isCrdt = $derived(projectContext.projectType === 'crdt');
   const projectsService = useProjectsService();
