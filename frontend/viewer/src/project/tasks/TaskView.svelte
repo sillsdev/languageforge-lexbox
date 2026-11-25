@@ -14,6 +14,7 @@
   import {useViewService} from '$lib/views/view-service.svelte';
   import {cn} from '$lib/utils';
   import {useProjectContext} from '$project/project-context.svelte';
+  import {tick} from 'svelte';
 
   const TASK_SUBJECT_COUNT = 10;
   const projectContext = useProjectContext();
@@ -28,6 +29,7 @@
   const task = $derived(tasksService.listTasks().find(task => task.id === taskId));
   watch(() => taskId, () => {
     completedSubjects = [];
+    allCompletedSubjects = [];
     showDone = false;
   });
   let entry = $state<IEntry>();
@@ -35,11 +37,17 @@
   let entriesList = $state<EntriesList>();
   let entryCount = $state<number | null>(null);
   let completedSubjects = $state<TaskSubject[]>([]);
-  let progress = $derived((completedSubjects.length) / Math.min(entryCount ?? TASK_SUBJECT_COUNT, TASK_SUBJECT_COUNT));
   let showDone = $state(false);
   let allCompletedSubjects = $state<TaskSubject[]>([]);
 
-  function onDone() {
+  async function onDone() {
+    if (allCompletedSubjects.length === 0) {
+      // Close the entry drawer first so it drops its history entry, or Back would reopen the task.
+      entry = undefined;
+      await tick();
+      onClose();
+      return;
+    }
     showDone = true;
   }
   function onContinue() {
@@ -57,12 +65,11 @@
         </details>
       </DevContent>
       {#if entryCount === 0}
-        <!-- Already-done state: calm and centered, distinct from DoneView's confetti (which celebrates active completion). -->
         <div class="flex grow flex-col items-center justify-center gap-3 p-4 text-center">
           <Icon icon="i-mdi-check-circle-outline" class="text-primary size-16" />
           <h1 class="text-xl font-semibold">{$t`This task is complete`}</h1>
           <p class="text-muted-foreground max-w-sm">{pt($t`Every entry already has this field filled in.`, $t`Every word already has this field filled in.`, viewService.currentView)}</p>
-          <Button variant="outline" icon="i-mdi-arrow-left" onclick={onClose} class="mt-2">{$t`Back to tasks`}</Button>
+          <Button variant="outline" icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}} onclick={onClose} class="mt-2">{$t`Back to tasks`}</Button>
         </div>
       {/if}
       <div class={cn('contents', entryCount === 0 && 'hidden')}>
@@ -77,27 +84,29 @@
           <SubjectPopup
             bind:entry
             {task}
-            {progress}
+            completed={completedSubjects.length}
+            total={TASK_SUBJECT_COUNT}
             onNextEntry={async () => {
               const next = await entriesList?.selectNextEntry();
-              if (!next) onDone();
+              if (!next) await onDone();
             }}
             onCompletedSubject={subject => {
               completedSubjects.push(subject);
               allCompletedSubjects.push(subject);
               if (completedSubjects.length === TASK_SUBJECT_COUNT) {
-                onDone();
+                void onDone();
               }
             }}
           />
         {/if}
       </div>
     {:else}
-      <DoneView subjects={completedSubjects}
+      <DoneView subjects={completedSubjects.length ? completedSubjects : allCompletedSubjects}
                 allSubjects={allCompletedSubjects}
                 {task}
                 onFinish={() => onClose()}
-                onContinue={onContinue}
+                {onContinue}
+                {onClose}
       />
     {/if}
   {:else}

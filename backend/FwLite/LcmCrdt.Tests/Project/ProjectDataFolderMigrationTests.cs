@@ -115,7 +115,7 @@ public class ProjectDataFolderMigrationTests : IAsyncLifetime
         await using var file = await api.GetFileStream(upload.MediaUri!.Value, downloadIfMissing: false);
         file.Result.Should().Be(ReadFileResult.Success);
         file.Stream.Should().BeAssignableTo<FileStream>()
-            .Which.Name.Should().StartWith(Path.Join(TargetRoot, ProjectDataFolderMigration.LocalResourcesCacheDirName));
+            .Which.Name.Should().StartWith(LcmCrdtConfig.ProjectFolderResourcesPath(TargetRoot, "example"));
         (await new StreamReader(file.Stream!).ReadToEndAsync()).Should().Be("audio bytes");
     }
 
@@ -148,20 +148,45 @@ public class ProjectDataFolderMigrationTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task RewritesOnlyPathsInTheLegacyMediaCache()
+    public async Task MovesOnlyTheProjectsOwnMediaIntoItsFolder()
     {
-        var mediaFile = Path.Join(LegacyRoot, ProjectDataFolderMigration.LocalResourcesCacheDirName, "proj", "a.png");
-        Directory.CreateDirectory(Path.GetDirectoryName(mediaFile)!);
-        await File.WriteAllTextAsync(mediaFile, "png");
+        var legacyMedia = Path.Join(LegacyRoot, LcmCrdtConfig.LocalResourcesCacheDirName, "proj");
+        Directory.CreateDirectory(legacyMedia);
+        await File.WriteAllTextAsync(Path.Join(legacyMedia, "absolute.png"), "absolute");
+        await File.WriteAllTextAsync(Path.Join(legacyMedia, "relative.png"), "relative");
         var elsewhere = Path.Join(_testRoot, "elsewhere", "b.png");
-        await CreateDbWithLocalResources(Path.Join(LegacyRoot, "proj.sqlite"), mediaFile, elsewhere, "relative/c.png");
+        await CreateDbWithLocalResources(Path.Join(LegacyRoot, "proj.sqlite"),
+            Path.Join(legacyMedia, "absolute.png"), "proj/relative.png", elsewhere, "other-project/c.png");
 
-        Migrate().Should().BeTrue();
+        var result = MigrateKeepingLease();
 
+        result.Migrated.Should().BeTrue();
+        result.MediaLeftBehind.Should().Be(1, "other-project/c.png stays in the legacy folder");
         var paths = await ReadLocalPaths(LcmCrdtConfig.ProjectFolderDbPath(TargetRoot, "proj"));
-        var migratedMedia = Path.Join(TargetRoot, ProjectDataFolderMigration.LocalResourcesCacheDirName, "proj", "a.png");
-        paths.Should().BeEquivalentTo([migratedMedia, elsewhere, "relative/c.png"]);
-        (await File.ReadAllTextAsync(migratedMedia)).Should().Be("png");
+        paths.Should().BeEquivalentTo(["proj/resources/absolute.png", "proj/resources/relative.png", elsewhere,
+            Path.GetFullPath(Path.Join(LegacyRoot, LcmCrdtConfig.LocalResourcesCacheDirName, "other-project", "c.png"))]);
+        var resources = LcmCrdtConfig.ProjectFolderResourcesPath(TargetRoot, "proj");
+        (await File.ReadAllTextAsync(Path.Join(resources, "absolute.png"))).Should().Be("absolute");
+        (await File.ReadAllTextAsync(Path.Join(resources, "relative.png"))).Should().Be("relative");
+    }
+
+    [Fact]
+    public void ReportsCopyStartingOnlyWhenItMigrates()
+    {
+        var copyStarts = 0;
+
+        ProjectDataFolderMigration.TryMigrate(LegacyRoot, TargetRoot, NullLogger.Instance, () => copyStarts++).Migrated.Should().BeTrue();
+        copyStarts.Should().Be(1);
+
+        ProjectDataFolderMigration.TryMigrate(LegacyRoot, TargetRoot, NullLogger.Instance, () => copyStarts++).Migrated.Should().BeTrue();
+        copyStarts.Should().Be(1);
+    }
+
+    [Fact]
+    public void MigratesWhenReportingCopyStartingThrows()
+    {
+        ProjectDataFolderMigration.TryMigrate(LegacyRoot, TargetRoot, NullLogger.Instance, () => throw new InvalidOperationException())
+            .Outcome.Should().Be(ProjectDataFolderMigration.MigrationOutcome.Migrated);
     }
 
     [Fact]

@@ -28,6 +28,7 @@
     clearable?: boolean | 'row' | 'button';
     idSelector: ConditionalKeys<Value, Primitive> | ((value: Value) => Primitive);
     labelSelector: ConditionalKeys<Value, string> | ((value: Value) => string);
+    groupSelector?: (value: Value) => string;
     placeholder?: string;
     filterPlaceholder?: string;
     emptyResultsPlaceholder?: string;
@@ -42,6 +43,7 @@
     clearable = false,
     idSelector,
     labelSelector,
+    groupSelector,
     placeholder,
     filterPlaceholder,
     emptyResultsPlaceholder,
@@ -96,17 +98,29 @@
 
   const RENDER_LIMIT = 100;
   const renderedOptions = $derived(filteredOptions.slice(0, RENDER_LIMIT));
+  const renderedGroups = $derived.by(() => {
+    if (!groupSelector) return [{heading: undefined, options: renderedOptions}];
+    const groups: {heading: string; options: Value[]}[] = [];
+    for (const option of renderedOptions) {
+      const heading = groupSelector(option);
+      const group = groups.find((g) => g.heading === heading);
+      if (group) group.options.push(option);
+      else groups.push({heading, options: [option]});
+    }
+    return groups;
+  });
 </script>
 
 {#snippet trigger({props}: {props: Record<string, unknown>})}
-  <div class="relative w-full">
+  <!-- Pressed here, not on the Button, so the chevron overlay moves with it. -->
+  <div class="relative w-full transition-transform has-[>[role=combobox]:active]:press-wide">
     <Button
       bind:ref={triggerRef}
       variant="outline"
       {...props}
       role="combobox"
       aria-expanded={open}
-      class={cn('w-full h-auto min-h-10 px-2 justify-between', className)}
+      class={cn('w-full h-auto min-h-10 px-2 justify-between active:scale-100', className)}
     >
       {#if value}
         <span class="x-ellipsis mr-4">
@@ -156,29 +170,31 @@
         </CommandGroup>
         <CommandSeparator />
       {/if}
-      <CommandGroup>
-        {#each renderedOptions as option, i (getId(option))}
-          {@const label = getLabel(option)}
-          {@const id = getId(option)}
-          {@const selected = value && getId(value) === id}
-          <CommandItem
-            keywords={[label.toLocaleLowerCase()]}
-            value={label.toLocaleLowerCase() + String(id)}
-            onSelect={() => selectValue(option)}
-            class={cn('group h-12 md:h-9', label || 'text-muted-foreground')}
-            data-value-index={i}
-            aria-label={label}
-          >
-            <Icon icon="i-mdi-check" class={cn('md:hidden', selected || 'invisible')} />
-            {label || $t`Untitled`}
-          </CommandItem>
-        {/each}
-        {#if renderedOptions.length < filteredOptions.length}
-          <div class="text-muted-foreground text-sm px-2 py-1">
-            {$t`Refine your filter to see more...`}
-          </div>
-        {/if}
-      </CommandGroup>
+      {#each renderedGroups as group, g (group.heading ?? '')}
+        <CommandGroup heading={group.heading}>
+          {#each group.options as option (getId(option))}
+            {@const label = getLabel(option)}
+            {@const id = getId(option)}
+            {@const selected = value && getId(value) === id}
+            <CommandItem
+              keywords={[label.toLocaleLowerCase()]}
+              value={label.toLocaleLowerCase() + String(id)}
+              onSelect={() => selectValue(option)}
+              class={cn('group h-12 md:h-9', label || 'text-muted-foreground')}
+              data-value-index={renderedOptions.indexOf(option)}
+              aria-label={label}
+            >
+              <Icon icon="i-mdi-check" class={cn('md:hidden', selected || 'invisible')} />
+              {label || $t`Untitled`}
+            </CommandItem>
+          {/each}
+          {#if g === renderedGroups.length - 1 && renderedOptions.length < filteredOptions.length}
+            <div class="text-muted-foreground text-sm px-2 py-1">
+              {$t`Refine your filter to see more...`}
+            </div>
+          {/if}
+        </CommandGroup>
+      {/each}
     </CommandList>
   </Command>
 {/snippet}

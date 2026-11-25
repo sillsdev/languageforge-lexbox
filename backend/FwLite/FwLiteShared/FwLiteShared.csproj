@@ -19,6 +19,7 @@
   <ItemGroup>
     <PackageReference Include="BeaKona.AutoInterfaceGenerator" />
     <PackageReference Include="Humanizer.Core" />
+    <PackageReference Include="Makaretu.Dns.Multicast.New" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
@@ -27,6 +28,7 @@
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" />
     <PackageReference Include="Reinforced.Typings" GeneratePathProperty="true" />
     <PackageReference Include="System.Reactive" />
+    <PackageReference Include="Watson.Lite" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\LexCore\LexCore.csproj" />

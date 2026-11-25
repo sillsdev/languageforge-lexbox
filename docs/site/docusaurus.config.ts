@@ -7,10 +7,13 @@ import type {Options as DocsOptions} from '@docusaurus/plugin-content-docs';
 const editUrl = 'https://github.com/sillsdev/languageforge-lexbox/tree/develop/docs/site';
 const repoUrl = 'https://github.com/sillsdev/languageforge-lexbox';
 
+const baseUrl = process.env.DOCS_BASE_URL ?? '/';
+
 const config: Config = {
   title: 'FieldWorks Lite & Lexbox Docs',
   tagline: 'Guides for using FieldWorks Lite and Lexbox, and technical documentation on how they work.',
-  favicon: 'img/favicon.png',
+  favicon: 'img/favicon.ico',
+  headTags: [{tagName: 'link', attributes: {rel: 'icon', href: `${baseUrl}img/favicon.svg`, type: 'image/svg+xml'}}],
 
   future: {
     v4: true,
@@ -18,7 +21,7 @@ const config: Config = {
 
   // A preview deployed to <owner>.github.io/<repo>/ sets both, or its assets 404.
   url: process.env.DOCS_URL ?? 'https://docs.lexbox.org',
-  baseUrl: process.env.DOCS_BASE_URL ?? '/',
+  baseUrl,
 
   organizationName: 'sillsdev',
   projectName: 'languageforge-lexbox',

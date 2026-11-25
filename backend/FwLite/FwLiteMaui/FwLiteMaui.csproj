@@ -36,6 +36,8 @@
     <IncludeFwDataBridge>false</IncludeFwDataBridge>
     <IncludeFwDataBridge Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">true</IncludeFwDataBridge>
     <DefineConstants Condition="$(IncludeFwDataBridge)">$(DefineConstants);INCLUDE_FWDATA_BRIDGE</DefineConstants>
+    <!-- Platforms/Windows/Program.cs has the Main, so the startup splash shows before WinUI loads -->
+    <DefineConstants Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
     <!-- controls display name in Package.appxmanifest -->
     <ApplicationTitle>FieldWorks Lite</ApplicationTitle>
     <!-- App Identifier -->
@@ -104,16 +106,29 @@
          so the link fails. SIL.Core only calls it when running on Mono, so don't require the symbol. -->
     <ReferenceNativeSymbol Include="mono_get_runtime_build_info" SymbolType="Function" SymbolMode="Ignore" />
   </ItemGroup>
+  <PropertyGroup>
+    <FwLiteLogos>$(MSBuildThisFileDirectory)..\..\..\logos\fieldworks-lite\</FwLiteLogos>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetPlatform)' == 'windows'">
+    <!-- The logo's drawing for each size (micro, tiny, small, full); MauiIcon's .ico scales one drawing to every size, which blurs at 16-32 px -->
+    <ApplicationIcon>$(FwLiteLogos)png\fieldworks-lite-reversed.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
-    <!-- App Icon -->
-    <!-- background color is required for mac per: https://learn.microsoft.com/en-us/dotnet/maui/user-interface/images/app-icons?view=net-maui-8.0&tabs=windows#recolor-the-background -->
-    <!-- Use a separate foreground + ForegroundScale so the logo has padding inside the rounded square instead of filling it edge-to-edge.
-         The generated appiconset is named after the Include file (logo_background), so Platforms/{iOS,MacCatalyst}/Info.plist's XSAppIconAssets must match. -->
-    <MauiIcon Condition="'$(TargetPlatform)' == 'ios' Or '$(TargetPlatform)' == 'maccatalyst'" Include="Resources\AppIcon\logo_background.svg" ForegroundFile="Resources\AppIcon\logo_light.svg" Color="#1c4e80" ForegroundScale="0.75" />
-    <MauiIcon Condition="'$(TargetPlatform)' == 'android'" Include="Resources\AppIcon\logo_background.svg" ForegroundFile="Resources\AppIcon\logo_light_padding.svg" ForegroundScale="0.8" />
-    <MauiIcon Condition="'$(TargetPlatform)' != 'ios' And '$(TargetPlatform)' != 'maccatalyst' And '$(TargetPlatform)' != 'android'" Include="Resources\AppIcon\logo_light.svg" />
+    <!-- App Icon, drawn from the shipped set in logos/fieldworks-lite (see its README for which file goes where).
+         Link names the generated icon "appicon", which AndroidManifest.xml and the Info.plist XSAppIconAssets refer to. -->
+    <MauiIcon Condition="'$(TargetPlatform)' == 'ios'" Include="$(FwLiteLogos)fieldworks-lite-appicon-square.svg" Link="appicon.svg" />
+    <MauiIcon Condition="'$(TargetPlatform)' == 'maccatalyst'" Include="$(FwLiteLogos)fieldworks-lite-appicon-macos.svg" Link="appicon.svg" />
+    <!-- ForegroundScale="0.57" = 0.85 * 72/108: the logo guide (index.html) draws the circle file at 85% of the visible icon,
+         but ForegroundScale is relative to the full 108dp adaptive-icon layer, of which the launcher shows only the middle 72dp.
+         Resizetizer doesn't notice a ForegroundScale change: clean obj before checking a new value. -->
+    <MauiIcon Condition="'$(TargetPlatform)' == 'android'" Include="$(FwLiteLogos)fieldworks-lite-circle.svg" Link="appicon.svg" Color="#ffffff" ForegroundScale="0.57" />
+    <!-- Windows: tiles and store logo come from this; the taskbar icons from ApplicationIcon above and FwLiteMsixTaskbarIcons below.
+         Reversed because those can't all follow the taskbar theme, and the light drawing nearly vanishes on a dark taskbar. -->
+    <MauiIcon Condition="'$(TargetPlatform)' != 'ios' And '$(TargetPlatform)' != 'maccatalyst' And '$(TargetPlatform)' != 'android'" Include="$(FwLiteLogos)fieldworks-lite-small-reversed.svg" Link="appicon.svg" />
     <!-- Splash Screen -->
-    <MauiSplashScreen Include="Resources\AppIcon\logo_light_padding.svg" Color="#1c4e80" BaseSize="512,512" />
+    <MauiSplashScreen Include="$(FwLiteLogos)fieldworks-lite-splash.svg" Link="splash.svg" Color="#1f2a44" BaseSize="288,288" />
+    <!-- For Platforms/Windows/StartupSplash.cs. Embedded, not a MauiImage: the single-file build has no loose image files -->
+    <EmbeddedResource Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'" Include="$(FwLiteLogos)png\fieldworks-lite-reversed-256.png" LogicalName="splash-logo.png" />
     <!-- Images -->
     <MauiImage Include="Resources\Images\*" />
     <!-- Custom Fonts -->
@@ -121,6 +136,21 @@
     <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
     <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
+  <!-- MauiIcon gives every Windows taskbar icon the same drawing. MSIX can do better: it picks a file per size and per
+       taskbar theme (altform-unplated on dark, altform-lightunplated on light), so give it the logo's drawing for each. -->
+  <Target Name="FwLiteMsixTaskbarIcons" AfterTargets="ResizetizeImages" Condition="'$(TargetPlatform)' == 'windows'">
+    <ItemGroup>
+      <_FwLiteTaskbarSize Include="16;24;32;48;256" />
+      <ContentWithTargetPath Remove="@(ContentWithTargetPath)"
+                             Condition="$([System.String]::Copy('%(TargetPath)').StartsWith('appiconLogo.')) And $([System.String]::Copy('%(TargetPath)').Contains('targetsize-'))" />
+      <ContentWithTargetPath Include="@(_FwLiteTaskbarSize->'$(FwLiteLogos)png\fieldworks-lite-reversed-%(Identity).png')"
+                             TargetPath="appiconLogo.targetsize-%(_FwLiteTaskbarSize.Identity).png" CopyToPublishDirectory="PreserveNewest" />
+      <ContentWithTargetPath Include="@(_FwLiteTaskbarSize->'$(FwLiteLogos)png\fieldworks-lite-reversed-%(Identity).png')"
+                             TargetPath="appiconLogo.altform-unplated_targetsize-%(_FwLiteTaskbarSize.Identity).png" CopyToPublishDirectory="PreserveNewest" />
+      <ContentWithTargetPath Include="@(_FwLiteTaskbarSize->'$(FwLiteLogos)png\fieldworks-lite-%(Identity).png')"
+                             TargetPath="appiconLogo.altform-lightunplated_targetsize-%(_FwLiteTaskbarSize.Identity).png" CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
   <ItemGroup>
     <PackageReference Include="Microsoft.Maui.Controls" />
     <PackageReference Include="Microsoft.Maui.Controls.Compatibility" />

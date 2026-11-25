@@ -4,12 +4,12 @@ A navy dictionary with a thumb index: the coral tab is the word you are looking 
 Part of the SIL lexical tools logo family (FLEx, FieldWorks Lite, Lexbox, The Combine, Webonary).
 
 **Start with `index.html`.** Open it in any browser: it shows every file at its real size, which file to use where, mock-ups,
-the colours, and a download of the whole set. It shows the files in this folder, so it stays current when a drawing changes.
+the colours, and a download of every file. It shows the files in this folder, so it stays current when a drawing changes.
 
 ## Which file
 
-The logo is drawn four times, from detailed to simple. Pick the drawing by the size it appears at on screen, and the `-reversed`
-file when the ground is navy, dark, or a photo darker than mid-grey.
+The logo is drawn four times, from detailed to simple. Pick the drawing by the size it appears at on screen. Use the standard
+drawing wherever it works; the `-reversed` file is the fallback for grounds it can't sit on: navy, dark, or a photo darker than mid-grey.
 
 | On screen | Light grounds | Navy or dark grounds |
 |---|---|---|
@@ -23,7 +23,8 @@ file when the ground is navy, dark, or a photo darker than mid-grey.
 | App stores and iOS | `fieldworks-lite-appicon-square.svg` (a full square with no transparency; the platform rounds the corners) |
 | macOS | `fieldworks-lite-appicon-macos.svg` (Apple's icon grid, margin included) |
 | An app icon shown as it is (web pages, documents) | `fieldworks-lite-appicon.svg` |
-| Anything cropped to a circle (Android launcher layers, profile pictures) | `fieldworks-lite-circle.svg`, `fieldworks-lite-reversed-circle.svg`, `fieldworks-lite-onecolor-circle.svg` (Android themed icons); for an Android launcher layer, scale the book to about 85% so it stays in the safe zone |
+| Anything cropped to a circle (Android launcher layers, profile pictures) | `fieldworks-lite-circle.svg`; `fieldworks-lite-onecolor-circle.svg` for Android themed icons; `fieldworks-lite-reversed-circle.svg` only where the circle must be dark. As an Android launcher layer, put the book on white at 85% of the visible icon. The circle files already centre the book on its visual weight, which is what reads as centred in a circle, so use them as they are |
+| Android splash icon | `fieldworks-lite-splash.svg`: the book inside the middle 2/3 circle that Android 12 and later show of a splash icon, on navy `#1f2a44` |
 | Windows and Linux taskbars | the drawing for the size, no box: `-tiny` at 24 to 32 px, `-small` at 48, the full drawing at 256; `-reversed` on a dark taskbar |
 | Print in one ink | `fieldworks-lite-onecolor.svg` (any single colour; inline in a web page it takes the text colour) |
 | Vinyl, embroidery, engraving, stamps | `fieldworks-lite-mono.svg` (black lines on white). Its lines are 1% of its width, so use it large: at 25 mm wide they are 0.26 mm |
@@ -43,9 +44,9 @@ so an SVG that switched to the tiny drawing at 32 px would put the ล into 16 p
 (not Safari), November 2026.
 
 For places that don't take SVG, `render.mjs` writes PNGs to `png/`: light and reversed at 16, 32, 48, 128 and 512 px (each from the
-right drawing), the app icons (the store one with no alpha channel, which App Store Connect requires), and the circle files at 512.
-`png/` isn't committed; to commit a PNG something uses, add a `!` line for it to `logos/.gitignore`. The script also rebuilds the
-favicons, so run it after editing a drawing, and add a row to its table for a new size.
+right drawing), the app icons (the store one with no alpha channel, which App Store Connect requires), and the circle and splash files at 512.
+Only the files app builds read are committed (builds can't run the script); `logos/.gitignore` lists them. The script also rebuilds the favicons
+and the copies the viewer and docs keep, so run it after editing a drawing, and add a row to its table for a new size.
 
 ```sh
 cd logos

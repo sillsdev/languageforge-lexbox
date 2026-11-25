@@ -1,19 +1,25 @@
 #if WINDOWS
 using Microsoft.AspNetCore.Components.WebView;
+using Microsoft.Maui.Platform;
 using Microsoft.UI.Windowing;
-using Microsoft.UI.Xaml;
 using Microsoft.Web.WebView2.Core;
+using FocusState = Microsoft.UI.Xaml.FocusState;
 using WebView2Control = Microsoft.UI.Xaml.Controls.WebView2;
 
 namespace FwLiteMaui;
 
 public partial class MainPage
 {
+    //what a new window shows until WebView2 has painted; index.html continues in the same colours
+    private static Color LoadingBackground =>
+        Application.Current?.RequestedTheme == AppTheme.Dark ? Color.FromArgb("#09090b") : Colors.White;
+
     // WinUI 1.8 aborts the app (0xc0000409) if the WebView2 got focus while initializing and the window is minimized
     // before that ends: it replays the focus via CoreWebView2Controller.MoveFocus, which throws E_INVALIDARG inside a
     // noexcept handler (fixed in microsoft/microsoft-ui-xaml#11978, not in 1.8). So keep focus off it until it's ready.
     private partial void BlazorWebViewInitializing(object? sender, BlazorWebViewInitializingEventArgs e)
     {
+        BackgroundColor = LoadingBackground;
         if (blazorWebView.Handler?.PlatformView is WebView2Control webView) webView.IsTabStop = false;
     }
 
@@ -69,6 +75,7 @@ public partial class MainPage
         }
 #pragma warning restore VSTHRD110, CS4014
         e.WebView.CoreWebView2.Settings.IsGeneralAutofillEnabled = false;
+        e.WebView.DefaultBackgroundColor = LoadingBackground.ToWindowsColor();
         var webView = e.WebView;
         // queued so it runs after WinUI has finished initializing the control
         webView.DispatcherQueue.TryEnqueue(() => FocusWhenNotMinimized(webView));

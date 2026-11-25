@@ -22,8 +22,8 @@ type EntityModels = {entry: IEntry; sense: ISense; example: IExampleSentence};
 
 // Model fields with no editor field. A new model field has to be added here or to entityConfig, so it can't be forgotten.
 type NotEditorFields = {
-  // morphType is diffed by DiffEntryPrimitive; homographNumber isn't shown anywhere yet
-  entry: 'id' | 'deletedAt' | 'senses' | 'morphType' | 'homographNumber';
+  // homographNumber isn't shown anywhere yet
+  entry: 'id' | 'deletedAt' | 'senses' | 'homographNumber';
   sense: 'id' | 'deletedAt' | 'entryId' | 'partOfSpeech' | 'exampleSentences';
   example: 'id' | 'deletedAt' | 'senseId';
 };
@@ -37,6 +37,10 @@ export const entityConfig = {
     lexemeForm: {
       label: vt(msg`Lexeme form`, msg`Word`),
       helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Lexeme_Form_field.htm',
+    },
+    morphType: {
+      label: msg`Morph type`,
+      helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Alternate_Forms_level_flds/Morph_type_fld_allomorph.htm',
     },
     citationForm: {
       label: vt(msg`Citation form`, msg`Display as`),
