@@ -2005,8 +2005,7 @@ msgstr "FieldWorks Lite telah dikemas kini. Mulakan semula untuk menamatkan pema
 msgid "FieldWorks Lite isn't open on it"
 msgstr ""
 
-#: src/home/HomeView.svelte
-#: src/project/sync/FwClassicSyncView.svelte
+#: src/lib/components/FwLiteLogo.svelte
 msgid "FieldWorks Lite logo"
 msgstr ""
 

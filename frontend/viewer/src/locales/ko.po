@@ -2005,8 +2005,7 @@ msgstr "FieldWorks Lite가 업데이트되었습니다. 설치를 완료하려�
 msgid "FieldWorks Lite isn't open on it"
 msgstr ""
 
-#: src/home/HomeView.svelte
-#: src/project/sync/FwClassicSyncView.svelte
+#: src/lib/components/FwLiteLogo.svelte
 msgid "FieldWorks Lite logo"
 msgstr ""
 

@@ -2000,8 +2000,7 @@ msgstr "FieldWorks Lite has been updated. Restart to finish installing."
 msgid "FieldWorks Lite isn't open on it"
 msgstr "FieldWorks Lite isn't open on it"
 
-#: src/home/HomeView.svelte
-#: src/project/sync/FwClassicSyncView.svelte
+#: src/lib/components/FwLiteLogo.svelte
 msgid "FieldWorks Lite logo"
 msgstr "FieldWorks Lite logo"
 
