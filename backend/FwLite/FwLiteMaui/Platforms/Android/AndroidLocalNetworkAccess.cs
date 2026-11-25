@@ -47,19 +47,14 @@ public sealed class AndroidLocalNetworkAccess(ILogger<AndroidLocalNetworkAccess>
         if (_follower is not null)
         {
             _follower.Connectivity.UnregisterNetworkCallback(_follower);
-            _follower.Connectivity.BindProcessToNetwork(null);
+            _follower.RouteApp(false);
             _follower = null;
         }
         _multicastLock?.Release();
         _multicastLock = null;
     }
 
-    protected override void RouteApp(bool overLocalNetwork)
-    {
-        if (_follower is null) return;
-        _follower.RoutingApp = overLocalNetwork;
-        _follower.Connectivity.BindProcessToNetwork(overLocalNetwork ? _follower.Current : null);
-    }
+    protected override void RouteApp(bool overLocalNetwork) => _follower?.RouteApp(overLocalNetwork);
 
     public override void Bind(Socket socket)
     {
@@ -77,23 +72,41 @@ public sealed class AndroidLocalNetworkAccess(ILogger<AndroidLocalNetworkAccess>
 
     private sealed class WifiFollower(ConnectivityManager connectivity, ILogger logger) : ConnectivityManager.NetworkCallback
     {
+        // callbacks arrive on their own thread; without it one could rebind the app just after discovery unbound it
+        private readonly Lock _lock = new();
+        private bool _routingApp;
+
         public ConnectivityManager Connectivity => connectivity;
         public volatile Android.Net.Network? Current;
-        public volatile bool RoutingApp;
+
+        public void RouteApp(bool overLocalNetwork)
+        {
+            lock (_lock)
+            {
+                _routingApp = overLocalNetwork;
+                connectivity.BindProcessToNetwork(overLocalNetwork ? Current : null);
+            }
+        }
 
         public override void OnAvailable(Android.Net.Network network)
         {
             logger.LogInformation("Local sync: using the Wi-Fi network {Network}", network);
-            Current = network;
-            if (RoutingApp) connectivity.BindProcessToNetwork(network);
+            lock (_lock)
+            {
+                Current = network;
+                if (_routingApp) connectivity.BindProcessToNetwork(network);
+            }
         }
 
         public override void OnLost(Android.Net.Network network)
         {
-            if (!network.Equals(Current)) return;
-            logger.LogWarning("Local sync: lost the Wi-Fi network {Network}; waiting for Wi-Fi to come back", network);
-            Current = null;
-            if (RoutingApp) connectivity.BindProcessToNetwork(null);
+            lock (_lock)
+            {
+                if (!network.Equals(Current)) return;
+                logger.LogWarning("Local sync: lost the Wi-Fi network {Network}; waiting for Wi-Fi to come back", network);
+                Current = null;
+                if (_routingApp) connectivity.BindProcessToNetwork(null);
+            }
         }
     }
 }
