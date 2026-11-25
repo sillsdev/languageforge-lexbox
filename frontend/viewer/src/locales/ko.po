@@ -2879,7 +2879,6 @@ msgstr "내 사용자 지정 보기..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
-#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
@@ -3629,6 +3628,12 @@ msgstr "프로젝트 {0} {1}에서 찾을 수 없음"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "{1} 의 프로젝트 {0} 는 아직 FieldWorks Lite용으로 설정되지 않았습니다."
 
+#. Second line under the "Your name" field. "Lexbox" is a product name — do not translate.
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Projects that sync with Lexbox use your Lexbox account name instead."
+msgstr ""
+
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Prompt options"
 msgstr ""
@@ -4307,11 +4312,6 @@ msgstr "설명 표시 또는 숨기기"
 msgid "Show unchanged fields"
 msgstr ""
 
-#: src/home/CreateProjectDialog.svelte
-#: src/lib/author/NameDialog.svelte
-msgid "Shown next to your changes in all projects you don't sync with Lexbox."
-msgstr ""
-
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "댓글을 달려면 로그인하세요."
@@ -4790,6 +4790,12 @@ msgstr ""
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
+msgstr ""
+
+#. Explains why the app asks for the user's name: it is shown on their edits and comments.
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "This lets others see which changes you made."
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
@@ -5533,6 +5539,7 @@ msgstr "여러분의 사전은 여기서 시작됩니다"
 #: src/home/CreateProjectDialog.svelte
 #: src/home/CreateProjectDialog.svelte
 #: src/home/HomeView.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/author/NameDialog.svelte
 msgid "Your name"
 msgstr ""

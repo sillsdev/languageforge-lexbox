@@ -2879,7 +2879,6 @@ msgstr "Mtazamo wangu maalum..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
-#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
@@ -3629,6 +3628,12 @@ msgstr "Mradi {0} haipatikani kwenye {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Mradi {0} kwenye {1} haujajajengwa kwa FieldWorks Lite"
 
+#. Second line under the "Your name" field. "Lexbox" is a product name — do not translate.
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Projects that sync with Lexbox use your Lexbox account name instead."
+msgstr ""
+
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Prompt options"
 msgstr ""
@@ -4307,11 +4312,6 @@ msgstr "Onyesha au ficha maelezo ya picha"
 msgid "Show unchanged fields"
 msgstr ""
 
-#: src/home/CreateProjectDialog.svelte
-#: src/lib/author/NameDialog.svelte
-msgid "Shown next to your changes in all projects you don't sync with Lexbox."
-msgstr ""
-
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "Ingia ili kuongeza maoni."
@@ -4790,6 +4790,12 @@ msgstr ""
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
+msgstr ""
+
+#. Explains why the app asks for the user's name: it is shown on their edits and comments.
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "This lets others see which changes you made."
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
@@ -5533,6 +5539,7 @@ msgstr "Kamusi yako inaanza hapa"
 #: src/home/CreateProjectDialog.svelte
 #: src/home/CreateProjectDialog.svelte
 #: src/home/HomeView.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/author/NameDialog.svelte
 msgid "Your name"
 msgstr ""
