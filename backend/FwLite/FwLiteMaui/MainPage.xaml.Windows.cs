@@ -20,7 +20,8 @@ public partial class MainPage
     private static void FocusWhenNotMinimized(WebView2Control webView)
     {
         webView.IsTabStop = true;
-        var appWindow = AppWindow.GetFromWindowId(webView.XamlRoot.ContentIslandEnvironment.AppWindowId);
+        if (webView.XamlRoot?.ContentIslandEnvironment is not { } environment
+            || AppWindow.GetFromWindowId(environment.AppWindowId) is not { } appWindow) return;
         if (!IsMinimized(appWindow))
         {
             webView.Focus(FocusState.Programmatic);
