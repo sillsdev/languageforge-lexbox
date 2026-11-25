@@ -131,7 +131,8 @@
   // Without a filter, the window shifts so the current value is rendered and can be highlighted.
   const renderStart = $derived.by(() => {
     if (filterValue || !value) return 0;
-    const index = filteredOptions.findIndex((option) => getId(option) === getId(value));
+    const currentId = getId(value);
+    const index = filteredOptions.findIndex((option) => getId(option) === currentId);
     return index < RENDER_LIMIT ? 0 : Math.min(index - RENDER_LIMIT / 2, filteredOptions.length - RENDER_LIMIT);
   });
   const renderedOptions = $derived(filteredOptions.slice(renderStart, renderStart + RENDER_LIMIT));
