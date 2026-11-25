@@ -314,7 +314,10 @@
 {/snippet}
 
 {#if readonly}
-  <ReadonlyField items={displayValues} {placeholder} />
+  <ReadonlyField>
+    {@render displayBadges()}
+    <Icon icon="i-mdi-chevron-down" class="ms-auto size-5 shrink-0 opacity-25" aria-hidden="true" />
+  </ReadonlyField>
 {:else if IsMobile.value}
   <Drawer bind:open dismissible={!dirty}>
     <DrawerTrigger child={trigger} />

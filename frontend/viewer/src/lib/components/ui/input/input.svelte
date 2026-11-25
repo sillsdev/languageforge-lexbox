@@ -11,7 +11,7 @@
           'border-input bg-background selection:bg-primary dark:bg-input/30 selection:text-primary-foreground ring-offset-background placeholder:text-muted-foreground flex h-10 w-full min-w-0 rounded-md border px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
           'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
           'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
-          'read-only:bg-transparent dark:read-only:bg-transparent read-only:border-input/50 read-only:shadow-none read-only:cursor-default',
+          'read-only:bg-transparent dark:read-only:bg-transparent read-only:shadow-none read-only:cursor-default',
         ),
         file: cn(
           'selection:bg-primary dark:bg-input/30 selection:text-primary-foreground border-input ring-offset-background placeholder:text-muted-foreground flex h-10 w-full min-w-0 rounded-md border bg-transparent px-3 pt-2 text-sm font-medium shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50',
@@ -25,7 +25,7 @@
           'flex gap-2 items-center justify-between',
           'has-[.real-input:focus-visible]:border-ring has-[.real-input:focus-visible]:ring-ring/50 has-[.real-input:focus-visible]:ring-[3px]',
           'has-[.real-input[aria-invalid=true]]:ring-destructive/20 dark:has-[.real-input[aria-invalid=true]]:ring-destructive/40 has-[.real-input[aria-invalid=true]]:border-destructive',
-          'has-[.real-input:read-only]:bg-transparent dark:has-[.real-input:read-only]:bg-transparent has-[.real-input:read-only]:border-input/50 has-[.real-input:read-only]:shadow-none',
+          'has-[.real-input:read-only]:bg-transparent dark:has-[.real-input:read-only]:bg-transparent has-[.real-input:read-only]:shadow-none',
         ),
       },
       visibleFocus: {

@@ -108,6 +108,20 @@
   });
 </script>
 
+{#snippet valueText()}
+  {#if value}
+    <span class="x-ellipsis mr-4 text-sm font-medium">
+      {getLabel(value) || $t`Untitled`}
+    </span>
+  {:else}
+    <span class="text-muted-foreground x-ellipsis mr-4 text-sm font-medium">
+      {placeholder ?? $t`None`}
+      <!-- ensures that baseline alignment works for consumers of this component -->
+      &nbsp;
+    </span>
+  {/if}
+{/snippet}
+
 {#snippet trigger({props}: {props: Record<string, unknown>})}
   <div class="relative w-full">
     <Button
@@ -118,17 +132,7 @@
       aria-expanded={open}
       class={cn('w-full h-auto min-h-10 px-3 justify-between', className)}
     >
-      {#if value}
-        <span class="x-ellipsis mr-4">
-          {getLabel(value) || $t`Untitled`}
-        </span>
-      {:else}
-        <span class="text-muted-foreground x-ellipsis mr-4">
-          {placeholder ?? $t`None`}
-          <!-- ensures that baseline alignment works for consumers of this component -->
-          &nbsp;
-        </span>
-      {/if}
+      {@render valueText()}
     </Button>
     <div class="absolute right-0 z-10 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none">
       {#if clearable === true || clearable === 'button'}
@@ -196,7 +200,10 @@
 {/snippet}
 
 {#if readonly}
-  <ReadonlyField items={value ? [{id: getId(value), label: getLabel(value)}] : []} {placeholder} />
+  <ReadonlyField>
+    {@render valueText()}
+    <Icon icon="i-mdi-chevron-down" class="ms-auto size-5 shrink-0 opacity-25" aria-hidden="true" />
+  </ReadonlyField>
 {:else if IsMobile.value}
   <Drawer bind:open>
     <DrawerTrigger child={trigger} />
