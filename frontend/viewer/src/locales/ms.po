@@ -389,6 +389,14 @@ msgstr ""
 msgid "About"
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Accept"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Accept everyone who joins"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Account"
@@ -554,6 +562,14 @@ msgstr ""
 msgid "Added to {0}"
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Address"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Address, e.g. 192.168.137.1"
+msgstr ""
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Advanced: settings file"
 msgstr "Lanjutan: fail tetapan"
@@ -604,6 +620,10 @@ msgstr ""
 msgid "Already have a plugin file? It runs in the preview straight away, before anyone else can see it."
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Also on this network"
+msgstr ""
+
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "Always allow for this plugin"
 msgstr ""
@@ -635,6 +655,10 @@ msgstr "Sistem penulisan analisis"
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Analytics are turned off."
 msgstr "Analitik telah dimatikan."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Another FieldWorks Lite window is already sharing a project. Stop sharing it there first."
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -850,6 +874,10 @@ msgstr ""
 
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Can use the internet"
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Can't reach the other device. Check that you're on its Wi-Fi network. Retrying..."
 msgstr ""
 
 #. Button to close dialog without saving
@@ -1124,6 +1152,10 @@ msgstr ""
 msgid "Components"
 msgstr "Komponen-komponen"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Connected to {0} at {1}"
+msgstr ""
+
 #. Filter operator
 #. Search operator: matches fields containing the search term anywhere
 #. Related operators: "Starts with", "Ends with", "Equals"
@@ -1187,11 +1219,23 @@ msgstr ""
 msgid "Couldn't load this plugin"
 msgstr ""
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Couldn't reach the other device. Check that you're on its Wi-Fi network, then try again."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Couldn't share on that network. Try another one."
+msgstr ""
+
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Couldn't sync right now — your local changes are safe."
 msgstr "Tidak dapat menyegerakkan sekarang — perubahan tempatan anda selamat."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Couldn't sync with the other device. Your changes are safe."
+msgstr ""
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
@@ -1308,6 +1352,10 @@ msgstr "Papan pemuka gagal dimuatkan"
 msgid "Data Directory"
 msgstr "Direktori Data"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Decline"
+msgstr ""
+
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
 #. Appears under each Sense/Meaning in entry editor
@@ -1423,6 +1471,16 @@ msgstr "Kamus"
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Dictionary Preview"
 msgstr "Pratonton Kamus"
+
+#: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
+msgid "different app version"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "different project"
+msgstr ""
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
@@ -1943,6 +2001,10 @@ msgstr "FieldWorks Lite mengumpul data penggunaan untuk membantu kami memperbaik
 msgid "FieldWorks Lite has been updated. Restart to finish installing."
 msgstr "FieldWorks Lite telah dikemas kini. Mulakan semula untuk menamatkan pemasangan."
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "FieldWorks Lite isn't open on it"
+msgstr ""
+
 #: src/home/HomeView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks Lite logo"
@@ -2089,6 +2151,10 @@ msgstr "Penapis"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Find entry..."
 msgstr "Cari entri..."
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Find nearby devices"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Find entry..."
@@ -2248,6 +2314,10 @@ msgstr ""
 msgid "Harmony snapshots regenerated successfully"
 msgstr "Snapshot Harmony telah dijana semula dengan jayanya"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Hasn't asked to join"
+msgstr ""
+
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
@@ -2375,6 +2445,15 @@ msgstr "Memasang Kemas Kini..."
 msgid "Internet"
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Join"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Joined"
+msgstr ""
+
 #. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
@@ -2408,6 +2487,10 @@ msgstr "Perubahan terakhir: #"
 msgid "Last sync: #"
 msgstr "Sinkron terakhir: #"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Last synced"
+msgstr ""
+
 #. Tab: shows changes made to this item after this change.
 #: src/lib/activity/ActivityItem.svelte
 msgid "Later changes"
@@ -2418,6 +2501,7 @@ msgid "Learn more"
 msgstr "Ketahui lebih lanjut"
 
 #: src/lib/plugins/studio/LeaveDialog.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Leave"
 msgstr ""
 
@@ -2816,6 +2900,10 @@ msgstr "Nama diperlukan"
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Network"
+msgstr ""
+
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwLiteSyncView.svelte
@@ -2924,6 +3012,10 @@ msgstr "Tiada pengarang"
 msgid "No custom views yet."
 msgstr "Tiada paparan tersuai lagi."
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "No devices found. Make sure you're on the same Wi-Fi network."
+msgstr ""
+
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
 msgstr "Tiada Kamus ditemui"
@@ -2982,6 +3074,10 @@ msgstr "Tiada fail media ditemui"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "No new data"
 msgstr "Tiada data baru"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "No one has joined yet."
+msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
@@ -3247,6 +3343,10 @@ msgstr "jingga"
 msgid "Other"
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Other devices on this network can join at"
+msgstr ""
+
 #: src/project/SyncDialog.svelte
 msgid "Other FieldWorks Lite users"
 msgstr ""
@@ -3290,6 +3390,10 @@ msgstr "Jenis Perkataan"
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Grammatical categories (noun, verb, adjective, etc.). Classic view calls these "Grammatical info."
 #: src/lib/activity/ChangeSummary.svelte
 msgid "parts of speech"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Password"
 msgstr ""
 
 #: src/lib/plugins/studio/panels/SourcePanel.svelte
@@ -3961,6 +4065,10 @@ msgstr ""
 msgid "Saving turns off \"Always allow\" on this device, so the new version asks before its first change."
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Scan with a phone camera to join this device's Wi-Fi, or join it in Wi-Fi settings:"
+msgstr ""
+
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
@@ -4159,10 +4267,18 @@ msgstr "Kongsi idea dan undi untuk ciri atau penambahbaikan baharu."
 msgid "Share Log file"
 msgstr "Kongsi fail Log"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Share on {0} ({1})"
+msgstr ""
+
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share project data file"
 msgstr "Kongsi fail data projek"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Share this project on a new Wi-Fi network"
+msgstr ""
 
 #. Button label
 #: src/project/browse/EditorViewOptions.svelte
@@ -4330,6 +4446,10 @@ msgstr ""
 msgid "stone"
 msgstr "batu"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Stop sharing"
+msgstr ""
+
 #. Button to confirm selection
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -4364,6 +4484,7 @@ msgid "Sync FieldWorks Lite and FieldWorks Classic in Lexbox"
 msgstr ""
 
 #: src/home/OpenFromFolderItem.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Sync now"
 msgstr ""
 
@@ -4391,6 +4512,7 @@ msgstr "Segerakkan perubahan anda dengan pengguna FieldWorks Lite yang lain"
 
 #. Sync status label in the project sidebar indicating all changes are in sync with the server.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Synced"
 msgstr "Disegerakkan"
 
@@ -4430,6 +4552,7 @@ msgstr ""
 #. Progress indicator
 #: src/project/sync/FolderSyncSection.svelte
 #: src/project/sync/FwLiteSyncView.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Syncing..."
 msgstr "Sedang disegerakkan..."
 
@@ -4528,6 +4651,31 @@ msgstr "Bilangan komit FieldWorks Classic tidak semestinya sepadan dengan bilang
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Bilangan komit FieldWorks Lite tidak semestinya sepadan dengan bilangan perubahan yang ditunjukkan dalam mesej hasil segerak."
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device declined."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device didn't let this one join."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device has a separate copy of this project that can't be merged with yours."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device is sharing a different project."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device stopped sharing."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device's copy of this project shares no writing system with yours."
+msgstr ""
+
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr ""
@@ -4538,6 +4686,10 @@ msgstr ""
 
 #: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "The sync session ended."
 msgstr ""
 
 #. Error message
@@ -4585,10 +4737,18 @@ msgstr "Item {0} telah dipadam"
 msgid "This change"
 msgstr ""
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "This computer couldn't create a Wi-Fi network. Share on a network it's already on instead."
+msgstr ""
+
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
 msgstr "Tarikh ini # dan emoji ini # adalah coretan"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "This device is sharing {0}. Stop sharing it to share this project."
+msgstr ""
 
 #: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "This doesn't look like a complete plugin. It should be one HTML file that starts with <!DOCTYPE html> and ends with </html>."
@@ -5119,6 +5279,10 @@ msgstr "Lihat dasar privasi SIL"
 msgid "violet"
 msgstr "ungu"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Waiting for {0} to accept..."
+msgstr ""
+
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details."
 msgstr "Kami juga mengumpul laporan ralat dengan butiran teknikal tentang apa yang salah. Sebelum menghantarnya, kami cuba mengalih keluar apa sahaja yang mungkin mengandungi teks kamus, nama fail atau butiran peribadi lain."
@@ -5154,6 +5318,18 @@ msgstr "Di manakah projek saya?"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "Mengapa begitu?"
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Wi-Fi is busy with something else, such as Mobile hotspot. Turn that off, then try again."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Wi-Fi is turned off on this computer. Turn it on, then try again."
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Wi-Fi QR code"
+msgstr ""
 
 #. Option in the entry-list "Comments" filter: entries that have any comment threads.
 #: src/project/browse/filter/CommentSelect.svelte

@@ -126,6 +126,7 @@
     "svelte-routing": "^2.13.0",
     "tabbable": "^6.5.0",
     "type-fest": "^5.8.0",
+    "uqr": "0.1.2",
     "virtua": "^0.50.1",
     "wavesurfer.js": "^7.12.11"
   },

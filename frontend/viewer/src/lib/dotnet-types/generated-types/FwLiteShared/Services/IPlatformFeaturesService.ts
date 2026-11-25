@@ -18,5 +18,7 @@ export interface IPlatformFeaturesService
 	pickFolder() : Promise<string | undefined>;
 	folderExists(path: string) : Promise<boolean>;
 	suggestedAuthorName() : Promise<string | undefined>;
+	supportsWifiSync() : Promise<boolean>;
+	supportsWifiSyncHosting() : Promise<boolean>;
 }
 /* eslint-enable */
