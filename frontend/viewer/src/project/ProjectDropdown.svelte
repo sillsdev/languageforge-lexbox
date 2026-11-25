@@ -58,7 +58,7 @@
   // Simulate loading delay
   function handleOpen(isOpen: boolean) {
     open = isOpen;
-    if (!isOpen) search = '';
+    if (isOpen) search = '';
     if (isOpen && !projectsResource.current) {
       void projectsResource.refetch();
     }
