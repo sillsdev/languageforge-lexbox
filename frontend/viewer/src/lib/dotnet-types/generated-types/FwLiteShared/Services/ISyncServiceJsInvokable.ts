@@ -9,6 +9,11 @@ import type {IPendingCommits} from '../Sync/IPendingCommits';
 import type {ISyncResults} from '../../SIL/Harmony/ISyncResults';
 import type {ILexboxServer} from '../Auth/ILexboxServer';
 import type {IFolderSyncSummary} from '../LocalSync/IFolderSyncSummary';
+import type {IHostingOptions} from '../LocalSync/Hosting/IHostingOptions';
+import type {IHostingView} from '../LocalSync/Hosting/IHostingView';
+import type {IStartHostingResult} from '../LocalSync/Hosting/IStartHostingResult';
+import type {INearbyHostView} from '../LocalSync/Hosting/INearbyHostView';
+import type {IJoinSessionView} from '../LocalSync/Hosting/IJoinSessionView';
 
 export interface ISyncServiceJsInvokable
 {
@@ -20,5 +25,17 @@ export interface ISyncServiceJsInvokable
 	getCurrentServer() : Promise<ILexboxServer | undefined>;
 	syncWithFolder(path: string) : Promise<IFolderSyncSummary>;
 	getRememberedSyncFolder() : Promise<string | undefined>;
+	getHostingOptions() : Promise<IHostingOptions>;
+	getHosting() : Promise<IHostingView | undefined>;
+	startHosting(networkAddress?: string) : Promise<IStartHostingResult>;
+	stopHosting() : Promise<void>;
+	approveJoiner(requestId: string) : Promise<void>;
+	declineJoiner(requestId: string) : Promise<void>;
+	setAutoApprove(autoApprove: boolean) : Promise<void>;
+	findNearbyHosts() : Promise<INearbyHostView[]>;
+	joinHost(address: string) : Promise<IJoinSessionView>;
+	getJoinSession() : Promise<IJoinSessionView>;
+	syncWithHostNow() : Promise<IJoinSessionView>;
+	leaveHost() : Promise<IJoinSessionView>;
 }
 /* eslint-enable */

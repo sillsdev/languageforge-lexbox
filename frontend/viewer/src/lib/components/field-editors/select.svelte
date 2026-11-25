@@ -143,14 +143,15 @@
 </script>
 
 {#snippet trigger({props}: {props: Record<string, unknown>})}
-  <div class="relative w-full">
+  <!-- Pressed here, not on the Button, so the chevron overlay moves with it. -->
+  <div class="relative w-full transition-transform has-[>[role=combobox]:active]:press-wide">
     <Button
       bind:ref={triggerRef}
       variant="outline"
       {...props}
       role="combobox"
       aria-expanded={open}
-      class={cn('w-full h-auto min-h-10 px-2 justify-between', className)}
+      class={cn('w-full h-auto min-h-10 px-2 justify-between active:scale-100', className)}
     >
       {#if value}
         <span class="x-ellipsis mr-4">

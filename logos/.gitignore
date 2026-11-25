@@ -1,4 +1,5 @@
 node_modules/
+lexbox/png/
 # render.mjs writes every size; commit only what a build reads (FwLiteMaui.csproj, platform.bible-extension webpack config).
 fieldworks-lite/png/*
 !fieldworks-lite/png/fieldworks-lite-16.png

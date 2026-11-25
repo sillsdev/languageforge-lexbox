@@ -242,7 +242,7 @@
     {...props}
     role="combobox"
     aria-expanded={open}
-    class="w-full h-auto min-h-10 px-2 justify-between"
+    class="w-full h-auto min-h-10 px-2 justify-between active:press-wide"
   >
     {@render displayBadges()}
     <Icon icon="i-mdi-chevron-down" class="size-5 shrink-0 opacity-50" />
