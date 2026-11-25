@@ -26,6 +26,7 @@
   import {LONG_LIST, OPTION_ROW, trackActiveDescendant} from '../ui/select/select-list';
   import {onDestroy, tick} from 'svelte';
   import {SvelteMap, SvelteSet} from 'svelte/reactivity';
+  import {on} from 'svelte/events';
 
   type Value = ReadonlyDeep<MutableValue>;
 
@@ -105,25 +106,38 @@
 
   watch(
     () => open,
-    (isOpen, wasOpen) => {
+    () => {
       filterValue = '';
-      if (isOpen) {
-        selectedGroupSnapshot = decorateAndSort([...values]);
-      } else if (wasOpen) {
-        save();
-      }
+      if (open) selectedGroupSnapshot = decorateAndSort([...values]);
     },
   );
 
   watch(
     () => readonly,
     () => {
-      if (readonly) open = false;
+      if (readonly) setOpen(false);
     },
   );
 
   onDestroy(() => {
     if (open) save();
+  });
+
+  // bits-ui closes a popover 10ms after an outside pointerdown (on touch, after the click), so a click
+  // that also submits a form (e.g. "Add Meaning") would read the value before the close saves it.
+  $effect(() => {
+    if (!open) return;
+    return on(
+      document,
+      'pointerdown',
+      (e) => {
+        const target = e.target as Node;
+        const content = commandRef?.closest('[data-slot="popover-content"], [data-slot="drawer-content"]');
+        if (content?.contains(target) || triggerRef?.contains(target)) return;
+        save();
+      },
+      {capture: true},
+    );
   });
 
   function save() {
@@ -157,8 +171,14 @@
     }
   }
 
+  function setOpen(value: boolean) {
+    if (value === open) return;
+    open = value;
+    if (!value) save();
+  }
+
   function dismiss() {
-    open = false;
+    setOpen(false);
     void tick().then(() => triggerRef?.focus());
   }
 
@@ -264,7 +284,7 @@
               <XButton onclick={() => (filterValue = '')} aria-label={$t`clear`} />
             {/if}
           {:else}
-            <XButton onclick={dismiss} aria-label={$t`Close`} />
+            <XButton onclick={dismiss} onkeydown={(e) => e.stopPropagation()} aria-label={$t`Close`} />
           {/if}
         </div>
       </CommandInput>
@@ -332,7 +352,7 @@
     {@render displayBadges()}
   </div>
 {:else if useDrawer}
-  <Drawer bind:open>
+  <Drawer bind:open={() => open, setOpen}>
     <DrawerTrigger child={trigger} />
     <DrawerContent handle={true} class="overflow-hidden">
       <DrawerHeader class="text-left py-2">
@@ -350,7 +370,7 @@
     </DrawerContent>
   </Drawer>
 {:else}
-  <Popover bind:open>
+  <Popover bind:open={() => open, setOpen}>
     <PopoverTrigger child={trigger} />
     <PopoverContent
       class="p-0 w-(--bits-popover-anchor-width) min-w-64 max-w-[min(28rem,calc(100vw-1rem))]"

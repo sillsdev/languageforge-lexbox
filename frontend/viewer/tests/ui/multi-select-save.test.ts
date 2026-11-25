@@ -66,6 +66,26 @@ test.describe('Multi-select save', () => {
     await expect.poll(() => senseDomainNames(page, entryId)).toEqual(['Animal']);
   });
 
+  test('a toggle reaches a new meaning when Add Meaning is clicked with the list open', async ({page}) => {
+    const entryId = await createEntryWithSense(page, 'qmsaddsense');
+    await projectPage.entriesList.filterByText('qmsaddsense');
+    await projectPage.entriesList.entryRows.filter({hasNotText: 'Add to dictionary'}).filter({hasText: 'qmsaddsense'}).click();
+    await page.getByRole('button', {name: 'Add Meaning'}).first().click();
+    const dialog = page.getByRole('dialog');
+    await dialog.locator('[data-field-id="gloss"] input').first().fill('second');
+    await dialog.locator('[data-field-id="semanticDomains"]').getByRole('combobox').click();
+    await page.getByRole('option', {name: 'Fruit'}).click();
+
+    // One click both closes the list and submits the dialog.
+    await dialog.getByRole('button', {name: 'Add Meaning'}).click();
+
+    await expect(dialog).toBeHidden();
+    await expect.poll(() => page.evaluate(async (id) => {
+      const entry = await window.__PLAYWRIGHT_UTILS__.demoApi.getEntry(id);
+      return entry?.senses.map((s) => s.semanticDomains.map((d) => d.name['en']));
+    }, entryId)).toEqual([[], ['Fruit']]);
+  });
+
   test('a toggle is saved when the editor goes away while the list is open', async ({page}) => {
     const entryId = await createEntryWithSense(page, 'qmsunmount');
     await openDomainPicker(page, 'qmsunmount');

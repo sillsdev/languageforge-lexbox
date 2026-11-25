@@ -188,7 +188,7 @@
               <XButton onclick={() => (filterValue = '')} aria-label={$t`clear`} />
             {/if}
           {:else}
-            <XButton onclick={dismiss} />
+            <XButton onclick={dismiss} onkeydown={(e) => e.stopPropagation()} />
           {/if}
         </div>
       </CommandInput>
