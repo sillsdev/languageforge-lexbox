@@ -66,6 +66,25 @@ test.describe('Multi-select save', () => {
     await expect.poll(() => senseDomainNames(page, entryId)).toEqual(['Animal']);
   });
 
+  test('a toggle and a change made elsewhere meanwhile both survive closing', async ({page}) => {
+    const entryId = await createEntryWithSense(page, 'qmsmerge');
+    await openDomainPicker(page, 'qmsmerge');
+    await page.getByRole('option', {name: 'Fruit'}).click();
+
+    await page.evaluate(async (id) => {
+      const api = window.__PLAYWRIGHT_UTILS__.demoApi;
+      const before = (await api.getEntry(id))!;
+      const animal = (await api.getSemanticDomains()).find((d) => d.name['en'] === 'Animal')!;
+      const after = structuredClone(before);
+      after.senses[0].semanticDomains = [animal];
+      await api.updateEntry(before, after);
+    }, entryId);
+    await expect.poll(() => senseDomainNames(page, entryId)).toEqual(['Animal']);
+
+    await page.keyboard.press('Escape');
+    await expect.poll(async () => (await senseDomainNames(page, entryId)).sort()).toEqual(['Animal', 'Fruit']);
+  });
+
   test('a toggle reaches a new meaning when Add Meaning is clicked with the list open', async ({page}) => {
     const entryId = await createEntryWithSense(page, 'qmsaddsense');
     await projectPage.entriesList.filterByText('qmsaddsense');

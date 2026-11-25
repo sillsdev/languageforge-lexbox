@@ -184,11 +184,12 @@
 
   function toggleSelected(value: Value) {
     const id = getId(value);
-    const wasSelected = values.some((v) => getId(v) === id);
-    if (added.has(id)) added.delete(id);
-    else if (removed.has(id)) removed.delete(id);
-    else if (wasSelected) removed.add(id);
-    else added.set(id, value);
+    const select = !pendingValues.some((v) => v.id === id);
+    const inValues = values.some((v) => getId(v) === id);
+    added.delete(id);
+    removed.delete(id);
+    if (select && !inValues) added.set(id, value);
+    else if (!select && inValues) removed.add(id);
   }
 
   function itemValue(value: Value): string {
@@ -200,7 +201,7 @@
     const saveAndClose = e.key === 'Enter' && (e.ctrlKey || e.metaKey);
     if (!saveAndClose && !(e.key === ' ' && !isLong)) return;
     const highlighted = commandRef?.querySelector('[data-command-item][data-selected]')?.getAttribute('data-value');
-    const value = options.find((option) => itemValue(option) === highlighted);
+    const value = renderedOptions.find((option) => itemValue(option) === highlighted);
     if (!value) return;
     e.preventDefault();
     e.stopPropagation();
@@ -284,7 +285,11 @@
               <XButton onclick={() => (filterValue = '')} aria-label={$t`clear`} />
             {/if}
           {:else}
-            <XButton onclick={dismiss} onkeydown={(e) => e.stopPropagation()} aria-label={$t`Close`} />
+            <XButton
+              onclick={dismiss}
+              onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && e.stopPropagation()}
+              aria-label={$t`Close`}
+            />
           {/if}
         </div>
       </CommandInput>

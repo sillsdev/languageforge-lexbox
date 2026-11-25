@@ -128,7 +128,13 @@
   });
 
   const RENDER_LIMIT = 100;
-  const renderedOptions = $derived(filteredOptions.slice(0, RENDER_LIMIT));
+  // Without a filter, the window shifts so the current value is rendered and can be highlighted.
+  const renderStart = $derived.by(() => {
+    if (filterValue || !value) return 0;
+    const index = filteredOptions.findIndex((option) => getId(option) === getId(value));
+    return index < RENDER_LIMIT ? 0 : Math.min(index - RENDER_LIMIT / 2, filteredOptions.length - RENDER_LIMIT);
+  });
+  const renderedOptions = $derived(filteredOptions.slice(renderStart, renderStart + RENDER_LIMIT));
   const renderedGroups = $derived.by(() => {
     if (!groupSelector) return [{heading: undefined, options: renderedOptions}];
     const groups: {heading: string; options: Value[]}[] = [];
@@ -188,7 +194,7 @@
               <XButton onclick={() => (filterValue = '')} aria-label={$t`clear`} />
             {/if}
           {:else}
-            <XButton onclick={dismiss} onkeydown={(e) => e.stopPropagation()} />
+            <XButton onclick={dismiss} onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && e.stopPropagation()} />
           {/if}
         </div>
       </CommandInput>
@@ -207,6 +213,11 @@
           </CommandItem>
         </CommandGroup>
         <CommandSeparator />
+      {/if}
+      {#if renderStart > 0}
+        <div class="text-muted-foreground text-sm px-2 py-1.5">
+          {$t`Refine your filter to see more...`}
+        </div>
       {/if}
       {#each renderedGroups as group, g (group.heading ?? '')}
         {#if g > 0}
@@ -228,7 +239,7 @@
               <OptionIndicator state={selected} />
             </CommandItem>
           {/each}
-          {#if g === renderedGroups.length - 1 && renderedOptions.length < filteredOptions.length}
+          {#if g === renderedGroups.length - 1 && renderStart + renderedOptions.length < filteredOptions.length}
             <div class="text-muted-foreground text-sm px-2 py-1.5">
               {$t`Refine your filter to see more...`}
             </div>
