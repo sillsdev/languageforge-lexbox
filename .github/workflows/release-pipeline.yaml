@@ -187,3 +187,12 @@ jobs:
       version: ${{ needs.set-version.outputs.version }}
       semver-version: ${{ needs.set-version.outputs.semver-version }}
       release: true
+
+  docs:
+    name: Publish docs
+    needs: [ fw-lite ]
+    uses: ./.github/workflows/docs.yaml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
