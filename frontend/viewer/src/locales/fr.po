@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-24 07:56\n"
+"PO-Revision-Date: 2026-11-25 08:12\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -61,6 +61,10 @@ msgstr "\"{0}\" a été ajouté pour tout le monde sur ce projet."
 #: src/lib/plugins/PluginsView.svelte
 msgid "“{0}” will ask before making changes again."
 msgstr "«{0}» vous demandera avant de modifier à nouveau."
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" will be saved as \"{1}\". Is there an extra \"{2}\"?"
+msgstr "\"{0}\" sera sauvegardé en tant que \"{1}\". Existe-t-il un supplément \"{2}\"?"
 
 #. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
 #. Shown in place of the sense's number and gloss; "sense" is "meaning" in the Lite view
@@ -157,6 +161,13 @@ msgstr "{0} Ko à {1} Ko, pas de nouvelles permissions"
 msgid "{0} MB"
 msgstr "{0} MB"
 
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#: src/project/tasks/SubjectPopup.svelte
+#: src/project/tasks/SubjectPopup.svelte
+msgid "{0} of {1} done"
+msgstr "{0} de {1} fait"
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
 msgstr "{0} réponses"
@@ -184,10 +195,17 @@ msgstr "{num, plural, one {(+# changement supplémentaire)} other {(+# changemen
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, one {# changement} other {# changements}}"
 
+#: src/project/tasks/DoneView.svelte
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
 msgstr "{num, plural, one {# entrée restante} other {# entrées restantes}}"
+
+#. Text on the morph type filter dropdown trigger, summarizing the selection. # is the number of selected morph types.
+#. Morph type: linguistic category of an entry (e.g. stem, prefix, clitic).
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "{num, plural, one {# morph type} other {# morph types}}"
+msgstr "{num, plural, one {# type de morph} other {# types de morph}}"
 
 #. Commit count display
 #: src/project/sync/FwClassicSyncView.svelte
@@ -203,6 +221,7 @@ msgstr "{num, plural, one {# nouveau commit FieldWorks Lite} other {# nouveaux c
 msgid "{num, plural, one {# unread comment} other {# unread comments}}"
 msgstr "{num, plural, one {# commentaire non lu} other {# commentaires non lus}}"
 
+#: src/project/tasks/DoneView.svelte
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# word to go} other {# words to go}}"
@@ -212,6 +231,20 @@ msgstr "{num, plural, one {# mot restant} other {# mots restants}}"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
 msgstr "{num, plural, one {Montrez # de plus} other {Montrez # de plus}}"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "You filled in # word"
+#. Summary on the task-done screen. # is how many entries the user completed.
+#: src/project/tasks/DoneView.svelte
+msgid "{num, plural, one {You filled in # entry} other {You filled in # entries}}"
+msgstr "{num, plural, one {Vous avez rempli # l'entrée} other {Vous avez rempli # entrées}}"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "You filled in # entry"
+#. Summary on the task-done screen. # is how many words the user completed.
+#: src/project/tasks/DoneView.svelte
+msgid "{num, plural, one {You filled in # word} other {You filled in # words}}"
+msgstr "{num, plural, one {Vous avez rempli # mot} other {Vous avez rempli # mots}}"
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -249,6 +282,24 @@ msgstr "2. Demandez à une IA de l'écrire"
 msgid "3. Try it here"
 msgstr "3. Essayez ici"
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "A circumfix is two parts with their markers and a space between them, like \"a- -b\"."
+msgstr "Un circonférence est deux parties avec leurs marqueurs et un espace entre elles, comme \"a- -b\"."
+
+#. Relevant view: Lite
+#. Classic view equivalent: "A full explanation of the sense"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A full explanation of the meaning"
+msgstr "Une explication complète de la signification"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "A full explanation of the meaning"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A full explanation of the sense"
+msgstr "Une explication complète du sens"
+
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
@@ -276,9 +327,37 @@ msgstr "Un plugin ne peut pas être utilisé"
 msgid "A project manager can add plugins for the team."
 msgstr "Un gestionnaire de projet peut ajouter des plugins pour l'équipe."
 
+#. Relevant view: Classic
+#. Lite view equivalent: "A sentence that uses the word"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A sentence that uses the entry"
+msgstr "Une phrase qui utilise l'entrée"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "A sentence that uses the entry"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A sentence that uses the word"
+msgstr "Une phrase qui utilise le mot"
+
 #: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "A short summary shown on the plugin's card."
 msgstr "Un bref résumé sur la carte du plugin."
+
+#. Relevant view: Lite
+#. Classic view equivalent: "A short translation of the sense"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A short translation of the meaning"
+msgstr "Une courte traduction de la signification"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "A short translation of the meaning"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A short translation of the sense"
+msgstr "Une courte traduction du sens"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "A similar word already exists"
@@ -479,6 +558,11 @@ msgstr "Ajouté à {0}"
 msgid "Advanced: settings file"
 msgstr "Avancé : fichier de paramètres"
 
+#. Group header in morph type lists. Affixes are bound morphemes added to a stem (prefix, suffix, infix...).
+#: src/project/data/morph-type-groups.ts
+msgid "Affixes"
+msgstr "Affixes"
+
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
@@ -501,6 +585,16 @@ msgstr "Tous les types d'activité"
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
 msgstr "Tous les auteurs"
+
+#. Option in the morph type filter list that selects or clears every morph type at once.
+#: src/project/browse/filter/MorphTypeSelect.svelte
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "All morph types"
+msgstr "Tous les types de morphe"
+
+#: src/project/tasks/TaskList.svelte
+msgid "All tasks"
+msgstr "Toutes les tâches"
 
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Allow and run it"
@@ -548,6 +642,11 @@ msgstr "Les analyses sont désactivées."
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any grammatical info."
 msgstr "N'importe quelle information grammaticale."
+
+#. Text on the morph type filter dropdown trigger when no morph type filter is applied.
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "Any morph type"
+msgstr "N'importe quel type de morphe"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Any grammatical info."
@@ -610,7 +709,9 @@ msgid "audio"
 msgstr "audio"
 
 #. Field label in the activity change-preview diff for a writing system. Shows whether it's an audio writing system (Yes/No).
+#. Also in the Tasks list: group heading and screen-reader label (on a microphone icon) for tasks on recorded audio languages. Opposite of "Written".
 #: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Audio"
@@ -664,8 +765,11 @@ msgstr "Synchronisation automatique. Dernière synchronisation : #"
 msgid "Back"
 msgstr "Précédent"
 
-#: src/lib/plugins/PluginRunView.svelte
-#: src/lib/plugins/PluginRunView.svelte
+#. aria-label (screen readers only) of the back arrow on phones; returns from the language list to the list of all tasks.
+#: src/project/tasks/TaskList.svelte
+msgid "Back to all tasks"
+msgstr "Retour à toutes les tâches"
+
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
@@ -674,6 +778,7 @@ msgstr "Précédent"
 msgid "Back to plugins"
 msgstr "Retour aux plugins"
 
+#: src/project/tasks/DoneView.svelte
 #: src/project/tasks/TaskView.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Back to tasks"
@@ -706,6 +811,7 @@ msgstr "Meilleure correspondance"
 msgid "blue"
 msgstr "bleu"
 
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Breadcrumb"
 msgstr "Fil d'Ariane"
@@ -819,6 +925,10 @@ msgstr "Les modifications que vous avez déjà apportées conservez l'ancien nom
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Changer le même champ deux fois, par exemple, peut entraîner deux livraisons mais un seul changement qui doit être appliqué à FieldWorks Classic. Les commits peuvent également comporter de multiples changements."
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Check the markers in \"{0}\". Did you mean {1}?"
+msgstr "Vérifiez les marqueurs «{0}». Vouliez-vous dire {1}?"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Checking for similar words…"
 #. Status line in the New Entry dialog while searching for possible duplicate entries
@@ -874,6 +984,11 @@ msgstr "effacer"
 msgid "Cleared {0}"
 msgstr "Validé {0}"
 
+#. Group header in morph type lists. Clitics are bound forms that act like words but attach phonologically to a neighbor (proclitic, enclitic).
+#: src/project/data/morph-type-groups.ts
+msgid "Clitics"
+msgstr "Clitiques"
+
 #. Button to close popup
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
@@ -924,6 +1039,7 @@ msgstr "commentaires"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
+#: src/project/browse/SearchFilter.svelte
 msgid "Comments"
 msgstr "Commentaires"
 
@@ -940,10 +1056,6 @@ msgstr "Compare la version juste après ce changement avec la version actuelle."
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Compares the version right after this change with the last version before deletion."
 msgstr "Compare la version juste après ce changement avec la dernière version avant suppression."
-
-#: src/project/tasks/TaskList.svelte
-msgid "Complete"
-msgstr "Complete"
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Complex form"
@@ -1321,11 +1433,6 @@ msgstr "Rejeter"
 msgid "Display as"
 msgstr "Afficher comme"
 
-#. Prompt text
-#: src/project/tasks/DoneView.svelte
-msgid "Do you want to:"
-msgstr "Voulez-vous :"
-
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "Don't allow"
 msgstr "Ne pas autoriser"
@@ -1340,6 +1447,8 @@ msgid "Don't run it"
 msgstr "Ne pas l'exécuter"
 
 #. Tab label
+#. Also in the Tasks list: status label on a field whose task is complete.
+#: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TaskView.svelte
 msgid "Done"
 msgstr "Fait"
@@ -1547,10 +1656,6 @@ msgstr "Entrez votre nom"
 #: src/lib/activity/ChangeSummary.svelte
 msgid "entries"
 msgstr "entrées"
-
-#: src/project/tasks/tasks-service.ts
-msgid "Entries missing both Lexeme form and Citation form"
-msgstr "Entrées sans forme de lexème ni autonyme"
 
 #. Filter option label
 #. Dropdown to filter entries by missing fields
@@ -1832,6 +1937,11 @@ msgstr "FieldWorks Lite collecte des données d'utilisation pour nous aider à l
 msgid "FieldWorks Lite has been updated. Restart to finish installing."
 msgstr "FieldWorks Lite a été mis à jour. Redémarrez pour terminer l'installation."
 
+#: src/home/HomeView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+msgid "FieldWorks Lite logo"
+msgstr "Logo FieldWorks Lite"
+
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
@@ -1848,7 +1958,6 @@ msgstr "Version de FieldWorks Lite"
 #: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
-#: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
@@ -1896,6 +2005,11 @@ msgstr "Remplir au moins un champ"
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Display as"
 msgstr "Renseignez Afficher comme"
+
+#. Intro line of the help card at the top of the Tasks list.
+#: src/project/tasks/TaskList.svelte
+msgid "Fill in what's missing, a few at a time."
+msgstr "Remplissez ce qui manque, quelques unes à la fois."
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
@@ -2004,6 +2118,10 @@ msgstr "Font"
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "Pour toute autre question, n'hésitez pas à nous envoyer un courriel."
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "For morph type {0}, type \"{1}\"."
+msgstr "Pour le type de morphe {0}, tapez \"{1}\"."
+
 #: src/home/OpenFromFolderItem.svelte
 msgid "From a USB drive or shared folder"
 msgstr "Depuis une clé USB ou un dossier partagé"
@@ -2096,6 +2214,11 @@ msgstr "Aller au mot"
 msgid "Go to Word"
 msgstr "Aller à Word"
 
+#. Button that closes the "How tasks work" help card in the Tasks list.
+#: src/project/tasks/TaskList.svelte
+msgid "Got it"
+msgstr "Compris"
+
 #. Filter option label
 #. Relevant view: Classic
 #. Lite view equivalent: "Part of speech"
@@ -2118,18 +2241,6 @@ msgstr "Gérer le contenu avec des soins culturels"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
 msgstr "Instantanés Harmony régénérés avec succès"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has comments"
-msgstr "A des commentaires"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unread comments"
-msgstr "A des commentaires non lus"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unresolved comments"
-msgstr "A des commentaires non résolus"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -2173,6 +2284,25 @@ msgstr "Maintenez pour enregistrer ou#presse et relâcher pour commencer l'enreg
 msgid "Homograph number"
 msgstr "Numéro d'homographe"
 
+#. Title of a collapsible help card at the top of the Tasks list.
+#: src/project/tasks/TaskList.svelte
+msgid "How tasks work"
+msgstr "Comment fonctionnent les tâches"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "How the word is shown in the dictionary"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "How the entry is shown in the dictionary"
+msgstr "Comment l'entrée est affichée dans le dictionnaire"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "How the entry is shown in the dictionary"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "How the word is shown in the dictionary"
+msgstr "Comment le mot est affiché dans le dictionnaire"
+
 #. External link button text for help
 #: src/home/Server.svelte
 msgid "I don't see my project"
@@ -2187,6 +2317,11 @@ msgstr "Je comprends que cela ne peut pas être annulé"
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "ID"
 msgstr "ID"
+
+#. Step in the "How tasks work" help card of the Tasks list. "Language" means a writing system (written or audio).
+#: src/project/tasks/TaskList.svelte
+msgid "If there's more than one language, pick one."
+msgstr "S'il y a plus d'une langue, choisissez-en une."
 
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "If you add it"
@@ -2297,11 +2432,6 @@ msgstr "Longueur :"
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Let this version use the internet?"
 msgstr "Laisser cette version utiliser Internet ?"
-
-#. Alt text for the Lexbox logo image shown in the home screen app bar. "Lexbox" is a product name — do not translate.
-#: src/home/HomeView.svelte
-msgid "Lexbox logo"
-msgstr "Logo Lexbox"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
@@ -2613,10 +2743,15 @@ msgstr "Plus d'options pour {0}"
 msgid "morph type"
 msgstr "type de morphe"
 
-#: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
 #: src/lib/plugins/plugin-api-adapter.ts
+#: src/lib/views/entity-config.ts
+#: src/project/browse/SearchFilter.svelte
 msgid "Morph type"
 msgstr "Type de morphe"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Morph type: {0}"
+msgstr "Type de morphe : {0}"
 
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Morph types classify the morphological status of entries (e.g. "root", "stem", "bound stem").
 #: src/lib/activity/ChangeSummary.svelte
@@ -2877,11 +3012,6 @@ msgstr "Aucune entrée similaire trouvée"
 msgid "No similar words found"
 msgstr "Aucun mot similaire trouvé"
 
-#. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
-#: src/project/tasks/SubjectPopup.svelte
-msgid "No subject, unable to create a new {0}"
-msgstr "Aucun sujet, impossible de créer un nouveau {0}"
-
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
 msgstr "Aucun système d'écriture vernaculaire configuré."
@@ -2902,6 +3032,7 @@ msgstr "Aucun mot trouvé"
 #. Selection option for optional fields
 #. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "None"
@@ -2945,6 +3076,11 @@ msgstr "Note"
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Nothing to copy"
 msgstr "Rien à copier"
+
+#. Short description under the field name in the Tasks list. Same in both views. Describes Part of speech (Lite) / Grammatical info. (Classic).
+#: src/project/tasks/tasks-service.ts
+msgid "Noun, verb and so on"
+msgstr "Noun, verbe et ainsi de suite"
 
 #. Under a change's headword in the activity view. # is the entry's current headword; shown when a later change renamed it
 #: src/lib/activity/ActivityChangeHeader.svelte
@@ -3095,6 +3231,11 @@ msgstr "Abandonner les analyses"
 msgid "orange"
 msgstr "orange"
 
+#. Group header in morph type lists for morph types that are not words and phrases, affixes, or clitics.
+#: src/project/data/morph-type-groups.ts
+msgid "Other"
+msgstr "Autres"
+
 #: src/project/SyncDialog.svelte
 msgid "Other FieldWorks Lite users"
 msgstr "Autres utilisateurs FieldWorks Lite"
@@ -3191,6 +3332,16 @@ msgstr "Choisir les informations grammaticales."
 msgid "Pick one or more Semantic domains"
 msgstr "Choisissez un ou plusieurs domaines sémantiques"
 
+#. Placeholder beside the Tasks list until the user picks a field. Some fields then show their languages here, others start straight away.
+#: src/project/tasks/TaskList.svelte
+msgid "Pick what's missing to get started."
+msgstr "Choisissez ce qui manque pour commencer."
+
+#. Step in the "How tasks work" help card. "Gloss" and "Example sentence" are field names.
+#: src/project/tasks/TaskList.svelte
+msgid "Pick what's missing, like a Gloss or an Example sentence."
+msgstr "Choisissez ce qui manque, comme une Glose ou une phrase d'Exemple."
+
 #. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
@@ -3267,6 +3418,7 @@ msgstr "Le plugin veut créer {0}"
 msgid "plugins"
 msgstr "plug-ins"
 
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/project/ProjectSidebar.svelte
@@ -3343,6 +3495,10 @@ msgstr "Image précédente"
 #: src/project/ProjectSidebar.svelte
 msgid "Privacy"
 msgstr "Confidentialité"
+
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Progress"
+msgstr "Progrès"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -3421,6 +3577,11 @@ msgstr "Lecture seule: impossible de modifier votre dictionnaire"
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Reads the dictionary, never changes it"
 msgstr "Lit le dictionnaire, ne le modifie jamais"
+
+#. Heading above the tiles of recently opened tasks in the Tasks list.
+#: src/project/tasks/TaskList.svelte
+msgid "Recent"
+msgstr "Récentes"
 
 #: src/lib/plugins/PluginsView.svelte
 msgid "Record & illustrate"
@@ -3662,6 +3823,11 @@ msgstr "Nécessite"
 msgid "Reset"
 msgstr "Réinitialiser"
 
+#. Tooltip of the Reset button in the entry-list filter popover. Restores the filters the current view applies by default.
+#: src/project/browse/SearchFilter.svelte
+msgid "Reset to view defaults"
+msgstr "Remettre à zéro pour afficher les valeurs par défaut"
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
@@ -3678,14 +3844,14 @@ msgstr "Redémarrer"
 msgid "Restore"
 msgstr "Restaurer"
 
-#. Button option
-#: src/project/tasks/DoneView.svelte
-msgid "Review"
-msgstr "Évaluer"
-
 #: src/lib/plugins/PluginsView.svelte
 msgid "Review & history"
 msgstr "Examen et historique"
+
+#. Button on the task-done screen; shows the entries the user just filled in.
+#: src/project/tasks/DoneView.svelte
+msgid "Review what you filled in"
+msgstr "Examinez ce que vous avez rempli"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -3991,6 +4157,11 @@ msgstr "Afficher"
 msgid "Show {0} more..."
 msgstr "Afficher {0} plus..."
 
+#. Link-style button after the hint "This view shows only whole words and phrases." Removes the morph type filter.
+#: src/project/browse/SearchFilter.svelte
+msgid "Show all"
+msgstr "Tout afficher"
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "Show fewer examples"
 msgstr "Afficher moins d'exemples"
@@ -4120,6 +4291,11 @@ msgstr "Démarrer une conversation"
 msgid "Start a conversation…"
 msgstr "Démarrer une conversation…"
 
+#. Screen-reader-only hint on Tasks list rows that open a task straight away (instead of showing a language list).
+#: src/project/tasks/TaskList.svelte
+msgid "Starts the task"
+msgstr "Démarre la tâche"
+
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
 #. Related operators: "Contains", "Ends with", "Equals"
@@ -4136,11 +4312,6 @@ msgstr "Ouverture du projet en cours..."
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
 msgstr "pierre"
-
-#. Error message
-#: src/project/tasks/SubjectPopup.svelte
-msgid "Subject does not have suitable object of type: {0}"
-msgstr "Le sujet n'a pas d'objet de type approprié : {0}"
 
 #. Button to confirm selection
 #: src/lib/components/SubmitOrCancel.svelte
@@ -4289,9 +4460,38 @@ msgstr "La vue *FieldWorks Classic* est par contre destinée aux utilisateurs fa
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "La vue *FieldWorks Lite* est conçue pour les non-linguistes et diffère de la vue *FieldWorks Classic* des manières suivantes :"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "The base form of the word"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "The base form of the entry"
+msgstr "Le formulaire de base de l'entrée"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "The base form of the entry"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "The base form of the word"
+msgstr "La forme de base du mot"
+
 #: src/project/sync/folder-sync-messages.ts
 msgid "The copy of {0} in this folder didn't come from the same original as the copy on this device, so the two can't be combined. Choose another folder."
 msgstr "La copie de {0} dans ce dossier ne provient pas du même original que la copie sur cet appareil, donc les deux ne peuvent pas être combinés. Choisissez un autre dossier."
+
+#. Relevant view: Classic
+#. Lite view equivalent: "The word's main form, for words that have none yet"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "The entry's main form, for entries that have none yet"
+msgstr "Le formulaire principal de l'entrée, pour les entrées qui n'en ont pas encore"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "The markers in \"{0}\" are for a custom morph type. FieldWorks Lite can't create those yet."
+msgstr "Les marqueurs «{0}» sont pour un type de morphe personnalisé. FieldWorks Lite ne peut pas encore les créer."
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "The markers in \"{0}\" can't be used this way."
+msgstr "Les marqueurs «{0}» ne peuvent pas être utilisés de cette façon."
 
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to change the dictionary"
@@ -4340,6 +4540,13 @@ msgstr "La version précédente ne l'avait pas fait. Si vous ne l'avez pas deman
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "The version before it worked offline. Online, a plugin can send this project's data to any website."
 msgstr "La version avant qu'elle ne fonctionne hors ligne. En ligne, un plugin peut envoyer les données de ce projet à n'importe quel site Web."
+
+#. Relevant view: Lite
+#. Classic view equivalent: "The entry's main form, for entries that have none yet"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "The word's main form, for words that have none yet"
+msgstr "La forme principale du mot, pour les mots qui n'en ont pas encore"
 
 #. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte
@@ -4463,6 +4670,7 @@ msgid "This removes the plugin for everyone on this project."
 msgstr "Cela supprime le plugin pour tout le monde sur ce projet."
 
 #. Status message
+#: src/project/tasks/DoneView.svelte
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "Cette tâche est terminée"
@@ -4470,6 +4678,12 @@ msgstr "Cette tâche est terminée"
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "This version"
 msgstr "Cette version"
+
+#. Relevant view: Lite
+#. Hint under the morph type filter in the entry-list filter popover; a "Show all" button follows it.
+#: src/project/browse/SearchFilter.svelte
+msgid "This view shows only whole words and phrases."
+msgstr "Cette vue ne montre que des mots et des phrases entiers."
 
 #. Description of sync operation
 #: src/project/sync/FwClassicSyncView.svelte
@@ -4492,6 +4706,20 @@ msgstr "Basculer les filtres"
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
 msgstr "Activer/désactiver épinglé"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Topics the sense belongs to"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "Topics the meaning belongs to"
+msgstr "Sujets dont la signification appartient à"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Topics the meaning belongs to"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "Topics the sense belongs to"
+msgstr "Sujets auxquels le sens appartient"
 
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
@@ -4699,6 +4927,7 @@ msgstr "Modifications non enregistrées"
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/diff-view/DiffAnchor.svelte
 #: src/lib/entry-editor/diff-view/DiffMultiSelect.svelte
 #: src/lib/entry-editor/diff-view/DiffSelect.svelte
@@ -4899,6 +5128,26 @@ msgstr "Où sont mes projets ?"
 msgid "Why is that?"
 msgstr "Pourquoi?"
 
+#. Option in the entry-list "Comments" filter: entries that have any comment threads.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With comments"
+msgstr "Avec commentaires"
+
+#. Placeholder of the entry-list "Comments" filter when no option is chosen, i.e. comments do not filter the list.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With or without comments"
+msgstr "Avec ou sans commentaires"
+
+#. Option in the entry-list "Comments" filter: entries with comments the user has not read.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unread comments"
+msgstr "Avec les commentaires non lus"
+
+#. Option in the entry-list "Comments" filter: entries with comment threads not yet marked resolved.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unresolved comments"
+msgstr "Avec des commentaires non résolus"
+
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
 #: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
@@ -4946,9 +5195,10 @@ msgstr "Mot ou sens :"
 msgid "words"
 msgstr "mots"
 
-#: src/project/tasks/tasks-service.ts
-msgid "Words missing both Word and Display as"
-msgstr "Mots sans Mot ni Afficher comme"
+#. Group header in morph type lists: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
+#: src/project/data/morph-type-groups.ts
+msgid "Words and phrases"
+msgstr "Mots et phrases"
 
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Works on phones"
@@ -4996,6 +5246,11 @@ msgstr "Systèmes d'écriture"
 msgid "Writing Systems"
 msgstr "Systèmes d'écriture"
 
+#. Group heading in the Tasks list: tasks for typed (text) languages. Opposite of "Audio" (recorded languages).
+#: src/project/tasks/TaskList.svelte
+msgid "Written"
+msgstr "Écrit"
+
 #: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 msgid "Yes"
 msgstr "Oui"
@@ -5009,11 +5264,6 @@ msgstr "Vous semblez être hors ligne. Pouvez-vous vous connecter à {0}?"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "You are running the latest version."
 msgstr "Vous utilisez la dernière version."
-
-#. Success message with task and count
-#: src/project/tasks/DoneView.svelte
-msgid "You completed {0} {1}"
-msgstr "Vous avez terminé {0} {1}"
 
 #. Permission error
 #: src/home/Server.svelte
@@ -5030,6 +5280,20 @@ msgstr "Vous avez déjà téléchargé le projet {0}"
 #: src/lib/plugins/PluginsView.svelte
 msgid "You view or edit the entry in FieldWorks Lite as usual"
 msgstr "Vous visualisez ou modifiez l'entrée dans FieldWorks Lite comme d'habitude"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "You'll see the words that need it, a few at a time. Fill them in or skip them."
+#. Step in the "How tasks work" help card.
+#: src/project/tasks/TaskList.svelte
+msgid "You'll see the entries that need it, a few at a time. Fill them in or skip them."
+msgstr "Vous verrez les entrées qui en ont besoin, quelques unes à la fois. Remplissez-les ou sautez-les."
+
+#. Relevant view: Lite
+#. Classic view equivalent: "You'll see the entries that need it, a few at a time. Fill them in or skip them."
+#. Step in the "How tasks work" help card.
+#: src/project/tasks/TaskList.svelte
+msgid "You'll see the words that need it, a few at a time. Fill them in or skip them."
+msgstr "Vous verrez les mots qui en ont besoin, quelques uns à la fois. Remplissez-les ou sautez-les."
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "You're offline"
