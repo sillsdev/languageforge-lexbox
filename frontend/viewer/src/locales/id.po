@@ -8,7 +8,7 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-24 07:56\n"
+"PO-Revision-Date: 2026-11-25 08:12\n"
 "Last-Translator: \n"
 "Language-Team: Indonesian\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -61,6 +61,10 @@ msgstr "\"{0}\" telah ditambahkan untuk semua orang yang terlibat dalam proyek i
 #: src/lib/plugins/PluginsView.svelte
 msgid "“{0}” will ask before making changes again."
 msgstr "“{0}” akan menanyakan kembali sebelum melakukan perubahan."
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" will be saved as \"{1}\". Is there an extra \"{2}\"?"
+msgstr "\"{0}\" akan disimpan sebagai \"{1}\". Apakah ada \"{2} \" yang berlebih?"
 
 #. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
 #. Shown in place of the sense's number and gloss; "sense" is "meaning" in the Lite view
@@ -157,6 +161,13 @@ msgstr "{0} KB ke {1} KB, tidak ada izin baru"
 msgid "{0} MB"
 msgstr "{0} MB"
 
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#: src/project/tasks/SubjectPopup.svelte
+#: src/project/tasks/SubjectPopup.svelte
+msgid "{0} of {1} done"
+msgstr "{0} dari {1} selesai"
+
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
 msgstr "{0} balasan"
@@ -184,10 +195,17 @@ msgstr "{num, plural, one {(+# perubahan lainnya)} other {(+# perubahan lainnya)
 msgid "{num, plural, one {# change} other {# changes}}"
 msgstr "{num, plural, other {# perubahan}}"
 
+#: src/project/tasks/DoneView.svelte
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# entry to go} other {# entries to go}}"
 msgstr "{num, plural, one {# sisa entri} other {# sisa entri}}"
+
+#. Text on the morph type filter dropdown trigger, summarizing the selection. # is the number of selected morph types.
+#. Morph type: linguistic category of an entry (e.g. stem, prefix, clitic).
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "{num, plural, one {# morph type} other {# morph types}}"
+msgstr "{num, plural, one {# jenis morf} other {# jenis-jenis morf}}"
 
 #. Commit count display
 #: src/project/sync/FwClassicSyncView.svelte
@@ -203,6 +221,7 @@ msgstr "{num, plural, one {# new FieldWorks Lite commit} other {# new FieldWorks
 msgid "{num, plural, one {# unread comment} other {# unread comments}}"
 msgstr "{num, plural, one {# komentar yang belum dibaca} other {# komentar yang belum dibaca}}"
 
+#: src/project/tasks/DoneView.svelte
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "{num, plural, one {# word to go} other {# words to go}}"
@@ -212,6 +231,20 @@ msgstr "{num, plural, one {# sisa kata} other {# sisa kata}}"
 #: src/lib/entry-editor/duplicate-check/DuplicateCheck.svelte
 msgid "{num, plural, one {Show # more...} other {Show # more...}}"
 msgstr "{num, plural, one {Tampilkan # lainnya...} other {Tampilkan # lainnya...}}"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "You filled in # word"
+#. Summary on the task-done screen. # is how many entries the user completed.
+#: src/project/tasks/DoneView.svelte
+msgid "{num, plural, one {You filled in # entry} other {You filled in # entries}}"
+msgstr "{num, plural, one {Anda telah mengisi # entri} other {Anda telah mengisi # entri}}"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "You filled in # entry"
+#. Summary on the task-done screen. # is how many words the user completed.
+#: src/project/tasks/DoneView.svelte
+msgid "{num, plural, one {You filled in # word} other {You filled in # words}}"
+msgstr "{num, plural, one {Anda telah mengisi # kata} other {Anda telah mengisi # kata}}"
 
 #. Description of Lite view
 #: src/project/browse/ViewPicker.svelte
@@ -249,6 +282,24 @@ msgstr "2. Minta AI untuk menulisnya"
 msgid "3. Try it here"
 msgstr "3. Coba di sini"
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "A circumfix is two parts with their markers and a space between them, like \"a- -b\"."
+msgstr "Sirkumfiks terdiri dari dua bagian beserta penanda masing-masing dan di antara keduanya terdapat spasi, seperti \"a- -b\"."
+
+#. Relevant view: Lite
+#. Classic view equivalent: "A full explanation of the sense"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A full explanation of the meaning"
+msgstr "Penjelasan lengkap mengenai maknanya"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "A full explanation of the meaning"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A full explanation of the sense"
+msgstr "Penjelasan lengkap mengenai makna tersebut"
+
 #. Update notification
 #: src/lib/notifications/NotificationOutlet.svelte
 msgid "A new version of FieldWorks Lite is available."
@@ -276,9 +327,37 @@ msgstr "Sebuah plugin tidak bisa"
 msgid "A project manager can add plugins for the team."
 msgstr "Seorang manajer proyek dapat menambahkan plugin untuk tim."
 
+#. Relevant view: Classic
+#. Lite view equivalent: "A sentence that uses the word"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A sentence that uses the entry"
+msgstr "Sebuah kalimat yang menggunakan entri tersebut"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "A sentence that uses the entry"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A sentence that uses the word"
+msgstr "Sebuah kalimat yang menggunakan kata"
+
 #: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "A short summary shown on the plugin's card."
 msgstr "Ringkasan singkat yang ditampilkan pada kartu plugin."
+
+#. Relevant view: Lite
+#. Classic view equivalent: "A short translation of the sense"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A short translation of the meaning"
+msgstr "Terjemahan singkat dari maknanya"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "A short translation of the meaning"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "A short translation of the sense"
+msgstr "Terjemahan singkat dari maknanya"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "A similar word already exists"
@@ -479,6 +558,11 @@ msgstr "Ditambahkan ke {0}"
 msgid "Advanced: settings file"
 msgstr "Tingkat Lanjut: berkas pengaturan"
 
+#. Group header in morph type lists. Affixes are bound morphemes added to a stem (prefix, suffix, infix...).
+#: src/project/data/morph-type-groups.ts
+msgid "Affixes"
+msgstr "Afiks"
+
 #. Radio option in custom view writing system picker.
 #. Includes all writing systems (no filtering).
 #: src/lib/components/field-editors/multi-select.svelte
@@ -501,6 +585,16 @@ msgstr "Semua jenis aktivitas"
 #: src/lib/activity/ActivityFilter.svelte
 msgid "All authors"
 msgstr "Semua penulis"
+
+#. Option in the morph type filter list that selects or clears every morph type at once.
+#: src/project/browse/filter/MorphTypeSelect.svelte
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "All morph types"
+msgstr "Semua jenis morf"
+
+#: src/project/tasks/TaskList.svelte
+msgid "All tasks"
+msgstr "Semua tugas"
 
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Allow and run it"
@@ -548,6 +642,11 @@ msgstr "Fitur analitik dinonaktifkan."
 #: src/project/browse/filter/PartOfSpeechSelect.svelte
 msgid "Any grammatical info."
 msgstr "Info tata bahasa apa pun."
+
+#. Text on the morph type filter dropdown trigger when no morph type filter is applied.
+#: src/project/browse/filter/MorphTypeSelect.svelte
+msgid "Any morph type"
+msgstr "Semua jenis morf"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Any grammatical info."
@@ -610,7 +709,9 @@ msgid "audio"
 msgstr "audio"
 
 #. Field label in the activity change-preview diff for a writing system. Shows whether it's an audio writing system (Yes/No).
+#. Also in the Tasks list: group heading and screen-reader label (on a microphone icon) for tasks on recorded audio languages. Opposite of "Written".
 #: src/lib/entry-editor/diff-view/diff-fields.ts
+#: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Audio"
@@ -664,8 +765,11 @@ msgstr "Sinkronisasi otomatis. Sinkronisasi terakhir: #"
 msgid "Back"
 msgstr "Kembali"
 
-#: src/lib/plugins/PluginRunView.svelte
-#: src/lib/plugins/PluginRunView.svelte
+#. aria-label (screen readers only) of the back arrow on phones; returns from the language list to the list of all tasks.
+#: src/project/tasks/TaskList.svelte
+msgid "Back to all tasks"
+msgstr "Kembali ke semua tugas"
+
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
@@ -674,6 +778,7 @@ msgstr "Kembali"
 msgid "Back to plugins"
 msgstr "Kembali ke plugin"
 
+#: src/project/tasks/DoneView.svelte
 #: src/project/tasks/TaskView.svelte
 #: src/project/tasks/TasksView.svelte
 msgid "Back to tasks"
@@ -706,6 +811,7 @@ msgstr "Pertandingan terbaik"
 msgid "blue"
 msgstr "biru"
 
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Breadcrumb"
 msgstr "Jejak navigasi"
@@ -819,6 +925,10 @@ msgstr "Perubahan yang sudah Anda lakukan tetap menggunakan nama lama."
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Mengubah bidang yang sama dua kali, misalnya, dapat menghasilkan dua komit namun hanya satu perubahan yang perlu diterapkan ke FieldWorks Classic. Commit juga dapat terdiri dari beberapa perubahan."
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Check the markers in \"{0}\". Did you mean {1}?"
+msgstr "Periksa tautan di \"{0}\". Apakah yang Anda maksud adalah {1}?"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Checking for similar words…"
 #. Status line in the New Entry dialog while searching for possible duplicate entries
@@ -874,6 +984,11 @@ msgstr "jelas"
 msgid "Cleared {0}"
 msgstr "Telah diselesaikan {0}"
 
+#. Group header in morph type lists. Clitics are bound forms that act like words but attach phonologically to a neighbor (proclitic, enclitic).
+#: src/project/data/morph-type-groups.ts
+msgid "Clitics"
+msgstr "Klitik"
+
 #. Button to close popup
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
@@ -924,6 +1039,7 @@ msgstr "komentar"
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
+#: src/project/browse/SearchFilter.svelte
 msgid "Comments"
 msgstr "Komentar"
 
@@ -940,10 +1056,6 @@ msgstr "Membandingkan versi yang dirilis tepat setelah perubahan ini dengan vers
 #: src/lib/activity/ActivityItemChangePreview.svelte
 msgid "Compares the version right after this change with the last version before deletion."
 msgstr "Membandingkan versi yang muncul tepat setelah perubahan ini dengan versi terakhir sebelum penghapusan."
-
-#: src/project/tasks/TaskList.svelte
-msgid "Complete"
-msgstr "Selesai"
 
 #: src/lib/plugins/plugin-api-adapter.ts
 msgid "Complex form"
@@ -1321,11 +1433,6 @@ msgstr "Buang"
 msgid "Display as"
 msgstr "Tampilkan sebagai"
 
-#. Prompt text
-#: src/project/tasks/DoneView.svelte
-msgid "Do you want to:"
-msgstr "Apakah Anda mau:"
-
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "Don't allow"
 msgstr "Jangan izinkan"
@@ -1340,6 +1447,8 @@ msgid "Don't run it"
 msgstr "Jangan jalankan itu"
 
 #. Tab label
+#. Also in the Tasks list: status label on a field whose task is complete.
+#: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TaskView.svelte
 msgid "Done"
 msgstr "Selesai."
@@ -1547,10 +1656,6 @@ msgstr "Masukkan nama Anda"
 #: src/lib/activity/ChangeSummary.svelte
 msgid "entries"
 msgstr "entri"
-
-#: src/project/tasks/tasks-service.ts
-msgid "Entries missing both Lexeme form and Citation form"
-msgstr "Entri yang tidak memiliki bentuk leksem maupun bentuk kutipan"
 
 #. Filter option label
 #. Dropdown to filter entries by missing fields
@@ -1832,6 +1937,11 @@ msgstr "FieldWorks Lite mengumpulkan data penggunaan untuk membantu kami menyemp
 msgid "FieldWorks Lite has been updated. Restart to finish installing."
 msgstr "FieldWorks Lite telah diperbarui. Silakan mulai ulang untuk menyelesaikan proses pemasangan."
 
+#: src/home/HomeView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+msgid "FieldWorks Lite logo"
+msgstr "Logo FieldWorks Lite"
+
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
@@ -1848,7 +1958,6 @@ msgstr "Versi FieldWorks Lite"
 #: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
-#: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
@@ -1896,6 +2005,11 @@ msgstr "Isi setidaknya satu kolom"
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Display as"
 msgstr "Isi kolom \"Tampilkan sebagai\""
+
+#. Intro line of the help card at the top of the Tasks list.
+#: src/project/tasks/TaskList.svelte
+msgid "Fill in what's missing, a few at a time."
+msgstr "Isi bagian yang kosong, sedikit demi sedikit."
 
 #: src/project/tasks/tasks-service.ts
 msgid "Fill in Word or Display as"
@@ -2004,6 +2118,10 @@ msgstr "Jenis huruf"
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "Untuk pertanyaan lainnya, silakan kirimkan email kepada kami."
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "For morph type {0}, type \"{1}\"."
+msgstr "Untuk tipe morf {0}, ketik \"{1}\"."
+
 #: src/home/OpenFromFolderItem.svelte
 msgid "From a USB drive or shared folder"
 msgstr "Dari flashdisk atau folder bersama"
@@ -2096,6 +2214,11 @@ msgstr "Buka kata"
 msgid "Go to Word"
 msgstr "Buka Word"
 
+#. Button that closes the "How tasks work" help card in the Tasks list.
+#: src/project/tasks/TaskList.svelte
+msgid "Got it"
+msgstr "Oke, paham"
+
 #. Filter option label
 #. Relevant view: Classic
 #. Lite view equivalent: "Part of speech"
@@ -2118,18 +2241,6 @@ msgstr "Menangani konten dengan penuh kepekaan budaya"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Harmony snapshots regenerated successfully"
 msgstr "Snapshot Harmony telah dibuat ulang dengan sukses"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has comments"
-msgstr "Ada komentar"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unread comments"
-msgstr "Ada komentar yang belum dibaca"
-
-#: src/project/browse/SearchFilter.svelte
-msgid "Has unresolved comments"
-msgstr "Masih ada komentar yang belum ditanggapi"
 
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
@@ -2173,6 +2284,25 @@ msgstr "Tahan untuk merekam atau#tekan dan lepaskan untuk mulai merekam."
 msgid "Homograph number"
 msgstr "Bilangan homograf"
 
+#. Title of a collapsible help card at the top of the Tasks list.
+#: src/project/tasks/TaskList.svelte
+msgid "How tasks work"
+msgstr "Cara kerja tugas"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "How the word is shown in the dictionary"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "How the entry is shown in the dictionary"
+msgstr "Bagaimana entri tersebut ditampilkan dalam kamus"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "How the entry is shown in the dictionary"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "How the word is shown in the dictionary"
+msgstr "Bagaimana kata tersebut ditampilkan dalam kamus"
+
 #. External link button text for help
 #: src/home/Server.svelte
 msgid "I don't see my project"
@@ -2187,6 +2317,11 @@ msgstr "Saya memahami bahwa hal ini tidak dapat dibatalkan"
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "ID"
 msgstr "ID"
+
+#. Step in the "How tasks work" help card of the Tasks list. "Language" means a writing system (written or audio).
+#: src/project/tasks/TaskList.svelte
+msgid "If there's more than one language, pick one."
+msgstr "Jika ada lebih dari satu bahasa, pilih salah satunya."
 
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "If you add it"
@@ -2297,11 +2432,6 @@ msgstr "Panjang:"
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Let this version use the internet?"
 msgstr "Apakah versi ini boleh menggunakan internet?"
-
-#. Alt text for the Lexbox logo image shown in the home screen app bar. "Lexbox" is a product name — do not translate.
-#: src/home/HomeView.svelte
-msgid "Lexbox logo"
-msgstr "Logo Lexbox"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
@@ -2613,10 +2743,15 @@ msgstr "Pilihan lain untuk {0}"
 msgid "morph type"
 msgstr "jenis morf"
 
-#: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
 #: src/lib/plugins/plugin-api-adapter.ts
+#: src/lib/views/entity-config.ts
+#: src/project/browse/SearchFilter.svelte
 msgid "Morph type"
 msgstr "Jenis morf"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Morph type: {0}"
+msgstr "Jenis morf: {0}"
 
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Morph types classify the morphological status of entries (e.g. "root", "stem", "bound stem").
 #: src/lib/activity/ChangeSummary.svelte
@@ -2877,11 +3012,6 @@ msgstr "Tidak ditemukan entri yang serupa"
 msgid "No similar words found"
 msgstr "Tidak ditemukan kata yang serupa"
 
-#. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
-#: src/project/tasks/SubjectPopup.svelte
-msgid "No subject, unable to create a new {0}"
-msgstr "Tidak ada subjek, tidak dapat membuat {0}baru"
-
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
 msgstr "Tidak ada sistem penulisan bahasa daerah yang dikonfigurasi."
@@ -2902,6 +3032,7 @@ msgstr "Tidak ada kata yang ditemukan"
 #. Selection option for optional fields
 #. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "None"
@@ -2945,6 +3076,11 @@ msgstr "Catatan"
 #: src/lib/components/ui/button/copy-button.svelte
 msgid "Nothing to copy"
 msgstr "Tidak ada yang perlu disalin"
+
+#. Short description under the field name in the Tasks list. Same in both views. Describes Part of speech (Lite) / Grammatical info. (Classic).
+#: src/project/tasks/tasks-service.ts
+msgid "Noun, verb and so on"
+msgstr "Kata benda, kata kerja, dan sebagainya"
 
 #. Under a change's headword in the activity view. # is the entry's current headword; shown when a later change renamed it
 #: src/lib/activity/ActivityChangeHeader.svelte
@@ -3095,6 +3231,11 @@ msgstr "Menonaktifkan fitur analitik"
 msgid "orange"
 msgstr "oranye"
 
+#. Group header in morph type lists for morph types that are not words and phrases, affixes, or clitics.
+#: src/project/data/morph-type-groups.ts
+msgid "Other"
+msgstr "Lain-lain"
+
 #: src/project/SyncDialog.svelte
 msgid "Other FieldWorks Lite users"
 msgstr "Pengguna FieldWorks Lite lainnya"
@@ -3191,6 +3332,16 @@ msgstr "Pilih informasi tata bahasa."
 msgid "Pick one or more Semantic domains"
 msgstr "Pilih satu atau lebih domain semantik"
 
+#. Placeholder beside the Tasks list until the user picks a field. Some fields then show their languages here, others start straight away.
+#: src/project/tasks/TaskList.svelte
+msgid "Pick what's missing to get started."
+msgstr "Pilih yang belum ada untuk memulai."
+
+#. Step in the "How tasks work" help card. "Gloss" and "Example sentence" are field names.
+#: src/project/tasks/TaskList.svelte
+msgid "Pick what's missing, like a Gloss or an Example sentence."
+msgstr "Pilih yang masih kurang, seperti penjelasan atau contoh kalimat."
+
 #. Three uses: (1) alt text for a picture image when no caption is available; (2) label on a currently-disabled "+ Picture" add button in the sense editor; (3) title for fullscreen picture viewer dialog
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 #: src/lib/entry-editor/field-editors/PictureViewerDialog.svelte
@@ -3267,6 +3418,7 @@ msgstr "Plugin ini ingin membuat {0}"
 msgid "plugins"
 msgstr "plugin"
 
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/project/ProjectSidebar.svelte
@@ -3343,6 +3495,10 @@ msgstr "Gambar sebelumnya"
 #: src/project/ProjectSidebar.svelte
 msgid "Privacy"
 msgstr "Privasi"
+
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Progress"
+msgstr "Kemajuan"
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -3421,6 +3577,11 @@ msgstr "Hanya baca: kamus Anda tidak dapat diubah"
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Reads the dictionary, never changes it"
 msgstr "Membaca kamus, tidak pernah mengubahnya"
+
+#. Heading above the tiles of recently opened tasks in the Tasks list.
+#: src/project/tasks/TaskList.svelte
+msgid "Recent"
+msgstr "Terbaru"
 
 #: src/lib/plugins/PluginsView.svelte
 msgid "Record & illustrate"
@@ -3662,6 +3823,11 @@ msgstr "Diperlukan"
 msgid "Reset"
 msgstr "Atur Ulang"
 
+#. Tooltip of the Reset button in the entry-list filter popover. Restores the filters the current view applies by default.
+#: src/project/browse/SearchFilter.svelte
+msgid "Reset to view defaults"
+msgstr "Atur ulang untuk menampilkan pengaturan default"
+
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
 #: src/lib/entry-editor/comments/CommentThread.svelte
@@ -3678,14 +3844,14 @@ msgstr "Mulai Ulang"
 msgid "Restore"
 msgstr "Mengembalikan"
 
-#. Button option
-#: src/project/tasks/DoneView.svelte
-msgid "Review"
-msgstr "Ulasan"
-
 #: src/lib/plugins/PluginsView.svelte
 msgid "Review & history"
 msgstr "Ulasan & sejarah"
+
+#. Button on the task-done screen; shows the entries the user just filled in.
+#: src/project/tasks/DoneView.svelte
+msgid "Review what you filled in"
+msgstr "Periksa kembali apa yang telah Anda isi"
 
 #. Color theme option
 #: src/lib/components/ThemePicker.svelte
@@ -3991,6 +4157,11 @@ msgstr "Tampilkan"
 msgid "Show {0} more..."
 msgstr "Tampilkan {0} selengkapnya..."
 
+#. Link-style button after the hint "This view shows only whole words and phrases." Removes the morph type filter.
+#: src/project/browse/SearchFilter.svelte
+msgid "Show all"
+msgstr "Tampilkan semua"
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "Show fewer examples"
 msgstr "Tampilkan lebih sedikit contoh"
@@ -4120,6 +4291,11 @@ msgstr "Mulailah percakapan"
 msgid "Start a conversation…"
 msgstr "Mulailah percakapan…"
 
+#. Screen-reader-only hint on Tasks list rows that open a task straight away (instead of showing a language list).
+#: src/project/tasks/TaskList.svelte
+msgid "Starts the task"
+msgstr "Memulai tugas"
+
 #. Filter operator
 #. Search operator: matches fields beginning with the search term
 #. Related operators: "Contains", "Ends with", "Equals"
@@ -4136,11 +4312,6 @@ msgstr "Masih membuka proyek..."
 #: src/lib/components/ThemePicker.svelte
 msgid "stone"
 msgstr "batu"
-
-#. Error message
-#: src/project/tasks/SubjectPopup.svelte
-msgid "Subject does not have suitable object of type: {0}"
-msgstr "Subjek tidak memiliki jenis objek yang sesuai: {0}"
 
 #. Button to confirm selection
 #: src/lib/components/SubmitOrCancel.svelte
@@ -4289,9 +4460,38 @@ msgstr "Sebaliknya, tampilan *FieldWorks Classic* dirancang untuk pengguna yang 
 msgid "The *FieldWorks Lite* view is designed for non-linguists and differs from the *FieldWorks Classic* view in the following ways:"
 msgstr "Tampilan *FieldWorks Lite* dirancang untuk non ahli bahasa dan berbeda dari tampilan *FieldWorks Classic* dengan beberapa cara berikut ini:"
 
+#. Relevant view: Classic
+#. Lite view equivalent: "The base form of the word"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "The base form of the entry"
+msgstr "Bentuk dasar entri tersebut"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "The base form of the entry"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "The base form of the word"
+msgstr "Bentuk dasar kata tersebut"
+
 #: src/project/sync/folder-sync-messages.ts
 msgid "The copy of {0} in this folder didn't come from the same original as the copy on this device, so the two can't be combined. Choose another folder."
 msgstr "Salinan berkas ` {0} ` di folder ini tidak berasal dari sumber yang sama dengan salinan yang ada di perangkat ini, sehingga keduanya tidak dapat digabungkan. Pilih folder lain."
+
+#. Relevant view: Classic
+#. Lite view equivalent: "The word's main form, for words that have none yet"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "The entry's main form, for entries that have none yet"
+msgstr "Formulir utama entri, untuk entri yang belum memiliki formulir tersebut"
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "The markers in \"{0}\" are for a custom morph type. FieldWorks Lite can't create those yet."
+msgstr "Penanda dalam \"{0}\" diperuntukkan bagi jenis morf khusus. FieldWorks Lite belum dapat membuat penanda tersebut."
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "The markers in \"{0}\" can't be used this way."
+msgstr "Penanda dalam \"{0}\" tidak dapat digunakan dengan cara ini."
 
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "The new version asks to change the dictionary"
@@ -4340,6 +4540,13 @@ msgstr "Versi sebelumnya tidak demikian. Jika Anda tidak meminta hal ini, mintal
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "The version before it worked offline. Online, a plugin can send this project's data to any website."
 msgstr "Versi sebelumnya dapat digunakan secara offline. Saat online, sebuah plugin dapat mengirimkan data proyek ini ke situs web mana pun."
+
+#. Relevant view: Lite
+#. Classic view equivalent: "The entry's main form, for entries that have none yet"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "The word's main form, for words that have none yet"
+msgstr "Bentuk dasar kata tersebut, untuk kata-kata yang belum memiliki bentuk dasar"
 
 #. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte
@@ -4463,6 +4670,7 @@ msgid "This removes the plugin for everyone on this project."
 msgstr "Tindakan ini akan menghapus plugin tersebut untuk semua orang yang terlibat dalam proyek ini."
 
 #. Status message
+#: src/project/tasks/DoneView.svelte
 #: src/project/tasks/TaskView.svelte
 msgid "This task is complete"
 msgstr "Tugas ini selesai"
@@ -4470,6 +4678,12 @@ msgstr "Tugas ini selesai"
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "This version"
 msgstr "Versi ini"
+
+#. Relevant view: Lite
+#. Hint under the morph type filter in the entry-list filter popover; a "Show all" button follows it.
+#: src/project/browse/SearchFilter.svelte
+msgid "This view shows only whole words and phrases."
+msgstr "Tampilan ini hanya menampilkan kata-kata dan frasa utuh."
 
 #. Description of sync operation
 #: src/project/sync/FwClassicSyncView.svelte
@@ -4492,6 +4706,20 @@ msgstr "Beralih filter"
 #: src/project/browse/EntryView.svelte
 msgid "Toggle pinned"
 msgstr "Beralih disematkan"
+
+#. Relevant view: Lite
+#. Classic view equivalent: "Topics the sense belongs to"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "Topics the meaning belongs to"
+msgstr "Topik-topik yang berkaitan dengan makna tersebut"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "Topics the meaning belongs to"
+#. Short description under the field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "Topics the sense belongs to"
+msgstr "Topik-topik yang berkaitan dengan pengertian tersebut"
 
 #: src/project/dashboard/DashboardView.svelte
 #: src/project/dashboard/DashboardView.svelte
@@ -4699,6 +4927,7 @@ msgstr "Perubahan yang belum disimpan"
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/diff-view/DiffAnchor.svelte
 #: src/lib/entry-editor/diff-view/DiffMultiSelect.svelte
 #: src/lib/entry-editor/diff-view/DiffSelect.svelte
@@ -4899,6 +5128,26 @@ msgstr "Di mana proyek saya?"
 msgid "Why is that?"
 msgstr "Mengapa demikian?"
 
+#. Option in the entry-list "Comments" filter: entries that have any comment threads.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With comments"
+msgstr "Dengan komentar"
+
+#. Placeholder of the entry-list "Comments" filter when no option is chosen, i.e. comments do not filter the list.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With or without comments"
+msgstr "Dengan atau tanpa komentar"
+
+#. Option in the entry-list "Comments" filter: entries with comments the user has not read.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unread comments"
+msgstr "Dengan komentar yang belum dibaca"
+
+#. Option in the entry-list "Comments" filter: entries with comment threads not yet marked resolved.
+#: src/project/browse/filter/CommentSelect.svelte
+msgid "With unresolved comments"
+msgstr "Dengan komentar yang belum diselesaikan"
+
 #. EntryView label for the current dictionary object when FieldWorks Lite is shown
 #: src/lib/activity/ChangeSummary.svelte
 #: src/project/browse/EntryView.svelte
@@ -4946,9 +5195,10 @@ msgstr "Kata atau makna:"
 msgid "words"
 msgstr "kata-kata"
 
-#: src/project/tasks/tasks-service.ts
-msgid "Words missing both Word and Display as"
-msgstr "Kata yang tidak memiliki Kata maupun Tampilkan sebagai"
+#. Group header in morph type lists: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
+#: src/project/data/morph-type-groups.ts
+msgid "Words and phrases"
+msgstr "Kata dan frasa"
 
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Works on phones"
@@ -4996,6 +5246,11 @@ msgstr "Sistem penulisan"
 msgid "Writing Systems"
 msgstr "Sistem Penulisan"
 
+#. Group heading in the Tasks list: tasks for typed (text) languages. Opposite of "Audio" (recorded languages).
+#: src/project/tasks/TaskList.svelte
+msgid "Written"
+msgstr "Ditulis"
+
 #: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
 msgid "Yes"
 msgstr "Ya"
@@ -5009,11 +5264,6 @@ msgstr "Sepertinya Anda sedang offline. Bisakah Anda mengakses {0}?"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "You are running the latest version."
 msgstr "Anda menjalankan versi terbaru."
-
-#. Success message with task and count
-#: src/project/tasks/DoneView.svelte
-msgid "You completed {0} {1}"
-msgstr "Anda telah menyelesaikan {0} {1}"
 
 #. Permission error
 #: src/home/Server.svelte
@@ -5030,6 +5280,20 @@ msgstr "Anda telah mengunduh proyek {0}"
 #: src/lib/plugins/PluginsView.svelte
 msgid "You view or edit the entry in FieldWorks Lite as usual"
 msgstr "Anda dapat melihat atau mengedit entri di FieldWorks Lite seperti biasa"
+
+#. Relevant view: Classic
+#. Lite view equivalent: "You'll see the words that need it, a few at a time. Fill them in or skip them."
+#. Step in the "How tasks work" help card.
+#: src/project/tasks/TaskList.svelte
+msgid "You'll see the entries that need it, a few at a time. Fill them in or skip them."
+msgstr "Anda akan melihat entri-entri yang perlu diisi, beberapa per kali. Silakan isi atau lewati saja."
+
+#. Relevant view: Lite
+#. Classic view equivalent: "You'll see the entries that need it, a few at a time. Fill them in or skip them."
+#. Step in the "How tasks work" help card.
+#: src/project/tasks/TaskList.svelte
+msgid "You'll see the words that need it, a few at a time. Fill them in or skip them."
+msgstr "Kamu akan melihat kata-kata yang perlu diisi, beberapa kata sekaligus. Isi saja atau lewati saja."
 
 #: src/lib/entry-editor/field-editors/PictureImage.svelte
 msgid "You're offline"
