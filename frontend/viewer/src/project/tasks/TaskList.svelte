@@ -57,7 +57,7 @@
   const fields = $derived.by(() => {
     const groups: Field[] = [];
     for (const task of tasksService.listTasks()) {
-      // The editors hide audio writing systems when the feature is off, so there'd be nothing to fill in.
+      // The editors hide audio writing systems when the feature is off.
       if (writingSystemOf(task)?.isAudio && !features.audio) continue;
       const key = fieldKey(task);
       let field = groups.find(f => f.key === key);
@@ -76,7 +76,7 @@
     return groups;
   });
 
-  // Meanings first: WeSay's common tasks lead, and word-level fields shouldn't take the top of the page.
+  // Meanings first: they hold the most common tasks.
   const entities = $derived((['sense', 'example', 'entry'] as const)
     .map(entity => ({entity, label: text(getEntityConfig(entity).$label), fields: fields.filter(f => f.entity === entity)}))
     .filter(group => group.fields.length > 0));
@@ -89,7 +89,7 @@
     return remaining(task) === 0;
   }
 
-  // With only one language there's nothing to choose, so the field's row starts the task itself.
+  // With one language there's nothing to choose, so the field's row starts the task.
   function directTask(field: Field): Task | undefined {
     return field.tasks.length === 1 ? field.tasks[0] : undefined;
   }
@@ -97,8 +97,7 @@
   const hasLanguageStep = $derived(fields.some(f => !directTask(f)));
   const drilledIn = $derived(IsMobile.value && !!pickedField);
   $effect(() => {
-    // A stale or hand-edited ?field= would otherwise linger in the URL. Only unknown keys: a field can
-    // briefly look single-language (no language step) while features load.
+    // Drop a stale ?field=. Only unknown keys: a field can look single-language while features load.
     if (fields.length && fieldParam.current && !fields.some(f => f.key === fieldParam.current)) fieldParam.set('', {replace: true});
   });
   const languageGroups = $derived.by(() => {
@@ -118,12 +117,12 @@
     .slice(0, 3));
 
   let helpOpen = $state(false);
-  // Only animate the help card for the user's own toggles, not when it first appears once storage loads.
-  let helpToggled = $state(false);
+  // Not when it first appears after storage loads.
+  let animateHelp = $state(false);
   const showHelp = $derived(helpOpen || (!projectStorage.tasksHelpDismissed.loading && !projectStorage.tasksHelpDismissed.current));
   function dismissHelp() {
     helpOpen = false;
-    helpToggled = true;
+    animateHelp = true;
     void projectStorage.tasksHelpDismissed.set('true');
   }
 
@@ -133,15 +132,15 @@
   }
 
   function openTask(task: Task, origin: TaskOrigin) {
-    // Once tasks have been used the card has done its job, and it would push Recent down.
+    // The card has done its job, and would push Recent down.
     if (!projectStorage.tasksHelpDismissed.current) dismissHelp();
     onSelect(task.id, origin);
   }
 
   function pickField(field: Field, event: MouseEvent) {
-    // Desktop just swaps the panel, so Back should leave the page rather than step through every field viewed.
+    // Desktop just swaps the panel, so Back shouldn't step through every field viewed.
     fieldParam.set(field.key, {replace: !IsMobile.value});
-    // event.detail is 0 for keyboard activation. Otherwise keyboard users tab past every remaining field to reach the languages.
+    // event.detail is 0 for keyboard activation; spare keyboard users tabbing past every field.
     if (!IsMobile.value && event.detail === 0) void tick().then(() => focusFirst('#task-languages-heading'));
   }
 
@@ -165,13 +164,13 @@
     void tick().then(() => focusFirst(key ? '#task-languages-heading' : `[data-field-key="${previousKey}"]`));
   }, {lazy: true});
 
-  // Level with the selected row so its pointer lands on the panel, but never past the list's end (that would stretch the page).
+  // Level with the selected row, but never past the list's end (that would stretch the page).
   let fieldColumn = $state<HTMLElement>();
   let panel = $state<HTMLElement>();
   let listHeight = $state(0);
   let panelHeight = $state(0);
   let panelOffset = $state(0);
-  // Heights are read directly, not from the bindings: those lag a frame behind a newly picked field.
+  // Heights are read directly: the bindings lag a frame behind a newly picked field.
   watch([() => pickedField?.key, () => listHeight, () => panelHeight], () => {
     const row = pickedField && fieldColumn?.querySelector(`[data-field-key="${pickedField.key}"]`);
     if (!row || !fieldColumn || !panel) return;
@@ -236,7 +235,7 @@
   <div class="flex max-w-[57.5rem] flex-col gap-8" bind:this={container}>
     <span id="task-starts-hint" hidden>{$t`Starts the task`}</span>
     {#if !drilledIn}
-      <Collapsible.Root open={showHelp} onOpenChange={open => open ? (helpOpen = helpToggled = true) : dismissHelp()}>
+      <Collapsible.Root open={showHelp} onOpenChange={open => open ? (helpOpen = animateHelp = true) : dismissHelp()}>
         <p class="text-muted-foreground">
           {$t`Fill in what's missing, a few at a time.`}
           <!-- Plain primary is too dark to read as text on the dark background. -->
@@ -246,8 +245,8 @@
             <i class="i-mdi-chevron-down size-4 transition-transform"></i>
           </Collapsible.Trigger>
         </p>
-        <!-- The gap lives inside the content so it animates with it; the padding keeps the card shadow from being clipped. -->
-        <Collapsible.Content id="tasks-help" class="-mx-1 overflow-hidden px-1 pb-1 {helpToggled ? '' : 'data-[state=open]:animate-none'}">
+        <!-- The gap (mt-4) is inside so it animates too; the padding keeps the card shadow unclipped. -->
+        <Collapsible.Content id="tasks-help" class="-mx-1 overflow-hidden px-1 pb-1 {animateHelp ? '' : 'data-[state=open]:animate-none'}">
           <Card.Root class="mt-4 py-4">
             <Card.Content class="flex flex-col items-start gap-3">
               <ol class="flex list-decimal flex-col gap-1 ps-5">
@@ -295,7 +294,7 @@
             {#each entities as {entity, label, fields: entityFields} (entity)}
               <div class="flex flex-col gap-2">
                 <h3 class="text-muted-foreground text-sm font-medium">{label}</h3>
-                <!-- Rounds the end rows instead of overflow-hidden, which would clip the selected row's pointer. -->
+                <!-- Not overflow-hidden: it would clip the selected row's pointer. -->
                 <ul class="flex flex-col divide-y rounded-lg border [&>li:first-child>button]:rounded-t-lg [&>li:last-child>button]:rounded-b-lg">
                   {#each entityFields as field (field.key)}
                     {@const done = field.tasks.every(isDone)}
@@ -315,7 +314,6 @@
                           <span class="font-medium">{field.label}</span>
                           {#if ws}<span class="text-sm">{@render wsName(ws)}</span>{/if}
                         </span>
-                        <!-- Muted grey is too light on the selected tint. -->
                         <span class="text-sm {selected ? 'text-foreground/75' : 'text-muted-foreground'}">{field.description}</span>
                         {#if direct && !done}
                           <span class="text-muted-foreground text-sm tabular-nums">{@render progress(direct)}</span>
@@ -325,7 +323,7 @@
                         {/snippet}
                       </ChoiceRow>
                       {#if selected && !IsMobile.value}
-                        <!-- Points at the language panel. Solid fill matching the row's translucent tint over the page. -->
+                        <!-- Points at the language panel. An opaque copy of the row's tint, since it overlaps the border. -->
                         <span aria-hidden="true"
                           class="absolute -end-2.5 top-1/2 size-5 -translate-y-1/2 rotate-45 border-t border-r bg-[color-mix(in_oklab,var(--primary)_15%,var(--background))] dark:bg-[color-mix(in_oklab,var(--primary)_25%,var(--background))] rtl:border-t-0 rtl:border-r-0 rtl:border-b rtl:border-l"></span>
                       {/if}
@@ -347,10 +345,8 @@
                 {#if drilledIn}
                   <Button variant="ghost" size="icon" class="shrink-0" icon="i-mdi-arrow-left" iconProps={{class: 'rtl:rotate-180'}} aria-label={$t`Back to all tasks`} onclick={() => fieldParam.current = ''} />
                 {/if}
-                <!-- pt-1.5 centers the heading's first line on the 36px icon button. -->
                 <div class="flex min-w-0 flex-wrap items-baseline gap-x-2 {drilledIn ? 'pt-1.5' : ''}">
                   <h3 id="task-languages-heading" tabindex="-1" class="text-base font-semibold outline-none">{pickedField.label}</h3>
-                  <!-- On desktop the selected row beside the panel already shows this. -->
                   {#if drilledIn}<p class="text-muted-foreground text-sm">{pickedField.description}</p>{/if}
                 </div>
               </div>
@@ -367,7 +363,6 @@
             </div>
           </div>
         {:else if hasLanguageStep && !IsMobile.value}
-          <!-- mt-7 = the first group heading plus its gap, so it starts level with the first row. -->
           <p class="text-muted-foreground mt-7 rounded-lg border border-dashed p-4 text-sm">
             {$t`Pick what's missing to get started.`}
           </p>

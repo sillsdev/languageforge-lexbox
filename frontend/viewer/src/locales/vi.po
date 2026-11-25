@@ -62,6 +62,10 @@ msgstr ""
 msgid "“{0}” will ask before making changes again."
 msgstr ""
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" will be saved as \"{1}\". Is there an extra \"{2}\"?"
+msgstr ""
+
 #. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
 #. Shown in place of the sense's number and gloss; "sense" is "meaning" in the Lite view
 #: src/lib/activity/ActivityItemChangePreview.svelte
@@ -156,6 +160,13 @@ msgstr ""
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
 msgstr "{0} MB"
+
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#: src/project/tasks/SubjectPopup.svelte
+#: src/project/tasks/SubjectPopup.svelte
+msgid "{0} of {1} done"
+msgstr ""
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
@@ -269,6 +280,10 @@ msgstr ""
 
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "3. Try it here"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "A circumfix is two parts with their markers and a space between them, like \"a- -b\"."
 msgstr ""
 
 #. Relevant view: Lite
@@ -543,8 +558,8 @@ msgstr ""
 msgid "Advanced: settings file"
 msgstr "Nâng cao: tệp cài đặt"
 
-#. Group header in the morph type filter list. Affixes are bound morphemes added to a stem (prefix, suffix, infix...).
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists. Affixes are bound morphemes added to a stem (prefix, suffix, infix...).
+#: src/project/data/morph-type-groups.ts
 msgid "Affixes"
 msgstr ""
 
@@ -758,7 +773,6 @@ msgstr ""
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
-#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/plugins/studio/StudioNotice.svelte
 msgid "Back to plugins"
@@ -911,6 +925,10 @@ msgstr ""
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "Thay đổi cùng một trường hai lần, ví dụ, có thể dẫn đến hai commit nhưng chỉ một thay đổi cần được áp dụng cho FieldWorks Classic. Commit cũng có thể gồm nhiều thay đổi."
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Check the markers in \"{0}\". Did you mean {1}?"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Checking for similar words…"
 #. Status line in the New Entry dialog while searching for possible duplicate entries
@@ -966,8 +984,8 @@ msgstr "xóa"
 msgid "Cleared {0}"
 msgstr ""
 
-#. Group header in the morph type filter list. Clitics are bound forms that act like words but attach phonologically to a neighbor (proclitic, enclitic).
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists. Clitics are bound forms that act like words but attach phonologically to a neighbor (proclitic, enclitic).
+#: src/project/data/morph-type-groups.ts
 msgid "Clitics"
 msgstr ""
 
@@ -1919,6 +1937,11 @@ msgstr "FieldWorks Lite thu thập dữ liệu sử dụng để giúp chúng t�
 msgid "FieldWorks Lite has been updated. Restart to finish installing."
 msgstr "FieldWorks Lite đã được cập nhật. Vui lòng khởi động lại để hoàn tất quá trình cài đặt."
 
+#: src/home/HomeView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+msgid "FieldWorks Lite logo"
+msgstr ""
+
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
@@ -1935,7 +1958,6 @@ msgstr "Phiên bản FieldWorks Lite"
 #: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
-#: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "Logo FieldWorks"
@@ -2095,6 +2117,10 @@ msgstr ""
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "Với các yêu cầu khác, vui lòng gửi email cho chúng tôi."
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "For morph type {0}, type \"{1}\"."
+msgstr ""
 
 #: src/home/OpenFromFolderItem.svelte
 msgid "From a USB drive or shared folder"
@@ -2406,11 +2432,6 @@ msgstr "Độ dài:"
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Let this version use the internet?"
 msgstr ""
-
-#. Alt text for the Lexbox logo image shown in the home screen app bar. "Lexbox" is a product name — do not translate.
-#: src/home/HomeView.svelte
-msgid "Lexbox logo"
-msgstr "Logo Lexbox"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
@@ -2727,10 +2748,14 @@ msgstr ""
 msgid "morph type"
 msgstr ""
 
-#: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
 #: src/lib/plugins/plugin-api-adapter.ts
+#: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Morph type"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Morph type: {0}"
 msgstr ""
 
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Morph types classify the morphological status of entries (e.g. "root", "stem", "bound stem").
@@ -2992,11 +3017,6 @@ msgstr "Không tìm thấy mục nào tương tự"
 msgid "No similar words found"
 msgstr "Không tìm thấy từ nào tương tự"
 
-#. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
-#: src/project/tasks/SubjectPopup.svelte
-msgid "No subject, unable to create a new {0}"
-msgstr "Không có chủ đề, không thể tạo mới {0}"
-
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
 msgstr "Chưa có hệ thống chữ viết bản địa nào được cấu hình."
@@ -3216,8 +3236,8 @@ msgstr "Từ chối tham gia phân tích"
 msgid "orange"
 msgstr "cam"
 
-#. Group header in the morph type filter list for morph types that are not words and phrases, affixes, or clitics.
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists for morph types that are not words and phrases, affixes, or clitics.
+#: src/project/data/morph-type-groups.ts
 msgid "Other"
 msgstr ""
 
@@ -3480,6 +3500,10 @@ msgstr "Hình trước"
 #: src/project/ProjectSidebar.svelte
 msgid "Privacy"
 msgstr "Quyền riêng tư"
+
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Progress"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -4300,11 +4324,6 @@ msgstr ""
 msgid "stone"
 msgstr "đá"
 
-#. Error message
-#: src/project/tasks/SubjectPopup.svelte
-msgid "Subject does not have suitable object of type: {0}"
-msgstr "Chủ đề không có đối tượng phù hợp loại: {0}"
-
 #. Button to confirm selection
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -4475,6 +4494,14 @@ msgstr ""
 #. Short description under the field name in the Tasks list.
 #: src/project/tasks/tasks-service.ts
 msgid "The entry's main form, for entries that have none yet"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "The markers in \"{0}\" are for a custom morph type. FieldWorks Lite can't create those yet."
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "The markers in \"{0}\" can't be used this way."
 msgstr ""
 
 #: src/lib/plugins/studio/panels/VersionReview.svelte
@@ -5189,8 +5216,8 @@ msgstr "Từ hoặc ý nghĩa:"
 msgid "words"
 msgstr ""
 
-#. Group header in the morph type filter list: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
+#: src/project/data/morph-type-groups.ts
 msgid "Words and phrases"
 msgstr ""
 

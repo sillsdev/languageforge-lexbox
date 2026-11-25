@@ -36,7 +36,7 @@ test('Lite morph type preset follows the view and Reset', async ({page}) => {
     await page.getByRole('button', {name: 'Show all'}).click();
     await morphTypeTrigger('Any morph type').click();
     await page.getByRole('option', {name: 'stem', exact: true}).click();
-    await expect(morphTypeTrigger('Affixes')).toBeVisible();
+    await expect(morphTypeTrigger('18 morph types')).toBeVisible();
 
     await page.getByRole('option', {name: 'Words and phrases'}).click();
     await expect(morphTypeTrigger('Any morph type')).toBeVisible();

@@ -62,6 +62,10 @@ msgstr ""
 msgid "“{0}” will ask before making changes again."
 msgstr ""
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "\"{0}\" will be saved as \"{1}\". Is there an extra \"{2}\"?"
+msgstr ""
+
 #. Muted note after a component's name in the activity view: the sense the complex form pointed at no longer exists
 #. Shown in place of the sense's number and gloss; "sense" is "meaning" in the Lite view
 #: src/lib/activity/ActivityItemChangePreview.svelte
@@ -156,6 +160,13 @@ msgstr ""
 #: src/lib/components/audio/audio-editor.svelte
 msgid "{0} MB"
 msgstr "{0} MB"
+
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#. Progress through a round of a task, e.g. "3 of 10 done". {0} = items filled in so far, {1} = items in the round.
+#: src/project/tasks/SubjectPopup.svelte
+#: src/project/tasks/SubjectPopup.svelte
+msgid "{0} of {1} done"
+msgstr ""
 
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "{0} replies"
@@ -269,6 +280,10 @@ msgstr ""
 
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "3. Try it here"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "A circumfix is two parts with their markers and a space between them, like \"a- -b\"."
 msgstr ""
 
 #. Relevant view: Lite
@@ -543,8 +558,8 @@ msgstr ""
 msgid "Advanced: settings file"
 msgstr "고급: 설정 파일"
 
-#. Group header in the morph type filter list. Affixes are bound morphemes added to a stem (prefix, suffix, infix...).
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists. Affixes are bound morphemes added to a stem (prefix, suffix, infix...).
+#: src/project/data/morph-type-groups.ts
 msgid "Affixes"
 msgstr ""
 
@@ -758,7 +773,6 @@ msgstr ""
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
-#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/plugins/studio/StudioNotice.svelte
 msgid "Back to plugins"
@@ -911,6 +925,10 @@ msgstr ""
 msgid "Changing the same field twice, for example, can result in two commits but only one change that needs to be applied to FieldWorks Classic. Commits can also consist of multiple changes."
 msgstr "예를 들어 동일한 필드를 두 번 변경하면 두 개의 커밋이 발생하지만 FieldWorks Classic에 적용해야 하는 변경 사항은 하나만 발생할 수 있습니다. 커밋은 여러 변경 사항으로 구성될 수도 있습니다."
 
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Check the markers in \"{0}\". Did you mean {1}?"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Checking for similar words…"
 #. Status line in the New Entry dialog while searching for possible duplicate entries
@@ -966,8 +984,8 @@ msgstr "clear"
 msgid "Cleared {0}"
 msgstr ""
 
-#. Group header in the morph type filter list. Clitics are bound forms that act like words but attach phonologically to a neighbor (proclitic, enclitic).
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists. Clitics are bound forms that act like words but attach phonologically to a neighbor (proclitic, enclitic).
+#: src/project/data/morph-type-groups.ts
 msgid "Clitics"
 msgstr ""
 
@@ -1919,6 +1937,11 @@ msgstr "FieldWorks Lite는 서비스 개선을 위해 사용 현황 데이터를
 msgid "FieldWorks Lite has been updated. Restart to finish installing."
 msgstr "FieldWorks Lite가 업데이트되었습니다. 설치를 완료하려면 다시 시작하십시오."
 
+#: src/home/HomeView.svelte
+#: src/project/sync/FwClassicSyncView.svelte
+msgid "FieldWorks Lite logo"
+msgstr ""
+
 #. Explanatory text in a popover on the sync panel. "FieldWorks Lite" and "FieldWorks Classic" are product names — do not translate.
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks Lite users will automatically receive changes that were made in FieldWorks Classic. FieldWorks Classic users will see changes that were made in FieldWorks Lite after they do Send/Receive."
@@ -1935,7 +1958,6 @@ msgstr "FieldWorks Lite 버전"
 #: src/lib/activity/AuthorLabel.svelte
 #: src/lib/components/OpenInFieldWorksButton.svelte
 #: src/project/ProjectDropdown.svelte
-#: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "FieldWorks logo"
 msgstr "FieldWorks 로고"
@@ -2095,6 +2117,10 @@ msgstr ""
 #: src/lib/about/FeedbackDialog.svelte
 msgid "For any other inquiries, feel free to send us an email."
 msgstr "기타 문의 사항이 있으시면 언제든지 이메일을 보내주세요."
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "For morph type {0}, type \"{1}\"."
+msgstr ""
 
 #: src/home/OpenFromFolderItem.svelte
 msgid "From a USB drive or shared folder"
@@ -2406,11 +2432,6 @@ msgstr "길이:"
 #: src/lib/plugins/studio/InternetPromptDialog.svelte
 msgid "Let this version use the internet?"
 msgstr ""
-
-#. Alt text for the Lexbox logo image shown in the home screen app bar. "Lexbox" is a product name — do not translate.
-#: src/home/HomeView.svelte
-msgid "Lexbox logo"
-msgstr "렉스박스 로고"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Word"
@@ -2727,10 +2748,14 @@ msgstr ""
 msgid "morph type"
 msgstr ""
 
-#: src/lib/entry-editor/diff-view/DiffEntryPrimitive.svelte
 #: src/lib/plugins/plugin-api-adapter.ts
+#: src/lib/views/entity-config.ts
 #: src/project/browse/SearchFilter.svelte
 msgid "Morph type"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "Morph type: {0}"
 msgstr ""
 
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Morph types classify the morphological status of entries (e.g. "root", "stem", "bound stem").
@@ -2992,11 +3017,6 @@ msgstr "유사한 항목이 없습니다."
 msgid "No similar words found"
 msgstr "유사한 단어가 없습니다."
 
-#. Error message in the task editing drawer when no subject entity can be found. {0} = subject type (e.g., "sense", "example-sentence").
-#: src/project/tasks/SubjectPopup.svelte
-msgid "No subject, unable to create a new {0}"
-msgstr "제목이 없습니다, 새로 만들 수 없습니다 {0}"
-
 #: src/project/dashboard/DashboardView.svelte
 msgid "No vernacular writing systems configured."
 msgstr "구성된 토착어 쓰기 시스템이 없습니다."
@@ -3216,8 +3236,8 @@ msgstr "분석 기능 사용 거부"
 msgid "orange"
 msgstr "오렌지"
 
-#. Group header in the morph type filter list for morph types that are not words and phrases, affixes, or clitics.
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists for morph types that are not words and phrases, affixes, or clitics.
+#: src/project/data/morph-type-groups.ts
 msgid "Other"
 msgstr ""
 
@@ -3480,6 +3500,10 @@ msgstr "이전 사진"
 #: src/project/ProjectSidebar.svelte
 msgid "Privacy"
 msgstr "개인정보 보호"
+
+#: src/project/tasks/SubjectPopup.svelte
+msgid "Progress"
+msgstr ""
 
 #. Label in project card
 #: src/home/HomeView.svelte
@@ -4300,11 +4324,6 @@ msgstr ""
 msgid "stone"
 msgstr "돌"
 
-#. Error message
-#: src/project/tasks/SubjectPopup.svelte
-msgid "Subject does not have suitable object of type: {0}"
-msgstr "제목에 적합한 객체 유형이 없습니다: {0}"
-
 #. Button to confirm selection
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -4475,6 +4494,14 @@ msgstr ""
 #. Short description under the field name in the Tasks list.
 #: src/project/tasks/tasks-service.ts
 msgid "The entry's main form, for entries that have none yet"
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "The markers in \"{0}\" are for a custom morph type. FieldWorks Lite can't create those yet."
+msgstr ""
+
+#: src/lib/entry-editor/NewEntryDialog.svelte
+msgid "The markers in \"{0}\" can't be used this way."
 msgstr ""
 
 #: src/lib/plugins/studio/panels/VersionReview.svelte
@@ -5189,8 +5216,8 @@ msgstr "단어 또는 의미:"
 msgid "words"
 msgstr ""
 
-#. Group header in the morph type filter list: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
-#: src/project/browse/filter/MorphTypeSelect.svelte
+#. Group header in morph type lists: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
+#: src/project/data/morph-type-groups.ts
 msgid "Words and phrases"
 msgstr ""
 

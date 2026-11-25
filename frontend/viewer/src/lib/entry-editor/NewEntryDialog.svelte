@@ -5,10 +5,10 @@
 </script>
 
 <script lang="ts">
-  import type {IEntry, ISense} from '$lib/dotnet-types';
+  import {ViewBase, type IEntry, type ISense, type MorphTypeKind} from '$lib/dotnet-types';
   import {createEntryOptions} from '$lib/create-entry-options';
-  import {untrack} from 'svelte';
-  import {t} from 'svelte-i18n-lingui';
+  import {tick, untrack} from 'svelte';
+  import {locale, t} from 'svelte-i18n-lingui';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
@@ -28,6 +28,11 @@
   import ObjectHeader from './object-editors/ObjectHeader.svelte';
   import SenseEditorPrimitive from './object-editors/SenseEditorPrimitive.svelte';
   import AddSenseButton from './object-editors/AddSenseButton.svelte';
+  import type {WsInputNote} from '$lib/components/field-editors';
+  import type {EntryFieldId} from '$lib/views/entity-config';
+  import {morphTypeLabel, useMorphTypesService} from '$project/data/morph-types.svelte';
+  import type {LexemeFormProblem} from '$project/data/morph-type-markers';
+  import {NewEntryMorphType} from './new-entry-morph-type.svelte';
 
   let open = $state(false);
   useBackHandler({addToStack: () => open, onBack: () => open = false, key: 'new-entry-dialog'});
@@ -40,6 +45,7 @@
   const writingSystemService = useWritingSystemService();
   const publicationService = usePublications();
   const dialogsService = useDialogsService();
+  const morphTypes = useMorphTypesService();
   dialogsService.invokeNewEntryDialog = openWithValue;
   const api = useMiniLcmApi();
   const saveHandler = useSaveHandler();
@@ -56,6 +62,53 @@
   });
 
   let editor = $state<Editor.Root>();
+  let dialogContent = $state<HTMLElement | null>(null);
+
+  const morphType = new NewEntryMorphType({
+    entry: () => entry,
+    vernacularWsIds: () => writingSystemService.vernacularNoAudio.map(ws => ws.wsId),
+    alwaysShowPicker: () => viewService.currentView.base === ViewBase.FieldWorks,
+    morphTypes,
+  });
+
+  function morphTypeName(kind: MorphTypeKind): string {
+    const type = morphTypes.byKind(kind);
+    return type ? morphTypeLabel(type, writingSystemService) : kind;
+  }
+  const morphTypeAnnouncement = $derived(morphType.announced ? $t`Morph type: ${morphTypeName(morphType.announced)}` : '');
+
+  function onEntryFieldChanged(_entry: IEntry, field: EntryFieldId) {
+    if (field === 'morphType') morphType.onPicked();
+  }
+
+  function toNote(wsId: string, problem: LexemeFormProblem): WsInputNote {
+    const form = entry.lexemeForm[wsId];
+    const stored = morphType.storedLexemeForm[wsId];
+    switch (problem.kind) {
+      case 'unsupportedMorphType':
+        return {message: $t`The markers in "${form}" are for a custom morph type. FieldWorks Lite can't create those yet.`, severity: 'error'};
+      case 'unmatchedMarkers': {
+        const options = new Intl.ListFormat($locale, {type: 'disjunction'}).format(problem.suggestions.map(s => `"${s}"`));
+        const message = problem.suggestions.length
+          ? $t`Check the markers in "${form}". Did you mean ${options}?`
+          : $t`The markers in "${form}" can't be used this way.`;
+        return {message, severity: 'error'};
+      }
+      case 'mismatch': {
+        const label = morphTypeName(entry.morphType);
+        const expected = morphTypes.decorate(stored, entry.morphType) ?? stored;
+        return {message: $t`For morph type ${label}, type "${expected}".`, severity: 'error'};
+      }
+      case 'incompleteCircumfix':
+        return {message: $t`A circumfix is two parts with their markers and a space between them, like "a- -b".`, severity: 'error'};
+      case 'leftoverMarker':
+        return {message: $t`"${form}" will be saved as "${stored}". Is there an extra "${problem.marker}"?`, severity: 'warning'};
+    }
+  }
+  const lexemeFormNotes = $derived(Object.fromEntries(Object.entries(morphType.shownProblems)
+    .map(([wsId, problem]) => [wsId, toNote(wsId, problem)])));
+
+  const storedEntry = $derived({...entry, lexemeForm: morphType.storedLexemeForm});
 
   async function createEntry(e: Event) {
     e.preventDefault();
@@ -68,13 +121,20 @@
     try {
       await editor?.commit();
       await addMainPublicationPromise; // make sure the main publication landed before we snapshot the entry
+      if (!morphTypes.current.length) await morphTypes.refetch(); // markers can't be checked without them
       entry.senses = sense ? [sense] : [];
-      if (!validateEntry()) return;
+      // Stop once to show what the pause would have (a warning, or the picker in Lite)
+      if (await morphType.settle() && !morphType.blocked) return;
+      if (!validateEntry()) {
+        await tick();
+        dialogContent?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+        return;
+      }
 
-      const entrySnapshot = $state.snapshot(entry);
+      const entrySnapshot = $state.snapshot(storedEntry);
       // The dialog pre-populates publishIn (main publication + any active filter), so always create the entry as-is.
       await saveHandler.handleSave(() => api.createEntry(entrySnapshot, createEntryOptions.asIs));
-      requester.resolve(entry);
+      requester.resolve(entrySnapshot);
       requester = undefined;
       open = false;
     } finally {
@@ -85,8 +145,9 @@
   let errors: string[] = $state([]);
   function validateEntry(): boolean {
     errors = [];
+    if (morphType.blocked) return false; // shown under the lexeme form
     // Allow entries with only an audio lexeme-form or citation-form to be created
-    if (!(writingSystemService.first(entry.lexemeForm) ?? writingSystemService.first(entry.citationForm))) {
+    if (!(writingSystemService.first(storedEntry.lexemeForm) ?? writingSystemService.first(entry.citationForm))) {
       errors.push(pt($t`Lexeme form or Citation form is required`, $t`Word or Display as is required`, viewService.currentView));
     }
     return errors.length === 0;
@@ -126,6 +187,7 @@
       const tmpEntry = defaultEntry();
       publishInIsFromTemplate = undefined;
       entry = {...tmpEntry, ...newEntry, senses: [], id: tmpEntry.id};
+      morphType.reset();
       addMainPublicationPromise = addMainPublication(entry.id);
       addSense();
 
@@ -184,7 +246,7 @@
 <Dialog.Root bind:open={open}>
   <!-- Fixed width (not min/max): the duplicate check adds and reshapes content while the
     dialog is open, and a content-sized dialog jumps around with every keystroke -->
-  <Dialog.DialogContent onkeydown={handleKeydown}
+  <Dialog.DialogContent bind:ref={dialogContent} onkeydown={handleKeydown}
     class="sm:min-h-[min(calc(100%-16px),30rem)] sm:w-[min(calc(100%-32px),50rem)] max-md:px-2">
     <Dialog.DialogHeader>
       <Dialog.DialogTitle>{pt($t`New Entry`, $t`New Word`, viewService.currentView)}</Dialog.DialogTitle>
@@ -192,8 +254,10 @@
     <!-- min-w-0: as a grid item this div defaults to min-width:auto, letting long duplicate
       headword lists widen the dialog instead of truncating -->
     <div class="min-w-0">
+      <span class="sr-only" aria-live="polite">{morphTypeAnnouncement}</span>
       <OverrideFields shownFields={[
         'lexemeForm', 'citationForm',
+        ...(morphType.showPicker ? ['morphType'] as const : []),
         'gloss', 'definition', 'partOfSpeechId',
         /* only show semantic domains and publications if the "template" set it */
         ...(entryTemplate?.publishIn?.length ? ['publishIn'] as const : []),
@@ -201,7 +265,8 @@
         ]}>
         <Editor.Root bind:this={editor}>
           <Editor.Grid>
-            <EntryEditorPrimitive bind:entry autofocus modalMode
+            <EntryEditorPrimitive bind:entry autofocus modalMode newEntry {lexemeFormNotes}
+              onchange={onEntryFieldChanged}
               publishInDescription={entryTemplate?.publishIn?.length ? publishInNote : undefined} />
             {#if sense}
               <Editor.SubGrid>
@@ -220,7 +285,7 @@
           </Editor.Grid>
         </Editor.Root>
       </OverrideFields>
-      <DuplicateCheckSection {entry} {sense}
+      <DuplicateCheckSection entry={storedEntry} {sense}
         onNavigateToEntry={() => open = false} />
     </div>
     {#if errors.length}

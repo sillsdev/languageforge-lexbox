@@ -3,7 +3,6 @@
   import type {Task} from './tasks-service';
   import ReviewList from './ReviewList.svelte';
   import {type TaskSubject} from './subject.svelte';
-  import {Icon} from '$lib/components/ui/icon';
   import {plural, t} from 'svelte-i18n-lingui';
   import {pt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
@@ -76,7 +75,7 @@
     <!-- Desktop: twice the space below as above, since truly centered content looks low. -->
     <div class="max-md:hidden md:grow"></div>
     <div class="flex flex-col items-center gap-2 p-4 text-center">
-      <Icon icon="i-mdi-check-circle-outline" class="text-primary size-12" />
+      <span aria-hidden="true" class="text-5xl">🎊</span>
       <!-- Focus the heading, not a button: the Enter that saved the last item would otherwise press it.
            One heading, so focus stays put when the counts arrive and the task turns out complete. -->
       <h2 tabindex="-1" {@attach el => el.focus()} class="text-xl font-semibold outline-none">

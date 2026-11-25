@@ -21,7 +21,8 @@
 
   let {
     entry = $bindable(),
-    progress = 0,
+    completed,
+    total,
     task,
     onNextEntry = () => {
     },
@@ -29,10 +30,10 @@
     }
   }: {
     entry?: IEntry,
-    //from 0 - 1
-    progress?: number,
+    completed: number,
+    total: number,
     task: Task,
-    onNextEntry?: () => void,
+    onNextEntry?: () => void | Promise<void>,
     onCompletedSubject?: (subject: TaskSubject) => void,
   } = $props();
   const viewService = useViewService();
@@ -52,14 +53,14 @@
   });
   $effect(() => {
     if (entry && subjects.length === 0) {
-      onNextEntry();
+      void onNextEntry();
     }
     subjectIndex = 0;
   });
 
   let editor = $state<Editor.Root>();
 
-  // Enter or Next again while a save is in flight would complete the same subject twice.
+  // Enter or Next again before the next subject shows would complete the same subject twice.
   let saving = false;
   async function onNext(skip: boolean = false) {
     if (saving) return;
@@ -95,7 +96,7 @@
     }
 
     if (subjectIndex + 1 >= subjects.length) {
-      onNextEntry();
+      await onNextEntry();
     } else {
       subjectIndex++;
     }
@@ -130,8 +131,9 @@
 <Drawer.Root bind:open={() => !!entry, open => {if (!open) entry = undefined;}}>
   <Drawer.Content class="mx-auto max-w-4xl">
     <XButton onclick={() => entry = undefined} class="absolute right-2 top-2 z-10" />
-    <Drawer.Header class="flex flex-nowrap items-center">
-      <Progress value={progress * 100} class="h-8" />
+    <Drawer.Header class="flex-row flex-nowrap items-center gap-3 pe-10">
+      <Progress value={completed} max={total} class="h-3 flex-1" aria-label={$t`Progress`} aria-valuetext={$t`${completed} of ${total} done`} />
+      <span class="text-sm text-muted-foreground tabular-nums whitespace-nowrap" aria-hidden="true">{$t`${completed} of ${total} done`}</span>
 <!--      <Drawer.Title class="text-3xl text-center">{entry ? writingSystemService.headword(entry) : ''}</Drawer.Title>-->
     </Drawer.Header>
     <div class="mx-2 md:mx-4 shadow-inner rounded-md p-4">
@@ -158,16 +160,12 @@
                     <SenseEditorPrimitive bind:sense={subject.sense}/>
                   {:else if task.subjectType === 'example-sentence' && subject.exampleSentence}
                     <ExampleEditorPrimitive bind:example={subject.exampleSentence}/>
-                  {:else}
-                    <p>{$t`Subject does not have suitable object of type: ${task.subjectType}`}</p>
                   {/if}
                 </OverrideFields>
               </Editor.Grid>
             </Editor.Root>
           </form>
         {/key}
-      {:else}
-        <p>{$t`No subject, unable to create a new ${task.subjectType}`}</p>
       {/if}
       <div class="flex flex-row gap-2 justify-end">
         <Drawer.Close>
