@@ -1,8 +1,6 @@
 <script lang="ts">
   import AppBar from './AppBar.svelte';
   import flexLogo from '$lib/assets/flex-logo.png';
-  import logoReversed from '$logos/fieldworks-lite/fieldworks-lite-tiny-reversed.svg';
-  import logo from '$logos/fieldworks-lite/fieldworks-lite-tiny.svg';
   import storybookIcon from '../stories/assets/storybook-icon.svg';
   import DevContent, {devModeToggle} from '$lib/layout/DevContent.svelte';
   import {
@@ -16,7 +14,7 @@
   import type {IProjectModel} from '$lib/dotnet-types';
   import ThemePicker from '$lib/components/ThemePicker.svelte';
   import {Button} from '$lib/components/ui/button';
-  import {mode} from 'mode-watcher';
+  import FwLiteLogo from '$lib/components/FwLiteLogo.svelte';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
   import {Icon} from '$lib/components/ui/icon';
   import ProjectListItem from './ProjectListItem.svelte';
@@ -116,7 +114,7 @@
 <AppBar tabTitle={$t`Dictionaries`}>
   {#snippet title()}
     <div class="text-lg flex gap-2 items-center">
-      <Icon {@attach devModeToggle} src={mode.current === 'dark' ? logoReversed : logo} class="size-8" alt={$t`FieldWorks Lite logo`}/>
+      <FwLiteLogo {@attach devModeToggle} class="size-8"/>
       <h3>{$t`Dictionaries`}</h3>
     </div>
   {/snippet}
@@ -194,11 +192,13 @@
                   <ResponsiveMenu.Trigger>
                     {#snippet child({props})}
                       <Anchor {...props} href={`/project/${project.code}`}>
-                        <ProjectListItem icon="i-mdi-book-edit-outline"
-                                         {project}
+                        <ProjectListItem {project}
                                          {loading}
                                          subtitle={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
                         >
+                          {#snippet icon()}
+                            <FwLiteLogo/>
+                          {/snippet}
                           {#snippet actions()}
                             <div class="flex items-center">
                               <Icon icon="i-mdi-chevron-right" class="p-2"/>

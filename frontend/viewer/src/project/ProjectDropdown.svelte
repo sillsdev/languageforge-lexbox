@@ -7,6 +7,7 @@
   import {t} from 'svelte-i18n-lingui';
   import {tick} from 'svelte';
   import flexLogo from '$lib/assets/flex-logo.png';
+  import FwLiteLogo from '$lib/components/FwLiteLogo.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
   import {resource} from 'runed';
   import type {IProjectModel} from '$lib/dotnet-types';
@@ -68,7 +69,7 @@
 
 {#snippet projectIcon(isCrdt: boolean)}
   {#if isCrdt}
-    <Icon icon="i-mdi-book-edit-outline" />
+    <FwLiteLogo />
   {:else}
     <Icon src={flexLogo} alt={$t`FieldWorks logo`} />
   {/if}

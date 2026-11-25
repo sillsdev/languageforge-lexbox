@@ -773,6 +773,7 @@ msgstr ""
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/plugins/studio/StudioNotice.svelte
 msgid "Back to plugins"
@@ -1937,8 +1938,7 @@ msgstr "FieldWorks Lite hukusanya data za matumizi ili kutusaidia kuiboresha."
 msgid "FieldWorks Lite has been updated. Restart to finish installing."
 msgstr "FieldWorks Lite imesasishwa. Anzisha upya ili kumaliza kusakinisha."
 
-#: src/home/HomeView.svelte
-#: src/project/sync/FwClassicSyncView.svelte
+#: src/lib/components/FwLiteLogo.svelte
 msgid "FieldWorks Lite logo"
 msgstr ""
 
