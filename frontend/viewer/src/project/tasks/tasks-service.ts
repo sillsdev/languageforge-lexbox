@@ -55,6 +55,12 @@ export class TasksService {
     ];
   }
 
+  /** The task for one field in one writing system, e.g. Lexeme form in French. Ignores combined tasks like Headword. */
+  public findTask(field: FieldId, wsId: string): Task | undefined {
+    return this.listTasks().find(task =>
+      task.subjectWritingSystemId === wsId && task.subjectFields.length === 1 && task.subjectFields[0] === field);
+  }
+
   public senseTasks() {
     subscribeLanguageChange();
     return TasksService.makeSenseTasks(this.writingSystemService.analysis);
