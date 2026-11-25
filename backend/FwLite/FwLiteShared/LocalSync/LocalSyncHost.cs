@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using FwLiteShared.Sync;
 using LcmCrdt;
+using LcmCrdt.Utils;
 using Microsoft.EntityFrameworkCore;
 using SIL.Harmony;
 using SIL.Harmony.Core;
@@ -47,6 +48,8 @@ public class LocalSyncHost(
         {
             var newCommits = await WithoutKnownCommits([.. commits]);
             if (newCommits.Length == 0) return;
+            // the joiner's Lexbox upload date isn't ours; keeping it would report a Lexbox sync this device never did
+            foreach (var commit in newCommits) commit.SetSyncDate(null);
             await ((ISyncable)dataModel).AddRangeFromSync(newCommits);
             var results = new SyncResults(newCommits, [], true);
             await syncResultsProcessor.ApplyCommentReadStatus(results);

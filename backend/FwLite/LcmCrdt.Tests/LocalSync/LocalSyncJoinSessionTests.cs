@@ -105,7 +105,6 @@ public class LocalSyncJoinSessionTests : IAsyncLifetime
         var rejected = await WaitFor(JoinSessionState.Rejected);
 
         rejected.Rejection.Should().Be(JoinRejection.Declined);
-        await Session.Leave();
         Network.Active.Should().BeFalse();
     }
 

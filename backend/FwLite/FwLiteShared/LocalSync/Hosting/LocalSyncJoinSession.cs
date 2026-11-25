@@ -107,13 +107,13 @@ public sealed class LocalSyncJoinSession(
         catch (Exception e)
         {
             logger.LogWarning(e, "Couldn't join the local sync host at {Host}", host);
-            Update(v => v with { State = JoinSessionState.Ended, Problem = LocalSyncProblem.HostUnreachable });
+            EndAttempt(cancellationToken, v => v with { State = JoinSessionState.Ended, Problem = LocalSyncProblem.HostUnreachable });
             return;
         }
 
         if (status.State != JoinState.Approved)
         {
-            Update(v => v with { State = JoinSessionState.Rejected, Rejection = status.Rejection });
+            EndAttempt(cancellationToken, v => v with { State = JoinSessionState.Rejected, Rejection = status.Rejection });
             return;
         }
         lock (_lock) _approved = status;
@@ -265,6 +265,18 @@ public sealed class LocalSyncJoinSession(
             _view = _view with { State = state, Problem = problem };
         }
         return Task.CompletedTask;
+    }
+
+    // Releases the network (on Android the app is bound to the host's offline Wi-Fi) unless a Leave or a new Join already took over
+    private void EndAttempt(CancellationToken attempt, Func<JoinSessionView, JoinSessionView> change)
+    {
+        lock (_lock)
+        {
+            if (_session?.Token != attempt) return;
+            _networkLease?.Dispose();
+            _networkLease = null;
+            _view = change(_view);
+        }
     }
 
     private void Update(Func<JoinSessionView, JoinSessionView> change)

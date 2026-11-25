@@ -1,5 +1,6 @@
 using FwLiteShared.Events;
 using FwLiteShared.LocalSync;
+using LcmCrdt.Data;
 using SIL.Harmony.Core;
 using static LcmCrdt.Tests.LocalSync.LocalSyncTestHelpers;
 
@@ -40,6 +41,18 @@ public class LocalSyncHostTests : IAsyncLifetime
 
         (await _joiner.Api.GetEntry(onHost.Id)).Should().NotBeNull();
         (await _host.Api.GetEntry(onJoiner.Id)).Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task CommitsFromAJoiner_DoNotLookUploadedToLexboxOnTheHost()
+    {
+        await _joiner.Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "banana" } });
+        // the joiner synced with Lexbox before joining, so its commits carry a Lexbox sync date
+        await _joiner.GetService<SyncRepository>().UpdateSyncDate(DateTimeOffset.UtcNow);
+
+        await _joiner.DataModel.SyncWith(HostWire());
+
+        (await _host.GetService<SyncRepository>().GetLatestSyncedCommitDate()).Should().BeNull("the host has never synced with Lexbox");
     }
 
     [Fact]
