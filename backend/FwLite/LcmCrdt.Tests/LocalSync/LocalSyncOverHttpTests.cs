@@ -89,6 +89,39 @@ public class LocalSyncOverHttpTests : IAsyncLifetime
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
+    [Theory]
+    [InlineData("changes")]
+    [InlineData("add")]
+    public async Task WritesAndChangeRequestsWithoutAToken_AreRefused(string route)
+    {
+        using var client = new HttpClient { BaseAddress = HostAddress };
+
+        HttpStatusCode? status;
+        try
+        {
+            using var response = await client.PostAsync($"/api/crdt/{ProjectId}/{route}",
+                new StringContent("[]", System.Text.Encoding.UTF8, "application/json"));
+            status = response.StatusCode;
+        }
+        catch (HttpRequestException)
+        {
+            // Watson resets the connection instead of sending the 401 when the handler leaves the body unread
+            status = null;
+        }
+
+        (status is null or HttpStatusCode.Unauthorized).Should().BeTrue($"the host answered {status}");
+    }
+
+    [Fact]
+    public async Task TheHostedProjectWithoutAToken_IsRefused()
+    {
+        using var client = new HttpClient { BaseAddress = HostAddress };
+
+        var response = await client.GetAsync(LocalSyncProtocol.ProjectPath);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
     [Fact]
     public async Task SyncRequestsWithAMadeUpToken_AreRefused()
     {

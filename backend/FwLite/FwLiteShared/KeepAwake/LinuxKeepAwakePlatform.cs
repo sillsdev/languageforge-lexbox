@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Versioning;
+using LexCore.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace FwLiteShared.KeepAwake;
@@ -33,7 +34,7 @@ internal sealed class LinuxKeepAwakePlatform(ILogger<LinuxKeepAwakePlatform> log
             if (inhibitor is not null && inhibitor.WaitForExit(TimeSpan.FromMilliseconds(300)))
             {
                 logger.LogWarning("systemd-inhibit refused to keep this computer awake for {WorkTitle}: {Error}",
-                    work.Title, inhibitor.StandardError.ReadToEnd().Trim());
+                    work.Title.SanitizeForLog(), inhibitor.StandardError.ReadToEnd().Trim().SanitizeForLog());
                 inhibitor.Dispose();
                 return;
             }
@@ -41,7 +42,7 @@ internal sealed class LinuxKeepAwakePlatform(ILogger<LinuxKeepAwakePlatform> log
         }
         catch (Win32Exception e)
         {
-            logger.LogWarning(e, "systemd-inhibit isn't available; this computer may sleep during {WorkTitle}", work.Title);
+            logger.LogWarning(e, "systemd-inhibit isn't available; this computer may sleep during {WorkTitle}", work.Title.SanitizeForLog());
         }
     }
 
