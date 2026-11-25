@@ -15,6 +15,7 @@
   import type {HTMLAttributes} from 'svelte/elements';
   import {useIdleService} from '$lib/services/idle-service';
   import {useFeatures} from '$lib/services/feature-service';
+  import {useProjectContext} from '$project/project-context.svelte';
   import MediaManagerView from '$lib/media-manager/MediaManagerView.svelte';
   import {onMount} from 'svelte';
   import {isFrameInThisDocument} from '$lib/utils/window-messages';
@@ -28,6 +29,7 @@
 
   initViewService();
   const features = useFeatures();
+  const projectContext = useProjectContext();
 
   // Load idle service into component context for inputs to use
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -64,7 +66,11 @@
         <BrowseView/>
       </Route>
       <Route path="/tasks">
-        <TasksView/>
+        {#if projectContext.featuresLoaded && !features.write}
+          {setTimeout(() => navigate(`${$base.uri}/browse`, {replace: true}))}
+        {:else}
+          <TasksView/>
+        {/if}
       </Route>
       <Route path="/dashboard">
         <DashboardView/>

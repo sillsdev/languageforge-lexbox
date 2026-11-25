@@ -80,3 +80,15 @@ test('tasks page: Back skips field picks on desktop but steps out of a field on 
     await expect(page.getByRole('heading', {name: 'All tasks'})).toBeVisible();
   });
 });
+
+test('read-only projects send /tasks to Browse and hide Tasks in the sidebar', async ({page}) => {
+  await page.goto(tasksUrl);
+  await expect(page.getByRole('heading', {name: 'All tasks'})).toBeVisible();
+
+  await page.evaluate(async () => {
+    await window.__PLAYWRIGHT_UTILS__.setWrite(false);
+  });
+  await expect(page).toHaveURL(/\/browse/);
+  await expect(page.getByRole('heading', {name: 'All tasks'})).toHaveCount(0);
+  await expect(page.getByRole('button', {name: 'Tasks', exact: true})).toHaveCount(0);
+});
