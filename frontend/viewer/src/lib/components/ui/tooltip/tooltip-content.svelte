@@ -10,6 +10,9 @@
     class: className,
     sideOffset = 0,
     side = 'top',
+    // bits-ui sends outside clicks only to the topmost layer, so an open tooltip
+    // would otherwise swallow the click that should close a popover underneath it
+    interactOutsideBehavior = 'defer-otherwise-close',
     children,
     arrowClasses,
     portalProps,
@@ -26,6 +29,7 @@
     data-slot="tooltip-content"
     {sideOffset}
     {side}
+    {interactOutsideBehavior}
     class={cn(
       'bg-foreground text-background animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-end-2 data-[side=right]:slide-in-from-start-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-fit origin-(--bits-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance',
       className,
