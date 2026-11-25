@@ -101,6 +101,7 @@ internal class DummyPlatformFeaturesService : IPlatformFeaturesService
     [JSInvokable]
     public Task<string?> SuggestedAuthorName() => Task.FromResult(OsUserName.Suggest());
 
+    [JSInvokable]
     public Task<bool> SupportsWifiSync() => Task.FromResult(false);
 
     [JSInvokable]
