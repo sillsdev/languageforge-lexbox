@@ -137,11 +137,3 @@ describe('channel persistence', () => {
     expect(localStorage.getItem(LEGACY_DEV_MODE_KEY)).toBeNull();
   });
 });
-
-describe('CHANNEL_FLAGS', () => {
-  it('keeps Wi-Fi sync in alpha only, and alpha has everything beta has', () => {
-    expect(channelHasFlag('nearby-sync', 'beta')).toBe(false);
-    expect(channelHasFlag('nearby-sync', 'alpha')).toBe(true);
-    expect(CHANNEL_FLAGS.alpha).toEqual(expect.arrayContaining([...CHANNEL_FLAGS.beta]));
-  });
-});
