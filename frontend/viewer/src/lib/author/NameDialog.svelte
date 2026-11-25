@@ -4,7 +4,6 @@
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import Input from '$lib/components/ui/input/input.svelte';
-  import Label from '$lib/components/ui/label/label.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
   import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
   import {useBackHandler} from '$lib/utils/back-handler.svelte';
@@ -59,19 +58,21 @@
     <form onsubmit={submit} class="contents">
       <Dialog.DialogHeader>
         <Dialog.DialogTitle>{$t`Your name`}</Dialog.DialogTitle>
-        <Dialog.DialogDescription>{$t`Shown next to your changes in all projects you don't sync with Lexbox.`}</Dialog.DialogDescription>
+        <Dialog.DialogDescription>{$t`This lets others see which changes you made.`}</Dialog.DialogDescription>
       </Dialog.DialogHeader>
-      <div class="flex flex-col gap-2">
-        <Label for="author-name">{$t`Name`}</Label>
+      <div class="flex flex-col gap-1.5">
         <Input id="author-name" bind:ref={input} bind:value={name} maxlength={60} autocomplete="name" autocapitalize="words"
-          onfocus={e => e.currentTarget.select()} autofocus
+          onfocus={e => e.currentTarget.select()} autofocus aria-label={$t`Your name`}
           aria-invalid={!!error} aria-describedby={error ? 'author-name-error' : undefined} />
         {#if error}
           <p id="author-name-error" class="text-destructive text-sm">{error}</p>
         {/if}
-        {#if changing}
-          <p class="text-sm text-muted-foreground">{$t`Changes you already made keep the old name.`}</p>
-        {/if}
+        <div class="text-sm text-muted-foreground">
+          <p>{$t`Projects that sync with Lexbox use your Lexbox account name instead.`}</p>
+          {#if changing}
+            <p>{$t`Changes you already made keep the old name.`}</p>
+          {/if}
+        </div>
         {#if fromMenu}
           <DevContent>
             <p class="text-sm text-muted-foreground">Dev mode: users only see this menu item once they've entered a name.</p>
