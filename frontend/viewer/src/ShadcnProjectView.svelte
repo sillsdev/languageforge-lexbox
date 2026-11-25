@@ -66,10 +66,10 @@
         <BrowseView/>
       </Route>
       <Route path="/tasks">
-        {#if projectContext.featuresLoaded && !features.write}
-          {setTimeout(() => navigate(`${$base.uri}/browse`, {replace: true}))}
-        {:else}
+        {#if features.write}
           <TasksView/>
+        {:else if projectContext.featuresLoaded}
+          {setTimeout(() => navigate(`${$base.uri}/browse`, {replace: true}))}
         {/if}
       </Route>
       <Route path="/dashboard">
