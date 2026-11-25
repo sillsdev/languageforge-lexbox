@@ -89,6 +89,7 @@
     }, 200),
     downloadProjectByCode: () => Promise.resolve(DownloadProjectByCodeResult.Success),
     createProject: () => Promise.resolve(),
+    uploadCrdtProject: () => Promise.resolve(),
     createDemoProject: () => Promise.resolve(),
     deleteProject: (code) => respond(() => {
       downloaded = downloaded.filter(p => p.code !== code);

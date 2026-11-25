@@ -103,6 +103,11 @@ msgstr "(Haijulikani)"
 msgid "{0}"
 msgstr "{0}"
 
+#. New Project author option: {0} is a Lexbox username, {1} is the server name (e.g. "lexbox.org")
+#: src/home/CreateProjectDialog.svelte
+msgid "{0} ({1})"
+msgstr ""
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "{0} (copy)"
 msgstr ""
@@ -120,6 +125,11 @@ msgstr "{0} (FieldWorks Lite)"
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
+
+#. New Project author option: {0} is the name the user typed on this device, as opposed to a Lexbox account
+#: src/home/CreateProjectDialog.svelte
+msgid "{0} (name only)"
+msgstr ""
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} activity types"
@@ -761,6 +771,7 @@ msgstr "Sauti ilihifadhiwa na kupakilizwa kwenye Lexbox"
 msgid "Audio saved locally"
 msgstr "Sauti ilihifadhiwa mahallini"
 
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"
 msgstr "Mwandishi"
@@ -901,6 +912,7 @@ msgstr ""
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 #: src/project/sync/FolderPicker.svelte
+#: src/project/sync/UploadToLexboxDialog.svelte
 msgid "Cancel"
 msgstr "Ghairi"
 
@@ -956,6 +968,10 @@ msgstr "Kubadilisha sehemu sawa mara mbili, kwa mfano, kunaweza kusababisha kumb
 
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Check the markers in \"{0}\". Did you mean {1}?"
+msgstr ""
+
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "Checking {0}..."
 msgstr ""
 
 #. Relevant view: Classic
@@ -1268,6 +1284,10 @@ msgstr "Tengeneza Ingizo"
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "Tengeneza Mradi wa Mfano"
+
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "Create the project on Lexbox"
+msgstr ""
 
 #. Submit button in the create custom view dialog.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
@@ -2627,6 +2647,10 @@ msgstr "Kwenye eneo na mbali"
 msgid "Local only"
 msgstr "Mitaa tu"
 
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "Log in to Lexbox first."
+msgstr ""
+
 #. Button label in the sync panel when the user is not logged in. Initiates authentication with the server.
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwLiteSyncView.svelte
@@ -3162,6 +3186,7 @@ msgstr ""
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
 #: src/project/sync/SyncMethodList.svelte
+#: src/project/sync/UploadToLexboxDialog.svelte
 msgid "Not logged in"
 msgstr "Haijaingia"
 
@@ -3628,6 +3653,10 @@ msgstr "Mradi {0} haipatikani kwenye {1}"
 #: src/home/Server.svelte
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Mradi {0} kwenye {1} haujajajengwa kwa FieldWorks Lite"
+
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "Project ID"
+msgstr ""
 
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Prompt options"
@@ -4209,6 +4238,10 @@ msgstr "Sentensi"
 msgid "Sentence is required"
 msgstr ""
 
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "Server"
+msgstr ""
+
 #. Activity-log line. {0} = field label; used when the new value is an audio recording (an audio marker chip follows instead of a text value). Compare "Set {0} to", which shows a text value chip.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Set {0}"
@@ -4679,6 +4712,10 @@ msgstr ""
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr ""
 
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "The project exists on {0}. Ready to upload."
+msgstr ""
+
 #: src/project/sync/folder-sync-messages.ts
 msgid "The project in this folder uses different writing systems ({0}) from the copy on this device ({1}), so the two can't be synced. Choose another folder, or compare the writing systems in each copy."
 msgstr ""
@@ -4714,6 +4751,10 @@ msgstr ""
 #. Short description under the field name in the Tasks list.
 #: src/project/tasks/tasks-service.ts
 msgid "The word's main form, for words that have none yet"
+msgstr ""
+
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "There is no project with this ID on {0} yet. Create it, then come back here and upload."
 msgstr ""
 
 #. Error message when changes are pending upload
@@ -4988,6 +5029,11 @@ msgstr "Andika fomu ya leksemu"
 msgid "Type a Lexeme form or Citation form"
 msgstr "Andika fomu ya leksemu au fomu ya nukuu"
 
+#. New Project author option: credit changes to a typed name instead of a Lexbox account
+#: src/home/CreateProjectDialog.svelte
+msgid "Type a name instead"
+msgstr ""
+
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Word"
 msgstr "Andika neno"
@@ -5165,6 +5211,10 @@ msgstr ""
 msgid "Updates"
 msgstr "Masasisho"
 
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "Upload"
+msgstr ""
+
 #: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Upload file"
 msgstr ""
@@ -5172,6 +5222,14 @@ msgstr ""
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Upload pending"
 msgstr "Upakiaji unasubiri"
+
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "Upload to Lexbox"
+msgstr ""
+
+#: src/project/sync/FwLiteSyncView.svelte
+msgid "Upload to Lexbox..."
+msgstr ""
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Uploaded"

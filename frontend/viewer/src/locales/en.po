@@ -98,6 +98,11 @@ msgstr "(unknown)"
 msgid "{0}"
 msgstr "{0}"
 
+#. New Project author option: {0} is a Lexbox username, {1} is the server name (e.g. "lexbox.org")
+#: src/home/CreateProjectDialog.svelte
+msgid "{0} ({1})"
+msgstr "{0} ({1})"
+
 #: src/lib/plugins/PluginsView.svelte
 msgid "{0} (copy)"
 msgstr "{0} (copy)"
@@ -115,6 +120,11 @@ msgstr "{0} (FieldWorks Lite)"
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
+
+#. New Project author option: {0} is the name the user typed on this device, as opposed to a Lexbox account
+#: src/home/CreateProjectDialog.svelte
+msgid "{0} (name only)"
+msgstr "{0} (name only)"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} activity types"
@@ -756,6 +766,7 @@ msgstr "Audio saved and uploaded to Lexbox"
 msgid "Audio saved locally"
 msgstr "Audio saved locally"
 
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"
 msgstr "Author"
@@ -896,6 +907,7 @@ msgstr "Can't reach the other device. Check that you're on its Wi-Fi network. Re
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 #: src/project/sync/FolderPicker.svelte
+#: src/project/sync/UploadToLexboxDialog.svelte
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -952,6 +964,10 @@ msgstr "Changing the same field twice, for example, can result in two commits bu
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Check the markers in \"{0}\". Did you mean {1}?"
 msgstr "Check the markers in \"{0}\". Did you mean {1}?"
+
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "Checking {0}..."
+msgstr "Checking {0}..."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Checking for similar words…"
@@ -1263,6 +1279,10 @@ msgstr "Create Entry"
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "Create Example Project"
+
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "Create the project on Lexbox"
+msgstr "Create the project on Lexbox"
 
 #. Submit button in the create custom view dialog.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
@@ -2622,6 +2642,10 @@ msgstr "Local and remote"
 msgid "Local only"
 msgstr "Local only"
 
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "Log in to Lexbox first."
+msgstr "Log in to Lexbox first."
+
 #. Button label in the sync panel when the user is not logged in. Initiates authentication with the server.
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwLiteSyncView.svelte
@@ -3157,6 +3181,7 @@ msgstr "Not in this project. Try one on your data, then add it or make it your o
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
 #: src/project/sync/SyncMethodList.svelte
+#: src/project/sync/UploadToLexboxDialog.svelte
 msgid "Not logged in"
 msgstr "Not logged in"
 
@@ -3623,6 +3648,10 @@ msgstr "Project {0} not found on {1}"
 #: src/home/Server.svelte
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Project {0} on {1} is not yet set up for FieldWorks Lite"
+
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "Project ID"
+msgstr "Project ID"
 
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Prompt options"
@@ -4204,6 +4233,10 @@ msgstr "Sentence"
 msgid "Sentence is required"
 msgstr "Sentence is required"
 
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "Server"
+msgstr "Server"
+
 #. Activity-log line. {0} = field label; used when the new value is an audio recording (an audio marker chip follows instead of a text value). Compare "Set {0} to", which shows a text value chip.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Set {0}"
@@ -4674,6 +4707,10 @@ msgstr "The other device's copy of this project shares no writing system with yo
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr "The plugin “{0}” is asking to make this change to your dictionary:"
 
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "The project exists on {0}. Ready to upload."
+msgstr "The project exists on {0}. Ready to upload."
+
 #: src/project/sync/folder-sync-messages.ts
 msgid "The project in this folder uses different writing systems ({0}) from the copy on this device ({1}), so the two can't be synced. Choose another folder, or compare the writing systems in each copy."
 msgstr "The project in this folder uses different writing systems ({0}) from the copy on this device ({1}), so the two can't be synced. Choose another folder, or compare the writing systems in each copy."
@@ -4710,6 +4747,10 @@ msgstr "The version before it worked offline. Online, a plugin can send this pro
 #: src/project/tasks/tasks-service.ts
 msgid "The word's main form, for words that have none yet"
 msgstr "The word's main form, for words that have none yet"
+
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "There is no project with this ID on {0} yet. Create it, then come back here and upload."
+msgstr "There is no project with this ID on {0} yet. Create it, then come back here and upload."
 
 #. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte
@@ -4983,6 +5024,11 @@ msgstr "Type a Lexeme form"
 msgid "Type a Lexeme form or Citation form"
 msgstr "Type a Lexeme form or Citation form"
 
+#. New Project author option: credit changes to a typed name instead of a Lexbox account
+#: src/home/CreateProjectDialog.svelte
+msgid "Type a name instead"
+msgstr "Type a name instead"
+
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Word"
 msgstr "Type a Word"
@@ -5160,6 +5206,10 @@ msgstr "Updated picture"
 msgid "Updates"
 msgstr "Updates"
 
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "Upload"
+msgstr "Upload"
+
 #: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Upload file"
 msgstr "Upload file"
@@ -5167,6 +5217,14 @@ msgstr "Upload file"
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Upload pending"
 msgstr "Upload pending"
+
+#: src/project/sync/UploadToLexboxDialog.svelte
+msgid "Upload to Lexbox"
+msgstr "Upload to Lexbox"
+
+#: src/project/sync/FwLiteSyncView.svelte
+msgid "Upload to Lexbox..."
+msgstr "Upload to Lexbox..."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Uploaded"
