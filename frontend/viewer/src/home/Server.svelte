@@ -45,7 +45,8 @@
   let downloading = $state('');
 
   async function downloadCrdtProject(project: IProjectModel) {
-    if (downloading === project.code) return;
+    // rows stay visible while reloading, but may be stale (e.g. just logged out)
+    if (loading || downloading === project.code) return;
 
     downloading = project.code;
     try {
