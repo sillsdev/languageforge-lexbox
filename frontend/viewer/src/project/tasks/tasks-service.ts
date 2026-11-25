@@ -64,6 +64,7 @@ export class TasksService {
     for (const writingSystem of analysis) {
       const taskSenseGloss: Task = {
         id: `sense-no-gloss-${writingSystem.wsId}`,
+        description: vt(msg`A short translation of the sense`, msg`A short translation of the meaning`),
         contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
         subject: gt`Missing Gloss ${writingSystem.abbreviation}`,
         subjectType: 'sense',
@@ -79,6 +80,7 @@ export class TasksService {
       yield taskSenseGloss;
       const taskSenseDefinition: Task = {
         id: `sense-no-definition-${writingSystem.wsId}`,
+        description: vt(msg`A full explanation of the sense`, msg`A full explanation of the meaning`),
         contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
         subject: gt`Missing Definition ${writingSystem.abbreviation}`,
         subjectType: 'sense',
@@ -95,6 +97,7 @@ export class TasksService {
     }
     const taskMissingPartOfSpeech: Task = {
       id: 'missing-part-of-speech',
+      description: msg`Noun, verb and so on`,
       contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
       subject: vt(gt`Missing Grammatical info.`, gt`Missing Part of speech`),
       subjectType: 'sense',
@@ -108,6 +111,7 @@ export class TasksService {
     yield taskMissingPartOfSpeech;
     const taskMissingSemanticDomain: Task = {
       id: 'missing-semantic-domain',
+      description: vt(msg`Topics the sense belongs to`, msg`Topics the meaning belongs to`),
       contextFields: ['gloss', 'definition', 'lexemeForm', 'citationForm'],
       subject: gt`Missing Semantic domains`,
       subjectType: 'sense',
@@ -131,7 +135,7 @@ export class TasksService {
       const taskHeadword: Task = {
         id: `entry-no-headword-${writingSystem.wsId}`,
         fieldLabel: msg`Headword`,
-        description: vt(msg`Entries missing both Lexeme form and Citation form`, msg`Words missing both Word and Display as`),
+        description: vt(msg`The entry's main form, for entries that have none yet`, msg`The word's main form, for words that have none yet`),
         contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
         subject: gt`Missing Headword ${writingSystem.abbreviation}`,
         subjectType: 'entry',
@@ -149,6 +153,7 @@ export class TasksService {
       yield taskHeadword;
       const taskLexemeForm: Task = {
         id: `entry-no-lexeme-form-${writingSystem.wsId}`,
+        description: vt(msg`The base form of the entry`, msg`The base form of the word`),
         contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
         subject: vt(gt`Missing Lexeme form ${writingSystem.abbreviation}`, gt`Missing Word ${writingSystem.abbreviation}`),
         subjectType: 'entry',
@@ -166,6 +171,7 @@ export class TasksService {
       yield taskLexemeForm;
       const taskCitationForm: Task = {
         id: `entry-no-citation-form-${writingSystem.wsId}`,
+        description: vt(msg`How the entry is shown in the dictionary`, msg`How the word is shown in the dictionary`),
         contextFields: ['lexemeForm', 'citationForm', 'gloss', 'definition'],
         subject: vt(gt`Missing Citation form ${writingSystem.abbreviation}`, gt`Missing Display as ${writingSystem.abbreviation}`),
         subjectType: 'entry',
@@ -193,6 +199,7 @@ export class TasksService {
     for (const writingSystem of vernacular) {
       const taskExample: Task = {
         id: `example-sentence-${writingSystem.wsId}`,
+        description: vt(msg`A sentence that uses the entry`, msg`A sentence that uses the word`),
         fieldLabel: msg`Example sentence`,
         contextFields: ['gloss', 'definition'],
         subject: gt`Missing Example sentence ${writingSystem.abbreviation}`,

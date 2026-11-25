@@ -8,5 +8,5 @@ Path=APPDIR/
 Keywords=FieldWorks;lexbox;language forge;sfm;fw-lite;fw lite;
 Categories=Utility;
 Terminal=true
-Icon=APPDIR/wwwroot/_content/FwLiteShared/viewer/logo-dark.svg
+Icon=APPDIR/fieldworks-lite.svg
 X-Desktop-File-Install-Version=0.27

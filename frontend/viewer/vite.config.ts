@@ -1,5 +1,6 @@
+import path from 'node:path';
 import basicSsl from '@vitejs/plugin-basic-ssl';
-import {defineConfig} from 'vite';
+import {defineConfig, searchForWorkspaceRoot} from 'vite';
 import {lingui} from '@lingui/vite-plugin';
 import {svelte} from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
@@ -41,7 +42,8 @@ export default defineConfig(({command}) => ({
   resolve: {
       alias: [
         {find: "$lib", replacement: "/src/lib"},
-        {find: "$project", replacement: "/src/project"}
+        {find: "$project", replacement: "/src/project"},
+        {find: "$logos", replacement: path.resolve(import.meta.dirname, '../../logos')},
       ]
     },
   plugins: [
@@ -61,6 +63,9 @@ export default defineConfig(({command}) => ({
       host: true,
       allowedHosts: true,
       cors: true,
+      fs: {
+        allow: [searchForWorkspaceRoot(process.cwd()), '../../logos'],
+      },
       watch: {
         // Reinforced.Typings writes generated types atomically (*.ts.tmp -> rename) when the
         // backend builds; watching those transient temp files races and throws EBUSY on Windows.

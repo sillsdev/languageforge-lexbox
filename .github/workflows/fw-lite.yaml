@@ -23,6 +23,7 @@ on:
       - 'backend/Directory.Packages.props'
       - 'backend/Harmony*.props'
       - 'frontend/viewer/**'
+      - 'logos/fieldworks-lite/**'
       - 'platform.bible-extension/**'
       - '.github/workflows/fw-lite.yaml'
       - '.github/actions/setup-k8s/**'
