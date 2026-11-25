@@ -7,6 +7,14 @@
   const labelledBy = tryUseFieldBody()?.labelId;
 
   const {children, ...badgeProps}: ComponentProps<typeof BadgeList> & {children?: Snippet} = $props();
+
+  // Not a real input, so Ctrl+A would select the whole page.
+  function selectAllWithin(event: KeyboardEvent & {currentTarget: HTMLElement}) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
+      event.preventDefault();
+      getSelection()?.selectAllChildren(event.currentTarget);
+    }
+  }
 </script>
 
 <div
@@ -14,6 +22,7 @@
   aria-readonly="true"
   aria-labelledby={labelledBy}
   tabindex="0"
+  onkeydown={selectAllWithin}
   class={[inputVariants(), 'h-auto min-h-10 items-center']}
 >
   {#if children}
