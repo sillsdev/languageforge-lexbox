@@ -20,18 +20,24 @@ public class AppUpdateService(ILogger<AppUpdateService> logger, GlobalEventBus e
 
     public void Initialize(IServiceProvider services)
     {
-        ToastNotificationManagerCompat.OnActivated += toastArgs =>
+        //subscribing registers the toast COM server (~125 ms), which shouldn't hold up the first window
+        _ = Task.Run(() =>
         {
-            ToastArguments args = ToastArguments.Parse(toastArgs.Argument);
-            args.TryGetValue(ActionKey, out var action);
-            args.TryGetValue(NotificationIdKey, out var notificationId);
-            HandleNotificationAction(action, notificationId, args);
-        };
-        if (ToastNotificationManagerCompat.WasCurrentProcessToastActivated())
-        {
-            //don't check for updates if the user already clicked on a notification
-            return;
-        }
+            try
+            {
+                ToastNotificationManagerCompat.OnActivated += toastArgs =>
+                {
+                    ToastArguments args = ToastArguments.Parse(toastArgs.Argument);
+                    args.TryGetValue(ActionKey, out var action);
+                    args.TryGetValue(NotificationIdKey, out var notificationId);
+                    HandleNotificationAction(action, notificationId, args);
+                };
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Failed to listen for toast notification clicks");
+            }
+        });
     }
 
     private async Task Test()

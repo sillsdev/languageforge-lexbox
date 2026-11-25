@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>FwLiteMaui</title>
     <base href="/" />
+    <!-- SvelteLayout imports these once Blazor has started; fetching and compiling them meanwhile saves that time -->
+    <link rel="modulepreload" href="_content/FwLiteShared/viewer/main.js" />
+    <link rel="preload" href="_content/FwLiteShared/viewer/main.css" as="style" />
 </head>
 
 <body>

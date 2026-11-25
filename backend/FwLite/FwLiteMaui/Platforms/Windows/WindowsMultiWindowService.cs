@@ -8,6 +8,7 @@ public class WindowsMultiWindowService(IApplication app, IServiceProvider servic
     [JSInvokable]
     public void OpenNewWindow(string? url = null, int? width = null)
     {
+        StartupTiming.Mark("New window requested");
         var mainPage = services.GetRequiredService<MainPage>();
         if (url is not null) mainPage.StartPath = url;
         app.OpenWindow(App.CreateWindow(mainPage, width));

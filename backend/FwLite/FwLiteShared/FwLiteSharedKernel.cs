@@ -65,6 +65,7 @@ public static class FwLiteSharedKernel
         services.AddSingleton<FolderProjectOpener>();
         services.AddSingleton<ILocalAuthorProvider, PreferencesLocalAuthorProvider>();
         services.AddScoped<ProjectServicesProvider>();
+        services.AddSingleton<StartupProjectWarmup>();
         services.AddScoped<IServerHttpClientProvider, LexboxOauthServerClientProvider>();
         services.AddSingleton<LexboxProjectChangeListener>();
         services.AddSingleton<LexboxProjectService>();
