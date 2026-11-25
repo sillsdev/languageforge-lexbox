@@ -242,9 +242,7 @@ export class TasksService {
         subjectWritingSystemType: writingSystem.type,
         // translations stay in the view's analysis writing systems
         overrides: {vernacular: [{wsId: writingSystem.wsId}]},
-        prompt: writingSystem.isAudio
-          ? gt`Record an example sentence, and type a translation if you can`
-          : gt`Type an example sentence, and a translation if you can`,
+        prompt: writingSystem.isAudio ? gt`Record an Example sentence` : gt`Type an Example sentence`,
         taskKind: 'provide-missing',
         gridifyFilter: `Senses.ExampleSentences=null|Senses.ExampleSentences.Sentence[${writingSystem.wsId}]=`,
         getSubjectValue: s => TasksService.getSubjectValue(taskExample, s),
@@ -268,7 +266,7 @@ export class TasksService {
         subjectFields: ['translations'],
         subjectWritingSystemId: writingSystem.wsId,
         subjectWritingSystemType: writingSystem.type,
-        prompt: writingSystem.isAudio ? gt`Record a translation of the example sentence` : gt`Translate the example sentence`,
+        prompt: writingSystem.isAudio ? gt`Record a Translation of the Example sentence` : gt`Translate the Example sentence`,
         taskKind: 'provide-missing',
         // the two conditions can match different examples of one entry; rare enough to accept
         gridifyFilter: [hasSentence, `Senses.ExampleSentences.Translations.Text[${writingSystem.wsId}]=`].filter(Boolean).join(', '),

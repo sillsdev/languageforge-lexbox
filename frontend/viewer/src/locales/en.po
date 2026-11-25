@@ -2683,6 +2683,7 @@ msgstr "Missing Part of speech"
 msgid "Missing Semantic domains"
 msgstr "Missing Semantic domains"
 
+#. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies example sentences lacking a translation in that writing system.
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Translation {0}"
 msgstr "Missing Translation {0}"
@@ -3011,6 +3012,7 @@ msgstr "No words found"
 #. Selection option for optional fields
 #. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "None"
@@ -3581,17 +3583,19 @@ msgstr "Record a Lexeme form"
 msgid "Record a Lexeme form or Citation form"
 msgstr "Record a Lexeme form or Citation form"
 
+#. Task instruction for an audio writing system: record a spoken translation of the highlighted sentence.
 #: src/project/tasks/tasks-service.ts
-msgid "Record a translation of the example sentence"
-msgstr "Record a translation of the example sentence"
+msgid "Record a Translation of the Example sentence"
+msgstr "Record a Translation of the Example sentence"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Word"
 msgstr "Record a Word"
 
+#. Task instruction for an audio writing system: record the sentence with the microphone.
 #: src/project/tasks/tasks-service.ts
-msgid "Record an example sentence, and type a translation if you can"
-msgstr "Record an example sentence, and type a translation if you can"
+msgid "Record an Example sentence"
+msgstr "Record an Example sentence"
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Display as"
@@ -4702,9 +4706,10 @@ msgstr "Topics the sense belongs to"
 msgid "Total entries"
 msgstr "Total entries"
 
+#. Task instruction. The sentence to translate is highlighted in the entry shown above it.
 #: src/project/tasks/tasks-service.ts
-msgid "Translate the example sentence"
-msgstr "Translate the example sentence"
+msgid "Translate the Example sentence"
+msgstr "Translate the Example sentence"
 
 #. Standalone noun used as {0} in activity-log strings (e.g. "Added translation"). Refers to one of an example sentence's free translations.
 #: src/lib/activity/ChangeSummary.svelte
@@ -4790,9 +4795,10 @@ msgstr "Type a Lexeme form or Citation form"
 msgid "Type a Word"
 msgstr "Type a Word"
 
+#. Task instruction
 #: src/project/tasks/tasks-service.ts
-msgid "Type an example sentence, and a translation if you can"
-msgstr "Type an example sentence, and a translation if you can"
+msgid "Type an Example sentence"
+msgstr "Type an Example sentence"
 
 #. Label for audio file type
 #: src/lib/components/audio/audio-editor.svelte
@@ -4903,6 +4909,7 @@ msgstr "Unsaved changes"
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/diff-view/DiffAnchor.svelte
@@ -5090,6 +5097,7 @@ msgstr "What can a plugin do?"
 msgid "What it asks for"
 msgstr "What it asks for"
 
+#. Short description under the Translation field name in the Tasks list.
 #: src/project/tasks/tasks-service.ts
 msgid "What the example sentence means"
 msgstr "What the example sentence means"

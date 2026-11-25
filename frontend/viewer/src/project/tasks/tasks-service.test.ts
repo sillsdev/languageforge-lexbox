@@ -374,12 +374,12 @@ describe('tasks service', () => {
 
       it('example sentence task says "Record" for an audio writing system', () => {
         const [task] = [...TasksService.makeExampleSentenceTasks([audioWs])];
-        expect(task.prompt).toStrictEqual('Record an example sentence, and type a translation if you can');
+        expect(task.prompt).toStrictEqual('Record an Example sentence');
       });
 
       it('translation task says "Record" for an audio analysis writing system', () => {
         const [task] = [...TasksService.makeTranslationTasks([{...analysisWs, isAudio: true}], [vernacularWs])];
-        expect(task.prompt).toStrictEqual('Record a translation of the example sentence');
+        expect(task.prompt).toStrictEqual('Record a Translation of the Example sentence');
       });
     });
 
