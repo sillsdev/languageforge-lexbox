@@ -1237,6 +1237,11 @@ msgstr "Created {0}"
 msgid "Created {0} {1}"
 msgstr "Created {0} {1}"
 
+#. Read aloud by screen readers on the project switcher row of the project that is open now
+#: src/project/ProjectDropdown.svelte
+msgid "Current"
+msgstr "Current"
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Current Word"
 #. Label in picker: marks the entry that is currently being edited
