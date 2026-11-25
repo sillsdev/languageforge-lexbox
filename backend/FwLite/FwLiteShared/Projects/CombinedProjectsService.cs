@@ -94,7 +94,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         foreach (var serverProject in lexboxProjects)
         {
             var localProject = crdtProjectsService.GetProject(serverProject.Id);
-            if (localProject?.Data is null) continue;
+            // A local-only project with the same id (e.g. before it's uploaded) isn't bound to the server, so its author and role stay local
+            if (localProject?.Data?.OriginDomain is null) continue;
             var role = serverProject.Role.ToUserProjectRole();
             if (await crdtProjectsService.UpdateProjectServerInfo(localProject, lexboxUser?.Name, lexboxUser?.Id, role))
                 projectEventBus.PublishEvent(localProject, new ProjectRoleChangedEvent(role));
@@ -218,7 +219,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
 
     /// <param name="authorServer">Credit edits to the account logged in to this server instead of the device's local author</param>
     [JSInvokable]
-    public Task CreateProject(string name, string code, WritingSystemId vernacularWs, WritingSystemId? analysisWs = null, LexboxServer? authorServer = null)
+    public Task CreateProject(string name, string code, WritingSystemId vernacularWs, LexboxServer? authorServer, WritingSystemId? analysisWs = null)
     {
         return Task.Run(async () =>
         {

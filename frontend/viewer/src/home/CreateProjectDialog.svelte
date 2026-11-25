@@ -82,7 +82,7 @@
     error = undefined;
     try {
       if (usesLocalName && askForAuthorName) await localAuthorName.set(authorName.trim());
-      await projectsService.createProject(name.trim(), code.trim(), vernacularWs.trim(), analysisWs.trim() || undefined, authorAccount?.server);
+      await projectsService.createProject(name.trim(), code.trim(), vernacularWs.trim(), authorAccount?.server, analysisWs.trim() || undefined);
       await refreshProjects();
       open = false;
     } catch (e) {
