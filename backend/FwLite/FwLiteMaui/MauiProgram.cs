@@ -117,6 +117,8 @@ public static class MauiProgram
 #endif
 #if WINDOWS
             events.AddWindows(windows => windows
+                .OnWindowCreated(window => WinUI.SplashHandOff.HoldUntilViewerLoaded(window,
+                    holder.App?.Services.GetService<ViewerLoadState>()))
                 .OnClosed((window, args) =>
                 {
                     //only shutdown if there are no windows open

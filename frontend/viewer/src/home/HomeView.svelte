@@ -35,6 +35,7 @@
   import OpenFromFolderItem from './OpenFromFolderItem.svelte';
   import UpdateDialog from '$lib/updates/UpdateDialog.svelte';
   import {SYNC_DIALOG_QUERY_PARAM} from '../project/SyncDialog.svelte';
+  import {markFirstScreenReady} from '$lib/first-screen';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -93,7 +94,8 @@
 
   let projectsPromise = $state(projectsService
     .localProjects()
-    .then((projects) => projects.sort((p1, p2) => p1.name.localeCompare(p2.name))));
+    .then((projects) => projects.sort((p1, p2) => p1.name.localeCompare(p2.name)))
+    .finally(markFirstScreenReady));
 
   async function refreshProjects() {
     let promise = projectsService.localProjects().then((p) => p.sort((p1, p2) => p1.name.localeCompare(p2.name)));

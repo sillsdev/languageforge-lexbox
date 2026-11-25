@@ -61,6 +61,7 @@ const analysisWs = ws(WritingSystemType.Analysis);
 
 //find tasks by id rather than positional index so the fixtures survive reordering of the generators
 const exampleTask = [...TasksService.makeExampleSentenceTasks([vernacularWs])].find(t => t.id === 'example-sentence-en')!;
+const translationTask = [...TasksService.makeTranslationTasks([analysisWs], [vernacularWs])].find(t => t.id === 'example-translation-en')!;
 const senseTask = [...TasksService.makeSenseTasks([analysisWs])].find(t => t.id === 'sense-no-gloss-en')!;
 const semanticDomainTask = [...TasksService.makeSenseTasks([analysisWs])].find(t => t.id === 'missing-semantic-domain')!;
 const headwordTask = [...TasksService.makeEntryTasks([vernacularWs])].find(t => t.id === 'entry-no-headword-en')!;
@@ -139,7 +140,80 @@ describe('tasks service', () => {
       });
 
     });
+    describe('translation', () => {
+      function translation(wsId: string, text: string) {
+        return {id: crypto.randomUUID(), text: {[wsId]: {spans: [{text, ws: wsId}]}}};
+      }
+      function sentence(wsId: string, text: string) {
+        return {[wsId]: {spans: [{text, ws: wsId}]}};
+      }
+
+      it('should return an example without a translation, with an empty one to fill in', () => {
+        let example: IExampleSentence;
+        const entry = newEntry({
+          senses: [newSense({
+            exampleSentences: [
+              newExample({sentence: sentence('en', 'hi'), translations: [translation('en', 'hello')]}),
+              example = newExample({sentence: sentence('en', 'hi')}),
+            ]
+          })]
+        });
+        const subjects = TasksService.subjects(translationTask, entry);
+        expect(subjects.map(s => s.exampleSentence?.id)).toStrictEqual([example.id]);
+        expect(subjects[0].exampleSentence?.translations).toHaveLength(1);
+        expect(example.translations).toHaveLength(0);
+      });
+
+      it('should keep the existing translation of an example missing this writing system', () => {
+        const existing = translation('fr', 'bonjour');
+        const entry = newEntry({senses: [newSense({exampleSentences: [newExample({sentence: sentence('en', 'hi'), translations: [existing]})]})]});
+        const [subject] = TasksService.subjects(translationTask, entry);
+        expect(subject.exampleSentence?.translations).toStrictEqual([existing]);
+      });
+
+      it('is complete when any translation has text in the writing system', () => {
+        const example = newExample({translations: [translation('en', ''), translation('en', 'hello')]});
+        expect(translationTask.isComplete(example)).toBe(true);
+        expect(translationTask.getSubjectValue(example)).toBe('hello');
+      });
+
+      it('is not complete with only a translation in another writing system', () => {
+        expect(translationTask.isComplete(newExample({translations: [translation('fr', 'bonjour')]}))).toBe(false);
+      });
+
+      it('should not create an example when none exist', () => {
+        const entry = newEntry({senses: [newSense({exampleSentences: []})]});
+        expect(TasksService.subjects(translationTask, entry)).toStrictEqual([]);
+      });
+
+      it('skips an example with no sentence, as there is nothing to translate', () => {
+        const entry = newEntry({senses: [newSense({exampleSentences: [newExample({})]})]});
+        expect(TasksService.subjects(translationTask, entry)).toStrictEqual([]);
+      });
+
+      it('shows the sentence as context in the languages it has text in', () => {
+        const fr = {...vernacularWs, id: 'fr', wsId: 'fr'};
+        const example = newExample({sentence: sentence('fr', 'bonjour')});
+        const [subject] = TasksService.subjects(translationTask, newEntry({senses: [newSense({exampleSentences: [example]})]}));
+        const fields = TasksService.contextFields(translationTask, subject, {vernacular: [vernacularWs, fr], analysis: [analysisWs]});
+        expect(fields.map(f => [f.fieldId, f.writingSystems.map(ws => ws.wsId)])).toStrictEqual([['sentence', ['fr']]]);
+      });
+
+      it('filters on the translation text of examples with a sentence', () => {
+        expect(translationTask.gridifyFilter)
+          .toBe('(Senses.ExampleSentences.Sentence[en]!=), Senses.ExampleSentences.Translations.Text[en]=');
+      });
+    });
+
     describe('sense', () => {
+
+      it('shows the gloss in other languages as context, but not entry fields', () => {
+        const fr = {...analysisWs, id: 'fr', wsId: 'fr'};
+        const entry = newEntry({lexemeForm: {en: 'word'}, senses: [newSense({gloss: {fr: 'mot'}})]});
+        const [subject] = TasksService.subjects(senseTask, entry);
+        const fields = TasksService.contextFields(senseTask, subject, {vernacular: [vernacularWs], analysis: [analysisWs, fr]});
+        expect(fields.map(f => [f.fieldId, f.writingSystems.map(ws => ws.wsId)])).toStrictEqual([['gloss', ['fr']]]);
+      });
 
       it('should return a sense', () => {
         let sense: ISense;
@@ -300,7 +374,12 @@ describe('tasks service', () => {
 
       it('example sentence task says "Record" for an audio writing system', () => {
         const [task] = [...TasksService.makeExampleSentenceTasks([audioWs])];
-        expect(task.prompt).toStrictEqual('Record an example sentence');
+        expect(task.prompt).toStrictEqual('Record an Example sentence');
+      });
+
+      it('translation task says "Record" for an audio analysis writing system', () => {
+        const [task] = [...TasksService.makeTranslationTasks([{...analysisWs, isAudio: true}], [vernacularWs])];
+        expect(task.prompt).toStrictEqual('Record a Translation of the Example sentence');
       });
     });
 

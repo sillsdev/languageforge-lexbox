@@ -171,6 +171,25 @@ public class ProjectDataFolderMigrationTests : IAsyncLifetime
     }
 
     [Fact]
+    public void ReportsCopyStartingOnlyWhenItMigrates()
+    {
+        var copyStarts = 0;
+
+        ProjectDataFolderMigration.TryMigrate(LegacyRoot, TargetRoot, NullLogger.Instance, () => copyStarts++).Migrated.Should().BeTrue();
+        copyStarts.Should().Be(1);
+
+        ProjectDataFolderMigration.TryMigrate(LegacyRoot, TargetRoot, NullLogger.Instance, () => copyStarts++).Migrated.Should().BeTrue();
+        copyStarts.Should().Be(1);
+    }
+
+    [Fact]
+    public void MigratesWhenReportingCopyStartingThrows()
+    {
+        ProjectDataFolderMigration.TryMigrate(LegacyRoot, TargetRoot, NullLogger.Instance, () => throw new InvalidOperationException())
+            .Outcome.Should().Be(ProjectDataFolderMigration.MigrationOutcome.Migrated);
+    }
+
+    [Fact]
     public void EmptyLegacyFolder_CreatesTargetWithMarker()
     {
         Migrate().Should().BeTrue();

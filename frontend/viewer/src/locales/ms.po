@@ -773,6 +773,7 @@ msgstr ""
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/plugins/studio/StudioNotice.svelte
 msgid "Back to plugins"
@@ -2709,6 +2710,11 @@ msgstr "Jenis Perkataan hilang"
 msgid "Missing Semantic domains"
 msgstr "Domain semantik yang hilang"
 
+#. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies example sentences lacking a translation in that writing system.
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Translation {0}"
+msgstr ""
+
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Word {0}"
 msgstr "Perkataan hilang {0}"
@@ -3607,13 +3613,19 @@ msgstr "Rakam bentuk leksem"
 msgid "Record a Lexeme form or Citation form"
 msgstr "Rakam bentuk leksem atau bentuk petikan"
 
+#. Task instruction for an audio writing system: record a spoken translation of the highlighted sentence.
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Translation of the Example sentence"
+msgstr ""
+
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Word"
 msgstr "Rakam Satu Perkataan"
 
+#. Task instruction for an audio writing system: record the sentence with the microphone.
 #: src/project/tasks/tasks-service.ts
-msgid "Record an example sentence"
-msgstr "Rakam satu ayat contoh"
+msgid "Record an Example sentence"
+msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Record Display as"
@@ -4727,6 +4739,11 @@ msgstr ""
 msgid "Total entries"
 msgstr "Jumlah entri"
 
+#. Task instruction. The sentence to translate is highlighted in the entry shown above it.
+#: src/project/tasks/tasks-service.ts
+msgid "Translate the Example sentence"
+msgstr ""
+
 #. Standalone noun used as {0} in activity-log strings (e.g. "Added translation"). Refers to one of an example sentence's free translations.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "translation"
@@ -4813,8 +4830,8 @@ msgstr "Taip satu perkataan"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
-msgid "Type an example sentence"
-msgstr "Taip ayat contoh"
+msgid "Type an Example sentence"
+msgstr ""
 
 #. Label for audio file type
 #: src/lib/components/audio/audio-editor.svelte
@@ -5111,6 +5128,11 @@ msgstr ""
 
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "What it asks for"
+msgstr ""
+
+#. Short description under the Translation field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "What the example sentence means"
 msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
