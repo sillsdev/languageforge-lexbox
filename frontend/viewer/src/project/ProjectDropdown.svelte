@@ -113,37 +113,33 @@
     {/snippet}
   </Popover.Trigger>
   <Popover.Content class="w-full p-0 min-w-56" align="start">
-    <!-- Command only keeps a starting value it gets on mount, so remount once the projects load -->
-    {#key projectsResource.current}
+    <!-- Command only reads its starting value on mount, so mount it once the projects have loaded -->
+    {#if projectsResource.current}
       <Command.Root value={currentItemValue}>
-        <Command.Input placeholder={$t`Search Dictionaries`} />
+        <Command.Input autofocus placeholder={$t`Search Dictionaries`} />
         <Command.List>
-          {#if projectsResource.loading}
-            <Command.Loading>
-              <div class="flex items-center justify-center p-4">
-                <Icon icon="i-mdi-loading" class="size-4 animate-spin" />
-                <span class="ml-2">{$t`Loading Dictionaries...`}</span>
-              </div>
-            </Command.Loading>
-          {:else}
-            <Command.Empty>{$t`No Dictionaries found`}</Command.Empty>
-            {#each projectsResource.current ?? [] as project (project)}
-              <Command.Item
-                value={itemValue(project)}
-                onSelect={() => handleSelect(project)}
-                class="cursor-pointer"
-              >
-                {@render projectIcon(project.crdt)}
-                <ProjectTitle {project} />
-                {#if isCurrentProject(project)}
-                  <Icon icon="i-mdi-check" class="ml-auto text-foreground" />
-                  <span class="sr-only">{$t`Current`}</span>
-                {/if}
-              </Command.Item>
-            {/each}
-          {/if}
+          <Command.Empty>{$t`No Dictionaries found`}</Command.Empty>
+          {#each projectsResource.current as project (project)}
+            <Command.Item
+              value={itemValue(project)}
+              onSelect={() => handleSelect(project)}
+              class="cursor-pointer"
+            >
+              {@render projectIcon(project.crdt)}
+              <ProjectTitle {project} />
+              {#if isCurrentProject(project)}
+                <Icon icon="i-mdi-check" class="ml-auto text-foreground" />
+                <span class="sr-only">{$t`Current`}</span>
+              {/if}
+            </Command.Item>
+          {/each}
         </Command.List>
       </Command.Root>
-    {/key}
+    {:else}
+      <div class="flex items-center justify-center p-4">
+        <Icon icon="i-mdi-loading" class="size-4 animate-spin" />
+        <span class="ml-2">{$t`Loading Dictionaries...`}</span>
+      </div>
+    {/if}
   </Popover.Content>
 </Popover.Root>

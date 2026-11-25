@@ -1242,6 +1242,7 @@ msgstr ""
 msgid "Created {0} {1}"
 msgstr ""
 
+#. Read aloud by screen readers on the project switcher row of the project that is open now
 #: src/project/ProjectDropdown.svelte
 msgid "Current"
 msgstr ""
