@@ -40,9 +40,9 @@
     <OpenCreateProjectDialog />
   </StoryState>
 </Story>
-<Story name="New project: logged in to Lexbox">
+<Story name="New project: Lexbox account known">
   <StoryState channel="dev" authorName="">
-    <OpenCreateProjectDialog loggedInAs="pat.example" />
+    <OpenCreateProjectDialog lexboxUserName="pat.example" />
   </StoryState>
 </Story>
 <Story name="New project: name already set">

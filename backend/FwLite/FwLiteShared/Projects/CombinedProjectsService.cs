@@ -217,18 +217,40 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         return FolderSyncSummary.From(result);
     }
 
-    /// <param name="authorServer">Credit edits to the account logged in to this server instead of the device's local author</param>
     [JSInvokable]
-    public Task CreateProject(string name, string code, WritingSystemId vernacularWs, LexboxServer? authorServer, WritingSystemId? analysisWs = null)
+    public Task CreateProject(string name, string code, WritingSystemId vernacularWs, WritingSystemId? analysisWs = null)
     {
         return Task.Run(async () =>
         {
-            var author = authorServer is null ? null
-                : await oAuthClientFactory.GetClient(authorServer).GetCurrentUser()
-                    ?? throw new InvalidOperationException($"Not logged in to {authorServer.DisplayName}");
+            var author = await KnownLexboxUser();
             await crdtProjectsService.CreateProjectFromTemplate(new(name, code, Role: UserProjectRole.Manager,
                 AuthenticatedUser: author?.Name, AuthenticatedUserId: author?.Id), vernacularWs, analysisWs);
         });
+    }
+
+    /// <summary>
+    /// New projects are credited to the user's Lexbox account whenever we know it, so the device-wide local name
+    /// is only for people who have never used Lexbox here.
+    /// </summary>
+    [JSInvokable]
+    public async Task<string?> KnownLexboxUserName()
+    {
+        return (await KnownLexboxUser())?.Name;
+    }
+
+    // A login wins over a project's remembered user, which may be stale
+    private async Task<LexboxUser?> KnownLexboxUser()
+    {
+        foreach (var server in lexboxProjectService.Servers())
+        {
+            if (await oAuthClientFactory.GetClient(server).GetCurrentUser() is { } user) return user;
+        }
+        return crdtProjectsService.ListProjects()
+            .Select(p => p.Data)
+            // only projects that sync with a server: the example project has a made-up user
+            .Where(d => d?.OriginDomain is not null && !string.IsNullOrEmpty(d.LastUserId) && !string.IsNullOrEmpty(d.LastUserName))
+            .Select(d => new LexboxUser(d!.LastUserName!, d.LastUserId!))
+            .FirstOrDefault();
     }
 
     [JSInvokable]

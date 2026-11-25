@@ -1,21 +1,16 @@
 <script lang="ts">
   import {onMount} from 'svelte';
   import {Button} from '$lib/components/ui/button';
-  import {DotnetService, LoginResult, type IAuthService} from '$lib/dotnet-types';
+  import {DotnetService} from '$lib/dotnet-types';
+  import {useProjectsService} from '$lib/services/service-provider';
   import CreateProjectDialog from '../../home/CreateProjectDialog.svelte';
 
-  const {loggedInAs}: {loggedInAs?: string} = $props();
+  const {lexboxUserName}: {lexboxUserName?: string} = $props();
 
-  const authService: IAuthService = {
-    servers: () => Promise.resolve(loggedInAs ? [{
-      displayName: 'Lexbox', loggedIn: true, loggedInAs,
-      server: {id: 'lexbox', displayName: 'Lexbox', authority: 'https://lexbox.example'},
-    }] : []),
-    signInWebView: () => Promise.resolve(LoginResult.Success),
-    useSystemWebView: () => Promise.resolve(true),
-    logout: () => Promise.resolve(),
-  };
-  window.lexbox.ServiceProvider.setService(DotnetService.AuthService, authService);
+  window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
+    ...useProjectsService(),
+    knownLexboxUserName: () => Promise.resolve(lexboxUserName),
+  });
 
   let dialog = $state<CreateProjectDialog>();
   onMount(() => dialog?.openDialog());

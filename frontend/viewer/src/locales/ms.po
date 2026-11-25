@@ -103,11 +103,6 @@ msgstr "(tidak diketahui)"
 msgid "{0}"
 msgstr "{0}"
 
-#. New Project author option: {0} is a Lexbox username, {1} is the server name (e.g. "lexbox.org")
-#: src/home/CreateProjectDialog.svelte
-msgid "{0} ({1})"
-msgstr ""
-
 #: src/lib/plugins/PluginsView.svelte
 msgid "{0} (copy)"
 msgstr ""
@@ -126,9 +121,9 @@ msgstr "{0} (FieldWorks Lite)"
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
 
-#. New Project author option: {0} is the name the user typed on this device, as opposed to a Lexbox account
+#. New Project dialog, next to "Author": {0} is the user's Lexbox username. "Lexbox" is a product name; do not translate.
 #: src/home/CreateProjectDialog.svelte
-msgid "{0} (name only)"
+msgid "{0} (Lexbox account)"
 msgstr ""
 
 #: src/lib/activity/ActivityFilter.svelte
@@ -5028,11 +5023,6 @@ msgstr "Taip bentuk leksem"
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Lexeme form or Citation form"
 msgstr "Taip bentuk leksem atau bentuk petikan"
-
-#. New Project author option: credit changes to a typed name instead of a Lexbox account
-#: src/home/CreateProjectDialog.svelte
-msgid "Type a name instead"
-msgstr ""
 
 #: src/project/tasks/tasks-service.ts
 msgid "Type a Word"

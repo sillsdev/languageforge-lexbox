@@ -21,7 +21,8 @@ export interface ICombinedProjectsService
 	downloadProject(project: IProjectModel) : Promise<void>;
 	openFromFolder(path: string) : Promise<IOpenFromFolderResult>;
 	syncProjectWithFolder(projectCode: string, path: string) : Promise<IFolderSyncSummary>;
-	createProject(name: string, code: string, vernacularWs: string, authorServer?: ILexboxServer, analysisWs?: string) : Promise<void>;
+	createProject(name: string, code: string, vernacularWs: string, analysisWs?: string) : Promise<void>;
+	knownLexboxUserName() : Promise<string | undefined>;
 	createDemoProject(name: string) : Promise<void>;
 	deleteProject(code: string) : Promise<void>;
 	uploadCrdtProject(server: ILexboxServer, code: string) : Promise<void>;
