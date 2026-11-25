@@ -13,6 +13,7 @@ import {setupServiceProvider} from '$lib/services/service-provider';
 import {setupBrowserAppServices} from '$lib/services/browser-app-services';
 import {useEventBus} from '$lib/services/event-bus';
 import {setLanguage} from '$lib/i18n';
+import {whenFirstScreenReady} from '$lib/first-screen';
 
 setupServiceProvider();
 setupDotnetServiceProvider();
@@ -23,6 +24,7 @@ useEventBus();
 
 // Wire up globally-accessible helpers for hosts (e.g., MAUI)
 window.lexbox.SvelteNavigate = (url: string, options?: { replace?: boolean }) => navigate(url, options);
+window.lexbox.WhenFirstScreenReady = whenFirstScreenReady;
 
 // Awaited at the top level, so the host's import() of this module only resolves once the app has mounted.
 await setLanguage('default');

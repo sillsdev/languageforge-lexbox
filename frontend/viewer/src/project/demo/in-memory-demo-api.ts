@@ -138,7 +138,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const projectContext = initProjectContext();
     const eventBus = useEventBus();
     const inMemoryLexboxApi = new InMemoryDemoApi(projectContext, eventBus);
-    projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName})
+    projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName, projectType: 'crdt'})
     initProjectStorage(projectContext.projectCode);
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
     let hasHardwareKeyboard = true;
@@ -166,6 +166,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
           api: inMemoryLexboxApi,
           projectName: inMemoryLexboxApi.projectName,
           projectCode: inMemoryLexboxApi.projectName,
+          projectType: 'crdt',
           projectData: {name: inMemoryLexboxApi.projectName, code: inMemoryLexboxApi.projectName, id: 'demo', clientId: 'demo', role},
         });
       },

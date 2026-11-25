@@ -81,6 +81,9 @@ public class LcmMediaService(
         if (localResource is null)
         {
             if (!downloadIfMissing) return new ReadFileResponse(ReadFileResult.NotFound);
+            // added on a device that hasn't uploaded it yet (e.g. it reached us through local sync): nothing to download
+            if (await resourceService.GetResource(fileId) is { RemoteId: null })
+                return new ReadFileResponse(ReadFileResult.NotFound);
             try
             {
                 localResource = await GetOrStartDownload(fileId);

@@ -23,6 +23,10 @@ public class LexEntryFilterMapProvider : EntryFilterMapProvider<ILexEntry>
     public override Expression<Func<ILexEntry, object?>> EntrySensesExampleSentencesTranslations =>
         e => e.AllSenses.SelectMany(s => s.ExamplesOS).Select(example => EmptyToNull(example.TranslationsOC));
     public override Func<string, object>? EntrySensesExampleSentencesTranslationsConverter => EntryFilter.NormalizeEmptyToNull<ICmTranslation>;
+    public override Expression<Func<ILexEntry, string, object>> EntrySensesExampleSentencesTranslationsText => (entry, ws) =>
+        entry.AllSenses.SelectMany(s => s.ExamplesOS)
+            .Select(example => string.Join(TranslationSeparator,
+                example.TranslationsOC.Select(t => example.PickText(t.Translation, ws)).Where(text => !string.IsNullOrEmpty(text))));
 
     public override Expression<Func<ILexEntry, object?>> EntrySensesPartOfSpeechId =>
         e => e.AllSenses.Select(s =>
