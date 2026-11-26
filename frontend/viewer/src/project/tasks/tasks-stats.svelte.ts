@@ -1,6 +1,4 @@
-import {useDebounce} from 'runed';
 import type {IMiniLcmJsInvokable} from '$lib/dotnet-types';
-import {useProjectEventBus} from '$lib/services/event-bus';
 import {useProjectContext} from '$project/project-context.svelte';
 import {useTasksService, type Task} from './tasks-service';
 
@@ -14,10 +12,13 @@ export type TaskProgress = {
 /**
  * Entry counts, not sense or example counts: an entry with three senses missing a gloss
  * counts once. Don't present the number as anything else.
+ *
+ * Each count scans every entry, so while a task is open only that task is counted.
  */
 export class TasksStats {
   totalEntries = $state<number>();
   progress = $state<Record<string, TaskProgress>>({});
+  openTaskId: string | undefined;
   #loadVersion = 0;
   #tasks: () => Task[];
 
@@ -28,12 +29,13 @@ export class TasksStats {
   async load(api: IMiniLcmJsInvokable): Promise<void> {
     const version = ++this.#loadVersion;
     const fresh = () => version === this.#loadVersion;
+    const tasks = this.#tasks().filter(task => !this.openTaskId || task.id === this.openTaskId);
 
     const totalEntries = await api.countEntries(undefined, undefined);
     if (!fresh()) return;
     this.totalEntries = totalEntries;
 
-    await Promise.all(this.#tasks().map(async task => {
+    await Promise.all(tasks.map(async task => {
       const remaining = await api.countEntries(undefined, {filter: {gridifyFilter: task.gridifyFilter}});
       if (!fresh()) return;
       this.progress = {
@@ -49,18 +51,13 @@ export class TasksStats {
 
 export function useTasksStats() {
   const projectContext = useProjectContext();
-  const projectEventBus = useProjectEventBus();
   const tasksService = useTasksService();
 
   return projectContext.getOrAdd(tasksStatsSymbol, () => {
     const stats = new TasksStats(() => tasksService.listTasks());
-    const resource = projectContext.apiResource(stats, async (api) => {
+    return projectContext.apiResource(stats, async (api) => {
       await stats.load(api);
       return stats;
     });
-    const debouncedRefetch = useDebounce(() => void resource.refetch(), 500);
-    projectEventBus.onEntryDeleted(() => void debouncedRefetch());
-    projectEventBus.onEntryUpdated(() => void debouncedRefetch());
-    return resource;
   });
 }
