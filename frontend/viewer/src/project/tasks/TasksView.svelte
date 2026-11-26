@@ -5,6 +5,7 @@
   import {plural, t} from 'svelte-i18n-lingui';
   import {useDebounce, watch} from 'runed';
   import {useProjectEventBus} from '$lib/services/event-bus';
+  import {onDestroy} from 'svelte';
   import {QueryParamState} from '$lib/utils/url.svelte';
   import {useWritingSystemService} from '$project/data';
   import {type IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
@@ -32,6 +33,7 @@
   });
   const debouncedRefetch = useDebounce(() => void statsResource.refetch(), 500);
   useProjectEventBus().onEntriesChanged(() => void debouncedRefetch());
+  onDestroy(() => debouncedRefetch.cancel());
 
   // Here rather than in the list, so tasks opened from the Dashboard or a link count as recent too.
   const projectStorage = useProjectStorage();
