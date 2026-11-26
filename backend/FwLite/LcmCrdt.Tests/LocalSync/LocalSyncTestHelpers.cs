@@ -99,8 +99,13 @@ public class InMemoryPreferencesService : IPreferencesService
 /// </summary>
 public class HostOverTheWire(LocalSyncHost host, Guid projectId, JsonSerializerOptions options) : ISyncable
 {
-    public async Task AddRangeFromSync(IEnumerable<Commit> commits) =>
-        await host.AddRange(projectId, LocalSyncTestHelpers.JsonRoundTrip(commits.ToArray(), options));
+    //like CrdtHttpSyncService: the host reports nothing back, so all of them count as added
+    public async Task<Commit[]> AddRangeFromSync(IEnumerable<Commit> commits)
+    {
+        var sent = commits.ToArray();
+        await host.AddRange(projectId, LocalSyncTestHelpers.JsonRoundTrip(sent, options));
+        return sent;
+    }
 
     public async Task<SyncState> GetSyncState() =>
         LocalSyncTestHelpers.JsonRoundTrip(await host.GetSyncState(projectId), options);
