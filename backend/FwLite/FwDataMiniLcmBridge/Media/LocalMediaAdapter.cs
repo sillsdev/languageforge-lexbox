@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using MiniLcm.Media;
 using SIL.LCModel;
+using SIL.LCModel.Utils;
 using UUIDNext;
 
 namespace FwDataMiniLcmBridge.Media;
@@ -57,6 +58,9 @@ public class LocalMediaAdapter(ILogger<LocalMediaAdapter> logger) : IMediaAdapte
     public MediaUri MediaUriFromPath(string path, LcmCache cache)
     {
         if (!Path.IsPathRooted(path)) throw new ArgumentException("Path must be absolute, " + path, nameof(path));
+        // LCM hands us NFD references, but FLEx names files NFC (older versions NFD). FLEx finds them with this:
+        // https://github.com/sillsdev/liblcm/blob/da7140f07b92/src/SIL.LCModel.Utils/FileUtils.cs#L434
+        path = FileUtils.ActualFilePath(path);
         if (!File.Exists(path)) return MediaUri.NotFound;
         var uri = PathToUri(path);
         Paths(cache).TryAdd(uri.FileId, path);

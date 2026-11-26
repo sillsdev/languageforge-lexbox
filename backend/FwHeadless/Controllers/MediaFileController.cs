@@ -256,7 +256,7 @@ public static class MediaFileController
             mediaFile = new MediaFile()
             {
                 Id = fileId.Value,
-                Filename = MediaFilePath.Normalize(Path.Join(LinkedFiles, subfolder, fileId.ToString(), filename)),
+                Filename = MediaFilePath.ForUpload(subfolder, fileId.Value, filename),
                 ProjectId = projectId,
                 Metadata = metadata,
             };
