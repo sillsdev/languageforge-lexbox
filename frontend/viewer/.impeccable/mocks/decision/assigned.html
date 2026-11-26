@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Exercise Book</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f7f9fb;--sheet:#ffffff;--ink:#1b2a4a;--ink-2:#55647e;--rule:#d5e1ee;--rule-strong:#b9cde3;--margin:#c8343b;--action:#1f4fd1;--cover:#1f5c4c;--cover-ink:#e7f1ec;--cover-2:#2a7260}
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;font-family:'Noto Sans',sans-serif;color:var(--ink);background:var(--paper);display:grid;grid-template-columns:232px 380px 1fr}
+/* cover */
+.cover{background:var(--cover);color:var(--cover-ink);padding:22px 18px;display:flex;flex-direction:column;gap:18px}
+.proj{display:flex;align-items:baseline;gap:10px;font-weight:700;font-size:19px;letter-spacing:.01em}
+.proj small{font-weight:500;font-size:12px;opacity:.7}
+.label-strip{border-top:1px solid rgba(255,255,255,.35);border-bottom:1px solid rgba(255,255,255,.35);padding:10px 2px;font-size:12px;line-height:1.7;opacity:.85}
+.new{background:var(--sheet);color:var(--cover);border:0;border-radius:6px;font:600 15px 'Noto Sans';padding:11px 14px;text-align:left}
+nav a{display:flex;justify-content:space-between;padding:9px 10px;font-size:15px;color:var(--cover-ink);text-decoration:none;border-radius:4px}
+nav a.on{background:var(--cover-2);font-weight:600}
+nav a span{opacity:.75;font-variant-numeric:tabular-nums}
+.foot{margin-top:auto;font-size:12px;opacity:.7}
+.sync{display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:10px;opacity:1}
+.sync i{width:16px;border-top:2px dashed var(--cover-ink)}
+/* list */
+.list{background:var(--sheet);border-right:1px solid var(--rule-strong);display:flex;flex-direction:column}
+.search{padding:16px 18px 12px;border-bottom:1px solid var(--rule-strong)}
+.search div{border:1px solid var(--rule-strong);border-radius:6px;padding:9px 12px;font-size:15px;color:var(--ink-2)}
+.search p{margin-top:10px;font-size:13px;color:var(--ink-2)}
+.row{display:grid;grid-template-columns:28px 1fr auto;align-items:baseline;padding:0 18px 0 0;height:62px;border-bottom:1px solid var(--rule);position:relative}
+.row .m{border-right:1px solid var(--margin);height:100%;}
+.row .w{padding:10px 0 0 14px}
+.hw{font-size:19px;font-weight:600}
+.hw sub{font-size:11px;font-weight:700;color:var(--ink-2);margin-left:1px}
+.gl{font-size:14px;color:var(--ink-2)}
+.pos{font-size:13px;font-style:italic;color:var(--ink-2)}
+.row.sel{background:#eaf1fb}
+.row.sel .m{border-right:3px solid var(--margin)}
+.row.new-in .m::after{content:'';position:absolute;left:9px;top:27px;width:8px;height:8px;border-radius:50%;background:var(--action)}
+/* entry */
+.entry{background:var(--sheet);margin:0;overflow:hidden;display:flex;flex-direction:column}
+.ehead{padding:22px 40px 16px 92px;border-bottom:1px solid var(--rule-strong);display:flex;align-items:baseline;gap:14px}
+.ehead h1{font-size:34px;font-weight:700;letter-spacing:-.01em}
+.ehead .pos{font-size:16px}
+.ehead .st{margin-left:auto;font-size:13px;color:var(--ink-2);display:flex;gap:8px;align-items:center}
+.ehead .st i{width:18px;border-top:2px dashed var(--ink-2)}
+.preview{margin:0 40px 0 92px;padding:14px 0;font-size:15px;line-height:1.6;border-bottom:1px solid var(--rule)}
+.preview b{font-weight:700}.preview em{color:var(--ink-2)}
+.sheet{position:relative;flex:1;padding-top:6px;background:repeating-linear-gradient(to bottom,transparent 0 39px,var(--rule) 39px 40px)}
+.sheet::before{content:'';position:absolute;left:80px;top:0;bottom:0;border-left:1px solid var(--margin)}
+.f{display:grid;grid-template-columns:80px 1fr;min-height:40px;align-items:end}
+.f .ws{font-size:12px;font-weight:600;color:var(--ink-2);text-align:right;padding:0 12px 9px 0;letter-spacing:.02em}
+.f .v{font-size:17px;padding:0 0 8px 12px;margin-right:40px}
+.f .v.focus{box-shadow:inset 0 -2px 0 var(--action)}
+.f .v.draft{background-image:linear-gradient(to right,var(--ink-2) 50%,transparent 0);background-size:8px 1px;background-repeat:repeat-x;background-position:bottom}
+.fh{display:grid;grid-template-columns:80px 1fr;height:40px;align-items:end}
+.fh span{grid-column:2;padding:0 0 8px 12px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--cover)}
+.sense{display:grid;grid-template-columns:80px 1fr;height:40px;align-items:end}
+.sense b{text-align:right;padding:0 12px 6px 0;font-size:22px;color:var(--margin);font-weight:700}
+.sense span{padding:0 0 8px 12px;font-size:16px;font-weight:600}
+.add{display:inline-block;margin-left:12px;color:var(--action);font-size:14px;font-weight:600;padding-bottom:9px}
+</style></head><body>
+<aside class="cover">
+  <div class="proj">Sena 3 <small>dictionary</small></div>
+  <div class="label-strip">Sena · Portuguese · English<br>1,464 words</div>
+  <button class="new">+ New word</button>
+  <nav>
+    <a href="#">Dashboard</a>
+    <a href="#" class="on">Browse <span>1,464</span></a>
+    <a href="#">Tasks <span>3</span></a>
+    <a href="#">Activity</a>
+  </nav>
+  <div class="foot"><div class="sync"><i></i>2 changes not synced</div>FieldWorks Lite</div>
+</aside>
+<section class="list">
+  <div class="search"><div>Find a word…</div><p>Sorted by headword · Sena</p></div>
+  <div class="row sel"><div class="m"></div><div class="w"><div class="hw">nyumba</div><div class="gl">house, a building for dwelling</div></div><div class="pos">noun</div></div>
+  <div class="row new-in"><div class="m"></div><div class="w"><div class="hw">nyumbo</div><div class="gl">song of praise</div></div><div class="pos">noun</div></div>
+  <div class="row"><div class="m"></div><div class="w"><div class="hw">nyaka<sub>1</sub></div><div class="gl">year</div></div><div class="pos">noun</div></div>
+  <div class="row"><div class="m"></div><div class="w"><div class="hw">nyaka<sub>2</sub></div><div class="gl">to grow up</div></div><div class="pos">verb</div></div>
+  <div class="row"><div class="m"></div><div class="w"><div class="hw">nyama</div><div class="gl">meat, animal</div></div><div class="pos">noun</div></div>
+  <div class="row"><div class="m"></div><div class="w"><div class="hw">nyerenyetsa</div><div class="gl">to shine, glitter</div></div><div class="pos">verb</div></div>
+  <div class="row"><div class="m"></div><div class="w"><div class="hw">nyoka</div><div class="gl">snake</div></div><div class="pos">noun</div></div>
+  <div class="row"><div class="m"></div><div class="w"><div class="hw">nzeru</div><div class="gl">wisdom, intelligence</div></div><div class="pos">noun</div></div>
+  <div class="row"><div class="m"></div><div class="w"><div class="hw">nzimbe</div><div class="gl">sugar cane</div></div><div class="pos">noun</div></div>
+  <div class="row"><div class="m"></div><div class="w"><div class="hw">-nyowa</div><div class="gl">wet</div></div><div class="pos">adj.</div></div>
+  <div class="row"><div class="m"></div><div class="w"><div class="hw">ombo</div><div class="gl">boat, canoe</div></div><div class="pos">noun</div></div>
+  <div class="row"><div class="m"></div><div class="w"><div class="hw">pamba</div><div class="gl">cotton</div></div><div class="pos">noun</div></div>
+</section>
+<main class="entry">
+  <header class="ehead"><h1>nyumba</h1><span class="pos">noun</span><span class="st"><i></i>Saved on this device · not synced</span></header>
+  <p class="preview"><b>nyumba</b> <em>n.</em> <b>1</b> house; a building for dwelling. <em>Nyumba yanga ndi ikulu.</em> My house is big. <b>2</b> household, family.</p>
+  <div class="sheet">
+    <div class="fh"><span>Word</span></div>
+    <div class="f"><div class="ws">SEN</div><div class="v focus">nyumba</div></div>
+    <div class="f"><div class="ws">SEH</div><div class="v">ɲumba</div></div>
+    <div class="fh"><span>Display as</span></div>
+    <div class="f"><div class="ws">SEN</div><div class="v">nyumba</div></div>
+    <div class="sense"><b>1</b><span>Meaning</span></div>
+    <div class="f"><div class="ws">ENG</div><div class="v">house</div></div>
+    <div class="f"><div class="ws">POR</div><div class="v draft">casa</div></div>
+    <div class="f"><div class="ws">FRA</div><div class="v">maison</div></div>
+    <div class="fh"><span>Definition</span></div>
+    <div class="f"><div class="ws">ENG</div><div class="v">a building for dwelling</div></div>
+    <div class="f"><div class="ws">POR</div><div class="v">um edifício para morar</div></div>
+    <div class="sense"><b>2</b><span>Meaning</span></div>
+    <div class="f"><div class="ws">ENG</div><div class="v">household, family</div></div>
+    <div class="f"><div class="ws"></div><div class="v"><span class="add">+ Add a meaning</span></div></div>
+  </div>
+</main>
+</body></html>
