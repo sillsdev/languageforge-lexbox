@@ -171,17 +171,23 @@ public class MiniLcmRepository(
     private async Task<T> InReadTransaction<T>(Func<Task<T>> read)
     {
         if (dbContext.Database.CurrentTransaction is not null) return await read();
-        //deferred, so the read doesn't take the write lock
-        await using var transaction = ((SqliteConnection)dbContext.Database.GetDbConnection()).BeginTransaction(deferred: true);
-        await dbContext.Database.UseTransactionAsync(transaction);
-        try
+        //deferred, so the read doesn't take the write lock; outside WAL mode a writer waits until it ends
+        T result;
+        await using (var transaction = ((SqliteConnection)dbContext.Database.GetDbConnection()).BeginTransaction(deferred: true))
         {
-            return await read();
+            await dbContext.Database.UseTransactionAsync(transaction);
+            try
+            {
+                result = await read();
+            }
+            finally
+            {
+                await dbContext.Database.UseTransactionAsync(null);
+            }
         }
-        finally
-        {
-            await dbContext.Database.UseTransactionAsync(null);
-        }
+        //UseTransaction opened the connection once more
+        await dbContext.Database.CloseConnectionAsync();
+        return result;
     }
 
     // Not LoadWith on the entry query: linq2db copies the whole filtered and sorted entry query into each LoadWith
