@@ -7,7 +7,6 @@ using LcmCrdt.Utils;
 using LinqToDB;
 using LinqToDB.Async;
 using LinqToDB.EntityFrameworkCore;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -63,28 +62,6 @@ public class MiniLcmRepository(
         // connection-opened interceptor alone can leave the collations unregistered — see
         // SetupCollationInterceptor.EnsureCollationsSetup.
         await collationSetup.EnsureCollationsSetup(dbContext);
-    }
-
-    private async Task<T> InReadTransaction<T>(Func<Task<T>> read)
-    {
-        if (dbContext.Database.CurrentTransaction is not null) return await read();
-        //deferred, so the read doesn't take the write lock; outside WAL mode a writer waits until it ends
-        T result;
-        await using (var transaction = ((SqliteConnection)dbContext.Database.GetDbConnection()).BeginTransaction(deferred: true))
-        {
-            await dbContext.Database.UseTransactionAsync(transaction);
-            try
-            {
-                result = await read();
-            }
-            finally
-            {
-                await dbContext.Database.UseTransactionAsync(null);
-            }
-        }
-        //UseTransaction opened the connection once more
-        await dbContext.Database.CloseConnectionAsync();
-        return result;
     }
 
     public ValueTask DisposeAsync()
@@ -177,7 +154,7 @@ public class MiniLcmRepository(
         var complexFormComparer = ComplexFormComparer(await GetWritingSystem(default, WritingSystemType.Vernacular));
         await EnsureConnectionOpen();//sometimes there can be a race condition where the collations arent setup
         //separate statements for the entries and their children, so one snapshot keeps the graph consistent for sync
-        var entries = await InReadTransaction(async () =>
+        var entries = await dbContext.Database.InReadTransaction(async () =>
         {
             var page = await AsyncExtensions.ToListAsync(queryable);
             await LoadEntryChildren(page);

@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace LcmCrdt.Utils;
 
@@ -14,5 +15,32 @@ public static class EfExtensions
             return innerException.CausedByUniqueConstraintViolation();
         }
         return false;
+    }
+
+    /// <summary>
+    /// Runs several queries against one snapshot of the database. Deferred, so it doesn't take the write lock:
+    /// in WAL mode writers carry on, in rollback-journal mode a writer waits until it ends.
+    /// Inside an existing transaction the queries just run in that.
+    /// </summary>
+    public static async Task<T> InReadTransaction<T>(this DatabaseFacade database, Func<Task<T>> read)
+    {
+        if (database.CurrentTransaction is not null) return await read();
+        T result;
+        //not database.BeginTransaction: that issues BEGIN IMMEDIATE, which takes the write lock
+        await using (var transaction = ((SqliteConnection)database.GetDbConnection()).BeginTransaction(deferred: true))
+        {
+            await database.UseTransactionAsync(transaction);
+            try
+            {
+                result = await read();
+            }
+            finally
+            {
+                await database.UseTransactionAsync(null);
+            }
+        }
+        //UseTransaction opened the connection once more
+        await database.CloseConnectionAsync();
+        return result;
     }
 }
