@@ -7,6 +7,7 @@ using LcmCrdt.Utils;
 using LinqToDB;
 using LinqToDB.Async;
 using LinqToDB.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -153,12 +154,33 @@ public class MiniLcmRepository(
         queryable = options.ApplyPaging(queryable);
         var complexFormComparer = ComplexFormComparer(await GetWritingSystem(default, WritingSystemType.Vernacular));
         await EnsureConnectionOpen();//sometimes there can be a race condition where the collations arent setup
-        var entries = await AsyncExtensions.ToListAsync(queryable);
-        await LoadEntryChildren(entries);
+        //separate statements for the entries and their children, so one snapshot keeps the graph consistent for sync
+        var entries = await InReadTransaction(async () =>
+        {
+            var page = await AsyncExtensions.ToListAsync(queryable);
+            await LoadEntryChildren(page);
+            return page;
+        });
         foreach (var entry in entries)
         {
             entry.Finalize(complexFormComparer);
             yield return entry;
+        }
+    }
+
+    private async Task<T> InReadTransaction<T>(Func<Task<T>> read)
+    {
+        if (dbContext.Database.CurrentTransaction is not null) return await read();
+        //deferred, so the read doesn't take the write lock
+        await using var transaction = ((SqliteConnection)dbContext.Database.GetDbConnection()).BeginTransaction(deferred: true);
+        await dbContext.Database.UseTransactionAsync(transaction);
+        try
+        {
+            return await read();
+        }
+        finally
+        {
+            await dbContext.Database.UseTransactionAsync(null);
         }
     }
 
