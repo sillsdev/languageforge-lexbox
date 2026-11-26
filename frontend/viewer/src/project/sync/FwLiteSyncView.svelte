@@ -172,7 +172,7 @@
             {#if onUploadClick}
               <DevContent>
                 <Button variant="outline" size="sm" icon="i-mdi-cloud-upload-outline" onclick={onUploadClick}>
-                  {$t`Upload to Lexbox...`}
+                  Upload to Lexbox...
                 </Button>
               </DevContent>
             {/if}

@@ -97,7 +97,7 @@
   }
 
   function accountLabel(account: IServerStatus): string {
-    return $t`${account.loggedInAs ?? ''} (${account.displayName})`;
+    return `${account.loggedInAs ?? ''} (${account.displayName})`;
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -140,9 +140,13 @@
           {$t`Author`}
           <Select options={accounts} bind:value={account} idSelector={a => a.server.id} labelSelector={accountLabel} />
         </Label>
+        <p class="col-start-2 text-sm text-muted-foreground">{$t`Your Lexbox account`}</p>
       {:else if lexboxUserName}
-        <span class="text-sm leading-none font-medium">{$t`Author`}</span>
-        <span class="text-sm">{$t`${lexboxUserName} (Lexbox account)`}</span>
+        <Label class="contents">
+          {$t`Author`}
+          <Input readonly value={lexboxUserName} class="bg-muted dark:bg-muted" />
+        </Label>
+        <p class="col-start-2 text-sm text-muted-foreground">{$t`Your Lexbox account`}</p>
       {:else if lexboxUserName === null && askForAuthorName}
         <Label class="contents">
           {$t`Your name`}
@@ -157,7 +161,10 @@
         </button>
       {/if}
       {#if lexboxUserName === null}
-        <p class="col-start-2 text-sm text-muted-foreground">{$t`Shown next to your changes in all projects you don't sync with Lexbox.`}</p>
+        <div class="col-start-2 text-sm text-muted-foreground">
+          <p>{$t`This lets others see which changes you made.`}</p>
+          <p>{$t`Projects that sync with Lexbox use your Lexbox account name instead.`}</p>
+        </div>
       {/if}
       <div class="col-span-2 text-end space-y-2">
         {#each fieldErrors as fieldError (fieldError)}

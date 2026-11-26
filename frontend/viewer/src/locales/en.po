@@ -98,10 +98,6 @@ msgstr "(unknown)"
 msgid "{0}"
 msgstr "{0}"
 
-#: src/home/CreateProjectDialog.svelte
-msgid "{0} ({1})"
-msgstr "{0} ({1})"
-
 #: src/lib/plugins/PluginsView.svelte
 msgid "{0} (copy)"
 msgstr "{0} (copy)"
@@ -119,11 +115,6 @@ msgstr "{0} (FieldWorks Lite)"
 #: src/lib/components/editor/field/field-title.svelte
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
-
-#. New Project dialog, next to "Author": {0} is the user's Lexbox username. "Lexbox" is a product name; do not translate.
-#: src/home/CreateProjectDialog.svelte
-msgid "{0} (Lexbox account)"
-msgstr "{0} (Lexbox account)"
 
 #: src/lib/activity/ActivityFilter.svelte
 msgid "{0} activity types"
@@ -907,7 +898,6 @@ msgstr "Can't reach the other device. Check that you're on its Wi-Fi network. Re
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/views/custom/CustomViewForm.svelte
 #: src/project/sync/FolderPicker.svelte
-#: src/project/sync/UploadToLexboxDialog.svelte
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -964,10 +954,6 @@ msgstr "Changing the same field twice, for example, can result in two commits bu
 #: src/lib/entry-editor/NewEntryDialog.svelte
 msgid "Check the markers in \"{0}\". Did you mean {1}?"
 msgstr "Check the markers in \"{0}\". Did you mean {1}?"
-
-#: src/project/sync/UploadToLexboxDialog.svelte
-msgid "Checking {0}..."
-msgstr "Checking {0}..."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Checking for similar words…"
@@ -1279,10 +1265,6 @@ msgstr "Create Entry"
 #: src/home/HomeView.svelte
 msgid "Create Example Project"
 msgstr "Create Example Project"
-
-#: src/project/sync/UploadToLexboxDialog.svelte
-msgid "Create the project on Lexbox"
-msgstr "Create the project on Lexbox"
 
 #. Submit button in the create custom view dialog.
 #: src/lib/views/custom/CreateCustomViewDialog.svelte
@@ -2642,10 +2624,6 @@ msgstr "Local and remote"
 msgid "Local only"
 msgstr "Local only"
 
-#: src/project/sync/UploadToLexboxDialog.svelte
-msgid "Log in to Lexbox first."
-msgstr "Log in to Lexbox first."
-
 #. Button label in the sync panel when the user is not logged in. Initiates authentication with the server.
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwLiteSyncView.svelte
@@ -2898,7 +2876,6 @@ msgstr "My custom view..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
-#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
@@ -3181,7 +3158,6 @@ msgstr "Not in this project. Try one on your data, then add it or make it your o
 #. Status text in the project sidebar indicating the user is not authenticated with the sync server.
 #: src/project/ProjectSidebar.svelte
 #: src/project/sync/SyncMethodList.svelte
-#: src/project/sync/UploadToLexboxDialog.svelte
 msgid "Not logged in"
 msgstr "Not logged in"
 
@@ -3649,9 +3625,11 @@ msgstr "Project {0} not found on {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Project {0} on {1} is not yet set up for FieldWorks Lite"
 
-#: src/project/sync/UploadToLexboxDialog.svelte
-msgid "Project ID"
-msgstr "Project ID"
+#. Second line under the "Your name" field. "Lexbox" is a product name — do not translate.
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Projects that sync with Lexbox use your Lexbox account name instead."
+msgstr "Projects that sync with Lexbox use your Lexbox account name instead."
 
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Prompt options"
@@ -4233,10 +4211,6 @@ msgstr "Sentence"
 msgid "Sentence is required"
 msgstr "Sentence is required"
 
-#: src/project/sync/UploadToLexboxDialog.svelte
-msgid "Server"
-msgstr "Server"
-
 #. Activity-log line. {0} = field label; used when the new value is an audio recording (an audio marker chip follows instead of a text value). Compare "Set {0} to", which shows a text value chip.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Set {0}"
@@ -4334,11 +4308,6 @@ msgstr "Show or hide captions"
 #: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
 msgid "Show unchanged fields"
 msgstr "Show unchanged fields"
-
-#: src/home/CreateProjectDialog.svelte
-#: src/lib/author/NameDialog.svelte
-msgid "Shown next to your changes in all projects you don't sync with Lexbox."
-msgstr "Shown next to your changes in all projects you don't sync with Lexbox."
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
@@ -4707,10 +4676,6 @@ msgstr "The other device's copy of this project shares no writing system with yo
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr "The plugin “{0}” is asking to make this change to your dictionary:"
 
-#: src/project/sync/UploadToLexboxDialog.svelte
-msgid "The project exists on {0}. Ready to upload."
-msgstr "The project exists on {0}. Ready to upload."
-
 #: src/project/sync/folder-sync-messages.ts
 msgid "The project in this folder uses different writing systems ({0}) from the copy on this device ({1}), so the two can't be synced. Choose another folder, or compare the writing systems in each copy."
 msgstr "The project in this folder uses different writing systems ({0}) from the copy on this device ({1}), so the two can't be synced. Choose another folder, or compare the writing systems in each copy."
@@ -4747,10 +4712,6 @@ msgstr "The version before it worked offline. Online, a plugin can send this pro
 #: src/project/tasks/tasks-service.ts
 msgid "The word's main form, for words that have none yet"
 msgstr "The word's main form, for words that have none yet"
-
-#: src/project/sync/UploadToLexboxDialog.svelte
-msgid "There is no project with this ID on {0} yet. Create it, then come back here and upload."
-msgstr "There is no project with this ID on {0} yet. Create it, then come back here and upload."
 
 #. Error message when changes are pending upload
 #: src/lib/activity/ActivityItem.svelte
@@ -4827,6 +4788,12 @@ msgstr "This folder is empty. To put a project in it, open that project on a dev
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
 msgstr "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
+
+#. Explains why the app asks for the user's name: it is shown on their edits and comments.
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "This lets others see which changes you made."
+msgstr "This lets others see which changes you made."
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
@@ -5201,10 +5168,6 @@ msgstr "Updated picture"
 msgid "Updates"
 msgstr "Updates"
 
-#: src/project/sync/UploadToLexboxDialog.svelte
-msgid "Upload"
-msgstr "Upload"
-
 #: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Upload file"
 msgstr "Upload file"
@@ -5212,14 +5175,6 @@ msgstr "Upload file"
 #: src/lib/media-manager/MediaManagerView.svelte
 msgid "Upload pending"
 msgstr "Upload pending"
-
-#: src/project/sync/UploadToLexboxDialog.svelte
-msgid "Upload to Lexbox"
-msgstr "Upload to Lexbox"
-
-#: src/project/sync/FwLiteSyncView.svelte
-msgid "Upload to Lexbox..."
-msgstr "Upload to Lexbox..."
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Uploaded"
@@ -5578,9 +5533,16 @@ msgstr "Your changes will show the name #."
 msgid "Your dictionary starts here"
 msgstr "Your dictionary starts here"
 
+#. Note under the New Project "Author" field: changes are credited to the user's Lexbox account. "Lexbox" is a product name; do not translate.
+#: src/home/CreateProjectDialog.svelte
+#: src/home/CreateProjectDialog.svelte
+msgid "Your Lexbox account"
+msgstr "Your Lexbox account"
+
 #: src/home/CreateProjectDialog.svelte
 #: src/home/CreateProjectDialog.svelte
 #: src/home/HomeView.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/author/NameDialog.svelte
 msgid "Your name"
 msgstr "Your name"

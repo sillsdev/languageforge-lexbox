@@ -99,7 +99,7 @@ public class InMemoryPreferencesService : IPreferencesService
 /// </summary>
 public class HostOverTheWire(LocalSyncHost host, Guid projectId, JsonSerializerOptions options) : ISyncable
 {
-    // like the HTTP host, it reports nothing back, so all of them count as added
+    //like CrdtHttpSyncService: the host reports nothing back, so all of them count as added
     public async Task<Commit[]> AddRangeFromSync(IEnumerable<Commit> commits)
     {
         var sent = commits.ToArray();

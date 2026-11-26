@@ -148,7 +148,7 @@
     {/if}
   </div>
 </ResponsiveDialog>
-{#if projectContext.projectData}
+{#if projectContext.projectData && featureFlags.isDev}
   <UploadToLexboxDialog
     bind:this={uploadDialog}
     projectCode={projectContext.projectData.code}

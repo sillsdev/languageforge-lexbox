@@ -1,5 +1,4 @@
 <script lang="ts">
-  import {t} from 'svelte-i18n-lingui';
   import {Button} from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import Label from '$lib/components/ui/label/label.svelte';
@@ -73,54 +72,54 @@
   }
 </script>
 
-<ResponsiveDialog bind:open title={$t`Upload to Lexbox`} contentProps={{
+<ResponsiveDialog bind:open title="Upload to Lexbox" contentProps={{
   hideClose: loading,
   interactOutsideBehavior: loading ? 'ignore' : 'close',
   escapeKeydownBehavior: loading ? 'ignore' : 'close',
 }}>
   <div class="gap-4 grid grid-cols-[auto_1fr]">
     <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
-      {$t`Server`}
+      Server
       {#if servers.length > 1}
         <Select options={servers} bind:value={selectedServer} idSelector="id" labelSelector="displayName" />
       {:else if selectedServer}
         <span>{selectedServer.displayName}</span>
       {:else}
-        <span class="text-muted-foreground">{$t`Not logged in`}</span>
+        <span class="text-muted-foreground">Not logged in</span>
       {/if}
     </Label>
     <Label class="grid grid-cols-subgrid col-span-2 gap-4 items-center">
-      {$t`Project ID`}
+      Project ID
       <code class="text-sm">{projectId}</code>
     </Label>
     <div class="col-span-2 flex flex-col items-start gap-2">
       {#if !selectedServer}
-        <p class="text-sm text-muted-foreground">{$t`Log in to Lexbox first.`}</p>
+        <p class="text-sm text-muted-foreground">Log in to Lexbox first.</p>
       {:else if exists.loading}
         <p class="text-sm text-muted-foreground flex items-center gap-2">
           <Icon icon="i-mdi-loading" class="animate-spin" />
-          {$t`Checking ${selectedServer.displayName}...`}
+          Checking {selectedServer.displayName}...
         </p>
       {:else if exists.current}
         <p class="text-sm text-muted-foreground flex items-center gap-2">
           <Icon icon="i-mdi-check" class="text-primary" />
-          {$t`The project exists on ${selectedServer.displayName}. Ready to upload.`}
+          The project exists on {selectedServer.displayName}. Ready to upload.
         </p>
       {:else}
         <p class="text-sm text-muted-foreground">
-          {$t`There is no project with this ID on ${selectedServer.displayName} yet. Create it, then come back here and upload.`}
+          There is no project with this ID on {selectedServer.displayName} yet. Create it, then come back here and upload.
         </p>
         <Button variant="outline" href={createUrl} target="_blank" rel="noopener" icon="i-mdi-open-in-new" autofocus>
-          {$t`Create the project on Lexbox`}
+          Create the project on Lexbox
         </Button>
       {/if}
     </div>
   </div>
 
   <Dialog.DialogFooter>
-    <Button onclick={() => open = false} variant="secondary" disabled={loading}>{$t`Cancel`}</Button>
+    <Button onclick={() => open = false} variant="secondary" disabled={loading}>Cancel</Button>
     <Button onclick={upload} disabled={loading || !selectedServer || exists.loading} {loading} icon="i-mdi-cloud-upload-outline">
-      {$t`Upload`}
+      Upload
     </Button>
   </Dialog.DialogFooter>
 </ResponsiveDialog>
