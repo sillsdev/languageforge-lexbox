@@ -146,7 +146,7 @@
           <Card.Header>
             <div class="flex items-baseline gap-2">
               <Icon icon="i-mdi-trending-up" class="size-6 self-center text-primary" />
-              <Card.Title class="text-4xl font-semibold tabular-nums">{formatNumber(dashboard.totalEntries)}</Card.Title>
+              <Card.Title data-testid="total-entries" class="text-4xl font-semibold tabular-nums">{formatNumber(dashboard.totalEntries)}</Card.Title>
               <Card.Description>{$t`Total entries`}</Card.Description>
             </div>
           </Card.Header>
@@ -160,7 +160,7 @@
           <Card.Header>
             <div class="flex items-baseline gap-2">
               <Icon icon="i-mdi-trophy-outline" class="size-6 self-center text-primary" />
-              <Card.Title class="text-4xl font-semibold tabular-nums">{formatNumber(dashboard.totalEntries)}</Card.Title>
+              <Card.Title data-testid="total-entries" class="text-4xl font-semibold tabular-nums">{formatNumber(dashboard.totalEntries)}</Card.Title>
               <Card.Description>{$t`Total entries`}</Card.Description>
             </div>
           </Card.Header>

@@ -158,15 +158,16 @@ export function useDashboardStats() {
   const projectEventBus = useProjectEventBus();
   const writingSystemService = useWritingSystemService();
 
-  return projectContext.getOrAdd(dashboardStatsSymbol, () => {
+  const resource = projectContext.getOrAdd(dashboardStatsSymbol, () => {
     const stats = new DashboardStats(writingSystemService);
-    const resource = projectContext.apiResource(stats, async (api) => {
+    return projectContext.apiResource(stats, async (api) => {
       await stats.load(api);
       return stats;
     });
-    const debouncedRefetch = useDebounce(() => void resource.refetch(), 500);
-    projectEventBus.onEntryDeleted(() => void debouncedRefetch());
-    projectEventBus.onEntryUpdated(() => void debouncedRefetch());
-    return resource;
   });
+  // Outside the cached factory, so the subscription ends with the dashboard. Catch up on what changed meanwhile.
+  const debouncedRefetch = useDebounce(() => void resource.refetch(), 500);
+  projectEventBus.onEntriesChanged(() => void debouncedRefetch());
+  void resource.refetch();
+  return resource;
 }

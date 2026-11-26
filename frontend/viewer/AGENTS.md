@@ -143,6 +143,7 @@ ships, delete the flag — production has none. The `dev` channel is special:
 ## Services
 
 - `useXService()` / `useService(key)` throw when the service isn't registered, and each host registers a different set (the demo only what `in-memory-demo-api.ts` and `browser-app-services.ts` set). In an always-mounted component resolve lazily, at use time, or with `tryUseService`; a top-level call once took down the viewer and 62 Playwright tests.
+- Don't subscribe (`ProjectEventBus`, anything using `onDestroy`) inside a `projectContext.getOrAdd` factory: who owns the `onDestroy` depends on whether the first caller uses runes, so it can die while the cached value lives on (the dashboard stats went stale that way). Subscribe from the component.
 - `[JSInvokable]` goes on the C# interface and the concrete class. A new MiniLcm JSInvokable method needs a stub in `src/project/demo/in-memory-demo-api.ts`.
 - Judgement calls (dev-only state in dev settings, gate UI on `features.*`, config flag over new abstraction): root `CODING_STANDARDS.md`.
 
