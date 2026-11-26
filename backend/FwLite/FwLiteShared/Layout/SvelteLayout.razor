@@ -21,18 +21,13 @@ else
     <link rel="stylesheet" href="@Assets["_content/FwLiteShared/viewer/webfonts.css"]"/>
 }
 <script>
-    window['setOverrideService'] = (key, service) => {
+    window['setOverrideServices'] = (newServices) => {
         window.lexbox ??= {};
         window.lexbox.FwLiteProvider ??= {};
         if (window.lexbox.DotNetServiceProvider) {
           window.lexbox.DotNetServiceProvider.setOverrideServices(window.lexbox.FwLiteProvider);
         }
-        const services = window.lexbox.FwLiteProvider;
-        if (service) {
-            services[key] = service;
-        } else {
-            delete services[key];
-        }
+        Object.assign(window.lexbox.FwLiteProvider, newServices);
     };
 
 </script>
@@ -66,12 +61,9 @@ else
         Logger.LogInformation("OnAfterRenderAsync SvelteLayout");
         if (firstRender)
         {
-            foreach (var (serviceKey, service) in FwLiteProvider.GetServices())
-            {
-                await FwLiteProvider.SetService(JS, serviceKey, service);
-            }
-
-            await FwLiteProvider.SetService(JS, DotnetService.ProjectServicesProvider, ProjectServicesProvider);
+            var services = FwLiteProvider.GetServices();
+            services[DotnetService.ProjectServicesProvider] = ProjectServicesProvider;
+            await FwLiteProvider.SetServices(JS, services);
 
             try
             {
@@ -86,7 +78,10 @@ else
               }
               // CI's packaged-app launch checks (fw-lite.yaml) wait for this line.
               Logger.LogInformation("Viewer loaded");
+              StartupTiming.Mark("Viewer loaded");
               await WaitForFirstScreen();
+              StartupTiming.Mark("First screen");
+              Logger.LogInformation("Startup timing (ms since process start): {Marks}", StartupTiming.TakeMarks());
             }
             catch (Exception e)
             {

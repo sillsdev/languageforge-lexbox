@@ -19,7 +19,8 @@ public class ProjectServicesProvider(
     IServiceProvider serviceProvider,
     LexboxProjectService lexboxProjectService,
     IEnumerable<IProjectProvider> projectProviders,
-    IAnalyticsService analytics
+    IAnalyticsService analytics,
+    StartupProjectWarmup startupProjectWarmup
 ): IAsyncDisposable
 {
     private IProjectProvider? FwDataProjectProvider =>
@@ -52,6 +53,7 @@ public class ProjectServicesProvider(
     {
         return Task.Run(async () =>
         {
+            await startupProjectWarmup.WaitFor(code);
             var serviceScope = serviceProvider.CreateAsyncScope();
             ProjectScope? scope = null;
             try

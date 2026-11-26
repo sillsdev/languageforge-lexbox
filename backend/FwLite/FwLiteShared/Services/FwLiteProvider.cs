@@ -17,12 +17,11 @@ using MiniLcm.Project;
 namespace FwLiteShared.Services;
 
 public class FwLiteProvider(
-    ILogger<FwLiteProvider> logger,
     IOptions<FwLiteConfig> config,
     IServiceProvider services
 )
 {
-    public const string OverrideServiceFunctionName = "setOverrideService";
+    public const string OverrideServicesFunctionName = "setOverrideServices";
 
     public static readonly DotnetService[] ExportedServices =
     [
@@ -75,21 +74,14 @@ public class FwLiteProvider(
         return result!;
     }
 
-    public async Task<IDisposable?> SetService(IJSRuntime jsRuntime, DotnetService service, object? serviceInstance)
+    /// <summary>
+    /// One interop call for all services: each call is a round trip, and the viewer can't load until they're set.
+    /// </summary>
+    public async Task SetServices(IJSRuntime jsRuntime, IReadOnlyDictionary<DotnetService, object> services)
     {
-        DotNetObjectReference<object>? reference = null;
-        if (serviceInstance is null)
-        {
-            logger.LogInformation("Clearing Service {Service}", service);
-        }
-        if (ShouldConvertToDotnetObject(service, serviceInstance))
-        {
-            reference = DotNetObjectReference.Create(serviceInstance);
-            serviceInstance = reference;
-        }
-
-        await jsRuntime.DurableInvokeVoidAsync(OverrideServiceFunctionName, service.ToString(), serviceInstance);
-        return reference;
+        var jsServices = services.ToDictionary(s => s.Key.ToString(),
+            s => ShouldConvertToDotnetObject(s.Key, s.Value) ? DotNetObjectReference.Create(s.Value) : s.Value);
+        await jsRuntime.DurableInvokeVoidAsync(OverrideServicesFunctionName, jsServices);
     }
 
 

@@ -47,6 +47,7 @@ public static class MauiProgram
 
     public static MauiApp CreateMauiApp()
     {
+        StartupTiming.Mark("CreateMauiApp");
         AppHolder holder = new AppHolder(null);
         var builder = MauiApp.CreateBuilder();
         // defaults < fw-lite-settings.json in the data dir < environment variables (e.g. FwLiteMaui__BaseDataDir)
@@ -130,13 +131,15 @@ public static class MauiProgram
         });
 
         var app = builder.Build();
+        StartupTiming.Mark("Built");
         holder.App = app;
         var logger = app.Services.GetRequiredService<ILogger<MauiApp>>();
         logger.LogInformation("App started, {Version}, {Runtime}, {OS}, MSAL {MsalVersion}",
             AppVersion.Version, RuntimeInformation.FrameworkDescription, RuntimeInformation.OSDescription, OAuthClient.MsalVersion);
         FwLiteMauiConfiguration.LogSettingsFile(
             app.Services.GetRequiredService<IOptions<FwLiteMauiConfig>>().Value.SettingsFilePath, logger);
-        IcuInit.TryInitialize(logger);
+        //off the UI thread so the window shows sooner; ICU users wait for it in IcuInit.EnsureInitialized
+        _ = Task.Run(() => IcuInit.TryInitialize(logger));
         UnhandledExceptionLogging.Register(app.Services, logger);
         return app;
     }

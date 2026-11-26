@@ -18,6 +18,7 @@ public partial class MainPage : ContentPage
         blazorWebView.BlazorWebViewInitialized += BlazorWebViewInitialized;
         blazorWebView.BlazorWebViewInitialized += (s, e) =>
         {
+            StartupTiming.Mark("WebView ready");
             // Decide initial StartPath here (after Android intent is processed) to avoid cold-start race
             var initial = App.OverrideStartupUrl ?? lastUrlFromPrefs ?? "/";
             //only change it if it's still the default, might have been changed already, for example when opening a new window

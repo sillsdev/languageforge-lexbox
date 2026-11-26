@@ -27,6 +27,8 @@ public partial class App : Application
         {
             mainPage.StartPath = lastUrl;
         }
+        //an Android home screen shortcut sets its start page after this runs, so that launch warms up the last project instead
+        serviceProvider.GetRequiredService<StartupProjectWarmup>().Start(mainPage.StartPath);
         InitializeComponent();
     }
 
@@ -37,6 +39,7 @@ public partial class App : Application
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
+        StartupTiming.Mark("Window created");
         var window = CreateWindow(_mainPage);
         // An OS-frozen app (e.g. Android Doze/Standby) can come back with its push listener down and no connectivity
         // transition to recover on; resume is when the user is watching, so recover immediately instead of
