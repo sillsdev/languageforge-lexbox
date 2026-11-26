@@ -19,3 +19,12 @@ export function trackActiveDescendant(list: HTMLElement): () => void {
   update();
   return () => observer.disconnect();
 }
+
+/** Whether Tab moves between the filter input and its clear button rather than out of the list */
+export function tabStaysInFilter(e: KeyboardEvent): boolean {
+  const wrapper = (e.target as Element).closest('[data-slot="command-input-wrapper"]');
+  if (!wrapper) return false;
+  const focusables = [...wrapper.querySelectorAll<HTMLElement>('input, button')];
+  const i = focusables.indexOf(e.target as HTMLElement);
+  return e.shiftKey ? i > 0 : i < focusables.length - 1;
+}

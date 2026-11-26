@@ -23,7 +23,7 @@
   import {inputVariants} from '../ui/input/input.svelte';
   import {tryUseFieldBody} from '../editor/field/field-root.svelte';
   import OptionIndicator from '../ui/select/option-indicator.svelte';
-  import {LONG_LIST, OPTION_ROW, trackActiveDescendant} from '../ui/select/select-list';
+  import {LONG_LIST, OPTION_ROW, tabStaysInFilter, trackActiveDescendant} from '../ui/select/select-list';
   import {onDestroy, tick} from 'svelte';
   import {SvelteMap, SvelteSet} from 'svelte/reactivity';
   import {on} from 'svelte/events';
@@ -211,7 +211,7 @@
 
   // Space toggles like Enter unless there's a filter box to type into; Ctrl+Enter toggles, saves and closes.
   function onkeydown(e: KeyboardEvent) {
-    if (e.key === 'Tab') {
+    if (e.key === 'Tab' && !tabStaysInFilter(e)) {
       tabOut(e);
       return;
     }
@@ -372,7 +372,15 @@
 {:else if useDrawer}
   <Drawer bind:open={() => open, setOpen}>
     <DrawerTrigger child={trigger} />
-    <DrawerContent handle={true} class="overflow-hidden">
+    <DrawerContent
+      handle={true}
+      class="overflow-hidden"
+      onOpenAutoFocus={(e) => {
+        if (isLong) return;
+        e.preventDefault();
+        listRef?.focus();
+      }}
+    >
       <DrawerHeader class="text-left py-2">
         {#if drawerTitle}
           <DrawerTitle class="mb-2">{drawerTitle}</DrawerTitle>
