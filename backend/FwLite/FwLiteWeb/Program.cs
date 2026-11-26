@@ -18,6 +18,7 @@ await using (app)
     {
         var baseUrl = app.Urls.First();
         var lastUrl = app.Services.GetRequiredService<IPreferencesService>().Get(nameof(PreferenceKey.AppLastUrl));
+        app.Services.GetRequiredService<StartupProjectWarmup>().Start(lastUrl);
         var launchUrl = lastUrl?.StartsWith('/') == true
             ? baseUrl.TrimEnd('/') + lastUrl
             : baseUrl;

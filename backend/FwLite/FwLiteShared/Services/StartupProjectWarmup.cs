@@ -10,18 +10,27 @@ namespace FwLiteShared.Services;
 /// <summary>
 /// Opens the project the app starts on while the window and viewer are still loading. The first project open and
 /// the first entry queries in a process spend seconds on one-time EF Core, linq2db and JIT setup, which would
-/// otherwise all happen after the viewer is up.
+/// otherwise all happen after the viewer is up. Starting on the home page warms up any project, since most of
+/// that setup is shared by all projects.
 /// </summary>
 public class StartupProjectWarmup(IServiceProvider services, CrdtProjectsService projects, ILogger<StartupProjectWarmup> logger)
 {
-    private string? _projectCode;
+    private volatile string? _projectCode;
     private Task _warmup = Task.CompletedTask;
 
     public void Start(string? startPath)
     {
-        if (CrdtProjectCode(startPath) is not { } code) return;
-        _projectCode = code;
-        _warmup = Task.Run(() => WarmUp(code));
+        var segments = startPath?.Split('?')[0].Split('/', StringSplitOptions.RemoveEmptyEntries) ?? [];
+        if (segments is ["project", var segment, ..])
+        {
+            var code = Uri.UnescapeDataString(segment);
+            _projectCode = code;
+            _warmup = Task.Run(() => WarmUp(() => projects.GetProject(code)));
+        }
+        else if (segments is [])
+        {
+            _warmup = Task.Run(() => WarmUp(() => projects.ListProjects().FirstOrDefault()));
+        }
     }
 
     /// <summary>
@@ -41,11 +50,12 @@ public class StartupProjectWarmup(IServiceProvider services, CrdtProjectsService
         }
     }
 
-    private async Task WarmUp(string code)
+    private async Task WarmUp(Func<CrdtProject?> findProject)
     {
         try
         {
-            if (projects.GetProject(code) is not { } project) return;
+            if (findProject() is not { } project) return;
+            _projectCode = project.Name;
             var stopwatch = Stopwatch.StartNew();
             await using var scope = services.CreateAsyncScope();
             await scope.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
@@ -63,11 +73,5 @@ public class StartupProjectWarmup(IServiceProvider services, CrdtProjectsService
         {
             logger.LogWarning(e, "Failed to warm up the startup project");
         }
-    }
-
-    private static string? CrdtProjectCode(string? path)
-    {
-        var segments = path?.Split('?')[0].Split('/', StringSplitOptions.RemoveEmptyEntries);
-        return segments is ["project", var code, ..] ? Uri.UnescapeDataString(code) : null;
     }
 }
