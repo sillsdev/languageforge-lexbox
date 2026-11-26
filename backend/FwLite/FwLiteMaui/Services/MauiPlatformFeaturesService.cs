@@ -131,4 +131,25 @@ public class MauiPlatformFeaturesService(IMediaPicker mediaPicker, IShare share)
         throw new NotSupportedException("Folder picking is only available on Windows");
 #endif
     }
+
+    [JSInvokable]
+    public Task<bool> SupportsWifiSync()
+    {
+#if WINDOWS || ANDROID
+        return Task.FromResult(true);
+#else
+        return Task.FromResult(false);
+#endif
+    }
+
+    //Phones as hosts need a foreground service first, so only Windows laptops host for now
+    [JSInvokable]
+    public Task<bool> SupportsWifiSyncHosting()
+    {
+#if WINDOWS
+        return Task.FromResult(true);
+#else
+        return Task.FromResult(false);
+#endif
+    }
 }

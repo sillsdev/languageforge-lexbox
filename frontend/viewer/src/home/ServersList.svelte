@@ -32,9 +32,12 @@
 
   async function refreshServerProjects(server: ILexboxServer, force: boolean = false) {
     loadingServerProjects = server.id;
-    const projects = await projectsService.serverProjects(server.id, force);
-    if (projects) remoteProjects[server.id] = projects;
-    loadingServerProjects = undefined;
+    try {
+      const projects = await projectsService.serverProjects(server.id, force);
+      if (projects) remoteProjects[server.id] = projects;
+    } finally {
+      loadingServerProjects = undefined;
+    }
   }
 
   fetchRemoteProjects().catch((error) => {
@@ -45,8 +48,9 @@
   async function refreshProjectsAndServers() {
     await refreshProjects();
     await fetchRemoteProjects();
-    serversPromise = authService.servers();
-    await serversPromise;
+    const promise = authService.servers();
+    await promise; // a pending promise would swap every server for the skeleton
+    serversPromise = promise;
   }
 
 
@@ -59,7 +63,7 @@
 {:then serversStatus}
   {#each serversStatus as status (status.server.id)}
     {@const server = status.server}
-    {@const serverProjects = remoteProjects[server.id]?.projects.filter(p => p.crdt) ?? []}
+    {@const serverProjects = remoteProjects[server.id]?.projects.filter(p => p.crdt)}
     {@const canDownloadByCode = remoteProjects[server.id]?.canDownloadByCode}
     <Server {status}
             projects={serverProjects}

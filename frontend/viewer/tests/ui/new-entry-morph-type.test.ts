@@ -54,8 +54,8 @@ test.describe('New entry morph type', () => {
 
     await test.step('the entry editor shows the morph type read-only', async () => {
       const readonlyMorphType = page.locator('[data-field-id="morphType"]:visible').getByRole('textbox');
-      await expect(readonlyMorphType).toHaveValue('infix');
-      await expect(readonlyMorphType).toHaveAttribute('readonly');
+      await expect(readonlyMorphType).toHaveText('infix');
+      await expect(readonlyMorphType).toHaveAttribute('aria-readonly', 'true');
     });
   });
 

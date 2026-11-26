@@ -389,6 +389,14 @@ msgstr ""
 msgid "About"
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Accept"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Accept everyone who joins"
+msgstr ""
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Account"
@@ -554,6 +562,14 @@ msgstr ""
 msgid "Added to {0}"
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Address"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Address, e.g. 192.168.137.1"
+msgstr ""
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Advanced: settings file"
 msgstr "Nâng cao: tệp cài đặt"
@@ -604,6 +620,10 @@ msgstr ""
 msgid "Already have a plugin file? It runs in the preview straight away, before anyone else can see it."
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Also on this network"
+msgstr ""
+
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "Always allow for this plugin"
 msgstr ""
@@ -635,6 +655,10 @@ msgstr "Các hệ thống chữ viết phân tích"
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Analytics are turned off."
 msgstr "Tính năng phân tích đã bị tắt."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Another FieldWorks Lite window is already sharing a project. Stop sharing it there first."
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -688,6 +712,10 @@ msgstr ""
 #: src/lib/entry-editor/DeleteDialog.svelte
 msgid "Are you sure you want to delete {0}?"
 msgstr "Bạn có chắc chắn muốn xóa {0}?"
+
+#: src/project/browse/ReadonlyChip.svelte
+msgid "Ask a project manager if you need edit access."
+msgstr ""
 
 #: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Ask AI"
@@ -850,6 +878,10 @@ msgstr ""
 
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Can use the internet"
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Can't reach the other device. Check that you're on its Wi-Fi network. Retrying..."
 msgstr ""
 
 #. Button to close dialog without saving
@@ -1124,6 +1156,10 @@ msgstr ""
 msgid "Components"
 msgstr "Các thành phần"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Connected to {0} at {1}"
+msgstr ""
+
 #. Filter operator
 #. Search operator: matches fields containing the search term anywhere
 #. Related operators: "Starts with", "Ends with", "Equals"
@@ -1187,11 +1223,23 @@ msgstr ""
 msgid "Couldn't load this plugin"
 msgstr ""
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Couldn't reach the other device. Check that you're on its Wi-Fi network, then try again."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Couldn't share on that network. Try another one."
+msgstr ""
+
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Couldn't sync right now — your local changes are safe."
 msgstr "Hiện tại không thể đồng bộ hóa — các thay đổi trên máy của bạn vẫn được lưu giữ an toàn."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Couldn't sync with the other device. Your changes are safe."
+msgstr ""
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
@@ -1240,6 +1288,11 @@ msgstr ""
 #. Example: "Created 100 semantic domains". Order and inflection of {0} and {1} may vary by language.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Created {0} {1}"
+msgstr ""
+
+#. Read aloud by screen readers on the project switcher row of the project that is open now
+#: src/project/ProjectDropdown.svelte
+msgid "Current"
 msgstr ""
 
 #. Relevant view: Classic
@@ -1302,6 +1355,10 @@ msgstr "Không thể tải trang tổng quan"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Data Directory"
 msgstr "Thư mục dữ liệu"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Decline"
+msgstr ""
 
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
@@ -1418,6 +1475,16 @@ msgstr "Từ điển"
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Dictionary Preview"
 msgstr "Xem trước từ điển"
+
+#: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
+msgid "different app version"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "different project"
+msgstr ""
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
@@ -1938,8 +2005,11 @@ msgstr "FieldWorks Lite thu thập dữ liệu sử dụng để giúp chúng t�
 msgid "FieldWorks Lite has been updated. Restart to finish installing."
 msgstr "FieldWorks Lite đã được cập nhật. Vui lòng khởi động lại để hoàn tất quá trình cài đặt."
 
-#: src/home/HomeView.svelte
-#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/WifiSyncSection.svelte
+msgid "FieldWorks Lite isn't open on it"
+msgstr ""
+
+#: src/lib/components/FwLiteLogo.svelte
 msgid "FieldWorks Lite logo"
 msgstr ""
 
@@ -2084,6 +2154,10 @@ msgstr "Bộ lọc"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Find entry..."
 msgstr "Tìm mục..."
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Find nearby devices"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Find entry..."
@@ -2243,6 +2317,10 @@ msgstr ""
 msgid "Harmony snapshots regenerated successfully"
 msgstr "Các bản chụp nhanh Harmony đã được tạo lại thành công"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Hasn't asked to join"
+msgstr ""
+
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
@@ -2370,6 +2448,15 @@ msgstr "Đang cài đặt bản cập nhật..."
 msgid "Internet"
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Join"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Joined"
+msgstr ""
+
 #. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
@@ -2403,6 +2490,10 @@ msgstr "Thay đổi cuối: #"
 msgid "Last sync: #"
 msgstr "Lần đồng bộ cuối: #"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Last synced"
+msgstr ""
+
 #. Tab: shows changes made to this item after this change.
 #: src/lib/activity/ActivityItem.svelte
 msgid "Later changes"
@@ -2413,6 +2504,7 @@ msgid "Learn more"
 msgstr "Tìm hiểu thêm"
 
 #: src/lib/plugins/studio/LeaveDialog.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Leave"
 msgstr ""
 
@@ -2791,7 +2883,6 @@ msgstr "Chế độ xem tùy chỉnh của tôi..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
-#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
@@ -2809,6 +2900,10 @@ msgstr "Tên là trường thông tin bắt buộc"
 
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Network"
 msgstr ""
 
 #: src/project/sync/FwClassicSyncView.svelte
@@ -2919,6 +3014,10 @@ msgstr "Không có tác giả"
 msgid "No custom views yet."
 msgstr "Chưa có chế độ xem tùy chỉnh nào."
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "No devices found. Make sure you're on the same Wi-Fi network."
+msgstr ""
+
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
 msgstr "Không tìm thấy từ điển nào"
@@ -2977,6 +3076,10 @@ msgstr "Không tìm thấy tệp phương tiện nào"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "No new data"
 msgstr "Không có dữ liệu mới"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "No one has joined yet."
+msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
@@ -3037,8 +3140,7 @@ msgstr "Không tìm thấy từ nào"
 
 #. Selection option for optional fields
 #. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/badge-list.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "None"
@@ -3242,6 +3344,10 @@ msgstr "cam"
 msgid "Other"
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Other devices on this network can join at"
+msgstr ""
+
 #: src/project/SyncDialog.svelte
 msgid "Other FieldWorks Lite users"
 msgstr ""
@@ -3285,6 +3391,10 @@ msgstr "Loại từ"
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Grammatical categories (noun, verb, adjective, etc.). Classic view calls these "Grammatical info."
 #: src/lib/activity/ChangeSummary.svelte
 msgid "parts of speech"
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Password"
 msgstr ""
 
 #: src/lib/plugins/studio/panels/SourcePanel.svelte
@@ -3521,6 +3631,12 @@ msgstr "Dự án {0} không tìm thấy trên {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Dự án {0} trên {1} chưa được thiết lập cho FieldWorks Lite"
 
+#. Second line under the "Your name" field. "Lexbox" is a product name — do not translate.
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Projects that sync with Lexbox use your Lexbox account name instead."
+msgstr ""
+
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Prompt options"
 msgstr ""
@@ -3573,6 +3689,8 @@ msgstr ""
 #: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
+#: src/project/browse/ReadonlyChip.svelte
+#: src/project/browse/ReadonlyChip.svelte
 msgid "Read-only"
 msgstr "Chỉ đọc"
 
@@ -3956,6 +4074,10 @@ msgstr ""
 msgid "Saving turns off \"Always allow\" on this device, so the new version asks before its first change."
 msgstr ""
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Scan with a phone camera to join this device's Wi-Fi, or join it in Wi-Fi settings:"
+msgstr ""
+
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
@@ -4154,10 +4276,18 @@ msgstr "Chia sẻ ý tưởng và bỏ phiếu cho các tính năng hoặc cải
 msgid "Share Log file"
 msgstr "Chia sẻ tệp nhật ký"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Share on {0} ({1})"
+msgstr ""
+
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share project data file"
 msgstr "Chia sẻ tệp dữ liệu dự án"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Share this project on a new Wi-Fi network"
+msgstr ""
 
 #. Button label
 #: src/project/browse/EditorViewOptions.svelte
@@ -4185,11 +4315,6 @@ msgstr "Hiển thị hoặc ẩn chú thích"
 #. Button in the activity view's change preview. It also shows the fields that this change did not modify
 #: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
 msgid "Show unchanged fields"
-msgstr ""
-
-#: src/home/CreateProjectDialog.svelte
-#: src/lib/author/NameDialog.svelte
-msgid "Shown next to your changes in all projects you don't sync with Lexbox."
 msgstr ""
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
@@ -4325,6 +4450,10 @@ msgstr ""
 msgid "stone"
 msgstr "đá"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Stop sharing"
+msgstr ""
+
 #. Button to confirm selection
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -4359,6 +4488,7 @@ msgid "Sync FieldWorks Lite and FieldWorks Classic in Lexbox"
 msgstr ""
 
 #: src/home/OpenFromFolderItem.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Sync now"
 msgstr ""
 
@@ -4386,6 +4516,7 @@ msgstr "Đồng bộ các thay đổi của bạn với người dùng FieldWork
 
 #. Sync status label in the project sidebar indicating all changes are in sync with the server.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Synced"
 msgstr "Đã đồng bộ"
 
@@ -4425,6 +4556,7 @@ msgstr ""
 #. Progress indicator
 #: src/project/sync/FolderSyncSection.svelte
 #: src/project/sync/FwLiteSyncView.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Syncing..."
 msgstr "Đang đồng bộ..."
 
@@ -4523,6 +4655,31 @@ msgstr "Số commit của FieldWorks Classic không nhất thiết khớp với 
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "Số commit của FieldWorks Lite không nhất thiết khớp với số thay đổi hiển thị trong thông báo kết quả đồng bộ."
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device declined."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device didn't let this one join."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device has a separate copy of this project that can't be merged with yours."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device is sharing a different project."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device stopped sharing."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device's copy of this project shares no writing system with yours."
+msgstr ""
+
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr ""
@@ -4533,6 +4690,10 @@ msgstr ""
 
 #: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "The sync session ended."
 msgstr ""
 
 #. Error message
@@ -4580,10 +4741,18 @@ msgstr "Đường dẫn này {0} đã bị xóa."
 msgid "This change"
 msgstr ""
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "This computer couldn't create a Wi-Fi network. Share on a network it's already on instead."
+msgstr ""
+
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
 msgstr "Ngày này # và biểu tượng cảm xúc này # là đoạn trích"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "This device is sharing {0}. Stop sharing it to share this project."
+msgstr ""
 
 #: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "This doesn't look like a complete plugin. It should be one HTML file that starts with <!DOCTYPE html> and ends with </html>."
@@ -4626,6 +4795,12 @@ msgstr ""
 
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
+msgstr ""
+
+#. Explains why the app asks for the user's name: it is shown on their edits and comments.
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "This lets others see which changes you made."
 msgstr ""
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
@@ -4940,9 +5115,8 @@ msgstr ""
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/components/field-editors/badge-list.svelte
 #: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/diff-view/DiffAnchor.svelte
@@ -5114,6 +5288,10 @@ msgstr "Xem chính sách bảo mật của SIL"
 msgid "violet"
 msgstr "tím"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Waiting for {0} to accept..."
+msgstr ""
+
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details."
 msgstr "Chúng tôi cũng thu thập các báo cáo lỗi kèm theo thông tin kỹ thuật chi tiết về sự cố đã xảy ra. Trước khi gửi các báo cáo này, chúng tôi cố gắng loại bỏ mọi nội dung có thể là văn bản trong từ điển, tên tệp hoặc các thông tin cá nhân khác."
@@ -5149,6 +5327,18 @@ msgstr "Dự án của tôi ở đâu?"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "Tại sao vậy?"
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Wi-Fi is busy with something else, such as Mobile hotspot. Turn that off, then try again."
+msgstr ""
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Wi-Fi is turned off on this computer. Turn it on, then try again."
+msgstr ""
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Wi-Fi QR code"
+msgstr ""
 
 #. Option in the entry-list "Comments" filter: entries that have any comment threads.
 #: src/project/browse/filter/CommentSelect.svelte
@@ -5287,6 +5477,14 @@ msgstr "Có vẻ như bạn đang ở chế độ ngoại tuyến. Bạn có th�
 msgid "You are running the latest version."
 msgstr "Bạn đang sử dụng phiên bản mới nhất."
 
+#: src/project/browse/ReadonlyChip.svelte
+msgid "You can read and comment on this project, but not change it."
+msgstr ""
+
+#: src/project/browse/ReadonlyChip.svelte
+msgid "You can read this project, but not change it."
+msgstr ""
+
 #. Permission error
 #: src/home/Server.svelte
 msgid "You don't have permission to download project {0} from {1}"
@@ -5353,6 +5551,7 @@ msgstr "Từ điển của bạn bắt đầu từ đây"
 #: src/home/CreateProjectDialog.svelte
 #: src/home/CreateProjectDialog.svelte
 #: src/home/HomeView.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/author/NameDialog.svelte
 msgid "Your name"
 msgstr ""

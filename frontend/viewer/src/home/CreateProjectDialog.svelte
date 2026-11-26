@@ -124,7 +124,10 @@
           <span class="flex items-center gap-1.5 shrink-0 font-medium"><Icon icon="i-mdi-pencil" class="size-4" />{$t`Change`}</span>
         </button>
       {/if}
-      <p class="col-start-2 text-sm text-muted-foreground">{$t`Shown next to your changes in all projects you don't sync with Lexbox.`}</p>
+      <div class="col-start-2 text-sm text-muted-foreground">
+        <p>{$t`This lets others see which changes you made.`}</p>
+        <p>{$t`Projects that sync with Lexbox use your Lexbox account name instead.`}</p>
+      </div>
       <div class="col-span-2 text-end space-y-2">
         {#each fieldErrors as fieldError (fieldError)}
           <p class="text-destructive">{fieldError}</p>

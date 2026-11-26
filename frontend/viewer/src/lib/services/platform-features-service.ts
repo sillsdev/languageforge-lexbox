@@ -7,7 +7,7 @@ import {SvelteMap} from 'svelte/reactivity';
 import type {ICameraResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/ICameraResult';
 
 const cache = new SvelteMap<string, boolean>();
-const features = ['supportsImageCapture', 'hasHardwareKeyboard', 'supportsFolderSync', 'hasFolderPicker'] as const satisfies (keyof Pick<IPlatformFeaturesService, {
+const features = ['supportsImageCapture', 'hasHardwareKeyboard', 'supportsFolderSync', 'hasFolderPicker', 'supportsWifiSync', 'supportsWifiSyncHosting'] as const satisfies (keyof Pick<IPlatformFeaturesService, {
   [K in keyof IPlatformFeaturesService]: IPlatformFeaturesService[K] extends () => Promise<boolean> ? K : never
 }[keyof IPlatformFeaturesService]>)[];
 type Features = typeof features[number];
@@ -45,6 +45,12 @@ export const fallbackPlatformFeaturesService: IPlatformFeaturesService = {
   },
   suggestedAuthorName(): Promise<string | undefined> {
     return Promise.resolve(undefined);
+  },
+  supportsWifiSync(): Promise<boolean> {
+    return Promise.resolve(false);
+  },
+  supportsWifiSyncHosting(): Promise<boolean> {
+    return Promise.resolve(false);
   }
 };
 

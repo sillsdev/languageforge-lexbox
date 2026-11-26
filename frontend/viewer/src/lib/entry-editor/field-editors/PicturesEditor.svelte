@@ -14,6 +14,7 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {randomId} from '$lib/utils';
   import {usePlatformFeaturesService} from '$lib/services/platform-features-service';
+  import ReadonlyField from '$lib/components/field-editors/readonly-field.svelte';
 
   type Props = {
     pictures: IPicture[];
@@ -261,9 +262,7 @@
       {/each}
     </div>
   {:else if readonly}
-    <div class="text-muted-foreground p-1">
-      {$t`No pictures`}
-    </div>
+    <ReadonlyField placeholder={$t`No pictures`} />
   {/if}
 
   {#if !readonly}
