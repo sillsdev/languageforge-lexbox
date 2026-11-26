@@ -50,10 +50,10 @@ public class MiniLcmRepository(
     public EntrySearchService? SearchService { get; } = entrySearchService;
 
     // Complex forms sort with the same collation as the entry list
-    private IComparer<ComplexFormComponent> ComplexFormComparer(WritingSystem? writingSystem) =>
+    private IComparer<string> ComplexFormComparer(WritingSystem? writingSystem) =>
         writingSystem is null
-            ? cultureProvider.GetCompareInfo(null).GetStringComparer(CompareOptions.IgnoreCase).AsComplexFormComparer()
-            : collatorProvider.GetCollator(writingSystem).AsComplexFormComparer();
+            ? cultureProvider.GetCompareInfo(null).GetStringComparer(CompareOptions.IgnoreCase)
+            : collatorProvider.GetCollator(writingSystem);
 
     private async ValueTask EnsureConnectionOpen()
     {
