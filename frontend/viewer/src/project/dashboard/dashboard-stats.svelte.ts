@@ -76,10 +76,7 @@ export class DashboardStats {
     this.totalEntries === undefined ? undefined : nextMilestone(this.totalEntries));
 
   #writingSystemService: WritingSystemService;
-  #api!: IMiniLcmJsInvokable;
-  #loading?: Promise<void>;
-  #reload = false;
-  #attempt = 0;
+  #loadVersion = 0;
 
   constructor(writingSystemService: WritingSystemService) {
     this.#writingSystemService = writingSystemService;
@@ -101,44 +98,18 @@ export class DashboardStats {
     if (row) Object.assign(row, patch);
   }
 
-  /** Every stat scans all the entries, so loads never overlap: a call during a load queues a single reload. */
-  load(api: IMiniLcmJsInvokable): Promise<void> {
-    this.#api = api;
-    if (this.#loading) {
-      this.#reload = true;
-      return this.#loading;
-    }
-    this.#loading = this.#loadUntilCurrent();
-    return this.#loading;
-  }
-
-  async #loadUntilCurrent(): Promise<void> {
-    let failure: {error: unknown} | undefined;
-    do {
-      this.#reload = false;
-      try {
-        await this.#loadOnce(this.#api);
-        failure = undefined;
-      } catch (error) {
-        failure = {error};
-      }
-    } while (this.#reload);
-    // cleared in the same tick the loop ends, or a load arriving in between would queue behind nothing
-    this.#loading = undefined;
-    if (failure) throw failure.error;
-  }
-
-  async #loadOnce(api: IMiniLcmJsInvokable): Promise<void> {
-    // a failed attempt ends while its other counts are still running; they must not land on a later attempt's numbers
-    const attempt = ++this.#attempt;
-    const current = () => attempt === this.#attempt;
+  async load(api: IMiniLcmJsInvokable): Promise<void> {
+    const version = ++this.#loadVersion;
+    const fresh = () => version === this.#loadVersion;
 
     const totalEntries = await api.countEntries(undefined, undefined);
+    if (!fresh()) return;
     this.totalEntries = totalEntries;
 
     async function filledField(gridifyFilter: string, assign: (field: FieldCompletion) => void): Promise<void> {
       const missing = await api.countEntries(undefined, {filter: {gridifyFilter}});
-      if (current()) assign(completion(totalEntries, totalEntries - missing));
+      if (!fresh()) return;
+      assign(completion(totalEntries, totalEntries - missing));
     }
 
     const primary = Promise.all([
@@ -150,6 +121,7 @@ export class DashboardStats {
     let analysis = this.#writingSystemService.analysis;
     if (vernacular.length === 0 && analysis.length === 0) {
       const writingSystems = await api.getWritingSystems();
+      if (!fresh()) return;
       vernacular = writingSystems.vernacular;
       analysis = writingSystems.analysis;
     }
@@ -162,6 +134,7 @@ export class DashboardStats {
 
     // deliberately not one big Promise.all: the per-writing-system counts would compete with the primary stats
     await primary;
+    if (!fresh()) return;
 
     await Promise.all([
       ...vernacularRows.flatMap(row => [
@@ -192,8 +165,7 @@ export function useDashboardStats() {
       return stats;
     });
   });
-  // Outside the cached factory on purpose: the stats are only kept up to date while the calling
-  // component is mounted, and catch up here on what changed in between.
+  // Outside the cached factory, so the subscription ends with the dashboard. Catch up on what changed meanwhile.
   const debouncedRefetch = useDebounce(() => void resource.refetch(), 500);
   projectEventBus.onEntriesChanged(() => void debouncedRefetch());
   void resource.refetch();
