@@ -150,22 +150,40 @@ public class MiniLcmRepository(
         IQueryable<Entry> queryable;
         (queryable, options) = await FilterAndSortEntries(query, options ?? QueryOptions.Default);
 
-        queryable = queryable
-            .LoadWith(e => e.Senses)
-            .ThenLoad(s => s.ExampleSentences)
-            .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
-            .LoadWith(e => e.ComplexForms)
-            .LoadWith(e => e.Components)
-            .AsQueryable();
-
         queryable = options.ApplyPaging(queryable);
         var complexFormComparer = ComplexFormComparer(await GetWritingSystem(default, WritingSystemType.Vernacular));
-        var entries = AsyncExtensions.AsAsyncEnumerable(queryable);
         await EnsureConnectionOpen();//sometimes there can be a race condition where the collations arent setup
-        await foreach (var entry in EfExtensions.SafeIterate(entries))
+        var entries = await AsyncExtensions.ToListAsync(queryable);
+        await LoadEntryChildren(entries);
+        foreach (var entry in entries)
         {
             entry.Finalize(complexFormComparer);
             yield return entry;
+        }
+    }
+
+    // Not LoadWith on the entry query: linq2db copies the whole filtered and sorted entry query into each LoadWith
+    // child query, so every new filter/sort/search shape took 1-2 s to build. These queries have one shape each.
+    private async Task LoadEntryChildren(IReadOnlyCollection<Entry> entries)
+    {
+        //one id parameter per entry; SQLite allows 32766, and fewer, bigger batches load the whole list faster
+        foreach (var batch in entries.Chunk(10_000))
+        {
+            var ids = batch.Select(e => e.Id).ToArray();
+            var senses = (await AsyncExtensions.ToListAsync(dbContext.Senses.ToLinqToDB()
+                .LoadWith(s => s.ExampleSentences)
+                .LoadWith(s => s.PartOfSpeech)
+                .Where(s => ids.Contains(s.EntryId)))).ToLookup(s => s.EntryId);
+            var components = (await AsyncExtensions.ToListAsync(dbContext.ComplexFormComponents.ToLinqToDB()
+                .Where(c => ids.Contains(c.ComplexFormEntryId)))).ToLookup(c => c.ComplexFormEntryId);
+            var complexForms = (await AsyncExtensions.ToListAsync(dbContext.ComplexFormComponents.ToLinqToDB()
+                .Where(c => ids.Contains(c.ComponentEntryId)))).ToLookup(c => c.ComponentEntryId);
+            foreach (var entry in batch)
+            {
+                entry.Senses = [..senses[entry.Id]];
+                entry.Components = [..components[entry.Id]];
+                entry.ComplexForms = [..complexForms[entry.Id]];
+            }
         }
     }
 
@@ -256,15 +274,10 @@ public class MiniLcmRepository(
 
     public async Task<Entry?> GetEntry(Guid id)
     {
-        var entry = await AsyncExtensions.SingleOrDefaultAsync(Entries
-                .LoadWith(e => e.Senses)
-                .ThenLoad(s => s.ExampleSentences)
-                .LoadWith(e => e.Senses).ThenLoad(s => s.PartOfSpeech)
-                .LoadWith(e => e.ComplexForms)
-                .LoadWith(e => e.Components)
-                .AsQueryable(), e => e.Id == id);
+        var entry = await AsyncExtensions.SingleOrDefaultAsync(Entries, e => e.Id == id);
         if (entry is not null)
         {
+            await LoadEntryChildren([entry]);
             var sortWs = await GetWritingSystem(WritingSystemId.Default, WritingSystemType.Vernacular);
             var complexFormComparer = ComplexFormComparer(sortWs);
             entry.Finalize(complexFormComparer);
