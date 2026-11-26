@@ -365,6 +365,10 @@
     outline: none;
     cursor: text;
 
+    &[contenteditable='false'] {
+      cursor: default;
+    }
+
     white-space: pre-wrap;
 
     :global(.customized) {

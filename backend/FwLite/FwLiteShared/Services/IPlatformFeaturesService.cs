@@ -50,6 +50,14 @@ public interface IPlatformFeaturesService
 
     [JSInvokable]
     Task<string?> SuggestedAuthorName();
+
+    //Joining a nearby device's sync session over Wi-Fi
+    [JSInvokable]
+    Task<bool> SupportsWifiSync();
+
+    //Sharing a project for nearby devices to join; needs a host that can listen on the network (laptops for now)
+    [JSInvokable]
+    Task<bool> SupportsWifiSyncHosting();
 }
 
 internal class DummyPlatformFeaturesService : IPlatformFeaturesService
@@ -92,4 +100,10 @@ internal class DummyPlatformFeaturesService : IPlatformFeaturesService
 
     [JSInvokable]
     public Task<string?> SuggestedAuthorName() => Task.FromResult(OsUserName.Suggest());
+
+    [JSInvokable]
+    public Task<bool> SupportsWifiSync() => Task.FromResult(false);
+
+    [JSInvokable]
+    public Task<bool> SupportsWifiSyncHosting() => Task.FromResult(false);
 }

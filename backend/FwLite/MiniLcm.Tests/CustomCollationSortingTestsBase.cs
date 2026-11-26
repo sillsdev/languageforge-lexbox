@@ -59,4 +59,24 @@ public abstract class CustomCollationSortingTestsBase : MiniLcmTestBase
 
         headwords.Should().Equal("ha", "cha");
     }
+
+    [Fact]
+    public async Task ComplexForms_SortByDefaultVernacularCollation()
+    {
+        WritingSystemId wsId = "de";
+        await CreateWritingSystemWithCollation(NewWs(wsId) with { IcuCollationRules = "&z < a" });
+        // the default vernacular writing system is the first one
+        var vernacular = (await Api.GetWritingSystems()).Vernacular.First();
+        await Api.MoveWritingSystem(wsId, WritingSystemType.Vernacular, new(null, vernacular.WsId));
+
+        var component = await Api.CreateEntry(new() { LexemeForm = { { wsId, "base" } } });
+        var apple = await Api.CreateEntry(new() { LexemeForm = { { wsId, "apple" } } });
+        var zebra = await Api.CreateEntry(new() { LexemeForm = { { wsId, "zebra" } } });
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(apple, component));
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(zebra, component));
+
+        var entry = await Api.GetEntry(component.Id);
+
+        entry!.ComplexForms.Select(c => c.ComplexFormHeadword).Should().Equal("zebra", "apple");
+    }
 }

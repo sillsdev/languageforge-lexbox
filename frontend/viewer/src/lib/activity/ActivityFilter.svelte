@@ -79,10 +79,9 @@
     return author?.authorName ?? key;
   }
 
-  function allSelectionIcon(selected: MultiFilterSelection, allKeys: string[]): IconClass | undefined {
-    if (selected === 'all' || isAllFilterSelection(selected, allKeys)) return 'i-mdi-check';
-    if (selected.length === 0) return undefined;
-    return 'i-mdi-minus';
+  function allCheckState(selected: MultiFilterSelection, allKeys: string[]): boolean | 'some' {
+    if (selected === 'all' || isAllFilterSelection(selected, allKeys)) return true;
+    return selected.length > 0 && 'some';
   }
 
   function onAuthorValueChange(value: string[]) {
@@ -108,15 +107,11 @@
         {/if}
       </Select.Trigger>
       <Select.Content>
-        <Select.Item value={ALL_AUTHORS} label={$t`All authors`}>
-          {#snippet selectedIndicator()}
-            {@const icon = allSelectionIcon(filters.authorFilterKeys, authorKeys)}
-            {#if icon}
-              <Icon {icon} class="size-4" />
-            {/if}
-          {/snippet}
-          <span class="font-bold">{$t`All authors`}</span>
+        <Select.Item value={ALL_AUTHORS} label={$t`All authors`}
+          checkState={allCheckState(filters.authorFilterKeys, authorKeys)}>
+          <span class="font-semibold">{$t`All authors`}</span>
         </Select.Item>
+        <Select.Separator />
         {#each authors as author (authorFilterKey(author))}
           {@const key = authorFilterKey(author)}
           <Select.Item value={key} label={authorKeyToLabel(key)}>

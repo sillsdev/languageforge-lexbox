@@ -1,8 +1,6 @@
 <script lang="ts">
   import AppBar from './AppBar.svelte';
   import flexLogo from '$lib/assets/flex-logo.png';
-  import logoReversed from '$logos/fieldworks-lite/fieldworks-lite-tiny-reversed.svg';
-  import logo from '$logos/fieldworks-lite/fieldworks-lite-tiny.svg';
   import storybookIcon from '../stories/assets/storybook-icon.svg';
   import DevContent, {devModeToggle} from '$lib/layout/DevContent.svelte';
   import {
@@ -16,7 +14,7 @@
   import type {IProjectModel} from '$lib/dotnet-types';
   import ThemePicker from '$lib/components/ThemePicker.svelte';
   import {Button} from '$lib/components/ui/button';
-  import {mode} from 'mode-watcher';
+  import FwLiteLogo from '$lib/components/FwLiteLogo.svelte';
   import * as ResponsiveMenu from '$lib/components/responsive-menu';
   import {Icon} from '$lib/components/ui/icon';
   import ProjectListItem from './ProjectListItem.svelte';
@@ -35,6 +33,7 @@
   import OpenFromFolderItem from './OpenFromFolderItem.svelte';
   import UpdateDialog from '$lib/updates/UpdateDialog.svelte';
   import {SYNC_DIALOG_QUERY_PARAM} from '../project/SyncDialog.svelte';
+  import {markFirstScreenReady} from '$lib/first-screen';
 
   const projectsService = useProjectsService();
   const importFwdataService = useImportFwdataService();
@@ -70,7 +69,7 @@
         isDangerous: true,
         details: $t`Make sure your [changes are synced](${syncDialogUrl}) to Lexbox.`,
       })) return;
-      deletingProject = project.id;
+      deletingProject = project.code;
       await projectsService.deleteProject(project.code);
       await refreshProjects();
     } finally {
@@ -93,7 +92,8 @@
 
   let projectsPromise = $state(projectsService
     .localProjects()
-    .then((projects) => projects.sort((p1, p2) => p1.name.localeCompare(p2.name))));
+    .then((projects) => projects.sort((p1, p2) => p1.name.localeCompare(p2.name)))
+    .finally(markFirstScreenReady));
 
   async function refreshProjects() {
     let promise = projectsService.localProjects().then((p) => p.sort((p1, p2) => p1.name.localeCompare(p2.name)));
@@ -116,7 +116,7 @@
 <AppBar tabTitle={$t`Dictionaries`}>
   {#snippet title()}
     <div class="text-lg flex gap-2 items-center">
-      <Icon {@attach devModeToggle} src={mode.current === 'dark' ? logoReversed : logo} class="size-8" alt={$t`FieldWorks Lite logo`}/>
+      <FwLiteLogo {@attach devModeToggle} class="size-8"/>
       <h3>{$t`Dictionaries`}</h3>
     </div>
   {/snippet}
@@ -186,19 +186,21 @@
                     onclick={() => refreshProjects()}/>
           </div>
           <div>
-            {#each projects.filter((p) => p.crdt) as project (project)}
+            {#each projects.filter((p) => p.crdt) as project (project.code)}
               {@const server = project.server}
-              {@const loading = deletingProject === project.id}
+              {@const loading = deletingProject === project.code}
               <div out:send={{key: 'project-' + project.code}} in:receive={{key: 'project-' + project.code}}>
                 <ResponsiveMenu.Root contextMenu>
                   <ResponsiveMenu.Trigger>
                     {#snippet child({props})}
                       <Anchor {...props} href={`/project/${project.code}`}>
-                        <ProjectListItem icon="i-mdi-book-edit-outline"
-                                         {project}
+                        <ProjectListItem {project}
                                          {loading}
                                          subtitle={!server ? $t`Local only` : $t`Synced with ${server.displayName}`}
                         >
+                          {#snippet icon()}
+                            <FwLiteLogo/>
+                          {/snippet}
                           {#snippet actions()}
                             <div class="flex items-center">
                               <Icon icon="i-mdi-chevron-right" class="p-2"/>
@@ -250,9 +252,7 @@
           <div>
             <p class="sub-title">{$t`Classic FieldWorks Projects`}</p>
             <div>
-              <!-- project.name (and maybe code as well) can have duplicates
-              if there are 2 fwdata projects whose names are the name and code of a crdt project -->
-              {#each projects.filter((p) => p.fwdata) as project (project)}
+              {#each projects.filter((p) => p.fwdata) as project (project.code)}
                 <Anchor href={`/fwdata/${project.code}`}>
                   <ProjectListItem {project}>
                     {#snippet icon()}

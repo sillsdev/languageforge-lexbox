@@ -7,6 +7,7 @@
   import {t} from 'svelte-i18n-lingui';
   import {tick} from 'svelte';
   import flexLogo from '$lib/assets/flex-logo.png';
+  import FwLiteLogo from '$lib/components/FwLiteLogo.svelte';
   import {useProjectsService} from '$lib/services/service-provider';
   import {resource} from 'runed';
   import type {IProjectModel} from '$lib/dotnet-types';
@@ -20,7 +21,7 @@
   }>();
   const projectContext = useProjectContext();
   const features = useFeatures();
-  const readonly = $derived(!features.write);
+  const readonly = $derived(projectContext.featuresLoaded && !features.write);
   const projectName = $derived(projectContext.projectName);
   const isCrdt = $derived(projectContext.projectType === 'crdt');
   const projectsService = useProjectsService();
@@ -40,18 +41,32 @@
 
   let open = $state(false);
   let triggerRef = $state<HTMLButtonElement | null>(null);
+  let search = $state('');
 
+  function isCurrentProject(project: IProjectModel): boolean {
+    return project.crdt === isCrdt && project.code === projectContext.projectCode;
+  }
+
+  function itemValue(project: IProjectModel): string {
+    return `${project.name}-${project.code}-${project.crdt}`;
+  }
+
+  const currentItemValue = $derived.by(() => {
+    const current = projectsResource.current?.find(isCurrentProject);
+    return current ? itemValue(current) : undefined;
+  });
 
   // Simulate loading delay
   function handleOpen(isOpen: boolean) {
     open = isOpen;
+    if (isOpen) search = '';
     if (isOpen && !projectsResource.current) {
       void projectsResource.refetch();
     }
   }
 
   function handleSelect(project: IProjectModel) {
-    onSelect(project);
+    if (!isCurrentProject(project)) onSelect(project);
     closeAndFocusTrigger();
   }
 
@@ -68,7 +83,7 @@
 
 {#snippet projectIcon(isCrdt: boolean)}
   {#if isCrdt}
-    <Icon icon="i-mdi-book-edit-outline" />
+    <FwLiteLogo />
   {:else}
     <Icon src={flexLogo} alt={$t`FieldWorks logo`} />
   {/if}
@@ -101,32 +116,37 @@
     {/snippet}
   </Popover.Trigger>
   <Popover.Content class="w-full p-0 min-w-56" align="start">
-    <Command.Root>
-      <Command.Input placeholder={$t`Search Dictionaries`} />
-      <Command.List>
-        {#if projectsResource.loading}
-          <Command.Loading>
-            <div class="flex items-center justify-center p-4">
-              <Icon icon="i-mdi-loading" class="size-4 animate-spin" />
-              <span class="ml-2">{$t`Loading Dictionaries...`}</span>
-            </div>
-          </Command.Loading>
-        {:else}
-          <Command.Empty>{$t`No Dictionaries found`}</Command.Empty>
-          {#each projectsResource.current ?? [] as project (project)}
-            {@const isCurrentProject = project.crdt === isCrdt &&
-              (isCrdt ? project.name === projectName : project.code === projectName)}
-            <Command.Item
-              value={`${project.name}-${project.code}-${project.crdt}`}
-              onSelect={() => handleSelect(project)}
-              class={cn('cursor-pointer', isCurrentProject && 'bg-secondary')}
-            >
-              {@render projectIcon(project.crdt)}
-              <ProjectTitle {project} />
-            </Command.Item>
-          {/each}
-        {/if}
-      </Command.List>
-    </Command.Root>
+    <!-- Command only reads its starting value on mount, so remount it once the projects load -->
+    {#key projectsResource.current}
+      <Command.Root value={currentItemValue}>
+        <Command.Input bind:value={search} autofocus placeholder={$t`Search Dictionaries`} />
+        <Command.List>
+          {#if projectsResource.loading}
+            <Command.Loading>
+              <div class="flex items-center justify-center p-4">
+                <Icon icon="i-mdi-loading" class="size-4 animate-spin" />
+                <span class="ml-2">{$t`Loading Dictionaries...`}</span>
+              </div>
+            </Command.Loading>
+          {:else}
+            <Command.Empty>{$t`No Dictionaries found`}</Command.Empty>
+            {#each projectsResource.current ?? [] as project (project)}
+              <Command.Item
+                value={itemValue(project)}
+                onSelect={() => handleSelect(project)}
+                class="cursor-pointer"
+              >
+                {@render projectIcon(project.crdt)}
+                <ProjectTitle {project} />
+                {#if isCurrentProject(project)}
+                  <Icon icon="i-mdi-check" class="ml-auto text-foreground" />
+                  <span class="sr-only">{$t`Current`}</span>
+                {/if}
+              </Command.Item>
+            {/each}
+          {/if}
+        </Command.List>
+      </Command.Root>
+    {/key}
   </Popover.Content>
 </Popover.Root>

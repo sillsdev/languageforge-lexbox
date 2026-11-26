@@ -32,7 +32,8 @@ GitHub Actions workflows and deployment. Full runs take 30-60+ min across Linux,
 | `integration-test-gha.yaml` | API/UI changes | Spin up K8s in GHA, run integration tests |
 | `deploy.yaml` | Called by others | Deploy to K8s environment via fleet repo |
 | `deploy-branch.yaml` | Manual | Deploy feature branch to develop |
-| `release-pipeline.yaml` | Manual dispatch (develop only) | Release LexBox (build → test → deploy, then a `lexbox-v<date>-<sha>` GitHub release) and FW Lite with one shared version |
+| `release-pipeline.yaml` | Manual dispatch (develop only) | Release LexBox (build → test → deploy, then a `lexbox-v<date>-<sha>` GitHub release) and FW Lite with one shared version; publishes the docs site once the FW Lite release succeeds |
+| `docs.yaml` | Docs PRs, release pipeline, manual dispatch | Build the docs site; publish to GitHub Pages when called by the release pipeline or dispatched on develop |
 
 ### Development Workflows
 

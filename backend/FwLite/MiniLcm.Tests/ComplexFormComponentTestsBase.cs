@@ -98,6 +98,44 @@ public abstract class ComplexFormComponentTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task ComplexForms_SortAlphabeticallyAcrossEntryAndSenseComponents()
+    {
+        var apple = await Api.CreateEntry(new() { LexemeForm = { { "en", "apple" } } });
+        var zebra = await Api.CreateEntry(new() { LexemeForm = { { "en", "zebra" } } });
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(zebra, _componentEntry));
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(apple, _componentEntry, _componentSenseId1));
+
+        var entry = await Api.GetEntry(_componentEntryId);
+
+        entry!.ComplexForms.Select(c => c.ComplexFormHeadword).Should().Equal("apple", "zebra");
+    }
+
+    [Fact]
+    public async Task ComplexForms_OneComplexFormUsingSeveralParts_SortsEntryFirstThenSenseOrder()
+    {
+        // sense ids in the opposite order to the senses, so sorting by id would fail
+        Guid[] senseIds = [Guid.NewGuid(), Guid.NewGuid()];
+        Array.Sort(senseIds);
+        var component = await Api.CreateEntry(new()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = { { "en", "multi-part component" } },
+            Senses =
+            [
+                new Sense { Id = senseIds[1], Gloss = { { "en", "first" } } },
+                new Sense { Id = senseIds[0], Gloss = { { "en", "second" } } },
+            ]
+        });
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, component, senseIds[0]));
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, component, senseIds[1]));
+        await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, component));
+
+        var entry = await Api.GetEntry(component.Id);
+
+        entry!.ComplexForms.Select(c => c.ComponentSenseId).Should().Equal(null, senseIds[1], senseIds[0]);
+    }
+
+    [Fact]
     public async Task GetEntries_Works()
     {
         await Api.CreateComplexFormComponent(ComplexFormComponent.FromEntries(_complexFormEntry, _componentEntry));

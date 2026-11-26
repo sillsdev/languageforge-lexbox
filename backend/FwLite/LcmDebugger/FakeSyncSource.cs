@@ -58,9 +58,9 @@ public class FakeSyncSource(Commit[] commits, SyncState? currentSyncState = null
         return new FakeSyncSource(changes.MissingFromClient, changes.ServerSyncState);
     }
 
-    public Task AddRangeFromSync(IEnumerable<Commit> commits)
+    public Task<Commit[]> AddRangeFromSync(IEnumerable<Commit> commits)
     {
-        return Task.CompletedTask;
+        return Task.FromResult<Commit[]>([]);
     }
 
     public Task<SyncState> GetSyncState()

@@ -46,6 +46,7 @@ import type {IUploadFileResponse} from '$lib/dotnet-types/generated-types/MiniLc
 import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
 import {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
 import type {IOpenFromFolderResult} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IOpenFromFolderResult';
+import type {IServerStatus} from '$lib/dotnet-types/generated-types/FwLiteShared/Auth/IServerStatus';
 import type {IFolderSyncSummary} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IFolderSyncSummary';
 import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IUpdateService';
 import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
@@ -138,7 +139,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     const projectContext = initProjectContext();
     const eventBus = useEventBus();
     const inMemoryLexboxApi = new InMemoryDemoApi(projectContext, eventBus);
-    projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName})
+    projectContext.setup({api: inMemoryLexboxApi, projectName: inMemoryLexboxApi.projectName, projectCode: inMemoryLexboxApi.projectName, projectType: 'crdt'})
     initProjectStorage(projectContext.projectCode);
     window.lexbox.ServiceProvider.setService(DotnetService.FwLiteConfig, mockFwLiteConfig);
     let hasHardwareKeyboard = true;
@@ -166,6 +167,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
           api: inMemoryLexboxApi,
           projectName: inMemoryLexboxApi.projectName,
           projectCode: inMemoryLexboxApi.projectName,
+          projectType: 'crdt',
           projectData: {name: inMemoryLexboxApi.projectName, code: inMemoryLexboxApi.projectName, id: 'demo', clientId: 'demo', role},
         });
       },
@@ -195,8 +197,11 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       downloadProjectByCode: function (_code, _server, _userRole): Promise<DownloadProjectByCodeResult> {
         return Promise.resolve(DownloadProjectByCodeResult.Success);
       },
-      createProject: function (_name: string, _code: string, _vernacularWs: string, _analysisWs?: string): Promise<void> {
+      createProject: function (): Promise<void> {
         return Promise.resolve();
+      },
+      knownLexboxAccount: function (): Promise<IServerStatus | undefined> {
+        return Promise.resolve(undefined);
       },
       createDemoProject: function (_name: string): Promise<void> {
         return Promise.resolve();
@@ -209,6 +214,9 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       },
       syncProjectWithFolder: function (_projectCode: string, _path: string): Promise<IFolderSyncSummary> {
         return Promise.reject(new Error('Folder sync is not available in the demo'));
+      },
+      uploadCrdtProject: function (_server, _code): Promise<void> {
+        return Promise.resolve();
       }
     });
     return inMemoryLexboxApi;

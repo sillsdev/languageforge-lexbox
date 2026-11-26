@@ -69,7 +69,18 @@ public static class AuthKernel
                         );
                 });
 
+            // lexicon clients get single files (pictures and audio their entries point to) but not the project's file list
             options.AddPolicy(FileUploadProxy.UserCanDownloadMediaFilesPolicy,
+                builder =>
+                {
+                    builder.RequireAuthenticatedUser()
+                        .AddRequirements(
+                            new MediaFilesRequirement(false),
+                            new RequireScopeAttribute(LexboxAuthScope.LexboxApi, LexboxAuthScope.SendAndReceive,
+                                LexboxAuthScope.LexiconRead, LexboxAuthScope.LexiconWrite)
+                        );
+                });
+            options.AddPolicy(FileUploadProxy.UserCanListMediaFilesPolicy,
                 builder =>
                 {
                     builder.RequireAuthenticatedUser()

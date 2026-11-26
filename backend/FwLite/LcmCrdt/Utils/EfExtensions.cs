@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace LcmCrdt.Utils;
 
@@ -16,27 +17,30 @@ public static class EfExtensions
         return false;
     }
 
-    //prevents hiding query exceptions due to Dispose throwing after the query threw an exception
-    internal static async IAsyncEnumerable<T> SafeIterate<T>(IAsyncEnumerable<T> asyncEnumerable)
+    /// <summary>
+    /// Runs several queries against one snapshot of the database. Deferred, so it doesn't take the write lock:
+    /// in WAL mode writers carry on, in rollback-journal mode a writer waits until it ends.
+    /// Inside an existing transaction the queries just run in that.
+    /// </summary>
+    public static async Task<T> InReadTransaction<T>(this DatabaseFacade database, Func<Task<T>> read)
     {
-        var asyncEnumerator = asyncEnumerable.GetAsyncEnumerator();
-        try
+        if (database.CurrentTransaction is not null) return await read();
+        T result;
+        //not database.BeginTransaction: that issues BEGIN IMMEDIATE, which takes the write lock
+        await using (var transaction = ((SqliteConnection)database.GetDbConnection()).BeginTransaction(deferred: true))
         {
-            while (await asyncEnumerator.MoveNextAsync())
-            {
-                yield return asyncEnumerator.Current;
-            }
-        }
-        finally
-        {
+            await database.UseTransactionAsync(transaction);
             try
             {
-                await asyncEnumerator.DisposeAsync();
+                result = await read();
             }
-            catch (Exception e)
+            finally
             {
-                Console.WriteLine(e);//basically ignore, there's a known issue where dispose will throw but we want to ignore that since it would otherwise cover up when MoveNextAsync throws
+                await database.UseTransactionAsync(null);
             }
         }
+        //UseTransaction opened the connection once more
+        await database.CloseConnectionAsync();
+        return result;
     }
 }
