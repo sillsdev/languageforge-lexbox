@@ -1,3 +1,4 @@
+import {onDestroy} from 'svelte';
 import {useDebounce} from 'runed';
 import type {IMiniLcmJsInvokable, IWritingSystem} from '$lib/dotnet-types';
 import {useProjectEventBus} from '$lib/services/event-bus';
@@ -168,6 +169,7 @@ export function useDashboardStats() {
   // Outside the cached factory, so the subscription ends with the dashboard. Catch up on what changed meanwhile.
   const debouncedRefetch = useDebounce(() => void resource.refetch(), 500);
   projectEventBus.onEntriesChanged(() => void debouncedRefetch());
+  onDestroy(() => debouncedRefetch.cancel());
   void resource.refetch();
   return resource;
 }
