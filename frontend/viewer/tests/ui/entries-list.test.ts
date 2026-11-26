@@ -155,6 +155,22 @@ test.describe('EntriesList', () => {
       await expect(entryRow).toBeVisible();
       await expect(createFromSearchRow).toBeVisible();
     });
+
+    test('read-only projects offer no "Add to dictionary" row', async ({page}) => {
+      const {headword} = await projectPage.api.getEntryWithEnglishGloss();
+      await page.evaluate(async () => {
+        await window.__PLAYWRIGHT_UTILS__.setWrite(false);
+      });
+
+      await projectPage.entriesList.searchInput.fill(headword);
+      await expect(projectPage.entriesList.skeletons).toHaveCount(0);
+      await expect(projectPage.entriesList.entryRows.filter({hasText: headword}).first()).toBeVisible();
+      await expect(page.getByText('Add to dictionary')).toHaveCount(0);
+
+      await projectPage.entriesList.searchInput.fill('zzqx-no-such-word');
+      await expect(page.getByText(/No (entries|words) found/)).toBeVisible();
+      await expect(page.getByText('Add to dictionary')).toHaveCount(0);
+    });
   });
 
   test.describe('Entry event handling', () => {

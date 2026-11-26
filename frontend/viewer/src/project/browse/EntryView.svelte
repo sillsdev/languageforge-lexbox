@@ -31,6 +31,7 @@
   import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
   import {ResizableHandle, ResizablePane, ResizablePaneGroup} from '$lib/components/ui/resizable';
   import {IsExtraLarge} from '$lib/hooks/is-extra-large.svelte';
+  import ReadonlyChip from './ReadonlyChip.svelte';
 
   type DictionaryPreviewMode = 'show' | 'hide' | 'sticky';
 
@@ -190,6 +191,7 @@
           {#if bestHeadword}{bestHeadword}<HomographNumber homographNumber={entry.homographNumber} />{:else}{headwordTitle}{/if}
         </h2>
         <div class="flex shrink-0">
+          <ReadonlyChip />
           {#if features.comments}
             <div class="relative">
               <Button
