@@ -91,8 +91,27 @@ public class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
 
     public void OnForwarderFailed(DateTime timestamp, ForwarderError error)
     {
+        Activity.Current?.AddEvent(new("Forwarder failed", timestamp));
+        if (IsClientSide(error))
+        {
+            // e.g. a Send/Receive client timing out on a slow hgresume response: not a server fault
+            _logger.LogInformation("Client gave up on proxied request: {Error}", error.ToString());
+            Activity.Current?.SetTag("app.proxy.client_error", error.ToString());
+            return;
+        }
+
         _logger.LogError("Forwarder Failed: {Error}", error.ToString());
         Activity.Current?.SetStatus(ActivityStatusCode.Error, "Forwarder failed: " + error.ToString());
-        Activity.Current?.AddEvent(new("Forwarder failed", timestamp));
     }
+
+    private static bool IsClientSide(ForwarderError error) => error is
+        ForwarderError.RequestCanceled or
+        ForwarderError.RequestBodyCanceled or
+        ForwarderError.RequestBodyClient or
+        ForwarderError.ResponseBodyCanceled or
+        ForwarderError.ResponseBodyClient or
+        ForwarderError.UpgradeRequestCanceled or
+        ForwarderError.UpgradeRequestClient or
+        ForwarderError.UpgradeResponseCanceled or
+        ForwarderError.UpgradeResponseClient;
 }
