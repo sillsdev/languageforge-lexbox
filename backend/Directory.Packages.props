@@ -7,20 +7,20 @@
     <HotChocolateVersion>15.1.16</HotChocolateVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" Version="0.5.2" />
+    <PackageVersion Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" Version="0.6.3" />
     <PackageVersion Include="BeaKona.AutoInterfaceGenerator" Version="1.0.46" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
     <PackageVersion Include="coverlet.collector" Version="10.1.0" />
     <PackageVersion Include="CrystalQuartz.AspNetCore" Version="7.3.0" />
-    <PackageVersion Include="DataAnnotatedModelValidations" Version="10.0.0" />
+    <PackageVersion Include="DataAnnotatedModelValidations" Version="10.0.1" />
     <!-- 8.x is under the Xceed community license (free for open-source projects). Before 8.10 its
          BeEquivalentTo was far slower on large collections (pushed FwLite CI past 60 min); watch the
          FW Lite test job duration when bumping. -->
     <PackageVersion Include="FluentAssertions" Version="8.11.0" />
     <PackageVersion Include="FluentValidation" Version="12.2.0" />
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.5" />
-    <PackageVersion Include="Gridify" Version="2.19.1" />
-    <PackageVersion Include="Gridify.EntityFramework" Version="2.19.1" />
+    <PackageVersion Include="Gridify" Version="2.20.0" />
+    <PackageVersion Include="Gridify.EntityFramework" Version="2.20.0" />
     <PackageVersion Include="HotChocolate.AspNetCore" Version="$(HotChocolateVersion)" />
     <PackageVersion Include="HotChocolate.AspNetCore.Authorization" Version="$(HotChocolateVersion)" />
     <PackageVersion Include="HotChocolate.Data" Version="$(HotChocolateVersion)" />
@@ -31,8 +31,8 @@
     <PackageVersion Include="Humanizer.Core" Version="3.0.10" />
     <PackageVersion Include="icu.net" Version="4.0.0" />
     <PackageVersion Include="Icu4c.Android.Fw.Lib" Version="70.1.182" />
-    <PackageVersion Include="linq2db.Extensions" Version="6.5.1" />
-    <PackageVersion Include="linq2db.EntityFrameworkCore" Version="10.7.0" />
+    <PackageVersion Include="linq2db.Extensions" Version="6.6.0" />
+    <PackageVersion Include="linq2db.EntityFrameworkCore" Version="10.8.0" />
     <PackageVersion Include="L10NSharp" Version="11.0.1" />
     <PackageVersion Include="L10NSharp.Windows.Forms" Version="11.0.1" />
     <PackageVersion Include="MailKit" Version="4.18.2" />
@@ -46,7 +46,7 @@
     <!-- Pinned (transitively) above the 2.0.0 that Microsoft.AspNetCore.OpenApi drags in, to patch GHSA-v5pm-xwqc-g5wc (fixed in 2.7.5). -->
     <PackageVersion Include="Microsoft.OpenApi" Version="2.12.2" />
     <PackageVersion Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.13" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.13" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="11.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.13" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.13" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.11.0" />
@@ -79,35 +79,35 @@
     <PackageVersion Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
     <PackageVersion Include="MimeMapping" Version="4.0.0" />
     <PackageVersion Include="MongoDB.Analyzer" Version="2.0.0" />
-    <PackageVersion Include="MongoDB.Driver" Version="3.13.0" />
+    <PackageVersion Include="MongoDB.Driver" Version="3.14.1" />
     <PackageVersion Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" Version="3.0.0" />
     <PackageVersion Include="Moq" Version="4.21.0" />
     <PackageVersion Include="Moq.Contrib.HttpClient" Version="1.4.0" />
-    <PackageVersion Include="NeinLinq" Version="7.4.0" />
-    <PackageVersion Include="NeinLinq.EntityFrameworkCore" Version="7.4.0" />
+    <PackageVersion Include="NeinLinq" Version="7.5.0" />
+    <PackageVersion Include="NeinLinq.EntityFrameworkCore" Version="7.5.0" />
     <PackageVersion Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
-    <PackageVersion Include="Npgsql" Version="10.0.3" />
-    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
-    <PackageVersion Include="Npgsql.OpenTelemetry" Version="10.0.3" />
+    <PackageVersion Include="Npgsql" Version="10.0.4" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.4" />
+    <PackageVersion Include="Npgsql.OpenTelemetry" Version="10.0.4" />
     <PackageVersion Include="NReco.Logging.File" Version="1.4.0" />
-    <PackageVersion Include="OpenIddict.AspNetCore" Version="7.5.0" />
-    <PackageVersion Include="OpenIddict.EntityFrameworkCore" Version="7.5.0" />
-    <PackageVersion Include="OpenIddict.Quartz" Version="7.5.0" />
-    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.20.1" />
-    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.20.1" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.20.1" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.20.1" />
+    <PackageVersion Include="OpenIddict.AspNetCore" Version="7.9.0" />
+    <PackageVersion Include="OpenIddict.EntityFrameworkCore" Version="7.9.0" />
+    <PackageVersion Include="OpenIddict.Quartz" Version="7.9.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.21.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.15.1-beta.1" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.20.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.21.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Quartz" Version="1.15.1-beta.1" />
-    <PackageVersion Include="Polly" Version="8.8.1" />
-    <PackageVersion Include="Polly.Extensions" Version="8.8.1" />
-    <PackageVersion Include="Quartz.AspNetCore" Version="3.18.1" />
-    <PackageVersion Include="Quartz.Serialization.SystemTextJson" Version="3.18.1" />
+    <PackageVersion Include="Polly" Version="8.9.1" />
+    <PackageVersion Include="Polly.Extensions" Version="8.9.1" />
+    <PackageVersion Include="Quartz.AspNetCore" Version="3.22.11" />
+    <PackageVersion Include="Quartz.Serialization.SystemTextJson" Version="3.22.11" />
     <PackageVersion Include="Refit" Version="10.2.0" />
     <PackageVersion Include="Refit.HttpClientFactory" Version="10.2.0" />
     <PackageVersion Include="Reinforced.Typings" Version="1.6.7" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.18.3" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.21.0" />
     <PackageVersion Include="SharpCompress" Version="0.49.1" />
     <PackageVersion Include="SIL.Chorus.ChorusMerge" Version="6.0.0-beta0084" />
     <PackageVersion Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0084" />
