@@ -81,7 +81,7 @@
           {sensePreview}
         </div>
         {#if partOfSpeech}
-          <Badge variant="default" class="bg-primary/60 whitespace-nowrap">
+          <Badge>
             {partOfSpeechService.getLabel(partOfSpeech)}
           </Badge>
         {/if}

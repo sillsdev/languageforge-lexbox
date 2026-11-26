@@ -19,7 +19,7 @@ public class LcmMediaService(
     ResourceService<LcmFileMetadata> resourceService,
     CurrentProjectService currentProjectService,
     HarmonyChangeWriter changeWriter,
-    IOptions<HarmonyConfig> options,
+    IOptions<LcmCrdtConfig> config,
     IRefitHttpServiceFactory refitFactory,
     IServerHttpClientProvider httpClientProvider,
     ILogger<LcmMediaService> logger
@@ -81,6 +81,9 @@ public class LcmMediaService(
         if (localResource is null)
         {
             if (!downloadIfMissing) return new ReadFileResponse(ReadFileResult.NotFound);
+            // added on a device that hasn't uploaded it yet (e.g. it reached us through local sync): nothing to download
+            if (await resourceService.GetResource(fileId) is { RemoteId: null })
+                return new ReadFileResponse(ReadFileResult.NotFound);
             try
             {
                 localResource = await GetOrStartDownload(fileId);
@@ -191,12 +194,7 @@ public class LcmMediaService(
         }
     }
 
-    public string ProjectResourceCachePath => ProjectCachePath(currentProjectService.Project, options.Value);
-
-    public static string ProjectCachePath(CrdtProject project, HarmonyConfig options)
-    {
-        return Path.Combine(options.LocalResourceCachePath, project.Name);
-    }
+    public string ProjectResourceCachePath => config.Value.ProjectResourceCachePath(currentProjectService.Project.Name);
 
     async Task<UploadResult<LcmFileMetadata>> IRemoteResourceService<LcmFileMetadata>.UploadResource(Guid resourceId, string localPath, LcmFileMetadata? metadata)
     {

@@ -28,7 +28,7 @@
   <div class="flex justify-between items-baseline">
     <p class="text-muted-foreground">{writingSystemService.firstDef(sense).padStart(1, '–')}</p>
     {#if sense.partOfSpeech}
-      <Badge variant="default" class="bg-primary/60">
+      <Badge>
         {writingSystemService.pickBestAlternative(sense.partOfSpeech.name, 'analysis')}
       </Badge>
     {/if}

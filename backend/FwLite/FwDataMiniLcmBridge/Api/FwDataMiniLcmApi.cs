@@ -705,6 +705,7 @@ public class FwDataMiniLcmApi(
                 // ILexEntry.PublishIn is a virtual property that inverts DoNotPublishInRC against all publications
                 PublishIn = entry.PublishIn.Select(FromLcmPossibility).ToList(),
             };
+            result.SortComplexForms(ComplexFormHeadwordComparer());
             return result;
         }
         catch (Exception e)
@@ -1053,6 +1054,19 @@ public class FwDataMiniLcmApi(
         }
 
         return Comparer<string?>.Create((x, y) => collator.Compare(x ?? string.Empty, y ?? string.Empty));
+    }
+
+    private sealed record CachedHeadwordComparer(CoreWritingSystemDefinition Ws, CollationDefinition? Collation, IComparer<string?> Comparer);
+    private CachedHeadwordComparer? _complexFormHeadwordComparer;
+
+    // Cached because every entry read needs it and building a collator is slow
+    private IComparer<string?> ComplexFormHeadwordComparer()
+    {
+        var ws = Cache.LangProject.DefaultVernacularWritingSystem;
+        var cached = _complexFormHeadwordComparer;
+        if (cached is null || cached.Ws != ws || cached.Collation != ws.DefaultCollation)
+            _complexFormHeadwordComparer = cached = new(ws, ws.DefaultCollation, GetHeadwordComparer(ws.Handle));
+        return cached.Comparer;
     }
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)

@@ -6,6 +6,7 @@ using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.KeepAwake;
 using FwLiteShared.LocalSync;
+using FwLiteShared.LocalSync.Hosting;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using FwLiteShared.Sync;
@@ -59,9 +60,46 @@ public static class FwLiteSharedKernel
         services.AddScoped<ImportFwdataService>();
         services.AddScoped<SyncService>();
         services.AddScoped<SyncResultsProcessor>();
+        services.AddScoped<LocalSyncHost>();
         services.AddScoped<LocalSyncService>();
         services.AddScoped<FolderSyncService>();
         services.AddScoped<MediaCopier>();
+        services.AddSingleton<LocalSyncHosting>();
+        services.AddSingleton<INetworkNeighbors, SystemNetworkNeighbors>();
+        // Linux hosting isn't offered yet (SupportsWifiSyncHosting); these are ready for it
+        if (OperatingSystem.IsLinux())
+        {
+            services.TryAddSingleton<ICommandRunner, ProcessCommandRunner>();
+            services.TryAddSingleton<IAccessPoint, LinuxAccessPoint>();
+            services.TryAddKeyedSingleton<IKeepAwakePlatform, LinuxKeepAwakePlatform>(LocalSyncHosting.KeepAwakeKey);
+        }
+        // MAUI adds Windows' ones; elsewhere hosts share over a network they're already on
+        services.TryAddSingleton<IAccessPoint, NoAccessPoint>();
+        services.TryAddKeyedSingleton<IKeepAwakePlatform, NoOpKeepAwakePlatform>(LocalSyncHosting.KeepAwakeKey);
+        services.AddScoped<LocalSyncJoiner>();
+        // a socket handler of our own also skips Android's handler, which refuses plain http to the host in release builds
+        services.AddHttpClient(LocalSyncJoiner.HttpClientName).ConfigurePrimaryHttpMessageHandler(sp => new SocketsHttpHandler
+        {
+            ConnectCallback = async (context, cancellationToken) =>
+            {
+                var socket = new Socket(SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
+                try
+                {
+                    sp.GetRequiredService<ILocalNetworkAccess>().Bind(socket);
+                    await socket.ConnectAsync(context.DnsEndPoint, cancellationToken);
+                    return new NetworkStream(socket, ownsSocket: true);
+                }
+                catch
+                {
+                    socket.Dispose();
+                    throw;
+                }
+            },
+        });
+        services.AddScoped<LocalSyncJoinSession>();
+        // MAUI adds Android's; desktops already route local addresses
+        services.TryAddSingleton<ILocalNetworkAccess, NoLocalNetworkAccess>();
+        services.TryAddSingleton<IDeviceName, MachineDeviceName>();
         services.AddSingleton<FolderProjectOpener>();
         services.AddSingleton<ILocalAuthorProvider, PreferencesLocalAuthorProvider>();
         services.AddScoped<ProjectServicesProvider>();
@@ -77,6 +115,7 @@ public static class FwLiteSharedKernel
         //this is scoped so that there will be once instance per blazor circuit, this prevents issues where the same instance is used when reloading the page.
         //it also avoids issues if there's multiple blazor circuits running at the same time
         services.AddScoped<FwLiteProvider>();
+        services.AddSingleton<ViewerLoadState>();
 
         services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IBackgroundSyncService>(s => s.GetRequiredService<BackgroundSyncService>());

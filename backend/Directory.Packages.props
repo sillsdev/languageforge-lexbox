@@ -36,6 +36,7 @@
     <PackageVersion Include="L10NSharp" Version="11.0.1" />
     <PackageVersion Include="L10NSharp.Windows.Forms" Version="11.0.1" />
     <PackageVersion Include="MailKit" Version="4.18.2" />
+    <PackageVersion Include="Makaretu.Dns.Multicast.New" Version="0.38.0" />
     <PackageVersion Include="Meziantou.Extensions.Logging.Xunit" Version="2.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.14" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.14" />
@@ -112,9 +113,9 @@
     <PackageVersion Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0084" />
     <PackageVersion Include="SIL.Chorus.Mercurial" Version="7.2.4.103" />
     <PackageVersion Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.4.0-beta0001" />
-    <PackageVersion Include="SIL.Harmony" Version="0.2.1-rc.481" />
-    <PackageVersion Include="SIL.Harmony.Core" Version="0.2.1-rc.481" />
-    <PackageVersion Include="SIL.Harmony.Linq2db" Version="0.2.1-rc.481" />
+    <PackageVersion Include="SIL.Harmony" Version="0.2.1-rc.491" />
+    <PackageVersion Include="SIL.Harmony.Core" Version="0.2.1-rc.491" />
+    <PackageVersion Include="SIL.Harmony.Linq2db" Version="0.2.1-rc.491" />
     <PackageVersion Include="SIL.Core" Version="18.0.0" />
     <PackageVersion Include="SIL.LCModel" Version="11.0.0-beta0184" />
     <PackageVersion Include="SIL.LCModel.FixData" Version="11.0.0-beta0184" />
@@ -140,6 +141,7 @@
     <PackageVersion Include="UUIDNext" Version="4.2.4" />
     <PackageVersion Include="Verify.SystemJson" Version="1.4.1" />
     <PackageVersion Include="Verify.Xunit" Version="31.12.5" />
+    <PackageVersion Include="Watson.Lite" Version="6.6.0" />
     <!-- Keep AndroidX Fragment and its Ktx companion on the same version. The Play app-update binding's
          transitive AndroidX deps otherwise leave Fragment.Ktx at 1.8.8.1 while Fragment resolves to 1.9.0,
          and since 1.9.0 merged FragmentKt into the main artifact that mismatch causes an R8 "defined

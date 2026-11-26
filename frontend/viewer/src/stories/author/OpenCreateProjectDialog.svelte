@@ -1,7 +1,26 @@
 <script lang="ts">
   import {onMount} from 'svelte';
   import {Button} from '$lib/components/ui/button';
+  import {DotnetService, LoginResult} from '$lib/dotnet-types';
+  import {useProjectsService} from '$lib/services/service-provider';
   import CreateProjectDialog from '../../home/CreateProjectDialog.svelte';
+
+  const {loggedInAs = [], rememberedAs}: {loggedInAs?: string[], rememberedAs?: string} = $props();
+  const lexbox = {id: 'lexbox-0', displayName: 'Lexbox', authority: 'https://lexbox-0.example'};
+
+  window.lexbox.ServiceProvider.setService(DotnetService.AuthService, {
+    servers: () => Promise.resolve(loggedInAs.map((userName, i) => {
+      const displayName = i ? `Lexbox ${i + 1}` : 'Lexbox';
+      return {displayName, loggedIn: true, loggedInAs: userName, server: {id: `lexbox-${i}`, displayName, authority: `https://lexbox-${i}.example`}};
+    })),
+    signInWebView: () => Promise.resolve(LoginResult.Success),
+    useSystemWebView: () => Promise.resolve(true),
+    logout: () => Promise.resolve(),
+  });
+  window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
+    ...useProjectsService(),
+    knownLexboxAccount: () => Promise.resolve(rememberedAs ? {displayName: lexbox.displayName, loggedIn: false, loggedInAs: rememberedAs, server: lexbox} : undefined),
+  });
 
   let dialog = $state<CreateProjectDialog>();
   onMount(() => dialog?.openDialog());

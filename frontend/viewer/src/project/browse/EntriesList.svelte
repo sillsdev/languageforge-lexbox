@@ -23,6 +23,7 @@
   import {useViewService} from '$lib/views/view-service.svelte';
   import {useWritingSystemService} from '$project/data';
   import {pt} from '$lib/views/view-text';
+  import {useFeatures} from '$lib/services/feature-service';
 
   let {
     search = '',
@@ -55,6 +56,7 @@
   const projectEventBus = useProjectEventBus();
   const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
+  const features = useFeatures();
 
   // The closures maybe need to be created OUTSIDE untrack so they maintain reactivity
   const deps = {
@@ -108,7 +110,7 @@
   // Generate a random number of skeleton rows
   const skeletonRowCount = Math.ceil(Math.random() * 3) + 3;
 
-  const canCreateFromSearch = $derived(search?.trim() && !disableNewEntry);
+  const canCreateFromSearch = $derived(search?.trim() && !disableNewEntry && features.write);
   const showTerminalCreateRow = $derived(canCreateFromSearch && displayedEntryCount > 0);
 
   type ListRow = {key: string, index: number, create?: boolean};

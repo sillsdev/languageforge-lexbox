@@ -1,11 +1,12 @@
 <script lang="ts">
-  import {Icon} from '../icon';
   import {Select as SelectPrimitive} from 'bits-ui';
   import {cn, type WithoutChild} from '$lib/utils.js';
-  import type {Snippet} from 'svelte';
+  import OptionIndicator from './option-indicator.svelte';
+  import {OPTION_ROW} from './select-list';
 
   type Props = WithoutChild<SelectPrimitive.ItemProps> & {
-    selectedIndicator?: Snippet;
+    /** Overrides the selected state bits-ui reports, e.g. for tri-state group rows */
+    checkState?: boolean | 'some';
   };
 
   let {
@@ -14,7 +15,7 @@
     value,
     label,
     children: childrenProp,
-    selectedIndicator,
+    checkState,
     ...restProps
   }: Props = $props();
 </script>
@@ -24,23 +25,20 @@
   {value}
   data-slot="select-item"
   class={cn(
-    "data-highlighted:bg-accent data-highlighted:text-accent-foreground [&>[class*='i-mdi-']:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 ps-2 pe-8 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 **:[[class*='i-mdi-']]:pointer-events-none *:[[class*='i-mdi-']]:shrink-0 [&_[class*='i-mdi-']:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+    OPTION_ROW,
+    "data-highlighted:bg-accent data-highlighted:text-accent-foreground [&_[class*='i-mdi-']:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 **:[[class*='i-mdi-']]:pointer-events-none [&_[class*='i-mdi-']]:shrink-0 [&_[class*='i-mdi-']:not([class*='size-'])]:size-4",
     className,
   )}
   {...restProps}
 >
   {#snippet children({selected, highlighted})}
-    <span class="absolute inset-e-2 flex size-3.5 items-center justify-center">
-      {#if selectedIndicator}
-        {@render selectedIndicator()}
-      {:else if selected}
-        <Icon icon="i-mdi-check" class="size-4" />
+    <span class="flex min-w-0 flex-1 items-center gap-2 break-words">
+      {#if childrenProp}
+        {@render childrenProp({selected, highlighted})}
+      {:else}
+        {label || value}
       {/if}
     </span>
-    {#if childrenProp}
-      {@render childrenProp({selected, highlighted})}
-    {:else}
-      {label || value}
-    {/if}
+    <OptionIndicator state={checkState ?? selected} />
   {/snippet}
 </SelectPrimitive.Item>

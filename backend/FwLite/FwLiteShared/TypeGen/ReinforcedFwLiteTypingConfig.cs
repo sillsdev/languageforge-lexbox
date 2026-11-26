@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using FwLiteShared.Auth;
 using FwLiteShared.Events;
 using FwLiteShared.LocalSync;
+using FwLiteShared.LocalSync.Hosting;
 using FwLiteShared.Projects;
 using FwLiteShared.Services;
 using LcmCrdt;
@@ -165,6 +166,11 @@ public static class ReinforcedFwLiteTypingConfig
         builder.ExportAsEnum<SyncJobStatusEnum>().UseString();
         builder.ExportAsEnum<FolderSyncStatus>().UseString();
         builder.ExportAsEnum<OpenFromFolderOutcome>().UseString();
+        builder.ExportAsEnum<JoinState>().UseString();
+        builder.ExportAsEnum<JoinRejection>().UseString();
+        builder.ExportAsEnum<JoinSessionState>().UseString();
+        builder.ExportAsEnum<LocalSyncProblem>().UseString();
+        builder.ExportAsEnum<HostingProblem>().UseString();
         builder.ExportAsEnum<ViewBase>().UseString();
         var serviceTypes = Enum.GetValues<DotnetService>()
             //lcm has it's own dedicated export, config is not a service just a object, and testing needs a custom export below
@@ -208,6 +214,14 @@ public static class ReinforcedFwLiteTypingConfig
             typeof(CameraResult),
             typeof(FolderSyncSummary),
             typeof(OpenFromFolderResult),
+            typeof(HostingView),
+            typeof(PeerView),
+            typeof(NearbyDeviceView),
+            typeof(HostingOptions),
+            typeof(AvailableNetworkView),
+            typeof(StartHostingResult),
+            typeof(NearbyHostView),
+            typeof(JoinSessionView),
         ], exportBuilder => exportBuilder.WithPublicProperties());
         builder.ExportAsInterface<ProjectData>().WithPublicProperties(propertyBuilder =>
         {

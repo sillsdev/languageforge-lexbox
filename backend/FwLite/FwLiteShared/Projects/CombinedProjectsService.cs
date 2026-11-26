@@ -49,7 +49,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     OAuthClientFactory oAuthClientFactory,
     FolderProjectOpener folderProjectOpener,
     IKeepAwake keepAwake,
-    ProjectEventBus projectEventBus)
+    ProjectEventBus projectEventBus,
+    IServiceProvider serviceProvider)
 {
     private IProjectProvider? FwDataProjectProvider => projectProviders.FirstOrDefault(p => p.DataFormat == ProjectDataFormat.FwData);
     [JSInvokable]
@@ -93,7 +94,8 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         foreach (var serverProject in lexboxProjects)
         {
             var localProject = crdtProjectsService.GetProject(serverProject.Id);
-            if (localProject?.Data is null) continue;
+            // A local-only project with the same id (e.g. before it's uploaded) isn't bound to the server, so its author and role stay local
+            if (localProject?.Data?.OriginDomain is null) continue;
             var role = serverProject.Role.ToUserProjectRole();
             if (await crdtProjectsService.UpdateProjectServerInfo(localProject, lexboxUser?.Name, lexboxUser?.Id, role))
                 projectEventBus.PublishEvent(localProject, new ProjectRoleChangedEvent(role));
@@ -215,13 +217,49 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         return FolderSyncSummary.From(result);
     }
 
+    /// <param name="authorServer">Credit edits to the account logged in to this server, else to the known Lexbox account</param>
     [JSInvokable]
-    public Task CreateProject(string name, string code, WritingSystemId vernacularWs, WritingSystemId? analysisWs = null)
+    public Task CreateProject(string name, string code, WritingSystemId vernacularWs, LexboxServer? authorServer, WritingSystemId? analysisWs = null)
     {
         return Task.Run(async () =>
         {
-            await crdtProjectsService.CreateProjectFromTemplate(new(name, code, Role: UserProjectRole.Manager), vernacularWs, analysisWs);
+            var author = authorServer is null ? (await FindLexboxAccount())?.User
+                : await oAuthClientFactory.GetClient(authorServer).GetCachedUser()
+                    ?? throw new InvalidOperationException($"Not logged in to {authorServer.DisplayName}");
+            await crdtProjectsService.CreateProjectFromTemplate(new(name, code, Role: UserProjectRole.Manager,
+                AuthenticatedUser: author?.Name, AuthenticatedUserId: author?.Id), vernacularWs, analysisWs);
         });
+    }
+
+    /// <summary>
+    /// New projects are credited to the user's Lexbox account whenever we know it, so the device-wide local name
+    /// is only for people who have never used Lexbox here.
+    /// </summary>
+    [JSInvokable]
+    public async Task<ServerStatus?> KnownLexboxAccount()
+    {
+        if (await FindLexboxAccount() is not { } account) return null;
+        return new ServerStatus(account.Server.DisplayName, account.LoggedIn, account.User.Name, account.Server);
+    }
+
+    // A login wins over a project's remembered user, which may be stale
+    private async Task<(LexboxServer Server, LexboxUser User, bool LoggedIn)?> FindLexboxAccount()
+    {
+        var servers = lexboxProjectService.Servers();
+        foreach (var server in servers)
+        {
+            if (await oAuthClientFactory.GetClient(server).GetCachedUser() is { } user) return (server, user, true);
+        }
+        // only projects that sync with a server: the example project has a made-up user
+        foreach (var data in crdtProjectsService.ListProjects().Select(p => p.Data))
+        {
+            if (data?.OriginDomain is null || string.IsNullOrEmpty(data.LastUserId) || string.IsNullOrEmpty(data.LastUserName)) continue;
+            var origin = new Uri(data.OriginDomain);
+            // the server may no longer be configured, but the account is still theirs
+            var server = servers.FirstOrDefault(s => s.Authority.Authority == origin.Authority) ?? new LexboxServer(origin, origin.Host);
+            return (server, new LexboxUser(data.LastUserName, data.LastUserId), false);
+        }
+        return null;
     }
 
     [JSInvokable]
@@ -240,5 +278,24 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         {
             await crdtProjectsService.DeleteProject(code);
         });
+    }
+
+    // Uploads into the Lexbox project with the same id as the local one, so folder-shared copies keep matching
+    [JSInvokable]
+    public async Task UploadCrdtProject(LexboxServer server, string code)
+    {
+        var project = crdtProjectsService.GetProject(code)
+            ?? throw new InvalidOperationException($"CRDT project '{code}' not found");
+        await keepAwake.RunAsync(
+            new($"Uploading project {project.Name}"),
+            async () => await Task.Run(async () =>
+            {
+                await using var scope = serviceProvider.CreateAsyncScope();
+                var projectData = await scope.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
+                // A failed upload clears the origin, which would unbind a project that already syncs
+                if (projectData.OriginDomain is not null)
+                    throw new InvalidOperationException($"Project '{code}' already syncs with a server");
+                await scope.ServiceProvider.GetRequiredService<SyncService>().UploadProject(projectData.Id, server);
+            }));
     }
 }

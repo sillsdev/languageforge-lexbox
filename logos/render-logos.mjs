@@ -40,18 +40,22 @@ export function render(dir, { pngs, icos, faviconSvg, copies = {} }) {
   }
 
   // Browsers draw an SVG favicon at a single size, so unlike the .ico it can't switch drawings by size;
-  // it switches light to dark instead. Classes carry the folder name so they can't hide anything on a page
-  // that inlines the file.
+  // with a dark drawing it switches light to dark instead. Classes carry the folder name so they can't hide
+  // anything on a page that inlines the file.
   const cls = dir.split(/[\\/]/).pop()
   const body = svg => src(svg).toString('utf8')
     .replace(/<title>.*?<\/title>/s, '')
     .replace(/^\s*<svg\b[^>]*>/, '')
     .replace(/<\/svg>\s*$/, '')
+  const { title, light, dark } = faviconSvg
   writeFileSync(join(dir, 'favicon.svg'),
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><title>${faviconSvg.title}</title>` +
-    `<style>.${cls}-fav-d{display:none}@media (prefers-color-scheme:dark){.${cls}-fav-l{display:none}.${cls}-fav-d{display:inline}}</style>` +
-    `<g class="${cls}-fav-l">${body(faviconSvg.light)}</g>` +
-    `<g class="${cls}-fav-d">${body(faviconSvg.dark)}</g></svg>\n`)
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><title>${title}</title>` +
+    (dark
+      ? `<style>.${cls}-fav-d{display:none}@media (prefers-color-scheme:dark){.${cls}-fav-l{display:none}.${cls}-fav-d{display:inline}}</style>` +
+        `<g class="${cls}-fav-l">${body(light)}</g>` +
+        `<g class="${cls}-fav-d">${body(dark)}</g>`
+      : body(light)) +
+    '</svg>\n')
 
   for (const [to, from] of Object.entries(copies)) copyFileSync(join(dir, from), join(dir, to))
 }

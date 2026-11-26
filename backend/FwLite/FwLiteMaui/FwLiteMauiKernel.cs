@@ -98,6 +98,7 @@ public static class FwLiteMauiKernel
 #if ANDROID
         services.Configure<AuthConfig>(config => config.GetParentActivityOrWindow = () => Platform.CurrentActivity);
         services.Replace(ServiceDescriptor.Singleton<IKeepAwakePlatform, AndroidKeepAwakePlatform>());
+        services.Replace(ServiceDescriptor.Singleton<FwLiteShared.LocalSync.Hosting.ILocalNetworkAccess, AndroidLocalNetworkAccess>());
         //Google Play in-app updates. One singleton (one AppUpdateManager) resolved both as the concrete
         //type (by MainActivity, to drive the launch/resume checks) and as IPlatformUpdateService (for the
         //shared RestartToApplyUpdate hook). Disposed by the container at shutdown.
@@ -109,6 +110,7 @@ public static class FwLiteMauiKernel
         services.Replace(ServiceDescriptor.Singleton<IKeepAwakePlatform, IosKeepAwakePlatform>());
 #endif
         services.AddSingleton<IAppLauncher, AppLauncher>();
+        services.Replace(ServiceDescriptor.Singleton<FwLiteShared.LocalSync.Hosting.IDeviceName, MauiDeviceName>());
 
         services.Configure<FwLiteConfig>(config =>
         {
