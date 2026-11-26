@@ -196,8 +196,19 @@
     return getLabel(value).toLocaleLowerCase() + String(getId(value));
   }
 
+  // Tab closes (and saves) and moves on from the trigger, since the list is portalled away from the form.
+  function tabOut(e: KeyboardEvent) {
+    e.stopPropagation();
+    setOpen(false);
+    triggerRef?.focus();
+  }
+
   // Space toggles like Enter unless there's a filter box to type into; Ctrl+Enter toggles, saves and closes.
   function onkeydown(e: KeyboardEvent) {
+    if (e.key === 'Tab') {
+      tabOut(e);
+      return;
+    }
     const saveAndClose = e.key === 'Enter' && (e.ctrlKey || e.metaKey);
     if (!saveAndClose && !(e.key === ' ' && !isLong)) return;
     const highlighted = commandRef?.querySelector('[data-command-item][data-selected]')?.getAttribute('data-value');

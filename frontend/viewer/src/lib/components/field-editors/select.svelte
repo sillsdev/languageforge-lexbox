@@ -105,6 +105,14 @@
     open = false;
   }
 
+  // Tab closes and moves on from the trigger, since the list is portalled away from the form.
+  function onkeydown(e: KeyboardEvent) {
+    if (e.key !== 'Tab') return;
+    e.stopPropagation();
+    open = false;
+    triggerRef?.focus();
+  }
+
   function selectValue(newValue: Value | undefined) {
     if ((newValue && getId(newValue)) === (value && getId(value))) {
       open = false;
@@ -186,7 +194,13 @@
 {/snippet}
 
 {#snippet command()}
-  <Command shouldFilter={false} bind:ref={commandRef} bind:value={highlighted} class="outline-none">
+  <Command
+    shouldFilter={false}
+    bind:ref={commandRef}
+    bind:value={highlighted}
+    class="outline-none"
+    onkeydowncapture={onkeydown}
+  >
     {#if isLong}
       <CommandInput bind:value={filterValue} autofocus placeholder={filterPlaceholder ?? $t`Filter...`}>
         <div class="flex items-center gap-2 flex-nowrap">
