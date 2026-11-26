@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-25 08:12\n"
+"PO-Revision-Date: 2026-11-26 08:28\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -389,6 +389,14 @@ msgstr "Abreviatura"
 msgid "About"
 msgstr "Acerca de"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Accept"
+msgstr "Aceptar"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Accept everyone who joins"
+msgstr "Aceptar a todos los que se unan"
+
 #. Sidebar menu item
 #: src/project/ProjectSidebar.svelte
 msgid "Account"
@@ -554,6 +562,14 @@ msgstr "Imagen añadida"
 msgid "Added to {0}"
 msgstr "Añadido a {0}"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Address"
+msgstr "Dirección"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Address, e.g. 192.168.137.1"
+msgstr "Dirección, p. ej. 192.168.137.1"
+
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Advanced: settings file"
 msgstr "Avanzado: archivo de configuración"
@@ -604,6 +620,10 @@ msgstr "Permitir y ejecutarlo"
 msgid "Already have a plugin file? It runs in the preview straight away, before anyone else can see it."
 msgstr "¿Ya tienes un archivo de plugin? Se ejecuta en la vista previa inmediatamente, antes de que nadie pueda verlo."
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Also on this network"
+msgstr "También en esta red"
+
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "Always allow for this plugin"
 msgstr "Permitir siempre este plugin"
@@ -635,6 +655,10 @@ msgstr "Sistemas de análisis de escritura"
 #: src/lib/about/PrivacyDialog.svelte
 msgid "Analytics are turned off."
 msgstr "Los análisis están desactivados."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Another FieldWorks Lite window is already sharing a project. Stop sharing it there first."
+msgstr "Otra ventana de FieldWorks Lite ya está compartiendo un proyecto. Deja de compartirlo allí primero."
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Any part of speech"
@@ -773,6 +797,7 @@ msgstr "Volver a todas las tareas"
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/PluginRunView.svelte
+#: src/lib/plugins/PluginRunView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 #: src/lib/plugins/studio/StudioNotice.svelte
 msgid "Back to plugins"
@@ -850,6 +875,10 @@ msgstr "Puede cambiar su diccionario — le preguntará primero"
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Can use the internet"
 msgstr "Puede usar internet"
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Can't reach the other device. Check that you're on its Wi-Fi network. Retrying..."
+msgstr "No se puede acceder al otro dispositivo. Comprueba que estás en su red Wi-Fi. Reintentando..."
 
 #. Button to close dialog without saving
 #. Appears in dialog footer; discards any pending edits
@@ -1123,6 +1152,10 @@ msgstr "componentes"
 msgid "Components"
 msgstr "Componentes"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Connected to {0} at {1}"
+msgstr "Conectado a {0} en {1}"
+
 #. Filter operator
 #. Search operator: matches fields containing the search term anywhere
 #. Related operators: "Starts with", "Ends with", "Equals"
@@ -1186,11 +1219,23 @@ msgstr "No se pudo cargar el archivo del plugin. {0}"
 msgid "Couldn't load this plugin"
 msgstr "No se pudo cargar este plugin"
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Couldn't reach the other device. Check that you're on its Wi-Fi network, then try again."
+msgstr "No se pudo acceder al otro dispositivo. Compruebe que está en su red Wi-Fi y vuelva a intentarlo."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Couldn't share on that network. Try another one."
+msgstr "No se pudo compartir en esa red. Prueba con otra."
+
 #. Transient warning toast (short timeout) shown when "Sync to local" fails (offline, server unreachable, or not logged in).
 #. Both clauses matter: the failure reason is implicit; the reassurance that local data is intact is intentional.
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Couldn't sync right now — your local changes are safe."
 msgstr "No se pudo sincronizar ahora mismo, los cambios locales están seguros."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Couldn't sync with the other device. Your changes are safe."
+msgstr "No se pudo sincronizar con el otro dispositivo. Los cambios están seguros."
 
 #. Confirm button in the create-project dialog footer; creates the new dictionary project.
 #: src/home/CreateProjectDialog.svelte
@@ -1240,6 +1285,11 @@ msgstr "Creado {0}"
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Created {0} {1}"
 msgstr "Creado {0} {1}"
+
+#. Read aloud by screen readers on the project switcher row of the project that is open now
+#: src/project/ProjectDropdown.svelte
+msgid "Current"
+msgstr "Actual"
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Current Word"
@@ -1301,6 +1351,10 @@ msgstr "No se pudo cargar el panel"
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Data Directory"
 msgstr "Directorio de datos"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Decline"
+msgstr "Rechazar"
 
 #. Field label
 #. Definition for a sense/meaning (e.g., "bank" = "financial institution")
@@ -1417,6 +1471,16 @@ msgstr "Diccionario"
 #: src/project/browse/EditorViewOptions.svelte
 msgid "Dictionary Preview"
 msgstr "Vista previa del diccionario"
+
+#: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
+msgid "different app version"
+msgstr "versión diferente de la aplicación"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "different project"
+msgstr "proyecto diferente"
 
 #. Button to discard audio changes
 #: src/lib/components/audio/audio-editor.svelte
@@ -1937,8 +2001,11 @@ msgstr "FieldWorks Lite recopila datos de uso para ayudarnos a mejorarlos."
 msgid "FieldWorks Lite has been updated. Restart to finish installing."
 msgstr "FieldWorks Lite ha sido actualizado. Reinicie para terminar de instalar."
 
-#: src/home/HomeView.svelte
-#: src/project/sync/FwClassicSyncView.svelte
+#: src/project/sync/WifiSyncSection.svelte
+msgid "FieldWorks Lite isn't open on it"
+msgstr "FieldWorks Lite no está abierto en él"
+
+#: src/lib/components/FwLiteLogo.svelte
 msgid "FieldWorks Lite logo"
 msgstr "Logo de FieldWorks Lite"
 
@@ -2083,6 +2150,10 @@ msgstr "Filtros"
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Find entry..."
 msgstr "Buscar entrada..."
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Find nearby devices"
+msgstr "Encontrar dispositivos cercanos"
 
 #. Relevant view: Lite
 #. Classic view equivalent: "Find entry..."
@@ -2242,6 +2313,10 @@ msgstr "Manejar el contenido con cuidado cultural"
 msgid "Harmony snapshots regenerated successfully"
 msgstr "Las instantáneas de Harmony se regeneraron con éxito"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Hasn't asked to join"
+msgstr "No has solicitado unirte"
+
 #. Sort option
 #. Sort results by headword/main entry form (alphabetically)
 #. Related: "Auto" (default smart sort), "Best match" (relevance)
@@ -2369,6 +2444,15 @@ msgstr "Instalando actualización..."
 msgid "Internet"
 msgstr "Internet"
 
+#: src/project/sync/WifiSyncSection.svelte
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Join"
+msgstr "Unirse"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Joined"
+msgstr "Se unió"
+
 #. Relative timestamp used instead of a duration when the event is less than one unit old, e.g. "Last sync: just now". Lowercase because it is usually substituted into a longer phrase.
 #: src/lib/components/ui/format/format-relative-date-fn.svelte.ts
 msgid "just now"
@@ -2402,6 +2486,10 @@ msgstr "Último cambio: #"
 msgid "Last sync: #"
 msgstr "Última sincronización: #"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Last synced"
+msgstr "Última sincronización"
+
 #. Tab: shows changes made to this item after this change.
 #: src/lib/activity/ActivityItem.svelte
 msgid "Later changes"
@@ -2412,6 +2500,7 @@ msgid "Learn more"
 msgstr "Aprende más"
 
 #: src/lib/plugins/studio/LeaveDialog.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Leave"
 msgstr "Abandonar"
 
@@ -2709,6 +2798,11 @@ msgstr "Falta parte de la oración"
 msgid "Missing Semantic domains"
 msgstr "Faltan dominios semánticos"
 
+#. Task subject label in the task list. {0} = writing system abbreviation (e.g., "en", "fr"). Identifies example sentences lacking a translation in that writing system.
+#: src/project/tasks/tasks-service.ts
+msgid "Missing Translation {0}"
+msgstr "Falta traducción {0}"
+
 #: src/project/tasks/tasks-service.ts
 msgid "Missing Word {0}"
 msgstr "Falta la palabra {0}"
@@ -2785,7 +2879,6 @@ msgstr "Mi vista personalizada..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
-#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
@@ -2804,6 +2897,10 @@ msgstr "Se requiere nombre"
 #: src/lib/plugins/PluginConsentCard.svelte
 msgid "Needs {0}, which this project doesn't support, so it may not work properly"
 msgstr "Necesita {0}, que este proyecto no soporta, por lo que puede no funcionar correctamente"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Network"
+msgstr "Red"
 
 #: src/project/sync/FwClassicSyncView.svelte
 #: src/project/sync/FwClassicSyncView.svelte
@@ -2913,6 +3010,10 @@ msgstr "No hay autores"
 msgid "No custom views yet."
 msgstr "Aún no hay vistas personalizadas."
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "No devices found. Make sure you're on the same Wi-Fi network."
+msgstr "No se han encontrado dispositivos. Asegúrese de que está en la misma red Wi-Fi."
+
 #: src/project/ProjectDropdown.svelte
 msgid "No Dictionaries found"
 msgstr "No se han encontrado diccionarios"
@@ -2971,6 +3072,10 @@ msgstr "No se encontraron archivos multimedia"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "No new data"
 msgstr "No hay nuevos datos"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "No one has joined yet."
+msgstr "Nadie se ha unido todavía."
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
@@ -3236,6 +3341,10 @@ msgstr "naranja"
 msgid "Other"
 msgstr "Otro"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Other devices on this network can join at"
+msgstr "Otros dispositivos de esta red pueden unirse en"
+
 #: src/project/SyncDialog.svelte
 msgid "Other FieldWorks Lite users"
 msgstr "Otros usuarios de FieldWorks Lite"
@@ -3280,6 +3389,10 @@ msgstr "Parte de la oración"
 #: src/lib/activity/ChangeSummary.svelte
 msgid "parts of speech"
 msgstr "partes de la voz"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Password"
+msgstr "Contraseña"
 
 #: src/lib/plugins/studio/panels/SourcePanel.svelte
 msgid "Paste HTML"
@@ -3515,6 +3628,12 @@ msgstr "Proyecto {0} no encontrado en {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "El proyecto {0} en {1} aún no está configurado para FieldWorks Lite"
 
+#. Second line under the "Your name" field. "Lexbox" is a product name — do not translate.
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Projects that sync with Lexbox use your Lexbox account name instead."
+msgstr "Proyectos que sincronizan con Lexbox utilizan su nombre de cuenta de Lexbox."
+
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Prompt options"
 msgstr "Opciones de comprobación"
@@ -3607,12 +3726,18 @@ msgstr "Grabar una forma del lexema"
 msgid "Record a Lexeme form or Citation form"
 msgstr "Grabar una forma del lexema o formulario de cita"
 
+#. Task instruction for an audio writing system: record a spoken translation of the highlighted sentence.
+#: src/project/tasks/tasks-service.ts
+msgid "Record a Translation of the Example sentence"
+msgstr "Grabar una traducción de la frase de ejemplo"
+
 #: src/project/tasks/tasks-service.ts
 msgid "Record a Word"
 msgstr "Grabar una palabra"
 
+#. Task instruction for an audio writing system: record the sentence with the microphone.
 #: src/project/tasks/tasks-service.ts
-msgid "Record an example sentence"
+msgid "Record an Example sentence"
 msgstr "Grabar una frase de ejemplo"
 
 #: src/project/tasks/tasks-service.ts
@@ -3944,6 +4069,10 @@ msgstr "Guardado para el equipo."
 msgid "Saving turns off \"Always allow\" on this device, so the new version asks before its first change."
 msgstr "Guardar desactiva \"Siempre permitir\" en este dispositivo, por lo que la nueva versión pregunta antes de su primer cambio."
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Scan with a phone camera to join this device's Wi-Fi, or join it in Wi-Fi settings:"
+msgstr "Escanea con una cámara de teléfono para unirte a la red Wi-Fi de este dispositivo o únete a ella en los ajustes Wi-Fi:"
+
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
@@ -4142,10 +4271,18 @@ msgstr "Comparte ideas y vota sobre nuevas características o mejoras."
 msgid "Share Log file"
 msgstr "Compartir archivo de registro"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Share on {0} ({1})"
+msgstr "Compartir en {0} ({1})"
+
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Share project data file"
 msgstr "Compartir archivo de datos del proyecto"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Share this project on a new Wi-Fi network"
+msgstr "Compartir este proyecto en una nueva red Wi-Fi"
 
 #. Button label
 #: src/project/browse/EditorViewOptions.svelte
@@ -4174,11 +4311,6 @@ msgstr "Mostrar u ocultar leyendas"
 #: src/lib/entry-editor/diff-view/DiffCollapsed.svelte
 msgid "Show unchanged fields"
 msgstr "Mostrar campos sin cambios"
-
-#: src/home/CreateProjectDialog.svelte
-#: src/lib/author/NameDialog.svelte
-msgid "Shown next to your changes in all projects you don't sync with Lexbox."
-msgstr "Mostrar al lado de los cambios en todos los proyectos que no sincroniza con Lexbox."
 
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
@@ -4313,6 +4445,10 @@ msgstr "Siguiendo abriendo el proyecto..."
 msgid "stone"
 msgstr "piedra"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Stop sharing"
+msgstr "Dejar de compartir"
+
 #. Button to confirm selection
 #: src/lib/components/SubmitOrCancel.svelte
 #: src/lib/components/field-editors/multi-select.svelte
@@ -4347,6 +4483,7 @@ msgid "Sync FieldWorks Lite and FieldWorks Classic in Lexbox"
 msgstr "Sync FieldWorks Lite y FieldWorks Classic en Lexbox"
 
 #: src/home/OpenFromFolderItem.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Sync now"
 msgstr "Sincronizar ahora"
 
@@ -4374,6 +4511,7 @@ msgstr "Sincroniza tus cambios con otros usuarios de FieldWorks Lite"
 
 #. Sync status label in the project sidebar indicating all changes are in sync with the server.
 #: src/project/ProjectSidebar.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Synced"
 msgstr "Sincronizado"
 
@@ -4413,6 +4551,7 @@ msgstr "Sincronizando con la carpeta..."
 #. Progress indicator
 #: src/project/sync/FolderSyncSection.svelte
 #: src/project/sync/FwLiteSyncView.svelte
+#: src/project/sync/WifiSyncSection.svelte
 msgid "Syncing..."
 msgstr "Sincronizando..."
 
@@ -4511,6 +4650,31 @@ msgstr "El número de commits de FieldWorks Classic no necesariamente coincidir�
 msgid "The number of FieldWorks Lite commits will not necessarily match the number of changes shown in the sync result message."
 msgstr "El número de commits de FieldWorks Lite no necesariamente coincidirá con el número de cambios mostrados en el mensaje de resultado de sincronización."
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device declined."
+msgstr "El otro dispositivo declinó."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device didn't let this one join."
+msgstr "El otro dispositivo no permitió que éste se uniera."
+
+#: src/project/sync/wifi-sync-messages.ts
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device has a separate copy of this project that can't be merged with yours."
+msgstr "El otro dispositivo tiene una copia aparte de este proyecto que no puede ser fusionado con el suyo."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device is sharing a different project."
+msgstr "El otro dispositivo está compartiendo un proyecto diferente."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device stopped sharing."
+msgstr "El otro dispositivo dejó de compartir."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "The other device's copy of this project shares no writing system with yours."
+msgstr "La copia del otro dispositivo de este proyecto no comparte ningún sistema de escritura con el suyo."
+
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "The plugin “{0}” is asking to make this change to your dictionary:"
 msgstr "El complemento “{0}” está pidiendo hacer este cambio en tu diccionario:"
@@ -4522,6 +4686,10 @@ msgstr "El proyecto en esta carpeta utiliza diferentes sistemas de escritura ({0
 #: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 msgid "The prompt includes the API guide, this project's setup and this plugin's current code. Attach the file in any AI chat."
 msgstr "El prompt incluye la guía API, la configuración de este proyecto y el código actual de este plugin. Adjunta el archivo en cualquier chat de AI."
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "The sync session ended."
+msgstr "La sesión de sincronización terminó."
 
 #. Error message
 #: src/project/tasks/TaskView.svelte
@@ -4568,10 +4736,18 @@ msgstr "Este {0} ha sido eliminado"
 msgid "This change"
 msgstr "Este cambio"
 
+#: src/project/sync/wifi-sync-messages.ts
+msgid "This computer couldn't create a Wi-Fi network. Share on a network it's already on instead."
+msgstr "Este equipo no pudo crear una red Wi-Fi. Compartir en una red ya está en su lugar."
+
 #. Example text for i18n
 #: src/stories/i18n/i18n.stories.svelte
 msgid "This date # and this emoji # are snippets"
 msgstr "Esta fecha # y este emoji # son fragmentos"
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "This device is sharing {0}. Stop sharing it to share this project."
+msgstr "Este dispositivo está compartiendo {0}. Deja de compartirlo para compartir este proyecto."
 
 #: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "This doesn't look like a complete plugin. It should be one HTML file that starts with <!DOCTYPE html> and ends with </html>."
@@ -4615,6 +4791,12 @@ msgstr "Esta carpeta está vacía. Para poner un proyecto en ella, abra ese proy
 #: src/lib/plugins/PluginWriteConfirmDialog.svelte
 msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
 msgstr "Esta es una vista previa, por lo que no se ha guardado nada. Una vez añadido, \"{0}\" pediría hacer este cambio a tu diccionario:"
+
+#. Explains why the app asks for the user's name: it is shown on their edits and comments.
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "This lets others see which changes you made."
+msgstr "Esto permite a otros ver los cambios que hiciste."
 
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
@@ -4727,6 +4909,11 @@ msgstr "Temas a los que pertenece el sentido"
 msgid "Total entries"
 msgstr "Total de entradas"
 
+#. Task instruction. The sentence to translate is highlighted in the entry shown above it.
+#: src/project/tasks/tasks-service.ts
+msgid "Translate the Example sentence"
+msgstr "Traducir la frase de ejemplo"
+
 #. Standalone noun used as {0} in activity-log strings (e.g. "Added translation"). Refers to one of an example sentence's free translations.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "translation"
@@ -4813,7 +5000,7 @@ msgstr "Escribe una palabra"
 
 #. Task instruction
 #: src/project/tasks/tasks-service.ts
-msgid "Type an example sentence"
+msgid "Type an Example sentence"
 msgstr "Escriba una frase de ejemplo"
 
 #. Label for audio file type
@@ -5097,6 +5284,10 @@ msgstr "Ver la política de privacidad de SIL"
 msgid "violet"
 msgstr "violeta"
 
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Waiting for {0} to accept..."
+msgstr "Esperando a que {0} acepte..."
+
 #: src/lib/about/PrivacyDialog.svelte
 msgid "We also collect error reports with technical details about what went wrong. Before sending them, we try to remove anything that might be dictionary text, file names or other personal details."
 msgstr "También recopilamos informes de errores con detalles técnicos sobre lo que salió mal. Antes de enviarlos, tratamos de eliminar cualquier cosa que pueda ser texto del diccionario, nombres de archivos u otros datos personales."
@@ -5113,6 +5304,11 @@ msgstr "¿Qué puede hacer un plugin?"
 msgid "What it asks for"
 msgstr "Lo que pide"
 
+#. Short description under the Translation field name in the Tasks list.
+#: src/project/tasks/tasks-service.ts
+msgid "What the example sentence means"
+msgstr "Qué significa la frase de ejemplo"
+
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
 msgstr "¿Qué te gustaría ver aquí?"
@@ -5127,6 +5323,18 @@ msgstr "¿Dónde están mis proyectos?"
 #: src/project/sync/FwClassicSyncView.svelte
 msgid "Why is that?"
 msgstr "¿Por qué?"
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Wi-Fi is busy with something else, such as Mobile hotspot. Turn that off, then try again."
+msgstr "Wi-Fi está ocupado con otra cosa, como el punto de acceso móvil. Desactívalo y vuelva a intentarlo."
+
+#: src/project/sync/wifi-sync-messages.ts
+msgid "Wi-Fi is turned off on this computer. Turn it on, then try again."
+msgstr "Wi-Fi está desactivado en esta computadora. Actívalo y vuelve a intentarlo."
+
+#: src/project/sync/WifiSyncSection.svelte
+msgid "Wi-Fi QR code"
+msgstr "Wi-Fi QR code"
 
 #. Option in the entry-list "Comments" filter: entries that have any comment threads.
 #: src/project/browse/filter/CommentSelect.svelte
@@ -5331,6 +5539,7 @@ msgstr "Tu diccionario comienza aquí"
 #: src/home/CreateProjectDialog.svelte
 #: src/home/CreateProjectDialog.svelte
 #: src/home/HomeView.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/author/NameDialog.svelte
 msgid "Your name"
 msgstr "Tu nombre"
