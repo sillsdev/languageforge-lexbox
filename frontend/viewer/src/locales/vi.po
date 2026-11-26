@@ -765,6 +765,8 @@ msgstr "Âm thanh đã được lưu và tải lên Lexbox"
 msgid "Audio saved locally"
 msgstr "Âm thanh đã được lưu cục bộ"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"
 msgstr "Tác giả"

@@ -765,6 +765,8 @@ msgstr "Audio disimpan dan diunggah ke Lexbox"
 msgid "Audio saved locally"
 msgstr "Audio disimpan secara lokal"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"
 msgstr "Penulis"

@@ -765,6 +765,8 @@ msgstr "렉스박스에 오디오 저장 및 업로드"
 msgid "Audio saved locally"
 msgstr "로컬에 저장된 오디오"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"
 msgstr "저자"

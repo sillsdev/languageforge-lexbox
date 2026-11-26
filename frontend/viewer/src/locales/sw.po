@@ -765,6 +765,8 @@ msgstr "Sauti ilihifadhiwa na kupakilizwa kwenye Lexbox"
 msgid "Audio saved locally"
 msgstr "Sauti ilihifadhiwa mahallini"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"
 msgstr "Mwandishi"

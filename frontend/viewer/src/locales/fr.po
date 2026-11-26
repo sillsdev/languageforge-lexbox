@@ -765,6 +765,8 @@ msgstr "Audio enregistré et téléchargé dans Lexbox"
 msgid "Audio saved locally"
 msgstr "Audio enregistré localement"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"
 msgstr "Auteur"

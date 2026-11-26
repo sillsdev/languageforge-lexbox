@@ -10,6 +10,7 @@
   import {useFeatures} from '$lib/services/feature-service';
   import {SyncStatus} from '$lib/dotnet-types/generated-types/LexCore/Sync/SyncStatus';
   import {useProjectContext} from '$project/project-context.svelte';
+  import UploadToLexboxDialog from './sync/UploadToLexboxDialog.svelte';
   import {useProjectEventBus} from '$lib/services/event-bus';
   import ResponsiveDialog from '$lib/components/responsive-dialog/responsive-dialog.svelte';
   import {Button} from '$lib/components/ui/button';
@@ -63,6 +64,7 @@
     folder: $t`USB Drive / Folder`,
     nearby: 'Nearby devices',
   });
+  let uploadDialog = $state<UploadToLexboxDialog>();
 
   // The dialog's content unmounts on close, so each view loads its own status when it's first shown
   watch(() => openQueryParam.current, (open, wasOpen) => {
@@ -87,6 +89,11 @@
     const result = await service.triggerCrdtSync();
     // The sync event fires before the sync date is saved, so reload again now that the sync is done
     if (result.isSynced) syncCount++;
+  }
+
+  async function onUploaded() {
+    server = await service.getCurrentServer();
+    syncCount++;
   }
 </script>
 
@@ -114,7 +121,8 @@
         {syncCount}
         explainFieldWorksSync={!!server && !features.fieldWorksSync}
         showHeading={!hasChoice}
-        {onLoginStatusChange} />
+        {onLoginStatusChange}
+        onUploadClick={() => uploadDialog?.openDialog()} />
     </IfOnce>
     {#if showClassic}
       <IfOnce show={shown === 'classic'}>
@@ -140,3 +148,11 @@
     {/if}
   </div>
 </ResponsiveDialog>
+{#if projectContext.projectData && featureFlags.isDev}
+  <UploadToLexboxDialog
+    bind:this={uploadDialog}
+    projectCode={projectContext.projectData.code}
+    projectId={projectContext.projectData.id}
+    projectName={projectContext.projectData.name}
+    refresh={onUploaded} />
+{/if}
