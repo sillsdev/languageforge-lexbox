@@ -254,8 +254,10 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
         foreach (var data in crdtProjectsService.ListProjects().Select(p => p.Data))
         {
             if (data?.OriginDomain is null || string.IsNullOrEmpty(data.LastUserId) || string.IsNullOrEmpty(data.LastUserName)) continue;
-            var server = servers.FirstOrDefault(s => s.Authority.Authority == new Uri(data.OriginDomain).Authority);
-            if (server is not null) return (server, new LexboxUser(data.LastUserName, data.LastUserId), false);
+            var origin = new Uri(data.OriginDomain);
+            // the server may no longer be configured, but the account is still theirs
+            var server = servers.FirstOrDefault(s => s.Authority.Authority == origin.Authority) ?? new LexboxServer(origin, origin.Host);
+            return (server, new LexboxUser(data.LastUserName, data.LastUserId), false);
         }
         return null;
     }
