@@ -75,7 +75,7 @@ test('task counts follow entry changes in the open task, on the list afterwards 
   await expect.poll(partOfSpeechCount).toBe(partOfSpeechBefore + 2);
   await expect.poll(otherCount).toBe(otherBefore + 2);
 
-  // The stats outlive the view, so their subscription to entry changes has to as well.
+  // The view subscribes to entry changes again when it comes back.
   await partOfSpeechTask.click();
   await expect(header).toContainText(`${partOfSpeechBefore + 2} `);
   await addEntryMissingPartOfSpeech({announce: true});

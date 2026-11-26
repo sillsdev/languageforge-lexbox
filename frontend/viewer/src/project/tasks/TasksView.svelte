@@ -3,8 +3,8 @@
   import {pt, tvt} from '$lib/views/view-text';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {plural, t} from 'svelte-i18n-lingui';
-  import {watch} from 'runed';
-  import {onDestroy} from 'svelte';
+  import {useDebounce, watch} from 'runed';
+  import {useProjectEventBus} from '$lib/services/event-bus';
   import {QueryParamState} from '$lib/utils/url.svelte';
   import {useWritingSystemService} from '$project/data';
   import {type IWritingSystem, WritingSystemType} from '$lib/dotnet-types';
@@ -22,15 +22,16 @@
   const tasksService = useTasksService();
   const viewService = useViewService();
   const writingSystemService = useWritingSystemService();
-  const statsResource = useTasksStats();
-  // Not every change is announced (the local API's writes aren't), so don't trust counts from an earlier visit.
-  statsResource.current.invalidate();
   const selectedTask = $derived(tasksService.listTasks().find(task => task.id === openTask.current));
+  // Subscribed here, not in the cached stats, so counting stops when the view closes.
+  // Entering the view recounts anyway, since not every write is announced (the local API's aren't).
+  const statsResource = useTasksStats();
   watch([() => tasksService.listTasks().map(task => task.id).join(), () => selectedTask?.id], ([, taskId]) => {
-    statsResource.current.showing = taskId ?? 'all';
+    statsResource.current.openTaskId = taskId;
     void statsResource.refetch();
   });
-  onDestroy(() => statsResource.current.showing = undefined);
+  const debouncedRefetch = useDebounce(() => void statsResource.refetch(), 500);
+  useProjectEventBus().onEntriesChanged(() => void debouncedRefetch());
 
   // Here rather than in the list, so tasks opened from the Dashboard or a link count as recent too.
   const projectStorage = useProjectStorage();
