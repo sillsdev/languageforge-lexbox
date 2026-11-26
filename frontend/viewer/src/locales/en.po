@@ -708,6 +708,10 @@ msgstr "Apply changes"
 msgid "Are you sure you want to delete {0}?"
 msgstr "Are you sure you want to delete {0}?"
 
+#: src/project/browse/ReadonlyChip.svelte
+msgid "Ask a project manager if you need edit access."
+msgstr "Ask a project manager if you need edit access."
+
 #: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Ask AI"
 msgstr "Ask AI"
@@ -2881,7 +2885,6 @@ msgstr "My custom view..."
 
 #. Field label for the custom view name input.
 #: src/home/CreateProjectDialog.svelte
-#: src/lib/author/NameDialog.svelte
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/entry-editor/diff-view/diff-fields.ts
@@ -3139,8 +3142,7 @@ msgstr "No words found"
 
 #. Selection option for optional fields
 #. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/badge-list.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "None"
@@ -3631,6 +3633,12 @@ msgstr "Project {0} not found on {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Project {0} on {1} is not yet set up for FieldWorks Lite"
 
+#. Second line under the "Your name" field. "Lexbox" is a product name — do not translate.
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "Projects that sync with Lexbox use your Lexbox account name instead."
+msgstr "Projects that sync with Lexbox use your Lexbox account name instead."
+
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Prompt options"
 msgstr "Prompt options"
@@ -3683,6 +3691,8 @@ msgstr "Read this project's dictionary"
 #: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
+#: src/project/browse/ReadonlyChip.svelte
+#: src/project/browse/ReadonlyChip.svelte
 msgid "Read-only"
 msgstr "Read-only"
 
@@ -4310,11 +4320,6 @@ msgstr "Show or hide captions"
 msgid "Show unchanged fields"
 msgstr "Show unchanged fields"
 
-#: src/home/CreateProjectDialog.svelte
-#: src/lib/author/NameDialog.svelte
-msgid "Shown next to your changes in all projects you don't sync with Lexbox."
-msgstr "Shown next to your changes in all projects you don't sync with Lexbox."
-
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Sign in to add comments."
 msgstr "Sign in to add comments."
@@ -4793,6 +4798,12 @@ msgstr "This folder is empty. To put a project in it, open that project on a dev
 msgid "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
 msgstr "This is a preview, so nothing is saved. Once added, \"{0}\" would ask to make this change to your dictionary:"
 
+#. Explains why the app asks for the user's name: it is shown on their edits and comments.
+#: src/home/CreateProjectDialog.svelte
+#: src/lib/author/NameDialog.svelte
+msgid "This lets others see which changes you made."
+msgstr "This lets others see which changes you made."
+
 #: src/lib/entry-editor/field-editors/PicturesEditor.svelte
 msgid "This picture is too large to upload. Try reducing the resolution and uploading again."
 msgstr "This picture is too large to upload. Try reducing the resolution and uploading again."
@@ -5105,9 +5116,8 @@ msgstr "Unsaved changes"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/components/field-editors/badge-list.svelte
 #: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/diff-view/DiffAnchor.svelte
@@ -5468,6 +5478,14 @@ msgstr "You appear to be offline. Can you connect to {0}?"
 msgid "You are running the latest version."
 msgstr "You are running the latest version."
 
+#: src/project/browse/ReadonlyChip.svelte
+msgid "You can read and comment on this project, but not change it."
+msgstr "You can read and comment on this project, but not change it."
+
+#: src/project/browse/ReadonlyChip.svelte
+msgid "You can read this project, but not change it."
+msgstr "You can read this project, but not change it."
+
 #. Permission error
 #: src/home/Server.svelte
 msgid "You don't have permission to download project {0} from {1}"
@@ -5534,6 +5552,7 @@ msgstr "Your dictionary starts here"
 #: src/home/CreateProjectDialog.svelte
 #: src/home/CreateProjectDialog.svelte
 #: src/home/HomeView.svelte
+#: src/lib/author/NameDialog.svelte
 #: src/lib/author/NameDialog.svelte
 msgid "Your name"
 msgstr "Your name"

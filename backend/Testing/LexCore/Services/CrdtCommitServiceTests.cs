@@ -200,6 +200,28 @@ public class CrdtCommitServiceTests
 
 
     [Fact]
+    public async Task AddingTheSameCommitTwiceStoresItOnce()
+    {
+        var commit = await AddTestCommit();
+        var inserted = await _crdtCommitService.AddCommits(commit.ProjectId, AsAsync([commit]));
+        inserted.Should().Be(0);
+        _lexBoxDbContext.CrdtCommits(commit.ProjectId).Count(c => c.Id == commit.Id).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task AddingACommitIdThatExistsInAnotherProjectThrows()
+    {
+        var commit = await AddTestCommit();
+        var otherProjectId = await _lexBoxDbContext.Projects.Where(p => p.Id != commit.ProjectId).Select(p => p.Id).FirstAsync();
+        var newCommit = CreateCommit(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow);
+
+        var act = async () => await _crdtCommitService.AddCommits(otherProjectId, AsAsync([newCommit, commit]));
+
+        (await act.Should().ThrowAsync<InvalidOperationException>()).WithMessage($"*{commit.Id}*");
+        _lexBoxDbContext.CrdtCommits(otherProjectId).Any(c => c.Id == newCommit.Id || c.Id == commit.Id).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task Add_SameCommitIdUnderAnotherClient_DoesNotNotifyAgain()
     {
         var projectId = await _lexBoxDbContext.Projects.Select(p => p.Id).FirstOrDefaultAsync();

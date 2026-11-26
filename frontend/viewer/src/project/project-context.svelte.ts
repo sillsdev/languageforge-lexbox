@@ -60,9 +60,9 @@ export class ProjectContext {
   #paratext = $state(false);
   #detachedResources = new SvelteSet<DetachedResource<unknown>>();
   #features = resource(() => this.#api, (api) => {
-    if (!api) return Promise.resolve({} satisfies IMiniLcmFeatures);
+    if (!api) return Promise.resolve(undefined);
     return api.supportedFeatures();
-  }, {initialValue: {}});
+  });
   public get api() {
     if (!this.#api) throw new Error('api not setup yet');
     return this.#api;
@@ -103,10 +103,15 @@ export class ProjectContext {
     return this.#projectDataWithLatestRole;
   }
   public get features(): IMiniLcmFeatures {
-    const features = this.#features.current;
+    const features = this.#features.current ?? {};
     // Dev-only override lets a developer force the UI readonly by turning off write.
     if (devSettings.readonly) return {...features, write: false};
     return features;
+  }
+
+  /** False until the API has reported features, so read-only UI doesn't flash while they load. */
+  public get featuresLoaded(): boolean {
+    return !!this.#features.current;
   }
 
   /** Re-fetch {@link features} from the API (e.g. after a test toggles demo write). */

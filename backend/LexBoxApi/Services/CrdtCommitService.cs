@@ -11,26 +11,42 @@ namespace LexBoxApi.Services;
 
 public class CrdtCommitService(LexBoxDbContext dbContext)
 {
-    /// <returns>how many commits were new; commits whose id is already stored are skipped</returns>
+    /// <returns>how many commits were new; commits whose id is already stored in this project are skipped</returns>
     public async Task<int> AddCommits(Guid projectId, IAsyncEnumerable<ServerCommit> commits, CancellationToken token = default)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync(token);
         var linqToDbContext = dbContext.CreateLinqToDBContext();
-        await using var tmpTable = await linqToDbContext.CreateTempTableAsync<ServerCommit>($"tmp_crdt_commit_import_{projectId}__{Guid.NewGuid()}", cancellationToken: token);
-        //Stamp ProjectId while streaming so the merge below can be a plain column-to-column copy.
-        //A projection lambda here would let linq2db v6 wrap our Sql.Expr<...>::jsonb cast in the
-        //EF value-converter (JsonSerializer.Serialize) and fail SQL translation.
-        var stampedCommits = commits.Select(c => { c.ProjectId = projectId; return c; });
-        //rows stream into COPY either way; a small MaxBatchSize only adds a server round trip per batch
-        await tmpTable.BulkCopyAsync(new BulkCopyOptions{BulkCopyType = BulkCopyType.ProviderSpecific}, stampedCommits, token);
+        int inserted;
+        //drop before committing, dropping after the commit fails with "Transaction is already completed"
+        await using (var tmpTable = await linqToDbContext.CreateTempTableAsync<ServerCommit>($"tmp_crdt_commit_import_{projectId}__{Guid.NewGuid()}", cancellationToken: token))
+        {
+            //Stamp ProjectId while streaming so the merge below can be a plain column-to-column copy.
+            //A projection lambda here would let linq2db v6 wrap our Sql.Expr<...>::jsonb cast in the
+            //EF value-converter (JsonSerializer.Serialize) and fail SQL translation.
+            var stampedCommits = commits.Select(c => { c.ProjectId = projectId; return c; });
+            //rows stream into COPY either way; a small MaxBatchSize only adds a server round trip per batch
+            var copied = await tmpTable.BulkCopyAsync(new BulkCopyOptions{BulkCopyType = BulkCopyType.ProviderSpecific}, stampedCommits, token);
 
-        var commitsTable = linqToDbContext.GetTable<ServerCommit>();
-        var inserted = await commitsTable
-            .Merge()
-            .Using(tmpTable)
-            .OnTargetKey()
-            .InsertWhenNotMatched()
-            .MergeAsync(token);
+            var commitsTable = linqToDbContext.GetTable<ServerCommit>();
+            inserted = await commitsTable
+                .Merge()
+                .Using(tmpTable)
+                .OnTargetKey()
+                .InsertWhenNotMatched()
+                .MergeAsync(token);
+
+            if (inserted < copied.RowsCopied)
+            {
+                var collidingIds = await (
+                    from tmp in tmpTable
+                    join existing in commitsTable on tmp.Id equals existing.Id
+                    where existing.ProjectId != tmp.ProjectId
+                    select tmp.Id).Take(5).ToListAsync(token);
+                if (collidingIds.Count > 0)
+                    throw new InvalidOperationException(
+                        $"Commits already exist in another project, e.g. {string.Join(", ", collidingIds)}. Pushed to project {projectId}.");
+            }
+        }
 
         await transaction.CommitAsync(token);
         return inserted;

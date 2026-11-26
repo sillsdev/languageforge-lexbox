@@ -12,14 +12,11 @@
   import {tick} from 'svelte';
   import {computeCommandScore} from 'bits-ui';
   import CommandSeparator from '../ui/command/command-separator.svelte';
-  import {Input} from '../ui/input';
-  import {tryUseFieldBody} from '../editor/field/field-root.svelte';
+  import ReadonlyField from './readonly-field.svelte';
   import OptionIndicator from '../ui/select/option-indicator.svelte';
   import {LONG_LIST, OPTION_ROW, tabWithinFilter, trackActiveDescendant} from '../ui/select/select-list';
 
   type Value = ReadonlyDeep<MutableValue>;
-
-  const labelledBy = tryUseFieldBody()?.labelId;
 
   let {
     value = $bindable(),
@@ -163,6 +160,20 @@
   });
 </script>
 
+{#snippet valueText()}
+  {#if value}
+    <span class="x-ellipsis mr-4 text-sm font-medium">
+      {getLabel(value) || $t`Untitled`}
+    </span>
+  {:else}
+    <span class="text-muted-foreground x-ellipsis mr-4 text-sm font-medium">
+      {placeholder ?? $t`None`}
+      <!-- ensures that baseline alignment works for consumers of this component -->
+      &nbsp;
+    </span>
+  {/if}
+{/snippet}
+
 {#snippet trigger({props}: {props: Record<string, unknown>})}
   <!-- Pressed here, not on the Button, so the chevron overlay moves with it. -->
   <div class="relative w-full transition-transform has-[>[role=combobox]:active]:press-wide">
@@ -172,19 +183,9 @@
       {...props}
       role="combobox"
       aria-expanded={open}
-      class={cn('w-full h-auto min-h-10 px-2 justify-between active:scale-100', className)}
+      class={cn('w-full h-auto min-h-10 px-3 justify-between active:scale-100', className)}
     >
-      {#if value}
-        <span class="x-ellipsis mr-4">
-          {getLabel(value) || $t`Untitled`}
-        </span>
-      {:else}
-        <span class="text-muted-foreground x-ellipsis mr-4">
-          {placeholder ?? $t`None`}
-          <!-- ensures that baseline alignment works for consumers of this component -->
-          &nbsp;
-        </span>
-      {/if}
+      {@render valueText()}
     </Button>
     <div class="absolute right-0 z-10 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none">
       {#if clearable === true || clearable === 'button'}
@@ -194,7 +195,7 @@
           class={cn('pointer-events-auto bg-transparent', value || 'invisible')}
         />
       {/if}
-      <Icon icon="i-mdi-chevron-down" class="mr-2 size-5 shrink-0 opacity-50" />
+      <Icon icon="i-mdi-chevron-down" class="mr-3 size-5 shrink-0 opacity-50" />
     </div>
   </div>
 {/snippet}
@@ -275,13 +276,10 @@
 {/snippet}
 
 {#if readonly}
-  <Input
-    readonly
-    value={value ? getLabel(value) || $t`Untitled` : ''}
-    placeholder={placeholder ?? $t`None`}
-    aria-labelledby={labelledBy}
-    class={className}
-  />
+  <ReadonlyField>
+    {@render valueText()}
+    <Icon icon="i-mdi-chevron-down" class="ms-auto size-5 shrink-0 opacity-25" aria-hidden="true" />
+  </ReadonlyField>
 {:else if useDrawer}
   <Drawer bind:open>
     <DrawerTrigger child={trigger} />

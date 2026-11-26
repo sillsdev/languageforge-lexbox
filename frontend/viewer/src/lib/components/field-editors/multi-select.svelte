@@ -1,5 +1,4 @@
 <script lang="ts" generics="MutableValue">
-  import {Badge} from '$lib/components/ui/badge';
   import {Button, XButton} from '$lib/components/ui/button';
   import {Popover, PopoverContent, PopoverTrigger} from '$lib/components/ui/popover';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
@@ -20,8 +19,8 @@
   import DrawerFooter from '../ui/drawer/drawer-footer.svelte';
   import {watch} from 'runed';
   import {computeCommandScore} from 'bits-ui';
-  import {inputVariants} from '../ui/input/input.svelte';
-  import {tryUseFieldBody} from '../editor/field/field-root.svelte';
+  import BadgeList from './badge-list.svelte';
+  import ReadonlyField from './readonly-field.svelte';
   import OptionIndicator from '../ui/select/option-indicator.svelte';
   import {LONG_LIST, OPTION_ROW, tabWithinFilter, trackActiveDescendant} from '../ui/select/select-list';
   import {onDestroy, tick} from 'svelte';
@@ -29,8 +28,6 @@
   import {on} from 'svelte/events';
 
   type Value = ReadonlyDeep<MutableValue>;
-
-  const labelledBy = tryUseFieldBody()?.labelId;
 
   let {
     values = $bindable(),
@@ -256,22 +253,7 @@
 </script>
 
 {#snippet displayBadges()}
-  <div class="flex flex-wrap justify-start gap-2 overflow-hidden">
-    {#each pendingValues as value (value.id)}
-      <Badge>
-        {value.label || $t`Untitled`}
-      </Badge>
-    {:else}
-      <span class="text-muted-foreground x-ellipsis">
-        {placeholder ?? $t`None`}
-        <!-- ensures that:
-          1) baseline alignment works for consumers of this component
-          2) list height doesn't shrink when empty
-          -->
-        <Badge class="max-w-0 invisible">&nbsp;</Badge>
-      </span>
-    {/each}
-  </div>
+  <BadgeList items={pendingValues} {placeholder} />
 {/snippet}
 
 {#snippet trigger({props}: {props: Record<string, unknown>})}
@@ -281,7 +263,7 @@
     {...props}
     role="combobox"
     aria-expanded={open}
-    class="w-full h-auto min-h-10 px-2 justify-between active:press-wide"
+    class="w-full h-auto min-h-10 px-3 justify-between active:press-wide"
   >
     {@render displayBadges()}
     <Icon icon="i-mdi-chevron-down" class="size-5 shrink-0 opacity-50" />
@@ -360,15 +342,10 @@
 {/snippet}
 
 {#if readonly}
-  <div
-    role="textbox"
-    aria-readonly="true"
-    aria-labelledby={labelledBy}
-    tabindex="0"
-    class={cn(inputVariants(), 'h-auto min-h-10 px-2')}
-  >
+  <ReadonlyField>
     {@render displayBadges()}
-  </div>
+    <Icon icon="i-mdi-chevron-down" class="ms-auto size-5 shrink-0 opacity-25" aria-hidden="true" />
+  </ReadonlyField>
 {:else if useDrawer}
   <Drawer bind:open={() => open, setOpen}>
     <DrawerTrigger child={trigger} />

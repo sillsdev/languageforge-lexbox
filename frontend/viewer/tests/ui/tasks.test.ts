@@ -132,3 +132,15 @@ test('task drawer: Next again while moving to the next entry does not save the s
   await expect(dialog.getByText('!!doublesave')).toBeHidden();
   expect(await page.evaluate(() => (window as unknown as DoubleSaveWindow).senseSaves)).toBe(1);
 });
+
+test('read-only projects send /tasks to Browse and hide Tasks in the sidebar', async ({page}) => {
+  await page.goto(tasksUrl);
+  await expect(page.getByRole('heading', {name: 'All tasks'})).toBeVisible();
+
+  await page.evaluate(async () => {
+    await window.__PLAYWRIGHT_UTILS__.setWrite(false);
+  });
+  await expect(page).toHaveURL(/\/browse/);
+  await expect(page.getByRole('heading', {name: 'All tasks'})).toHaveCount(0);
+  await expect(page.getByRole('button', {name: 'Tasks', exact: true})).toHaveCount(0);
+});
