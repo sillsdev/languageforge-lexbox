@@ -3,15 +3,14 @@ using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
-using MiniLcm.Filtering;
 using MiniLcm.Models;
 
 namespace FwLiteShared.Services;
 
 /// <summary>
-/// Opens the project the app starts on while the window and viewer are still loading. The first project open
-/// and the first entry queries in a process spend seconds on one-time EF Core and linq2db setup (mostly building
-/// the eager-loading entry query), which would otherwise all happen after the viewer is up.
+/// Opens the project the app starts on while the window and viewer are still loading. The first project open and
+/// the first entry queries in a process spend seconds on one-time EF Core, linq2db and JIT setup, which would
+/// otherwise all happen after the viewer is up.
 /// </summary>
 public class StartupProjectWarmup(IServiceProvider services, CrdtProjectsService projects, ILogger<StartupProjectWarmup> logger)
 {
@@ -26,8 +25,8 @@ public class StartupProjectWarmup(IServiceProvider services, CrdtProjectsService
     }
 
     /// <summary>
-    /// Run alongside the warm-up, the viewer's first queries would build the same linq2db queries at the same time,
-    /// each paying the full cost, so opening the warmed-up project waits for it instead.
+    /// Run alongside the warm-up, the viewer's first queries would pay the same one-time costs at the same time,
+    /// so opening the warmed-up project waits for it instead.
     /// </summary>
     public async Task WaitFor(string projectCode)
     {
@@ -51,10 +50,9 @@ public class StartupProjectWarmup(IServiceProvider services, CrdtProjectsService
             await using var scope = services.CreateAsyncScope();
             await scope.ServiceProvider.GetRequiredService<CurrentProjectService>().SetupProjectContext(project);
             using var api = ActivatorUtilities.CreateInstance<MiniLcmJsInvokable>(scope.ServiceProvider, project);
-            //the queries the browse view and a new entry window start with (linq2db caches each query shape); each opens its own db context
+            //each opens its own db context
             await Task.WhenAll(
                 api.GetEntries(new QueryOptions(SortOptions.Default, Count: 50)),
-                api.GetEntries(new QueryOptions(SortOptions.Default, Count: 50, Filter: WordsAndPhrasesFilter)),
                 api.GetEntry(Guid.Empty),
                 api.CountEntries(null, null),
                 api.GetWritingSystems());
@@ -66,16 +64,6 @@ public class StartupProjectWarmup(IServiceProvider services, CrdtProjectsService
             logger.LogWarning(e, "Failed to warm up the startup project");
         }
     }
-
-    //the FW Lite view's default morph type filter, as the viewer writes it (WORDS_AND_PHRASES, toGridify in frontend/viewer)
-    private static readonly EntryFilter WordsAndPhrasesFilter = new()
-    {
-        GridifyFilter = "(" + string.Join('|', new[]
-        {
-            MorphTypeKind.Root, MorphTypeKind.BoundRoot, MorphTypeKind.Stem, MorphTypeKind.BoundStem,
-            MorphTypeKind.Particle, MorphTypeKind.Phrase, MorphTypeKind.DiscontiguousPhrase
-        }.Select(kind => $"MorphType={kind}")) + ")"
-    };
 
     private static string? CrdtProjectCode(string? path)
     {
