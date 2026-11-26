@@ -222,8 +222,8 @@
             <MorphTypeSelect bind:value={morphTypes} bind:triggerRef={morphTypeTrigger} labelledBy="{uid}-morph-type-label"
               describedBy={showLiteMorphHint ? `${uid}-lite-morph-hint` : undefined} />
             {#if showLiteMorphHint}
-              <p id="{uid}-lite-morph-hint" class="flex items-center gap-1 text-xs text-muted-foreground mt-1 px-1">
-                <Icon icon="i-mdi-information-outline" class="size-3.5 shrink-0" />
+              <p id="{uid}-lite-morph-hint" class="text-xs text-muted-foreground mt-1 px-1">
+                <Icon icon="i-mdi-information-outline" class="size-3.5 align-text-bottom" />
                 {$t`This view shows only whole words and phrases.`}
                 <button type="button" class="underline hover:text-foreground" onclick={() => { morphTypes = 'all'; morphTypeTrigger?.focus(); }}>{$t`Show all`}</button>
               </p>
