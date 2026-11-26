@@ -20,11 +20,18 @@ export function trackActiveDescendant(list: HTMLElement): () => void {
   return () => observer.disconnect();
 }
 
-/** Whether Tab moves between the filter input and its clear button rather than out of the list */
-export function tabStaysInFilter(e: KeyboardEvent): boolean {
+/**
+ * Moves focus between the filter input and its clear button on Tab, before Tab leaves the list.
+ * Done by hand because Safari skips buttons on Tab unless full keyboard access is on.
+ */
+export function tabWithinFilter(e: KeyboardEvent): boolean {
   const wrapper = (e.target as Element).closest('[data-slot="command-input-wrapper"]');
   if (!wrapper) return false;
   const focusables = [...wrapper.querySelectorAll<HTMLElement>('input, button')];
-  const i = focusables.indexOf(e.target as HTMLElement);
-  return e.shiftKey ? i > 0 : i < focusables.length - 1;
+  const next = focusables[focusables.indexOf(e.target as HTMLElement) + (e.shiftKey ? -1 : 1)];
+  if (!next) return false;
+  e.preventDefault();
+  e.stopPropagation();
+  next.focus();
+  return true;
 }

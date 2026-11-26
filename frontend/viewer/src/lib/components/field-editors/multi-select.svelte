@@ -23,7 +23,7 @@
   import {inputVariants} from '../ui/input/input.svelte';
   import {tryUseFieldBody} from '../editor/field/field-root.svelte';
   import OptionIndicator from '../ui/select/option-indicator.svelte';
-  import {LONG_LIST, OPTION_ROW, tabStaysInFilter, trackActiveDescendant} from '../ui/select/select-list';
+  import {LONG_LIST, OPTION_ROW, tabWithinFilter, trackActiveDescendant} from '../ui/select/select-list';
   import {onDestroy, tick} from 'svelte';
   import {SvelteMap, SvelteSet} from 'svelte/reactivity';
   import {on} from 'svelte/events';
@@ -211,7 +211,7 @@
 
   // Space toggles like Enter unless there's a filter box to type into; Ctrl+Enter toggles, saves and closes.
   function onkeydown(e: KeyboardEvent) {
-    if (e.key === 'Tab' && !tabStaysInFilter(e)) {
+    if (e.key === 'Tab' && !tabWithinFilter(e)) {
       tabOut(e);
       return;
     }

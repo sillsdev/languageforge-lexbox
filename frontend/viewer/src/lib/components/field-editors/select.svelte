@@ -15,7 +15,7 @@
   import {Input} from '../ui/input';
   import {tryUseFieldBody} from '../editor/field/field-root.svelte';
   import OptionIndicator from '../ui/select/option-indicator.svelte';
-  import {LONG_LIST, OPTION_ROW, tabStaysInFilter, trackActiveDescendant} from '../ui/select/select-list';
+  import {LONG_LIST, OPTION_ROW, tabWithinFilter, trackActiveDescendant} from '../ui/select/select-list';
 
   type Value = ReadonlyDeep<MutableValue>;
 
@@ -113,7 +113,7 @@
 
   // Tab closes and moves on from the trigger, since the list is portalled away from the form.
   function onkeydown(e: KeyboardEvent) {
-    if (e.key !== 'Tab' || tabStaysInFilter(e)) return;
+    if (e.key !== 'Tab' || tabWithinFilter(e)) return;
     e.stopPropagation();
     open = false;
     triggerRef?.focus();
