@@ -72,6 +72,7 @@ public class SyncHostedService(IServiceProvider services, ILogger<SyncHostedServ
         {
             MarkSyncStarted(projectId);
             using var activity = FwHeadlessActivitySource.Value.StartActivity("SyncHostedService.ExecuteAsync");
+            activity?.SetTag("app.project_id", projectId);
             await using var scope = services.CreateAsyncScope();
             var syncWorker = ActivatorUtilities.CreateInstance<SyncWorker>(scope.ServiceProvider, projectId);
             SyncJobResult result;
