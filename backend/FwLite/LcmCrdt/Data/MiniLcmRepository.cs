@@ -65,6 +65,28 @@ public class MiniLcmRepository(
         await collationSetup.EnsureCollationsSetup(dbContext);
     }
 
+    private async Task<T> InReadTransaction<T>(Func<Task<T>> read)
+    {
+        if (dbContext.Database.CurrentTransaction is not null) return await read();
+        //deferred, so the read doesn't take the write lock; outside WAL mode a writer waits until it ends
+        T result;
+        await using (var transaction = ((SqliteConnection)dbContext.Database.GetDbConnection()).BeginTransaction(deferred: true))
+        {
+            await dbContext.Database.UseTransactionAsync(transaction);
+            try
+            {
+                result = await read();
+            }
+            finally
+            {
+                await dbContext.Database.UseTransactionAsync(null);
+            }
+        }
+        //UseTransaction opened the connection once more
+        await dbContext.Database.CloseConnectionAsync();
+        return result;
+    }
+
     public ValueTask DisposeAsync()
     {
         return dbContext.DisposeAsync();
@@ -168,53 +190,6 @@ public class MiniLcmRepository(
         }
     }
 
-    private async Task<T> InReadTransaction<T>(Func<Task<T>> read)
-    {
-        if (dbContext.Database.CurrentTransaction is not null) return await read();
-        //deferred, so the read doesn't take the write lock; outside WAL mode a writer waits until it ends
-        T result;
-        await using (var transaction = ((SqliteConnection)dbContext.Database.GetDbConnection()).BeginTransaction(deferred: true))
-        {
-            await dbContext.Database.UseTransactionAsync(transaction);
-            try
-            {
-                result = await read();
-            }
-            finally
-            {
-                await dbContext.Database.UseTransactionAsync(null);
-            }
-        }
-        //UseTransaction opened the connection once more
-        await dbContext.Database.CloseConnectionAsync();
-        return result;
-    }
-
-    // Not LoadWith on the entry query: linq2db copies the whole filtered and sorted entry query into each LoadWith
-    // child query, so every new filter/sort/search shape took 1-2 s to build. These queries have one shape each.
-    private async Task LoadEntryChildren(IReadOnlyCollection<Entry> entries)
-    {
-        //one id parameter per entry; SQLite allows 32766, and fewer, bigger batches load the whole list faster
-        foreach (var batch in entries.Chunk(10_000))
-        {
-            var ids = batch.Select(e => e.Id).ToArray();
-            var senses = (await AsyncExtensions.ToListAsync(dbContext.Senses.ToLinqToDB()
-                .LoadWith(s => s.ExampleSentences)
-                .LoadWith(s => s.PartOfSpeech)
-                .Where(s => ids.Contains(s.EntryId)))).ToLookup(s => s.EntryId);
-            var components = (await AsyncExtensions.ToListAsync(dbContext.ComplexFormComponents.ToLinqToDB()
-                .Where(c => ids.Contains(c.ComplexFormEntryId)))).ToLookup(c => c.ComplexFormEntryId);
-            var complexForms = (await AsyncExtensions.ToListAsync(dbContext.ComplexFormComponents.ToLinqToDB()
-                .Where(c => ids.Contains(c.ComponentEntryId)))).ToLookup(c => c.ComponentEntryId);
-            foreach (var entry in batch)
-            {
-                entry.Senses = [..senses[entry.Id]];
-                entry.Components = [..components[entry.Id]];
-                entry.ComplexForms = [..complexForms[entry.Id]];
-            }
-        }
-    }
-
     private async Task<(IQueryable<Entry> queryable, QueryOptions options)> FilterAndSortEntries(
         string? query,
         QueryOptions options)
@@ -312,6 +287,31 @@ public class MiniLcmRepository(
         }
 
         return entry;
+    }
+
+    // Not LoadWith on the entry query: linq2db copies the whole filtered and sorted entry query into each LoadWith
+    // child query, so every new filter/sort/search shape took 1-2 s to build. These queries have one shape each.
+    private async Task LoadEntryChildren(IReadOnlyCollection<Entry> entries)
+    {
+        //one id parameter per entry; SQLite allows 32766, and fewer, bigger batches load the whole list faster
+        foreach (var batch in entries.Chunk(10_000))
+        {
+            var ids = batch.Select(e => e.Id).ToArray();
+            var senses = (await AsyncExtensions.ToListAsync(dbContext.Senses.ToLinqToDB()
+                .LoadWith(s => s.ExampleSentences)
+                .LoadWith(s => s.PartOfSpeech)
+                .Where(s => ids.Contains(s.EntryId)))).ToLookup(s => s.EntryId);
+            var components = (await AsyncExtensions.ToListAsync(dbContext.ComplexFormComponents.ToLinqToDB()
+                .Where(c => ids.Contains(c.ComplexFormEntryId)))).ToLookup(c => c.ComplexFormEntryId);
+            var complexForms = (await AsyncExtensions.ToListAsync(dbContext.ComplexFormComponents.ToLinqToDB()
+                .Where(c => ids.Contains(c.ComponentEntryId)))).ToLookup(c => c.ComponentEntryId);
+            foreach (var entry in batch)
+            {
+                entry.Senses = [..senses[entry.Id]];
+                entry.Components = [..components[entry.Id]];
+                entry.ComplexForms = [..complexForms[entry.Id]];
+            }
+        }
     }
 
     public async Task<Sense?> GetSense(Guid senseId)
