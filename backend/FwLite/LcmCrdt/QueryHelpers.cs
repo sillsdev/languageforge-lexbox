@@ -5,11 +5,11 @@ namespace LcmCrdt;
 public static class QueryHelpers
 {
     public static void Finalize(this Entry entry,
-        IComparer<ComplexFormComponent> complexFormComparer)
+        IComparer<string> headwordComparer)
     {
         entry.Senses.ApplySortOrder();
         entry.Components.ApplySortOrder();
-        entry.ComplexForms.Sort(complexFormComparer);
+        entry.SortComplexForms(headwordComparer);
         foreach (var sense in entry.Senses)
         {
             sense.Finalize();
@@ -41,16 +41,6 @@ public static class QueryHelpers
             var result = a.Order.CompareTo(b.Order);
             if (result != 0) return result;
             return a.Id.CompareTo(b.Id);
-        });
-    }
-
-    public static IComparer<ComplexFormComponent> AsComplexFormComparer(this IComparer<string> headwordComparer)
-    {
-        return Comparer<ComplexFormComponent>.Create((a, b) =>
-        {
-            var result = headwordComparer.Compare(a.ComplexFormHeadword, b.ComplexFormHeadword);
-            if (result != 0) return result;
-            return a.ComplexFormEntryId.CompareTo(b.ComplexFormEntryId);
         });
     }
 }
