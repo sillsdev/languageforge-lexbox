@@ -81,7 +81,7 @@ public static class LcmCrdtKernel
         services.AddCrdtRemoteResources<LcmFileMetadata>();
         services.AddOptions<HarmonyConfig>().PostConfigure((HarmonyConfig harmonyConfig, IOptions<LcmCrdtConfig> lcmConfig) =>
         {
-            harmonyConfig.LocalResourceCachePath = Path.Combine(lcmConfig.Value.ProjectPath, ProjectDataFolderMigration.LocalResourcesCacheDirName);
+            harmonyConfig.LocalResourceCachePath = lcmConfig.Value.LocalResourceCachePath();
             // iOS reassigns the app container path on every update or reinstall, so an absolute LocalPath goes stale
             // while the cached file moves with the app (#2693). Harmony resolves relative rows against the cache path.
             harmonyConfig.StoreLocalResourcePathsRelativeToCache = true;

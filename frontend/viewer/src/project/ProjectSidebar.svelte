@@ -99,7 +99,9 @@
         <Sidebar.Menu>
           {@render ViewButton('dashboard', 'i-mdi-view-dashboard', $t`Dashboard`)}
           {@render ViewButton('browse', 'i-mdi-book-alphabet', $t`Browse`, formatNumber(stats.current?.totalEntryCount))}
-          {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
+          {#if !projectContext.featuresLoaded || features.write}
+            {@render ViewButton('tasks', 'i-mdi-checkbox-marked', $t`Tasks`)}
+          {/if}
 
           {#if features.history}
             {@render ViewButton('activity', 'i-mdi-chart-line', $t`Activity`)}

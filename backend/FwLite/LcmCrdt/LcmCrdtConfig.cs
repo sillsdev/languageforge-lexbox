@@ -12,15 +12,39 @@ public class LcmCrdtConfig
 
     /// <summary>
     /// When true, new projects are created at <c>{ProjectPath}/projects/{code}/{code}.sqlite</c> instead of
-    /// <c>{ProjectPath}/{code}.sqlite</c>. Projects in either layout are always found.
+    /// <c>{ProjectPath}/{code}.sqlite</c>, and media is kept beside the database in
+    /// <c>{ProjectPath}/projects/{code}/resources</c> instead of <c>{ProjectPath}/localResourcesCache/{code}</c>.
+    /// Projects in either layout are always found.
     /// </summary>
     public bool UseProjectFolders { get; set; }
 
     public const string ProjectFoldersDirName = "projects";
+    public const string ProjectResourcesDirName = "resources";
+    public const string LocalResourcesCacheDirName = "localResourcesCache";
 
     public static string ProjectFolderDbPath(string projectPath, string code)
     {
         return Path.Combine(projectPath, ProjectFoldersDirName, code, $"{code}.sqlite");
+    }
+
+    public static string ProjectFolderResourcesPath(string projectPath, string code)
+    {
+        return Path.Combine(projectPath, ProjectFoldersDirName, code, ProjectResourcesDirName);
+    }
+
+    /// <summary>
+    /// Harmony stores media paths relative to this one folder, so every project's media has to be under it.
+    /// </summary>
+    public string LocalResourceCachePath()
+    {
+        return Path.Combine(ProjectPath, UseProjectFolders ? ProjectFoldersDirName : LocalResourcesCacheDirName);
+    }
+
+    public string ProjectResourceCachePath(string code)
+    {
+        return UseProjectFolders
+            ? ProjectFolderResourcesPath(ProjectPath, code)
+            : Path.Combine(LocalResourceCachePath(), code);
     }
 
     public string ProjectCachePath()

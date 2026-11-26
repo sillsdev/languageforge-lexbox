@@ -70,7 +70,7 @@
     {#snippet template()}
       <Router>
         <Server {status} {projects} localProjects={projects}/>
-        <Server {status} projects={[]} localProjects={[]} loading/>
+        <Server {status} projects={undefined} localProjects={[]} loading/>
       </Router>
     {/snippet}
   </Story>

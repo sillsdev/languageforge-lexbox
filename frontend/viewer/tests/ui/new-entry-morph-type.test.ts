@@ -54,8 +54,8 @@ test.describe('New entry morph type', () => {
 
     await test.step('the entry editor shows the morph type read-only', async () => {
       const readonlyMorphType = page.locator('[data-field-id="morphType"]:visible').getByRole('textbox');
-      await expect(readonlyMorphType).toHaveValue('infix');
-      await expect(readonlyMorphType).toHaveAttribute('readonly');
+      await expect(readonlyMorphType).toHaveText('infix');
+      await expect(readonlyMorphType).toHaveAttribute('aria-readonly', 'true');
     });
   });
 
@@ -95,13 +95,17 @@ test.describe('New entry morph type', () => {
   });
 
   test('lite view stops a quick create once to show the morph type it picked', async ({page}) => {
+    await page.clock.install();
     await new DemoProjectPage(page).goto();
     await useView(page, /FieldWorks Lite/);
 
     const dialog = await openNewEntryDialog(page);
+    // WebKit can take longer than the typing pause to click, which would show the picker before Create
+    await page.clock.pauseAt(Date.now() + 60_000);
     await lexemeInput(dialog).fill('-zed');
     await dialog.getByRole('button', {name: /add word/i}).click();
     await expect(morphTypeSelect(dialog)).toHaveText('suffix');
+    await page.clock.resume();
     await dialog.getByRole('button', {name: /add word/i}).click();
     await expect(dialog).toBeHidden();
     expect(await createdMorphTypes(page, 'zed')).toEqual(['Suffix']);

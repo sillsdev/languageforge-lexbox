@@ -1,11 +1,8 @@
 name: Docs
+# Published by the release pipeline after an FW Lite release, so the docs match what users can download.
+# A manual dispatch on develop publishes too; on other branches it only builds.
 on:
-  push:
-    paths:
-      - 'docs/site/**'
-      - '.github/workflows/docs.yaml'
-    branches:
-      - develop
+  workflow_call:
   pull_request:
     paths:
       - 'docs/site/**'

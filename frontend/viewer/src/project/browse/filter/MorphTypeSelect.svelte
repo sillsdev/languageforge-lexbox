@@ -1,6 +1,5 @@
 <script lang="ts">
   import * as Select from '$lib/components/ui/select';
-  import {Icon} from '$lib/components/ui/icon';
   import {plural, t} from 'svelte-i18n-lingui';
   import {MorphTypeKind} from '$lib/dotnet-types';
   import {useWritingSystemService} from '$project/data';
@@ -44,6 +43,10 @@
     ...groups.filter(g => groupChecks.get(g.key) === 'all').map(g => g.key),
   ]);
 
+  function toIndicatorState(check: CheckState | undefined): boolean | 'some' {
+    return check === 'all' || (check === 'some' && 'some');
+  }
+
   function onValueChange(newValue: string[]) {
     const toggled = [...newValue.filter(v => !selectValue.includes(v)), ...selectValue.filter(v => !newValue.includes(v))];
     const group = groups.find(g => toggled.includes(g.key));
@@ -54,13 +57,6 @@
   }
 </script>
 
-{#snippet checkIcon(check: CheckState | undefined)}
-  {#if check === 'all'}
-    <Icon icon="i-mdi-check" class="size-4" />
-  {:else if check === 'some'}
-    <Icon icon="i-mdi-minus" class="size-4" />
-  {/if}
-{/snippet}
 
 <Select.Root type="multiple" value={selectValue} {onValueChange}>
   <!-- Labelled by the label plus itself, so the selection stays part of the name -->
@@ -76,15 +72,14 @@
     {/if}
   </Select.Trigger>
   <Select.Content>
-    <Select.Item value={ALL} label={$t`All morph types`}>
-      {#snippet selectedIndicator()}{@render checkIcon(allCheck)}{/snippet}
-      <span class="font-bold">{$t`All morph types`}</span>
+    <Select.Item value={ALL} label={$t`All morph types`} checkState={toIndicatorState(allCheck)}>
+      <span class="font-semibold">{$t`All morph types`}</span>
     </Select.Item>
     {#each groups as group (group.key)}
+      <Select.Separator />
       <Select.Group>
-        <Select.Item value={group.key} label={group.label}>
-          {#snippet selectedIndicator()}{@render checkIcon(groupChecks.get(group.key))}{/snippet}
-          <span class="font-bold">{group.label}</span>
+        <Select.Item value={group.key} label={group.label} checkState={toIndicatorState(groupChecks.get(group.key))}>
+          <span class="font-semibold">{group.label}</span>
         </Select.Item>
         {#each group.options as option (option.kind)}
           <Select.Item value={option.kind} label={option.label} class="ps-6">

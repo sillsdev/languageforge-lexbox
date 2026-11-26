@@ -159,6 +159,11 @@
   }
 }
 
+/* Press for wide pressables: a uniform scale-95 moves the sides far more than the top and bottom. */
+@utility press-wide {
+  scale: 0.99 0.95;
+}
+
 @utility no-scrollbar {
 	-ms-overflow-style: none;
 	scrollbar-width: none;

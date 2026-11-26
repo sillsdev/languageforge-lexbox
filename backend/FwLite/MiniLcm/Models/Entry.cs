@@ -44,6 +44,32 @@ public record Entry : IObjectWithId<Entry>
         return string.IsNullOrEmpty(word) ? UnknownHeadword : word;
     }
 
+    /// <summary>
+    /// Sorts alphabetically, like FieldWorks. One complex form can use this entry and several of its senses,
+    /// so ties go to the whole entry first, then the senses in order. Call after <see cref="Senses"/> is sorted.
+    /// </summary>
+    public void SortComplexForms(IComparer<string> headwordComparer)
+    {
+        if (ComplexForms.Count < 2) return;
+        ComplexForms.Sort((a, b) =>
+        {
+            var result = headwordComparer.Compare(a.ComplexFormHeadword ?? string.Empty, b.ComplexFormHeadword ?? string.Empty);
+            if (result != 0) return result;
+            result = a.ComplexFormEntryId.CompareTo(b.ComplexFormEntryId);
+            if (result != 0) return result;
+            result = SensePosition(a.ComponentSenseId).CompareTo(SensePosition(b.ComponentSenseId));
+            if (result != 0) return result;
+            return Nullable.Compare(a.ComponentSenseId, b.ComponentSenseId);
+        });
+    }
+
+    private int SensePosition(Guid? senseId)
+    {
+        if (senseId is null) return -1;
+        var index = Senses.FindIndex(s => s.Id == senseId);
+        return index < 0 ? int.MaxValue : index;
+    }
+
     public Entry Copy()
     {
         return new Entry

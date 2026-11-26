@@ -224,6 +224,13 @@ public static class Json
         return guid?.ToString() ?? "";
     }
 
+    //see EntryFilterMapProvider.TranslationSeparator; char(31) is the same character
+    [Sql.Expression("coalesce((select group_concat(t, char(31)) from (select (select group_concat(tsp.value->>'Text', '') from json_each(tr.value->'Text'->{1}->'Spans') as tsp) as t from json_each({0}) as tr) where t <> ''), '')", ServerSideOnly = true)]
+    public static string TranslationsPlainText(IEnumerable<Translation>? translations, string ws)
+    {
+        throw new NotImplementedException("only supported server side");
+    }
+
     //Json.Value's path walker can't handle a key captured from an outer json_each row; use At for that.
     [Sql.Expression("{0}->>{1}", ServerSideOnly = true)]
     public static string? At(MultiString value, string key)

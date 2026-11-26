@@ -63,6 +63,7 @@
   import {useSubjectContext} from '$lib/entry-editor/object-editors/subject-context';
   import LexiconEditorPrimitive from '$lib/entry-editor/object-editors/LexiconEditorPrimitive.svelte';
   import OverrideFields from '$lib/views/OverrideFields.svelte';
+  import ReadonlyField from './readonly-field.svelte';
 
   let {
     loader = defaultLoader,
@@ -319,9 +320,7 @@
         {$t`Add audio`}
       </Button>
     {:else}
-      <div class="text-muted-foreground p-1">
-        {$t`No audio`}
-      </div>
+      <ReadonlyField placeholder={$t`No audio`} />
     {/if}
   {:else if isNotFoundAudioId(audioId)}
     <div class="text-muted-foreground p-1">

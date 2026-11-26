@@ -15,6 +15,7 @@
   import {resource} from 'runed';
   import type {SyncTarget} from './sync-target';
   import * as Popover from '$lib/components/ui/popover';
+  import DevContent from '$lib/layout/DevContent.svelte';
 
   interface Props {
     syncStatus: SyncStatus;
@@ -30,6 +31,7 @@
     /** Off where the dialog already names this view, unless the heading carries the FieldWorks Classic explanation */
     showHeading?: boolean;
     onLoginStatusChange?: (status: 'logged-in' | 'logged-out') => void;
+    onUploadClick?: () => void;
   }
 
   let {
@@ -42,6 +44,7 @@
     explainFieldWorksSync = false,
     showHeading = true,
     onLoginStatusChange = () => {},
+    onUploadClick,
   }: Props = $props();
 
   const service = useSyncStatusService();
@@ -166,6 +169,13 @@
             <span>{$t`Unknown server`}</span>
           {:else}
             <span>{$t`No server`}</span>
+            {#if onUploadClick}
+              <DevContent>
+                <Button variant="outline" size="sm" icon="i-mdi-cloud-upload-outline" onclick={onUploadClick}>
+                  Upload to Lexbox...
+                </Button>
+              </DevContent>
+            {/if}
           {/if}
         {:else}
           <div class="text-destructive">{$t`Error getting sync status.`}</div>
