@@ -161,6 +161,9 @@ public static class FwLiteMauiKernel
         services.Configure<AuthConfig>(config =>
         {
             config.CacheFileName = fwLiteMauiConfig.AuthCacheFilePath;
+#if MACCATALYST
+            config.TokenCacheStore = new FileTokenCacheStore(fwLiteMauiConfig.AuthCacheFilePath);
+#endif
             config.SystemWebViewLogin = true;
             config.OpenSystemBrowser = async uri =>
             {
