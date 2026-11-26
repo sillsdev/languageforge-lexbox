@@ -99,6 +99,12 @@
   let triggerRef = $state<HTMLButtonElement | null>(null);
   const hintId = $props.id();
   let commandRef = $state<HTMLElement | null>(null);
+  let filterInput = $state<HTMLInputElement | null>(null);
+
+  function clearFilter() {
+    filterValue = '';
+    filterInput?.focus();
+  }
   let listRef = $state<HTMLElement | null>(null);
   $effect(() => {
     if (listRef && !isLong) return trackActiveDescendant(listRef);
@@ -230,7 +236,8 @@
   });
 
   const isLong = $derived(options.length >= LONG_LIST);
-  const useDrawer = $derived(IsMobile.value && isLong);
+  // Phones always get the drawer: its Done button is the one visible way out of a list that stays open.
+  const useDrawer = $derived(IsMobile.value);
   const pinSelectedAtTop = $derived(isLong && showSelectedGroup && !filterValue && selectedGroupSnapshot.length > 0);
 
   const orderedOptions = $derived.by(() => {
@@ -285,24 +292,19 @@
   <Command shouldFilter={false} bind:ref={commandRef} class="outline-none" onkeydowncapture={onkeydown}>
     {#if isLong}
       <CommandInput
+        bind:ref={filterInput}
         bind:value={filterValue}
         autofocus
         aria-describedby={hintId}
         placeholder={filterPlaceholder ?? $t`Filter...`}
       >
-        <div class="flex items-center gap-2 flex-nowrap">
-          {#if IsMobile.value}
-            {#if filterValue}
-              <XButton onclick={() => (filterValue = '')} aria-label={$t`clear`} />
-            {/if}
-          {:else}
-            <XButton
-              onclick={dismiss}
-              onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && e.stopPropagation()}
-              aria-label={$t`Close`}
-            />
-          {/if}
-        </div>
+        {#if filterValue}
+          <XButton
+            onclick={clearFilter}
+            onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && e.stopPropagation()}
+            aria-label={$t`Clear filter`}
+          />
+        {/if}
       </CommandInput>
     {/if}
     <span id={hintId} class="sr-only"
@@ -311,7 +313,7 @@
     <CommandList
       bind:ref={listRef}
       tabindex={-1}
-      class={cn(useDrawer ? 'h-75' : 'max-h-72', 'outline-none')}
+      class={cn(useDrawer && isLong ? 'h-75' : 'max-h-72', 'outline-none')}
       aria-multiselectable="true"
       aria-describedby={hintId}
     >

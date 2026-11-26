@@ -996,11 +996,14 @@ msgid "Classic FieldWorks Projects"
 msgstr "Classic FieldWorks Projects"
 
 #. Button to clear selection
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "clear"
 msgstr "clear"
+
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/select.svelte
+msgid "Clear filter"
+msgstr "Clear filter"
 
 #. Activity-log line. {0} = field label (e.g. "Gloss", "Definition"). Means the field's value was erased.
 #: src/lib/activity/ChangeSummary.svelte
@@ -1014,7 +1017,6 @@ msgid "Clitics"
 msgstr "Clitics"
 
 #. Button to close popup
-#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
@@ -3761,6 +3763,7 @@ msgstr "Reference"
 
 #. Help text in dropdown
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "Refine your filter to see more..."
 msgstr "Refine your filter to see more..."

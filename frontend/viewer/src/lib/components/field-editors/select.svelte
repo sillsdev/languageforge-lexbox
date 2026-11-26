@@ -69,6 +69,12 @@
   let filterValue = $state('');
   let triggerRef = $state<HTMLButtonElement | null>(null);
   let commandRef = $state<HTMLElement | null>(null);
+  let filterInput = $state<HTMLInputElement | null>(null);
+
+  function clearFilter() {
+    filterValue = '';
+    filterInput?.focus();
+  }
   let listRef = $state<HTMLElement | null>(null);
   $effect(() => {
     if (listRef && !isLong) return trackActiveDescendant(listRef);
@@ -202,16 +208,19 @@
     onkeydowncapture={onkeydown}
   >
     {#if isLong}
-      <CommandInput bind:value={filterValue} autofocus placeholder={filterPlaceholder ?? $t`Filter...`}>
-        <div class="flex items-center gap-2 flex-nowrap">
-          {#if IsMobile.value}
-            {#if filterValue}
-              <XButton onclick={() => (filterValue = '')} aria-label={$t`clear`} />
-            {/if}
-          {:else}
-            <XButton onclick={dismiss} onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && e.stopPropagation()} />
-          {/if}
-        </div>
+      <CommandInput
+        bind:ref={filterInput}
+        bind:value={filterValue}
+        autofocus
+        placeholder={filterPlaceholder ?? $t`Filter...`}
+      >
+        {#if filterValue}
+          <XButton
+            onclick={clearFilter}
+            onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && e.stopPropagation()}
+            aria-label={$t`Clear filter`}
+          />
+        {/if}
       </CommandInput>
     {/if}
     <CommandList bind:ref={listRef} tabindex={-1} class={cn(useDrawer ? 'h-75' : 'max-h-72', 'outline-none')}>
