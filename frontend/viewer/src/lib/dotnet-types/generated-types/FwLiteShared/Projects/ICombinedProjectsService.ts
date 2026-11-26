@@ -10,6 +10,7 @@ import type {ILexboxServer} from '../Auth/ILexboxServer';
 import type {UserProjectRole} from '../../LcmCrdt/UserProjectRole';
 import type {IOpenFromFolderResult} from '../LocalSync/IOpenFromFolderResult';
 import type {IFolderSyncSummary} from '../LocalSync/IFolderSyncSummary';
+import type {IServerStatus} from '../Auth/IServerStatus';
 
 export interface ICombinedProjectsService
 {
@@ -22,7 +23,7 @@ export interface ICombinedProjectsService
 	openFromFolder(path: string) : Promise<IOpenFromFolderResult>;
 	syncProjectWithFolder(projectCode: string, path: string) : Promise<IFolderSyncSummary>;
 	createProject(name: string, code: string, vernacularWs: string, authorServer?: ILexboxServer, analysisWs?: string) : Promise<void>;
-	knownLexboxUserName() : Promise<string | undefined>;
+	knownLexboxAccount() : Promise<IServerStatus | undefined>;
 	createDemoProject(name: string) : Promise<void>;
 	deleteProject(code: string) : Promise<void>;
 	uploadCrdtProject(server: ILexboxServer, code: string) : Promise<void>;

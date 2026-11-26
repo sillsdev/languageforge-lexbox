@@ -32,10 +32,9 @@
   let analysisWs = $state('');
   let askForAuthorName = $state(false);
   let authorName = $state('');
-  // undefined while loading; null when we don't know their Lexbox account, so they're credited by a local name
-  let lexboxUserName = $state<string | null>();
   let accounts = $state<IServerStatus[]>([]);
-  let account = $state<IServerStatus>();
+  // undefined while loading; null when we don't know their Lexbox account, so they're credited by a local name
+  let account = $state<IServerStatus | null>();
 
   function slugify(value: string): string {
     return value.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+/, '');
@@ -45,7 +44,7 @@
 
   let nameError = $derived(name.trim() ? undefined : $t`Name is required`);
   let vernacularWsError = $derived(vernacularWs.trim() ? undefined : $t`Vernacular writing system is required`);
-  let authorNameError = $derived(!askForAuthorName || lexboxUserName !== null || authorName.trim() ? undefined : $t`Enter your name`);
+  let authorNameError = $derived(!askForAuthorName || account !== null || authorName.trim() ? undefined : $t`Enter your name`);
   let valid = $derived(!nameError && !vernacularWsError && !authorNameError);
   // Surfaced only after a submit attempt, then they clear live as each field is fixed.
   let fieldErrors = $derived(submitted ? [nameError, vernacularWsError, authorNameError].filter(e => e !== undefined) : []);
@@ -59,7 +58,6 @@
     loading = false;
     askForAuthorName = !localAuthorName.current;
     authorName = '';
-    lexboxUserName = undefined;
     accounts = [];
     account = undefined;
     void loadLexboxAccounts();
@@ -72,8 +70,7 @@
     const authService = window.lexbox.ServiceProvider.tryGetService(DotnetService.AuthService);
     const servers = await authService?.servers() ?? [];
     accounts = servers.filter(s => s.loggedIn);
-    account = accounts[0];
-    lexboxUserName = account?.loggedInAs ?? await projectsService.knownLexboxUserName() ?? null;
+    account = accounts[0] ?? await projectsService.knownLexboxAccount() ?? null;
   }
 
   async function createProject(e: Event) {
@@ -84,8 +81,8 @@
     loading = true;
     error = undefined;
     try {
-      if (lexboxUserName === null && askForAuthorName) await localAuthorName.set(authorName.trim());
-      await projectsService.createProject(name.trim(), code.trim(), vernacularWs.trim(), account?.server, analysisWs.trim() || undefined);
+      if (account === null && askForAuthorName) await localAuthorName.set(authorName.trim());
+      await projectsService.createProject(name.trim(), code.trim(), vernacularWs.trim(), account?.loggedIn ? account.server : undefined, analysisWs.trim() || undefined);
       await refreshProjects();
       open = false;
     } catch (e) {
@@ -138,21 +135,19 @@
       {#if accounts.length > 1}
         <Label class="contents">
           {$t`Author`}
-          <Select options={accounts} bind:value={account} idSelector={a => a.server.id} labelSelector={accountLabel} />
+          <Select options={accounts} bind:value={() => account ?? undefined, a => account = a} idSelector={a => a.server.id} labelSelector={accountLabel} />
         </Label>
-        <p class="col-start-2 -mt-1 text-sm text-muted-foreground">{$t`Your Lexbox account`}</p>
-      {:else if lexboxUserName}
+      {:else if account}
         <Label class="contents">
           {$t`Author`}
-          <Input readonly value={lexboxUserName} class="bg-muted dark:bg-muted" />
+          <Input readonly value={accountLabel(account)} class="bg-muted dark:bg-muted" />
         </Label>
-        <p class="col-start-2 -mt-1 text-sm text-muted-foreground">{$t`Your Lexbox account`}</p>
-      {:else if lexboxUserName === null && askForAuthorName}
+      {:else if account === null && askForAuthorName}
         <Label class="contents">
           {$t`Your name`}
           <Input bind:value={authorName} maxlength={60} autocomplete="name" autocapitalize="words" />
         </Label>
-      {:else if lexboxUserName === null}
+      {:else if account === null}
         <span class="text-sm leading-none font-medium">{$t`Your name`}</span>
         <button type="button" class={cn(inputVariants({variant: 'shell'}), 'px-3 bg-muted dark:bg-muted hover:bg-input dark:hover:bg-muted/50 cursor-pointer focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]')}
           onclick={() => void nameDialog?.ask()}>
@@ -160,7 +155,7 @@
           <span class="flex items-center gap-1.5 shrink-0 font-medium"><Icon icon="i-mdi-pencil" class="size-4" />{$t`Change`}</span>
         </button>
       {/if}
-      {#if lexboxUserName === null}
+      {#if account === null}
         <div class="col-start-2 -mt-1 text-sm text-muted-foreground">
           <p>{$t`This lets others see which changes you made.`}</p>
           <p>{$t`Projects that sync with Lexbox use your Lexbox account name instead.`}</p>

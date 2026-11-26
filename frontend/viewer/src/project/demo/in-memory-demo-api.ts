@@ -46,6 +46,7 @@ import type {IUploadFileResponse} from '$lib/dotnet-types/generated-types/MiniLc
 import {UploadFileResult} from '$lib/dotnet-types/generated-types/MiniLcm/Media/UploadFileResult';
 import {DownloadProjectByCodeResult} from '$lib/dotnet-types/generated-types/FwLiteShared/Projects/DownloadProjectByCodeResult';
 import type {IOpenFromFolderResult} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IOpenFromFolderResult';
+import type {IServerStatus} from '$lib/dotnet-types/generated-types/FwLiteShared/Auth/IServerStatus';
 import type {IFolderSyncSummary} from '$lib/dotnet-types/generated-types/FwLiteShared/LocalSync/IFolderSyncSummary';
 import type {IUpdateService} from '$lib/dotnet-types/generated-types/FwLiteShared/Services/IUpdateService';
 import {type IAvailableUpdate, UpdateResult} from '$lib/dotnet-types/generated-types/FwLiteShared/AppUpdate';
@@ -199,7 +200,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
       createProject: function (): Promise<void> {
         return Promise.resolve();
       },
-      knownLexboxUserName: function (): Promise<string | undefined> {
+      knownLexboxAccount: function (): Promise<IServerStatus | undefined> {
         return Promise.resolve(undefined);
       },
       createDemoProject: function (_name: string): Promise<void> {

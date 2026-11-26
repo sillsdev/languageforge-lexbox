@@ -52,7 +52,7 @@
 </Story>
 <Story name="New project: Lexbox account from a project">
   <StoryState channel="dev" authorName="">
-    <OpenCreateProjectDialog lexboxUserName="pat.example" />
+    <OpenCreateProjectDialog rememberedAs="pat.example" />
   </StoryState>
 </Story>
 <Story name="New project: name already set">

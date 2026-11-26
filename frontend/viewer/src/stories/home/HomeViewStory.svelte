@@ -89,7 +89,7 @@
     }, 200),
     downloadProjectByCode: () => Promise.resolve(DownloadProjectByCodeResult.Success),
     createProject: () => Promise.resolve(),
-    knownLexboxUserName: () => Promise.resolve(undefined),
+    knownLexboxAccount: () => Promise.resolve(undefined),
     uploadCrdtProject: () => Promise.resolve(),
     createDemoProject: () => Promise.resolve(),
     deleteProject: (code) => respond(() => {

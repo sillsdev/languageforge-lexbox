@@ -5538,12 +5538,6 @@ msgstr ""
 msgid "Your dictionary starts here"
 msgstr "Từ điển của bạn bắt đầu từ đây"
 
-#. Note under the New Project "Author" field: changes are credited to the user's Lexbox account. "Lexbox" is a product name; do not translate.
-#: src/home/CreateProjectDialog.svelte
-#: src/home/CreateProjectDialog.svelte
-msgid "Your Lexbox account"
-msgstr ""
-
 #: src/home/CreateProjectDialog.svelte
 #: src/home/CreateProjectDialog.svelte
 #: src/home/HomeView.svelte

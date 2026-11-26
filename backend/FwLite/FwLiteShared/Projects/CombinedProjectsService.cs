@@ -223,7 +223,7 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     {
         return Task.Run(async () =>
         {
-            var author = authorServer is null ? await KnownLexboxUser()
+            var author = authorServer is null ? (await FindLexboxAccount())?.User
                 : await oAuthClientFactory.GetClient(authorServer).GetCachedUser()
                     ?? throw new InvalidOperationException($"Not logged in to {authorServer.DisplayName}");
             await crdtProjectsService.CreateProjectFromTemplate(new(name, code, Role: UserProjectRole.Manager,
@@ -236,24 +236,28 @@ public class CombinedProjectsService(LexboxProjectService lexboxProjectService,
     /// is only for people who have never used Lexbox here.
     /// </summary>
     [JSInvokable]
-    public async Task<string?> KnownLexboxUserName()
+    public async Task<ServerStatus?> KnownLexboxAccount()
     {
-        return (await KnownLexboxUser())?.Name;
+        if (await FindLexboxAccount() is not { } account) return null;
+        return new ServerStatus(account.Server.DisplayName, account.LoggedIn, account.User.Name, account.Server);
     }
 
     // A login wins over a project's remembered user, which may be stale
-    private async Task<LexboxUser?> KnownLexboxUser()
+    private async Task<(LexboxServer Server, LexboxUser User, bool LoggedIn)?> FindLexboxAccount()
     {
-        foreach (var server in lexboxProjectService.Servers())
+        var servers = lexboxProjectService.Servers();
+        foreach (var server in servers)
         {
-            if (await oAuthClientFactory.GetClient(server).GetCachedUser() is { } user) return user;
+            if (await oAuthClientFactory.GetClient(server).GetCachedUser() is { } user) return (server, user, true);
         }
-        return crdtProjectsService.ListProjects()
-            .Select(p => p.Data)
-            // only projects that sync with a server: the example project has a made-up user
-            .Where(d => d?.OriginDomain is not null && !string.IsNullOrEmpty(d.LastUserId) && !string.IsNullOrEmpty(d.LastUserName))
-            .Select(d => new LexboxUser(d!.LastUserName!, d.LastUserId!))
-            .FirstOrDefault();
+        // only projects that sync with a server: the example project has a made-up user
+        foreach (var data in crdtProjectsService.ListProjects().Select(p => p.Data))
+        {
+            if (data?.OriginDomain is null || string.IsNullOrEmpty(data.LastUserId) || string.IsNullOrEmpty(data.LastUserName)) continue;
+            var server = servers.FirstOrDefault(s => s.Authority.Authority == new Uri(data.OriginDomain).Authority);
+            if (server is not null) return (server, new LexboxUser(data.LastUserName, data.LastUserId), false);
+        }
+        return null;
     }
 
     [JSInvokable]

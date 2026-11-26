@@ -5,7 +5,8 @@
   import {useProjectsService} from '$lib/services/service-provider';
   import CreateProjectDialog from '../../home/CreateProjectDialog.svelte';
 
-  const {loggedInAs = [], lexboxUserName}: {loggedInAs?: string[], lexboxUserName?: string} = $props();
+  const {loggedInAs = [], rememberedAs}: {loggedInAs?: string[], rememberedAs?: string} = $props();
+  const lexbox = {id: 'lexbox-0', displayName: 'Lexbox', authority: 'https://lexbox-0.example'};
 
   window.lexbox.ServiceProvider.setService(DotnetService.AuthService, {
     servers: () => Promise.resolve(loggedInAs.map((userName, i) => {
@@ -18,7 +19,7 @@
   });
   window.lexbox.ServiceProvider.setService(DotnetService.CombinedProjectsService, {
     ...useProjectsService(),
-    knownLexboxUserName: () => Promise.resolve(lexboxUserName),
+    knownLexboxAccount: () => Promise.resolve(rememberedAs ? {displayName: lexbox.displayName, loggedIn: false, loggedInAs: rememberedAs, server: lexbox} : undefined),
   });
 
   let dialog = $state<CreateProjectDialog>();
