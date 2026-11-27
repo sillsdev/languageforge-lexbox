@@ -268,7 +268,9 @@ export class TasksService {
         subjectWritingSystemType: writingSystem.type,
         prompt: writingSystem.isAudio ? gt`Record a Translation of the Example sentence` : gt`Translate the Example sentence`,
         taskKind: 'provide-missing',
-        // the two conditions can match different examples of one entry; rare enough to accept
+        // Each condition is its own "any example" check, so an entry with one translated example and another
+        // that has no sentence matches with nothing to translate, and "to go" never reaches 0. Known and
+        // accepted; the fix is a filter key that checks one example (#3081).
         gridifyFilter: [hasSentence, `Senses.ExampleSentences.Translations.Text[${writingSystem.wsId}]=`].filter(Boolean).join(', '),
         getSubjectValue: s => TasksService.getTranslationValue(s as IExampleSentence, writingSystem.wsId),
         isComplete: s => !!TasksService.getTranslationValue(s as IExampleSentence, writingSystem.wsId)

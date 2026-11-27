@@ -16,6 +16,7 @@
   import {SidebarTrigger} from '$lib/components/ui/sidebar';
   import ViewErrorBoundary from '$lib/layout/ViewErrorBoundary.svelte';
   import {useProjectStorage} from '$lib/storage';
+  import {onErrorEvent} from '$lib/errors/global-errors';
 
   // The open task lives in the URL so Back and reload work.
   const openTask = new QueryParamState({key: 'taskId', allowBack: true, replaceOnDefaultValue: true});
@@ -29,6 +30,9 @@
   watch([() => tasksService.listTasks().map(task => task.id).join(), () => selectedTask?.id], ([, taskId]) => {
     statsResource.current.openTaskId = taskId;
     void statsResource.refetch();
+  });
+  $effect(() => {
+    if (statsResource.error) onErrorEvent(statsResource.error);
   });
   const debouncedRefetch = useDebounce(() => void statsResource.refetch(), 500);
   useProjectEventBus().onEntriesChanged(() => void debouncedRefetch());
