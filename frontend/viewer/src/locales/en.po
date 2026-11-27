@@ -1737,8 +1737,20 @@ msgid "Entries missing..."
 msgstr "Entries missing..."
 
 #: src/project/dashboard/DashboardView.svelte
+msgid "Entries with a part of speech"
+msgstr "Entries with a part of speech"
+
+#: src/project/dashboard/DashboardView.svelte
 msgid "Entries with examples"
 msgstr "Entries with examples"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with grammatical info."
+msgstr "Entries with grammatical info."
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with semantic domains"
+msgstr "Entries with semantic domains"
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with senses"
@@ -1860,6 +1872,10 @@ msgstr "Example sentence"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
 msgstr "Example sentences"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Example translations"
+msgstr "Example translations"
 
 #: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Example, not in this project"

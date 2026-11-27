@@ -1742,8 +1742,20 @@ msgid "Entries missing..."
 msgstr "Ingizo linalokosa..."
 
 #: src/project/dashboard/DashboardView.svelte
+msgid "Entries with a part of speech"
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
 msgid "Entries with examples"
 msgstr "Maingizo yenye mifano"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with grammatical info."
+msgstr ""
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Entries with semantic domains"
+msgstr ""
 
 #: src/project/dashboard/DashboardView.svelte
 msgid "Entries with senses"
@@ -1865,6 +1877,10 @@ msgstr "Sentensi ya mfano"
 #: src/project/dashboard/DashboardView.svelte
 msgid "Example sentences"
 msgstr "Sentensi za mfano"
+
+#: src/project/dashboard/DashboardView.svelte
+msgid "Example translations"
+msgstr ""
 
 #: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Example, not in this project"

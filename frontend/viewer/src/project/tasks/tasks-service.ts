@@ -78,12 +78,15 @@ export class TasksService {
     ];
   }
 
-  /** The task for one field in one writing system, e.g. Lexeme form in French. Ignores combined tasks like Headword. */
-  public findTask(field: FieldId, wsId: string): Task | undefined {
+  /**
+   * The task for one field in one writing system, e.g. Lexeme form in French, or without a writing system, e.g. Part of speech.
+   * Ignores combined tasks like Headword.
+   */
+  public findTask(field: FieldId, wsId?: string): Task | undefined {
     return TasksService.findIn(this.listTasks(), field, wsId);
   }
 
-  public static findIn(tasks: Task[], field: FieldId, wsId: string): Task | undefined {
+  public static findIn(tasks: Task[], field: FieldId, wsId?: string): Task | undefined {
     return tasks.find(task =>
       task.subjectWritingSystemId === wsId && task.subjectFields.length === 1 && task.subjectFields[0] === field);
   }
@@ -256,10 +259,15 @@ export class TasksService {
     }
   }
 
-  public static *makeTranslationTasks(analysis: IWritingSystem[], vernacular: IWritingSystem[]) {
-    const hasSentence = vernacular.length
+  /** Entries with an example sentence in any vernacular writing system, or '' when there are none. */
+  public static hasExampleSentenceFilter(vernacular: IWritingSystem[]): string {
+    return vernacular.length
       ? `(${vernacular.map(ws => `Senses.ExampleSentences.Sentence[${ws.wsId}]!=`).join('|')})`
       : '';
+  }
+
+  public static *makeTranslationTasks(analysis: IWritingSystem[], vernacular: IWritingSystem[]) {
+    const hasSentence = TasksService.hasExampleSentenceFilter(vernacular);
     for (const writingSystem of analysis) {
       const taskTranslation: Task = {
         id: `example-translation-${writingSystem.wsId}`,

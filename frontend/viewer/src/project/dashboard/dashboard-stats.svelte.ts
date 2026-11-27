@@ -10,6 +10,7 @@ export const MILESTONES = [50, 100, 250, 500, 1_000, 2_500, 5_000, 10_000, 25_00
 
 export type FieldCompletion = {
   filled: number;
+  total: number;
   percent: number;
 };
 
@@ -42,6 +43,7 @@ export type AnalysisWritingSystemStats = {
   abbreviation: string;
   gloss?: FieldCompletion;
   definition?: FieldCompletion;
+  translation?: FieldCompletion;
 };
 
 const dashboardStatsSymbol = Symbol.for('fw-lite-dashboard-stats');
@@ -49,6 +51,7 @@ const dashboardStatsSymbol = Symbol.for('fw-lite-dashboard-stats');
 function completion(total: number, filled: number): FieldCompletion {
   return {
     filled,
+    total,
     percent: total === 0 ? 0 : Math.round((filled / total) * 100),
   };
 }
@@ -71,6 +74,8 @@ export class DashboardStats {
   totalEntries = $state<number>();
   entriesWithSenses = $state<FieldCompletion>();
   entriesWithExamples = $state<FieldCompletion>();
+  entriesWithPartOfSpeech = $state<FieldCompletion>();
+  entriesWithSemanticDomains = $state<FieldCompletion>();
   /** undefined until the writing system list is known; [] means none configured */
   vernacular = $state<VernacularWritingSystemStats[]>();
   analysis = $state<AnalysisWritingSystemStats[]>();
@@ -94,7 +99,7 @@ export class DashboardStats {
 
   #patchAnalysisRow(
     wsId: string,
-    patch: Partial<Pick<AnalysisWritingSystemStats, 'gloss' | 'definition'>>,
+    patch: Partial<Pick<AnalysisWritingSystemStats, 'gloss' | 'definition' | 'translation'>>,
   ): void {
     const row = this.analysis?.find(r => r.wsId === wsId);
     if (row) Object.assign(row, patch);
@@ -108,16 +113,28 @@ export class DashboardStats {
     if (!fresh()) return;
     this.totalEntries = totalEntries;
 
-    async function filledField(gridifyFilter: string, assign: (field: FieldCompletion) => void): Promise<void> {
+    // missingOutside: entries the filter matches that aren't part of total, e.g. entries without senses
+    async function filledField(
+      gridifyFilter: string,
+      assign: (field: FieldCompletion) => void,
+      total = totalEntries,
+      missingOutside = 0,
+    ): Promise<void> {
       const missing = await api.countEntries(undefined, {filter: {gridifyFilter}});
       if (!fresh()) return;
-      assign(completion(totalEntries, totalEntries - missing));
+      assign(completion(total, Math.max(0, total - (missing - missingOutside))));
     }
 
     const primary = Promise.all([
-      filledField('Senses=null', f => { this.entriesWithSenses = f; }),
-      filledField('Senses.ExampleSentences=null', f => { this.entriesWithExamples = f; }),
-    ]);
+      api.countEntries(undefined, {filter: {gridifyFilter: 'Senses=null'}}).then(missing => totalEntries - missing),
+      api.countEntries(undefined, {filter: {gridifyFilter: 'Senses.ExampleSentences=null'}}).then(missing => totalEntries - missing),
+    ]).then(([withSenses, withExamples]) => {
+      if (fresh()) {
+        this.entriesWithSenses = completion(totalEntries, withSenses);
+        this.entriesWithExamples = completion(totalEntries, withExamples);
+      }
+      return [withSenses] as const;
+    });
 
     let vernacular = this.#writingSystemService.vernacular;
     let analysis = this.#writingSystemService.analysis;
@@ -135,7 +152,11 @@ export class DashboardStats {
     const analysisRows = this.analysis;
 
     // deliberately not one big Promise.all: the per-writing-system counts would compete with the primary stats
-    await primary;
+    const [withSenses] = await primary;
+    if (!fresh()) return;
+    // Translation tasks only look at entries with a sentence to translate.
+    const sentenceFilter = TasksService.hasExampleSentenceFilter(vernacular);
+    const withSentences = sentenceFilter ? await api.countEntries(undefined, {filter: {gridifyFilter: sentenceFilter}}) : 0;
     if (!fresh()) return;
 
     // The rows link to these tasks, so they must count with the same filters.
@@ -143,14 +164,19 @@ export class DashboardStats {
       ...TasksService.makeEntryTasks(vernacular),
       ...TasksService.makeSenseTasks(analysis),
       ...TasksService.makeExampleSentenceTasks(vernacular),
+      ...TasksService.makeTranslationTasks(analysis, vernacular),
     ];
-    function taskFilter(field: FieldId, wsId: string): string {
+    function taskFilter(field: FieldId, wsId?: string): string {
       const filter = TasksService.findIn(tasks, field, wsId)?.gridifyFilter;
       if (!filter) throw new Error(`No task counts ${field} in ${wsId}`);
       return filter;
     }
 
+    // Count part of speech, domains and translations against the entries that can have them.
+    // The part of speech filter skips entries without senses; the semantic domain filter matches them.
     await Promise.all([
+      filledField(taskFilter('partOfSpeechId'), f => { this.entriesWithPartOfSpeech = f; }, withSenses),
+      filledField(taskFilter('semanticDomains'), f => { this.entriesWithSemanticDomains = f; }, withSenses, totalEntries - withSenses),
       ...vernacularRows.flatMap(row => [
         filledField(taskFilter('lexemeForm', row.wsId), f => this.#patchVernacularRow(row.wsId, {lexemeForm: f})),
         filledField(taskFilter('citationForm', row.wsId), f => this.#patchVernacularRow(row.wsId, {citationForm: f})),
@@ -159,6 +185,7 @@ export class DashboardStats {
       ...analysisRows.flatMap(row => [
         filledField(taskFilter('gloss', row.wsId), f => this.#patchAnalysisRow(row.wsId, {gloss: f})),
         filledField(taskFilter('definition', row.wsId), f => this.#patchAnalysisRow(row.wsId, {definition: f})),
+        filledField(taskFilter('translations', row.wsId), f => this.#patchAnalysisRow(row.wsId, {translation: f}), withSentences),
       ]),
     ]);
   }
