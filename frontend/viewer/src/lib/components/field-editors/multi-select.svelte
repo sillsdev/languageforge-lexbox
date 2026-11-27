@@ -23,9 +23,7 @@
   import ReadonlyField from './readonly-field.svelte';
   import OptionIndicator from '../ui/select/option-indicator.svelte';
   import {LONG_LIST, OPTION_ROW, tabWithinFilter, trackActiveDescendant} from '../ui/select/select-list';
-  import {onDestroy, tick} from 'svelte';
-  import {SvelteMap, SvelteSet} from 'svelte/reactivity';
-  import {on} from 'svelte/events';
+  import {tick} from 'svelte';
 
   type Value = ReadonlyDeep<MutableValue>;
 
@@ -84,15 +82,6 @@
   let decoratedValues = $derived(decorateAndSort([...values]));
   // Frozen at open so newly selected items stay in place until the picker is reopened.
   let selectedGroupSnapshot = $state<DecoratedValue[]>([]);
-  // The user's toggles collect here and save as one change when the picker closes, however it closes.
-  // Only the toggles are applied, on top of the current values, so changes synced in meanwhile survive.
-  let added = new SvelteMap<Primitive, Value>();
-  let removed = new SvelteSet<Primitive>();
-  let pendingValues = $derived(
-    added.size || removed.size
-      ? decorateAndSort([...values.filter((v) => !removed.has(getId(v)) && !added.has(getId(v))), ...added.values()])
-      : decoratedValues,
-  );
   let triggerRef = $state<HTMLButtonElement | null>(null);
   const hintId = $props.id();
   let commandRef = $state<HTMLElement | null>(null);
@@ -118,38 +107,9 @@
   watch(
     () => readonly,
     () => {
-      if (readonly) setOpen(false);
+      if (readonly) open = false;
     },
   );
-
-  onDestroy(() => {
-    if (open) save();
-  });
-
-  // bits-ui closes a popover 10ms after an outside pointerdown (on touch, after the click), so a click
-  // that also submits a form (e.g. "Add Meaning") would read the value before the close saves it.
-  $effect(() => {
-    if (!open) return;
-    return on(
-      document,
-      'pointerdown',
-      (e) => {
-        const target = e.target as Node;
-        const content = commandRef?.closest('[data-slot="popover-content"], [data-slot="drawer-content"]');
-        if (content?.contains(target) || triggerRef?.contains(target)) return;
-        save();
-      },
-      {capture: true},
-    );
-  });
-
-  function save() {
-    if (!added.size && !removed.size) return;
-    values = pendingValues.map((v) => v.value);
-    added.clear();
-    removed.clear();
-    onchange?.(values);
-  }
 
   function decorateAndSort(values: Value[]): DecoratedValue[] {
     var decoratedValues = values.map(decorateValue);
@@ -174,53 +134,44 @@
     }
   }
 
-  function setOpen(value: boolean) {
-    if (value === open) return;
-    open = value;
-    if (!value) save();
-  }
-
   function dismiss() {
-    setOpen(false);
+    open = false;
     void tick().then(() => triggerRef?.focus());
   }
 
   function toggleSelected(value: Value) {
     const id = getId(value);
-    const select = !pendingValues.some((v) => v.id === id);
-    const inValues = values.some((v) => getId(v) === id);
-    added.delete(id);
-    removed.delete(id);
-    if (select && !inValues) added.set(id, value);
-    else if (!select && inValues) removed.add(id);
+    const selected = values.some((v) => getId(v) === id);
+    values = decorateAndSort(selected ? values.filter((v) => getId(v) !== id) : [...values, value]).map((v) => v.value);
+    onchange?.(values);
   }
 
   function itemValue(value: Value): string {
     return getLabel(value).toLocaleLowerCase() + String(getId(value));
   }
 
-  // Tab closes (and saves) and moves on from the trigger, since the list is portalled away from the form.
+  // Tab closes and moves on from the trigger, since the list is portalled away from the form.
   function tabOut(e: KeyboardEvent) {
     e.stopPropagation();
-    setOpen(false);
+    open = false;
     triggerRef?.focus();
   }
 
-  // Space toggles like Enter unless there's a filter box to type into; Ctrl+Enter toggles, saves and closes.
+  // Space toggles like Enter unless there's a filter box to type into; Ctrl+Enter toggles and closes.
   function onkeydown(e: KeyboardEvent) {
     if (e.key === 'Tab' && !tabWithinFilter(e)) {
       tabOut(e);
       return;
     }
-    const saveAndClose = e.key === 'Enter' && (e.ctrlKey || e.metaKey);
-    if (!saveAndClose && !(e.key === ' ' && !isLong)) return;
+    const toggleAndClose = e.key === 'Enter' && (e.ctrlKey || e.metaKey);
+    if (!toggleAndClose && !(e.key === ' ' && !isLong)) return;
     const highlighted = commandRef?.querySelector('[data-command-item][data-selected]')?.getAttribute('data-value');
     const value = renderedOptions.find((option) => itemValue(option) === highlighted);
     if (!value) return;
     e.preventDefault();
     e.stopPropagation();
     toggleSelected(value);
-    if (saveAndClose) dismiss();
+    if (toggleAndClose) dismiss();
   }
 
   const filteredOptions = $derived.by(() => {
@@ -253,7 +204,7 @@
 </script>
 
 {#snippet displayBadges()}
-  <BadgeList items={pendingValues} {placeholder} />
+  <BadgeList items={decoratedValues} {placeholder} />
 {/snippet}
 
 {#snippet trigger({props}: {props: Record<string, unknown>})}
@@ -327,7 +278,7 @@
 {#snippet optionItem(value: Value)}
   {@const label = getLabel(value)}
   {@const id = getId(value)}
-  {@const selected = pendingValues.some((v) => v.id === id)}
+  {@const selected = decoratedValues.some((v) => v.id === id)}
   <CommandItem
     keywords={[label.toLocaleLowerCase()]}
     value={itemValue(value)}
@@ -347,7 +298,7 @@
     <Icon icon="i-mdi-chevron-down" class="ms-auto size-5 shrink-0 opacity-25" aria-hidden="true" />
   </ReadonlyField>
 {:else if useDrawer}
-  <Drawer bind:open={() => open, setOpen}>
+  <Drawer bind:open>
     <DrawerTrigger child={trigger} />
     <DrawerContent
       handle={true}
@@ -373,7 +324,7 @@
     </DrawerContent>
   </Drawer>
 {:else}
-  <Popover bind:open={() => open, setOpen}>
+  <Popover bind:open>
     <PopoverTrigger child={trigger} />
     <PopoverContent
       class="p-0 w-(--bits-popover-anchor-width) min-w-64 max-w-[min(28rem,calc(100vw-1rem))]"
