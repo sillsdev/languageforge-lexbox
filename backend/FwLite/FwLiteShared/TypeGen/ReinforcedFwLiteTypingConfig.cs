@@ -144,6 +144,8 @@ public static class ReinforcedFwLiteTypingConfig
             exportBuilder => exportBuilder.WithPublicNonStaticProperties(propExportBuilder =>
         {
             propExportBuilder.IgnoreComputedGetters();
+            if (propExportBuilder.Member.Name == nameof(FilterQueryOptions.MatchDiacritics))
+                propExportBuilder.ForceNullable();
         }));
     }
 

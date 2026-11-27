@@ -7,21 +7,21 @@ public static class StringExtensions
 {
     /// <summary>
     /// Checks if <paramref name="str"/> contains <paramref name="search"/>, ignoring case.
-    /// Diacritics are also ignored unless the search string itself contains diacritics.
+    /// Diacritics are also ignored unless <paramref name="matchDiacritics"/> is set or the search string itself contains diacritics.
     /// </summary>
-    public static bool ContainsDiacriticMatch(this string str, string search)
+    public static bool ContainsDiacriticMatch(this string str, string search, bool matchDiacritics = false)
     {
-        var options = DiacriticMatchOptions(search);
+        var options = DiacriticMatchOptions(search, matchDiacritics);
         return CultureInfo.InvariantCulture.CompareInfo.Contains(str, search, options);
     }
 
     /// <summary>
     /// Checks if <paramref name="str"/> starts with <paramref name="search"/>, ignoring case.
-    /// Diacritics are also ignored unless the search string itself contains diacritics.
+    /// Diacritics are also ignored unless <paramref name="matchDiacritics"/> is set or the search string itself contains diacritics.
     /// </summary>
-    public static bool StartsWithDiacriticMatch(this string str, string search)
+    public static bool StartsWithDiacriticMatch(this string str, string search, bool matchDiacritics = false)
     {
-        var options = DiacriticMatchOptions(search);
+        var options = DiacriticMatchOptions(search, matchDiacritics);
         return CultureInfo.InvariantCulture.CompareInfo.IsPrefix(str, search, options);
     }
 
@@ -30,25 +30,21 @@ public static class StringExtensions
         return compareInfo.IndexOf(source, value, options) >= 0;
     }
 
-    private static CompareOptions DiacriticMatchOptions(string search)
+    private static CompareOptions DiacriticMatchOptions(string search, bool matchDiacritics)
     {
-        return ContainsDiacritic(search)
+        return matchDiacritics || ContainsDiacritic(search)
             ? CompareOptions.IgnoreCase
             : CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace;
     }
 
     public static bool ContainsDiacritic(string value)
     {
-        bool hasAccent = false;
-        foreach (var ch in value.Normalize(NormalizationForm.FormD))
+        // runes, not chars, so marks outside the BMP (e.g. Adlam) count too
+        foreach (var rune in value.Normalize(NormalizationForm.FormD).EnumerateRunes())
         {
-            if (CharUnicodeInfo.GetUnicodeCategory(ch) == UnicodeCategory.NonSpacingMark)
-            {
-                hasAccent = true;
-                break;
-            }
+            if (Rune.GetUnicodeCategory(rune) == UnicodeCategory.NonSpacingMark) return true;
         }
-        return hasAccent;
+        return false;
     }
 
     public static bool Equals(this string str,

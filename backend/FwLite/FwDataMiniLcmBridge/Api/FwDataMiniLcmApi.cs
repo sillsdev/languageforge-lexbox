@@ -960,7 +960,7 @@ public class FwDataMiniLcmApi(
     public Task<int> CountEntries(string? query = null, FilterQueryOptions? options = null)
     {
         if (options?.HasFilter == true || query?.Length is > 0)
-            return Task.FromResult(GetLexEntries(EntrySearchPredicate(query), options).Count());
+            return Task.FromResult(GetLexEntries(EntrySearchPredicate(query, options?.MatchDiacritics ?? false), options).Count());
         return Task.FromResult(EntriesRepository.Count);
     }
 
@@ -1015,17 +1015,17 @@ public class FwDataMiniLcmApi(
     private IEnumerable<ILexEntry> GetFilteredAndSortedEntries(Func<ILexEntry, bool>? predicate, FilterQueryOptions? filterOptions, SortOptions order, string? query)
     {
         var entries = GetLexEntries(predicate, filterOptions);
-        return ApplySorting(order, entries, query);
+        return ApplySorting(order, entries, query, filterOptions?.MatchDiacritics ?? false);
     }
 
-    private IEnumerable<ILexEntry> ApplySorting(SortOptions order, IEnumerable<ILexEntry> entries, string? query)
+    private IEnumerable<ILexEntry> ApplySorting(SortOptions order, IEnumerable<ILexEntry> entries, string? query, bool matchDiacritics)
     {
         var sortWs = GetWritingSystemHandle(order.WritingSystem, WritingSystemType.Vernacular);
         var headwordComparer = GetHeadwordComparer(sortWs);
         var stemSecondaryOrder = MorphTypeRepository.GetObject(MoMorphTypeTags.kguidMorphStem).SecondaryOrder;
         if (order.Field == SortField.SearchRelevance)
         {
-            return entries.ApplyRoughBestMatchOrder(order, sortWs, headwordComparer, stemSecondaryOrder, query);
+            return entries.ApplyRoughBestMatchOrder(order, sortWs, headwordComparer, stemSecondaryOrder, query, matchDiacritics);
         }
 
         return entries.ApplyHeadwordOrder(order, sortWs, headwordComparer, stemSecondaryOrder);
@@ -1071,16 +1071,16 @@ public class FwDataMiniLcmApi(
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
     {
-        var entries = GetEntries(EntrySearchPredicate(query), options, query);
+        var entries = GetEntries(EntrySearchPredicate(query, options?.MatchDiacritics ?? false), options, query);
         return entries;
     }
 
-    private Func<ILexEntry, bool>? EntrySearchPredicate(string? query = null)
+    private Func<ILexEntry, bool>? EntrySearchPredicate(string? query, bool matchDiacritics)
     {
         if (string.IsNullOrEmpty(query)) return null;
-        return entry => entry.SearchHeadWord(query) || // CitationForm.SearchValue would be redundant
-                        entry.LexemeFormOA?.Form.SearchValue(entry.Cache, query) is true ||
-                        entry.AllSenses.Any(s => s.Gloss.SearchValue(entry.Cache, query));
+        return entry => entry.SearchHeadWord(query, matchDiacritics) || // CitationForm.SearchValue would be redundant
+                        entry.LexemeFormOA?.Form.SearchValue(entry.Cache, query, matchDiacritics) is true ||
+                        entry.AllSenses.Any(s => s.Gloss.SearchValue(entry.Cache, query, matchDiacritics));
     }
 
     public Task<Entry?> GetEntry(Guid id)
@@ -1091,7 +1091,7 @@ public class FwDataMiniLcmApi(
 
     public Task<int> GetEntryIndex(Guid entryId, string? query = null, IndexQueryOptions? options = null)
     {
-        var predicate = EntrySearchPredicate(query);
+        var predicate = EntrySearchPredicate(query, options?.MatchDiacritics ?? false);
         var entries = GetFilteredAndSortedEntries(predicate, options, options?.Order ?? SortOptions.Default, query);
 
         var rowIndex = 0;

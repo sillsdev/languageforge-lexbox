@@ -38,6 +38,7 @@ export class ProjectStorage {
   readonly dictionaryPreview: ProjectStorageProp;
   readonly recentTasks: ProjectStorageProp;
   readonly tasksHelpDismissed: ProjectStorageProp;
+  readonly searchMatchDiacritics: ProjectStorageProp;
 
   constructor(projectCode: string, backend: IPreferencesService) {
     this.currentView = new ProjectStorageProp(projectCode, 'currentView', backend);
@@ -45,5 +46,6 @@ export class ProjectStorage {
     this.dictionaryPreview = new ProjectStorageProp(projectCode, 'dictionaryPreview', backend);
     this.recentTasks = new ProjectStorageProp(projectCode, 'recentTasks', backend);
     this.tasksHelpDismissed = new ProjectStorageProp(projectCode, 'tasksHelpDismissed', backend);
+    this.searchMatchDiacritics = new ProjectStorageProp(projectCode, 'searchMatchDiacritics', backend);
   }
 }

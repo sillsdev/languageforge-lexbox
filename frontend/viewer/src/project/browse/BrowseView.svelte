@@ -32,7 +32,13 @@
   const writingSystemService = useWritingSystemService();
   const dialogsService = useDialogsService();
   const features = useFeatures();
-  const entryListViewMode = useProjectStorage().entryListViewMode;
+  const projectStorage = useProjectStorage();
+  const entryListViewMode = projectStorage.entryListViewMode;
+  const matchDiacriticsStorage = projectStorage.searchMatchDiacritics;
+  const matchDiacritics = $derived(matchDiacriticsStorage.current === 'true');
+  function setMatchDiacritics(value: boolean) {
+    void matchDiacriticsStorage.set(value ? 'true' : '');
+  }
 
   let selectedId = $state('');
   let search = $state('');
@@ -101,7 +107,7 @@
     {#snippet master({selectedId: masterSelectedId, select})}
       <div class="flex flex-col h-full p-2 md:p-4 md:pr-0">
         <div class="md:mr-3">
-          <SearchFilter bind:search bind:gridifyFilter bind:publication bind:semanticDomain bind:partOfSpeech bind:unreadComments />
+          <SearchFilter bind:search bind:matchDiacritics={() => matchDiacritics, setMatchDiacritics} bind:gridifyFilter bind:publication bind:semanticDomain bind:partOfSpeech bind:unreadComments />
           <div class="my-2 flex items-center gap-2">
             <SortMenu bind:value={sort}
               autoSelector={() => search ? SortField.SearchRelevance : SortField.Headword} />
@@ -119,6 +125,7 @@
                      selectedEntryId={masterSelectedId}
                      sort={sortWithWs}
                      {gridifyFilter}
+                     bind:matchDiacritics={() => matchDiacritics, setMatchDiacritics}
                      {publication}
                      {partOfSpeech}
                      {semanticDomain}

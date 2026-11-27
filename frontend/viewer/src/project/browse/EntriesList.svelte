@@ -24,6 +24,7 @@
   import {useWritingSystemService} from '$project/data';
   import {pt} from '$lib/views/view-text';
   import {useFeatures} from '$lib/services/feature-service';
+  import {hasDiacritic} from '$lib/utils/diacritics';
 
   let {
     search = '',
@@ -34,6 +35,7 @@
     sort,
     onSelectEntry,
     gridifyFilter = undefined,
+    matchDiacritics = $bindable(false),
     previewDictionary = false,
     disableNewEntry = false,
     entryCount = $bindable(null),
@@ -46,6 +48,7 @@
     sort?: SortConfig;
     onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
+    matchDiacritics?: boolean;
     previewDictionary?: boolean,
     disableNewEntry?: boolean,
     entryCount?: number | null,
@@ -63,6 +66,7 @@
     search: () => search,
     sort: () => sort,
     gridifyFilter: () => gridifyFilter,
+    matchDiacritics: () => matchDiacritics,
   };
 
   let entryLoader = $derived(!miniLcmApi ? undefined : untrack(() => new EntryLoaderService(miniLcmApi, deps)));
@@ -229,7 +233,15 @@
     <div class="h-full">
       {#if entryLoader?.totalCount === 0}
         <div class="flex flex-col items-center justify-center h-full gap-4 px-4">
-          <p class="text-muted-foreground">{pt($t`No entries found`, $t`No words found`, viewService.currentView)}</p>
+          <div class="flex flex-col items-center gap-1 text-center">
+            <p class="text-muted-foreground">{pt($t`No entries found`, $t`No words found`, viewService.currentView)}</p>
+            {#if matchDiacritics && search && !hasDiacritic(search)}
+              <p class="text-sm text-muted-foreground">
+                {$t`Diacritics must match exactly.`}
+                <button type="button" class="underline hover:text-foreground" onclick={() => matchDiacritics = false}>{$t`Ignore diacritics`}</button>
+              </p>
+            {/if}
+          </div>
 
           {#if canCreateFromSearch}
             {@render newEntryFromSearchRow('max-w-md')}

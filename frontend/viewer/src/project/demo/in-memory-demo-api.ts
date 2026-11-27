@@ -60,6 +60,7 @@ import type {ICommentThread} from '$lib/dotnet-types/generated-types/MiniLcm/Mod
 import type {IUserComment} from '$lib/dotnet-types/generated-types/MiniLcm/Models/IUserComment';
 import type {SubjectType} from '$lib/dotnet-types/generated-types/MiniLcm/Models/SubjectType';
 import type {ThreadStatus} from '$lib/dotnet-types/generated-types/MiniLcm/Models/ThreadStatus';
+import {hasDiacritic} from '$lib/utils/diacritics';
 
 function pickWs(ws: string, defaultWs: string): string {
   return ws === 'default' ? defaultWs : ws;
@@ -498,7 +499,22 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
     return entries.slice(options.offset, options.offset + options.count);
   }
 
-  private filterEntries(entries: IEntry[], query: string): IEntry[] {
+  private filterEntries(entries: IEntry[], query: string, matchDiacritics = false): IEntry[] {
+    // mirrors the backend: diacritics are ignored unless asked for or the query contains them
+    const ignoreDiacritics = !matchDiacritics && !hasDiacritic(query);
+    function fold(value: string) {
+      const lower = value.normalize('NFD').toLowerCase();
+      return ignoreDiacritics ? lower.replace(/\p{Mn}/gu, '') : lower;
+    }
+    const foldedQuery = fold(query);
+    // "cafe" must not match the start of "café": a match can't end just before a combining mark
+    function matches(value: string) {
+      const folded = fold(value);
+      for (let i = folded.indexOf(foldedQuery); i >= 0; i = folded.indexOf(foldedQuery, i + 1)) {
+        if (!/\p{Mn}/u.test(folded.charAt(i + foldedQuery.length))) return true;
+      }
+      return false;
+    }
     return entries.filter(entry =>
       [
         ...this.#writingSystemService.vernacular.map(ws => this.#writingSystemService.headword(entry, ws.wsId)),
@@ -506,7 +522,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
         ...entry.senses.flatMap(sense => [
           ...Object.values(sense.gloss ?? {}),
         ]),
-      ].some(value => value?.toLowerCase().includes(query.toLowerCase())));
+      ].some(value => value && matches(value)));
   }
 
   private getFilteredSortedEntries(query?: string, options?: Omit<IQueryOptions, 'count' | 'offset'>): IEntry[] {
@@ -535,7 +551,7 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
 
   private getFilteredEntries(query?: string, options?: IFilterQueryOptions): IEntry[] {
     let entries = this._Entries();
-    if (query) entries = this.filterEntries(entries, query);
+    if (query) entries = this.filterEntries(entries, query, options?.matchDiacritics);
     if (!options) return entries;
 
     const defaultWs = writingSystems.vernacular[0].wsId;

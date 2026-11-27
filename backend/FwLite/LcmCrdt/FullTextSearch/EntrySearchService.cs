@@ -30,9 +30,9 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     //linq2db table
     private ITable<EntrySearchRecord> EntrySearchRecordsTable => dbContext.GetTable<EntrySearchRecord>();
 
-    public IQueryable<Entry> Filter(IQueryable<Entry> queryable, string query, WritingSystemId wsId, MorphType[] morphTypes)
+    public IQueryable<Entry> Filter(IQueryable<Entry> queryable, string query, WritingSystemId wsId, MorphType[] morphTypes, bool matchDiacritics = false)
     {
-        return FilterInternal(queryable, query, wsId, morphTypes).Select(t => t.Entry);
+        return FilterInternal(queryable, query, wsId, morphTypes, matchDiacritics).Select(t => t.Entry);
     }
 
     /// <summary>
@@ -44,10 +44,11 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
     public IQueryable<Entry> FilterAndRank(IQueryable<Entry> queryable,
         string query,
         WritingSystemId wsId,
-        MorphType[] morphTypes)
+        MorphType[] morphTypes,
+        bool matchDiacritics = false)
     {
         var morphTypeTable = dbContext.GetTable<MorphType>();
-        var filtered = FilterInternal(queryable, query, wsId, morphTypes);
+        var filtered = FilterInternal(queryable, query, wsId, morphTypes, matchDiacritics);
         var ordered = filtered
             .OrderBy(t => t.HeadwordMatches ? double.MinValue : Sql.Ext.SQLite().Rank(t.SearchRecord))
             .ThenByDescending(t => t.HeadwordPrefixMatches)
@@ -66,7 +67,7 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
 
     private sealed record FilterProjection(Entry Entry, EntrySearchRecord SearchRecord, string Headword, bool HeadwordMatches, bool HeadwordPrefixMatches);
 
-    private IQueryable<FilterProjection> FilterInternal(IQueryable<Entry> queryable, string query, WritingSystemId wsId, MorphType[] morphTypes)
+    private IQueryable<FilterProjection> FilterInternal(IQueryable<Entry> queryable, string query, WritingSystemId wsId, MorphType[] morphTypes, bool matchDiacritics)
     {
         var ftsString = ToFts5LiteralString(query);
         var queryWithoutMorphTokens = StripMorphTokens(query, morphTypes);
@@ -75,17 +76,17 @@ public class EntrySearchService(LcmCrdtDbContext dbContext, ILogger<EntrySearchS
             from searchRecord in EntrySearchRecordsTable
             from entry in queryable.InnerJoin(r => r.Id == searchRecord.Id)
             where Sql.Ext.SQLite().Match(searchRecord, ftsString) &&
-                (entry.LexemeForm.SearchValue(queryWithoutMorphTokens)
-                || entry.CitationForm.SearchValue(query)
-                || entry.Senses.Any(s => s.Gloss.SearchValue(query))
-                || SqlHelpers.ContainsIgnoreCaseAccents(entry.Headword(wsId), query))
+                (entry.LexemeForm.SearchValue(queryWithoutMorphTokens, matchDiacritics)
+                || entry.CitationForm.SearchValue(query, matchDiacritics)
+                || entry.Senses.Any(s => s.Gloss.SearchValue(query, matchDiacritics))
+                || SqlHelpers.ContainsIgnoreCaseAccents(entry.Headword(wsId), query, matchDiacritics))
             // this does not include morph tokens, which is actually what we want. Morph-tokens should not affect sorting.
             // If the user uses a citation form with morph tokens, then oh well. Not even FLEx strips the morph-tokens before sorting in that case.
             let headword = entry.Headword(wsId)
             let headwordQuery = string.IsNullOrEmpty((Json.Value(entry.CitationForm, ms => ms[wsId]) ?? "").Trim())
                 ? queryWithoutMorphTokens : query
-            let headwordMatches = SqlHelpers.ContainsIgnoreCaseAccents(headword, headwordQuery)
-            let headwordPrefixMatches = SqlHelpers.StartsWithIgnoreCaseAccents(headword, headwordQuery)
+            let headwordMatches = SqlHelpers.ContainsIgnoreCaseAccents(headword, headwordQuery, matchDiacritics)
+            let headwordPrefixMatches = SqlHelpers.StartsWithIgnoreCaseAccents(headword, headwordQuery, matchDiacritics)
             select new FilterProjection(entry, searchRecord, headword, headwordMatches, headwordPrefixMatches);
     }
 

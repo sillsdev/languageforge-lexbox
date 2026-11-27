@@ -95,24 +95,24 @@ public static class EntryQueryHelpers
             ?? Sql.Ext.SQLite().ConcatWs(Sql.Ext.SQLite().NullIf(Json.Value(e.LexemeForm, ms => ms[ws])!.Trim(), ""), leading ?? " ", trailing ?? " ")!.Trim();
 
     [ExpressionMethod(nameof(SearchHeadwords))]
-    public static bool SearchHeadwords(this Entry e, string? leading, string? trailing, string query)
+    public static bool SearchHeadwords(this Entry e, string? leading, string? trailing, string query, bool matchDiacritics)
     {
-        return e.CitationForm.SearchValue(query)
+        return e.CitationForm.SearchValue(query, matchDiacritics)
             || e.LexemeForm.Values.Any(kvp =>
                 !kvp.Key.IsAudio &&
                 string.IsNullOrEmpty(e.CitationForm[kvp.Key]?.Trim()) &&
-                SqlHelpers.ContainsIgnoreCaseAccents((leading ?? "") + (kvp.Value?.Trim() ?? "") + (trailing ?? ""), query));
+                SqlHelpers.ContainsIgnoreCaseAccents((leading ?? "") + (kvp.Value?.Trim() ?? "") + (trailing ?? ""), query, matchDiacritics));
     }
 
-    private static Expression<Func<Entry, string?, string?, string, bool>> SearchHeadwords()
+    private static Expression<Func<Entry, string?, string?, string, bool, bool>> SearchHeadwords()
     {
-        return (e, leading, trailing, query) =>
+        return (e, leading, trailing, query, matchDiacritics) =>
             Json.QueryEntries(e.CitationForm).Any(
-                kv => !SqlHelpers.IsAudioWs(kv.Key) && SqlHelpers.ContainsIgnoreCaseAccents(kv.Value, query)) ||
+                kv => !SqlHelpers.IsAudioWs(kv.Key) && SqlHelpers.ContainsIgnoreCaseAccents(kv.Value, query, matchDiacritics)) ||
             Json.QueryEntries(e.LexemeForm).Any(kv =>
                 !SqlHelpers.IsAudioWs(kv.Key) &&
                 string.IsNullOrEmpty((Json.At(e.CitationForm, kv.Key) ?? "").Trim()) &&
-                SqlHelpers.ContainsIgnoreCaseAccents((leading ?? "") + (kv.Value ?? "").Trim() + (trailing ?? ""), query));
+                SqlHelpers.ContainsIgnoreCaseAccents((leading ?? "") + (kv.Value ?? "").Trim() + (trailing ?? ""), query, matchDiacritics));
     }
 
 

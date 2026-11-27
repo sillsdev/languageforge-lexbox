@@ -15,14 +15,14 @@ public static class Filtering
         return query.Where(e => e.Headword(ws).StartsWith(exemplar));
     }
 
-    public static IQueryable<Entry> SearchFilter(IQueryable<Entry> entries, IQueryable<MorphType> morphTypes, string query)
+    public static IQueryable<Entry> SearchFilter(IQueryable<Entry> entries, IQueryable<MorphType> morphTypes, string query, bool matchDiacritics = false)
     {
         return from entry in entries
                join mt in morphTypes on entry.MorphType equals mt.Kind into mtGroup
                from mt in mtGroup.DefaultIfEmpty()
-               where entry.SearchHeadwords(mt.Prefix, mt.Postfix, query) // CitationForm.SearchValue would be redundant
-                     || entry.LexemeForm.SearchValue(query)
-                     || entry.Senses.Any(s => s.Gloss.SearchValue(query))
+               where entry.SearchHeadwords(mt.Prefix, mt.Postfix, query, matchDiacritics) // CitationForm.SearchValue would be redundant
+                     || entry.LexemeForm.SearchValue(query, matchDiacritics)
+                     || entry.Senses.Any(s => s.Gloss.SearchValue(query, matchDiacritics))
                select entry;
     }
 
@@ -33,9 +33,9 @@ public static class Filtering
                         .Where(fts => Sql.Ext.SQLite().Match(fts, query))
                         .Select(fts => fts.Id)
                         .Contains(e.Id) &&
-                    (e.LexemeForm.SearchValue(query)
-                     || e.CitationForm.SearchValue(query)
-                     || e.Senses.Any(s => s.Gloss.SearchValue(query)));
+                    (e.LexemeForm.SearchValue(query, false)
+                     || e.CitationForm.SearchValue(query, false)
+                     || e.Senses.Any(s => s.Gloss.SearchValue(query, false)));
     }
 
     public static Func<Entry, bool> CompiledFilter(string? query, WritingSystemId ws, string? exemplar)
@@ -44,14 +44,14 @@ public static class Filtering
         return (query, exemplar) switch
         {
             (null, null) => _ => true,
-            (not null, null) => e => e.LexemeForm.SearchValue(query)
-                                     || e.CitationForm.SearchValue(query)
-                                     || e.Senses.Any(s => s.Gloss.SearchValue(query)),
+            (not null, null) => e => e.LexemeForm.SearchValue(query, false)
+                                     || e.CitationForm.SearchValue(query, false)
+                                     || e.Senses.Any(s => s.Gloss.SearchValue(query, false)),
             (null, not null) => e => e.Headword(ws).StartsWith(exemplar),
             (_, _) => e => e.Headword(ws).StartsWith(exemplar)
-                           && (e.LexemeForm.SearchValue(query)
-                               || e.CitationForm.SearchValue(query)
-                               || e.Senses.Any(s => s.Gloss.SearchValue(query)))
+                           && (e.LexemeForm.SearchValue(query, false)
+                               || e.CitationForm.SearchValue(query, false)
+                               || e.Senses.Any(s => s.Gloss.SearchValue(query, false)))
         };
     }
 }

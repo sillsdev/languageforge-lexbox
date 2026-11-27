@@ -41,7 +41,7 @@ internal static class LcmHelpers
         return string.IsNullOrEmpty(headword) ? Entry.UnknownHeadword : headword;
     }
 
-    internal static bool SearchHeadWord(this ILexEntry entry, string value)
+    internal static bool SearchHeadWord(this ILexEntry entry, string value, bool matchDiacritics)
     {
         foreach (var ws in entry.Cache.ServiceLocator.WritingSystems.VernacularWritingSystems)
         {
@@ -51,19 +51,19 @@ internal static class LcmHelpers
             if (headword is null) continue;
             var text = headword.Text;
             if (string.IsNullOrEmpty(text)) continue;
-            if (text.ContainsDiacriticMatch(value)) return true;
+            if (text.ContainsDiacriticMatch(value, matchDiacritics)) return true;
         }
         return false;
     }
 
-    internal static bool SearchValue(this ITsMultiString multiString, LcmCache cache, string value)
+    internal static bool SearchValue(this ITsMultiString multiString, LcmCache cache, string value, bool matchDiacritics)
     {
         for (var i = 0; i < multiString.StringCount; i++)
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
             if (cache.GetWritingSystemId(ws).IsAudio) continue;
             if (string.IsNullOrEmpty(tsString.Text)) continue;
-            if (tsString.Text.ContainsDiacriticMatch(value))
+            if (tsString.Text.ContainsDiacriticMatch(value, matchDiacritics))
             {
                 return true;
             }

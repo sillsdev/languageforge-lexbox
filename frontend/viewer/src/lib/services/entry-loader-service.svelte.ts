@@ -18,6 +18,7 @@ interface QueryDeps {
   search: () => string;
   sort: () => SortConfig | undefined;
   gridifyFilter: () => string | undefined;
+  matchDiacritics?: () => boolean;
 }
 
 const EVENT_DEBOUNCE_MS = 600;
@@ -55,7 +56,7 @@ export class EntryLoaderService {
     this.#cache = new EntryCache(batchSize);
 
     watch(
-      () => [deps.search(), deps.sort(), deps.gridifyFilter()],
+      () => [deps.search(), deps.sort(), deps.gridifyFilter(), deps.matchDiacritics?.()],
       (_, prev) => {
         // initial load (inside the watch so we've waited a tick for deps to get set)
         // I don't entirely understand it, but without setTimeout tests hang with "effect_update_depth_exceeded"
@@ -240,7 +241,7 @@ export class EntryLoaderService {
 
   #buildFilterOptions(): IFilterQueryOptions {
     const filter = this.deps.gridifyFilter();
-    return { filter: filter ? { gridifyFilter: filter } : undefined };
+    return { filter: filter ? { gridifyFilter: filter } : undefined, matchDiacritics: this.deps.matchDiacritics?.() };
   }
 
   #buildQueryOptions(offset: number, count: number): IQueryOptions {
@@ -248,7 +249,7 @@ export class EntryLoaderService {
     return {
       count,
       offset,
-      filter: this.#buildFilterOptions().filter,
+      ...this.#buildFilterOptions(),
       order: {
         field: sort?.field ?? SortField.SearchRelevance,
         writingSystem: sort?.writingSystem ?? 'default',
