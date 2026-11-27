@@ -81,7 +81,8 @@
     .map(entity => ({entity, label: text(getEntityConfig(entity).$label), fields: fields.filter(f => f.entity === entity)}))
     .filter(group => group.fields.length > 0));
 
-  const stats = $derived(useTasksStats().current);
+  const statsResource = useTasksStats();
+  const stats = $derived(statsResource.current);
   function remaining(task: Task): number | undefined {
     return stats.progress[task.id]?.remaining;
   }
@@ -200,10 +201,12 @@
 
 {#snippet progress(task: Task)}
   {@const count = remaining(task)}
-  {#if count === undefined}
-    <Skeleton class="my-0.5 h-4 w-24" />
-  {:else}
+  {#if count !== undefined}
     {remainingText(count)}
+  {:else if statsResource.error}
+    <span aria-hidden="true">–</span>
+  {:else}
+    <Skeleton class="my-0.5 h-4 w-24" />
   {/if}
 {/snippet}
 

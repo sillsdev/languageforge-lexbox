@@ -30,4 +30,18 @@ test.describe('Dashboard stats', () => {
     await dashboardNav.click();
     await expect.poll(readTotal).toBe(initialCount - 1);
   });
+
+  test('a failed count is reported and leaves no loading placeholders', async ({page}) => {
+    const projectPage = new DemoProjectPage(page);
+    await projectPage.goto();
+    await page.evaluate(() => {
+      window.__PLAYWRIGHT_UTILS__.demoApi.countEntries = () => Promise.reject(new Error('count failed'));
+    });
+
+    await page.getByRole('button', {name: 'Dashboard'}).click();
+
+    await expect(page.getByText('count failed').first()).toBeVisible();
+    await expect(page.getByRole('heading', {name: 'Dashboard'})).toBeVisible();
+    await expect(page.locator('[data-slot="skeleton"]:visible')).toHaveCount(0);
+  });
 });

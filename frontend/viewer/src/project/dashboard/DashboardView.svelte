@@ -16,8 +16,13 @@
   import {useTasksService} from '$project/tasks/tasks-service';
   import type {FieldId} from '$lib/views/entity-config';
   import {useFeatures} from '$lib/services/feature-service';
+  import {onErrorEvent} from '$lib/errors/global-errors';
 
   const stats = useDashboardStats();
+  const failed = $derived(!!stats.error);
+  $effect(() => {
+    if (stats.error) onErrorEvent(stats.error);
+  });
   const writingSystemService = useWritingSystemService();
   const tasksService = useTasksService();
   const features = useFeatures();
@@ -84,10 +89,17 @@
     <div class="{wsColorClass} flex size-3.5 items-center justify-center justify-self-end self-center">
       <CircularProgress value={field.percent} />
     </div>
+  {:else if failed}
+    {@render noValue('text-right')}
+    <span></span>
   {:else}
     <Skeleton class="h-3.5 w-14 justify-self-end" />
     <Skeleton class="size-3.5 rounded-full justify-self-end" />
   {/if}
+{/snippet}
+
+{#snippet noValue(className: string)}
+  <span class="text-muted-foreground {className}" aria-hidden="true">–</span>
 {/snippet}
 
 {#snippet summaryCard(title: string, field: FieldCompletion | undefined, total: number | undefined)}
@@ -101,6 +113,8 @@
         <p class="text-sm text-muted-foreground mt-1">
           {formatCompletion(field, total)}
         </p>
+      {:else if failed}
+        {@render noValue('text-3xl')}
       {:else}
         <Skeleton class="h-9 w-20" />
         <Skeleton class="h-5 w-32 mt-1" />
@@ -124,14 +138,20 @@
           <Card.Header>
             <div class="flex items-baseline gap-2">
               <Icon icon="i-mdi-trending-up" class="size-6 self-center text-primary" />
-              <Skeleton class="h-10 w-28 self-center" />
+              {#if failed}
+                {@render noValue('text-4xl')}
+              {:else}
+                <Skeleton class="h-10 w-28 self-center" />
+              {/if}
               <Card.Description>{$t`Total entries`}</Card.Description>
             </div>
           </Card.Header>
-          <Card.Content class="space-y-2">
-            <Skeleton class="h-2 w-full rounded-full" />
-            <Skeleton class="h-5 w-64 max-w-full" />
-          </Card.Content>
+          {#if !failed}
+            <Card.Content class="space-y-2">
+              <Skeleton class="h-2 w-full rounded-full" />
+              <Skeleton class="h-5 w-64 max-w-full" />
+            </Card.Content>
+          {/if}
         {:else if dashboard.totalEntries === 0}
           <Card.Header>
             <Card.Title class="flex items-center gap-2">
@@ -179,9 +199,13 @@
       <section class="space-y-4">
         <h2 class="text-lg font-semibold">{$t`Vernacular writing systems`}</h2>
         {#if !dashboard.vernacular}
-          <div class="grid gap-4 lg:grid-cols-2">
-            <Skeleton class="h-36" />
-          </div>
+          {#if failed}
+            {@render noValue('text-sm')}
+          {:else}
+            <div class="grid gap-4 lg:grid-cols-2">
+              <Skeleton class="h-36" />
+            </div>
+          {/if}
         {:else if dashboard.vernacular.length === 0}
           <p class="text-sm text-muted-foreground">{$t`No vernacular writing systems configured.`}</p>
         {:else}
@@ -206,9 +230,13 @@
       <section class="space-y-4">
         <h2 class="text-lg font-semibold">{$t`Analysis writing systems`}</h2>
         {#if !dashboard.analysis}
-          <div class="grid gap-4 lg:grid-cols-2">
-            <Skeleton class="h-36" />
-          </div>
+          {#if failed}
+            {@render noValue('text-sm')}
+          {:else}
+            <div class="grid gap-4 lg:grid-cols-2">
+              <Skeleton class="h-36" />
+            </div>
+          {/if}
         {:else if dashboard.analysis.length === 0}
           <p class="text-sm text-muted-foreground">{$t`No analysis writing systems configured.`}</p>
         {:else}
