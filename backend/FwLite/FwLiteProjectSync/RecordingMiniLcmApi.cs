@@ -325,6 +325,13 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return await _api.CreatePicture(entryId, senseId, picture, position);
     }
 
+    public async Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null)
+    {
+        RunRecords.Add(new RunRecord(nameof(SubmitCreatePicture),
+            $"Create picture {picture.Caption} ({picture.Id}) in sense {senseId} {Position(position)}"));
+        await _api.SubmitCreatePicture(entryId, senseId, picture, position);
+    }
+
     public async Task<Picture> UpdatePicture(Guid entryId,
         Guid senseId,
         Guid pictureId,
@@ -345,10 +352,16 @@ public partial class RecordingMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return await _api.UpdatePicture(entryId, senseId, before, after, api);
     }
 
-    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between)
+    public async Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
-        RunRecords.Add(new RunRecord(nameof(MovePicture), $"Move picture {pictureId} in sense {senseId} {Position(between)}"));
-        await _api.MovePicture(entryId, senseId, pictureId, between);
+        RunRecords.Add(new RunRecord(nameof(MovePicture), $"Move picture {pictureId} in sense {senseId} {Position(between)} ({kind})"));
+        await _api.MovePicture(entryId, senseId, pictureId, between, kind);
+    }
+
+    public async Task SubmitMovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
+    {
+        RunRecords.Add(new RunRecord(nameof(SubmitMovePicture), $"Move picture {pictureId} in sense {senseId} {Position(between)} ({kind})"));
+        await _api.SubmitMovePicture(entryId, senseId, pictureId, between, kind);
     }
 
     public async Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)

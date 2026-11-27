@@ -6,9 +6,9 @@ namespace MiniLcm.Tests;
 
 public abstract class PictureTestsBase : MiniLcmTestBase
 {
-    private readonly Guid _entryId = Guid.NewGuid();
-    private readonly Guid _senseId = Guid.NewGuid();
-    private readonly Guid _pictureId = Guid.NewGuid();
+    protected readonly Guid _entryId = Guid.NewGuid();
+    protected readonly Guid _senseId = Guid.NewGuid();
+    protected readonly Guid _pictureId = Guid.NewGuid();
     private MediaUri _mediaUri;
 
     public override async Task InitializeAsync()
@@ -50,7 +50,7 @@ public abstract class PictureTestsBase : MiniLcmTestBase
         return response.MediaUri!.Value;
     }
 
-    private Task<Picture> CreatePicture(string caption, BetweenPosition? position = null)
+    protected Task<Picture> CreatePicture(string caption, BetweenPosition? position = null)
     {
         return Api.CreatePicture(_entryId, _senseId, new Picture
         {
@@ -60,7 +60,7 @@ public abstract class PictureTestsBase : MiniLcmTestBase
         }, position);
     }
 
-    private async Task<Guid[]> GetPictureIds()
+    protected async Task<Guid[]> GetPictureIds()
     {
         var sense = await Api.GetSense(_entryId, _senseId);
         sense.Should().NotBeNull();
@@ -356,6 +356,48 @@ public abstract class PictureTestsBase : MiniLcmTestBase
 
         var moved = await Api.GetPicture(_entryId, _senseId, second.Id);
         moved.Should().BeEquivalentTo(second, options => options.Excluding(p => p.Order));
+    }
+
+    [Fact]
+    public async Task MovePicture_WrongSense_Throws()
+    {
+        var otherSenseId = Guid.NewGuid();
+        await Api.CreateSense(_entryId, new Sense { Id = otherSenseId, Gloss = { { "en", "other" } } });
+
+        var act = () => Api.MovePicture(_entryId, otherSenseId, _pictureId, new BetweenPosition(null, null));
+        await act.Should().ThrowAsync<ParentMismatchException>().WithMessage($"*{_pictureId}*{otherSenseId}*");
+
+        // a plain move must never re-parent
+        (await GetPictureIds()).Should().Equal(_pictureId);
+    }
+
+    [Fact]
+    public async Task MovePicture_WrongEntry_Throws()
+    {
+        var otherEntryId = Guid.NewGuid();
+        await Api.CreateEntry(new Entry { Id = otherEntryId, LexemeForm = { { "en", "other" } } });
+
+        var act = () => Api.MovePicture(otherEntryId, _senseId, _pictureId, new BetweenPosition(null, null));
+        await act.Should().ThrowAsync<ParentMismatchException>();
+
+        (await GetPictureIds()).Should().Equal(_pictureId);
+    }
+
+    [Fact]
+    public async Task MovePicture_Reparent_ReparentsToDifferentSense()
+    {
+        var before = await Api.GetPicture(_entryId, _senseId, _pictureId);
+        var targetSenseId = Guid.NewGuid();
+        await Api.CreateSense(_entryId, new Sense { Id = targetSenseId, Gloss = { { "en", "target" } } });
+        var existing = await Api.CreatePicture(_entryId, targetSenseId, new Picture { Id = Guid.NewGuid(), MediaUri = _mediaUri });
+
+        await Api.MovePicture(_entryId, targetSenseId, _pictureId, new BetweenPosition(null, existing.Id), MoveKind.Reparent);
+
+        var targetSense = await Api.GetSense(_entryId, targetSenseId);
+        targetSense.Should().NotBeNull();
+        targetSense.Pictures.Select(p => p.Id).Should().Equal(_pictureId, existing.Id);
+        targetSense.Pictures[0].Should().BeEquivalentTo(before, options => options.Excluding(p => p!.Order));
+        (await GetPictureIds()).Should().BeEmpty();
     }
 
     [Fact]

@@ -92,6 +92,42 @@ public class SyncContextTests
         context.ExistedBefore(NewExample()).Should().BeNull();
     }
 
+    [Fact]
+    public void PictureMovedOutOfDeletedSense_IsAMove()
+    {
+        // FLEx "Merge Sense into..."
+        var picture = NewPicture();
+        var mergedSense = NewSense(picture);
+        var survivingSense = NewSense();
+        var before = NewEntry(mergedSense, survivingSense);
+
+        var after = before.Copy();
+        after.Senses.RemoveAt(0);
+        var movedPicture = picture.Copy();
+        after.Senses[0].Pictures.Add(movedPicture);
+
+        var context = SyncContext.For(before, after);
+        context.ExistedBefore(movedPicture).Should().BeSameAs(mergedSense.Pictures[0]);
+        context.StillExists(picture).Should().BeTrue();
+        context.HasMovedInDescendants(after.Senses[0]).Should().BeTrue();
+        context.WithoutMovedInDescendants(after.Senses[0]).Pictures.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GenuinePictureCreateAndDelete_AreNotMoves()
+    {
+        var deleted = NewPicture();
+        var before = NewEntry(NewSense(deleted), NewSense());
+        var after = before.Copy();
+        after.Senses[0].Pictures.Clear();
+        var created = NewPicture();
+        after.Senses[1].Pictures.Add(created);
+
+        var context = SyncContext.For(before, after);
+        context.ExistedBefore(created).Should().BeNull();
+        context.StillExists(deleted).Should().BeFalse();
+    }
+
     #endregion
 
     #region Stripping moved-in descendants out of a create payload
@@ -219,25 +255,6 @@ public class SyncContextTests
     #region Unsupported moves are refused before anything is written
 
     [Fact]
-    public void PictureMovedToDifferentSense_Throws()
-    {
-        var picture = NewPicture();
-        var sourceSense = NewSense(picture);
-        var targetSense = NewSense();
-        var before = NewEntry(sourceSense, targetSense);
-
-        var after = before.Copy();
-        after.Senses[0].Pictures.Clear();
-        after.Senses[1].Pictures.Add(picture.Copy());
-
-        var act = () => SyncContext.For(before, after);
-        act.Should().Throw<MoveNotSupportedException>()
-            .WithMessage($"*{picture.Id}*{sourceSense.Id}*{targetSense.Id}*");
-        act = () => SyncContext.For([before], [after]);
-        act.Should().Throw<MoveNotSupportedException>();
-    }
-
-    [Fact]
     public void TranslationMovedToDifferentExampleSentence_Throws()
     {
         var translation = NewTranslation();
@@ -258,28 +275,11 @@ public class SyncContextTests
     }
 
     [Fact]
-    public void PictureMovedToSurvivingSenseWhileItsOwnSenseIsDeleted_Throws()
-    {
-        var picture = NewPicture();
-        var deletedSense = NewSense(picture);
-        var survivingSense = NewSense();
-        var before = NewEntry(deletedSense, survivingSense);
-
-        var after = before.Copy();
-        after.Senses.RemoveAt(0);
-        after.Senses[0].Pictures.Add(picture.Copy());
-
-        var act = () => SyncContext.For(before, after);
-        act.Should().Throw<MoveNotSupportedException>();
-    }
-
-    [Fact]
     public void SenseMovedToAnotherEntryCarryingItsChildren_DoesNotThrow()
     {
-        // the picture and translation travel with their moved parents; their direct parents don't change
-        var picture = NewPicture();
-        var movingSense = NewSense(picture);
-        movingSense.ExampleSentences = [NewExample()];
+        // the translation travels with its moved parents; its direct parent doesn't change
+        var movingSense = NewSense();
+        movingSense.ExampleSentences = [NewExample(NewTranslation())];
         var sourceEntry = NewEntry(movingSense);
 
         var sourceEntryAfter = sourceEntry.Copy();
@@ -288,18 +288,6 @@ public class SyncContextTests
         var createdEntry = NewEntry(movedSense);
 
         var act = () => SyncContext.For([sourceEntry], [sourceEntryAfter, createdEntry]);
-        act.Should().NotThrow();
-    }
-
-    [Fact]
-    public void GenuinePictureCreateAndDelete_DoesNotThrow()
-    {
-        var before = NewEntry(NewSense(NewPicture()), NewSense());
-        var after = before.Copy();
-        after.Senses[0].Pictures.Clear();
-        after.Senses[1].Pictures.Add(NewPicture());
-
-        var act = () => SyncContext.For(before, after);
         act.Should().NotThrow();
     }
 

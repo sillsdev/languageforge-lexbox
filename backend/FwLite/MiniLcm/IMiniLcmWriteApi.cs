@@ -148,7 +148,8 @@ public interface IMiniLcmWriteApi
         Picture before,
         Picture after,
         IMiniLcmApi? api = null);
-    Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position);
+    Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder);
+    Task SubmitMovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder);
     Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId);
     #endregion
 
@@ -164,6 +165,7 @@ public interface IMiniLcmWriteApi
     Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update);
     Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null);
     Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update);
+    Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null);
     // Dependency types too (they sync before entries, outside EntrySync's try/catch). WritingSystem is omitted
     // (its update resolves the entity id, so it can't be a blind submit); MorphType is omitted (not deletable).
     Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update);

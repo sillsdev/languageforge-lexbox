@@ -2013,7 +2013,8 @@ public class FwDataMiniLcmApi(
         return await GetPicture(entryId, senseId, after.Id) ?? throw new NullReferenceException("unable to find picture with id " + after.Id);
     }
 
-    public Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between)
+    // see MoveSense: the insert re-parents
+    public Task MovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
     {
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
             throw new InvalidOperationException("Entry not found");
@@ -2022,7 +2023,8 @@ public class FwDataMiniLcmApi(
         if (!PictureRepository.TryGetObject(pictureId, out var lcmPicture))
             throw new InvalidOperationException("Picture not found");
 
-        ValidateOwnership(lcmPicture, entryId, senseId);
+        ValidateOwnership(entryId, lexSense);
+        if (kind == MoveKind.Reorder) ValidateOwnership(lcmPicture, entryId, senseId);
 
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Move picture",
             "Move picture back",
@@ -2109,6 +2111,8 @@ public class FwDataMiniLcmApi(
     public async Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update) => await UpdateExampleSentence(entryId, senseId, exampleSentenceId, update);
     public async Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update) => await UpdatePartOfSpeech(id, update);
     public async Task SubmitUpdatePicture(Guid entryId, Guid senseId, Guid pictureId, UpdateObjectInput<Picture> update) => await UpdatePicture(entryId, senseId, pictureId, update);
+    public async Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null) => await CreatePicture(entryId, senseId, picture, position);
+    public async Task SubmitMovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition position, MoveKind kind = MoveKind.Reorder) => await MovePicture(entryId, senseId, pictureId, position, kind);
     public async Task SubmitUpdatePublication(Guid id, UpdateObjectInput<Publication> update) => await UpdatePublication(id, update);
     public async Task SubmitUpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update) => await UpdateSemanticDomain(id, update);
     public async Task SubmitUpdateComplexFormType(Guid id, UpdateObjectInput<ComplexFormType> update) => await UpdateComplexFormType(id, update);

@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using MiniLcm.Culture;
 using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
+using SIL.Harmony.Db;
 
 namespace LcmCrdt.Data;
 
@@ -304,13 +305,20 @@ public class MiniLcmRepository(
         return sense;
     }
 
+    // true for deleted entities too: they leave the projected tables but keep their snapshots
+    public async Task<bool> EverExisted(Guid entityId)
+    {
+        return await EntityFrameworkQueryableExtensions.AnyAsync(dbContext.Set<ObjectSnapshot>(), s => s.EntityId == entityId);
+    }
+
     // pictures live in the sense's jsonb column, so finding the owner means searching every sense's pictures
-    public async Task<Guid?> GetPictureSenseId(Guid pictureId)
+    public async Task<Sense?> GetPictureOwner(Guid pictureId)
     {
         var id = pictureId.ToString();
-        return await AsyncExtensions.FirstOrDefaultAsync(dbContext.Senses.ToLinqToDB()
-            .Where(s => Json.Query(s.Pictures).Any(p => Json.Value(p, p => p.Id.ToString()) == id))
-            .Select(s => (Guid?)s.Id));
+        var sense = await AsyncExtensions.FirstOrDefaultAsync(dbContext.Senses.ToLinqToDB()
+            .Where(s => Json.Query(s.Pictures).Any(p => Json.Value(p, p => p.Id.ToString()) == id)));
+        sense?.Finalize();
+        return sense;
     }
 
     public async Task<ExampleSentence?> GetExampleSentence(Guid id)

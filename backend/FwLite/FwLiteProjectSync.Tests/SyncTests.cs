@@ -2,6 +2,8 @@ using FluentAssertions.Equivalency;
 using FwDataMiniLcmBridge.Media;
 using FwLiteProjectSync.Tests.Fixtures;
 using LcmCrdt;
+using LcmCrdt.Changes;
+using LcmCrdt.Harmony;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
@@ -805,6 +807,38 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         otherApiSense.Pictures.Should().HaveCount(1);
         otherApiSense.Pictures[0].Id.Should().Be(picture.Id);
         otherApiSense.Pictures[0].Caption["en"].Should().BeEquivalentTo(picture.Caption["en"]);
+    }
+
+    [Fact(Skip = "Two concurrent picture moves leave the picture in both CRDT senses, and FwData then flips between them every sync. Needs harmony#48; FW Lite can't reparent a picture yet.")]
+    [Trait("Category", "Integration")]
+    public async Task PictureMovedConcurrentlyToTwoSenses_SyncSettles()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        var senseA = _testEntry.Senses[0];
+        var senseB = await fwdataApi.CreateSense(_testEntry.Id, new Sense { Gloss = { { "en", "b" } } });
+        var senseC = await fwdataApi.CreateSense(_testEntry.Id, new Sense { Gloss = { { "en", "c" } } });
+        var picture = await fwdataApi.CreatePicture(_testEntry.Id, senseA.Id,
+            new Picture { Id = Guid.NewGuid(), MediaUri = new MediaUri(Guid.NewGuid(), "localhost") });
+        await _syncService.Import(crdtApi, fwdataApi);
+        var projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        // two clients moved the picture out of sense A, neither having seen the other's move
+        var changeWriter = _fixture.Services.GetRequiredService<HarmonyChangeWriter>();
+        foreach (var target in new[] { senseB.Id, senseC.Id })
+        {
+            await changeWriter.AddChanges([
+                new RemoveSensePictureChange(picture.Id, senseA.Id),
+                new CreateSensePictureChange(picture, target),
+            ]);
+        }
+
+        await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+        projectSnapshot = await _fixture.RegenerateAndGetSnapshot();
+        var secondSync = await _syncService.Sync(crdtApi, fwdataApi, projectSnapshot);
+
+        secondSync.FwdataChanges.Should().Be(0);
+        secondSync.CrdtChanges.Should().Be(0);
     }
 
     [Theory]
