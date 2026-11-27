@@ -38,6 +38,7 @@
 
   let {
     search = $bindable(),
+    matchDiacritics = $bindable(false),
     gridifyFilter = $bindable(undefined),
     semanticDomain = $bindable(),
     partOfSpeech = $bindable(),
@@ -45,6 +46,7 @@
     unreadComments = $bindable(false),
   }: {
     search: string;
+    matchDiacritics?: boolean;
     gridifyFilter?: string;
     semanticDomain?: ISemanticDomain;
     partOfSpeech?: IPartOfSpeech;
@@ -217,6 +219,11 @@
             aria-label={$t`Toggle filters`} />
         {/snippet}
         <div class="space-y-4">
+          <div class="flex flex-col">
+            <Label class="p-2">{$t`Search`}</Label>
+            <Switch bind:checked={matchDiacritics} label={$t`Match diacritics exactly`} aria-describedby="{uid}-diacritics-hint" />
+            <p id="{uid}-diacritics-hint" class="text-xs text-muted-foreground mt-1 px-1">{$t`When off, a also finds á, à and ã.`}</p>
+          </div>
           <div class="flex flex-col">
             <Label id="{uid}-morph-type-label" class="p-2">{$t`Morph type`}</Label>
             <MorphTypeSelect bind:value={morphTypes} bind:triggerRef={morphTypeTrigger} labelledBy="{uid}-morph-type-label"

@@ -21,14 +21,14 @@ public static class SqlHelpers
     }
 
     [ExpressionMethod(nameof(SearchValueExpression))]
-    public static bool SearchValue(this MultiString ms, string search)
+    public static bool SearchValue(this MultiString ms, string search, bool matchDiacritics)
     {
-        return ms.Values.Any(pair => !pair.Key.IsAudio && pair.Value.ContainsDiacriticMatch(search));
+        return ms.Values.Any(pair => !pair.Key.IsAudio && pair.Value.ContainsDiacriticMatch(search, matchDiacritics));
     }
 
-    private static Expression<Func<MultiString, string, bool>> SearchValueExpression()
+    private static Expression<Func<MultiString, string, bool, bool>> SearchValueExpression()
     {
-        return (ms, search) => Json.QueryEntries(ms).Any(kv => !IsAudioWs(kv.Key) && ContainsIgnoreCaseAccents(kv.Value, search));
+        return (ms, search, matchDiacritics) => Json.QueryEntries(ms).Any(kv => !IsAudioWs(kv.Key) && ContainsIgnoreCaseAccents(kv.Value, search, matchDiacritics));
     }
 
     /// <summary>
@@ -41,11 +41,11 @@ public static class SqlHelpers
     [Sql.Expression("({0} LIKE '%-zxxx-%' AND ({0} LIKE '%-audio' OR {0} LIKE '%-audio-%'))", ServerSideOnly = true, IsPredicate = true)]
     public static bool IsAudioWs(string wsCode) => new WritingSystemId(wsCode).IsAudio;
 
-    [Sql.Expression(CustomSqliteFunctionInterceptor.ContainsFunction + "({0}, {1})")]
-    public static bool ContainsIgnoreCaseAccents(string s, string search) => s.ContainsDiacriticMatch(search);
+    [Sql.Expression(CustomSqliteFunctionInterceptor.ContainsFunction + "({0}, {1}, {2})")]
+    public static bool ContainsIgnoreCaseAccents(string s, string search, bool matchDiacritics) => s.ContainsDiacriticMatch(search, matchDiacritics);
 
-    [Sql.Expression(CustomSqliteFunctionInterceptor.StartsWithFunction + "({0}, {1})")]
-    public static bool StartsWithIgnoreCaseAccents(string s, string search) => s.StartsWithDiacriticMatch(search);
+    [Sql.Expression(CustomSqliteFunctionInterceptor.StartsWithFunction + "({0}, {1}, {2})")]
+    public static bool StartsWithIgnoreCaseAccents(string s, string search, bool matchDiacritics) => s.StartsWithDiacriticMatch(search, matchDiacritics);
 
     [Sql.Expression("({0} || {1} || {2})", PreferServerSide = true)]
     public static string ConcatTokens(string leading, string value, string trailing) => leading + value + trailing;

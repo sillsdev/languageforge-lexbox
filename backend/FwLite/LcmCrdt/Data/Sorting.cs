@@ -38,7 +38,7 @@ public static class Sorting
     /// prefix matches (e.g. when searching "tan" then "tanan" is before "matan"), then shorter, then alphabetical.
     /// See also: <see cref="FullTextSearch.EntrySearchService.FilterAndRank"/> for the FTS-based equivalent.
     /// </summary>
-    public static IQueryable<Entry> ApplyRoughBestMatchOrder(this IQueryable<Entry> entries, ITable<MorphType> morphTypes, SortOptions order, string? query = null)
+    public static IQueryable<Entry> ApplyRoughBestMatchOrder(this IQueryable<Entry> entries, ITable<MorphType> morphTypes, SortOptions order, string? query = null, bool matchDiacritics = false)
     {
         var stemOrder = morphTypes.Where(m => m.Kind == MorphTypeKind.Stem).Select(m => m.SecondaryOrder);
         if (order.Ascending)
@@ -48,8 +48,8 @@ public static class Sorting
                 join mt in morphTypes on e.MorphType equals mt.Kind into mtGroup
                 from mt in mtGroup.DefaultIfEmpty()
                 orderby
-                    !string.IsNullOrEmpty(query) && SqlHelpers.StartsWithIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!) descending,
-                    !string.IsNullOrEmpty(query) && SqlHelpers.ContainsIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!) descending,
+                    !string.IsNullOrEmpty(query) && SqlHelpers.StartsWithIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!, matchDiacritics) descending,
+                    !string.IsNullOrEmpty(query) && SqlHelpers.ContainsIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!, matchDiacritics) descending,
                     e.Headword(order.WritingSystem).Length,
                     e.Headword(order.WritingSystem).CollateUnicode(order.WritingSystem),
                     mt != null ? mt.SecondaryOrder : stemOrder.FirstOrDefault(),
@@ -64,8 +64,8 @@ public static class Sorting
                 join mt in morphTypes on e.MorphType equals mt.Kind into mtGroup
                 from mt in mtGroup.DefaultIfEmpty()
                 orderby
-                    !string.IsNullOrEmpty(query) && SqlHelpers.StartsWithIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!),
-                    !string.IsNullOrEmpty(query) && SqlHelpers.ContainsIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!),
+                    !string.IsNullOrEmpty(query) && SqlHelpers.StartsWithIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!, matchDiacritics),
+                    !string.IsNullOrEmpty(query) && SqlHelpers.ContainsIgnoreCaseAccents(e.HeadwordWithTokens(order.WritingSystem, mt.Prefix, mt.Postfix), query!, matchDiacritics),
                     e.Headword(order.WritingSystem).Length descending,
                     e.Headword(order.WritingSystem).CollateUnicode(order.WritingSystem) descending,
                     (mt != null ? mt.SecondaryOrder : stemOrder.FirstOrDefault()) descending,

@@ -57,7 +57,7 @@ public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor, IConnec
     public static void RegisterCustomFunctions(SqliteConnection sqliteConnection)
     {
         sqliteConnection.CreateFunction(ContainsFunction,
-            (byte[]? str, byte[]? value) =>
+            (byte[]? str, byte[]? value, bool matchDiacritics) =>
             {
                 if (str is null || value is null) return false;
 
@@ -65,12 +65,12 @@ public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor, IConnec
                 Span<char> search = stackalloc char[Encoding.UTF8.GetCharCount(value)];
                 Encoding.UTF8.GetChars(str, source);
                 Encoding.UTF8.GetChars(value, search);
-                var options = DiacriticMatchOptions(search);
+                var options = DiacriticMatchOptions(search, matchDiacritics);
                 return CultureInfo.InvariantCulture.CompareInfo.IndexOf(source, search, options) >= 0;
             });
 
         sqliteConnection.CreateFunction(StartsWithFunction,
-            (byte[]? str, byte[]? value) =>
+            (byte[]? str, byte[]? value, bool matchDiacritics) =>
             {
                 if (str is null || value is null) return false;
 
@@ -78,14 +78,14 @@ public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor, IConnec
                 Span<char> search = stackalloc char[Encoding.UTF8.GetCharCount(value)];
                 Encoding.UTF8.GetChars(str, source);
                 Encoding.UTF8.GetChars(value, search);
-                var options = DiacriticMatchOptions(search);
+                var options = DiacriticMatchOptions(search, matchDiacritics);
                 return CultureInfo.InvariantCulture.CompareInfo.IsPrefix(source, search, options);
             });
     }
 
-    private static CompareOptions DiacriticMatchOptions(in ReadOnlySpan<char> search)
+    private static CompareOptions DiacriticMatchOptions(in ReadOnlySpan<char> search, bool matchDiacritics)
     {
-        return ContainsDiacritic(search)
+        return matchDiacritics || ContainsDiacritic(search)
             ? CompareOptions.IgnoreCase
             : CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace;
     }

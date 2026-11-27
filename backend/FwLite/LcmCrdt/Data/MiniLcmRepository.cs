@@ -220,19 +220,19 @@ public class MiniLcmRepository(
                 {
                     //ranking must be done at the same time as part of the full-text search, so we can't use normal sorting
                     sortingHandled = true;
-                    queryable = SearchService.FilterAndRank(queryable, query, sortOptions.WritingSystem, morphTypes);
+                    queryable = SearchService.FilterAndRank(queryable, query, sortOptions.WritingSystem, morphTypes, options.MatchDiacritics);
                 }
                 else
                 {
                     var filterWs = sortOptions?.WritingSystem
                         ?? (await GetWritingSystem(default, WritingSystemType.Vernacular))?.WsId
                         ?? default;
-                    queryable = SearchService.Filter(queryable, query, filterWs, morphTypes);
+                    queryable = SearchService.Filter(queryable, query, filterWs, morphTypes, options.MatchDiacritics);
                 }
             }
             else
             {
-                queryable = Filtering.SearchFilter(queryable, dbContext.GetTable<MorphType>(), query);
+                queryable = Filtering.SearchFilter(queryable, dbContext.GetTable<MorphType>(), query, options.MatchDiacritics);
             }
         }
 
@@ -246,7 +246,7 @@ public class MiniLcmRepository(
 
         var result = options.Order.Field switch
         {
-            SortField.SearchRelevance => queryable.ApplyRoughBestMatchOrder(dbContext.GetTable<MorphType>(), options.Order, query),
+            SortField.SearchRelevance => queryable.ApplyRoughBestMatchOrder(dbContext.GetTable<MorphType>(), options.Order, query, options.MatchDiacritics),
             SortField.Headword => queryable.ApplyHeadwordOrder(dbContext.GetTable<MorphType>(), options.Order),
             _ => throw new ArgumentOutOfRangeException(nameof(options), "sort field unknown " + options.Order.Field)
         };
@@ -336,7 +336,8 @@ public class MiniLcmRepository(
             options?.Exemplar,
             QueryOptions.QueryAll,
             0,
-            options?.Filter
+            options?.Filter,
+            options?.MatchDiacritics ?? false
         );
 
         IQueryable<Entry> queryable;

@@ -34,6 +34,7 @@
     sort,
     onSelectEntry,
     gridifyFilter = undefined,
+    matchDiacritics = $bindable(false),
     previewDictionary = false,
     disableNewEntry = false,
     entryCount = $bindable(null),
@@ -46,6 +47,7 @@
     sort?: SortConfig;
     onSelectEntry: (entry?: IEntry) => void;
     gridifyFilter?: string;
+    matchDiacritics?: boolean;
     previewDictionary?: boolean,
     disableNewEntry?: boolean,
     entryCount?: number | null,
@@ -63,6 +65,7 @@
     search: () => search,
     sort: () => sort,
     gridifyFilter: () => gridifyFilter,
+    matchDiacritics: () => matchDiacritics,
   };
 
   let entryLoader = $derived(!miniLcmApi ? undefined : untrack(() => new EntryLoaderService(miniLcmApi, deps)));
@@ -230,6 +233,12 @@
       {#if entryLoader?.totalCount === 0}
         <div class="flex flex-col items-center justify-center h-full gap-4 px-4">
           <p class="text-muted-foreground">{pt($t`No entries found`, $t`No words found`, viewService.currentView)}</p>
+          {#if matchDiacritics && search}
+            <div class="flex flex-col items-center gap-2">
+              <p class="text-sm text-muted-foreground">{$t`Diacritics must match exactly.`}</p>
+              <Button variant="outline" size="sm" onclick={() => matchDiacritics = false}>{$t`Ignore diacritics`}</Button>
+            </div>
+          {/if}
 
           {#if canCreateFromSearch}
             {@render newEntryFromSearchRow('max-w-md')}

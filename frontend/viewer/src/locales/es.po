@@ -1468,6 +1468,11 @@ msgstr ""
 msgid "Details"
 msgstr "Detalles"
 
+#. Shown under "No words found" when the "Match diacritics exactly" search setting is on. Diacritics are accent and tone marks on letters, e.g. á, à, ã.
+#: src/project/browse/EntriesList.svelte
+msgid "Diacritics must match exactly."
+msgstr ""
+
 #. Page header/section title
 #: src/home/HomeView.svelte
 #: src/home/HomeView.svelte
@@ -2431,6 +2436,11 @@ msgstr ""
 msgid "If you add it"
 msgstr ""
 
+#. Button that turns off the "Match diacritics exactly" search setting, so searching "a" also finds á, à, ã.
+#: src/project/browse/EntriesList.svelte
+msgid "Ignore diacritics"
+msgstr ""
+
 #. Dev-mode only icon button tooltip on a Classic FieldWorks project list item. Imports the fwdata project into FwLite.
 #: src/home/HomeView.svelte
 msgid "Import"
@@ -2728,6 +2738,11 @@ msgstr "Gerente"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "Manual update is required. Please follow the instructions provided."
 msgstr "Se requiere una actualización manual. Siga las instrucciones proporcionadas."
+
+#. Search setting (on/off switch). When on, searching "a" finds only plain "a", not á, à or ã. Diacritics are accent and tone marks on letters.
+#: src/project/browse/SearchFilter.svelte
+msgid "Match diacritics exactly"
+msgstr ""
 
 #. Relevant view: Lite
 #. Classic view equivalent: "sense"
@@ -4104,6 +4119,11 @@ msgstr ""
 msgid "Scan with a phone camera to join this device's Wi-Fi, or join it in Wi-Fi settings:"
 msgstr ""
 
+#. Section heading in the Filters popup, above search settings
+#: src/project/browse/SearchFilter.svelte
+msgid "Search"
+msgstr ""
+
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
@@ -5340,6 +5360,11 @@ msgstr ""
 #: src/project/dashboard/DashboardView.svelte
 msgid "What would you like to see here?"
 msgstr "¿Qué te gustaría ver aquí?"
+
+#. Help text under the "Match diacritics exactly" switch. You may replace the example letters with ones that fit your language.
+#: src/project/browse/SearchFilter.svelte
+msgid "When off, a also finds á, à and ã."
+msgstr ""
 
 #. External link button text for help
 #: src/home/Server.svelte

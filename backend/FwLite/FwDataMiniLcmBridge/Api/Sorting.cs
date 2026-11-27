@@ -31,7 +31,7 @@ internal static class Sorting
     /// prefix matches (e.g. when searching "tan" then "tanan" is before "matan"), then shorter, then alphabetical.
     /// See also: EntrySearchService.FilterAndRank for the FTS-based equivalent in LcmCrdt.
     /// </summary>
-    public static IEnumerable<ILexEntry> ApplyRoughBestMatchOrder(this IEnumerable<ILexEntry> entries, SortOptions order, int sortWsHandle, IComparer<string?> headwordComparer, int stemSecondaryOrder, string? query = null)
+    public static IEnumerable<ILexEntry> ApplyRoughBestMatchOrder(this IEnumerable<ILexEntry> entries, SortOptions order, int sortWsHandle, IComparer<string?> headwordComparer, int stemSecondaryOrder, string? query = null, bool matchDiacritics = false)
     {
         var projected = entries.Select(e => (
             Entry: e,
@@ -41,8 +41,8 @@ internal static class Sorting
         if (order.Ascending)
         {
             return projected
-                .OrderByDescending(x => !string.IsNullOrEmpty(query) && (x.HeadwordWithTokens?.StartsWithDiacriticMatch(query!) ?? false))
-                .ThenByDescending(x => !string.IsNullOrEmpty(query) && (x.HeadwordWithTokens?.ContainsDiacriticMatch(query!) ?? false))
+                .OrderByDescending(x => !string.IsNullOrEmpty(query) && (x.HeadwordWithTokens?.StartsWithDiacriticMatch(query!, matchDiacritics) ?? false))
+                .ThenByDescending(x => !string.IsNullOrEmpty(query) && (x.HeadwordWithTokens?.ContainsDiacriticMatch(query!, matchDiacritics) ?? false))
                 .ThenBy(x => x.Headword?.Length ?? 0)
                 .ThenBy(x => x.Headword, headwordComparer)
                 .ThenBy(x => x.Entry.PrimaryMorphType?.SecondaryOrder ?? stemSecondaryOrder)
@@ -53,8 +53,8 @@ internal static class Sorting
         else
         {
             return projected
-                .OrderBy(x => !string.IsNullOrEmpty(query) && (x.HeadwordWithTokens?.StartsWithDiacriticMatch(query!) ?? false))
-                .ThenBy(x => !string.IsNullOrEmpty(query) && (x.HeadwordWithTokens?.ContainsDiacriticMatch(query!) ?? false))
+                .OrderBy(x => !string.IsNullOrEmpty(query) && (x.HeadwordWithTokens?.StartsWithDiacriticMatch(query!, matchDiacritics) ?? false))
+                .ThenBy(x => !string.IsNullOrEmpty(query) && (x.HeadwordWithTokens?.ContainsDiacriticMatch(query!, matchDiacritics) ?? false))
                 .ThenByDescending(x => x.Headword?.Length ?? 0)
                 .ThenByDescending(x => x.Headword, headwordComparer)
                 .ThenByDescending(x => x.Entry.PrimaryMorphType?.SecondaryOrder ?? stemSecondaryOrder)

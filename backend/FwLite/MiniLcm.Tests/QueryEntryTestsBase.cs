@@ -580,6 +580,54 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     }
 
     [Theory]
+    [InlineData("a", "a", true)]
+    [InlineData("a", "A", true)]
+    [InlineData("a", "Ã", false)]
+    [InlineData("ba", "bá", false)]
+    [InlineData("bana", "bana", true)]//crdt fts only kicks in at 3 chars
+    [InlineData("bana", "BANA", true)]
+    [InlineData("bana", "báná", false)]
+    [InlineData("báná", "báná", true)]
+    [InlineData("báná", "bàná", false)]
+    public async Task MatchDiacritics(string searchTerm, string word, bool shouldMatch)
+    {
+        var entry = await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = word } });
+        var options = new QueryOptions(MatchDiacritics: true);
+        var ids = await Api.SearchEntries(searchTerm, options).Select(e => e.Id).ToArrayAsync();
+        var count = await Api.CountEntries(searchTerm, options);
+        var index = await Api.GetEntryIndex(entry.Id, searchTerm, new IndexQueryOptions(MatchDiacritics: true));
+        if (shouldMatch)
+        {
+            ids.Should().Contain(entry.Id);
+            index.Should().BeGreaterThanOrEqualTo(0);
+        }
+        else
+        {
+            ids.Should().NotContain(entry.Id);
+            index.Should().Be(-1);
+        }
+        count.Should().Be(ids.Length);
+    }
+
+    [Theory]
+    [InlineData("tan")]
+    [InlineData("ta")]//non fts search
+    public async Task MatchDiacritics_SearchRelevanceOrder(string searchTerm)
+    {
+        var tán = await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "tán" } });
+        var matan = await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "matan" } });
+        Guid[] ids = [tán.Id, matan.Id];
+
+        var forgiving = await Api.SearchEntries(searchTerm, new(new(SortField.SearchRelevance)))
+            .Where(e => ids.Contains(e.Id)).Select(e => e.Id).ToArrayAsync();
+        forgiving.Should().Equal(tán.Id, matan.Id);
+
+        var exact = await Api.SearchEntries(searchTerm, new(new(SortField.SearchRelevance), MatchDiacritics: true))
+            .Where(e => ids.Contains(e.Id)).Select(e => e.Id).ToArrayAsync();
+        exact.Should().Equal(matan.Id);
+    }
+
+    [Theory]
     [InlineData("word1", "word1", "word1")]
     [InlineData("app", "app,apple,banana", "app,apple")]
     [InlineData("apple", "app,apple,banana", "apple")]
