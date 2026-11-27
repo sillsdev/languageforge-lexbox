@@ -1974,10 +1974,6 @@ msgstr "Mở URL thất bại: {0}"
 msgid "Failed to save file"
 msgstr "Không thể lưu tệp"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Failed to save settings"
-msgstr "Không thể lưu cài đặt"
-
 #. Error notification
 #: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
@@ -3641,6 +3637,7 @@ msgstr "Dự án {0} không tìm thấy trên {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Dự án {0} trên {1} chưa được thiết lập cho FieldWorks Lite"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Projects"
 msgstr ""

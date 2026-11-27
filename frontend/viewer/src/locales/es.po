@@ -1974,10 +1974,6 @@ msgstr "Error al abrir la URL: {0}"
 msgid "Failed to save file"
 msgstr "Error al guardar el archivo"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Failed to save settings"
-msgstr "Error al guardar la configuración"
-
 #. Error notification
 #: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
@@ -3641,6 +3637,7 @@ msgstr "Proyecto {0} no encontrado en {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "El proyecto {0} en {1} aún no está configurado para FieldWorks Lite"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Projects"
 msgstr ""

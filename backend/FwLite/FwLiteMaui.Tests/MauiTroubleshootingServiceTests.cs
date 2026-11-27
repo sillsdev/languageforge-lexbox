@@ -19,6 +19,7 @@ public class MauiTroubleshootingServiceTests
     {
         _launcherMock = new Mock<ILauncher>();
         _browserMock = new Mock<IBrowser>();
+        _browserMock.Setup(b => b.OpenAsync(It.IsAny<Uri>(), It.IsAny<BrowserLaunchOptions>())).ReturnsAsync(true);
         _shareMock = new Mock<IShare>();
         _configMock = new Mock<IOptions<FwLiteMauiConfig>>();
 

@@ -1974,10 +1974,6 @@ msgstr "Gagal membuka URL: {0}"
 msgid "Failed to save file"
 msgstr "Gagal menyimpan berkas"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Failed to save settings"
-msgstr "Gagal menyimpan pengaturan"
-
 #. Error notification
 #: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
@@ -3641,6 +3637,7 @@ msgstr "Proyek {0} tidak ditemukan di {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Proyek {0} di {1} belum disiapkan untuk FieldWorks Lite"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Projects"
 msgstr ""

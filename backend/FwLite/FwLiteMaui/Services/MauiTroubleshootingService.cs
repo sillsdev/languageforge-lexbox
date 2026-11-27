@@ -44,8 +44,7 @@ public class MauiTroubleshootingService(
         try
         {
             //obviously intended to open a url in the browser, but on windows it just opens explorer
-            await _browser.OpenAsync("file://" + path);
-            return true;
+            return await _browser.OpenAsync("file://" + path);
         }
         catch (Exception e)
         {

@@ -1974,10 +1974,6 @@ msgstr "Imeshindwa kufungua URL: {0}"
 msgid "Failed to save file"
 msgstr "Imeshindwa kuhifadhi faili"
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Failed to save settings"
-msgstr "Imeshindwa kuhifadhi mipangilio"
-
 #. Error notification
 #: src/lib/services/sync-status-service.ts
 msgid "Failed to synchronize"
@@ -3641,6 +3637,7 @@ msgstr "Mradi {0} haipatikani kwenye {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Mradi {0} kwenye {1} haujajajengwa kwa FieldWorks Lite"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Projects"
 msgstr ""

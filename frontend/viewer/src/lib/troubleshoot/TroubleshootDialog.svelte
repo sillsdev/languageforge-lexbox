@@ -15,7 +15,6 @@
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import Loading from '$lib/components/Loading.svelte';
   import {resource} from 'runed';
-  import {processErrorIntoDetails} from '$lib/errors/global-errors';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 
@@ -89,11 +88,10 @@
     try {
       await service.setSettingsFile(settingsDraft);
     } catch (e) {
-      // invalid JSON is an expected, actionable failure: keep it next to the text until it's fixed
-      settingsError = e instanceof Error
-        ? processErrorIntoDetails({message: e.message, error: e}).message
-          .replace(/^[\w.]+Exception: /, '').replace(/ \(Parameter '\w+'\)$/, '')
-        : $t`Failed to save settings`;
+      // WriteSettingsFile's validation message: expected and fixable, so keep it next to the text
+      const invalid = e instanceof Error ? /Settings are not valid.*?(?= \(Parameter '\w+'\)|$)/m.exec(e.message)?.[0] : undefined;
+      if (!invalid) throw e;
+      settingsError = invalid;
       return;
     }
     await settingsFile.refetch();
