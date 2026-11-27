@@ -82,14 +82,6 @@ public static class LocalMediaFiles
         }
     }
 
-    /// <summary>
-    /// Returns <paramref name="filePath"/>, or the first free "name-1.ext", "name-2.ext"… beside it.
-    /// </summary>
-    public static string EnsureUnique(string filePath)
-    {
-        return Candidates(filePath).First(candidate => !File.Exists(candidate));
-    }
-
     public static void DeleteIfExists(string path)
     {
         if (File.Exists(path)) File.Delete(path);
