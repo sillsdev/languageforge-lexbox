@@ -48,7 +48,7 @@ public class PictureTests : PictureTestsBase
         var otherSenseId = Guid.NewGuid();
         await Api.CreateSense(_entryId, new Sense { Id = otherSenseId, Gloss = { { "en", "other" } } });
 
-        await Api.SubmitMovePicture(_entryId, otherSenseId, _pictureId, new BetweenPosition(null, null));
+        await Api.SubmitMovePicture(_entryId, otherSenseId, _pictureId, new BetweenPosition(null, null), MoveKind.Reorder);
 
         (await GetPictureIds()).Should().Equal(_pictureId);
         var otherSense = await Api.GetSense(_entryId, otherSenseId);
@@ -59,7 +59,7 @@ public class PictureTests : PictureTestsBase
     [Fact]
     public async Task SubmitMovePicture_ReorderUnderMissingSense_DoesNothing()
     {
-        await Api.SubmitMovePicture(_entryId, Guid.NewGuid(), _pictureId, new BetweenPosition(null, null));
+        await Api.SubmitMovePicture(_entryId, Guid.NewGuid(), _pictureId, new BetweenPosition(null, null), MoveKind.Reorder);
 
         (await GetPictureIds()).Should().Equal(_pictureId);
     }
@@ -80,7 +80,7 @@ public class PictureTests : PictureTestsBase
     }
 
     [Fact]
-    public async Task SubmitMovePicture_ReparentToDeletedSense_DeletesPicture()
+    public async Task SubmitMovePicture_ReparentToDeletedSense_MovesPictureIntoDeletedSense()
     {
         var targetSenseId = Guid.NewGuid();
         await Api.CreateSense(_entryId, new Sense { Id = targetSenseId, Gloss = { { "en", "target" } } });
@@ -88,7 +88,15 @@ public class PictureTests : PictureTestsBase
 
         await Api.SubmitMovePicture(_entryId, targetSenseId, _pictureId, new BetweenPosition(null, null), MoveKind.Reparent);
 
-        // delete wins
+        (await GetPictureIds()).Should().BeEmpty();
+        (await DeletedSensePictureIds(targetSenseId)).Should().Equal(_pictureId);
+    }
+
+    [Fact]
+    public async Task SubmitMovePicture_ReparentToSenseThatNeverExisted_RemovesPicture()
+    {
+        await Api.SubmitMovePicture(_entryId, Guid.NewGuid(), _pictureId, new BetweenPosition(null, null), MoveKind.Reparent);
+
         (await GetPictureIds()).Should().BeEmpty();
     }
 
@@ -119,9 +127,8 @@ public class PictureTests : PictureTestsBase
         entry.Senses.Where(s => s.Id != targetSenseId).SelectMany(s => s.Pictures).Should().BeEmpty();
     }
 
-
     [Fact]
-    public async Task SubmitCreatePicture_UnderDeletedSense_DoesNothing()
+    public async Task SubmitCreatePicture_UnderDeletedSense_AddsPictureToDeletedSense()
     {
         var targetSenseId = Guid.NewGuid();
         await Api.CreateSense(_entryId, new Sense { Id = targetSenseId, Gloss = { { "en", "target" } } });
@@ -130,9 +137,7 @@ public class PictureTests : PictureTestsBase
 
         await Api.SubmitCreatePicture(_entryId, targetSenseId, picture);
 
-        var entry = await Api.GetEntry(_entryId);
-        entry.Should().NotBeNull();
-        entry.Senses.SelectMany(s => s.Pictures).Select(p => p.Id).Should().Equal(_pictureId);
+        (await DeletedSensePictureIds(targetSenseId)).Should().Equal(picture.Id);
     }
 
     [Fact]
@@ -143,5 +148,13 @@ public class PictureTests : PictureTestsBase
         await Api.SubmitCreatePicture(_entryId, Guid.NewGuid(), picture);
 
         (await Api.GetPicture(_entryId, _senseId, picture.Id)).Should().BeNull();
+    }
+
+    private async Task<IEnumerable<Guid>> DeletedSensePictureIds(Guid senseId)
+    {
+        var sense = await _fixture.DataModel.GetLatest<Sense>(senseId);
+        sense.Should().NotBeNull();
+        sense.DeletedAt.Should().NotBeNull();
+        return sense.Pictures.Select(p => p.Id);
     }
 }

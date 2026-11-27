@@ -22,8 +22,8 @@ public class CrdtPictureApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeW
     public async Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? between = null)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        // the picture change edits the sense, and Harmony throws for an edit to a sense that never existed here
-        if (await repo.GetSense(senseId) is null) return;
+        // Harmony throws for an edit to a sense that never existed here; a deleted sense still gets the picture, so history keeps it
+        if (!await repo.EverExisted(senseId)) return;
         await harmonyChangeWriter.AddChange(new CreateSensePictureChange(picture, senseId, between));
     }
 
@@ -45,9 +45,9 @@ public class CrdtPictureApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeW
             var owned = sense.Pictures.FirstOrDefault(pic => pic.Id == id);
             if (owned is not null) return owned;
         }
-        var actualSenseId = await repo.GetPictureSenseId(id);
-        if (actualSenseId is null) return null;
-        throw ParentMismatchException.ForType<Picture>(id, senseId, actualSenseId.Value);
+        var owner = await repo.GetPictureOwner(id);
+        if (owner is null) return null;
+        throw ParentMismatchException.ForType<Picture>(id, senseId, owner.Id);
     }
 
     public async Task SubmitUpdatePicture(Guid entryId,
@@ -91,9 +91,9 @@ public class CrdtPictureApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeW
             await Reorder(sense, pictureId, between);
             return;
         }
-        var ownerSenseId = await repo.GetPictureSenseId(pictureId) ?? throw NotFoundException.ForType<Picture>(pictureId);
-        if (kind == MoveKind.Reorder) throw ParentMismatchException.ForType<Picture>(pictureId, senseId, ownerSenseId);
-        await Reparent(repo, pictureId, ownerSenseId, sense, between);
+        var owner = await repo.GetPictureOwner(pictureId) ?? throw NotFoundException.ForType<Picture>(pictureId);
+        if (kind == MoveKind.Reorder) throw ParentMismatchException.ForType<Picture>(pictureId, senseId, owner.Id);
+        await Reparent(repo, pictureId, owner, senseId, between);
     }
 
     public async Task SubmitMovePicture(Guid entryId, Guid senseId, Guid pictureId, BetweenPosition between, MoveKind kind = MoveKind.Reorder)
@@ -107,10 +107,10 @@ public class CrdtPictureApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeW
         }
         // the picture was deleted or moved on this side, so a reorder is moot
         if (kind == MoveKind.Reorder) return;
-        var ownerSenseId = await repo.GetPictureSenseId(pictureId);
+        var owner = await repo.GetPictureOwner(pictureId);
         // deleted on this side: delete wins
-        if (ownerSenseId is null) return;
-        await Reparent(repo, pictureId, ownerSenseId.Value, sense, between);
+        if (owner is null) return;
+        await Reparent(repo, pictureId, owner, senseId, between);
     }
 
     private async Task Reorder(Sense sense, Guid pictureId, BetweenPosition between)
@@ -123,18 +123,17 @@ public class CrdtPictureApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeW
     /// on the other. Unlike an example move, an edit or delete another client made under the old sense doesn't follow the picture,
     /// and two concurrent moves leave it in both senses. A single change that edits both senses needs harmony#48.
     /// </summary>
-    private async Task Reparent(MiniLcmRepository repo, Guid pictureId, Guid ownerSenseId, Sense? targetSense, BetweenPosition between)
+    private async Task Reparent(MiniLcmRepository repo, Guid pictureId, Sense owner, Guid targetSenseId, BetweenPosition between)
     {
-        var ownerSense = await repo.GetSense(ownerSenseId) ?? throw NotFoundException.ForType<Sense>(ownerSenseId);
-        var picture = ownerSense.Pictures.First(p => p.Id == pictureId);
-        var remove = new RemoveSensePictureChange(pictureId, ownerSenseId);
-        // the target sense is gone on this side: delete wins
-        if (targetSense is null)
+        var picture = owner.Pictures.First(p => p.Id == pictureId);
+        var remove = new RemoveSensePictureChange(pictureId, owner.Id);
+        // see SubmitCreatePicture
+        if (!await repo.EverExisted(targetSenseId))
         {
             await harmonyChangeWriter.AddChange(remove);
             return;
         }
-        await harmonyChangeWriter.AddChanges([remove, new CreateSensePictureChange(picture, targetSense.Id, between)]);
+        await harmonyChangeWriter.AddChanges([remove, new CreateSensePictureChange(picture, targetSenseId, between)]);
     }
 
     public async Task DeletePicture(Guid entryId, Guid senseId, Guid pictureId)
