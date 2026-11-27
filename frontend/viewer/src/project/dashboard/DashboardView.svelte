@@ -31,7 +31,7 @@
   const viewService = useViewService();
   // Matches the Tasks list: the editors hide audio writing systems when the feature is off.
   function canFill(wsId: string): boolean {
-    return features.audio || !writingSystemService.allWritingSystems().find(ws => ws.wsId === wsId)?.isAudio;
+    return !!features.write && (features.audio || !writingSystemService.allWritingSystems().find(ws => ws.wsId === wsId)?.isAudio);
   }
   // Not $derived: the resource's factory always resolves to the same DashboardStats instance,
   // so this reference never changes — reactivity comes from that instance's own $state fields.
@@ -104,7 +104,7 @@
 {/snippet}
 
 {#snippet summaryCard(title: string, field: FieldCompletion | undefined, taskField?: FieldId)}
-  {@const task = taskField && field && field.filled < field.total ? tasksService.findTask(taskField) : undefined}
+  {@const task = taskField && field && field.filled < field.total && features.write ? tasksService.findTask(taskField) : undefined}
   {#if task}
     <Link to="./tasks?taskId={encodeURIComponent(task.id)}" class="group rounded-xl focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
       {@render summaryCardBody(title, field, 'group-hover:bg-accent')}

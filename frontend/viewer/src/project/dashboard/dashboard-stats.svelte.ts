@@ -133,7 +133,7 @@ export class DashboardStats {
         this.entriesWithSenses = completion(totalEntries, withSenses);
         this.entriesWithExamples = completion(totalEntries, withExamples);
       }
-      return [withSenses, withExamples] as const;
+      return [withSenses] as const;
     });
 
     let vernacular = this.#writingSystemService.vernacular;
@@ -152,7 +152,11 @@ export class DashboardStats {
     const analysisRows = this.analysis;
 
     // deliberately not one big Promise.all: the per-writing-system counts would compete with the primary stats
-    const [withSenses, withExamples] = await primary;
+    const [withSenses] = await primary;
+    if (!fresh()) return;
+    // Translation tasks only look at entries with a sentence to translate.
+    const sentenceFilter = TasksService.hasExampleSentenceFilter(vernacular);
+    const withSentences = sentenceFilter ? await api.countEntries(undefined, {filter: {gridifyFilter: sentenceFilter}}) : 0;
     if (!fresh()) return;
 
     // The rows link to these tasks, so they must count with the same filters.
@@ -181,7 +185,7 @@ export class DashboardStats {
       ...analysisRows.flatMap(row => [
         filledField(taskFilter('gloss', row.wsId), f => this.#patchAnalysisRow(row.wsId, {gloss: f})),
         filledField(taskFilter('definition', row.wsId), f => this.#patchAnalysisRow(row.wsId, {definition: f})),
-        filledField(taskFilter('translations', row.wsId), f => this.#patchAnalysisRow(row.wsId, {translation: f}), withExamples),
+        filledField(taskFilter('translations', row.wsId), f => this.#patchAnalysisRow(row.wsId, {translation: f}), withSentences),
       ]),
     ]);
   }

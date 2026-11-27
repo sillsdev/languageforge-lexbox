@@ -259,10 +259,15 @@ export class TasksService {
     }
   }
 
-  public static *makeTranslationTasks(analysis: IWritingSystem[], vernacular: IWritingSystem[]) {
-    const hasSentence = vernacular.length
+  /** Entries with an example sentence in any vernacular writing system, or '' when there are none. */
+  public static hasExampleSentenceFilter(vernacular: IWritingSystem[]): string {
+    return vernacular.length
       ? `(${vernacular.map(ws => `Senses.ExampleSentences.Sentence[${ws.wsId}]!=`).join('|')})`
       : '';
+  }
+
+  public static *makeTranslationTasks(analysis: IWritingSystem[], vernacular: IWritingSystem[]) {
+    const hasSentence = TasksService.hasExampleSentenceFilter(vernacular);
     for (const writingSystem of analysis) {
       const taskTranslation: Task = {
         id: `example-translation-${writingSystem.wsId}`,

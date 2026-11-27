@@ -23,3 +23,13 @@ test('dashboard part of speech stat agrees with the task it links to; translatio
   await expect(posTask).toContainText(/\d+ (entries|words) to go/);
   expect((await numbers(posTask.getByText(/to go/)))[0]).toBe(posTotal - posFilled);
 });
+
+test('read-only dashboard has no task links', async ({page}) => {
+  await page.goto('/testing/project-view/dashboard');
+  await page.waitForFunction(() => window.__PLAYWRIGHT_UTILS__?.setWrite);
+  await page.evaluate(() => window.__PLAYWRIGHT_UTILS__.setWrite(false));
+  await expect(page.getByRole('button', {name: 'Tasks'})).toBeHidden();
+  await expect(page.getByText(/Entries with (a part of speech|grammatical info\.)/)).toBeVisible();
+  await expect(page.getByText(/^Example translations/).first()).toBeVisible();
+  await expect(page.getByRole('link', {name: /Entries with|^(Example|Gloss|Definition|Lexeme|Citation)/})).toHaveCount(0);
+});
