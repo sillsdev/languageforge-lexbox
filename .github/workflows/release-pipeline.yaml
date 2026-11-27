@@ -41,6 +41,8 @@ jobs:
         id: setVersion
         # Based on the commit's date (UTC) so re-runs keep the same version.
         # version: vYYYY-MM-DD-commitSha, semver version: YYYY.M.D
+        # Two releases on one day share the semver, so Macs on the first don't auto-update to the second;
+        # see "Two FW Lite releases on one day" in .github/AGENTS.md.
         run: |
           shortSha=$(echo "$GITHUB_SHA" | cut -c1-8)
           echo "VERSION=v$(TZ=UTC git show -s --format=%cd --date=format-local:%Y-%m-%d HEAD)-$shortSha" >> "$GITHUB_OUTPUT"

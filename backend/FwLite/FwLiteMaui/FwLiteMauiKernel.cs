@@ -94,6 +94,7 @@ public static class FwLiteMauiKernel
 #endif
 #if MACCATALYST
         services.Configure<AuthConfig>(config => config.CustomWebUiFactory = () => new AuthenticationSessionWebUi());
+        services.Replace(ServiceDescriptor.Singleton<IPlatformUpdateService, MacUpdateService>());
 #endif
 #if ANDROID
         services.Configure<AuthConfig>(config => config.GetParentActivityOrWindow = () => Platform.CurrentActivity);

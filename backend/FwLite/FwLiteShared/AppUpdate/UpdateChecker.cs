@@ -92,8 +92,9 @@ public class UpdateChecker(
     /// Whether to check the GitHub release feed now: the shared interval gate
     /// (<see cref="UpdateCheckThrottle.ShouldCheckForUpdate"/>) plus a skip for store-distributed
     /// platforms. iOS has no release feed at all, and Android is driven by Google Play's in-app
-    /// updates (AndroidInAppUpdateService) instead of this check. Mac uses the feed like Linux: it can't
-    /// install the update itself, so the user gets a Download prompt for the DMG. The explicit
+    /// updates (AndroidInAppUpdateService) instead of this check. Mac uses the feed like Windows: when it
+    /// says there's an update, MacUpdateService installs it with Velopack, and a Mac build that Velopack
+    /// didn't install gets a Download prompt for the DMG instead. The explicit
     /// <c>Always</c> condition still forces a feed check for on-device endpoint testing.
     /// </summary>
     internal bool ShouldCheckReleaseFeed()
