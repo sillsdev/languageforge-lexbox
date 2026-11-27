@@ -58,6 +58,8 @@ Start with `.github/scripts/ci-logs.sh <run-id|run-or-job-url> [job-name-substri
 
 1. **cert-manager webhook CA race** (`GHA integration tests / dotnet`): `ClusterIssuer` apply fails with `x509: certificate signed by unknown authority` ~3 min in, pods still `ContainerCreating`. `setup-k8s` now waits for all cert-manager deployments plus `cmctl check api --wait=2m`; a rare repeat is still a flake.
 2. **`MediaFileTests.UploadReplacementFile_TooLarge_ThrowsError`**: `HttpRequestException: Error while copying content to a stream` instead of the validation error (Failed: 1 / Passed: ~146).
+3. **Docker Hub 429** (`setup-k8s` pod wait times out; `describe-*.txt` shows `429 Too Many Requests` pulling `postgres`/`busybox`/`maildev`): the kind node now pulls docker.io through `mirror.gcr.io` and falls back to Docker Hub only when the mirror doesn't have the image, so this should be rare.
+4. **`SendNewProject_Big` `HTTP Error 502`** with no matching `unbundle` line in hgweb's log: a pooled lexbox→hgweb connection hit Apache's keep-alive close (was 5s). Apache now keeps idle connections 120s, longer than the proxy's 60s pool idle timeout; if it recurs, check the hgweb image under test has that `KeepAliveTimeout` and look for `Forwarder Failed` in lexbox-api's log.
 
 ### Known systemic (re-running won't help)
 

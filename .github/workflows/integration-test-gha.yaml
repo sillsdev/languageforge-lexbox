@@ -47,7 +47,11 @@ jobs:
       - name: status
         if: failure() || cancelled()
         run: |
+          # Keep collecting when one command fails (e.g. a container still waiting for its image)
+          set +e
           mkdir -p k8s-logs
+          kubectl get pods -n languagedepot -o wide > k8s-logs/pods.txt
+          kubectl get events -n languagedepot --sort-by=.lastTimestamp > k8s-logs/events.txt
           for app in lexbox ui hg db fw-headless; do
             kubectl describe pods -l "app=${app}" -n languagedepot > k8s-logs/describe-${app}.txt
             kubectl logs -l "app=${app}" -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-${app}.txt
@@ -82,7 +86,11 @@ jobs:
       - name: status
         if: failure() || cancelled()
         run: |
+          # Keep collecting when one command fails (e.g. a container still waiting for its image)
+          set +e
           mkdir -p k8s-logs
+          kubectl get pods -n languagedepot -o wide > k8s-logs/pods.txt
+          kubectl get events -n languagedepot --sort-by=.lastTimestamp > k8s-logs/events.txt
           for app in lexbox ui hg db fw-headless; do
             kubectl describe pods -l "app=${app}" -n languagedepot > k8s-logs/describe-${app}.txt
             kubectl logs -l "app=${app}" -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-${app}.txt
