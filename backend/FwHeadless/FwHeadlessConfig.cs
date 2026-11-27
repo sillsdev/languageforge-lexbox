@@ -24,6 +24,14 @@ public class FwHeadlessConfig
     public string FdoDataModelVersion { get; init; } = "7000072";
 
     /// <summary>
+    /// How many harmony syncs of a project may fail in a row before the scheduler stops retrying.
+    /// It tries again on the project's next change notification or daily sweep.
+    /// The default of 10 retries for about 25 minutes.
+    /// </summary>
+    [Range(1, 1000)]
+    public int HarmonySyncMaxConsecutiveFailures { get; init; } = 10;
+
+    /// <summary>
     /// The FLExBridge data version. FieldWorks/LfMergeBridge form the Mercurial branch a project's
     /// data lives on by joining this and the FDO model version with a dot (see <see cref="SendReceiveBranchName"/>).
     /// Mirrors FlexBridgeConstants.FlexBridgeDataVersion in FLExBridge, which is internal so we can't
