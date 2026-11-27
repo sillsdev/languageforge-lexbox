@@ -84,7 +84,7 @@
     }
     await settingsFile.refetch();
     await verboseLogging.refetch();
-    AppNotification.display($t`Settings saved and applied`, 'success');
+    AppNotification.display($t`Settings saved and applied`, {type: 'success', timeout: 'short'});
   }
 
   async function shareProject() {

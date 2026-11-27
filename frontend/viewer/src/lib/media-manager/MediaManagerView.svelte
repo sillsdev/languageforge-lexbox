@@ -53,7 +53,7 @@
     try {
       await service.downloadResources([fileId]);
       await mediaFiles.refetch();
-      AppNotification.display($t`Loaded file`);
+      AppNotification.display($t`Loaded file`, {timeout: 'short'});
     } catch (error) {
       AppNotification.error($t`Failed to load file`, error instanceof Error ? error.message : String(error));
     } finally {
@@ -75,7 +75,7 @@
     try {
       await service.downloadResources(resourceIds);
       await mediaFiles.refetch();
-      AppNotification.display($t`Loaded ${resourceIds.length} file(s)`);
+      AppNotification.display($t`Loaded ${resourceIds.length} file(s)`, {timeout: 'short'});
     } catch (error) {
       AppNotification.error($t`Failed to load files`, error instanceof Error ? error.message : String(error));
     } finally {
@@ -91,7 +91,7 @@
     try {
       await service.uploadPendingResources();
       await mediaFiles.refetch();
-      AppNotification.display($t`Uploaded pending files`);
+      AppNotification.display($t`Uploaded pending files`, {timeout: 'short'});
     } catch (error) {
       AppNotification.error($t`Failed to upload files`, error instanceof Error ? error.message : String(error));
     } finally {

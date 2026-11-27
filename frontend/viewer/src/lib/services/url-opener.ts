@@ -13,7 +13,7 @@ export async function openUrl(url: string) {
     try {
       window.open(url, '_blank');
     } catch {
-      AppNotification.display(gt`Failed to open URL: ${url}`, 'warning');
+      AppNotification.display(gt`Failed to open URL: ${url}`, {type: 'warning', timeout: 'long'});
     }
   }
 }
