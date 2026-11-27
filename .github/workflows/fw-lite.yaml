@@ -399,12 +399,10 @@ jobs:
           cp Platforms/MacCatalyst/Entitlements.DeveloperId.plist "$RUNNER_TEMP/fwlite.entitlements"
           # The SDK merges and signs the universal bundle here; the maccatalyst-*/ bundles are incomplete intermediates.
           APP="bin/Release/net11.0-maccatalyst/FieldWorks Lite.app"
-          # vpk guesses the executable from --packId, so name it. Its check that the executable calls
-          # VelopackApp.Build().Run() can't see into a Catalyst bundle (the managed code is in Contents/MonoBundle,
-          # not beside the native launcher), so skip it: the call is the first line of Platforms/MacCatalyst/Program.cs.
+          # vpk guesses the executable from --packId, so name it.
           MAIN_EXE="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP/Contents/Info.plist")"
           "$RUNNER_TEMP/vpk/vpk" pack --packId FieldWorksLite --packVersion "$SEMVER_VERSION" \
-            --packDir "$APP" --mainExe "$MAIN_EXE" --skipVeloAppCheck \
+            --packDir "$APP" --mainExe "$MAIN_EXE" \
             --channel osx --runtime osx-x64 --noInst --outputDir ../artifacts/apple/velopack \
             --signAppIdentity "$CODESIGN_IDENTITY" \
             --signEntitlements "$RUNNER_TEMP/fwlite.entitlements" \
