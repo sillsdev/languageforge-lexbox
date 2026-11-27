@@ -1,9 +1,9 @@
 import type {IActivityChangeInfo, IChangeEntity} from '$lib/dotnet-types';
 import type {IActivitySenseName} from '$lib/dotnet-types/generated-types/LcmCrdt/IActivitySenseName';
-import {isObjectType} from '$lib/entry-editor/diff-view/diff-fields';
+import {isCommentType, isObjectType} from '$lib/entry-editor/diff-view/diff-fields';
 
 /** How the activity preview names a change: each kind gets its own header. */
-export type ChangeKind = 'entry' | 'sense' | 'example' | 'complexFormComponent' | 'object' | 'unknown';
+export type ChangeKind = 'entry' | 'sense' | 'example' | 'complexFormComponent' | 'object' | 'comment' | 'unknown';
 
 export function changeKind(entityType: string): ChangeKind {
   switch (entityType) {
@@ -11,7 +11,9 @@ export function changeKind(entityType: string): ChangeKind {
     case 'Sense': return 'sense';
     case 'ExampleSentence': return 'example';
     case 'ComplexFormComponent': return 'complexFormComponent';
-    default: return isObjectType(entityType) ? 'object' : 'unknown';
+    default:
+      if (isObjectType(entityType)) return 'object';
+      return isCommentType(entityType) ? 'comment' : 'unknown';
   }
 }
 
@@ -50,8 +52,8 @@ export function senseText(sense: IActivitySenseName | undefined): string | undef
 }
 
 /**
- * The parents a change's header names before its identity. A sense's entry, an example's entry and sense, a
- * component link's complex form. Empty when the backend couldn't resolve them.
+ * The parents a change's header names before its identity. A sense's entry, an example's or comment's entry and
+ * sense, a component link's complex form. Empty when the backend couldn't resolve them.
  */
 export function parentCrumb(kind: ChangeKind, info: IActivityChangeInfo | undefined): CrumbText[] {
   const entry = info?.entry?.headword ? {text: info.entry.headword, homographNumber: info.entry.homographNumber} : undefined;
@@ -60,7 +62,8 @@ export function parentCrumb(kind: ChangeKind, info: IActivityChangeInfo | undefi
     case 'complexFormComponent':
       // A sense's own name is the header's identity
       return entry ? [entry] : [];
-    case 'example': {
+    case 'example':
+    case 'comment': {
       const sense = senseText(info?.sense);
       return [...(entry ? [entry] : []), ...(sense ? [{text: sense}] : [])];
     }

@@ -14,6 +14,8 @@ describe('changeKind', () => {
     expect(changeKind('ComplexFormComponent')).toBe('complexFormComponent');
     expect(changeKind('PartOfSpeech')).toBe('object');
     expect(changeKind('WritingSystem')).toBe('object');
+    expect(changeKind('UserComment')).toBe('comment');
+    expect(changeKind('CommentThread')).toBe('comment');
     expect(changeKind('Unknown')).toBe('unknown');
     expect(changeKind('RemoteResource')).toBe('unknown');
   });
@@ -67,6 +69,11 @@ describe('parentCrumb', () => {
     expect(parentCrumb('example', {entry: nyumba, sense: {label: 'house', number: 2}})).toEqual([nyumbaCrumb, {text: '2 house'}]);
     expect(parentCrumb('example', {entry: nyumba, sense: {number: 2}})).toEqual([nyumbaCrumb, {text: '2'}]);
     expect(parentCrumb('example', {entry: nyumba, sense: {}})).toEqual([nyumbaCrumb]);
+  });
+
+  it('names the entry, and sense if any, that a comment is on', () => {
+    expect(parentCrumb('comment', {entry: nyumba})).toEqual([nyumbaCrumb]);
+    expect(parentCrumb('comment', {entry: nyumba, sense: {label: 'house', number: 2}})).toEqual([nyumbaCrumb, {text: '2 house'}]);
   });
 
   it('keeps the sense when the entry has no headword', () => {

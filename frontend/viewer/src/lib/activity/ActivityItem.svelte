@@ -39,6 +39,8 @@
   import {Icon} from '$lib/components/ui/icon';
   import {useViewService} from '$lib/views/view-service.svelte';
   import {sinceThen} from './since-then';
+  import {changeLabelOverrides} from './change-type-groups';
+  import {changeType} from './change-summary';
 
   const viewService = useViewService();
 
@@ -61,7 +63,11 @@
   const historyService = useHistoryService();
   let openHistory = $state<{entityId: string, changeIndex: number}>()
 
-  const changes = $derived(!historyService.loaded ? undefined : activity.changes.map(({entity, info}) => {
+  // The new comment's card says it all; the list hides thread creation for the same reason (see change-summary.ts)
+  const shownChanges = $derived(activity.changes.some(c => changeType(c.entity.change) === 'CreateUserCommentChange')
+    ? activity.changes.filter(c => changeType(c.entity.change) !== 'CreateCommentThreadChange')
+    : activity.changes);
+  const changes = $derived(!historyService.loaded ? undefined : shownChanges.map(({entity, info}) => {
     return new ChangeWithLazyContext(entity, activity, info, () => historyService.loadChangeContext(activity.commitId, entity.index));
   }));
 </script>
@@ -78,8 +84,8 @@
             {$t`Author:`}
             <AuthorLabel class="font-semibold" authorId={activity.metadata.authorId} authorName={activity.metadata.authorName} />
           </span>
-          {#if activity.changes.length > 1}
-            <span>{$t`– (${activity.changes.length} changes)`}</span>
+          {#if shownChanges.length > 1}
+            <span>{$t`– (${shownChanges.length} changes)`}</span>
           {/if}
         </span>
         <span>
@@ -140,11 +146,12 @@
                 <div class="h-[700px]"></div>
               {:then context}
                 {@const since = sinceThen(context.entityType, context.snapshot, context.currentSnapshot, viewService.currentView)}
+                {@const override = changeLabelOverrides[changeType(change.change)]}
                 {@const noLaterChanges = since?.status === 'unchanged'}
                 {@const sinceOpen = !!since && !noLaterChanges}
                 <div class="change">
                   <div class="px-4 pt-2 flex font-semibold items-center">
-                    <span class="grow">{context.changeName}</span>
+                    <span class="grow">{override ? $t(override) : context.changeName}</span>
 
                     {#if showHistoryButton}
                       <!-- change.entityId, not context.snapshot.id: some snapshots (e.g. writing systems) don't expose their id to JS -->

@@ -1,5 +1,6 @@
 import {msg} from 'svelte-i18n-lingui';
 import type {
+  ICommentThread,
   IComplexFormType,
   ICustomView,
   IMorphType,
@@ -7,13 +8,14 @@ import type {
   IPlugin,
   IPublication,
   ISemanticDomain,
+  IUserComment,
   IWritingSystem,
 } from '$lib/dotnet-types';
 import type {EntityType} from '$lib/views/entity-config';
 
 // 'text' is diffed character by character; the other scalars are replaced whole.
 export type DiffRow = {label: string} & (
-  | {kind: 'text' | 'multiString' | 'richMultiString' | 'boolean' | 'wsType' | 'viewBase' | 'wsList' | 'stringList'}
+  | {kind: 'text' | 'multiString' | 'richMultiString' | 'boolean' | 'wsType' | 'viewBase' | 'wsList' | 'stringList' | 'threadStatus'}
   | {kind: 'viewFields'; entity: EntityType}
 );
 
@@ -102,10 +104,52 @@ export const objectDiffRows: {
     deletedAt: null,
   },
 };
+
+/** Rows for a comment and its conversation. Not objects: they belong to an entry, not the project's lists. */
+export const commentDiffRows: {
+  UserComment: DiffRows<IUserComment>;
+  CommentThread: DiffRows<ICommentThread>;
+} = {
+  UserComment: {
+    text: {label: msg`Comment`, kind: 'text'},
+    id: null,
+    deletedAt: null,
+    commentThreadId: null,
+    previousCommentId: null,
+    authorId: null,
+    authorName: null,
+    createdAt: null,
+    updatedAt: null,
+  },
+  CommentThread: {
+    status: {label: msg`Status`, kind: 'threadStatus'},
+    id: null,
+    deletedAt: null,
+    subjectId: null,
+    subjectType: null,
+    authorId: null,
+    authorName: null,
+    createdAt: null,
+    updatedAt: null,
+    comments: null,
+  },
+};
 /* eslint-enable @typescript-eslint/naming-convention */
 
 export type ObjectType = keyof typeof objectDiffRows;
+export type CommentType = keyof typeof commentDiffRows;
 
 export function isObjectType(entityType: string): entityType is ObjectType {
   return Object.hasOwn(objectDiffRows, entityType);
+}
+
+export function isCommentType(entityType: string): entityType is CommentType {
+  return Object.hasOwn(commentDiffRows, entityType);
+}
+
+/** The rows that diff an entity without its own diff component, if it has any. */
+export function diffRowsFor(entityType: string): Readonly<Record<string, DiffRow | null>> | undefined {
+  if (isObjectType(entityType)) return objectDiffRows[entityType];
+  if (isCommentType(entityType)) return commentDiffRows[entityType];
+  return undefined;
 }

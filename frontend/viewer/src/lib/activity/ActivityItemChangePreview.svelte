@@ -9,12 +9,14 @@
   import DiffSensePrimitive from '$lib/entry-editor/diff-view/DiffSensePrimitive.svelte';
   import DiffExamplePrimitive from '$lib/entry-editor/diff-view/DiffExamplePrimitive.svelte';
   import DiffFieldRows from '$lib/entry-editor/diff-view/DiffFieldRows.svelte';
-  import {objectDiffRows, type ObjectType} from '$lib/entry-editor/diff-view/diff-fields';
+  import {diffRowsFor, type ObjectType} from '$lib/entry-editor/diff-view/diff-fields';
   import DiffAnchor from '$lib/entry-editor/diff-view/DiffAnchor.svelte';
   import {entryAnchor, exampleAnchor, objectAnchor, senseAnchor, type AnchorText} from '$lib/entry-editor/diff-view/anchor-text';
   import {usePartsOfSpeech, useWritingSystemService} from '$project/data';
   import ActivityChangeHeader from './ActivityChangeHeader.svelte';
   import {senseInEntry, senseLabel} from '$lib/entry-editor/sense-ref';
+  import {changeLabelOverrides} from './change-type-groups';
+  import {changeType} from './change-summary';
   import {changeBadge, changeKind, isReorder, parentCrumb} from './change-header';
   import {pt} from '$lib/views/view-text';
   import {existing, type SinceThen} from './since-then';
@@ -53,6 +55,10 @@
   const gone = $derived(!!diffBefore && !diffAfter);
   const fresh = $derived(!diffBefore && !!diffAfter);
 
+  const changeLabel = $derived.by(() => {
+    const override = changeLabelOverrides[changeType(change?.change)];
+    return override ? $t(override) : context.changeName;
+  });
   const kind = $derived(changeKind(context.entityType));
   const reorder = $derived(isReorder(change));
   const showNote = $derived(!since && !reorder);
@@ -126,6 +132,10 @@
   {#if kind === 'sense' && info?.sense?.number}{info.sense.number}&nbsp;{/if}<DiffAnchor {...anchor} />
 {/snippet}
 
+{#snippet commentIdentity()}
+  {context.entityType === 'CommentThread' ? $t`Conversation` : $t`Comment`}
+{/snippet}
+
 {#snippet linkEnd(entry: IEntry | undefined, snapshotHeadword: string | undefined)}
   {@const liveEntry = live(entry)}
   <span class="text-lg font-semibold text-foreground">
@@ -166,10 +176,10 @@
 {/snippet}
 
 <div class={cn(gone && 'diff-gone', fresh && 'diff-new')}>
-  {#if anchor || cfc}
+  {#if anchor || cfc || kind === 'comment'}
     <div class="mb-3">
-      <ActivityChangeHeader label={context.changeName} {crumbs} {badge} {actions} {now}
-                            identity={cfc ? componentIdentity : anchorIdentity} />
+      <ActivityChangeHeader label={changeLabel} {crumbs} {badge} {actions} {now}
+                            identity={cfc ? componentIdentity : kind === 'comment' ? commentIdentity : anchorIdentity} />
     </div>
   {/if}
 
@@ -194,7 +204,7 @@
         {:else if kind === 'example'}
           <DiffExamplePrimitive mode="changes" anchor={false} noVisibleChangesNote={showNote} before={diffBefore as IExampleSentence | undefined} after={diffAfter as IExampleSentence | undefined}/>
         {:else}
-          <DiffFieldRows mode="changes" noVisibleChangesNote={showNote} rows={objectDiffRows[context.entityType as ObjectType]} before={diffBefore} after={diffAfter}/>
+          <DiffFieldRows mode="changes" noVisibleChangesNote={showNote} rows={diffRowsFor(context.entityType) ?? {}} before={diffBefore} after={diffAfter}/>
         {/if}
       </Editor.Grid>
     </Editor.Root>

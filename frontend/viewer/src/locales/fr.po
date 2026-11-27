@@ -121,7 +121,7 @@ msgstr "{0} (FieldWorks Lite)"
 msgid "{0} (FieldWorks)"
 msgstr "{0} (FieldWorks)"
 
-#: src/lib/activity/ActivityFilter.svelte
+#: src/lib/activity/ChangeTypeFilter.svelte
 msgid "{0} activity types"
 msgstr "{0} types d'activité"
 
@@ -407,6 +407,13 @@ msgstr "Compte"
 msgid "Activity"
 msgstr "Activité"
 
+#. Label of the activity view filter that narrows the list by what kind of change was made.
+#: src/lib/activity/ChangeTypeFilter.svelte
+#: src/lib/activity/ChangeTypeFilter.svelte
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Activity type"
+msgstr ""
+
 #. Error boundary title shown if the whole Activity view crashes while rendering.
 #: src/lib/activity/ActivityView.svelte
 msgid "Activity view failed"
@@ -424,6 +431,10 @@ msgstr ""
 #: src/lib/components/field-editors/audio-input.svelte
 msgid "Add audio"
 msgstr "Ajouter de l'audio"
+
+#: src/lib/activity/change-type-groups.ts
+msgid "Add comment"
+msgstr ""
 
 #. Relevant view: Classic
 #. Lite view equivalent: "Add part of"
@@ -588,13 +599,6 @@ msgstr ""
 msgid "All"
 msgstr "Tous"
 
-#. Filter option in activity view activity-type dropdown — show all kinds of edits.
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-#: src/lib/activity/ActivityFilter.svelte
-msgid "All activity types"
-msgstr "Tous les types d'activité"
-
 #. Filter option in activity view author dropdown — show commits from every author.
 #: src/lib/activity/ActivityFilter.svelte
 #: src/lib/activity/ActivityFilter.svelte
@@ -744,6 +748,11 @@ msgstr ""
 #: src/project/tasks/TasksView.svelte
 msgid "Audio"
 msgstr "Audio"
+
+#. Group heading in the activity-type filter: changes to audio recordings and other media files.
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Audio & media"
+msgstr ""
 
 #. Status message when audio was not synced
 #: src/lib/components/field-editors/audio-input.svelte
@@ -1011,9 +1020,17 @@ msgstr "Projets FieldWorks classiques"
 msgid "clear"
 msgstr "effacer"
 
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Clear activity type filter"
+msgstr ""
+
 #: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "Clear filter"
+msgstr ""
+
+#: src/lib/activity/ActivityView.svelte
+msgid "Clear filters"
 msgstr ""
 
 #. Activity-log line. {0} = field label (e.g. "Gloss", "Definition"). Means the field's value was erased.
@@ -1042,11 +1059,6 @@ msgstr "Fermer"
 msgid "Close Dictionary"
 msgstr "Fermer le dictionnaire"
 
-#. Activity-log line: a user closed (resolved) a discussion thread. Matches the "Closed" status in the comments dialog.
-#: src/lib/activity/ChangeSummary.svelte
-msgid "Closed comment thread"
-msgstr ""
-
 #. Field label in the create-project dialog. The project's short machine-readable identifier (slug), e.g. "my-dictionary".
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/entry-editor/diff-view/diff-fields.ts
@@ -1062,7 +1074,9 @@ msgstr ""
 msgid "Color"
 msgstr "Couleur"
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
+#: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Comment"
 msgstr "Commenter"
 
@@ -1074,6 +1088,7 @@ msgstr "Commentateur"
 msgid "comments"
 msgstr ""
 
+#: src/lib/activity/ChangeTypeFilter.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 #: src/project/browse/EntryView.svelte
 #: src/project/browse/SearchFilter.svelte
@@ -1179,6 +1194,7 @@ msgstr ""
 msgid "Continue"
 msgstr ""
 
+#: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/entry-editor/comments/CommentPanel.svelte
 msgid "Conversation"
 msgstr "Conversation"
@@ -1392,6 +1408,14 @@ msgstr "Supprimer"
 msgid "Delete {0}"
 msgstr "Supprimer {0}"
 
+#: src/lib/activity/change-type-groups.ts
+msgid "Delete comment"
+msgstr ""
+
+#: src/lib/activity/change-type-groups.ts
+msgid "Delete conversation"
+msgstr ""
+
 #. Relevant view: Classic
 #. Lite view equivalent: "Delete Word"
 #. Menu option: opens confirmation dialog to permanently remove entry
@@ -1434,9 +1458,9 @@ msgstr ""
 msgid "Deleted comment"
 msgstr ""
 
-#. Activity-log line: a user deleted a whole discussion thread with its comments.
+#. Activity-log line: a user deleted a whole comment conversation with its comments.
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Deleted comment thread"
+msgid "Deleted conversation"
 msgstr ""
 
 #. Status on a tab: the item was deleted after this change. Not an instruction to delete it later.
@@ -1638,6 +1662,7 @@ msgstr "par exemple th, sw"
 msgid "Edit"
 msgstr "Modifier"
 
+#: src/lib/activity/change-type-groups.ts
 #: src/lib/entry-editor/comments/CommentItem.svelte
 msgid "Edit comment"
 msgstr "Modifier le commentaire"
@@ -1732,6 +1757,11 @@ msgstr ""
 #. Standalone plural noun interpolated as {1} into "Created {0} {1}" activity-log lines (after a count). Refers to dictionary entries (headwords with their senses/definitions).
 #: src/lib/activity/ChangeSummary.svelte
 msgid "entries"
+msgstr ""
+
+#. Group heading in the activity-type filter: changes to dictionary entries (FieldWorks wording).
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Entries"
 msgstr ""
 
 #. Filter option label
@@ -1876,6 +1906,7 @@ msgstr ""
 msgid "examples"
 msgstr ""
 
+#: src/lib/activity/ChangeTypeFilter.svelte
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Examples"
@@ -2560,6 +2591,11 @@ msgstr "Lumière"
 msgid "List mode"
 msgstr "Mode liste"
 
+#. Group heading in the activity-type filter: changes to project lists (parts of speech, semantic domains...) and settings (writing systems, views).
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Lists & settings"
+msgstr ""
+
 #. Field name shown in advanced/classic view
 #. The literal meaning of the vernacular translated into the analysis language
 #. Contrasts with glosses/definitions in the analysis language
@@ -2748,6 +2784,11 @@ msgstr ""
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "meanings"
+msgstr ""
+
+#. Group heading in the activity-type filter: changes to meanings (simpler wording for "senses").
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Meanings"
 msgstr ""
 
 #. Noun for a media resource of non-audio/unknown type, e.g. "Added media file" in the activity log
@@ -3000,10 +3041,6 @@ msgstr ""
 msgid "No activity matches these filters"
 msgstr "Aucune activité ne correspond à ces filtres"
 
-#: src/lib/activity/ActivityFilter.svelte
-msgid "No activity types"
-msgstr "Aucun type d'activité"
-
 #: src/project/dashboard/DashboardView.svelte
 msgid "No analysis writing systems configured."
 msgstr "Aucun système d'écriture d'analyse configuré."
@@ -3075,6 +3112,10 @@ msgstr ""
 
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "No longer uses the internet"
+msgstr ""
+
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "No matching activity types"
 msgstr ""
 
 #: src/lib/media-manager/MediaManagerView.svelte
@@ -3907,9 +3948,9 @@ msgstr ""
 msgid "Reopen"
 msgstr "Rouvrir"
 
-#. Activity-log line: a user reopened a previously closed discussion thread.
+#. Activity-log line: a user reopened a resolved comment conversation.
 #: src/lib/activity/ChangeSummary.svelte
-msgid "Reopened comment thread"
+msgid "Reopened conversation"
 msgstr ""
 
 #. Tooltip/aria-label for the "reordered" change-category badge icon on an activity row (paired with "Added", "Removed", "Edited").
@@ -3959,6 +4000,7 @@ msgstr ""
 msgid "Requires"
 msgstr ""
 
+#: src/lib/activity/ChangeTypeFilter.svelte
 #: src/project/browse/SearchFilter.svelte
 msgid "Reset"
 msgstr "Réinitialiser"
@@ -3973,6 +4015,21 @@ msgstr ""
 #: src/lib/entry-editor/comments/CommentThread.svelte
 msgid "Resolve"
 msgstr "Résoudre"
+
+#. Activity type name in a filter list: a change to whether a comment conversation is resolved.
+#: src/lib/activity/change-type-groups.ts
+msgid "Resolve or reopen conversation"
+msgstr ""
+
+#. Status of a comment conversation in the activity view: someone marked it as done.
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+msgid "Resolved"
+msgstr ""
+
+#. Activity-log line: a user resolved (closed) a comment conversation. Matches "Resolve" in the comments panel.
+#: src/lib/activity/ChangeSummary.svelte
+msgid "Resolved conversation"
+msgstr ""
 
 #: src/lib/notifications/NotificationOutlet.svelte
 #: src/lib/updates/UpdateDialogContent.svelte
@@ -4092,6 +4149,10 @@ msgstr ""
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"
 msgstr "Rechercher # ou #"
+
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Search activity types"
+msgstr ""
 
 #. Search placeholder
 #: src/project/ProjectDropdown.svelte
@@ -4215,6 +4276,11 @@ msgstr ""
 #: src/lib/activity/ChangeSummary.svelte
 #: src/lib/activity/ChangeSummary.svelte
 msgid "senses"
+msgstr ""
+
+#. Group heading in the activity-type filter: changes to senses (FieldWorks wording).
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Senses"
 msgstr ""
 
 #. Field label for example text
@@ -4438,6 +4504,10 @@ msgstr "Démarrer une conversation"
 msgid "Start a conversation…"
 msgstr "Démarrer une conversation…"
 
+#: src/lib/activity/change-type-groups.ts
+msgid "Start conversation"
+msgstr ""
+
 #. Screen-reader-only hint on Tasks list rows that open a task straight away (instead of showing a language list).
 #: src/project/tasks/TaskList.svelte
 msgid "Starts the task"
@@ -4449,6 +4519,11 @@ msgstr ""
 #: src/project/browse/filter/OpFilter.svelte
 msgid "Starts with"
 msgstr "Commence par"
+
+#. Field label in the activity view for whether a comment conversation is resolved.
+#: src/lib/entry-editor/diff-view/diff-fields.ts
+msgid "Status"
+msgstr ""
 
 #. Title of a loading notification shown when opening a project takes a while.
 #: src/DotnetProjectView.svelte
@@ -5110,6 +5185,11 @@ msgstr ""
 msgid "Unread"
 msgstr "Non lus"
 
+#. Status of a comment conversation in the activity view: still open, not marked as done.
+#: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
+msgid "Unresolved"
+msgstr ""
+
 #: src/lib/plugins/studio/StudioHeader.svelte
 msgid "Unsaved changes"
 msgstr ""
@@ -5413,6 +5493,11 @@ msgstr "Mot ou sens :"
 #. Lowercase plural noun interpolated into activity-log lines (e.g. "Created 5 words"). Paired with "words" / "entries" terminology across the app.
 #: src/lib/activity/ChangeSummary.svelte
 msgid "words"
+msgstr ""
+
+#. Group heading in the activity-type filter: changes to words (simpler wording for "entries").
+#: src/lib/activity/ChangeTypeFilter.svelte
+msgid "Words"
 msgstr ""
 
 #. Group header in morph type lists: whole words and multi-word phrases (stems, phrases, etc.), as opposed to affixes and clitics.
