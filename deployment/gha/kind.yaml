@@ -1,2 +1,14 @@
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
+# Read registry mirrors from hosts.toml files; setup-k8s writes one for docker.io
+# so anonymous pulls don't hit Docker Hub's per-IP rate limit (429).
+containerdConfigPatches:
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".registry]
+      config_path = "/etc/containerd/certs.d"
+kubeadmConfigPatches:
+  # The default 10Mi rotates lexbox-api's log mid-run, and `kubectl logs` only
+  # returns the current file, so the failure-time logs were missing from the artifact.
+  - |
+    kind: KubeletConfiguration
+    containerLogMaxSize: 200Mi

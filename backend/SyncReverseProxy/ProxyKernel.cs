@@ -40,7 +40,12 @@ public static class ProxyKernel
             UseProxy = false,
             UseCookies = false,
             ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
-            ConnectTimeout = TimeSpan.FromSeconds(15)
+            ConnectTimeout = TimeSpan.FromSeconds(15),
+            // Must stay below every upstream's keep-alive timeout: hgweb's Apache KeepAliveTimeout
+            // (hgweb/httpd.conf, 120s) and Kestrel's 130s default for hgresume and fw-headless.
+            // A request sent on a pooled connection just as the upstream closes it fails, and a
+            // streamed push body can't be retried, so the client sees a 502.
+            PooledConnectionIdleTimeout = TimeSpan.FromSeconds(60)
         }));
     }
 

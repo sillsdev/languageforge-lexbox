@@ -21,6 +21,23 @@ runs:
       uses: helm/kind-action@1544676c07bb3570fcb70166beaa07c4528fd4aa # v1.15.1
       with:
         config: deployment/gha/kind.yaml
+        cluster_name: lexbox
+    # Anonymous Docker Hub pulls from the kind node got 429 Too Many Requests,
+    # so postgres/busybox/maildev never started and every pod wait timed out.
+    # Try Google's Docker Hub mirror first; containerd falls back to Docker Hub
+    # for images the mirror doesn't have.
+    - name: Mirror docker.io pulls through mirror.gcr.io
+      shell: bash
+      run: |
+        for node in $(kind get nodes --name lexbox); do
+          docker exec "$node" mkdir -p /etc/containerd/certs.d/docker.io
+          docker exec -i "$node" tee /etc/containerd/certs.d/docker.io/hosts.toml <<'EOF'
+        server = "https://registry-1.docker.io"
+
+        [host."https://mirror.gcr.io"]
+          capabilities = ["pull", "resolve"]
+        EOF
+        done
     - name: Verify k8s
       shell: bash
       run: |
