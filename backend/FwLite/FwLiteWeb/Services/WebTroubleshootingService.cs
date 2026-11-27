@@ -15,26 +15,31 @@ public class WebTroubleshootingService(
     public Task<bool> GetCanShare() => Task.FromResult(false);
 
     [JSInvokable]
-    public Task<string> GetDataDirectory()
-    {
-        return Task.FromResult(crdtConfig.Value.ProjectPath);
-    }
+    public Task<string> GetDataDirectory() => Task.FromResult(crdtConfig.Value.ProjectPath);
 
     [JSInvokable]
-    public Task<bool> TryOpenDataDirectory()
+    public Task<bool> TryOpenDataDirectory() => Task.FromResult(TryOpenDirectory(crdtConfig.Value.ProjectPath));
+
+    [JSInvokable]
+    public Task<string> GetAppDirectory() => Task.FromResult(AppDirectory);
+
+    [JSInvokable]
+    public Task<bool> TryOpenAppDirectory() => Task.FromResult(TryOpenDirectory(AppDirectory));
+
+    private string AppDirectory => string.IsNullOrEmpty(webConfig.Value.LogFileName)
+        ? AppContext.BaseDirectory
+        : Path.GetDirectoryName(Path.GetFullPath(webConfig.Value.LogFileName)) ?? AppContext.BaseDirectory;
+
+    private static bool TryOpenDirectory(string path)
     {
         try
         {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = crdtConfig.Value.ProjectPath,
-                UseShellExecute = true
-            });
-            return Task.FromResult(true);
+            Process.Start(new ProcessStartInfo { FileName = path, UseShellExecute = true });
+            return true;
         }
         catch
         {
-            return Task.FromResult(false);
+            return false;
         }
     }
 

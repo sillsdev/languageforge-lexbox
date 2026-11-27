@@ -571,8 +571,12 @@ msgid "Address, e.g. 192.168.137.1"
 msgstr ""
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Advanced: settings file"
-msgstr "Tingkat Lanjut: berkas pengaturan"
+msgid "Adds more detail to the log file, including sign-in details. Turn it off when support has what they need."
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Advanced"
+msgstr ""
 
 #. Group header in morph type lists. Affixes are bound morphemes added to a stem (prefix, suffix, infix...).
 #: src/project/data/morph-type-groups.ts
@@ -1188,6 +1192,10 @@ msgstr "Percakapan"
 msgid "Copied to clipboard"
 msgstr "Disalin ke papan klip"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Copy path"
+msgstr ""
+
 #. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Copy version"
@@ -1227,8 +1235,20 @@ msgstr ""
 msgid "Couldn't load this plugin"
 msgstr ""
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Couldn't open the folder. Copy its path from this dialog instead."
+msgstr ""
+
 #: src/project/sync/wifi-sync-messages.ts
 msgid "Couldn't reach the other device. Check that you're on its Wi-Fi network, then try again."
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Couldn't rebuild search index"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Couldn't rebuild snapshots"
 msgstr ""
 
 #: src/project/sync/wifi-sync-messages.ts
@@ -1359,11 +1379,6 @@ msgstr "Dasbor"
 msgid "Dashboard failed to load"
 msgstr "Dashboard tidak berhasil dimuat"
 
-#. Field label
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Data Directory"
-msgstr "Direktori Data"
-
 #: src/project/sync/WifiSyncSection.svelte
 msgid "Decline"
 msgstr ""
@@ -1460,6 +1475,10 @@ msgstr ""
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 #: src/lib/plugins/studio/panels/DetailsPanel.svelte
 msgid "Description"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Detailed logging"
 msgstr ""
 
 #. Tab in the activity change preview: technical details of the change
@@ -1905,8 +1924,8 @@ msgid "Export files to this device"
 msgstr ""
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Failed to change verbose logging"
-msgstr "Gagal mengubah pengaturan pencatatan terperinci"
+msgid "Failed to change detailed logging"
+msgstr ""
 
 #. Error message when copy fails
 #: src/lib/components/ui/button/copy-button.svelte
@@ -1946,25 +1965,10 @@ msgstr "Gagal memuat berkas media"
 msgid "Failed to load metadata"
 msgstr "Gagal memuat metadata"
 
-#. Error message
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Failed to open data directory, use the path in the text field instead"
-msgstr "Gagal membuka direktori data, gunakan jalur di bidang teks sebagai gantinya"
-
 #. Error message with URL
 #: src/lib/services/url-opener.ts
 msgid "Failed to open URL: {0}"
 msgstr "Gagal membuka URL: {0}"
-
-#. Error toast when snapshot regeneration fails in the Troubleshoot dialog
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Failed to regenerate Harmony snapshots"
-msgstr "Gagal melakukan regenerasi snapshot Harmony"
-
-#. Error toast when search index regeneration fails in the Troubleshoot dialog
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Failed to regenerate search index"
-msgstr "Gagal memperbarui indeks pencarian"
 
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Failed to save file"
@@ -2028,7 +2032,6 @@ msgid "FieldWorks Lite users will automatically receive changes that were made i
 msgstr "Pengguna FieldWorks Lite akan secara otomatis menerima perubahan yang dibuat di FieldWorks Classic. Pengguna FieldWorks Classic akan melihat perubahan yang dibuat di FieldWorks Lite setelah mereka melakukan Kirim/Terima."
 
 #. Field label in Troubleshoot and Update dialogs. "FieldWorks Lite" is a product name — do not translate.
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/updates/UpdateDialog.svelte
 msgid "FieldWorks Lite version"
 msgstr "Versi FieldWorks Lite"
@@ -2184,6 +2187,10 @@ msgstr "Selesai"
 msgid "Folder path"
 msgstr ""
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Folders"
+msgstr ""
+
 #: src/lib/plugins/studio/panels/VersionReview.svelte
 msgid "Follow-up prompt downloaded. Attach it in the same AI chat, then paste its reply below."
 msgstr ""
@@ -2320,11 +2327,6 @@ msgstr "hijau"
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Handle content with cultural care"
 msgstr ""
-
-#. Success toast after rebuilding Harmony snapshot/projected tables from commit history
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Harmony snapshots regenerated successfully"
-msgstr "Snapshot Harmony telah dibuat ulang dengan sukses"
 
 #: src/project/sync/WifiSyncSection.svelte
 msgid "Hasn't asked to join"
@@ -2517,10 +2519,9 @@ msgstr "Pelajari lebih lanjut"
 msgid "Leave"
 msgstr ""
 
-#. Placeholder for the release channel text box. Production has no feature flags.
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Leave empty for production"
-msgstr "Biarkan kosong untuk produksi"
+msgid "Leave this empty unless support gives you a value."
+msgstr ""
 
 #: src/lib/plugins/studio/LeaveDialog.svelte
 msgid "Leave without saving?"
@@ -2660,6 +2661,10 @@ msgstr "Login untuk melihat proyek"
 #: src/lib/auth/LoginButton.svelte
 msgid "Logout"
 msgstr "Keluar"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Logs and settings"
+msgstr ""
 
 #: src/lib/entry-editor/diff-view/diff-fields.ts
 msgid "Louw-Nida codes"
@@ -3252,15 +3257,13 @@ msgstr ""
 msgid "Oldest first"
 msgstr "Yang tertua terlebih dahulu"
 
-#. Warning in regenerate-snapshots confirm dialog: operation is slow and must not be interrupted
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "On large projects this may take a long time. Do not close the app or interrupt the process."
-msgstr "Pada proyek-proyek besar, proses ini mungkin memakan waktu lama. Jangan menutup aplikasi atau mengganggu proses tersebut."
+msgid "On large projects this may take a long time. Do not close the app until it finishes."
+msgstr ""
 
-#. Warning in regenerate-search-index confirm dialog: operation may be slow
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "On large projects this may take a while. Do not close the app or interrupt the process."
-msgstr "Pada proyek-proyek besar, proses ini mungkin memakan waktu cukup lama. Jangan tutup aplikasi atau mengganggu proses tersebut."
+msgid "On large projects this may take a while. Do not close the app until it finishes."
+msgstr ""
 
 #. Explanation of sync behavior
 #: src/project/sync/FwClassicSyncView.svelte
@@ -3275,6 +3278,10 @@ msgstr ""
 msgid "Only allow it if the plugin needs to go online, for example to look up words or download pictures."
 msgstr ""
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Only change these when support asks you to."
+msgstr ""
+
 #. Small note under the list item "Add and change entries" (heading "A plugin can"). "it" is the plugin.
 #: src/lib/plugins/PluginsView.svelte
 msgid "Only if editing was turned on for it, and only with your approval"
@@ -3286,13 +3293,9 @@ msgstr ""
 
 #. Button to open downloaded project
 #: src/home/Server.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Open"
 msgstr "Buka"
-
-#. Button
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Open Data Directory"
-msgstr "Direktori Data Terbuka"
 
 #. List item under the heading "A plugin can"; it completes that sentence.
 #: src/lib/plugins/PluginsView.svelte
@@ -3320,10 +3323,9 @@ msgstr "Buka di FieldWorks"
 msgid "Open in new Window"
 msgstr "Buka di jendela baru"
 
-#. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Open Log file"
-msgstr "Buka file Log"
+msgid "Open log file"
+msgstr ""
 
 #: src/home/OpenFromFolderItem.svelte
 msgid "Opened {0} from the folder. You can remove the drive."
@@ -3414,10 +3416,6 @@ msgstr ""
 msgid "Paste or upload"
 msgstr ""
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart."
-msgstr "Tempelkan pengaturan dari bagian dukungan di sini. Menyimpan akan mengganti berkas tersebut dan langsung menerapkannya; biarkan kosong untuk menghapus berkas tersebut. Ukuran dan jumlah berkas log hanya akan berubah setelah sistem di-restart."
-
 #: src/lib/plugins/studio/panels/ChangeAiPanel.svelte
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Paste the AI's reply"
@@ -3425,6 +3423,10 @@ msgstr ""
 
 #: src/lib/plugins/studio/panels/PasteBox.svelte
 msgid "Paste the AI's reply or the plugin's HTML here"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Paste the settings support sent you. Saving replaces the whole file and applies it right away. Save it empty to go back to the defaults. Changes to log file size or count need a restart."
 msgstr ""
 
 #. Sync status
@@ -3498,7 +3500,6 @@ msgid "Pinned"
 msgstr "Disematkan"
 
 #. Field label for operating system/platform
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
 #: src/lib/updates/UpdateDialog.svelte
 msgid "Platform"
 msgstr "Platform"
@@ -3640,10 +3641,18 @@ msgstr "Proyek {0} tidak ditemukan di {1}"
 msgid "Project {0} on {1} is not yet set up for FieldWorks Lite"
 msgstr "Proyek {0} di {1} belum disiapkan untuk FieldWorks Lite"
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Projects"
+msgstr ""
+
 #. Second line under the "Your name" field. "Lexbox" is a product name — do not translate.
 #: src/home/CreateProjectDialog.svelte
 #: src/lib/author/NameDialog.svelte
 msgid "Projects that sync with Lexbox use your Lexbox account name instead."
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Projects, logs and settings"
 msgstr ""
 
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
@@ -3709,6 +3718,35 @@ msgstr ""
 
 #: src/lib/plugins/studio/panels/AboutPanel.svelte
 msgid "Reads the dictionary, never changes it"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Rebuild"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Rebuild search index"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Rebuild search index?"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Rebuild snapshots"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Rebuild snapshots?"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Rebuilding search index. This may take a while. Do not close the app."
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Rebuilding snapshots. This may take a long time. Do not close the app."
 msgstr ""
 
 #. Heading above the tiles of recently opened tasks in the Tasks list.
@@ -3794,42 +3832,6 @@ msgstr "Segarkan"
 #: src/home/Server.svelte
 msgid "Refresh Projects"
 msgstr "Menyegarkan Proyek"
-
-#. Confirm button in the regenerate-snapshots warning dialog (Troubleshoot)
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Regenerate"
-msgstr "Memperbarui"
-
-#. Troubleshoot dialog button: rebuilds Harmony snapshot/projected tables from commit history
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Regenerate Harmony snapshots"
-msgstr "Memperbarui snapshot Harmony"
-
-#. Alert dialog title before starting Harmony snapshot regeneration
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Regenerate Harmony snapshots?"
-msgstr "Mau membuat ulang snapshot Harmony?"
-
-#. Troubleshoot dialog button: rebuilds the FTS entry search index from dictionary data
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Regenerate search index"
-msgstr "Memperbarui indeks pencarian"
-
-#. Alert dialog title before starting search index regeneration
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Regenerate search index?"
-msgstr "Apakah perlu memperbarui indeks pencarian?"
-
-#. Blocking progress message while Harmony snapshots are being rebuilt
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Regenerating Harmony snapshots. This may take a long time — do not close the app."
-msgstr "Sedang memperbarui snapshot Harmony. Proses ini mungkin memakan waktu lama � jangan tutup aplikasi ini."
-
-#. Blocking progress message while the entry search index is being rebuilt
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Regenerating search index. This may take a while — do not close the app."
-msgstr "Sedang memperbarui indeks pencarian. Proses ini mungkin akan memakan waktu � jangan tutup aplikasi ini."
 
 #. Field label in Troubleshoot. Takes the names of release channels or feature flags, separated by commas or spaces. Empty means the production channel (no preview flags).
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
@@ -3926,6 +3928,10 @@ msgstr ""
 #. Activity-log line for a sense-picture change. A leading chip shows the sense (subject). Paired with "Added picture", "Removed picture", "Updated picture".
 #: src/lib/activity/ChangeSummary.svelte
 msgid "Reordered pictures"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Repair current project"
 msgstr ""
 
 #. Button to overwrite audio file
@@ -4098,10 +4104,9 @@ msgstr "Cari # atau #"
 msgid "Search Dictionaries"
 msgstr "Cari Kamus"
 
-#. Success toast after rebuilding the FTS entry search index
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Search index regenerated successfully"
-msgstr "Indeks pencarian telah dibuat ulang dengan sukses"
+msgid "Search index rebuilt"
+msgstr ""
 
 #: src/lib/plugins/PluginsView.svelte
 msgid "See all {0} examples"
@@ -4268,6 +4273,10 @@ msgid "Settings"
 msgstr "Pengaturan"
 
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Settings file"
+msgstr ""
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
 msgid "Settings saved and applied"
 msgstr "Pengaturan telah disimpan dan diterapkan"
 
@@ -4281,10 +4290,9 @@ msgstr "Shadcn Sandbox # #"
 msgid "Share ideas and vote on new features or improvements."
 msgstr "Berbagi ide dan memberikan suara untuk fitur baru atau perbaikan."
 
-#. Button
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Share Log file"
-msgstr "Bagikan file Log"
+msgid "Share log file"
+msgstr ""
 
 #: src/project/sync/WifiSyncSection.svelte
 msgid "Share on {0} ({1})"
@@ -4396,6 +4404,10 @@ msgstr "Lewati"
 msgid "Small custom apps that work with this project's dictionary — shared with the whole team."
 msgstr ""
 
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Snapshots rebuilt"
+msgstr ""
+
 #. Info popover on the sync dialog, for users whose role can't sync with FieldWorks Classic
 #: src/project/sync/FwLiteSyncView.svelte
 msgid "Some people may work on this project in FieldWorks Classic. Changes only move between FieldWorks Lite and FieldWorks Classic when someone with permission syncs them."
@@ -4469,6 +4481,10 @@ msgstr ""
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Submit"
 msgstr "Kirim"
+
+#: src/lib/troubleshoot/TroubleshootDialog.svelte
+msgid "Support files"
+msgstr ""
 
 #. Button or tab label
 #: src/project/sync/FwClassicSyncView.svelte
@@ -4849,15 +4865,13 @@ msgstr ""
 msgid "This project is now open in FieldWorks. To continue working in FieldWorks Lite, close the project in FieldWorks and click Reopen."
 msgstr "Proyek ini sekarang terbuka di FieldWorks. Untuk melanjutkan bekerja di FieldWorks Lite, tutup proyek di FieldWorks dan klik Buka Kembali."
 
-#. Warning in regenerate-snapshots confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "This rebuilds snapshot and projected tables from commit history."
-msgstr "Proses ini akan membangun ulang tabel snapshot dan tabel proyeksi berdasarkan riwayat commit."
+msgid "This rebuilds the project's stored data from its history of changes."
+msgstr ""
 
-#. Warning in regenerate-search-index confirm dialog: explains what the operation does
 #: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "This rebuilds the full-text search index from dictionary entries."
-msgstr "Proses ini membangun kembali indeks pencarian teks lengkap berdasarkan entri kamus."
+msgid "This rebuilds the search index from the dictionary entries."
+msgstr ""
 
 #: src/lib/plugins/PluginsView.svelte
 #: src/lib/plugins/studio/panels/DetailsPanel.svelte
@@ -5239,10 +5253,6 @@ msgstr ""
 msgid "Uses the internet"
 msgstr ""
 
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Verbose logging"
-msgstr "Pencatatan yang terperinci"
-
 #. Section heading in custom view writing system picker.
 #. Labels the vernacular language writing systems (the language being documented).
 #: src/lib/entry-editor/diff-view/DiffFieldRows.svelte
@@ -5423,10 +5433,6 @@ msgstr ""
 #: src/lib/plugins/studio/panels/NewPluginAiPanel.svelte
 msgid "Works on phones"
 msgstr ""
-
-#: src/lib/troubleshoot/TroubleshootDialog.svelte
-msgid "Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need."
-msgstr "Menulis catatan log yang terperinci, termasuk diagnostik proses masuk, ke berkas log. Matikan kembali fitur ini setelah tim dukungan mendapatkan informasi yang mereka butuhkan."
 
 #. Standalone singular noun used as {0} in "Reordered {0}" when naming one item, e.g. "Reordered writing system" plus a chip with its name. Paired with plural "writing systems".
 #: src/lib/activity/ChangeSummary.svelte

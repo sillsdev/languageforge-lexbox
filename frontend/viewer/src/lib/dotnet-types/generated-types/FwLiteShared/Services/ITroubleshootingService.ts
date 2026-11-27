@@ -8,6 +8,8 @@ export interface ITroubleshootingService
 	getCanShare() : Promise<boolean>;
 	tryOpenDataDirectory() : Promise<boolean>;
 	getDataDirectory() : Promise<string>;
+	getAppDirectory() : Promise<string>;
+	tryOpenAppDirectory() : Promise<boolean>;
 	openLogFile() : Promise<void>;
 	shareLogFile() : Promise<void>;
 	getCanManageSettingsFile() : Promise<boolean>;

@@ -51,6 +51,16 @@ public class MauiTroubleshootingServiceTests
     }
 
     [Fact]
+    public async Task TryOpenAppDirectory_OpensBaseDataDirNotProjectDir()
+    {
+        var result = await _service.TryOpenAppDirectory();
+
+        result.Should().BeTrue();
+        var expectedUri = "file://" + Path.GetFullPath("test_data_dir");
+        _browserMock.Verify(b => b.OpenAsync(It.Is<Uri>(u => u.OriginalString == expectedUri), It.IsAny<BrowserLaunchOptions>()), Times.Once);
+    }
+
+    [Fact]
     public async Task SetVerboseLogging_WritesSettingsFileAndReloadsConfiguration()
     {
         var dataDir = Path.Combine(Path.GetTempPath(), "fwlite-troubleshoot-tests", Guid.NewGuid().ToString("N"));

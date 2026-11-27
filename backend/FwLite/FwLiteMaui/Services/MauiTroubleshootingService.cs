@@ -28,25 +28,30 @@ public class MauiTroubleshootingService(
     public Task<bool> GetCanShare() => Task.FromResult(true);
 
     [JSInvokable]
-    public async Task<bool> TryOpenDataDirectory()
+    public Task<bool> TryOpenDataDirectory() => TryOpenDirectory(DataDirectory);
+
+    [JSInvokable]
+    public Task<string> GetDataDirectory() => Task.FromResult(DataDirectory);
+
+    [JSInvokable]
+    public Task<bool> TryOpenAppDirectory() => TryOpenDirectory(Config.BaseDataDir);
+
+    [JSInvokable]
+    public Task<string> GetAppDirectory() => Task.FromResult(Config.BaseDataDir);
+
+    private async Task<bool> TryOpenDirectory(string path)
     {
         try
         {
             //obviously intended to open a url in the browser, but on windows it just opens explorer
-            await _browser.OpenAsync("file://" + DataDirectory);
+            await _browser.OpenAsync("file://" + path);
             return true;
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Failed to open data directory");
+            logger.LogError(e, "Failed to open directory {Path}", path);
             return false;
         }
-    }
-
-    [JSInvokable]
-    public Task<string> GetDataDirectory()
-    {
-        return Task.FromResult(DataDirectory);
     }
 
     [JSInvokable]
