@@ -14,6 +14,8 @@ export type TaskProgress = {
  * counts once. Don't present the number as anything else.
  *
  * Each count scans every entry, so while a task is open only that task is counted.
+ * The open task's entry list (TaskView) runs the same count to size itself, so each save counts the task twice.
+ * We can't just reuse the list's number: DoneView shows it too, and the list isn't there on that screen.
  */
 export class TasksStats {
   totalEntries = $state<number>();
