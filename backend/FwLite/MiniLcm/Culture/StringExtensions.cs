@@ -39,16 +39,12 @@ public static class StringExtensions
 
     public static bool ContainsDiacritic(string value)
     {
-        bool hasAccent = false;
-        foreach (var ch in value.Normalize(NormalizationForm.FormD))
+        // runes, not chars, so marks outside the BMP (e.g. Adlam) count too
+        foreach (var rune in value.Normalize(NormalizationForm.FormD).EnumerateRunes())
         {
-            if (CharUnicodeInfo.GetUnicodeCategory(ch) == UnicodeCategory.NonSpacingMark)
-            {
-                hasAccent = true;
-                break;
-            }
+            if (Rune.GetUnicodeCategory(rune) == UnicodeCategory.NonSpacingMark) return true;
         }
-        return hasAccent;
+        return false;
     }
 
     public static bool Equals(this string str,

@@ -92,17 +92,8 @@ public class CustomSqliteFunctionInterceptor : IDbConnectionInterceptor, IConnec
 
     private static bool ContainsDiacritic(in ReadOnlySpan<char> value)
     {
-        bool hasAccent = false;
         //todo we could maybe get rid of this normalization step if the text is already normalized
         //that would mean we could just iterate the value here rather than creating a new string
-        foreach (var ch in new string(value).Normalize(NormalizationForm.FormD))
-        {
-            if (CharUnicodeInfo.GetUnicodeCategory(ch) == UnicodeCategory.NonSpacingMark)
-            {
-                hasAccent = true;
-                break;
-            }
-        }
-        return hasAccent;
+        return MiniLcm.Culture.StringExtensions.ContainsDiacritic(new string(value));
     }
 }

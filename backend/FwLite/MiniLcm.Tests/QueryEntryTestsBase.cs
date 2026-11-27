@@ -614,7 +614,8 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
     [InlineData("ta")]//non fts search
     public async Task MatchDiacritics_SearchRelevanceOrder(string searchTerm)
     {
-        var tán = await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "tán" } });
+        // the gloss keeps tán in the exact results, so only its headword rank changes
+        var tán = await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "tán" }, Senses = [new Sense { Gloss = { ["en"] = searchTerm } }] });
         var matan = await Api.CreateEntry(new Entry { LexemeForm = { ["en"] = "matan" } });
         Guid[] ids = [tán.Id, matan.Id];
 
@@ -624,7 +625,7 @@ public abstract class QueryEntryTestsBase : MiniLcmTestBase
 
         var exact = await Api.SearchEntries(searchTerm, new(new(SortField.SearchRelevance), MatchDiacritics: true))
             .Where(e => ids.Contains(e.Id)).Select(e => e.Id).ToArrayAsync();
-        exact.Should().Equal(matan.Id);
+        exact.Should().Equal(matan.Id, tán.Id);
     }
 
     [Theory]
