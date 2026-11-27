@@ -8,7 +8,7 @@ msgstr ""
 "Language: id\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-26 08:28\n"
+"PO-Revision-Date: 2026-11-27 09:27\n"
 "Last-Translator: \n"
 "Language-Team: Indonesian\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -713,6 +713,10 @@ msgstr "Terapkan perubahan"
 msgid "Are you sure you want to delete {0}?"
 msgstr "Apakah Anda yakin ingin menghapus {0}?"
 
+#: src/project/browse/ReadonlyChip.svelte
+msgid "Ask a project manager if you need edit access."
+msgstr "Tanyakan kepada manajer proyek jika Anda memerlukan akses untuk mengedit."
+
 #: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Ask AI"
 msgstr "Tanya AI"
@@ -761,6 +765,8 @@ msgstr "Audio disimpan dan diunggah ke Lexbox"
 msgid "Audio saved locally"
 msgstr "Audio disimpan secara lokal"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"
 msgstr "Penulis"
@@ -1001,11 +1007,14 @@ msgid "Classic FieldWorks Projects"
 msgstr "Proyek FieldWorks Klasik"
 
 #. Button to clear selection
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "clear"
 msgstr "jelas"
+
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/select.svelte
+msgid "Clear filter"
+msgstr "Hapus filter"
 
 #. Activity-log line. {0} = field label (e.g. "Gloss", "Definition"). Means the field's value was erased.
 #: src/lib/activity/ChangeSummary.svelte
@@ -1019,7 +1028,6 @@ msgid "Clitics"
 msgstr "Klitik"
 
 #. Button to close popup
-#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
@@ -1286,6 +1294,10 @@ msgstr "Dibuat {0}"
 msgid "Created {0} {1}"
 msgstr "Dibuat {0} {1}"
 
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "Ctrl+Enter or Cmd+Enter toggles the highlighted item and closes the list"
+msgstr "Ctrl+Enter atau Cmd+Enter berfungsi untuk mengaktifkan/menonaktifkan item yang disorot dan menutup daftar"
+
 #. Read aloud by screen readers on the project switcher row of the project that is open now
 #: src/project/ProjectDropdown.svelte
 msgid "Current"
@@ -1512,6 +1524,7 @@ msgstr "Jangan jalankan itu"
 
 #. Tab label
 #. Also in the Tasks list: status label on a field whose task is complete.
+#: src/lib/components/field-editors/multi-select.svelte
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TaskView.svelte
 msgid "Done"
@@ -3136,8 +3149,7 @@ msgstr "Tidak ada kata yang ditemukan"
 
 #. Selection option for optional fields
 #. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/badge-list.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "None"
@@ -3686,6 +3698,8 @@ msgstr "Baca kamus proyek ini"
 #: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
+#: src/project/browse/ReadonlyChip.svelte
+#: src/project/browse/ReadonlyChip.svelte
 msgid "Read-only"
 msgstr "Hanya Baca"
 
@@ -3766,6 +3780,7 @@ msgstr "Referensi"
 
 #. Help text in dropdown
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "Refine your filter to see more..."
 msgstr "Sempurnakan filter Anda untuk melihat lebih banyak..."
@@ -4451,8 +4466,6 @@ msgstr "Berhenti membagikan"
 
 #. Button to confirm selection
 #: src/lib/components/SubmitOrCancel.svelte
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Submit"
 msgstr "Kirim"
@@ -5110,9 +5123,8 @@ msgstr "Perubahan yang belum disimpan"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/components/field-editors/badge-list.svelte
 #: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/diff-view/DiffAnchor.svelte
@@ -5472,6 +5484,14 @@ msgstr "Sepertinya Anda sedang offline. Bisakah Anda mengakses {0}?"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "You are running the latest version."
 msgstr "Anda menjalankan versi terbaru."
+
+#: src/project/browse/ReadonlyChip.svelte
+msgid "You can read and comment on this project, but not change it."
+msgstr "Anda dapat membaca dan memberikan komentar mengenai proyek ini, tetapi tidak dapat mengubahnya."
+
+#: src/project/browse/ReadonlyChip.svelte
+msgid "You can read this project, but not change it."
+msgstr "Anda bisa membaca proyek ini, tetapi tidak boleh mengubahnya."
 
 #. Permission error
 #: src/home/Server.svelte
