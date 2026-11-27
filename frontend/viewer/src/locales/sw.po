@@ -8,7 +8,7 @@ msgstr ""
 "Language: sw\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-26 08:28\n"
+"PO-Revision-Date: 2026-11-27 09:27\n"
 "Last-Translator: \n"
 "Language-Team: Swahili\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -713,6 +713,10 @@ msgstr "Tumia mabadiliko"
 msgid "Are you sure you want to delete {0}?"
 msgstr "Je, una uhakika kuwa unataka kufuta {0}?"
 
+#: src/project/browse/ReadonlyChip.svelte
+msgid "Ask a project manager if you need edit access."
+msgstr "Muulize meneja wa mradi kama unahitaji ruhusa ya kuhariri."
+
 #: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Ask AI"
 msgstr "Uliza AI"
@@ -761,6 +765,8 @@ msgstr "Sauti ilihifadhiwa na kupakilizwa kwenye Lexbox"
 msgid "Audio saved locally"
 msgstr "Sauti ilihifadhiwa mahallini"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"
 msgstr "Mwandishi"
@@ -1001,11 +1007,14 @@ msgid "Classic FieldWorks Projects"
 msgstr "Miradi ya FieldWorks Classic"
 
 #. Button to clear selection
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "clear"
 msgstr "futa"
+
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/select.svelte
+msgid "Clear filter"
+msgstr "Safisha kichujio"
 
 #. Activity-log line. {0} = field label (e.g. "Gloss", "Definition"). Means the field's value was erased.
 #: src/lib/activity/ChangeSummary.svelte
@@ -1019,7 +1028,6 @@ msgid "Clitics"
 msgstr "Vibainishi"
 
 #. Button to close popup
-#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
@@ -1286,6 +1294,10 @@ msgstr "Imetengenezwa {0}"
 msgid "Created {0} {1}"
 msgstr "Imetengenezwa {0} {1}"
 
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "Ctrl+Enter or Cmd+Enter toggles the highlighted item and closes the list"
+msgstr "Ctrl+Enter au Cmd+Enter huwasha au kuzima kipengee kilichochaguliwa na kufunga orodha."
+
 #. Read aloud by screen readers on the project switcher row of the project that is open now
 #: src/project/ProjectDropdown.svelte
 msgid "Current"
@@ -1512,6 +1524,7 @@ msgstr "Usikiendeshe"
 
 #. Tab label
 #. Also in the Tasks list: status label on a field whose task is complete.
+#: src/lib/components/field-editors/multi-select.svelte
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TaskView.svelte
 msgid "Done"
@@ -3136,8 +3149,7 @@ msgstr "Hakuna neno liliyopatikana"
 
 #. Selection option for optional fields
 #. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/badge-list.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "None"
@@ -3686,6 +3698,8 @@ msgstr "Soma kamusi ya mradi huu"
 #: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
+#: src/project/browse/ReadonlyChip.svelte
+#: src/project/browse/ReadonlyChip.svelte
 msgid "Read-only"
 msgstr "Soma tu"
 
@@ -3766,6 +3780,7 @@ msgstr "Rejeleo"
 
 #. Help text in dropdown
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "Refine your filter to see more..."
 msgstr "Boresho kichujio chako kuona zaidi..."
@@ -4451,8 +4466,6 @@ msgstr "Acha kushiriki"
 
 #. Button to confirm selection
 #: src/lib/components/SubmitOrCancel.svelte
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Submit"
 msgstr "Wasilisha"
@@ -5110,9 +5123,8 @@ msgstr "Mabadiliko yasiyohifadhiwa"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/components/field-editors/badge-list.svelte
 #: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/diff-view/DiffAnchor.svelte
@@ -5472,6 +5484,14 @@ msgstr "Inaonekana uko nje ya mtandao. Je, unaweza kuunganisha na {0}?"
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "You are running the latest version."
 msgstr "Unatumia toleo la hivi karibuni."
+
+#: src/project/browse/ReadonlyChip.svelte
+msgid "You can read and comment on this project, but not change it."
+msgstr "Unaweza kusoma na kutoa maoni juu ya mradi huu, lakini huwezi kuubadilisha."
+
+#: src/project/browse/ReadonlyChip.svelte
+msgid "You can read this project, but not change it."
+msgstr "Unaweza kusoma mradi huu, lakini huwezi kuubadilisha."
 
 #. Permission error
 #: src/home/Server.svelte
