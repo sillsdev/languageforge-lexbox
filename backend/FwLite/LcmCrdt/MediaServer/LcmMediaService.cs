@@ -176,11 +176,20 @@ public class LcmMediaService(
                 if (stream is null) throw new FileNotFoundException(remoteId);
                 var filename = response.Content.Headers.ContentDisposition?.FileName?.Replace("\"", "");
                 filename = Path.GetFileName(filename);
-                var localPath = Path.Combine(projectResourceCachePath, filename ?? remoteId);
-                localPath = LocalMediaFiles.EnsureUnique(localPath);
-                await using var localFile = File.Create(localPath);
-                await stream.CopyToAsync(localFile);
-                return new DownloadResult(localPath);
+                var tempPath = Path.Combine(projectResourceCachePath, MediaFileNames.PartialPrefix + Guid.NewGuid().ToString("N"));
+                try
+                {
+                    await using (var tempFile = File.Create(tempPath))
+                    {
+                        await stream.CopyToAsync(tempFile);
+                    }
+                    var targetPath = Path.Combine(projectResourceCachePath, filename ?? remoteId);
+                    return new DownloadResult(LocalMediaFiles.MoveToFreePath(tempPath, targetPath));
+                }
+                finally
+                {
+                    DeleteIfExists(tempPath);
+                }
             }
 
             var statusCode = response.StatusCode;
@@ -299,7 +308,7 @@ public class LcmMediaService(
             {
                 await content.CopyToAsync(localFile);
             }
-            localPath = MoveToUniqueName(tempPath, Path.Combine(projectResourceCachePath, name));
+            localPath = LocalMediaFiles.MoveToFreePath(tempPath, Path.Combine(projectResourceCachePath, name));
             var recorded = await resourceService.AddLocalCopy(resourceId, localPath);
             if (Path.GetFullPath(recorded.LocalPath) == Path.GetFullPath(localPath)) return true;
             // another copy (e.g. a download) was recorded first and still has its file
@@ -315,23 +324,6 @@ public class LcmMediaService(
         finally
         {
             DeleteIfExists(tempPath);
-        }
-    }
-
-    // a download can take the same name between choosing it and moving there, so retry on a clash
-    private string MoveToUniqueName(string fromPath, string preferredPath)
-    {
-        for (var attempt = 1; ; attempt++)
-        {
-            var localPath = LocalMediaFiles.EnsureUnique(preferredPath);
-            try
-            {
-                File.Move(fromPath, localPath);
-                return localPath;
-            }
-            catch (IOException) when (attempt < 5 && File.Exists(localPath))
-            {
-            }
         }
     }
 
