@@ -50,7 +50,7 @@ public abstract class PictureTestsBase : MiniLcmTestBase
         return response.MediaUri!.Value;
     }
 
-    private Task<Picture> CreatePicture(string caption, BetweenPosition? position = null)
+    protected Task<Picture> CreatePicture(string caption, BetweenPosition? position = null)
     {
         return Api.CreatePicture(_entryId, _senseId, new Picture
         {
@@ -379,6 +379,8 @@ public abstract class PictureTestsBase : MiniLcmTestBase
 
         var act = () => Api.MovePicture(otherEntryId, _senseId, _pictureId, new BetweenPosition(null, null));
         await act.Should().ThrowAsync<ParentMismatchException>();
+
+        (await GetPictureIds()).Should().Equal(_pictureId);
     }
 
     [Fact]

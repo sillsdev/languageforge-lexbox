@@ -139,7 +139,6 @@ public interface IMiniLcmWriteApi
     /// <param name="position">Where the picture should be inserted in the sense's list of pictures. If null it will be appended to the end of the list.</param>
     /// <returns></returns>
     Task<Picture> CreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null);
-    Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null);
     Task<Picture> UpdatePicture(Guid entryId,
         Guid senseId,
         Guid pictureId,
@@ -166,6 +165,7 @@ public interface IMiniLcmWriteApi
     Task SubmitUpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update);
     Task SubmitCreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence, BetweenPosition? position = null);
     Task SubmitUpdateExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId, UpdateObjectInput<ExampleSentence> update);
+    Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? position = null);
     // Dependency types too (they sync before entries, outside EntrySync's try/catch). WritingSystem is omitted
     // (its update resolves the entity id, so it can't be a blind submit); MorphType is omitted (not deletable).
     Task SubmitUpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update);

@@ -120,14 +120,15 @@ public class CrdtPictureApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeW
 
     /// <summary>
     /// Pictures live inside their sense's row, so a move is a remove from one sense and a create (same id, data copied now)
-    /// on the other. Unlike an example move, an edit or delete another client made under the old sense doesn't follow the picture.
+    /// on the other. Unlike an example move, an edit or delete another client made under the old sense doesn't follow the picture,
+    /// and two concurrent moves leave it in both senses. A single change that edits both senses needs harmony#48.
     /// </summary>
     private async Task Reparent(MiniLcmRepository repo, Guid pictureId, Guid ownerSenseId, Sense? targetSense, BetweenPosition between)
     {
         var ownerSense = await repo.GetSense(ownerSenseId) ?? throw NotFoundException.ForType<Sense>(ownerSenseId);
         var picture = ownerSense.Pictures.First(p => p.Id == pictureId);
         var remove = new RemoveSensePictureChange(pictureId, ownerSenseId);
-        // the target sense is gone on this side: delete wins (and an edit change can't apply to a sense with no snapshot)
+        // the target sense is gone on this side: delete wins
         if (targetSense is null)
         {
             await harmonyChangeWriter.AddChange(remove);

@@ -67,12 +67,14 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
         await Api.DeleteSense(entry.Id, targetSense.Id);
 
         var after = Copy([entry]);
-        MovePicture(after, picture, targetSense.Id);
+        MovePicture(after, picture, targetSense.Id).Caption["en"] = new RichString("edited", "en");
         await Sync([entry], after);
 
+        (await Api.GetSense(targetSense.Id)).Should().BeNull();
         var actual = await GetEntry(entry.Id);
         SenseIds(actual).Should().Equal(sourceSense.Id);
         PictureIds(actual.Senses[0]).Should().BeEmpty();
+        (await Api.GetPicture(entry.Id, sourceSense.Id, picture.Id)).Should().BeNull();
     }
 
     [Fact]
@@ -113,6 +115,48 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
 
         var movedTarget = (await GetEntry(otherEntry.Id)).Senses.Single(s => s.Id == targetSense.Id);
         ExampleIds(movedTarget).Should().Equal(example.Id);
+    }
+
+    [Fact]
+    public async Task PictureMovedToSenseReparentedInCrdt_FollowsSense()
+    {
+        var picture = NewPicture("picture");
+        var sourceSense = NewSenseWithPictures("source", picture);
+        var targetSense = NewSense("target");
+        var entry = await CreateEntry("entry", sourceSense, targetSense);
+        var otherEntry = await CreateEntry("other");
+
+        await Api.MoveSense(otherEntry.Id, targetSense.Id, new BetweenPosition(null, null), MoveKind.Reparent);
+
+        Entry[] before = [entry, otherEntry];
+        var after = Copy(before);
+        MovePicture(after, picture, targetSense.Id);
+        await Sync(before, after);
+
+        var movedTarget = (await GetEntry(otherEntry.Id)).Senses.Single(s => s.Id == targetSense.Id);
+        PictureIds(movedTarget).Should().Equal(picture.Id);
+        PictureIds(await GetSense(entry.Id, sourceSense.Id)).Should().BeEmpty();
+    }
+
+    // Both sides moved the picture to different senses: the FwData move is applied last, so it wins.
+
+    [Fact]
+    public async Task PictureReparentedDifferentlyInCrdt_EndsUpInFwDataTarget()
+    {
+        var picture = NewPicture("picture");
+        var sourceSense = NewSenseWithPictures("source", picture);
+        var crdtTarget = NewSense("crdt-target");
+        var fwDataTarget = NewSense("fwdata-target");
+        var entry = await CreateEntry("entry", sourceSense, crdtTarget, fwDataTarget);
+        await Api.MovePicture(entry.Id, crdtTarget.Id, picture.Id, new BetweenPosition(null, null), MoveKind.Reparent);
+
+        var after = Copy([entry]);
+        MovePicture(after, picture, fwDataTarget.Id);
+        await Sync([entry], after);
+
+        var actual = await GetEntry(entry.Id);
+        PictureIds(actual.Senses.Single(s => s.Id == fwDataTarget.Id)).Should().Equal(picture.Id);
+        actual.Senses.Where(s => s.Id != fwDataTarget.Id).SelectMany(s => s.Pictures).Should().BeEmpty();
     }
 
     #endregion
@@ -286,6 +330,30 @@ public class CrdtEntryMoveSyncTests(ExtraWritingSystemsSyncFixture fixture) : En
 
         var movedSense = (await GetEntry(targetEntry.Id)).Senses.Single(s => s.Id == sense.Id);
         ExampleIds(movedSense).Should().Equal(example2.Id, example3.Id, example1.Id);
+    }
+
+    [Fact]
+    public async Task ReorderingPicturesWithinASenseReparentedInCrdt_StillApplies()
+    {
+        var picture1 = NewPicture("picture1");
+        var picture2 = NewPicture("picture2");
+        var picture3 = NewPicture("picture3");
+        var sense = NewSenseWithPictures("sense", picture1, picture2, picture3);
+        var sourceEntry = await CreateEntry("source", sense);
+        var targetEntry = await CreateEntry("target");
+        await Api.MoveSense(targetEntry.Id, sense.Id, new BetweenPosition(null, null), MoveKind.Reparent);
+
+        Entry[] before = [sourceEntry, targetEntry];
+        var after = Copy(before);
+        var sourceAfter = after[0];
+        var reordered = sourceAfter.Senses[0].Pictures[0];
+        sourceAfter.Senses[0].Pictures.RemoveAt(0);
+        sourceAfter.Senses[0].Pictures.Add(reordered);
+
+        await Sync(before, after);
+
+        var movedSense = (await GetEntry(targetEntry.Id)).Senses.Single(s => s.Id == sense.Id);
+        PictureIds(movedSense).Should().Equal(picture2.Id, picture3.Id, picture1.Id);
     }
 
     #endregion

@@ -81,7 +81,7 @@ public class SyncContext
 
     private static Descendants Of(params Sense[] senseList)
     {
-        //by using the counts to preallocate, we avoid the cost of resizing the dictionary as it grows, it requires counting all the entries first, but that is cheap compared to the cost of resizing the dictionary
+        //preallocating from the counts avoids resizing the dictionaries as they grow; counting first is cheaper than resizing
         Dictionary<Guid, Sense> senses = new(senseList.Length);
         Dictionary<Guid, ExampleSentence> examples = new(senseList.Sum(s => s.ExampleSentences.Count));
         Dictionary<Guid, Picture> pictures = new(senseList.Sum(s => s.Pictures.Count));

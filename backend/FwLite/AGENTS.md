@@ -245,7 +245,7 @@ Assume any object owned by an entry or sense can show up under a different paren
 
 Sync supports moving senses, examples and pictures. A moved translation still throws `MoveNotSupportedException` (`SyncContext.VerifyNoUnsupportedMoves`), but FLEx can't move one: `Translations` is an owning collection, so a drag-and-drop move fails, and no merge or LIFT import re-owns a translation (Chorus merge and Bulk Edit unchecked).
 
-On CRDT a picture is part of its sense's row, so a picture move is a remove plus a same-id create carrying the data as of the sync. An edit or delete another client made to the picture under its old sense doesn't follow it.
+On CRDT a picture is part of its sense's row, so a picture move is a remove plus a same-id create carrying the data as of the sync. An edit or delete another client made to the picture under its old sense doesn't follow it, and two concurrent moves leave it in both senses. Fixing that needs one change that edits both senses (harmony#48); FW Lite can't reparent a picture yet, so it can't happen today.
 
 ### Concurrency model: CRDT forgives, FwData doesn't
 

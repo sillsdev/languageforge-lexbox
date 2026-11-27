@@ -92,6 +92,33 @@ public class PictureTests : PictureTestsBase
         (await GetPictureIds()).Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task SubmitMovePicture_ReparentAlreadyApplied_Reorders()
+    {
+        var second = await CreatePicture("second");
+
+        await Api.SubmitMovePicture(_entryId, _senseId, second.Id, new BetweenPosition(null, _pictureId), MoveKind.Reparent);
+
+        (await GetPictureIds()).Should().Equal(second.Id, _pictureId);
+    }
+
+    [Fact]
+    public async Task SubmitMovePicture_ReparentFromUnexpectedSense_MovesFromCurrentOwner()
+    {
+        var currentOwnerId = Guid.NewGuid();
+        var targetSenseId = Guid.NewGuid();
+        await Api.CreateSense(_entryId, new Sense { Id = currentOwnerId, Gloss = { { "en", "current" } } });
+        await Api.CreateSense(_entryId, new Sense { Id = targetSenseId, Gloss = { { "en", "target" } } });
+        await Api.MovePicture(_entryId, currentOwnerId, _pictureId, new BetweenPosition(null, null), MoveKind.Reparent);
+
+        await Api.SubmitMovePicture(_entryId, targetSenseId, _pictureId, new BetweenPosition(null, null), MoveKind.Reparent);
+
+        var entry = await Api.GetEntry(_entryId);
+        entry.Should().NotBeNull();
+        entry.Senses.Single(s => s.Id == targetSenseId).Pictures.Select(p => p.Id).Should().Equal(_pictureId);
+        entry.Senses.Where(s => s.Id != targetSenseId).SelectMany(s => s.Pictures).Should().BeEmpty();
+    }
+
 
     [Fact]
     public async Task SubmitCreatePicture_UnderDeletedSense_DoesNothing()
