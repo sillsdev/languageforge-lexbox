@@ -3,6 +3,8 @@ import type {IMiniLcmJsInvokable, IWritingSystem} from '$lib/dotnet-types';
 import {useProjectEventBus} from '$lib/services/event-bus';
 import {useProjectContext} from '$project/project-context.svelte';
 import {useWritingSystemService, type WritingSystemService} from '$project/data';
+import {TasksService} from '$project/tasks/tasks-service';
+import type {FieldId} from '$lib/views/entity-config';
 
 export const MILESTONES = [50, 100, 250, 500, 1_000, 2_500, 5_000, 10_000, 25_000, 50_000, 100_000];
 
@@ -136,18 +138,27 @@ export class DashboardStats {
     await primary;
     if (!fresh()) return;
 
+    // The rows link to these tasks, so they must count with the same filters.
+    const tasks = [
+      ...TasksService.makeEntryTasks(vernacular),
+      ...TasksService.makeSenseTasks(analysis),
+      ...TasksService.makeExampleSentenceTasks(vernacular),
+    ];
+    function taskFilter(field: FieldId, wsId: string): string {
+      const filter = TasksService.findIn(tasks, field, wsId)?.gridifyFilter;
+      if (!filter) throw new Error(`No task counts ${field} in ${wsId}`);
+      return filter;
+    }
+
     await Promise.all([
       ...vernacularRows.flatMap(row => [
-        filledField(`LexemeForm[${row.wsId}]=`, f => this.#patchVernacularRow(row.wsId, {lexemeForm: f})),
-        filledField(`CitationForm[${row.wsId}]=`, f => this.#patchVernacularRow(row.wsId, {citationForm: f})),
-        filledField(
-          `Senses.ExampleSentences=null|Senses.ExampleSentences.Sentence[${row.wsId}]=`,
-          f => this.#patchVernacularRow(row.wsId, {exampleSentence: f}),
-        ),
+        filledField(taskFilter('lexemeForm', row.wsId), f => this.#patchVernacularRow(row.wsId, {lexemeForm: f})),
+        filledField(taskFilter('citationForm', row.wsId), f => this.#patchVernacularRow(row.wsId, {citationForm: f})),
+        filledField(taskFilter('sentence', row.wsId), f => this.#patchVernacularRow(row.wsId, {exampleSentence: f})),
       ]),
       ...analysisRows.flatMap(row => [
-        filledField(`Senses=null|Senses.Gloss[${row.wsId}]=`, f => this.#patchAnalysisRow(row.wsId, {gloss: f})),
-        filledField(`Senses=null|Senses.Definition[${row.wsId}]=`, f => this.#patchAnalysisRow(row.wsId, {definition: f})),
+        filledField(taskFilter('gloss', row.wsId), f => this.#patchAnalysisRow(row.wsId, {gloss: f})),
+        filledField(taskFilter('definition', row.wsId), f => this.#patchAnalysisRow(row.wsId, {definition: f})),
       ]),
     ]);
   }
