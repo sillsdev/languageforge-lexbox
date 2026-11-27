@@ -17,6 +17,8 @@
   import type {FieldId} from '$lib/views/entity-config';
   import {useFeatures} from '$lib/services/feature-service';
   import {onErrorEvent} from '$lib/errors/global-errors';
+  import {pt} from '$lib/views/view-text';
+  import {useViewService} from '$lib/views/view-service.svelte';
 
   const stats = useDashboardStats();
   const failed = $derived(!!stats.error);
@@ -26,6 +28,7 @@
   const writingSystemService = useWritingSystemService();
   const tasksService = useTasksService();
   const features = useFeatures();
+  const viewService = useViewService();
   // Matches the Tasks list: the editors hide audio writing systems when the feature is off.
   function canFill(wsId: string): boolean {
     return features.audio || !writingSystemService.allWritingSystems().find(ws => ws.wsId === wsId)?.isAudio;
@@ -38,12 +41,12 @@
     return formatNumber(value / 100, {style: 'percent', maximumFractionDigits: 0});
   }
 
-  function formatCompletion(field: FieldCompletion, total: number): string {
-    return `${formatNumber(field.filled)} / ${formatNumber(total)} (${formatPercent(field.percent)})`;
+  function formatCompletion(field: FieldCompletion): string {
+    return `${formatCount(field)} (${formatPercent(field.percent)})`;
   }
 
-  function formatCount(field: FieldCompletion, total: number): string {
-    return `${formatNumber(field.filled)} / ${formatNumber(total)}`;
+  function formatCount(field: FieldCompletion): string {
+    return `${formatNumber(field.filled)} / ${formatNumber(field.total)}`;
   }
 
   const fieldStatGridClass =
@@ -53,23 +56,22 @@
 {#snippet fieldStatRow(
   label: string,
   field: FieldCompletion | undefined,
-  total: number | undefined,
   wsColorClass: string,
   ws: {wsId: string, abbreviation: string},
   taskField: FieldId,
 )}
-  {@const task = field && total !== undefined && field.filled < total && canFill(ws.wsId) ? tasksService.findTask(taskField, ws.wsId) : undefined}
+  {@const task = field && field.filled < field.total && canFill(ws.wsId) ? tasksService.findTask(taskField, ws.wsId) : undefined}
   {#if task}
     <Link
       to="./tasks?taskId={encodeURIComponent(task.id)}"
       class="grid grid-cols-subgrid col-span-full items-center -mx-2 -my-1.5 px-2 py-1.5 rounded-md hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
     >
-      {@render fieldStatCells(label, field, total, wsColorClass, ws)}
+      {@render fieldStatCells(label, field, wsColorClass, ws)}
       <Icon icon="i-mdi-chevron-right" class="size-3.5 text-muted-foreground rtl:rotate-180" aria-hidden="true" />
     </Link>
   {:else}
     <div class="grid grid-cols-subgrid col-span-full items-center">
-      {@render fieldStatCells(label, field, total, wsColorClass, ws)}
+      {@render fieldStatCells(label, field, wsColorClass, ws)}
     </div>
   {/if}
 {/snippet}
@@ -77,14 +79,13 @@
 {#snippet fieldStatCells(
   label: string,
   field: FieldCompletion | undefined,
-  total: number | undefined,
   wsColorClass: string,
   ws: {abbreviation: string},
 )}
   <span class="min-w-0">{label}<span class="sr-only"> ({ws.abbreviation})</span></span>
-  {#if field && total !== undefined}
+  {#if field}
     <span class="tabular-nums text-muted-foreground text-right whitespace-nowrap"
-      >{formatCount(field, total)}</span
+      >{formatCount(field)}</span
     >
     <div class="{wsColorClass} flex size-3.5 items-center justify-center justify-self-end self-center">
       <CircularProgress value={field.percent} />
@@ -102,16 +103,27 @@
   <span class="text-muted-foreground {className}" aria-hidden="true">–</span>
 {/snippet}
 
-{#snippet summaryCard(title: string, field: FieldCompletion | undefined, total: number | undefined)}
-  <Card.Root>
+{#snippet summaryCard(title: string, field: FieldCompletion | undefined, taskField?: FieldId)}
+  {@const task = taskField && field && field.filled < field.total ? tasksService.findTask(taskField) : undefined}
+  {#if task}
+    <Link to="./tasks?taskId={encodeURIComponent(task.id)}" class="group rounded-xl focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
+      {@render summaryCardBody(title, field, 'group-hover:bg-accent')}
+    </Link>
+  {:else}
+    {@render summaryCardBody(title, field)}
+  {/if}
+{/snippet}
+
+{#snippet summaryCardBody(title: string, field: FieldCompletion | undefined, className = '')}
+  <Card.Root class="h-full {className}">
     <Card.Header>
       <Card.Title>{title}</Card.Title>
     </Card.Header>
     <Card.Content>
-      {#if field && total !== undefined}
+      {#if field}
         <p class="text-3xl font-semibold tabular-nums">{formatNumber(field.filled)}</p>
         <p class="text-sm text-muted-foreground mt-1">
-          {formatCompletion(field, total)}
+          {formatCompletion(field)}
         </p>
       {:else if failed}
         {@render noValue('text-3xl')}
@@ -191,8 +203,10 @@
       </Card.Root>
 
       <div class="grid gap-4 sm:grid-cols-2">
-        {@render summaryCard($t`Entries with senses`, dashboard.entriesWithSenses, dashboard.totalEntries)}
-        {@render summaryCard($t`Entries with examples`, dashboard.entriesWithExamples, dashboard.totalEntries)}
+        {@render summaryCard($t`Entries with senses`, dashboard.entriesWithSenses)}
+        {@render summaryCard($t`Entries with examples`, dashboard.entriesWithExamples)}
+        {@render summaryCard(pt($t`Entries with grammatical info.`, $t`Entries with a part of speech`, viewService.currentView), dashboard.entriesWithPartOfSpeech, 'partOfSpeechId')}
+        {@render summaryCard($t`Entries with semantic domains`, dashboard.entriesWithSemanticDomains, 'semanticDomains')}
       </div>
       </div>
 
@@ -217,9 +231,9 @@
                   <Card.Title class={wsColorClass}>{ws.abbreviation}</Card.Title>
                 </Card.Header>
                 <Card.Content class={fieldStatGridClass}>
-                  {@render fieldStatRow($t`Lexeme form`, ws.lexemeForm, dashboard.totalEntries, wsColorClass, ws, 'lexemeForm')}
-                  {@render fieldStatRow($t`Citation form`, ws.citationForm, dashboard.totalEntries, wsColorClass, ws, 'citationForm')}
-                  {@render fieldStatRow($t`Example sentences`, ws.exampleSentence, dashboard.totalEntries, wsColorClass, ws, 'sentence')}
+                  {@render fieldStatRow($t`Lexeme form`, ws.lexemeForm, wsColorClass, ws, 'lexemeForm')}
+                  {@render fieldStatRow($t`Citation form`, ws.citationForm, wsColorClass, ws, 'citationForm')}
+                  {@render fieldStatRow($t`Example sentences`, ws.exampleSentence, wsColorClass, ws, 'sentence')}
                 </Card.Content>
               </Card.Root>
             {/each}
@@ -248,8 +262,9 @@
                   <Card.Title class={wsColorClass}>{ws.abbreviation}</Card.Title>
                 </Card.Header>
                 <Card.Content class={fieldStatGridClass}>
-                  {@render fieldStatRow($t`Gloss`, ws.gloss, dashboard.totalEntries, wsColorClass, ws, 'gloss')}
-                  {@render fieldStatRow($t`Definition`, ws.definition, dashboard.totalEntries, wsColorClass, ws, 'definition')}
+                  {@render fieldStatRow($t`Gloss`, ws.gloss, wsColorClass, ws, 'gloss')}
+                  {@render fieldStatRow($t`Definition`, ws.definition, wsColorClass, ws, 'definition')}
+                  {@render fieldStatRow($t`Example translations`, ws.translation, wsColorClass, ws, 'translations')}
                 </Card.Content>
               </Card.Root>
             {/each}
