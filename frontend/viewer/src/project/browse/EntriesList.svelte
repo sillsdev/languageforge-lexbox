@@ -24,6 +24,7 @@
   import {useWritingSystemService} from '$project/data';
   import {pt} from '$lib/views/view-text';
   import {useFeatures} from '$lib/services/feature-service';
+  import {hasDiacritic} from '$lib/utils/diacritics';
 
   let {
     search = '',
@@ -234,7 +235,7 @@
         <div class="flex flex-col items-center justify-center h-full gap-4 px-4">
           <div class="flex flex-col items-center gap-1 text-center">
             <p class="text-muted-foreground">{pt($t`No entries found`, $t`No words found`, viewService.currentView)}</p>
-            {#if matchDiacritics && search}
+            {#if matchDiacritics && search && !hasDiacritic(search)}
               <p class="text-sm text-muted-foreground">
                 {$t`Diacritics must match exactly.`}
                 <button type="button" class="underline hover:text-foreground" onclick={() => matchDiacritics = false}>{$t`Ignore diacritics`}</button>
