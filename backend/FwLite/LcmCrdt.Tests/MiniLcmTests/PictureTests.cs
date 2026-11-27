@@ -134,4 +134,14 @@ public class PictureTests : PictureTestsBase
         entry.Should().NotBeNull();
         entry.Senses.SelectMany(s => s.Pictures).Select(p => p.Id).Should().Equal(_pictureId);
     }
+
+    [Fact]
+    public async Task SubmitCreatePicture_UnderSenseThatNeverExisted_DoesNothing()
+    {
+        var picture = new Picture { Id = Guid.NewGuid(), MediaUri = new MediaUri(Guid.NewGuid(), "test") };
+
+        await Api.SubmitCreatePicture(_entryId, Guid.NewGuid(), picture);
+
+        (await Api.GetPicture(_entryId, _senseId, picture.Id)).Should().BeNull();
+    }
 }

@@ -22,7 +22,7 @@ public class CrdtPictureApi(MiniLcmRepositoryFactory repoFactory, HarmonyChangeW
     public async Task SubmitCreatePicture(Guid entryId, Guid senseId, Picture picture, BetweenPosition? between = null)
     {
         await using var repo = await repoFactory.CreateRepoAsync();
-        // the sense is gone on this side: delete wins
+        // the picture change edits the sense, and Harmony throws for an edit to a sense that never existed here
         if (await repo.GetSense(senseId) is null) return;
         await harmonyChangeWriter.AddChange(new CreateSensePictureChange(picture, senseId, between));
     }
