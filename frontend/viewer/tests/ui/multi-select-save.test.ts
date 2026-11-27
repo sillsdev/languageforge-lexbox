@@ -3,7 +3,7 @@ import {expect, test, type Page} from '@playwright/test';
 import {DemoProjectPage} from './demo-project.page';
 import {MorphTypeKind} from '$lib/dotnet-types/generated-types/MiniLcm/Models/MorphTypeKind';
 
-// The multi-select saves its toggles once, when it closes.
+// The multi-select saves each toggle at once, while the list stays open.
 test.describe('Multi-select save', () => {
   let projectPage: DemoProjectPage;
 
@@ -66,10 +66,9 @@ test.describe('Multi-select save', () => {
     await expect.poll(() => senseDomainNames(page, entryId)).toEqual(['Animal']);
   });
 
-  test('a toggle and a change made elsewhere meanwhile both survive closing', async ({page}) => {
+  test('a toggle keeps a change made elsewhere while the list is open', async ({page}) => {
     const entryId = await createEntryWithSense(page, 'qmsmerge');
     await openDomainPicker(page, 'qmsmerge');
-    await page.getByRole('option', {name: 'Fruit'}).click();
 
     await page.evaluate(async (id) => {
       const api = window.__PLAYWRIGHT_UTILS__.demoApi;
@@ -79,9 +78,9 @@ test.describe('Multi-select save', () => {
       after.senses[0].semanticDomains = [animal];
       await api.updateEntry(before, after);
     }, entryId);
-    await expect.poll(() => senseDomainNames(page, entryId)).toEqual(['Animal']);
+    await expect(page.getByRole('option', {name: 'Animal'})).toHaveAttribute('aria-checked', 'true');
 
-    await page.keyboard.press('Escape');
+    await page.getByRole('option', {name: 'Fruit'}).click();
     await expect.poll(async () => (await senseDomainNames(page, entryId)).sort()).toEqual(['Animal', 'Fruit']);
   });
 

@@ -133,6 +133,32 @@ test('task drawer: Next again while moving to the next entry does not save the s
   expect(await page.evaluate(() => (window as unknown as DoubleSaveWindow).senseSaves)).toBe(1);
 });
 
+test('task drawer: ticking a semantic domain enables Next while the list is still open', async ({page}) => {
+  await page.goto(`${tasksUrl}?taskId=missing-semantic-domain`);
+  await page.waitForFunction(() => window.__PLAYWRIGHT_UTILS__?.demoApi);
+  await page.evaluate(async () => {
+    const api = window.__PLAYWRIGHT_UTILS__.demoApi;
+    const id = crypto.randomUUID();
+    await api.createEntry({
+      id, lexemeForm: {seh: '!!onedomain'}, citationForm: {}, note: {}, literalMeaning: {},
+      senses: [{id: crypto.randomUUID(), entryId: id, gloss: {en: 'gloss'}, definition: {}, semanticDomains: [], exampleSentences: [], pictures: []}],
+      components: [], complexForms: [], complexFormTypes: [], publishIn: [],
+    } as unknown as Parameters<typeof api.createEntry>[0], {includeComplexFormsAndComponents: true, autoAddMainPublication: false});
+  });
+
+  await page.getByRole('row', {name: /onedomain/}).click();
+  const dialog = page.getByRole('dialog');
+  const next = dialog.getByRole('button', {name: 'Next'});
+  await expect(next).toBeDisabled();
+  await dialog.locator('[data-field-id="semanticDomains"]').getByRole('combobox').click();
+  await page.getByRole('option', {name: 'Fruit'}).click();
+  await expect(page.getByRole('option', {name: 'Fruit'})).toHaveAttribute('aria-checked', 'true');
+
+  await expect(next).toBeEnabled();
+  await next.click();
+  await expect(dialog.getByRole('progressbar', {name: 'Progress'})).toHaveAttribute('aria-valuetext', /^1 of /);
+});
+
 test('read-only projects send /tasks to Browse and hide Tasks in the sidebar', async ({page}) => {
   await page.goto(tasksUrl);
   await expect(page.getByRole('heading', {name: 'All tasks'})).toBeVisible();
