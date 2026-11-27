@@ -4119,11 +4119,6 @@ msgstr ""
 msgid "Scan with a phone camera to join this device's Wi-Fi, or join it in Wi-Fi settings:"
 msgstr ""
 
-#. Section heading in the Filters popup, above search settings
-#: src/project/browse/SearchFilter.svelte
-msgid "Search"
-msgstr ""
-
 #. Search placeholder
 #: src/lib/entry-editor/EntryOrSensePicker.svelte
 msgid "Search # or #"

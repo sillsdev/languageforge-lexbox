@@ -24,6 +24,7 @@
   import Label from '$lib/components/ui/label/label.svelte';
   import type {ISemanticDomain, IPartOfSpeech, IPublication} from '$lib/dotnet-types';
   import {Switch} from '$lib/components/ui/switch';
+  import {Separator} from '$lib/components/ui/separator';
   import ResponsivePopup from '$lib/components/responsive-popup/responsive-popup.svelte';
   import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {Button, XButton} from '$lib/components/ui/button';
@@ -219,11 +220,12 @@
             aria-label={$t`Toggle filters`} />
         {/snippet}
         <div class="space-y-4">
-          <div class="flex flex-col">
-            <Label class="p-2">{$t`Search`}</Label>
+          <div class="flex flex-col gap-1 pt-1">
             <Switch bind:checked={matchDiacritics} label={$t`Match diacritics exactly`} aria-describedby="{uid}-diacritics-hint" />
-            <p id="{uid}-diacritics-hint" class="text-xs text-muted-foreground mt-1 px-1">{$t`When off, a also finds á, à and ã.`}</p>
+            <!-- ps-12 lines the hint up with the switch's label text -->
+            <p id="{uid}-diacritics-hint" class="ps-12 max-md:-mt-2 text-xs text-muted-foreground">{$t`When off, a also finds á, à and ã.`}</p>
           </div>
+          <Separator />
           <div class="flex flex-col">
             <Label id="{uid}-morph-type-label" class="p-2">{$t`Morph type`}</Label>
             <MorphTypeSelect bind:value={morphTypes} bind:triggerRef={morphTypeTrigger} labelledBy="{uid}-morph-type-label"

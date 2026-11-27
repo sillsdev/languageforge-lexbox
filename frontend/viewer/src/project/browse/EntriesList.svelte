@@ -232,13 +232,15 @@
     <div class="h-full">
       {#if entryLoader?.totalCount === 0}
         <div class="flex flex-col items-center justify-center h-full gap-4 px-4">
-          <p class="text-muted-foreground">{pt($t`No entries found`, $t`No words found`, viewService.currentView)}</p>
-          {#if matchDiacritics && search}
-            <div class="flex flex-col items-center gap-2">
-              <p class="text-sm text-muted-foreground">{$t`Diacritics must match exactly.`}</p>
-              <Button variant="outline" size="sm" onclick={() => matchDiacritics = false}>{$t`Ignore diacritics`}</Button>
-            </div>
-          {/if}
+          <div class="flex flex-col items-center gap-1 text-center">
+            <p class="text-muted-foreground">{pt($t`No entries found`, $t`No words found`, viewService.currentView)}</p>
+            {#if matchDiacritics && search}
+              <p class="text-sm text-muted-foreground">
+                {$t`Diacritics must match exactly.`}
+                <button type="button" class="underline hover:text-foreground" onclick={() => matchDiacritics = false}>{$t`Ignore diacritics`}</button>
+              </p>
+            {/if}
+          </div>
 
           {#if canCreateFromSearch}
             {@render newEntryFromSearchRow('max-w-md')}
