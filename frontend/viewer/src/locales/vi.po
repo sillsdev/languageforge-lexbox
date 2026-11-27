@@ -8,7 +8,7 @@ msgstr ""
 "Language: vi\n"
 "Project-Id-Version: language-depot\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-26 08:28\n"
+"PO-Revision-Date: 2026-11-27 09:27\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -713,6 +713,10 @@ msgstr "Áp dụng các thay đổi"
 msgid "Are you sure you want to delete {0}?"
 msgstr "Bạn có chắc chắn muốn xóa {0}?"
 
+#: src/project/browse/ReadonlyChip.svelte
+msgid "Ask a project manager if you need edit access."
+msgstr "Nếu bạn cần quyền chỉnh sửa, hãy hỏi người quản lý dự án."
+
 #: src/lib/plugins/studio/StudioSidePanel.svelte
 msgid "Ask AI"
 msgstr "Hỏi AI"
@@ -761,6 +765,8 @@ msgstr "Âm thanh đã được lưu và tải lên Lexbox"
 msgid "Audio saved locally"
 msgstr "Âm thanh đã được lưu cục bộ"
 
+#: src/home/CreateProjectDialog.svelte
+#: src/home/CreateProjectDialog.svelte
 #: src/lib/media-manager/MediaFileDetail.svelte
 msgid "Author"
 msgstr "Tác giả"
@@ -1001,11 +1007,14 @@ msgid "Classic FieldWorks Projects"
 msgstr "Dự án FieldWorks Classic"
 
 #. Button to clear selection
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "clear"
 msgstr "xóa"
+
+#: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/select.svelte
+msgid "Clear filter"
+msgstr "Xóa bộ lọc"
 
 #. Activity-log line. {0} = field label (e.g. "Gloss", "Definition"). Means the field's value was erased.
 #: src/lib/activity/ChangeSummary.svelte
@@ -1019,7 +1028,6 @@ msgid "Clitics"
 msgstr "Các từ phụ thuộc"
 
 #. Button to close popup
-#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/components/ui/button/x-button.svelte
 #: src/lib/entry-editor/EditEntryDialog.svelte
 #: src/lib/entry-editor/duplicate-check/DuplicateSummaryPill.svelte
@@ -1286,6 +1294,10 @@ msgstr "Được tạo {0}"
 msgid "Created {0} {1}"
 msgstr "Được tạo {0} {1}"
 
+#: src/lib/components/field-editors/multi-select.svelte
+msgid "Ctrl+Enter or Cmd+Enter toggles the highlighted item and closes the list"
+msgstr "Nhấn Ctrl+Enter hoặc Cmd+Enter để chuyển trạng thái của mục được đánh dấu và đóng danh sách"
+
 #. Read aloud by screen readers on the project switcher row of the project that is open now
 #: src/project/ProjectDropdown.svelte
 msgid "Current"
@@ -1512,6 +1524,7 @@ msgstr "Đừng chạy chương trình đó"
 
 #. Tab label
 #. Also in the Tasks list: status label on a field whose task is complete.
+#: src/lib/components/field-editors/multi-select.svelte
 #: src/project/tasks/TaskList.svelte
 #: src/project/tasks/TaskView.svelte
 msgid "Done"
@@ -3136,8 +3149,7 @@ msgstr "Không tìm thấy từ nào"
 
 #. Selection option for optional fields
 #. Dropdown option: No value is selected (e.g. no part of speech or semantic domains)
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
+#: src/lib/components/field-editors/badge-list.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "None"
@@ -3686,6 +3698,8 @@ msgstr "Đọc từ điển của dự án này"
 #: src/lib/plugins/PluginsView.svelte
 #: src/project/ProjectDropdown.svelte
 #: src/project/ProjectDropdown.svelte
+#: src/project/browse/ReadonlyChip.svelte
+#: src/project/browse/ReadonlyChip.svelte
 msgid "Read-only"
 msgstr "Chỉ đọc"
 
@@ -3766,6 +3780,7 @@ msgstr "Tham chiếu"
 
 #. Help text in dropdown
 #: src/lib/components/field-editors/multi-select.svelte
+#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 msgid "Refine your filter to see more..."
 msgstr "Tinh chỉnh bộ lọc để xem thêm..."
@@ -4451,8 +4466,6 @@ msgstr "Ngừng chia sẻ"
 
 #. Button to confirm selection
 #: src/lib/components/SubmitOrCancel.svelte
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/multi-select.svelte
 #: src/lib/entry-editor/field-editors/EditPictureDialog.svelte
 msgid "Submit"
 msgstr "Gửi"
@@ -5110,9 +5123,8 @@ msgstr "Các thay đổi chưa được lưu"
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ActivityItemChangePreview.svelte
 #: src/lib/activity/ChangeSummary.svelte
+#: src/lib/components/field-editors/badge-list.svelte
 #: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/multi-select.svelte
-#: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/components/field-editors/select.svelte
 #: src/lib/entry-editor/diff-view/DiffAnchor.svelte
@@ -5472,6 +5484,14 @@ msgstr "Có vẻ như bạn đang ở chế độ ngoại tuyến. Bạn có th�
 #: src/lib/updates/UpdateDialogContent.svelte
 msgid "You are running the latest version."
 msgstr "Bạn đang sử dụng phiên bản mới nhất."
+
+#: src/project/browse/ReadonlyChip.svelte
+msgid "You can read and comment on this project, but not change it."
+msgstr "Bạn có thể đọc và bình luận về dự án này, nhưng không thể chỉnh sửa nó."
+
+#: src/project/browse/ReadonlyChip.svelte
+msgid "You can read this project, but not change it."
+msgstr "Bạn có thể xem dự án này, nhưng không được thay đổi nó."
 
 #. Permission error
 #: src/home/Server.svelte
