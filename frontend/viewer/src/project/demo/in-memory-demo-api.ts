@@ -502,19 +502,19 @@ export class InMemoryDemoApi implements IMiniLcmJsInvokable {
   private filterEntries(entries: IEntry[], query: string, matchDiacritics = false): IEntry[] {
     // mirrors the backend: diacritics are ignored unless asked for or the query contains them
     const ignoreDiacritics = !matchDiacritics && !hasDiacritic(query);
-    const fold = (value: string) => {
+    function fold(value: string) {
       const lower = value.normalize('NFD').toLowerCase();
       return ignoreDiacritics ? lower.replace(/\p{Mn}/gu, '') : lower;
-    };
+    }
     const foldedQuery = fold(query);
     // "cafe" must not match the start of "café": a match can't end just before a combining mark
-    const matches = (value: string) => {
+    function matches(value: string) {
       const folded = fold(value);
       for (let i = folded.indexOf(foldedQuery); i >= 0; i = folded.indexOf(foldedQuery, i + 1)) {
         if (!/\p{Mn}/u.test(folded.charAt(i + foldedQuery.length))) return true;
       }
       return false;
-    };
+    }
     return entries.filter(entry =>
       [
         ...this.#writingSystemService.vernacular.map(ws => this.#writingSystemService.headword(entry, ws.wsId)),

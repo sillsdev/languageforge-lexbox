@@ -11,7 +11,9 @@ test('Match diacritics exactly narrows the search and the empty state can undo i
   await projectPage.api.createEntryWithHeadword('zúzú');
 
   const {entryRows, searchInput} = projectPage.entriesList;
-  const row = (headword: string) => entryRows.filter({hasText: headword});
+  function row(headword: string) {
+    return entryRows.filter({hasText: headword});
+  }
   const matchSwitch = page.getByRole('switch', {name: 'Match diacritics exactly'});
   const hint = page.getByText('Diacritics must match exactly.');
 
