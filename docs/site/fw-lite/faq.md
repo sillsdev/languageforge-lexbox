@@ -84,7 +84,7 @@ device you were using and what you were doing at the time helps a lot.
 
 Include a screenshot or the exact text of any error. If support asks for your log file,
 open **Troubleshoot** (in **Help & More** inside a project, or the ⋮ menu on the home
-screen) and choose **Share Log file**, or **Open Log file** and attach it to your email.
+screen) and choose **Share log file**, or **Open log file** and attach it to your email.
 
 ## Is FieldWorks Lite finished?
 

@@ -6,24 +6,25 @@ Applies to the desktop and mobile app (`backend/FwLite/FwLiteMaui`). FW Lite Web
 ## Where the files are
 
 Logs and the settings file live in the app data directory. Open the app, open **Troubleshoot** (home page menu,
-or a project's sidebar) and use **Open Log file** / **Share Log file**. **Open Data Directory** opens the project
-folder, which on an installed Windows app is not the app data directory (see the end of this page).
+or a project's sidebar) and use **Open log file** / **Share log file**. Under **Folders**, **Logs and settings**
+opens the app data directory and **Projects** opens the project folder; on an installed Windows app these differ (see
+the end of this page), elsewhere they are one row.
 
 | Platform | Data directory |
 |----------|----------------|
 | Windows (Store / MSIX) | `%LOCALAPPDATA%\Packages\<package id>\LocalState` |
 | Windows (portable) | the folder the exe runs from |
 | macOS | the app's sandboxed `Library/Application Support` folder |
-| Android / iOS | app-private storage; use **Share Log file** instead of browsing |
+| Android / iOS | app-private storage; use **Share log file** instead of browsing |
 
 Files of interest:
 
 - `app.log` (and `app1.log`, the previous roll) - the application log
 - `fw-lite-settings.json` - optional settings file, see below
 
-## Turning on verbose logging
+## Turning on detailed logging
 
-Ask the user to open **Troubleshoot** and switch on **Verbose logging**. It takes effect immediately, no restart.
+Ask the user to open **Troubleshoot** and switch on **Detailed logging**. It takes effect immediately, no restart.
 It raises everything to `Debug`, including the sign-in (MSAL) logs that are hidden by default. Once the log has
 been shared, switch it off again: verbose logs are large and the log rolls at 50 MB.
 
@@ -42,7 +43,7 @@ Behind the switch the app writes `fw-lite-settings.json` in the data directory:
 
 ## The settings file
 
-Support can send the user a snippet to paste into **Troubleshoot > Advanced: settings file**; **Save and apply**
+Support can send the user a snippet to paste into **Troubleshoot > Advanced > Settings file**; **Save and apply**
 replaces the file and applies it without a restart (on every platform). The file can also be edited by hand
 (comments and trailing commas are allowed); on Windows and macOS hand edits are picked up while the app runs, on
 Android and iOS restart the app.
@@ -83,7 +84,7 @@ in the default (or env-var) directory before it is read, so a `BaseDataDir` insi
 
 On an installed Windows app (MSIX, not the portable zip) projects are not in the data directory: they are in
 `C:\ProgramData\SIL\FieldWorks Lite\<profile folder name>\projects\` (the user's folder name under `C:\Users`), so they survive uninstalling the app. Each project has its own folder there, holding its database and its media (`resources\`). The
-**Data Directory** field in the Troubleshoot dialog shows `C:\ProgramData\SIL\FieldWorks Lite\<profile folder name>`
+**Projects** folder in the Troubleshoot dialog shows `C:\ProgramData\SIL\FieldWorks Lite\<profile folder name>`
 (or the app data directory if moving the projects failed); logs and the settings file stay in the app data directory.
 If it shows the app data directory, the projects are still there and uninstalling deletes them: sync them to
 Lexbox first, and check `app.log` for why the move failed.

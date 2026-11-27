@@ -4,7 +4,6 @@
   import {AppNotification} from '$lib/notifications/notifications';
   import {t} from 'svelte-i18n-lingui';
   import {QueryParamStateBool} from '$lib/utils/url.svelte';
-  import InputShell from '$lib/components/ui/input/input-shell.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
   import {Input} from '$lib/components/ui/input';
   import {Switch} from '$lib/components/ui/switch';
@@ -16,6 +15,7 @@
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import Loading from '$lib/components/Loading.svelte';
   import {resource} from 'runed';
+  import {IsMobile} from '$lib/hooks/is-mobile.svelte';
   import {FwLitePlatform} from '$lib/dotnet-types/generated-types/FwLiteShared/FwLitePlatform';
 
   const openQueryParam = new QueryParamStateBool({
@@ -43,11 +43,16 @@
   let verboseLogging = resource(() => settingsService, async (s) => await s?.getVerboseLogging());
   const regenerating = $derived(regeneratingOperation !== null);
   // Mobile platforms keep app data in private storage that no file manager can open.
-  const canOpenDataDirectory = $derived(config.os !== FwLitePlatform.Android && config.os !== FwLitePlatform.iOS);
+  const canOpenFolders = $derived(config.os !== FwLitePlatform.Android && config.os !== FwLitePlatform.iOS);
+  // in the phone drawer, one full-width button per row instead of a ragged wrap
+  const actionRow = $derived(IsMobile.value ? 'flex flex-col gap-2' : 'flex flex-wrap gap-2');
+  const actionButton = $derived(IsMobile.value ? 'justify-start' : '');
+  let dataDirectory = resource(() => service, async (s) => await s?.getDataDirectory());
+  let appDirectory = resource(() => service, async (s) => await s?.getAppDirectory());
 
-  async function tryOpenDataDirectory() {
-    if (!await service?.tryOpenDataDirectory()) {
-      AppNotification.display($t`Failed to open data directory, use the path in the text field instead`, 'error');
+  async function openFolder(tryOpen: () => Promise<boolean>) {
+    if (!await tryOpen()) {
+      AppNotification.display($t`Couldn't open the folder. Copy its path from this dialog instead.`, 'error');
     }
   }
 
@@ -57,29 +62,36 @@
       await service.setVerboseLogging(enabled);
     } catch (e) {
       // a hand-edited settings file with broken JSON is an expected, actionable failure
-      AppNotification.display(e instanceof Error ? e.message : $t`Failed to change verbose logging`, 'error');
+      AppNotification.display(e instanceof Error ? e.message : $t`Failed to change detailed logging`, 'error');
     }
     // also puts the switch back in sync when the change failed
     await verboseLogging.refetch();
     await settingsFile.refetch();
   }
 
-  // Advanced: support can paste a config fix straight into the settings file
   let advancedOpen = $state(false);
   let settingsFile = resource(() => settingsService, async (s) => await s?.getSettingsFile());
   let settingsDraft = $state('');
+  let settingsError = $state<string>();
   $effect(() => {
     if (settingsFile.current !== undefined) settingsDraft = settingsFile.current;
   });
   const settingsDirty = $derived(settingsDraft !== (settingsFile.current ?? ''));
+
+  function discardSettings() {
+    settingsDraft = settingsFile.current ?? '';
+    settingsError = undefined;
+  }
 
   async function saveSettingsFile() {
     if (!service) return;
     try {
       await service.setSettingsFile(settingsDraft);
     } catch (e) {
-      // invalid JSON is an expected, actionable failure
-      AppNotification.display(e instanceof Error ? e.message : $t`Failed to save settings`, 'error');
+      // WriteSettingsFile's validation message: expected and fixable, so keep it next to the text
+      const invalid = e instanceof Error ? /Settings are not valid.*?(?= \(Parameter '\w+'\)|$)/m.exec(e.message)?.[0] : undefined;
+      if (!invalid) throw e;
+      settingsError = invalid;
       return;
     }
     await settingsFile.refetch();
@@ -99,9 +111,9 @@
     regeneratingOperation = 'snapshots';
     try {
       await service.regenerateHarmonySnapshots(projectCode);
-      AppNotification.display($t`Harmony snapshots regenerated successfully`, 'success');
+      AppNotification.display($t`Snapshots rebuilt`, 'success');
     } catch (e) {
-      const message = e instanceof Error ? e.message : $t`Failed to regenerate Harmony snapshots`;
+      const message = e instanceof Error ? e.message : $t`Couldn't rebuild snapshots`;
       AppNotification.display(message, 'error');
     } finally {
       regeneratingOperation = null;
@@ -114,9 +126,9 @@
     regeneratingOperation = 'search';
     try {
       await service.regenerateEntrySearchTable(projectCode);
-      AppNotification.display($t`Search index regenerated successfully`, 'success');
+      AppNotification.display($t`Search index rebuilt`, 'success');
     } catch (e) {
-      const message = e instanceof Error ? e.message : $t`Failed to regenerate search index`;
+      const message = e instanceof Error ? e.message : $t`Couldn't rebuild search index`;
       AppNotification.display(message, 'error');
     } finally {
       regeneratingOperation = null;
@@ -129,151 +141,173 @@
   title={$t`Troubleshoot`}
   disableBackHandler
   contentProps={{
+    class: 'sm:max-w-[min(calc(100%-32px),50rem)]',
     hideClose: regenerating,
     interactOutsideBehavior: regenerating ? 'ignore' : 'close',
     escapeKeydownBehavior: regenerating ? 'ignore' : 'close'
   }}>
-  <div class="flex flex-col gap-4 items-start">
-    {#if regenerating}
-      <div class="w-full flex flex-col items-center justify-center gap-3 py-8 text-center">
-        <Loading class="size-10" />
-        {#if regeneratingOperation === 'snapshots'}
-          <p>{$t`Regenerating Harmony snapshots. This may take a long time — do not close the app.`}</p>
-        {:else}
-          <p>{$t`Regenerating search index. This may take a while — do not close the app.`}</p>
-        {/if}
-      </div>
-    {:else}
-      <div>
-        <p class="flex items-baseline gap-1">
-          {$t`FieldWorks Lite version`}:
-          <span class="font-semibold border-b">
-            {config.appVersion}
-          </span>
-          <CopyButton
-            variant="ghost"
-            size="icon-xs"
-            iconProps={{class: 'size-4'}}
-            title={$t`Copy version`}
-            text={`FieldWorks Lite ${config.appVersion} on ${config.os}`}
-          />
-        </p>
-        <p class="flex items-baseline gap-1">
-          {$t`Platform`}:
-          <span class="font-semibold">{config.os}</span>
-        </p>
-      </div>
-      <div class="w-full flex flex-col gap-1.5">
-        <Label for="release-channel">{$t`Release channel or feature flags`}</Label>
-        <Input
-          id="release-channel"
-          bind:value={featureFlags.channel}
-          placeholder={$t`Leave empty for production`}
+  {#if regenerating}
+    <div class="flex flex-col items-center justify-center gap-3 py-8 text-center">
+      <Loading class="size-10" />
+      {#if regeneratingOperation === 'snapshots'}
+        <p>{$t`Rebuilding snapshots. This may take a long time. Do not close the app.`}</p>
+      {:else}
+        <p>{$t`Rebuilding search index. This may take a while. Do not close the app.`}</p>
+      {/if}
+    </div>
+  {:else}
+    <div class="flex flex-col gap-6">
+      <p class="flex items-center gap-1 text-sm text-muted-foreground">
+        <span>FieldWorks Lite <span class="font-medium text-foreground">{config.appVersion}</span> · {config.os}</span>
+        <CopyButton
+          variant="ghost"
+          size="icon-xs"
+          iconProps={{class: 'size-4'}}
+          title={$t`Copy version`}
+          text={`FieldWorks Lite ${config.appVersion} on ${config.os}`}
         />
-      </div>
-      {#if service && (canOpenDataDirectory || featureFlags.isDev)}
-        <div class="w-full flex flex-col gap-1.5">
-          <Label>{$t`Data Directory`}</Label>
-          <InputShell class="ps-2 pe-1">
-            {#await service?.getDataDirectory() then value}
-              {value}
-            {/await}
-            {#if canOpenDataDirectory}
-              <Button variant="ghost" icon="i-mdi-folder-search" size="icon-xs" title={$t`Open Data Directory`}
-                      onclick={() => tryOpenDataDirectory()}/>
-            {/if}
-          </InputShell>
-        </div>
-      {/if}
-      {#if projectCode}
-        <div class="flex flex-wrap gap-2">
-          {#if canShare.current}
-            <Button variant="outline" onclick={() => shareProject()}>
-              <i class="i-mdi-file-export"></i>
-              {$t`Share project data file`}
-            </Button>
-          {/if}
-          <Button variant="outline" onclick={() => regenerateConfirmOpen = true}>
-            <i class="i-mdi-database-refresh"></i>
-            {$t`Regenerate Harmony snapshots`}
-          </Button>
-          <Button variant="outline" onclick={() => regenerateSearchConfirmOpen = true}>
-            <i class="i-mdi-magnify-scan"></i>
-            {$t`Regenerate search index`}
-          </Button>
-        </div>
-      {/if}
-      {#if settingsService && verboseLogging.current !== undefined}
-        <div class="w-full flex flex-col gap-1.5">
-          <Switch label={$t`Verbose logging`}
-                  checked={verboseLogging.current}
-                  onCheckedChange={(enabled) => void setVerboseLogging(enabled)} />
-          <p class="text-sm text-muted-foreground">
-            {$t`Writes detailed logs, including sign-in diagnostics, to the log file. Turn it off again once support has what they need.`}
-          </p>
-        </div>
-      {/if}
-      {#if settingsService}
-        <Collapsible.Root bind:open={advancedOpen} class="w-full">
-          <Collapsible.Trigger
-            class="flex cursor-pointer items-center gap-1 text-sm text-muted-foreground [&[data-state=open]>.i-mdi-chevron-down]:rotate-180">
-            <i class="i-mdi-chevron-down size-4 transition-transform"></i>
-            {$t`Advanced: settings file`}
-          </Collapsible.Trigger>
-          <Collapsible.Content class="flex flex-col gap-2 pt-2">
-            <p class="text-sm text-muted-foreground">
-              {$t`Paste settings from support here. Saving replaces the file and applies it immediately; leave it empty to remove the file. Log file size and count only change after a restart.`}
-            </p>
-            <Textarea bind:value={settingsDraft} rows={8} spellcheck={false} class="font-mono text-xs" placeholder={'{\n  "Logging": { "LogLevel": { "LcmCrdt": "Debug" } }\n}'} />
-            <div class="flex gap-2">
-              <Button variant="outline" size="sm" disabled={!settingsDirty} onclick={() => saveSettingsFile()}>
-                <i class="i-mdi-content-save"></i>
-                {$t`Save and apply`}
-              </Button>
-              <Button variant="ghost" size="sm" disabled={!settingsDirty} onclick={() => settingsDraft = settingsFile.current ?? ''}>
-                {$t`Discard`}
-              </Button>
-            </div>
-          </Collapsible.Content>
-        </Collapsible.Root>
-      {/if}
+      </p>
+
       {#if service}
-        <div class="flex gap-2">
-          <Button variant="outline" onclick={() => service?.openLogFile()}>
-            <i class="i-mdi-file-eye"></i>
-            {$t`Open Log file`}
-          </Button>
-          {#if canShare.current}
-            <Button variant="outline" onclick={() => service?.shareLogFile()}>
-              <i class="i-mdi-file-export"></i>
-              {$t`Share Log file`}
+        <section class="flex flex-col gap-3">
+          <h3 class="font-medium">{$t`Support files`}</h3>
+          <div class={actionRow}>
+            {#if canShare.current}
+              <Button variant="outline" icon="i-mdi-file-export" class={actionButton} onclick={() => service.shareLogFile()}>
+                {$t`Share log file`}
+              </Button>
+            {/if}
+            <Button variant="outline" icon="i-mdi-file-eye" class={actionButton} onclick={() => service.openLogFile()}>
+              {$t`Open log file`}
             </Button>
+            {#if canShare.current && projectCode}
+              <Button variant="outline" icon="i-mdi-file-export" class={actionButton} onclick={() => shareProject()}>
+                {$t`Share project data file`}
+              </Button>
+            {/if}
+          </div>
+          {#if settingsService && verboseLogging.current !== undefined}
+            <div class="flex flex-col gap-1.5">
+              <Switch label={$t`Detailed logging`}
+                      checked={verboseLogging.current}
+                      onCheckedChange={(enabled) => void setVerboseLogging(enabled)} />
+              <p class="text-sm text-muted-foreground">
+                {$t`Adds more detail to the log file, including sign-in details. Turn it off when support has what they need.`}
+              </p>
+            </div>
           {/if}
-        </div>
+        </section>
       {/if}
-    {/if}
-  </div>
+
+      {#if service && (canOpenFolders || featureFlags.isDev)}
+        <section class="flex flex-col gap-3">
+          <h3 class="font-medium">{$t`Folders`}</h3>
+          {#if !appDirectory.current}
+            {@render folder('folder-projects', $t`Projects`, dataDirectory.current, () => service.tryOpenDataDirectory())}
+          {:else if dataDirectory.current === appDirectory.current}
+            {@render folder('folder-all', $t`Projects, logs and settings`, dataDirectory.current, () => service.tryOpenDataDirectory())}
+          {:else}
+            {@render folder('folder-projects', $t`Projects`, dataDirectory.current, () => service.tryOpenDataDirectory())}
+            {@render folder('folder-app', $t`Logs and settings`, appDirectory.current, () => service.tryOpenAppDirectory())}
+          {/if}
+        </section>
+      {/if}
+
+      <Collapsible.Root bind:open={advancedOpen} class="border-t pt-4">
+        <Collapsible.Trigger
+          class="flex w-full cursor-pointer items-center gap-1 py-2 font-medium [&[data-state=open]>.i-mdi-chevron-down]:rotate-180">
+          <i class="i-mdi-chevron-down size-5 transition-transform motion-reduce:transition-none"></i>
+          {$t`Advanced`}
+        </Collapsible.Trigger>
+        <Collapsible.Content class="flex flex-col gap-6 pt-3">
+          <p class="text-sm text-muted-foreground">{$t`Only change these when support asks you to.`}</p>
+          {#if projectCode}
+            <div class="flex flex-col gap-1.5">
+              <div class="text-sm font-medium">{$t`Repair current project`}</div>
+              <div class={actionRow}>
+                <Button variant="outline" icon="i-mdi-magnify-scan" class={actionButton} onclick={() => regenerateSearchConfirmOpen = true}>
+                  {$t`Rebuild search index`}
+                </Button>
+                <Button variant="outline" icon="i-mdi-database-refresh" class={actionButton} onclick={() => regenerateConfirmOpen = true}>
+                  {$t`Rebuild snapshots`}
+                </Button>
+              </div>
+            </div>
+          {/if}
+          <div class="flex flex-col gap-1.5">
+            <Label for="release-channel">{$t`Release channel or feature flags`}</Label>
+            <p id="release-channel-help" class="text-sm text-muted-foreground">
+              {$t`Leave this empty unless support gives you a value.`}
+            </p>
+            <Input id="release-channel" aria-describedby="release-channel-help" bind:value={featureFlags.channel} />
+          </div>
+          {#if settingsService}
+            <div class="flex flex-col gap-1.5">
+              <Label for="settings-file">{$t`Settings file`}</Label>
+              <p id="settings-file-help" class="text-sm text-muted-foreground">
+                {$t`Paste the settings support sent you. Saving replaces the whole file and applies it right away. Save it empty to go back to the defaults. Changes to log file size or count need a restart.`}
+              </p>
+              <Textarea id="settings-file" bind:value={settingsDraft} oninput={() => settingsError = undefined}
+                        aria-describedby="settings-file-help" aria-invalid={settingsError ? true : undefined}
+                        rows={8} spellcheck={false} class="field-sizing-fixed font-mono text-xs" />
+              {#if settingsError}
+                <p role="alert" class="text-sm text-destructive">{settingsError}</p>
+              {/if}
+              <div class="flex gap-2">
+                <Button size="sm" icon="i-mdi-content-save" disabled={!settingsDirty} onclick={() => saveSettingsFile()}>
+                  {$t`Save and apply`}
+                </Button>
+                <Button variant="ghost" size="sm" disabled={!settingsDirty} onclick={discardSettings}>
+                  {$t`Discard`}
+                </Button>
+              </div>
+            </div>
+          {/if}
+        </Collapsible.Content>
+      </Collapsible.Root>
+    </div>
+  {/if}
 </ResponsiveDialog>
+
+{#snippet folder(id: string, label: string, path: string | undefined, tryOpen: () => Promise<boolean>)}
+  <div class="flex items-start justify-between gap-3">
+    <div class="min-w-0">
+      <div {id} class="text-sm font-medium">{label}</div>
+      <!-- wrap only after a separator, so folder names stay whole -->
+      <div class="text-sm text-muted-foreground break-words">
+        {#each path?.split(/(?<=[\\/])/) ?? [] as part, i (i)}<wbr />{part}{/each}
+      </div>
+    </div>
+    <div class="flex shrink-0 gap-1">
+      <CopyButton variant="ghost" size="icon-sm" iconProps={{class: 'size-4'}} title={$t`Copy path`} aria-describedby={id} text={path ?? ''} />
+      {#if canOpenFolders}
+        <Button variant="outline" size="sm" icon="i-mdi-folder-open-outline" aria-describedby={id} onclick={() => openFolder(tryOpen)}>
+          {$t`Open`}
+        </Button>
+      {/if}
+    </div>
+  </div>
+{/snippet}
 
 {#if regenerateConfirmOpen}
   <AlertDialog.Root bind:open={regenerateConfirmOpen}>
     <AlertDialog.Content>
       <AlertDialog.Header>
-        <AlertDialog.Title>{$t`Regenerate Harmony snapshots?`}</AlertDialog.Title>
+        <AlertDialog.Title>{$t`Rebuild snapshots?`}</AlertDialog.Title>
       </AlertDialog.Header>
       <AlertDialog.Description>
         <div class="space-y-2">
           <p>
-            {$t`This rebuilds snapshot and projected tables from commit history.`}
+            {$t`This rebuilds the project's stored data from its history of changes.`}
           </p>
           <p>
-            {$t`On large projects this may take a long time. Do not close the app or interrupt the process.`}
+            {$t`On large projects this may take a long time. Do not close the app until it finishes.`}
           </p>
         </div>
       </AlertDialog.Description>
       <AlertDialog.Footer>
         <AlertDialog.Cancel>{$t`Cancel`}</AlertDialog.Cancel>
-        <AlertDialog.Action onclick={() => confirmRegenerate()}>{$t`Regenerate`}</AlertDialog.Action>
+        <AlertDialog.Action onclick={() => confirmRegenerate()}>{$t`Rebuild`}</AlertDialog.Action>
       </AlertDialog.Footer>
     </AlertDialog.Content>
   </AlertDialog.Root>
@@ -283,21 +317,21 @@
   <AlertDialog.Root bind:open={regenerateSearchConfirmOpen}>
     <AlertDialog.Content>
       <AlertDialog.Header>
-        <AlertDialog.Title>{$t`Regenerate search index?`}</AlertDialog.Title>
+        <AlertDialog.Title>{$t`Rebuild search index?`}</AlertDialog.Title>
       </AlertDialog.Header>
       <AlertDialog.Description>
         <div class="space-y-2">
           <p>
-            {$t`This rebuilds the full-text search index from dictionary entries.`}
+            {$t`This rebuilds the search index from the dictionary entries.`}
           </p>
           <p>
-            {$t`On large projects this may take a while. Do not close the app or interrupt the process.`}
+            {$t`On large projects this may take a while. Do not close the app until it finishes.`}
           </p>
         </div>
       </AlertDialog.Description>
       <AlertDialog.Footer>
         <AlertDialog.Cancel>{$t`Cancel`}</AlertDialog.Cancel>
-        <AlertDialog.Action onclick={() => confirmRegenerateSearch()}>{$t`Regenerate`}</AlertDialog.Action>
+        <AlertDialog.Action onclick={() => confirmRegenerateSearch()}>{$t`Rebuild`}</AlertDialog.Action>
       </AlertDialog.Footer>
     </AlertDialog.Content>
   </AlertDialog.Root>

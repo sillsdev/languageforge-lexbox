@@ -19,6 +19,7 @@ public class MauiTroubleshootingServiceTests
     {
         _launcherMock = new Mock<ILauncher>();
         _browserMock = new Mock<IBrowser>();
+        _browserMock.Setup(b => b.OpenAsync(It.IsAny<Uri>(), It.IsAny<BrowserLaunchOptions>())).ReturnsAsync(true);
         _shareMock = new Mock<IShare>();
         _configMock = new Mock<IOptions<FwLiteMauiConfig>>();
 
@@ -47,6 +48,16 @@ public class MauiTroubleshootingServiceTests
 
         result.Should().BeTrue();
         var expectedUri = "file://test_project_dir";
+        _browserMock.Verify(b => b.OpenAsync(It.Is<Uri>(u => u.OriginalString == expectedUri), It.IsAny<BrowserLaunchOptions>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task TryOpenAppDirectory_OpensBaseDataDirNotProjectDir()
+    {
+        var result = await _service.TryOpenAppDirectory();
+
+        result.Should().BeTrue();
+        var expectedUri = "file://" + Path.GetFullPath("test_data_dir");
         _browserMock.Verify(b => b.OpenAsync(It.Is<Uri>(u => u.OriginalString == expectedUri), It.IsAny<BrowserLaunchOptions>()), Times.Once);
     }
 
