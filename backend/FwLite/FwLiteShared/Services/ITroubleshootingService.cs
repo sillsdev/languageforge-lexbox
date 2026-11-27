@@ -5,8 +5,8 @@ public interface ITroubleshootingService
     Task<bool> GetCanShare();
     Task<bool> TryOpenDataDirectory();
     Task<string> GetDataDirectory();
-    /// <summary>where logs and the settings file live, which can differ from the data directory (e.g. Windows MSIX)</summary>
-    Task<string> GetAppDirectory();
+    /// <summary>where logs and the settings file live, which can differ from the data directory (e.g. Windows MSIX); null when the host writes neither</summary>
+    Task<string?> GetAppDirectory();
     Task<bool> TryOpenAppDirectory();
     Task OpenLogFile();
     Task ShareLogFile();

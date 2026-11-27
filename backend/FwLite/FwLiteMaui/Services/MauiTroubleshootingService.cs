@@ -37,7 +37,7 @@ public class MauiTroubleshootingService(
     public Task<bool> TryOpenAppDirectory() => TryOpenDirectory(Config.BaseDataDir);
 
     [JSInvokable]
-    public Task<string> GetAppDirectory() => Task.FromResult(Config.BaseDataDir);
+    public Task<string?> GetAppDirectory() => Task.FromResult<string?>(Config.BaseDataDir);
 
     private async Task<bool> TryOpenDirectory(string path)
     {

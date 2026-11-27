@@ -21,14 +21,15 @@ public class WebTroubleshootingService(
     public Task<bool> TryOpenDataDirectory() => Task.FromResult(TryOpenDirectory(crdtConfig.Value.ProjectPath));
 
     [JSInvokable]
-    public Task<string> GetAppDirectory() => Task.FromResult(AppDirectory);
+    public Task<string?> GetAppDirectory() => Task.FromResult(AppDirectory);
 
     [JSInvokable]
-    public Task<bool> TryOpenAppDirectory() => Task.FromResult(TryOpenDirectory(AppDirectory));
+    public Task<bool> TryOpenAppDirectory() => Task.FromResult(AppDirectory is { } dir && TryOpenDirectory(dir));
 
-    private string AppDirectory => string.IsNullOrEmpty(webConfig.Value.LogFileName)
-        ? AppContext.BaseDirectory
-        : Path.GetDirectoryName(Path.GetFullPath(webConfig.Value.LogFileName)) ?? AppContext.BaseDirectory;
+    // web has no settings file, so this is just the log folder; hosts like Platform.Bible turn file logging off
+    private string? AppDirectory => webConfig.Value is { EnableFileLogging: true, LogFileName: { Length: > 0 } logFileName }
+        ? Path.GetDirectoryName(Path.GetFullPath(logFileName))
+        : null;
 
     private static bool TryOpenDirectory(string path)
     {

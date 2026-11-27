@@ -204,7 +204,9 @@
       {#if service && (canOpenFolders || featureFlags.isDev)}
         <section class="flex flex-col gap-3">
           <h3 class="font-medium">{$t`Folders`}</h3>
-          {#if dataDirectory.current === appDirectory.current}
+          {#if !appDirectory.current}
+            {@render folder('folder-projects', $t`Projects`, dataDirectory.current, () => service.tryOpenDataDirectory())}
+          {:else if dataDirectory.current === appDirectory.current}
             {@render folder('folder-all', $t`Projects, logs and settings`, dataDirectory.current, () => service.tryOpenDataDirectory())}
           {:else}
             {@render folder('folder-projects', $t`Projects`, dataDirectory.current, () => service.tryOpenDataDirectory())}
