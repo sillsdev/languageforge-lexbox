@@ -95,10 +95,10 @@
     if (!file.stream) {
       switch (file.result) {
         case ReadFileResult.NotFound:
-          AppNotification.display($t`File not found`, 'warning');
+          AppNotification.display($t`File not found`, {type: 'warning', timeout: 'long'});
           break;
         case ReadFileResult.Offline:
-          AppNotification.display($t`Offline, unable to download`, 'warning');
+          AppNotification.display($t`Offline, unable to download`, {type: 'warning', timeout: 'long'});
           break;
         default:
           AppNotification.error($t`Unknown error ${file.errorMessage ?? file.result}`);
