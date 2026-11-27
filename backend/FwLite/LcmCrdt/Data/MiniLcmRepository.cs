@@ -254,10 +254,14 @@ public class MiniLcmRepository(
 
     public async Task<Entry?> GetEntry(Guid id)
     {
-        var entry = await AsyncExtensions.SingleOrDefaultAsync(Entries, e => e.Id == id);
+        var entry = await dbContext.Database.InReadTransaction(async () =>
+        {
+            var entry = await AsyncExtensions.SingleOrDefaultAsync(Entries, e => e.Id == id);
+            if (entry is not null) await LoadEntryChildren([entry]);
+            return entry;
+        });
         if (entry is not null)
         {
-            await LoadEntryChildren([entry]);
             var sortWs = await GetWritingSystem(WritingSystemId.Default, WritingSystemType.Vernacular);
             var complexFormComparer = ComplexFormComparer(sortWs);
             entry.Finalize(complexFormComparer);
