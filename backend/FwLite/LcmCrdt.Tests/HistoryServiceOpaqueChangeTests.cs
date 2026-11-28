@@ -1,4 +1,5 @@
 using System.Text.Json;
+using SIL.Harmony;
 using SIL.Harmony.Changes;
 
 namespace LcmCrdt.Tests;
@@ -7,23 +8,28 @@ namespace LcmCrdt.Tests;
 // OpaqueChange (null EntityType, apply skipped), and the activity view must tolerate it.
 public class HistoryServiceOpaqueChangeTests : HistoryServiceActivityTestsBase
 {
-    private static OpaqueChange UnknownChange(Guid entityId)
+    // Only a newer client can author it (authoring an unregistered type throws), so it arrives as sync JSON.
+    private async Task<Commit> SyncUnknownChange(Guid entityId)
     {
-        using var doc = JsonDocument.Parse(
-            $$"""{"$type":"ChangeFromTheFuture","EntityId":"{{entityId}}","SomeValue":7}""");
-        return new OpaqueChange
-        {
-            TypeName = "ChangeFromTheFuture",
-            EntityId = entityId,
-            RawJson = doc.RootElement.Clone()
-        };
+        var commitId = Guid.NewGuid();
+        var json = $$$"""
+            {"Id":"{{{commitId}}}","ClientId":"{{{Guid.NewGuid()}}}",
+             "HybridDateTime":{"DateTime":"{{{DateTimeOffset.UtcNow:O}}}","Counter":0},
+             "Metadata":{"AuthorName":"A","AuthorId":"a"},
+             "ChangeEntities":[{"Index":0,"CommitId":"{{{commitId}}}","EntityId":"{{{entityId}}}",
+               "Change":{"$type":"ChangeFromTheFuture","EntityId":"{{{entityId}}}","SomeValue":7}}]}
+            """;
+        var commit = JsonSerializer.Deserialize<Commit>(json, Fixture.HarmonyConfig.JsonSerializerOptions)!;
+        commit.ChangeEntities.Single().Change.Should().BeOfType<OpaqueChange>();
+        await ((ISyncable)DataModel).AddRangeFromSync([commit]);
+        return commit;
     }
 
     [Fact]
     public async Task ProjectActivity_ToleratesOpaqueChanges()
     {
         var entryId = await CreateEntry("apple");
-        await DataModel.AddChange(ClientId, UnknownChange(entryId), Meta());
+        await SyncUnknownChange(entryId);
 
         var activities = await Service.ProjectActivity();
 
@@ -39,7 +45,7 @@ public class HistoryServiceOpaqueChangeTests : HistoryServiceActivityTestsBase
     public async Task LoadChangeContext_ToleratesOpaqueEditOfExistingEntity()
     {
         var entryId = await CreateEntry("apple");
-        var commit = await DataModel.AddChange(ClientId, UnknownChange(entryId), Meta());
+        var commit = await SyncUnknownChange(entryId);
 
         var context = await Service.LoadChangeContext(commit.Id, 0);
 
@@ -52,7 +58,7 @@ public class HistoryServiceOpaqueChangeTests : HistoryServiceActivityTestsBase
     public async Task LoadChangeContext_ToleratesOpaqueCreateOfUnknownEntity()
     {
         // An opaque create: the entity was never materialized on this client, so it has no snapshots.
-        var commit = await DataModel.AddChange(ClientId, UnknownChange(Guid.NewGuid()), Meta());
+        var commit = await SyncUnknownChange(Guid.NewGuid());
 
         var context = await Service.LoadChangeContext(commit.Id, 0);
 

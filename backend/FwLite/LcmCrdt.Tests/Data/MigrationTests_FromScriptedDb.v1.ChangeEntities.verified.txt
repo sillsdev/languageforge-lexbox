@@ -250,7 +250,8 @@
       "PartOfSpeechId": null,
       "SemanticDomains": [],
       "Pictures": null,
-      "EntityId": "d510aa82-5557-4dd4-8b1f-1ec89facb979"
+      "EntityId": "d510aa82-5557-4dd4-8b1f-1ec89facb979",
+      "PartOfSpeech": ""
     },
     "AuthoredModelVersion": 0
   },
