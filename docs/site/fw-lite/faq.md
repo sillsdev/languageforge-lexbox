@@ -43,9 +43,13 @@ A Mac version is available for people who want to try it early. It is less teste
 other versions. To try it, download `FieldWorksLite.dmg` from the **Assets** of the
 [latest FieldWorks Lite release on GitHub](https://github.com/sillsdev/languageforge-lexbox/releases/latest).
 
-It doesn't install updates by itself. When a new version is out, it tells you and offers a
-**Download** button. Open the downloaded file and drag FieldWorks Lite into Applications,
-replacing the old one. Your projects stay on your Mac.
+It updates itself. When a new version is out, it downloads it in the background and then
+asks you to **Restart** to finish installing. If you quit instead, the update is installed
+the next time you open FieldWorks Lite.
+
+Older Mac versions can't update themselves. They offer a **Download** button instead: open
+the downloaded file and drag FieldWorks Lite into Applications, replacing the old one. After
+that one manual update, later updates install by themselves. Your projects stay on your Mac.
 :::
 
 ## Is my work safe if my phone or computer breaks?

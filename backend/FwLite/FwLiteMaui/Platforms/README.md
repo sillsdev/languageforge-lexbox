@@ -17,6 +17,15 @@ Each line was checked against the code it names. Read the cited file before chan
 - A failure in the splash or the hand-off must never stop the app from opening; both fall back to a normal start. Env `FWLITE_NO_SPLASH=1` skips them, for a machine where they misbehave.
 - Portable (single-file) builds show nothing for 10 to 20 s on the first run of a new exe: that wait is before .NET starts, so the splash can't cover it.
 
+## Mac Catalyst (`MacCatalyst/MacUpdateService.cs`)
+
+- Updates use Velopack, reading the GitHub releases directly (`GithubSource`); Lexbox's `should-update` still decides whether one is offered. Moving the feed onto Lexbox is #3077.
+- Velopack only recognises Mac Catalyst from 1.3, a prerelease when this was written. The `Velopack` NuGet version (`Directory.Packages.props`) and `VPK_VERSION` (`fw-lite.yaml`) must match.
+- `VelopackApp.Build().Run()` is the first call in `MacCatalyst/Program.cs`. It also applies an update downloaded before the last quit.
+- Only a Velopack-packed bundle (it has `Contents/MacOS/UpdateMac`) can update itself; dev builds and pre-Velopack DMG installs report `SupportsAutoUpdate` false and get the Download prompt.
+- `GithubSource` reads the 10 newest GitHub releases and skips any without `releases.osx.json`, such as the `lexbox-v…` releases.
+- The package version is the semver `YYYY.M.D`. A second release on the same UTC day has the same version, so Macs already on the first don't update to it; see the release workaround in `.github/AGENTS.md`.
+
 ## Android (`Android/AndroidInAppUpdateService.cs`)
 
 - Play in-app update bindings live in `Xamarin.Google.Android.Play.Core.AppUpdate*` (package `Xamarin.Google.Android.Play.App.Update`).

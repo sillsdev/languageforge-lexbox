@@ -18,6 +18,7 @@ GitHub Actions workflows and deployment. Full runs take 30-60+ min across Linux,
 |----------|----------|--------------|------|
 | `pr.yaml` (`PR CI`) | Every PR, whatever its base branch, so stacked PRs too (also `labeled`/`unlabeled`) | The **PR tier**: detects affected projects with nx, then runs only the affected Linux jobs (.NET build + affected tests, viewer checks, viewer Playwright on Chromium, extension lint); escalation tiers add full-tier jobs. See [PR tier](#pr-tier-pryaml) | target < 10 min |
 | `fw-lite.yaml` | FwLite code changes | Build .NET, run tests, build viewer, publish apps (the **full tier**, develop only; pull requests run `pr.yaml`) | ~40 min |
+| `fw-lite-label.yaml` | PR labelled `ci:fw-lite` (and each push while labelled) | Calls `fw-lite.yaml` without releasing, so a PR gets the signed Mac DMG, Velopack pack and every smoke test that `pr.yaml` skips. Unlike `ci:full`, which only widens `pr.yaml` | ~40 min |
 | `lexbox-api.yaml` | Called by others | Build API, run unit tests, build Docker image | ~15 min |
 | `lexbox-ui.yaml` | Called by others | Build SvelteKit UI, build Docker image | ~10 min |
 | `lexbox-fw-headless.yaml` | Called by others | Build FwHeadless Docker image | ~10 min |
@@ -233,7 +234,7 @@ This is the most complex workflow because it:
 | `build-and-test` | ubuntu-latest | Core .NET build + tests (`FwLiteCore.slnf`) |
 | `frontend` | ubuntu-latest | Build viewer, Playwright snapshots |
 | `frontend-component-unit-tests` | ubuntu-latest | Vitest unit tests |
-| `build-apple` | macos-latest | MAUI Release builds for iOS simulator + Mac Catalyst; signs Mac Catalyst with the SIL Developer ID and notarizes a DMG when the signing secret is present (upstream), else unsigned compile check (fork PRs) |
+| `build-apple` | macos-latest | MAUI Release builds for iOS simulator + Mac Catalyst; signs Mac Catalyst with the SIL Developer ID, packs it with Velopack (`vpk`, notarized, with the Mac auto-update packages) and wraps that app in a notarized DMG when the signing secret is present (upstream), else unsigned compile check (fork PRs) |
 | `launch-mac` | macos-latest + macos-15-intel | Checks Gatekeeper accepts the notarized DMG, then launches the app on each CPU and waits for its "Viewer loaded" log line (`.github/scripts/smoke-mac.sh`; upstream only; gates `create-release`) |
 | `launch-ios` | macos-latest | Boots an iPhone simulator, installs the simulator build and waits for "Viewer loaded" (`.github/scripts/smoke-ios.sh`) |
 | `launch-android` | ubuntu-latest | Boots an x86_64 emulator (API 35), installs the published APK and waits for "Viewer loaded" in logcat (`.github/actions/smoke-android`) |
@@ -252,7 +253,11 @@ This is the most complex workflow because it:
 
 The workflow produces:
 - `fw-lite-viewer-js` - Built viewer (shared by publish jobs)
-- `fw-lite-apple` - iOS simulator .app (zipped) + the universal (Intel + Apple Silicon) notarized Mac Catalyst `FieldWorksLite.dmg` (or an unsigned arm64 Mac Catalyst .app zip on fork PRs)
+- `fw-lite-apple` - iOS simulator .app (zipped) + the universal (Intel + Apple Silicon) notarized Mac Catalyst `FieldWorksLite.dmg` and `velopack/` (the `.nupkg` and `releases.osx.json`/`assets.osx.json` the Mac app updates from, attached to the release) (or an unsigned arm64 Mac Catalyst .app zip on fork PRs)
+
+### Two FW Lite releases on one day
+
+The version comes from the release commit's UTC date (`YYYY.M.D`), so a second release that day gets the same Mac Velopack version as the first, and Macs already on the first don't update to it (older Macs do; other platforms are unaffected). It isn't a build failure. When the Macs need the second release, wait until the UTC date has changed, land a commit on `develop` (an empty commit works) and dispatch the release from it. Re-running the pipeline on the same commit gives the same version.
 - `fw-lite-web-linux` - Linux binaries
 - `fw-lite-web-win` - Windows FwLiteWeb binaries, signed
 - `fw-lite-portable` - Windows portable app

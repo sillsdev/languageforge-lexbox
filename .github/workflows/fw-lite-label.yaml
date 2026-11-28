@@ -1,0 +1,32 @@
+name: FieldWorks Lite (full, by label)
+# Runs the whole of fw-lite.yaml (signed Mac build, DMG, smoke tests on every platform) on a pull request
+# labelled `ci:fw-lite`, and again on each push while the label stays. It never releases. Fork PRs get no
+# secrets, so their Apple and Android builds stay unsigned, as in fw-lite.yaml.
+on:
+  pull_request:
+    types: [labeled, synchronize, reopened]
+
+# A new push cancels the run it supersedes. Any other label change gets a group of its own (its run id), so
+# adding an unrelated label never cancels a full run that is in progress. The group must differ from
+# fw-lite.yaml's own `github.workflow`-`github.ref` group, which the called workflow evaluates with this
+# workflow's name; the same name in both would deadlock.
+concurrency:
+  group: ${{ ((github.event.action == 'labeled' && github.event.label.name == 'ci:fw-lite') || (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'ci:fw-lite'))) && format('fw-lite-label-{0}', github.ref) || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  fw-lite:
+    name: FW Lite
+    if: (github.event.action == 'labeled' && github.event.label.name == 'ci:fw-lite') || (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'ci:fw-lite'))
+    uses: ./.github/workflows/fw-lite.yaml
+    secrets: inherit
+    # The caller caps the called workflow's token, and GitHub checks every job's permissions up front:
+    # create-release asks for contents: write even though `release: false` skips it.
+    permissions:
+      contents: write
+      checks: write
+    with:
+      release: false

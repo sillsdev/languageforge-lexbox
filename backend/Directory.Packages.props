@@ -139,6 +139,9 @@
     <PackageVersion Include="SystemTextJsonPatch" Version="5.0.0" />
     <PackageVersion Include="tusdotnet" Version="2.12.0" />
     <PackageVersion Include="UUIDNext" Version="4.2.4" />
+    <!-- FW Lite Mac installer and auto-update (Platforms/MacCatalyst/MacUpdateService.cs). A prerelease
+         because Mac Catalyst support starts in 1.3. Keep the vpk version in fw-lite.yaml (VPK_VERSION) equal to it. -->
+    <PackageVersion Include="Velopack" Version="1.3.39-g8d2844f" />
     <PackageVersion Include="Verify.SystemJson" Version="1.4.1" />
     <PackageVersion Include="Verify.Xunit" Version="31.12.5" />
     <PackageVersion Include="Watson.Lite" Version="6.6.0" />

@@ -5,14 +5,15 @@ on:
   workflow_dispatch:
   workflow_call:
     inputs:
+      # Omitted by fw-lite-label.yaml (a CI run), which leaves Set Version to derive them from the commit.
       version:
         description: 'Release version (vYYYY-MM-DD-sha8), shared with the LexBox release'
         type: string
-        required: true
+        required: false
       semver-version:
         description: 'Release semver version (YYYY.M.D)'
         type: string
-        required: true
+        required: false
       release:
         description: 'Sign and publish the GitHub and Play Store release'
         type: boolean
@@ -54,6 +55,9 @@ env:
   VIEWER_BUILD_OUTPUT_DIR: backend/FwLite/FwLiteShared/wwwroot/viewer
   # Pinned so a new workload set (e.g. a new default Apple SDK pack) cannot silently break the MAUI builds.
   MAUI_WORKLOAD_VERSION: 11.0.100.1
+  # Velopack's packing tool for the Mac auto-update packages. Must equal the Velopack NuGet version in
+  # backend/Directory.Packages.props, which the app uses to read and apply them.
+  VPK_VERSION: 1.3.39-g8d2844f
 jobs:
   build-and-test:
     name: Build FW Lite and run tests
@@ -368,6 +372,45 @@ jobs:
             -p:ApplicationVersion=${{ needs.build-and-test.outputs.app-version }} \
             -p:InformationalVersion=${{ needs.build-and-test.outputs.version }}
 
+      # Velopack adds its updater (UpdateMac) to the bundle, re-signs everything with our identity and
+      # entitlements, notarizes and staples the app, then writes the update packages (full .nupkg,
+      # releases.osx.json, assets.osx.json) and a portable zip of the app. --noInst skips its .pkg installer,
+      # which needs a Developer ID Installer certificate we don't have; the DMG below is the installer.
+      # The app is universal: --runtime only labels the package, and x64 is the label both Intel and Apple
+      # Silicon Macs accept. vpk targets .NET 10, hence the roll forward onto the .NET 11 runtime.
+      - name: Pack the app with Velopack
+        if: env.HAS_APPLE_SIGNING == 'true'
+        working-directory: backend/FwLite/FwLiteMaui
+        env:
+          ASC_KEY_ID: ${{ secrets.APPLE_APPSTORECONNECT_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APPLE_APPSTORECONNECT_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.APPLE_APPSTORECONNECT_PRIVATE_KEY }}
+          SEMVER_VERSION: ${{ needs.build-and-test.outputs.semver-version }}
+          DOTNET_ROLL_FORWARD: Major
+        run: |
+          set -euo pipefail
+          dotnet tool install vpk --version "$VPK_VERSION" --tool-path "$RUNNER_TEMP/vpk"
+          # vpk notarizes through a notarytool keychain profile, so store our App Store Connect key as one.
+          printf '%s' "$ASC_PRIVATE_KEY" > "$RUNNER_TEMP/asc.p8"
+          xcrun notarytool store-credentials fwlite-notary --key "$RUNNER_TEMP/asc.p8" --key-id "$ASC_KEY_ID" \
+            --issuer "$ASC_ISSUER_ID" --keychain "$SIGNING_KEYCHAIN"
+          rm -f "$RUNNER_TEMP/asc.p8"
+          # vpk only accepts an entitlements file with the .entitlements extension.
+          cp Platforms/MacCatalyst/Entitlements.DeveloperId.plist "$RUNNER_TEMP/fwlite.entitlements"
+          # The SDK merges and signs the universal bundle here; the maccatalyst-*/ bundles are incomplete intermediates.
+          APP="bin/Release/net11.0-maccatalyst/FieldWorks Lite.app"
+          # vpk guesses the executable from --packId, so name it. It names the bundle "<packTitle ?? packId>.app",
+          # so --packTitle keeps "FieldWorks Lite.app" in the update package too. (An update replaces the bundle
+          # at the running app's path whatever the package calls it; this keeps both names the same.)
+          MAIN_EXE="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP/Contents/Info.plist")"
+          "$RUNNER_TEMP/vpk/vpk" pack --packId FieldWorksLite --packTitle "FieldWorks Lite" --packVersion "$SEMVER_VERSION" \
+            --packDir "$APP" --mainExe "$MAIN_EXE" \
+            --channel osx --runtime osx-x64 --noInst --outputDir ../artifacts/apple/velopack \
+            --signAppIdentity "$CODESIGN_IDENTITY" \
+            --signEntitlements "$RUNNER_TEMP/fwlite.entitlements" \
+            --notaryProfile fwlite-notary --keychain "$SIGNING_KEYCHAIN"
+          ls -la ../artifacts/apple/velopack
+
       - name: Package, notarize and staple the DMG
         if: env.HAS_APPLE_SIGNING == 'true'
         working-directory: backend/FwLite/FwLiteMaui
@@ -377,8 +420,19 @@ jobs:
           ASC_PRIVATE_KEY: ${{ secrets.APPLE_APPSTORECONNECT_PRIVATE_KEY }}
         run: |
           set -euo pipefail
-          # The SDK merges and signs the universal bundle here; the maccatalyst-*/ bundles are incomplete intermediates.
-          APP="bin/Release/net11.0-maccatalyst/FieldWorks Lite.app"
+          # The DMG ships the app Velopack packed (from its portable zip), so a drag-installed app can update itself.
+          # Stage it beside an /Applications symlink so the DMG is drag-to-install.
+          STAGE="$RUNNER_TEMP/dmg-stage"
+          rm -rf "$STAGE"; mkdir -p "$STAGE"
+          PORTABLE=(../artifacts/apple/velopack/*-Portable.zip)
+          ditto -x -k "${PORTABLE[0]}" "$STAGE"
+          rm "${PORTABLE[0]}" # not published; the DMG is the download
+          APPS=("$STAGE"/*.app)
+          if [ "${#APPS[@]}" -ne 1 ]; then echo "Expected one .app in the portable zip, got: ${APPS[*]}" >&2; exit 1; fi
+          # launch-mac and the docs expect this bundle name; renaming the folder doesn't touch the signature.
+          APP="$STAGE/FieldWorks Lite.app"
+          [ "${APPS[0]}" = "$APP" ] || mv "${APPS[0]}" "$APP"
+          [ -x "$APP/Contents/MacOS/UpdateMac" ] || { echo "Velopack's UpdateMac is missing from $APP" >&2; exit 1; }
           codesign --verify --deep --strict --verbose=2 "$APP"
           for f in index.html _content/FwLiteShared/viewer/main.js; do
             [ -f "$APP/Contents/Resources/wwwroot/$f" ] || { echo "Missing wwwroot/$f in $APP" >&2; exit 1; }
@@ -391,12 +445,7 @@ jobs:
             *x86_64*arm64*|*arm64*x86_64*) ;;
             *) echo "Expected a universal (x86_64 + arm64) build but got: '$ARCHS'" >&2; exit 1 ;;
           esac
-          mkdir -p ../artifacts/apple
           DMG="$PWD/../artifacts/apple/FieldWorksLite.dmg"
-          # Stage the app beside an /Applications symlink so the DMG is drag-to-install.
-          STAGE="$RUNNER_TEMP/dmg-stage"
-          rm -rf "$STAGE"; mkdir -p "$STAGE"
-          cp -R "$APP" "$STAGE/"
           ln -s /Applications "$STAGE/Applications"
           # hdiutil randomly fails with "Resource busy" on GitHub macOS runners (actions/runner-images#7522).
           try=0; until hdiutil create -volname "FieldWorks Lite" -srcfolder "$STAGE" -ov -format UDZO "$DMG"; do (( ++try < 5 )) || exit 1; sleep $((try * 5)); done
@@ -432,7 +481,8 @@ jobs:
         with:
           name: fw-lite-apple
           if-no-files-found: error
-          path: backend/FwLite/artifacts/apple/*
+          # The folder, not apple/*, so the velopack/ subfolder keeps its place in the artifact.
+          path: backend/FwLite/artifacts/apple/
 
   # Checks that Gatekeeper accepts the notarized DMG, then runs the app natively on each CPU the universal build supports.
   launch-mac:
@@ -481,6 +531,8 @@ jobs:
           # hdiutil randomly fails with "Resource busy" on GitHub macOS runners (actions/runner-images#7522).
           try=0; until hdiutil attach FieldWorksLite.dmg -nobrowse -readonly -mountpoint /Volumes/FieldWorksLite; do (( ++try < 5 )) || exit 1; sleep $((try * 5)); done
           gatekeeper --type execute "/Volumes/FieldWorksLite/FieldWorks Lite.app"
+          # Without Velopack's updater in the bundle, the installed app can't update itself.
+          [ -x "/Volumes/FieldWorksLite/FieldWorks Lite.app/Contents/MacOS/UpdateMac" ] || { echo "UpdateMac missing from the app" >&2; exit 1; }
 
       - name: Launch the app and wait for the viewer to load
         run: bash repo/.github/scripts/smoke-mac.sh "/Volumes/FieldWorksLite/FieldWorks Lite.app"
@@ -993,6 +1045,8 @@ jobs:
             fw-lite-android/*.apk
             fw-lite-android/*.aab
             fw-lite-apple/*.dmg
+            fw-lite-apple/velopack/*.nupkg
+            fw-lite-apple/velopack/*.osx.json
             fw-lite-extension/*.zip
 
       - name: Write Play Store release notes
