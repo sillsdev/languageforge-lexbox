@@ -384,82 +384,12 @@ public static class LcmCrdtKernel
                 }).IsUnique().HasFilter($"{componentSenseId} IS NULL");
             });
 
-        config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
-            .Add<JsonPatchChange<Sense>>()
-            .Add<JsonPatchChange<WritingSystem>>()
-            .Add<JsonPatchChange<PartOfSpeech>>()
-            .Add<JsonPatchChange<SemanticDomain>>()
-            .Add<JsonPatchChange<ComplexFormType>>()
-            .Add<JsonPatchChange<MorphType>>()
-            .Add<JsonPatchChange<Publication>>()
-            .Add<DeleteChange<Entry>>()
-            .Add<DeleteChange<Sense>>()
-            .Add<DeleteChange<WritingSystem>>()
-            .Add<DeleteChange<PartOfSpeech>>()
-            .Add<DeleteChange<SemanticDomain>>()
-            .Add<DeleteChange<ComplexFormType>>()
-            .Add<DeleteChange<ComplexFormComponent>>()
-            .Add<DeleteChange<Publication>>()
-            .Add<SetPartOfSpeechChange>()
-            .Add<MoveSenseToEntryChange>()
-            .Add<AddSemanticDomainChange>()
-            .Add<RemoveSemanticDomainChange>()
-            .Add<ReplaceSemanticDomainChange>()
-            .Add<CreateEntryChange>()
-            .Add<CreateSenseChange>()
-
-            //example sentence changes
-            .Add<CreateExampleSentenceChange>()
-            .Add<JsonPatchExampleSentenceChange>()
-            .Add<Changes.SetOrderChange<ExampleSentence>>()
-            .Add<MoveExampleSentenceToSenseChange>()
-            .Add<DeleteChange<ExampleSentence>>()
-            .Add<AddTranslationChange>()
-            .Add<RemoveTranslationChange>()
-            .Add<UpdateTranslationChange>()
-            .Add<SetFirstTranslationIdChange>()
-
-            .Add<CreateSensePictureChange>()
-            .Add<UpdateSensePictureChange>()
-            .Add<ReorderSensePictureChange>()
-            .Add<RemoveSensePictureChange>()
-            .Add<CreatePartOfSpeechChange>()
-            .Add<CreateSemanticDomainChange>()
-            .Add<CreateWritingSystemChange>()
-            .Add<CreatePublicationChange>()
-            .Add<SetMainPublicationChange>()
-            .Add<AddComplexFormTypeChange>()
-            .Add<AddEntryComponentChange>()
-            .Add<RemoveComplexFormTypeChange>()
-            .Add<AddPublicationChange>()
-            .Add<RemovePublicationChange>()
-            .Add<ReplacePublicationChange>()
-            .Add<CreateComplexFormType>()
-            .Add<CreateCustomViewChange>()
-            .Add<EditCustomViewChange>()
-            .Add<DeleteChange<CustomView>>()
-            .Add<CreatePluginChange>()
-            .Add<EditPluginChange>()
-            .Add<DeleteChange<Plugin>>()
-            .Add<CreateCommentThreadChange>()
-            .Add<CreateUserCommentChange>()
-            .Add<EditUserCommentChange>()
-            .Add<SetCommentThreadStatusChange>()
-            .Add<DeleteChange<CommentThread>>()
-            .Add<DeleteChange<UserComment>>()
-            .Add<CreateMorphTypeChange>()
-            .Add<Changes.SetOrderChange<Sense>>()
-            .Add<Changes.SetOrderChange<ComplexFormComponent>>()
-            .Add<Changes.SetOrderChange<WritingSystem>>()
-            // When adding anything other than a Delete or JsonPatch change,
-            // you must add an instance of it to UseChangesTests.GetAllChanges()
-            ;
-
         // A change type from a newer client is kept as an OpaqueChange and replayed after the upgrade
         // (see model versions below); the default Throw would stop every older client from syncing.
         config.UnknownChangeHandling = UnknownChangeHandling.Fallback;
 
         // Released model versions must never change: list a new or modified change type in a new version.
+        // A new change type other than a Delete or JsonPatch change also needs an instance in UseChangesTests.GetAllChanges().
         config.ModelVersionBuilder
             .Add(0, "Before model versions", v => v
                 .Change<JsonPatchChange<Entry>>()
@@ -534,10 +464,10 @@ public static class LcmCrdtKernel
                 .Change<DeleteChange<Plugin>>());
 
         // Attach the legacy ExampleSentence translation modifier via Harmony's deferred JSON hook.
-        // Do NOT read config.JsonSerializerOptions directly here: SIL.Harmony now freezes the
-        // ChangeTypeListBuilder the first time the options are built, which would happen before the
-        // AddRemoteResourceEntity call below (and AddCrdtRemoteResources in DI) and throw
-        // "ChangeTypeListBuilder is frozen". ConfigureJsonOptions defers the tweak until options are built.
+        // Do NOT read config.JsonSerializerOptions directly here: SIL.Harmony freezes its type registration
+        // the first time the options are built, which would happen before the AddRemoteResourceEntity call
+        // below (and AddCrdtRemoteResources in DI) and throw. ConfigureJsonOptions defers the tweak until
+        // options are built.
         config.ConfigureJsonOptions(options =>
         {
             // Append to Harmony's existing resolver rather than replacing it (see ConfigureJsonOptions docs).

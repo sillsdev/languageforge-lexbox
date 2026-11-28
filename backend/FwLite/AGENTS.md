@@ -278,9 +278,9 @@ To debug a sync bug: reproduce it in `FwLiteProjectSync.Tests/`, then run a dry-
    - See `CreateComplexFormType.cs` for create example
    - See `JsonPatchChange.cs` for simple field updates
 
-2. Register in `LcmCrdt/LcmCrdtKernel.cs` → `ConfigureCrdt()`
+2. Register it by listing it in a new model version in `LcmCrdt/LcmCrdtKernel.cs` → `ConfigureCrdt()` (never edit a released version)
    ```csharp
-   config.AddChangeEntity<MyNewChange>()
+   .Add(3, "My feature", v => v.Change<MyNewChange>())
    ```
 
 3. Add test in `LcmCrdt.Tests/Changes/UseChangesTests.cs`

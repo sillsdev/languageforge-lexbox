@@ -33,6 +33,8 @@ public static class AutoFakerDefault
                 new ColorOverride(),
                 //these are too complicated to generate, so we'll just use null for tests
                 new SimpleOverride<RichTextObjectData>(context => context.Instance = null!),
+                //Harmony's Change<T>.ExtensionData keeps properties from other client versions; a new change has none
+                new SimpleOverride<Dictionary<string, JsonElement>>(context => context.Instance = null!),
                 new SimpleOverride<PartOfSpeech>(context =>
                 {
                     if (context.Instance is PartOfSpeech pos)
