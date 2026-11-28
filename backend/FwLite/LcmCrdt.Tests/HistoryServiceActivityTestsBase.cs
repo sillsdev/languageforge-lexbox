@@ -116,9 +116,10 @@ public abstract class HistoryServiceActivityTestsBase : IAsyncLifetime, IAsyncDi
 
     protected async Task<Commit> AddNewPartOfSpeechCommit(CommitMetadata metadata, string partOfSpeechName = "Test Part of Speech")
     {
-        return await DataModel.AddChange(ClientId, new CreatePartOfSpeechChange(Guid.NewGuid(), new MultiString
+        return await DataModel.AddChange(ClientId, new CreatePartOfSpeechChange(new PartOfSpeech
         {
-            ["en"] = partOfSpeechName
+            Id = Guid.NewGuid(),
+            Name = { ["en"] = partOfSpeechName }
         }), metadata);
     }
 

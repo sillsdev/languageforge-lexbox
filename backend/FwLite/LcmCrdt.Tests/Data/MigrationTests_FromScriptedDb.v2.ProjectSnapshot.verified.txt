@@ -64,6 +64,8 @@
             "Name": {
               "en": "Adverb"
             },
+            "Abbreviation": {},
+            "Description": {},
             "DeletedAt": null,
             "Predefined": true
           },
@@ -405,6 +407,8 @@
       "Name": {
         "en": "Adverb"
       },
+      "Abbreviation": {},
+      "Description": {},
       "DeletedAt": null,
       "Predefined": true
     }

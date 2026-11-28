@@ -35,6 +35,46 @@ public abstract class PartOfSpeechTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task CreatePartOfSpeech_RoundTripsAbbreviationAndDescription()
+    {
+        var id = Guid.NewGuid();
+        var created = await Api.CreatePartOfSpeech(new PartOfSpeech
+        {
+            Id = id,
+            Name = { { "en", "Adjective" } },
+            Abbreviation = { { "en", "adj" } },
+            Description = { { "en", new RichString("Modifies a noun") } },
+        });
+
+        created.Abbreviation["en"].Should().Be("adj");
+        created.Description["en"].GetPlainText().Should().Be("Modifies a noun");
+
+        var fetched = await Api.GetPartOfSpeech(id);
+        fetched.Should().NotBeNull();
+        fetched!.Abbreviation["en"].Should().Be("adj");
+        fetched.Description["en"].GetPlainText().Should().Be("Modifies a noun");
+    }
+
+    [Fact]
+    public async Task UpdatePartOfSpeech_UpdatesAbbreviationAndDescription()
+    {
+        var before = await Api.CreatePartOfSpeech(new PartOfSpeech
+        {
+            Id = Guid.NewGuid(),
+            Name = { { "en", "Adverb" } },
+            Abbreviation = { { "en", "adv" } },
+        });
+
+        var after = before.Copy();
+        after.Abbreviation = new MultiString { { "en", "advb" } };
+        after.Description = new RichMultiString { { "en", new RichString("Modifies a verb") } };
+
+        var updated = await Api.UpdatePartOfSpeech(before, after);
+        updated.Abbreviation["en"].Should().Be("advb");
+        updated.Description["en"].GetPlainText().Should().Be("Modifies a verb");
+    }
+
+    [Fact]
     public async Task Sense_HasPartOfSpeech()
     {
         var entry = await Api.GetEntries().FirstAsync(e => e.Senses.Any(s => s.PartOfSpeech is not null));

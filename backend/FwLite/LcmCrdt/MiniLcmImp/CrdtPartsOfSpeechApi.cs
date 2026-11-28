@@ -29,7 +29,7 @@ public class CrdtPartsOfSpeechApi(MiniLcmRepositoryFactory repoFactory, HarmonyC
     public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         if (partOfSpeech.Id == Guid.Empty) partOfSpeech.Id = Guid.NewGuid();
-        await harmonyChangeWriter.AddChange(new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, partOfSpeech.Predefined));
+        await harmonyChangeWriter.AddChange(new CreatePartOfSpeechChange(partOfSpeech));
         return await GetPartOfSpeech(partOfSpeech.Id) ?? throw NotFoundException.ForType<PartOfSpeech>(partOfSpeech.Id);
     }
 

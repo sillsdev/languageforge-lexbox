@@ -141,7 +141,7 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
     public async Task ProjectActivity_ChangeInfo_NamesPartOfSpeechSubject_EvenAfterDelete()
     {
         var id = Guid.NewGuid();
-        await DataModel.AddChange(ClientId, new CreatePartOfSpeechChange(id, new MultiString { ["en"] = "Verb" }), Meta());
+        await DataModel.AddChange(ClientId, new CreatePartOfSpeechChange(new PartOfSpeech { Id = id, Name = { ["en"] = "Verb" } }), Meta());
 
         var live = await Service.ProjectActivity(0, 100, new ActivityQuery());
         // A possibility names itself by its display name and has no owning entry (so no owning-entry headword either).
@@ -432,7 +432,7 @@ public class HistoryServiceActivitySubjectTests : HistoryServiceActivityTestsBas
     {
         var meta = new CommitMetadata { AuthorName = "A", AuthorId = "a" };
         var posId = Guid.NewGuid();
-        await DataModel.AddChange(ClientId, new CreatePartOfSpeechChange(posId, new MultiString { ["en"] = "Noun" }), meta);
+        await DataModel.AddChange(ClientId, new CreatePartOfSpeechChange(new PartOfSpeech { Id = posId, Name = { ["en"] = "Noun" } }), meta);
         var entryId = Guid.NewGuid();
         await DataModel.AddChange(ClientId, new CreateEntryChange(new Entry { Id = entryId, LexemeForm = new MultiString { ["en"] = "run" } }), meta);
         var senseId = Guid.NewGuid();

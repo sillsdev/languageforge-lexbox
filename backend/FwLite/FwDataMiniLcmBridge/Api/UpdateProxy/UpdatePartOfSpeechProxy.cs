@@ -20,4 +20,16 @@ public class UpdatePartOfSpeechProxy : PartOfSpeech
         get => new UpdateMultiStringProxy(_lcmPartOfSpeech.Name, _lexboxLcmApi);
         set => throw new NotImplementedException();
     }
+
+    public override MultiString Abbreviation
+    {
+        get => new UpdateMultiStringProxy(_lcmPartOfSpeech.Abbreviation, _lexboxLcmApi);
+        set => throw new NotImplementedException();
+    }
+
+    public override RichMultiString Description
+    {
+        get => new UpdateRichMultiStringProxy(_lcmPartOfSpeech.Description, _lexboxLcmApi);
+        set => throw new NotImplementedException();
+    }
 }

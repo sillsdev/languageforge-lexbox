@@ -111,6 +111,8 @@ public partial class MiniLcmApiWriteNormalizationWrapper(IMiniLcmApi api) : IMin
     {
         var copy = pos.Copy();
         copy.Name = StringNormalizer.Normalize(pos.Name);
+        copy.Abbreviation = StringNormalizer.Normalize(pos.Abbreviation);
+        copy.Description = StringNormalizer.Normalize(pos.Description);
         return copy;
     }
 

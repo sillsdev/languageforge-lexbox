@@ -90,6 +90,20 @@ public class UpdateDiffTests
     }
 
     [Fact]
+    public void PartOfSpeechDiffShouldUpdateAllFields()
+    {
+        var before = new PartOfSpeech();
+        var after = AutoFaker.Generate<PartOfSpeech>();
+        var partOfSpeechDiffToUpdate = PartOfSpeechSync.PartOfSpeechDiffToUpdate(before, after);
+        ArgumentNullException.ThrowIfNull(partOfSpeechDiffToUpdate);
+        partOfSpeechDiffToUpdate.Apply(before);
+        before.Should().BeEquivalentTo(after, options => options
+            .Excluding(x => x.Id)
+            .Excluding(x => x.DeletedAt)
+            .Excluding(x => x.Predefined));
+    }
+
+    [Fact]
     public void SemanticDomainDiffShouldUpdateAllFields()
     {
         var before = new SemanticDomain();
