@@ -1967,6 +1967,10 @@ components:
           format: uuid
         name:
           $ref: '#/components/schemas/MultiString'
+        abbreviation:
+          $ref: '#/components/schemas/MultiString'
+        description:
+          $ref: '#/components/schemas/RichMultiString'
         deletedAt:
           type: string
           format: date-time

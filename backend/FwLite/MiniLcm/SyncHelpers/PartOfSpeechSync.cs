@@ -30,10 +30,12 @@ public static class PartOfSpeechSync
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<PartOfSpeech>(nameof(PartOfSpeech.Name),
             beforePartOfSpeech.Name,
             afterPartOfSpeech.Name));
-        // TODO: Once we add abbreviations to MiniLcm's PartOfSpeech objects, then:
-        // patchDocument.Operations.AddRange(GetMultiStringDiff<PartOfSpeech>(nameof(PartOfSpeech.Abbreviation),
-        //     beforePartOfSpeech.Abbreviation,
-        //     afterPartOfSpeech.Abbreviation));
+        patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<PartOfSpeech>(nameof(PartOfSpeech.Abbreviation),
+            beforePartOfSpeech.Abbreviation,
+            afterPartOfSpeech.Abbreviation));
+        patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<PartOfSpeech>(nameof(PartOfSpeech.Description),
+            beforePartOfSpeech.Description,
+            afterPartOfSpeech.Description));
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<PartOfSpeech>(patchDocument);
     }

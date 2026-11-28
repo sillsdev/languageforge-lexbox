@@ -51,6 +51,8 @@ public static class NfcTestData
         {
             Id = Guid.NewGuid(),
             Name = CreateNfcMultiString(),
+            Abbreviation = CreateNfcMultiString(),
+            Description = CreateNfcRichMultiString(),
             Predefined = true,
         };
     }

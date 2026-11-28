@@ -365,6 +365,33 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
     [Fact]
     [Trait("Category", "Integration")]
+    public async Task PartOfSpeechFieldsMissingFromCrdtAndSnapshotSyncFromFwdata()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Import(crdtApi, fwdataApi);
+        var noun = new PartOfSpeech
+        {
+            Id = new Guid("a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5"),
+            Name = { { "en", "noun" } },
+            Abbreviation = { { "en", "n" } },
+            Description = { { "en", new RichString("a thing") } },
+            Predefined = true,
+        };
+        await fwdataApi.CreatePartOfSpeech(noun);
+        // Before CRDT had these fields, both CRDT and the stored snapshot held the part of speech without them
+        await crdtApi.CreatePartOfSpeech(new PartOfSpeech { Id = noun.Id, Name = noun.Name, Predefined = true });
+        var legacySnapshot = await _fixture.RegenerateAndGetSnapshot();
+
+        var syncResult = await _syncService.Sync(crdtApi, fwdataApi, legacySnapshot);
+
+        syncResult.FwdataChanges.Should().Be(0);
+        (await fwdataApi.GetPartOfSpeech(noun.Id)).Should().BeEquivalentTo(noun);
+        (await crdtApi.GetPartOfSpeech(noun.Id)).Should().BeEquivalentTo(noun);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
     public async Task PartsOfSpeechSyncInEntries()
     {
         var crdtApi = _fixture.CrdtApi;

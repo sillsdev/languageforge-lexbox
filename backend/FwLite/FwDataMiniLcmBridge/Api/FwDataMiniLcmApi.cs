@@ -320,6 +320,8 @@ public class FwDataMiniLcmApi(
                 lcmPartOfSpeech = Cache.ServiceLocator.GetInstance<IPartOfSpeechFactory>()
                     .Create(partOfSpeech.Id, Cache.LangProject.PartsOfSpeechOA);
                 UpdateLcmMultiString(lcmPartOfSpeech.Name, partOfSpeech.Name);
+                UpdateLcmMultiString(lcmPartOfSpeech.Abbreviation, partOfSpeech.Abbreviation);
+                UpdateLcmMultiString(lcmPartOfSpeech.Description, partOfSpeech.Description);
             });
         return Task.FromResult(FromLcmPartOfSpeech(
             lcmPartOfSpeech ?? throw new InvalidOperationException("Part of speech was not created")));
@@ -677,7 +679,8 @@ public class FwDataMiniLcmApi(
         {
             Id = lcmPos.Guid,
             Name = FromLcmMultiString(lcmPos.Name),
-            // TODO: Abreviation = FromLcmMultiString(partOfSpeech.Abreviation),
+            Abbreviation = FromLcmMultiString(lcmPos.Abbreviation),
+            Description = FromLcmMultiString(lcmPos.Description),
             Predefined = CanonicalGuidsPartOfSpeech.CanonicalPosGuids.Contains(lcmPos.Guid),
         };
     }

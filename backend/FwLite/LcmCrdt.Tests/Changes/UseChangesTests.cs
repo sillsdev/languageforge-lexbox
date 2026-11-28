@@ -163,8 +163,14 @@ public class UseChangesTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcmA
         var createEntryChange = new CreateEntryChange(entry);
         yield return new ChangeWithDependencies(createEntryChange);
 
-        var partOfSpeech = new PartOfSpeech { Id = Guid.NewGuid(), Name = { { "en", "test pos" } } };
-        var createPartOfSpeechChange = new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name);
+        var partOfSpeech = new PartOfSpeech
+        {
+            Id = Guid.NewGuid(),
+            Name = { { "en", "test pos" } },
+            Abbreviation = { { "en", "tp" } },
+            Description = { { "en", new RichString("test pos description") } }
+        };
+        var createPartOfSpeechChange = new CreatePartOfSpeechChange(partOfSpeech);
         yield return new ChangeWithDependencies(createPartOfSpeechChange);
 
         var sense = new Sense { Id = Guid.NewGuid(), Gloss = { { "en", "test sense" } } };

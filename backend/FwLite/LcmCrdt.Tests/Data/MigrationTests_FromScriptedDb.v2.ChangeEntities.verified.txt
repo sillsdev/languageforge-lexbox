@@ -436,6 +436,8 @@
         "en": "Adverb"
       },
       "Predefined": true,
+      "Abbreviation": {},
+      "Description": {},
       "EntityId": "46e4fe08-ffa0-4c8b-bf98-2c56f38904d9"
     },
     "AuthoredModelVersion": 0

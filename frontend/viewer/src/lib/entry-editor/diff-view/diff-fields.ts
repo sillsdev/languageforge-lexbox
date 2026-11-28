@@ -40,7 +40,7 @@ export const objectDiffRows: {
   CustomView: DiffRows<ICustomView>;
   Plugin: DiffRows<IPlugin>;
 } = {
-  PartOfSpeech: {name, id: null, deletedAt: null, predefined: null},
+  PartOfSpeech: {name, abbreviation, description, id: null, deletedAt: null, predefined: null},
   SemanticDomain: {
     name,
     abbreviation,

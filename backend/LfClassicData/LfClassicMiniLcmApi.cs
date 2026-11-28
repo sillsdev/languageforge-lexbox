@@ -352,7 +352,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
                 { "en", item.Value ?? item.Abbreviation ?? string.Empty },
                 { "__key", item.Key ?? string.Empty } // The key is all that senses have on them, so we need it client-side to find the display name
             },
-            // TODO: Abbreviation
+            Abbreviation = string.IsNullOrEmpty(item.Abbreviation) ? new() : new MultiString { { "en", item.Abbreviation } },
             Predefined = false,
         };
     }

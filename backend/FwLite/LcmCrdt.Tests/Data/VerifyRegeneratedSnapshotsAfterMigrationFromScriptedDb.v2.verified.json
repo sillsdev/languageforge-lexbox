@@ -413,6 +413,8 @@
         "Name": {
           "en": "Adverb"
         },
+        "Abbreviation": {},
+        "Description": {},
         "Predefined": true
       }
     },
@@ -692,6 +694,8 @@
           "Name": {
             "en": "Adverb"
           },
+          "Abbreviation": {},
+          "Description": {},
           "Predefined": true
         },
         "PartOfSpeechId": "Guid_36",

@@ -79,6 +79,8 @@
       "Name": {
         "en": "Adverb"
       },
+      "Abbreviation": {},
+      "Description": {},
       "DeletedAt": null,
       "Predefined": true
     }

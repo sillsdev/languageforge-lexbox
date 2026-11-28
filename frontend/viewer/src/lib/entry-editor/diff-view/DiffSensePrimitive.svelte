@@ -44,7 +44,7 @@
     const id = sense?.partOfSpeechId;
     if (!id) return undefined;
     if (sense.partOfSpeech?.id === id) return sense.partOfSpeech;
-    return partsOfSpeech.current.find((pos) => pos.id === id) ?? {id, name: {}, predefined: false};
+    return partsOfSpeech.current.find((pos) => pos.id === id) ?? {id, name: {}, abbreviation: {}, description: {}, predefined: false};
   }
 </script>
 

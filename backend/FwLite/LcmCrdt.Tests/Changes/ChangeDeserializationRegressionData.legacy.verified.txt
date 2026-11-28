@@ -1782,5 +1782,31 @@
       },
       "EntityId": "2c502649-3304-0b5f-931b-33be6af4048b"
     }
+  },
+  {
+    "Input": {
+      "$type": "CreatePartOfSpeechChange",
+      "Name": {
+        "txh": "logistical",
+        "xcc": "International",
+        "guh": "Hryvnia",
+        "dbq": "parse"
+      },
+      "Predefined": true,
+      "EntityId": "6258cf11-4451-1362-a5a8-8cca65548880"
+    },
+    "Output": {
+      "$type": "CreatePartOfSpeechChange",
+      "Name": {
+        "txh": "logistical",
+        "xcc": "International",
+        "guh": "Hryvnia",
+        "dbq": "parse"
+      },
+      "Predefined": true,
+      "Abbreviation": {},
+      "Description": {},
+      "EntityId": "6258cf11-4451-1362-a5a8-8cca65548880"
+    }
   }
 ]

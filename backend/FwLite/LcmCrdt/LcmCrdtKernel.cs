@@ -531,7 +531,10 @@ public static class LcmCrdtKernel
             .Add(2, "Plugins", v => v
                 .Change<CreatePluginChange>()
                 .Change<EditPluginChange>()
-                .Change<DeleteChange<Plugin>>());
+                .Change<DeleteChange<Plugin>>())
+            .Add(3, "Part of speech abbreviation and description", v => v
+                .Change<CreatePartOfSpeechChange>()
+                .Change<JsonPatchChange<PartOfSpeech>>());
 
         // Attach the legacy ExampleSentence translation modifier via Harmony's deferred JSON hook.
         // Do NOT read config.JsonSerializerOptions directly here: SIL.Harmony now freezes the

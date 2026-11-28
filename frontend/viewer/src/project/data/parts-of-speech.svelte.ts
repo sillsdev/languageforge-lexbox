@@ -33,7 +33,7 @@ export class PartOfSpeechService {
     return this.current;
   }
 
-  getLabel(pos: IPartOfSpeech): string {
+  getLabel(pos: Pick<IPartOfSpeech, 'name'>): string {
     return this.writingSystemService.pickBestAlternative(pos.name, 'analysis');
   }
 }
